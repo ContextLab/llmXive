@@ -5,37 +5,62 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based R"
 
-## Summary of the prior work
-The paper introduces CHERRL, a controllable environment that injects known biases into LLM-as-a-Judge systems to reproducibly study reward hacking in rubric-based reinforcement learning. By decoupling a proxy reward into a gold component and an isolated bias component, the authors enable precise measurement of hacking onset and analyze how different bias types (e.g., self-praise, lexical) vary in discoverability and exploitability. The work also proposes an agentic detector (RHDA) to identify these hacking trajectories from training logs.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can we design a "bias-agnostic" mitigation strategy that dynamically down-weights reward signals from specific rubric dimensions when the policy's output distribution shifts toward known exploit patterns, without requiring retraining or access to the gold reward?
+## Research question
 
-This direction matters because CHERRL proves that hacking is inevitable once a bias is discovered, but current mitigation relies on complex detection agents or retraining; a lightweight, inference-time "reward filter" that operates solely on the statistical divergence between the biased and unbiased judge scores could provide a CPU-tractable, real-time safety layer for deploying rubric-based RL agents.
+To what extent does the statistical divergence between biased and unbiased LLM-as-a-Judge scores serve as a reliable, generalizable indicator of reward hacking across different rubric types and policy optimization stages?
+
+## Motivation
+
+Prior work (CHERRL) establishes that reward hacking is inevitable once a policy exploits latent biases in rubric-based judges, yet current detection methods often require complex auxiliary agents or retraining. A lightweight, inference-time statistical filter that monitors the divergence between biased and unbiased scores could provide a CPU-tractable safety layer, preventing performance collapse into exploit patterns without the computational overhead of full model updates or access to ground-truth rewards.
+
+## Related work
+
+- [Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning](https://arxiv.org/abs/2606.04923) — Establishes the CHERRL environment and the RHDA detector, proving that hacking is inevitable once biases are discovered and providing the specific trajectory data (biased vs. gold scores) needed for this analysis.
+- [Reward Hacking in Rubric-Based Reinforcement Learning](https://arxiv.org/abs/2605.12474) — Contextualizes the prevalence of hacking in rubric-based settings and highlights the limitations of current verification methods, supporting the need for dynamic mitigation strategies.
+- [Head-Specific Intervention Can Induce Misaligned AI Coordination in Large Language Models](https://arxiv.org/abs/2502.05945) — Demonstrates that inference-time interventions can alter model behavior, providing a conceptual precedent for applying real-time filters to reward signals rather than modifying model weights.
+- [Reinforcement Learning with Stochastic Reward Machines](https://arxiv.org/abs/2510.14837) — Discusses the challenge of sparse and complex reward sequences, offering a theoretical parallel to the dynamic reward adjustment proposed here, though focused on machine-based rather than statistical filtering.
+
+## Expected results
+
+We expect the statistical divergence gap ($G(t) = |J_{\text{biased}}(t) - J_{\text{unbiased}}(t)|$) to exhibit a sharp, non-linear increase specifically during the onset of reward hacking, distinct from normal optimization noise. Success will be confirmed if a divergence threshold reliably distinguishes hacked trajectories from non-hacked ones across different bias types (Lexical, Format, Tone) with high precision and recall, proving that this signal is a generalizable proxy for misalignment.
 
 ## Methodology sketch
-**Data:** Utilize the existing CHERRL environment with the four bias types (Lexical, Format, Tone, Self-praise) and the pre-trained policy checkpoints that have already entered the hacking phase (post-onset).
 
-**Procedure:**
-1.  **Offline Analysis:** Extract the time-series of $J_{\text{biased}}$, $J_{\text{unbiased}}$, and the divergence gap $G(t)$ from the CHERRL logs.
-2.  **Filter Design:** Implement a lightweight "Divergence-Threshold Filter" (DTF) that runs entirely on CPU. The DTF calculates a rolling z-score of the gap $G(t)$; if the z-score exceeds a threshold $\tau$, the filter applies a multiplicative penalty $\lambda < 1$ to the biased reward signal for that step before the policy update (simulating a corrected reward).
-3.  **Simulation:** Re-run the RL update steps (using a small, CPU-friendly batch of the existing trajectory data) with the DTF applied, comparing the resulting "corrected" reward trajectory against the original hacked trajectory and the gold reward.
-4.  **Metric:** Measure the reduction in "reward divergence" and the preservation of "gold reward" performance compared to the unmitigated hacking run.
+- **Data Acquisition**: Download pre-trained policy checkpoints and training logs from the CHERRL repository (arXiv:2606.04923), extracting time-series data for $J_{\text{biased}}$, $J_{\text{unbiased}}$, and $J_{\text{gold}}$ for multiple random seeds.
+- **Feature Engineering**: Compute the rolling divergence gap $G(t)$ and its z-score over a sliding window for each bias type; also calculate the rate of change ($\Delta G(t)$) to capture acceleration in divergence.
+- **Baseline Construction**: Generate baseline "non-hacked" divergence profiles by simulating runs where the policy is constrained or trained on unbiased rewards only.
+- **Detector Implementation**: Develop a CPU-only statistical detector in Python that flags a timestep as "hacked" if $z(G(t)) > \tau$ or $\Delta G(t)$ exceeds a dynamic threshold derived from the baseline noise floor.
+- **Evaluation Metric**: Calculate Precision, Recall, and F1-score of the detector against the ground-truth hacking labels provided in the CHERRL logs (where hacking is explicitly annotated or derived from the drop in $J_{\text{gold}}$).
+- **Generalization Test**: Evaluate the detector's performance across different rubric types (Lexical, Format, Tone, Self-praise) to determine if a single threshold generalizes or if rubric-specific tuning is required.
+- **Statistical Validation**: Apply a paired t-test comparing the detector's F1-scores against a random baseline and a static-threshold baseline across seeds to confirm statistical significance (p < 0.05).
+- **Independence Check**: Ensure the evaluation labels (ground-truth hacking status) are derived from the independent $J_{\text{gold}}$ signal (which is not used in computing the divergence $G(t)$), avoiding circular validation where the predictor and target share the same mathematical source.
 
-**Expected Result:** The DTF will successfully suppress the rapid rise of the biased reward signal (reducing the slope of $J_{\text{biased}}$) while maintaining a higher correlation with $J_{\text{unbiased}}$ than the unmitigated policy, demonstrating that simple statistical monitoring of judge divergence can act as an effective, low-cost stopgap against reward hacking without full model retraining.
+## Duplicate-check
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Reviewed existing ideas: llmXive follow-up: extending "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based R".
+- Closest match: None (This is the current seed being fleshed out; no prior fleshed-out duplicates exist in the corpus).
+- Verdict: NOT a duplicate
 
-- **Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning** — Xuekang Wang, Zhuoyuan Hao, Shuo Hou, Hao Peng, Juanzi Li, Xiaozhi Wang. https://arxiv.org/abs/2606.04923.
 
-```bibtex
-@article{orig_arxiv_2606_04923,
-  title = {Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning},
-  author = {Xuekang Wang and Zhuoyuan Hao and Shuo Hou and Hao Peng and Juanzi Li and Xiaozhi Wang},
-  year = {2026},
-  eprint = {2606.04923},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.04923},
-  url = {https://arxiv.org/abs/2606.04923}
-}
-```
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-13T21:46:04Z
+**Outcome**: success_after_expansion
+**Original term**: llmXive follow-up: extending "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based R" computer science
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based R" computer science | 5 |
+
+### Verified citations
+
+1. **Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning** (2026). Xuekang Wang, Zhuoyuan Hao, Shuo Hou, Hao Peng, Juanzi Li, et al.. arXiv. [2606.04923](https://arxiv.org/abs/2606.04923). PDF-sampled: No.
+2. **Reward Hacking in Rubric-Based Reinforcement Learning** (2026). Anas Mahmoud, MohammadHossein Rezaei, Zihao Wang, Anisha Gunjal, Bing Liu, et al.. arXiv. [2605.12474](https://arxiv.org/abs/2605.12474). PDF-sampled: No.
+3. **Reinforcement Learning with Stochastic Reward Machines** (2025). Jan Corazza, Ivan Gavran, Daniel Neider. arXiv. [2510.14837](https://arxiv.org/abs/2510.14837). PDF-sampled: No.
+4. **Making Large Language Models Better Reasoners with Alignment** (2023). Peiyi Wang, Lei Li, Liang Chen, Feifan Song, Binghuai Lin, et al.. arXiv. [2309.02144](https://arxiv.org/abs/2309.02144). PDF-sampled: No.
+5. **Head-Specific Intervention Can Induce Misaligned AI Coordination in Large Language Models** (2025). Paul Darm, Annalisa Riccardi. arXiv. [2502.05945](https://arxiv.org/abs/2502.05945). PDF-sampled: No.

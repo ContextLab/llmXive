@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.14837",
+  "judged_at": "2026-07-13T21:44:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"reproducing, analyzing, and detecting reward hacking in rubric-based r\" computer science",
+  "rationale": "This paper satisfies criterion (a) by addressing the core mechanism of \"reward hacking\" and \"rubric-based\" reward specification (via reward machines) in the presence of noise, which is the fundamental challenge the user's follow-up research on detecting and analyzing reward hacking seeks to extend. It also fits criterion (d) as a foundational methodology paper for handling complex, sequence-dependent reward structures in RL, a necessary context for any study on reward hacking in rubric-based sys",
+  "relevant": true
+}

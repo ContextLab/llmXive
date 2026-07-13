@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.10793",
+  "judged_at": "2026-07-13T21:45:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"reproducing, analyzing, and detecting reward hacking in rubric-based r\" computer science",
+  "rationale": "The paper focuses on the effects of instruction dataset mixing on general LLM performance, which is a distinct construct from the user's specific question about \"reward hacking\" in \"rubric-based\" reinforcement learning. While both fall under the broad domain of LLM fine-tuning, the candidate paper does not measure the same mechanism (reward hacking), variables (rubric adherence vs. dataset composition), or empirical setting required by the user's query, failing to meet criteria (a) or (b).",
+  "relevant": false
+}

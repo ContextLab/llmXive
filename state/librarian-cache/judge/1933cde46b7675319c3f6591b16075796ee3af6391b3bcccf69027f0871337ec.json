@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.04923",
+  "judged_at": "2026-07-13T21:44:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"reproducing, analyzing, and detecting reward hacking in rubric-based r\" computer science",
+  "rationale": "This paper is the foundational work that the user's \"llmXive follow-up\" explicitly references in its title, establishing the canonical baseline for reproducing and analyzing reward hacking in rubric-based RL (Category c). It defines the core mechanism, variables, and experimental environment (CHERRL) that any subsequent research on this specific topic must cite and build upon (Category d).",
+  "relevant": true
+}

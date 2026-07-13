@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics Schema"
+description: "Schema for the aggregated evaluation results per bias type, including statistical test results and threshold type."
+type: "object"
+properties:
+  bias_type:
+    type: "string"
+    description: "Rubric type."
+    enum:
+      - "Lexical"
+      - "Format"
+      - "Tone"
+      - "Self-praise"
+  precision:
+    type: "number"
+    description: "Precision score (TP / (TP + FP))."
+    minimum: 0
+    maximum: 1
+  recall:
+    type: "number"
+    description: "Recall score (TP / (TP + FN))."
+    minimum: 0
+    maximum: 1
+  f1_score:
+    type: "number"
+    description: "F1-score (harmonic mean of precision and recall)."
+    minimum: 0
+    maximum: 1
+  t_statistic:
+    type: "number"
+    description: "Test statistic from Wilcoxon signed-rank test (primary) or t-test (secondary)."
+  p_value:
+    type: "number"
+    description: "P-value from statistical test (unadjusted)."
+    minimum: 0
+    maximum: 1
+  p_value_corrected:
+    type: "number"
+    description: "FDR-corrected p-value (Benjamini-Hochberg)."
+    minimum: 0
+    maximum: 1
+  effect_size:
+    type: "number"
+    description: "Cohen's d (t-test) or rank-biserial correlation (Wilcoxon)."
+  test_method:
+    type: "string"
+    description: "Statistical test method used."
+    enum:
+      - "Wilcoxon"
+      - "t-test"
+  threshold_type:
+    type: "string"
+    description: "Whether a universal or rubric-specific threshold was used."
+    enum:
+      - "universal"
+      - "rubric-specific"
+  baseline_method:
+    type: "string"
+    description: "Baseline method being compared to."
+    enum:
+      - "random-guess"
+      - "mean-divergence"
+required:
+  - bias_type
+  - precision
+  - recall
+  - f1_score
+  - t_statistic
+  - p_value
+  - p_value_corrected
+  - effect_size
+  - test_method
+  - threshold_type
+  - baseline_method
+additionalProperties: false

@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Trajectory Divergence Schema"
+description: "Schema for the processed trajectory data containing divergence signals, detector labels, and sensitivity analysis metadata."
+type: "object"
+properties:
+  timestep:
+    type: "integer"
+    description: "Training step index."
+  seed_id:
+    type: "string"
+    description: "Random seed identifier (e.g., 'seed_01')."
+  bias_type:
+    type: "string"
+    description: "Rubric type: 'Lexical', 'Format', 'Tone', 'Self-praise'."
+    enum:
+      - "Lexical"
+      - "Format"
+      - "Tone"
+      - "Self-praise"
+  J_biased:
+    type: "number"
+    description: "Biased reward score."
+  J_unbiased:
+    type: "number"
+    description: "Unbiased reward score."
+  J_gold:
+    type: "number"
+    description: "Independent gold reward score."
+  G_t:
+    type: "number"
+    description: "Divergence gap: |J_biased - J_unbiased|."
+  dG_t:
+    type: "number"
+    description: "Rate of change: G(t) - G(t-1)."
+  z_score:
+    type: "number"
+    description: "Rolling z-score of G(t) (window size from sensitivity analysis)."
+  hacked_label:
+    type: "integer"
+    description: "Binary label: 1 if hacked, 0 otherwise."
+    minimum: 0
+    maximum: 1
+  normality_test_p_value:
+    type: "number"
+    description: "P-value from Kolmogorov-Smirnov test (per rubric type)."
+    minimum: 0
+    maximum: 1
+  detection_method:
+    type: "string"
+    description: "Detection method used: 'z-score' (normal) or 'iqr' (non-normal fallback)."
+    enum:
+      - "z-score"
+      - "iqr"
+  window_size:
+    type: "integer"
+    description: "Actual window size used (from sensitivity analysis)."
+    minimum: 1
+  z_threshold:
+    type: "number"
+    description: "Actual z-score threshold used (from sensitivity analysis)."
+required:
+  - timestep
+  - seed_id
+  - bias_type
+  - J_biased
+  - J_unbiased
+  - J_gold
+  - G_t
+  - dG_t
+  - z_score
+  - hacked_label
+  - normality_test_p_value
+  - detection_method
+  - window_size
+  - z_threshold
+additionalProperties: false

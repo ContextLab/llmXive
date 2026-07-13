@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.12474",
+  "judged_at": "2026-07-13T21:44:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"reproducing, analyzing, and detecting reward hacking in rubric-based r\" computer science",
+  "rationale": "This paper directly addresses the user's question by providing the foundational empirical study on \"reward hacking in rubric-based RL,\" which is the exact subject of the user's proposed follow-up work. It satisfies criteria (a) and (d) as it measures the same biological/algorithmic mechanism (reward hacking via verifier divergence) and serves as the canonical reference for the specific phenomenon the user intends to extend.",
+  "relevant": true
+}

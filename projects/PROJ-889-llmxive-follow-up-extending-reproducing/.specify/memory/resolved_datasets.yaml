@@ -1,0 +1,87 @@
+resolved_at: '2026-07-13T21:55:09.385160+00:00'
+datasets:
+- intent: F1-score
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/665739b1f306678f3885aeb8/0cebcd75e7634e316f7de65c230d66a5b81c1ae70b3b5ea204d46ca29a20ef53?Expires=1783983267&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2NTczOWIxZjMwNjY3OGYzODg1YWViOC8wY2ViY2Q3NWU3NjM0ZTMxNmY3ZGU2NWMyMzBkNjZhNWI4MWMxYWU3MGIzYjVlYTIwNGQ0NmNhMjlhMjBlZjUzKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4MzI2N319fV19&Signature=MEQCIFwQK8huyy8y2V3~vsrR1P04banmE3CsmXEPdTdO~SW8AiA0QkH~9zeh5Mu40Ni1NflwMdkF6oatKsekRoaRtYbkpQ__&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T215427Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2b6efb0bb7721d46c5928af16d05167559e21335d89b8f22db6677617ee45a31
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/66574d53cd2afeb13ae55bb4/7e10f8a94b5fbd27cc1c7b0960da437bcaf46b4749b4b12c5f0b923fbf92d70e?Expires=1783983267&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2NTc0ZDUzY2QyYWZlYjEzYWU1NWJiNC83ZTEwZjhhOTRiNWZiZDI3Y2MxYzdiMDk2MGRhNDM3YmNhZjQ2YjQ3NDliNGIxMmM1ZjBiOTIzZmJmOTJkNzBlKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4MzI2N319fV19&Signature=MEUCICXH1yrzkJCl70imqb2taJ-RU7Td~BzXC9NQKi9ZEl26AiEAt~kfIHfJJmDWJrVJAEkXFru8k-nlRl1uhRZPSPNC-ic_&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T215427Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f9cb5c875a82afde77d07a6f6ae8342e91892dce12059433df36ce254b582b04
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/66575dda74fbe220e9cc638c/5bd0878a97c795e315f9c8732b5af1cd31e361e40debc208ea49576184218af6?Expires=1783983267&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2NTc1ZGRhNzRmYmUyMjBlOWNjNjM4Yy81YmQwODc4YTk3Yzc5NWUzMTVmOWM4NzMyYjVhZjFjZDMxZTM2MWU0MGRlYmMyMDhlYTQ5NTc2MTg0MjE4YWY2KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4MzI2N319fV19&Signature=MEUCIQD0NeMgRZUHxpypC92eZmEb8C1KRLcMGkIO56pnG~BwbwIgUjL-3mJ5qq88dwdc8cu7mL1MODU~8-4RxjNSz4rdmWc_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T215427Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=360ce7cd49ef38610f9177ae29dd960881930516df3eb15b47bdc8d84145f659
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/665826f53b2fcd025537a6ef/68f3a80eff63348e326d4d3d24ce1485e113aae69f195896c12e0d24de7fbfb3?Expires=1783983267&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2NTgyNmY1M2IyZmNkMDI1NTM3YTZlZi82OGYzYTgwZWZmNjMzNDhlMzI2ZDRkM2QyNGNlMTQ4NWUxMTNhYWU2OWYxOTU4OTZjMTJlMGQyNGRlN2ZiZmIzKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4MzI2N319fV19&Signature=MEUCIFXeVejM3OXsEHklytvqsjFD~iHBNozM3EdDv9fHsW18AiEA7VTq9Ig-m8LACmlmTrVcRYqxNCKALUdDZtgxX4DsDfg_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T215427Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5d7c003d7432ca6ac59f9e3e0366063a2e537e9febf15a7366ab400490167c3d
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6658373c4b2e5e648ee4df0c/b862ee71c45c774601310ef05127e463f03f0eaf0cddf8076495ca56e648527b?Expires=1783983268&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2NTgzNzNjNGIyZTVlNjQ4ZWU0ZGYwYy9iODYyZWU3MWM0NWM3NzQ2MDEzMTBlZjA1MTI3ZTQ2M2YwM2YwZWFmMGNkZGY4MDc2NDk1Y2E1NmU2NDg1MjdiKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4MzI2OH19fV19&Signature=MEUCIQCWU0G66M8pS9y4hqqzu5UwOMVSYqpyzxA9UBj2Z-y9jgIgKDU8y-J6WtLdJngu4XDqWJo58BTHxFePiXMRgwrQ1uw_&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T215428Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=fe4ac74fd1d0f2b4fd1f047639668eac13fc51db526b48e02b046475e1984ad5
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://figshare.com/articles/dataset/Data_and_code_to_reproduce_Solano_et_al_2026_Mosquito_population_dynamics_are_shaped_by_interactions_among_larval_density_temperature_and_relative_humidity_/25804639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Five-Year_Total_Cost_of_Ownership_Model_for_Software-Defined_and_Hardware_Video-Wall_Controllers_in_Control-Room_Environments/32978702
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Datasets_-_PJ_Bird-Fire_Analysis/31855933
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_p_dir_ltr_Turn-Taking_in_grooming_interactions_of_sooty_mangabeys_i_Cercocebus_atys_i_in_the_wild_p_/29304983
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Improving_parameter_estimation_and_order_selection_for_beta_mixture_models/32978708
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1753520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.15802/stp2025/325888
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''stp.ust.edu.ua'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/18063014
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijai.iaescore.com/index.php/IJAI/article/view/26268
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6936930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21345805
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21345805
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21345376
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21345376
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21002764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

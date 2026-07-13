@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.02144",
+  "judged_at": "2026-07-13T21:45:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"reproducing, analyzing, and detecting reward hacking in rubric-based r\" computer science",
+  "rationale": "This paper addresses the user's question by investigating \"Assessment Misalignment\" where models assign higher scores to subpar reasoning chains, which is a specific form of reward hacking in rubric-based evaluation systems (Category a). It provides canonical prior work on the mechanism of reward misalignment in reasoning tasks, which is essential for a literature review on detecting and analyzing such hacking behaviors.",
+  "relevant": true
+}

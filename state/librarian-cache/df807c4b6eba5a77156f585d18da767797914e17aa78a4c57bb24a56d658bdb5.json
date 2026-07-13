@@ -1,0 +1,748 @@
+{
+  "fetched_at": "2026-07-13T21:45:20Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based R\"",
+      "target_n": 5
+    },
+    "duration_seconds": 127.329,
+    "ended_at": "2026-07-13T21:45:20Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Reward hacking in rubric-based reinforcement learning"
+        ],
+        [
+          2,
+          "Specification gaming in large language model alignment"
+        ],
+        [
+          3,
+          "Detecting reward misalignment in LLM fine-tuning"
+        ],
+        [
+          4,
+          "Robustness of rubric-based reward functions"
+        ],
+        [
+          5,
+          "Adversarial exploitation of automated evaluation metrics"
+        ],
+        [
+          6,
+          "Goal misgeneralization in reinforcement learning from human feedback"
+        ],
+        [
+          7,
+          "Verifying reward model integrity in RLHF systems"
+        ],
+        [
+          8,
+          "Pathological optimization in language model training"
+        ],
+        [
+          9,
+          "Detecting deceptive alignment in large language models"
+        ],
+        [
+          10,
+          "Failures of rule-based reward shaping in RL"
+        ],
+        [
+          11,
+          "Metric gaming in automated code or text generation"
+        ],
+        [
+          12,
+          "Safety evaluation of rubric-constrained LLM agents"
+        ],
+        [
+          13,
+          "Reproducibility of reward hacking phenomena in AI"
+        ],
+        [
+          14,
+          "Robustness analysis of natural language reward signals"
+        ],
+        [
+          15,
+          "Over-optimization of language model reward functions"
+        ],
+        [
+          16,
+          "Identifying shortcut learning in reward-based LLM training"
+        ],
+        [
+          17,
+          "Mitigation strategies for specification gaming in AI systems"
+        ],
+        [
+          18,
+          "Analysis of reward model brittleness in generative AI"
+        ],
+        [
+          19,
+          "Formal verification of rubric-based reward constraints"
+        ],
+        [
+          20,
+          "Emergent instrumental convergence in language model agents"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Reward hacking in rubric-based reinforcement learning": 4,
+        "Specification gaming in large language model alignment": 5,
+        "llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based R\" computer science": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "specification gaming reward hacking",
+      "RubricBench alignment dataset",
+      "inner alignment AI safety",
+      "reward model calibration metrics",
+      "overoptimization dynamics goal misgeneralization"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2502.05945"
+      ]
+    },
+    "per_query_hit_count": {
+      "RubricBench alignment dataset": 3,
+      "inner alignment AI safety": 3,
+      "llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based R\" computer science": 3,
+      "overoptimization dynamics goal misgeneralization": 3,
+      "reward model calibration metrics": 2,
+      "specification gaming reward hacking": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2602.12375",
+          "rationale": "The paper focuses on general exploration mechanisms in reinforcement learning (specifically value bonuses and ensemble errors) and does not address the specific domain of \"reward hacking,\" \"rubric-based reward modeling,\" or the detection of such behaviors in LLMs, which are the core constructs of the user's question. While both fields fall under the broad umbrella of RL, the paper lacks the specific mechanism (reward hacking detection) or the specific domain (rubric-based LLM evaluation) require",
+          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2312.10793",
+          "rationale": "The paper focuses on the effects of instruction dataset mixing on general LLM performance, which is a distinct construct from the user's specific question about \"reward hacking\" in \"rubric-based\" reinforcement learning. While both fall under the broad domain of LLM fine-tuning, the candidate paper does not measure the same mechanism (reward hacking), variables (rubric adherence vs. dataset composition), or empirical setting required by the user's query, failing to meet criteria (a) or (b).",
+          "title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models"
+        },
+        {
+          "primary_pointer": "2402.11651",
+          "rationale": "The paper focuses on improving agent performance by learning from failed trajectories (negative examples), which is a distinct optimization strategy from the user's specific question about \"reward hacking\" in rubric-based reinforcement learning. While both topics involve LLM alignment and agent behavior, the candidate paper does not measure, analyze, or detect the specific mechanism of reward hacking (gaming the reward function) nor does it address the rubric-based evaluation context central to ",
+          "title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents"
+        },
+        {
+          "primary_pointer": "2304.12244",
+          "rationale": "The paper focuses on instruction data generation and model fine-tuning to improve instruction-following capabilities, which is a distinct construct from the user's specific question about detecting and analyzing \"reward hacking\" in rubric-based reinforcement learning. While both involve LLMs, the candidate paper does not measure the same mechanism (reward hacking), variables (rubric-based reward signals), or empirical setting (hacking detection) required by the user's query, and it does not fall",
+          "title": "WizardLM: Empowering large pre-trained language models to follow complex instructions"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T21:43:12Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"reproducing, analyzing, and detecting reward hacking in rubric-based r\" computer science",
+      "raw": "llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based R\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Given a log Calabi-Yau surface $Y$ with maximal boundary $D$ and distinguished complex structure, we explain how to construct a mirror Lefschetz fibration $w: M \\to \\mathbb{C}$, where $M$ is a Weinstein four-manifold, such that the directed Fukaya category of $w$ is isomorphic to $D^b \\text{Coh}(Y)$, and the wrapped Fukaya category $D^b\\mathcal{W} (M)$ is isomorphic to $D^b \\text{Coh}(Y \\backslash D)$. We construct an explicit isomorphism between $M$ and the total space of the almost-toric fibration arising in the work of Gross-Hacking-Keel; when $D$ is negative definite this is expected to be the Milnor fibre of a smoothing of the dual cusp of $D$. We also match our mirror potential $w$ with existing constructions for a range of special cases of $(Y,D)$, notably in work of Auroux-Katzarkov-Orlov and Abouzaid.",
+          "claimed_authors": [
+            "Paul Hacking",
+            "Ailsa Keating",
+            "Wendelin Lutz"
+          ],
+          "claimed_title": "Homological mirror symmetry for log Calabi-Yau surfaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.05010"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='Homological mirror symmetry for log Calabi-Yau surfaces')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reward models learned from human preferences are central to aligning large language models (LLMs) via reinforcement learning from human feedback, yet they are often vulnerable to reward hacking due to noisy annotations and systematic biases such as response length or style. We propose Bayesian Non-Negative Reward Model (BNRM), a principled reward modeling framework that integrates non-negative factor analysis into Bradley-Terry (BT) preference model. BNRM represents rewards through a sparse, non-negative latent factor generative process that operates at two complementary levels: instance-specific latent variables induce disentangled reward representations, while sparsity over global latent factors acts as an implicit debiasing mechanism that suppresses spurious correlations. Together, this disentanglement-then-debiasing structure enables robust uncertainty-aware reward learning. To scale BNRM to modern LLMs, we develop an amortized variational inference network conditioned on deep model representations, allowing efficient end-to-end training. Extensive empirical results demonstrate that BNRM substantially mitigates reward over-optimization, improves robustness under distribution shifts, and yields more interpretable reward decompositions than strong baselines.",
+          "claimed_authors": [
+            "Zhibin Duan",
+            "Guowei Rong",
+            "Zhuo Li",
+            "Bo Chen",
+            "Mingyuan Zhou",
+            "Dandan Guo"
+          ],
+          "claimed_title": "Mitigating Reward Hacking in RLHF via Bayesian Non-negative Reward Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.10623"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='Mitigating Reward Hacking in RLHF via Bayesian Non-negative Reward Modeling')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning from Human Feedback (RLHF) remains vulnerable to reward hacking, where models exploit spurious correlations in learned reward models to achieve high scores while violating human intent. Existing mitigations rely on static defenses that cannot adapt to novel exploitation strategies. We propose Adversarial Reward Auditing (ARA), a framework that reconceptualizes reward hacking as a dynamic, competitive game. ARA operates in two stages: first, a Hacker policy discovers reward model vulnerabilities while an Auditor learns to detect exploitation from latent representations; second, Auditor-Guided RLHF (AG-RLHF) gates reward signals to penalize detected hacking, transforming reward hacking from an unobservable failure into a measurable, controllable signal. Experiments across three hacking scenarios demonstrate that ARA achieves the best alignment-utility tradeoff among all baselines: reducing sycophancy to near-SFT levels while improving helpfulness, decreasing verbosity while achieving the highest ROUGE-L, and suppressing code gaming while improving Pass@1. Beyond single-domain evaluation, we show that reward hacking, detection, and mitigation all generalize across domains -- a Hacker trained on code gaming exhibits increased sycophancy despite no reward for this behavior, and an Auditor trained on one domain effectively suppresses exploitation in others, enabling efficient multi-domain defense with a single model.",
+          "claimed_authors": [
+            "Mohammad Beigi",
+            "Ming Jin",
+            "Junshan Zhang",
+            "Qifan Wang",
+            "Lifu Huang"
+          ],
+          "claimed_title": "Adversarial Reward Auditing for Active Detection and Mitigation of Reward Hacking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.01750"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='Adversarial Reward Auditing for Active Detection and Mitigation of Reward Hacking')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For humanity to maintain and expand its agency into the future, the most powerful systems we create must be those which act to align the future with the will of humanity. The most powerful systems today are massive institutions like governments, firms, and NGOs. Deliberative technology is already being used across these institutions to help align governance and diplomacy with human will, and modern AI is poised to make this technology significantly better. At the same time, the race to superhuman AGI is already underway, and the AI systems it gives rise to may become the most powerful systems of the future. Failure to align the impact of such powerful AI with the will of humanity may lead to catastrophic consequences, while success may unleash abundance. Right now, there is a window of opportunity to use deliberative technology to align the impact of powerful AI with the will of humanity. Moreover, it may be possible to engineer a symbiotic coupling between powerful AI and deliberative alignment systems such that the quality of alignment improves as AI capabilities increase.",
+          "claimed_authors": [
+            "Andrew Konya",
+            "Deger Turan",
+            "Aviv Ovadya",
+            "Lina Qui",
+            "Daanish Masood",
+            "Flynn Devine",
+            "Lisa Schirch",
+            "Isabella Roberts",
+            "Deliberative Alignment Forum"
+          ],
+          "claimed_title": "Deliberative Technology for Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.03893"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='Deliberative Technology for Alignment')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Safety has become the central value around which dominant AI governance efforts are being shaped. Recently, this culminated in the publication of the International AI Safety Report, written by 96 experts of which 30 nominated by the Organisation for Economic Co-operation and Development (OECD), the European Union (EU), and the United Nations (UN). The report focuses on the safety risks of general-purpose AI and available technical mitigation approaches. In this response, informed by a system safety perspective, I refl ect on the key conclusions of the report, identifying fundamental issues in the currently dominant technical framing of AI safety and how this frustrates meaningful discourse and policy efforts to address safety comprehensively. The system safety discipline has dealt with the safety risks of software-based systems for many decades, and understands safety risks in AI systems as sociotechnical and requiring consideration of technical and non-technical factors and their interactions. The International AI Safety report does identify the need for system safety approaches. Lessons, concepts and methods from system safety indeed provide an important blueprint for overcoming current shortcomings in technical approaches by integrating rather than adding on non-technical factors and interventions. I conclude with why building a system safety discipline can help us overcome limitations in the European AI Act, as well as how the discipline can help shape sustainable investments into Public Interest AI.",
+          "claimed_authors": [
+            "Roel Dobbe"
+          ],
+          "claimed_title": "AI Safety is Stuck in Technical Terms -- A System Safety Response to the International AI Safety Report",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.04743"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='AI Safety is Stuck in Technical Terms -- A System Safety Response to the International AI Safety Report')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rapid rise of open-weight and open-source foundation models is intensifying the obligation and reshaping the opportunity to make AI systems safe. This paper reports outcomes from the Columbia Convening on AI Openness and Safety (San Francisco, 19 Nov 2024) and its six-week preparatory programme involving more than forty-five researchers, engineers, and policy leaders from academia, industry, civil society, and government. Using a participatory, solutions-oriented process, the working groups produced (i) a research agenda at the intersection of safety and open source AI; (ii) a mapping of existing and needed technical interventions and open source tools to safely and responsibly deploy open foundation models across the AI development workflow; and (iii) a mapping of the content safety filter ecosystem with a proposed roadmap for future research and development. We find that openness -- understood as transparent weights, interoperable tooling, and public governance -- can enhance safety by enabling independent scrutiny, decentralized mitigation, and culturally plural oversight. However, significant gaps persist: scarce multimodal and multilingual benchmarks, limited defenses against prompt-injection and compositional attacks in agentic systems, and insufficient participatory mechanisms for communities most affected by AI harms. The paper concludes with a roadmap of five priority research directions, emphasizing participatory inputs, future-proof content filters, ecosystem-wide safety infrastructure, rigorous agentic safeguards, and expanded harm taxonomies. These recommendations informed the February 2025 French AI Action Summit and lay groundwork for an open, plural, and accountable AI safety discipline.",
+          "claimed_authors": [
+            "Camille François",
+            "Ludovic Péran",
+            "Ayah Bdeir",
+            "Nouha Dziri",
+            "Will Hawkins",
+            "Yacine Jernite",
+            "Sayash Kapoor",
+            "Juliet Shen",
+            "Heidy Khlaaf",
+            "Kevin Klyman",
+            "Nik Marda",
+            "Marie Pellat",
+            "Deb Raji",
+            "Divya Siddarth",
+            "Aviya Skowron",
+            "Joseph Spisak",
+            "Madhulika Srikumar",
+            "Victor Storchan",
+            "Audrey Tang",
+            "Jen Weedon"
+          ],
+          "claimed_title": "A Different Approach to AI Safety: Proceedings from the Columbia Convening on Openness in Artificial Intelligence and AI Safety",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.22183"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='A Different Approach to AI Safety: Proceedings from the Columbia Convening on Openness in Artificial Intelligence and AI Safety')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Introduction. AI Ethics is framed distinctly across actors and stakeholder groups. We report results from a case study of OpenAI analysing ethical AI discourse. Method. Research addressed: How has OpenAI's public discourse leveraged 'ethics', 'safety', 'alignment' and adjacent related concepts over time, and what does discourse signal about framing in practice? A structured corpus, differentiating between communication for a general audience and communication with an academic audience, was assembled from public documentation. Analysis. Qualitative content analysis of ethical themes combined inductively derived and deductively applied codes. Quantitative analysis leveraged computational content analysis methods via NLP to model topics and quantify changes in rhetoric over time. Visualizations report aggregate results. For reproducible results, we have released our code at https://github.com/famous-blue-raincoat/AI_Ethics_Discourse. Results. Results indicate that safety and risk discourse dominate OpenAI's public communication and documentation, without applying academic and advocacy ethics frameworks or vocabularies. Conclusions. Implications for governance are presented, along with discussion of ethics-washing practices in industry.",
+          "claimed_authors": [
+            "Melissa Wilfley",
+            "Mengting Ai",
+            "Madelyn Rose Sanfilippo"
+          ],
+          "claimed_title": "Competing Visions of Ethical AI: A Case Study of OpenAI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.16513"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='Competing Visions of Ethical AI: A Case Study of OpenAI')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning from human feedback (RLHF) has emerged as the primary method for aligning large language models (LLMs) with human preferences. The RLHF process typically starts by training a reward model (RM) using human preference data. Conventional RMs are trained on pairwise responses to the same user request, with relative ratings indicating which response humans prefer. The trained RM serves as a proxy for human preferences. However, due to the black-box nature of RMs, their outputs lack interpretability, as humans cannot intuitively understand why an RM thinks a response is good or not. As RMs act as human preference proxies, we believe they should be human-interpretable to ensure that their internal decision processes are consistent with human preferences and to prevent reward hacking in LLM alignment. To build RMs with interpretable preferences, we propose a two-stage approach: i) train an Absolute-Rating Multi-Objective Reward Model (ArmoRM) with multi-dimensional absolute-rating data, each dimension corresponding to a human-interpretable objective (e.g., honesty, verbosity, safety); ii) employ a Mixture-of-Experts (MoE) strategy with a gating network that automatically selects the most suitable reward objectives based on the context. We efficiently trained an ArmoRM with Llama-3 8B and a gating network consisting of a shallow MLP on top of the ArmoRM. Our trained model, ArmoRM-Llama3-8B, obtains state-of-the-art performance on RewardBench, a benchmark evaluating RMs for language modeling. Notably, the performance of our model surpasses the LLM-as-a-judge method with GPT-4 judges by a margin, and approaches the performance of the much larger Nemotron-4 340B reward model.",
+          "claimed_authors": [
+            "Haoxiang Wang",
+            "Wei Xiong",
+            "Tengyang Xie",
+            "Han Zhao",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.12845"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In reinforcement learning, specification gaming occurs when AI systems learn undesired behaviors that are highly rewarded due to misspecified training goals. Specification gaming can range from simple behaviors like sycophancy to sophisticated and pernicious behaviors like reward-tampering, where a model directly modifies its own reward mechanism. However, these more pernicious behaviors may be too complex to be discovered via exploration. In this paper, we study whether Large Language Model (LLM) assistants which find easily discovered forms of specification gaming will generalize to perform rarer and more blatant forms, up to and including reward-tampering. We construct a curriculum of increasingly sophisticated gameable environments and find that training on early-curriculum environments leads to more specification gaming on remaining environments. Strikingly, a small but non-negligible proportion of the time, LLM assistants trained on the full curriculum generalize zero-shot to directly rewriting their own reward function. Retraining an LLM not to game early-curriculum environments mitigates, but does not eliminate, reward-tampering in later environments. Moreover, adding harmlessness training to our gameable environments does not prevent reward-tampering. These results demonstrate that LLMs can generalize from common forms of specification gaming to more pernicious reward tampering and that such behavior may be nontrivial to remove.",
+          "claimed_authors": [
+            "Carson Denison",
+            "Monte MacDiarmid",
+            "Fazl Barez",
+            "David Duvenaud",
+            "Shauna Kravec",
+            "Samuel Marks",
+            "Nicholas Schiefer",
+            "Ryan Soklaski",
+            "Alex Tamkin",
+            "Jared Kaplan",
+            "Buck Shlegeris",
+            "Samuel R. Bowman",
+            "Ethan Perez",
+            "Evan Hubinger"
+          ],
+          "claimed_title": "Sycophancy to Subterfuge: Investigating Reward-Tampering in Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.10162"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='Sycophancy to Subterfuge: Investigating Reward-Tampering in Large Language Models')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative sequence models are often trained to plan motion in physical domains, from robotics to mechanical simulations. When constructing a dataset to train such a model, engineers may curate demonstrations to specify how trajectories should be distributed over a physical quantity like travel distance or mechanical energy. For example, a roboticist building a maze navigation agent might choose demonstrations whose travel distances cover a fixed range uniformly, hoping to constrain the agent's expected power usage. We find that standard deep learning can violate this intent: each generated trajectory can seem plausible on its own, but the aggregate distribution over the physical quantity is wrong. We call this failure physical misgeneralization, and develop an account of its mechanism. Using controlled synthetic tasks, we show that physical misgeneralization arises when local errors typical of the model class propagate through the physical measurement to shift the recovered distribution. We estimate these errors with a data deviation kernel, and we use it to predict which physical quantities gain or lose mass in both our synthetic and more applied maze navigation and double-pendulum motion tasks. Finally, our mechanistic interpretation helps identify which mitigation strategies are structurally promising, and we use it to propose a kernel-informed intervention.",
+          "claimed_authors": [
+            "Kento Nishi",
+            "Raphael Tang",
+            "Karun Kumar",
+            "Core Francisco Park",
+            "Hidenori Tanaka"
+          ],
+          "claimed_title": "Mechanisms of Misgeneralization in Physical Sequence Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.20299"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='Mechanisms of Misgeneralization in Physical Sequence Modeling')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Safe generalization in reinforcement learning requires not only that a learned policy acts capably in new situations, but also that it uses its capabilities towards the pursuit of the designer's intended goal. The latter requirement may fail when a proxy goal incentivizes similar behavior to the intended goal within the training environment, but not in novel deployment environments. This creates the risk that policies will behave as if in pursuit of the proxy goal, rather than the intended goal, in deployment -- a phenomenon known as goal misgeneralization. In this paper, we formalize this problem setting in order to theoretically study the possibility of goal misgeneralization under different training objectives. We show that goal misgeneralization is possible under approximate optimization of the maximum expected value (MEV) objective, but not the minimax expected regret (MMER) objective. We then empirically show that the standard MEV-based training method of domain randomization exhibits goal misgeneralization in procedurally-generated grid-world environments, whereas current regret-based unsupervised environment design (UED) methods are more robust to goal misgeneralization (though they don't find MMER policies in all cases). Our findings suggest that minimax expected regret is a promising approach to mitigating goal misgeneralization.",
+          "claimed_authors": [
+            "Karim Abdel Sadek",
+            "Matthew Farrugia-Roberts",
+            "Usman Anwar",
+            "Hannah Erlebach",
+            "Christian Schroeder de Witt",
+            "David Krueger",
+            "Michael Dennis"
+          ],
+          "claimed_title": "Mitigating Goal Misgeneralization via Minimax Regret",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.03068"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='Mitigating Goal Misgeneralization via Minimax Regret')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study goal misgeneralization, a type of out-of-distribution generalization failure in reinforcement learning (RL). Goal misgeneralization failures occur when an RL agent retains its capabilities out-of-distribution yet pursues the wrong goal. For instance, an agent might continue to competently avoid obstacles, but navigate to the wrong place. In contrast, previous works have typically focused on capability generalization failures, where an agent fails to do anything sensible at test time. We formalize this distinction between capability and goal generalization, provide the first empirical demonstrations of goal misgeneralization, and present a partial characterization of its causes.",
+          "claimed_authors": [
+            "Lauro Langosco",
+            "Jack Koch",
+            "Lee Sharkey",
+            "Jacob Pfau",
+            "Laurent Orseau",
+            "David Krueger"
+          ],
+          "claimed_title": "Goal Misgeneralization in Deep Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.14111"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Reproducing, Analyzing, and Detecting Reward Hacki', candidate_title='Goal Misgeneralization in Deep Reinforcement Learning')",
+        "failed_at": "2026-07-13T21:44:34Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xuekang Wang",
+            "Zhuoyuan Hao",
+            "Shuo Hou",
+            "Hao Peng",
+            "Juanzi Li",
+            "Xiaozhi Wang"
+          ],
+          "title": "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.04923",
+        "summary": "Rubric-based reinforcement learning (RL) uses an LLM-as-a-Judge (LaaJ) to score model outputs according to rubrics as rewards. However, policy models may exploit latent biases in the judge, leading to reward hacking and ineffective or unsafe training outcomes. In real-world rubric-based RL, such hacking behaviors are often subtle and entangled with multiple judge biases, making them difficult to analyze, detect, and mitigate. In this paper, we introduce CHERRL, a controllable hacking environment for rubric-based RL. By injecting known biases into LaaJ, CHERRL enables stable reproduction of reward hacking, explicit observation of reward divergence, and precise identification of hacking onset. This provides a clean experimental testbed for studying the mechanisms and mitigations of reward hacking in rubric-based RL. To demonstrate its utility, we analyze different judge biases from the perspectives of discoverability and exploitability, and explore an agent-based system for automatically detecting reward hacking onset from training logs. The code and environment are publicly available at https://github.com/THUAIS-Lab/CHERRL.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.04923",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T21:44:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Anas Mahmoud",
+            "MohammadHossein Rezaei",
+            "Zihao Wang",
+            "Anisha Gunjal",
+            "Bing Liu",
+            "Yunzhong He"
+          ],
+          "title": "Reward Hacking in Rubric-Based Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.12474",
+        "summary": "Reinforcement learning with verifiable rewards has enabled strong post-training gains in domains such as math and coding, though many open-ended settings rely on rubric-based rewards. We study reward hacking in rubric-based RL, where a policy is optimized against a training verifier but evaluated against a cross-family panel of three frontier judges, reducing dependence on any single evaluator. Our framework separates two sources of divergence: verifier failure, where the training verifier credits rubric criteria that reference verifiers reject, and rubric-design limitations, where even strong rubric-based verifiers favor responses that rubric-free judges rate worse overall. Across medical and science domains, weak verifiers produce large proxy-reward gains that do not transfer to the reference verifiers; exploitation grows over training and concentrates in recurring failures such as partial satisfaction of compound criteria, treating implicit content as explicit, and imprecise topical matching. Stronger verifiers substantially reduce, but do not eliminate, verifier exploitation. We also introduce a self-internalization gap, a verifier-free diagnostic based on policy log-probabilities, which tracks reference-verifier quality, detecting when the policy trained using the weak verifier stops improving. Finally, in our setting, stronger verification does not prevent reward hacking when the rubric leaves important failure modes unspecified: rubric-based verifiers prefer the RL checkpoint, while rubric-free judges prefer the base model. These disagreements coincide with gains concentrated in completeness and presence-based criteria, alongside declines in factual correctness, conciseness, relevance, and overall quality. Together, these results suggest that stronger verification reduces reward hacking, but does not by itself ensure that rubric gains correspond to broader quality gains.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.12474",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T21:44:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jan Corazza",
+            "Ivan Gavran",
+            "Daniel Neider"
+          ],
+          "title": "Reinforcement Learning with Stochastic Reward Machines",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.14837",
+        "summary": "Reward machines are an established tool for dealing with reinforcement learning problems in which rewards are sparse and depend on complex sequences of actions. However, existing algorithms for learning reward machines assume an overly idealized setting where rewards have to be free of noise. To overcome this practical limitation, we introduce a novel type of reward machines, called stochastic reward machines, and an algorithm for learning them. Our algorithm, based on constraint solving, learns minimal stochastic reward machines from the explorations of a reinforcement learning agent. This algorithm can easily be paired with existing reinforcement learning algorithms for reward machines and guarantees to converge to an optimal policy in the limit. We demonstrate the effectiveness of our algorithm in two case studies and show that it outperforms both existing methods and a naive approach for handling noisy reward functions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.14837",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T21:44:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Peiyi Wang",
+            "Lei Li",
+            "Liang Chen",
+            "Feifan Song",
+            "Binghuai Lin",
+            "Yunbo Cao",
+            "Tianyu Liu",
+            "Zhifang Sui"
+          ],
+          "title": "Making Large Language Models Better Reasoners with Alignment",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.02144",
+        "summary": "Reasoning is a cognitive process of using evidence to reach a sound conclusion. The reasoning capability is essential for large language models (LLMs) to serve as the brain of the artificial general intelligence agent. Recent studies reveal that fine-tuning LLMs on data with the chain of thought (COT) reasoning process can significantly enhance their reasoning capabilities. However, we find that the fine-tuned LLMs suffer from an \\textit{Assessment Misalignment} problem, i.e., they frequently assign higher scores to subpar COTs, leading to potential limitations in their reasoning abilities. To address this problem, we introduce an \\textit{Alignment Fine-Tuning (AFT)} paradigm, which involves three steps: 1) fine-tuning LLMs with COT training data; 2) generating multiple COT responses for each question, and categorizing them into positive and negative ones based on whether they achieve the correct answer; 3) calibrating the scores of positive and negative responses given by LLMs with a novel constraint alignment loss. Specifically, the constraint alignment loss has two objectives: a) Alignment, which guarantees that positive scores surpass negative scores to encourage answers with high-quality COTs; b) Constraint, which keeps the negative scores confined to a reasonable range to prevent the model degradation. Beyond just the binary positive and negative feedback, the constraint alignment loss can be seamlessly adapted to the ranking situations when ranking feedback is accessible. Furthermore, we also delve deeply into recent ranking-based alignment methods, such as DPO, RRHF, and PRO, and discover that the constraint, which has been overlooked by these approaches, is also crucial for their performance. Extensive experiments on four reasoning benchmarks with both binary and ranking feedback demonstrate the effectiveness of AFT.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.02144",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T21:44:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Paul Darm",
+            "Annalisa Riccardi"
+          ],
+          "title": "Head-Specific Intervention Can Induce Misaligned AI Coordination in Large Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2502.05945",
+        "summary": "Robust alignment guardrails for large language models (LLMs) are becoming increasingly important with their widespread application. In contrast to previous studies, we demonstrate that inference-time activation interventions can bypass safety alignments and effectively steer model generations towards harmful AI coordination. Our method applies fine-grained interventions at specific attention heads, which we identify by probing each head in a simple binary choice task. We then show that interventions on these heads generalise to the open-ended generation setting, effectively circumventing safety guardrails. We demonstrate that intervening on a few attention heads is more effective than intervening on full layers or supervised fine-tuning. We further show that only a few example completions are needed to compute effective steering directions, which is an advantage over classical fine-tuning. We also demonstrate that applying interventions in the negative direction can prevent a common jailbreak attack. Our results suggest that, at the attention head level, activations encode fine-grained linearly separable behaviours. Practically, the approach offers a straightforward methodology to steer large language model behaviour, which could be extended to diverse domains beyond safety, requiring fine-grained control over the model output. The code and datasets for this study can be found on https://github.com/PaulDrm/targeted_intervention.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2502.05945",
+          "http_status": 200,
+          "pdf_sample_score": 0.3109,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T21:44:47Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"reproducing, analyzing, and detecting reward hacking in rubric-based r\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

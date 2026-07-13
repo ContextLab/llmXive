@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.11651",
+  "judged_at": "2026-07-13T21:45:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"reproducing, analyzing, and detecting reward hacking in rubric-based r\" computer science",
+  "rationale": "The paper focuses on improving agent performance by learning from failed trajectories (negative examples), which is a distinct optimization strategy from the user's specific question about \"reward hacking\" in rubric-based reinforcement learning. While both topics involve LLM alignment and agent behavior, the candidate paper does not measure, analyze, or detect the specific mechanism of reward hacking (gaming the reward function) nor does it address the rubric-based evaluation context central to ",
+  "relevant": false
+}
