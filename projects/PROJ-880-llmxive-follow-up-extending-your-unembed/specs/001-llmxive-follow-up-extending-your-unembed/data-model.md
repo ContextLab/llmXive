@@ -1,58 +1,93 @@
-# Data Model: llmXive Follow-up: Extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
+# Data Model: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
 
-## 1. Overview
+## Overview
 
-This document defines the data structures, file formats, and schema contracts for the llmXive follow-up project. All data is stored in `data/` and validated against `contracts/*.schema.yaml`.
+This document defines the data artifacts, schemas, and transformation logic for the `001-llmxive-crosslingual` feature. All data is stored in `projects/PROJ-880-llmxive-follow-up-extending-your-unembed/data/`.
 
-## 2. Data Flow
+## Artifact Lifecycle
 
-1.  **Raw Frequency Data**: Downloaded from Hugging Face (RedPajama, CC100).
-2.  **Model Weights**: Loaded from Hugging Face Hub (Llama-3, BLOOM, Qwen).
-3.  **Edge Spectrum**: SVD output (singular values, vectors) saved as CSV.
-4.  **Average Vectors**: Frequency-weighted sums saved as CSV.
-5.  **Alignment Results**: Procrustes rotation matrices and aligned vectors.
-6.  **Statistical Results**: Cosine similarities, p-values, and sensitivity analysis.
+1.  **Raw Data**: Downloaded from verified sources (RedPajama, OSCAR, WALS). Stored in `data/raw/`. Checksums recorded in `data/checksums.json`.
+2.  **Processed Data**: Frequency distributions, SVD results ($U_k$ matrices), token embeddings, and similarity matrices. Stored in `data/processed/`.
+3.  **Derived Artifacts**: Final JSON reports (similarity scores, p-values, token lists, WALS correlation). Stored in `data/reports/`.
+4.  **Code Artifacts**: Hashes of all source files in `code/` stored in `data/checksums.json`.
 
-## 3. File Specifications
+## Data Dictionary
 
-### 3.1 Frequency Lists
-*   **Path**: `data/raw/freq_{lang}.csv`
-*   **Format**: CSV with headers `token_id`, `token_str`, `frequency`.
-*   **Encoding**: UTF-8.
-*   **Checksum**: SHA-256 stored in `state/...yaml`.
+### 1. Frequency Distribution (Input)
+*   **Source**: RedPajama (English), OSCAR (French/Chinese).
+*   **Format**: `.npy` (NumPy array).
+*   **Shape**: `(vocab_size,)`
+*   **Content**: Normalized token frequencies ($f_i = \frac{count_i}{\sum count}$).
+*   **Constraint**: Must match the vocabulary of the target model exactly. If vocabularies differ, a mapping layer is applied, or the analysis is restricted to the intersection.
 
-### 3.2 Edge Spectrum (SVD Output)
-*   **Path**: `data/processed/svd_{model}.csv`
-*   **Format**: CSV.
-*   **Columns**: `component_id`, `singular_value`, `vector_{d}` (flattened vector of dimension D).
-*   **Note**: Only top 50 components are stored.
+### 2. Edge Spectrum Matrix (Intermediate)
+*   **Source**: SVD of $W_U$.
+*   **Format**: `.npy`.
+*   **Shape**: `(hidden_size, k)` where $k=100$ (or $50$ if fallback).
+*   **Content**: Top-$k$ left singular vectors ($U_k$).
+*   **Constraint**: Columns must be orthonormal.
 
-### 3.3 Average Token Vectors
-*   **Path**: `data/processed/avg_vec_{lang}_{model}.csv`
-*   **Format**: CSV.
-*   **Columns**: `vector_{d}` (flattened vector).
-*   **Metadata**: JSON sidecar `data/processed/avg_vec_{lang}_{model}.meta.json` containing `language`, `model`, `frequency_source`, `checksum`.
+### 3. Token Embedding Projection (Intermediate)
+*   **Source**: Model embeddings $E$ projected onto $U_k$.
+*   **Format**: `.npy`.
+*   **Shape**: `(N, k)` where $N$ is the number of top frequent tokens.
+*   **Content**: Projected embeddings for top-$N$ tokens.
 
-### 3.4 Alignment Results
-*   **Path**: `data/processed/alignment_{src}_{tgt}.json`
-*   **Format**: JSON.
-*   **Fields**: `rotation_matrix` (flattened), `translation_vector` (flattened), `cost`, `source_lang`, `target_lang`.
+### 4. Similarity Report (Output)
+*   **Source**: Cosine similarity calculation.
+*   **Format**: `.json`.
+*   **Schema**: `contracts/similarity_report.schema.yaml`.
+*   **Content**: Pairwise cosine similarities and confidence intervals.
 
-### 3.5 Statistical Results
-*   **Path**: `data/results/stats_{pair}.csv`
-*   **Format**: CSV.
-*   **Columns**: `pair`, `observed_sim`, `p_value_n100`, `p_value_n1000`, `p_value_n10000`, `convergence_status`.
+### 5. Permutation Test Result (Output)
+*   **Source**: Statistical test.
+*   **Format**: `.json`.
+*   **Schema**: `contracts/permutation_result.schema.yaml`.
+*   **Content**: Observed statistic, p-value, null distribution summary.
 
-## 4. Data Hygiene Rules
+### 6. WALS Validation Report (Output)
+*   **Source**: Correlation calculation.
+*   **Format**: `.json`.
+*   **Schema**: `contracts/wals_validation.schema.yaml` (new).
+*   **Content**: Correlation coefficient, p-value, WALS features used.
 
-*   **Immutability**: Raw files in `data/raw/` are never modified.
-*   **Derivation**: All derived files (SVD, averages) must include a `derived_from` field in their metadata pointing to the source file hash.
-*   **PII**: No personal data is expected in frequency lists or model weights. If detected, the pipeline halts.
+## Transformation Logic
 
-## 5. Schema Contracts
+### T-01: Frequency Estimation
+*   **Input**: Raw text file (RedPajama/OSCAR).
+*   **Process**: Tokenize using the target model's tokenizer. Count tokens. Normalize.
+*   **Output**: `data/processed/freq_distributions/{model}_{lang}_freq.npy`.
+*   **Validation**: Sum of frequencies must be $1.0 \pm 1e-6$.
 
-The following schemas are defined in `contracts/` and enforced by the `data_ingestion.py` and `report.py` scripts.
+### T-02: Subspace Extraction
+*   **Input**: Model weights ($W_U$).
+*   **Process**: `scipy.sparse.linalg.svds(W_U, k=100)`.
+*   **Output**: `data/processed/svd_results/{model}_uk.npy`.
+*   **Validation**: Columns are orthonormal; singular values are sorted descending.
 
-*   `contracts/frequency_list.schema.yaml`: Validates raw frequency data.
-*   `contracts/svd_output.schema.yaml`: Validates SVD results.
-*   `contracts/statistical_results.schema.yaml`: Validates final p-values and similarities.
+### T-03: Token Embedding Projection
+*   **Input**: Model embeddings $E$, frequency distribution $f$.
+*   **Process**: Select top-$N$ tokens. Compute $P = U_k^T \cdot E[T]$. Compute centroid $\hat{v} = \text{mean}(P)$.
+*   **Output**: `data/processed/embeddings/{model}_{lang}_projection.npy`.
+
+### T-04: Similarity Calculation
+*   **Input**: Two $U_k$ matrices.
+*   **Process**: Compute $S = \text{mean}(\text{cosine\_sim}(u_i, v_i))$ for $i=1..k$.
+*   **Output**: Scalar value.
+
+### T-05: Bootstrap Test
+*   **Input**: Observed similarity $S_{obs}$, Within-Language Baseline $S_{EN}$.
+*   **Process**: Generate a sufficient number of $S_{Cross}^{(b)}$ instances by resampling token frequencies.
+*   **Output**: P-value and confidence interval.
+
+### T-06: WALS Correlation
+*   **Input**: Subspace orientation, WALS features.
+*   **Process**: Compute Pearson correlation.
+*   **Output**: Correlation coefficient and p-value.
+
+## Constraints & Assumptions
+
+*   **Vocabulary Alignment**: If models have different vocabularies, the analysis is restricted to the intersection of tokens. If the intersection is < 50% of the vocabulary, the comparison is flagged as "Unreliable".
+*   **Memory**: All frequency arrays are stored in `float32` to minimize RAM usage.
+*   **Reproducibility**: All random seeds are set to `42` in `config.py`.
+*   **Artifact Hashing**: All files in `code/` and `data/` are hashed and recorded in `checksums.json`.

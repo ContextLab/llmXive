@@ -37,13 +37,13 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml` `updated_at` timestamp.
 
-### VI. Cross-Lingual Spectral Isolation
+### VI. Cross-Lingual Subspace Isolation
 
-The "edge spectrum" analysis MUST strictly separate model-specific unembedding matrices (Llama-3, BLOOM, Qwen-1.5-7B) from language-specific frequency corpora (RedPajama, Common Crawl subsets). As the methodology sketch requires calculating frequency-weighted sums using pseudo-inverses to map logits to embedding space, the pipeline MUST ensure that the "average token" vectors are derived solely from the target language's frequency distribution projected onto the target model's spectral basis. No cross-contamination of frequency lists (e.g., using English frequency data for the Chinese model analysis) is permitted, as the research question explicitly tests for shifts in semantic composition across linguistic typologies.
+The project's core methodology relies on comparing the "edge spectrum" subspaces of distinct models (Llama-3, Mistral, BLOOM) and languages. Therefore, every linear algebra operation (SVD, projection, pseudo-inverse) applied to the unembedding matrix $W_U$ MUST be explicitly isolated to prevent cross-contamination between the English-centric and multilingual data paths. The "average token" embedding vector $\hat{\vh}$ MUST be computed separately for each language using its specific frequency distribution and the corresponding model's $W_U$, ensuring that no shared intermediate buffers corrupt the cross-lingual projection metrics.
 
-### VII. Non-Circular Validation Integrity
+### VII. Typological Shift Quantification Rigor
 
-All validation metrics, specifically the cosine similarity between projected "average token" vectors, MUST rely exclusively on the structural properties of the singular vectors (from SVD) and independent frequency counts. The methodology sketch mandates avoiding circularity by ensuring validation does not depend on the model's downstream predictions or the same vectors used to construct the projection. Therefore, any script generating the "null distribution" via token frequency randomization MUST be structurally distinct from the scripts performing the primary spectral decomposition, and the final statistical significance tests MUST not reuse the exact same random seeds or perturbation seeds used in the initial vector construction.
+To validate the hypothesis that the edge spectrum's semantic content shifts with linguistic typology, the project MUST enforce a strict separation between the "shift quantification" (cosine similarity of singular vectors) and the "validation metric" (semantic similarity on held-out benchmarks like Multilingual SentEval). The permutation test for typological shift MUST use the specific token frequency lists (RedPajama for English, Common Crawl subsets for French/Chinese) as the sole source of truth for token attribution, ensuring that the identified "bias" tokens are strictly derived from the input corpus statistics rather than the model's internal generation probabilities.
 
 ## Reproducibility Requirements
 

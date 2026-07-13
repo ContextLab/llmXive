@@ -1,46 +1,46 @@
-# Implementation Plan: llmXive Follow-up: Extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
+# Implementation Plan: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
 
-**Branch**: `001-llmxive-crosslingual-edge-spectrum` | **Date**: 2026-07-13 | **Spec**: `specs/001-llmxive-crosslingual-edge-spectrum/spec.md`
-**Input**: Feature specification from `/specs/001-llmxive-crosslingual-edge-spectrum/spec.md`
+**Branch**: `001-llmxive-crosslingual` | **Date**: 2026-07-14 | **Spec**: `specs/001-llmxive-crosslingual/spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-crosslingual/spec.md`
 
 ## Summary
 
-This project implements a CPU-tractable pipeline to extract the "edge spectrum" (top-$k$ singular vectors) of unembedding matrices from three distinct LLMs (Llama-3-8B, BLOOM-7B, Qwen-1.5-7B) and compute frequency-weighted "average token" vectors to measure cross-lingual anisotropy. The approach strictly adheres to the 7GB RAM constraint by using `scikit-learn`'s `TruncatedSVD` (randomized SVD) to avoid materializing full matrices, and performs Orthogonal Procrustes alignment to enable valid cross-lingual comparisons. Statistical significance is determined via a permutation test with a spherical null baseline, with sensitivity analysis on iteration counts to ensure p-value convergence.
+This feature implements a computational linguistics study to test whether the "edge spectrum" (top-$k$ singular vectors of the unembedding matrix $W_U$) encodes a universal "common sense" prior or reflects language-specific syntactic noise. The approach involves loading multiple models (Llama, Mistral, BLOOM), performing CPU-only SVD on their $W_U$ matrices, computing cosine similarities between subspaces, projecting *model token embeddings* (not frequency distributions) onto the subspace to analyze semantic content, and running a statistical validation using a 'Within-Language Baseline' (Llama-3 vs. Mistral) as the empirical proxy for initialization variance. The pipeline includes external validation against WALS features and strict artifact hashing for all code and data. The entire pipeline is constrained to run on a CPU-only GitHub Actions runner (2 cores, 7GB RAM) within 6 hours.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU-only), `scikit-learn`, `transformers`, `safetensors`, `pandas`, `numpy`, `requests`  
-**Storage**: Local `data/` directory for intermediate CSVs (singular values, vectors, frequency counts) and checksummed raw frequency subsets.  
-**Testing**: `pytest` for unit tests on projection logic and permutation stability; integration tests via GitHub Actions runner memory profiling.  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM, no GPU).  
-**Project Type**: Computational Research Pipeline  
-**Performance Goals**: Peak RAM ≤ 7 GB; Total runtime ≤ 60 minutes (per SC-004); SVD error ≤ 1e-3 on subsamples.  
-**Constraints**: No GPU usage; No full SVD; No model training; Strict adherence to verified dataset URLs; All random seeds pinned.  
-**Scale/Scope**: 3 Models × 50 Singular Vectors; Permutation N ∈ {100, 1000, 10000}; ~100k tokens per language frequency list.
+**Primary Dependencies**: `transformers`, `torch` (CPU-only), `numpy`, `scipy`, `pandas`, `huggingface_hub`, `datasets`  
+**Storage**: Local `data/` directory for raw datasets and intermediate `.npy` matrices; `data/` is checksummed.  
+**Testing**: `pytest` with contract tests validating JSON output schemas (`similarity_report.schema.yaml`, `permutation_result.schema.yaml`, `wals_validation.schema.yaml`).  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, ~7 GB RAM).  
+**Project Type**: Computational Research Script / CLI.  
+**Performance Goals**: Complete SVD and 1,000-bootstrap iterations within 6 hours on CPU.  
+**Constraints**: No GPU/CUDA; no `load_in_8bit` (avoids CUDA deps); float32 precision only; memory usage < 6 GB peak.  
+**Scale/Scope**: 3 Models, 2 Languages (English vs. French/Chinese), 1,000 bootstrap iterations, WALS validation.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Status | Evidence / Plan Action |
+| Principle | Status | Action Required |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned random seeds in `code/` and deterministic `TruncatedSVD` with fixed seed. Data fetched from canonical HF/CC sources. |
-| **II. Verified Accuracy** | **PASS** | Plan requires all dataset URLs to be sourced *only* from the `# Verified datasets` block in the runtime context. No fabricated URLs. |
-| **III. Data Hygiene** | **PASS** | Plan includes checksumming of all downloaded frequency files. No in-place modification; derivations saved as new files (e.g., `freq_eng_aligned.csv`). |
-| **IV. Single Source of Truth** | **PASS** | All statistics in the final report will be generated programmatically from `data/` artifacts. No hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Implementation will generate content hashes for all `data/` and `code/` artifacts to update the state YAML. |
-| **VI. Cross-Lingual Spectral Isolation** | **PASS** | Plan explicitly separates frequency lists (RedPajama/CC) from model weights. Logic ensures English frequencies are only used with Llama/BLOOM, not Qwen. |
-| **VII. Non-Circular Validation** | **PASS** | Permutation test uses independent spherical null generation. Validation relies on structural SVD properties, not downstream model predictions. |
+| **I. Reproducibility** | **PASS** | Plan mandates pinned seeds, `requirements.txt` with exact versions, and deterministic SVD/Bootstrap logic. |
+| **II. Verified Accuracy** | **PASS** | Plan mandates `validate_citations.py` to parse markdown, extract URLs, and check them against a local manifest of verified sources before pipeline execution. This programmatically enforces the 'Reference-Validator Agent' requirement. |
+| **III. Data Hygiene** | **PASS** | Plan requires checksumming of raw datasets in `data/` and immutable derivation steps. |
+| **IV. Single Source of Truth** | **PASS** | All metrics (cosine similarity, p-values, WALS correlation) will be derived programmatically from `data/` artifacts, not hand-typed. |
+| **V. Versioning Discipline** | **PASS** | Plan mandates generation of content hashes for ALL artifacts in `data/` AND `code/` (source files and derived data) as a pipeline step before report generation. |
+| **VI. Cross-Lingual Subspace Isolation** | **PASS** | Plan explicitly separates $W_U$ loading and SVD operations per model/language to prevent buffer contamination. |
+| **VII. Typological Shift Quantification Rigor** | **PASS** | Plan enforces strict separation between shift quantification (cosine similarity) and validation metrics (WALS correlation). |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-llmxive-crosslingual-edge-spectrum/
+specs/001-llmxive-crosslingual/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
@@ -54,50 +54,44 @@ specs/001-llmxive-crosslingual-edge-spectrum/
 ```text
 projects/PROJ-880-llmxive-follow-up-extending-your-unembed/
 ├── code/
-│   ├── requirements.txt
 │   ├── __init__.py
-│   ├── config.py            # Paths, seeds, hyperparameters (k=50)
-│   ├── data_ingestion.py    # Download frequency lists, verify checksums
-│   ├── svd_extraction.py    # TruncatedSVD for unembedding matrices
-│   ├── alignment.py         # Procrustes alignment logic
-│   ├── projection.py        # Average vector calculation & projection
-│   ├── stats.py             # Permutation test & p-value convergence
-│   └── report.py            # Generate final CSV/JSON results
+│   ├── requirements.txt
+│   ├── config.py          # Paths, seeds, hyperparameters (k, n_bootstrap)
+│   ├── data_loader.py     # Download, verify, and hash datasets (includes validate_sources)
+│   ├── model_analyzer.py  # Load W_U, perform SVD, compute similarities
+│   ├── token_attribution.py # Project token embeddings, rank tokens, compute centroids
+│   ├── statistical_test.py  # Bootstrap test (Within-Language Baseline)
+│   ├── external_validation.py # WALS correlation
+│   ├── validate_citations.py # Enforces Principle II by validating citations
+│   └── main.py            # Orchestrator: runs pipeline in order
 ├── data/
-│   ├── raw/                 # Downloaded frequency lists (checksummed)
-│   ├── processed/           # Aligned vectors, SVD outputs
-│   └── results/             # Final statistics, top-loading tokens
+│   ├── raw/
+│   │   ├── redpajama_en/
+│   │   ├── oscar_fr/
+│   │   └── oscar_zh/
+│   ├── processed/
+│   │   ├── embeddings/
+│   │   ├── svd_results/
+│   │   └── similarity_matrix.json
+│   └── checksums.json     # Includes hashes for data/ AND code/
 ├── tests/
-│   ├── unit/                # Test projection logic, permutation stability
-│   └── integration/         # Memory profiling, end-to-end small run
-└── docs/
-    └── constitution.md      # Project constitution
+│   ├── contract/
+│   │   └── test_schemas.py # Validates similarity_report.schema.yaml, permutation_result.schema.yaml, wals_validation.schema.yaml
+│   └── unit/
+│       └── test_math.py
+└── specs/
+    └── 001-llmxive-crosslingual/
+        └── ...
 ```
 
-**Structure Decision**: Single project structure (`code/`, `data/`, `tests/`) selected to minimize I/O overhead and simplify dependency management for a CPU-bound research pipeline. The `contracts/` directory will house the YAML schemas for data validation.
+**Structure Decision**: Single project structure selected. The research workflow is linear (Load -> SVD -> Compare -> Test -> Validate), making a monolithic `code/` directory with modular scripts the most efficient approach for a CPU-bound pipeline. This avoids the overhead of distributed computing or complex microservices, aligning with the 6-hour CPU constraint.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Randomized SVD** | Required to fit 7B parameter model unembedding matrices (approx. 50k x 4096) into 7GB RAM. | Full SVD (`numpy.linalg.svd`) requires O(N^3) memory and would OOM on the CI runner. |
-| **Procrustes Alignment** | Essential for valid cross-lingual comparison of subspaces which may be rotated differently. | Direct cosine similarity without alignment would conflate rotational differences with semantic shifts. |
-| **Permutation Sweep** | Required to satisfy SC-006 (p-value stability) and ensure statistical rigor. | Single N=1000 run is insufficient to prove convergence; a sweep is needed to detect instability. |
-
-## Phase Execution Order
-
-1.  **Phase 0: Research & Dataset Verification**
-    *   Verify availability of unembedding matrices for Llama-3, BLOOM, Qwen.
-    *   Confirm frequency list URLs (RedPajama/CC) and downloadability.
-    *   Validate `TruncatedSVD` memory footprint on a subset.
-2.  **Phase 1: Data Model & Contracts**
-    *   Define schemas for SVD outputs, frequency lists, and alignment results.
-    *   Establish checksum protocols for `data/`.
-3.  **Phase 2: Implementation (SVD & Alignment)**
-    *   Implement `svd_extraction.py` with streaming memory checks.
-    *   Implement `alignment.py` for Procrustes.
-4.  **Phase 3: Implementation (Projection & Stats)**
-    *   Implement `projection.py` for average vectors.
-    *   Implement `stats.py` for permutation tests and convergence sweeps.
-5.  **Phase 4: Reporting**
-    *   Generate top-loading token lists and final statistics.
+|-----------|------------|-------------------------------------|
+| **Bootstrap Test (1,000 iters)** | Required by FR-004 for statistical rigor (US-3) to estimate sampling variance of the similarity metric. | Reducing iterations to 100 would violate the "Statistical Significance" acceptance criteria and increase variance in p-value estimation. |
+| **Three Models (Llama, Mistral, BLOOM)** | Required to distinguish model-specific noise from language-specific shifts. | Using only one model pair would conflate initialization effects with typological effects, failing the hypothesis test. |
+| **Within-Language Baseline Null** | Required because seed-variant models are unavailable. | Using a random null distribution would not represent initialization variance. The Llama-3 vs. Mistral baseline is the only empirical proxy available. |
+| **WALS External Validation** | Required by SC-004. | Omitting this would fail the success criterion for external validation. |
+| **Specific Contract Schemas** | Required to ensure data integrity. | The `test_schemas.py` explicitly exercises `similarity_report.schema.yaml`, `permutation_result.schema.yaml`, and `wals_validation.schema.yaml` to validate output structure. |

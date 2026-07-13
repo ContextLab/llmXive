@@ -1,0 +1,70 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Permutation Test Result
+description: "Result of the bootstrap test for statistical significance of cross-lingual shift using Within-Language Baseline."
+type: object
+required:
+  - observed_statistic
+  - p_value
+  - n_bootstrap
+  - significance_flag
+  - null_baseline_type
+  - confidence_interval
+properties:
+  observed_statistic:
+    type: number
+    description: "The observed cosine similarity difference (cross-lingual vs within-lingual)."
+  p_value:
+    type: number
+    description: "The calculated p-value from the bootstrap test."
+    minimum: 0.0
+    maximum: 1.0
+  n_bootstrap:
+    type: integer
+    description: "Number of bootstrap iterations performed."
+    minimum: 1
+  significance_flag:
+    type: boolean
+    description: "True if p_value < 0.05, indicating a statistically significant shift."
+  null_baseline_type:
+    type: string
+    description: "Type of null distribution used (e.g., 'Within-Language Baseline')."
+    enum:
+      - "Within-Language Baseline"
+      - "Random Subspace"
+  null_distribution_summary:
+    type: object
+    required:
+      - mean
+      - std
+    properties:
+      mean:
+        type: number
+      std:
+        type: number
+  confidence_interval:
+    type: object
+    required:
+      - lower
+      - upper
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+      level:
+        type: number
+        description: "Confidence level (e.g., 0.95)."
+  metadata:
+    type: object
+    required:
+      - seed
+      - models_used
+    properties:
+      seed:
+        type: integer
+        description: "Random seed used for the bootstrap test."
+      models_used:
+        type: array
+        items:
+          type: string
+        description: "List of models used in the test."

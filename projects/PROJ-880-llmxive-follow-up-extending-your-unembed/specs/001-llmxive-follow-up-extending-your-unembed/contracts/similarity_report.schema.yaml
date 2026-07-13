@@ -1,0 +1,54 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Similarity Report
+description: "Report of cosine similarity between edge spectrum subspaces of different models."
+type: object
+required:
+  - models
+  - pairwise_similarities
+  - metadata
+properties:
+  models:
+    type: array
+    description: "List of model names included in the study."
+    items:
+      type: string
+    example: ["Llama-3", "Mistral", "BLOOM"]
+  pairwise_similarities:
+    type: array
+    description: "Pairwise cosine similarity scores between model subspaces."
+    items:
+      type: object
+      required:
+        - model_a
+        - model_b
+        - similarity_score
+        - language_pair
+      properties:
+        model_a:
+          type: string
+        model_b:
+          type: string
+        similarity_score:
+          type: number
+          description: "Mean cosine similarity of the top-k singular vectors."
+          minimum: -1.0
+          maximum: 1.0
+        language_pair:
+          type: string
+          description: "Language pair comparison (e.g., 'EN-EN', 'EN-FR')."
+  metadata:
+    type: object
+    required:
+      - k_value
+      - date
+      - seed
+    properties:
+      k_value:
+        type: integer
+        description: "Number of singular vectors used (top-k)."
+      date:
+        type: string
+        format: date-time
+      seed:
+        type: integer
+        description: "Random seed used for reproducibility."

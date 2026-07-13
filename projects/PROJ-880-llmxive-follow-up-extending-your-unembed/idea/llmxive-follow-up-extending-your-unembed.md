@@ -5,49 +5,49 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
 
-**Field**: linguistics / mechanistic interpretability
+**Field**: Linguistics / Mechanistic Interpretability
 
 ## Research question
 
-Does the "edge spectrum" subspace identified in LLM unembedding matrices encode a universal, language-agnostic "common sense" prior, or does its semantic composition shift to reflect language-specific syntactic and frequency patterns across different linguistic typologies?
+Does the "edge spectrum" subspace identified by EmbedFilter encode a universal, language-agnostic "common sense" prior invariant across linguistic typologies, or does its composition shift to reflect language-specific syntactic noise?
 
 ## Motivation
 
-Understanding whether the anisotropy in LLM embeddings is driven by universal statistical regularities or language-specific artifacts is critical for developing generalizable embedding correction techniques. If the edge spectrum is language-specific, a single universal filter (like the original EmbedFilter) may fail on non-English or low-resource languages, necessitating corpus-aware adaptation strategies for global NLP applications.
+Understanding whether the bias toward high-frequency tokens is a universal artifact of LLM training dynamics or a language-specific phenomenon is critical for deploying robust embedding filters in multilingual settings. If the subspace is language-agnostic, a single universal filter could be applied globally; if it shifts with typology, dynamic, corpus-aware strategies are required to avoid degrading performance in low-resource or non-English languages.
 
 ## Related work
 
-- [Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings](https://arxiv.org/abs/2606.07502) — Establishes that high-frequency tokens dominate the edge spectrum of unembedding matrices, causing anisotropy, and proposes a training-free linear transformation to remove this bias.
-- [Semantic Structure and Interpretability of Word Embeddings](https://arxiv.org/abs/1711.00331) — Provides foundational evidence that word embeddings capture semantic relationships and that their geometric structure reflects linguistic regularities, supporting the hypothesis that subspace composition carries semantic meaning.
-- [reward-lens: A Mechanistic Interpretability Library for Reward Models](https://arxiv.org/abs/2604.26130) — While focused on reward models, this work demonstrates the utility of mechanistic interpretability tools (like logit lens and direct logit attribution) in dissecting how specific model components (like unembedding matrices) encode task-specific or frequency-based priors.
+- [Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings (2026)](https://arxiv.org/abs/2606.07502) — Establishes the existence of the "edge spectrum" in the unembedding matrix as a source of anisotropy and proposes EmbedFilter, though it focuses exclusively on English-centric models and does not investigate cross-lingual invariance.
+- [reward-lens: A Mechanistic Interpretability Library for Reward Models (2026)](https://arxiv.org/abs/2604.26130) — Provides a toolkit for analyzing how external objectives (like reward models) shape internal representations, offering methodological precedent for isolating specific subspaces (like the edge spectrum) that encode training-induced biases rather than semantic content.
 
 ## Expected results
 
-We expect to find that while the *magnitude* of the bias toward high-frequency tokens is consistent across languages, the *specific tokens* and *semantic concepts* dominating the edge spectrum differ significantly (e.g., English function words vs. language-specific particles). This would confirm that the edge spectrum is not a universal "common sense" prior but rather a reflection of language-specific corpus statistics, implying that static filters are insufficient for multilingual deployment.
+We expect the magnitude of the anisotropy bias to remain consistent across languages, confirming the universality of the edge spectrum's structural role. However, we anticipate the specific semantic content (the dominant tokens) will shift significantly (e.g., from English function words to language-specific particles), indicating that a static, universal filter is insufficient for non-English corpora.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the unembedding matrices (weight matrices) for three open-source LLMs: Llama-3 (English), BLOOM (multilingual), and a Chinese-specific model (e.g., Qwen-1.5-7B). Retrieve token frequency lists from RedPajama (English) and comparable open corpora (e.g., Common Crawl subsets) for French and Chinese.
-- **Frequency Projection**: Compute the "average token" embedding vector $\hat{\vh}$ for each language by calculating the frequency-weighted sum of the model's vocabulary embeddings (using the pseudo-inverse of the unembedding matrix where necessary to map logits to embedding space).
-- **Spectral Decomposition**: Perform Singular Value Decomposition (SVD) on each model's unembedding matrix to extract the top-$k$ singular vectors (the "edge spectrum") and the bottom-$k$ vectors.
-- **Cross-Lingual Similarity Analysis**: Calculate the cosine similarity between the "average token" vectors of different languages when projected onto (a) their own model's edge spectrum and (b) a cross-language edge spectrum (e.g., projecting Chinese average tokens onto the English edge spectrum).
-- **Token Attribution**: Identify the specific tokens with the highest loadings in the top-$k$ singular vectors for each language and compare their semantic categories (function words, particles, content words) using standard tokenizers and frequency lists.
-- **Statistical Validation**: Perform a permutation test to determine if the observed cross-lingual similarity shifts are statistically significant compared to a null distribution generated by randomizing token frequencies.
-- **Validation Independence**: Ensure the validation metric (cosine similarity of projected vectors) relies on the *structure* of the singular vectors and *independent* frequency counts, not on the model's downstream predictions or the same vectors used to construct the projection, avoiding circularity.
+- **Data Acquisition**: Download weights for three distinct open-source models: Llama-3 (English), Mistral (English), and BLOOM (multilingual/non-English focus) from Hugging Face; retrieve corresponding token frequency lists from the RedPajama dataset (English) and Common Crawl subsets (French/Chinese).
+- **Subspace Extraction**: For each model, perform Singular Value Decomposition (SVD) on the unembedding matrix ($W_U$) using `numpy.linalg.svd` to identify the top-$k$ singular vectors constituting the "edge spectrum."
+- **Average Token Estimation**: Compute the "average token" embedding vector $\hat{\vh}$ for each language by projecting the frequency distribution of tokens onto the pseudo-inverse of $W_U$ (linear algebra on CPU).
+- **Cross-Lingual Projection**: Project the $\hat{\vh}$ vectors from Language A onto the edge spectrum subspace of Language B (and vice versa) to measure the cosine similarity of the resulting projections.
+- **Shift Quantification**: Calculate the cosine similarity between the top-$k$ singular vectors of the English models and the non-English models to quantify the rotation of the subspace.
+- **Token Attribution**: Identify the specific tokens with the highest logit weights in the edge spectrum subspace for each language to determine if the "bias" is driven by universal function words or language-specific syntax.
+- **Statistical Testing**: Perform a permutation test to determine if the observed cross-lingual similarity in the edge spectrum is significantly lower than the within-language similarity (null hypothesis: no typological shift).
+- **Validation**: Ensure the validation metric (cosine similarity of projected vectors) is independent of the input frequency counts by comparing subspace orientation against a held-out semantic similarity benchmark (e.g., Multilingual SentEval) to confirm that the shift correlates with performance degradation.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings".
-- Closest match: None (This is a direct extension of the prior work, but the specific research question regarding cross-lingual universality of the edge spectrum is novel).
+- Closest match: None (This is the primary idea being fleshed out; no other fleshed-out ideas in the corpus match this specific cross-lingual extension).
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-13T15:07:12Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-13T15:51:09Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings" linguistics
-**Verified citation count**: 3
+**Verified citation count**: 2
 
 ### Search terms used
 
@@ -55,28 +55,27 @@ We expect to find that while the *magnitude* of the bias toward high-frequency t
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings" linguistics | 0 |
 | 1 | unembedding matrix as feature lens | 2 |
-| 2 | semantic interpretation of output embeddings | 4 |
-| 3 | linear probing of language model output layers | 0 |
-| 4 | decoding weights as semantic directions | 0 |
-| 5 | feature visualization in transformer output space | 0 |
-| 6 | linguistic properties of unembedding vectors | 0 |
-| 7 | semantic decoding in large language models | 0 |
-| 8 | output projection matrix interpretability | 0 |
-| 9 | semantic feature extraction from word embeddings | 0 |
-| 10 | linear representation hypothesis in LLMs | 0 |
-| 11 | output layer weights and semantic meaning | 0 |
-| 12 | decoding linear probes for language understanding | 0 |
-| 13 | semantic structure of vocabulary embeddings | 0 |
-| 14 | interpretability of LLM output projections | 0 |
-| 15 | feature lens analysis in neural language models | 0 |
-| 16 | semantic alignment of unembedding and input embeddings | 0 |
-| 17 | linguistic analysis of decoder weight matrices | 0 |
-| 18 | semantic direction discovery in output space | 0 |
-| 19 | unembedding matrix as linguistic probe | 0 |
-| 20 | semantic interpretation of final layer representations | 0 |
+| 2 | linear probing of LLM unembedding weights | 1 |
+| 3 | semantic interpretation of output projection matrices | 0 |
+| 4 | decoding layer as linguistic feature detector | 1 |
+| 5 | emergent linear representations in transformer output layers | 4 |
+| 6 | geometric structure of token embedding spaces | 0 |
+| 7 | interpreting LLM output weights linguistically | 0 |
+| 8 | unembedding matrix correspondence to syntactic features | 0 |
+| 9 | linear decoding of semantic attributes from language models | 0 |
+| 10 | probing output embeddings for linguistic phenomena | 0 |
+| 11 | feature lens hypothesis in large language models | 0 |
+| 12 | mapping unembedding weights to semantic dimensions | 0 |
+| 13 | linear separability in LLM output spaces | 0 |
+| 14 | interpreting the final layer of transformer language models | 0 |
+| 15 | semantic alignment of unembedding and embedding matrices | 0 |
+| 16 | mechanistic interpretability of LLM output projections | 0 |
+| 17 | linguistic feature extraction from unembedding weights | 0 |
+| 18 | correspondence between unembedding vectors and word meanings | 0 |
+| 19 | analyzing the geometry of text embeddings via unembedding | 0 |
+| 20 | linear readout of linguistic categories from LLMs | 0 |
 
 ### Verified citations
 
 1. **reward-lens: A Mechanistic Interpretability Library for Reward Models** (2026). Mohammed Suhail B Nadaf. arXiv. [2604.26130](https://arxiv.org/abs/2604.26130). PDF-sampled: No.
 2. **Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings** (2026). Songhao Wu, Zhongxin Chen, Yuxuan Liu, Heng Cui, Cong Li, et al.. arXiv. [2606.07502](https://arxiv.org/abs/2606.07502). PDF-sampled: No.
-3. **Semantic Structure and Interpretability of Word Embeddings** (2017). Lutfi Kerem Senel, Ihsan Utlu, Veysel Yucesoy, Aykut Koc, Tolga Cukur. arXiv. [1711.00331](https://arxiv.org/abs/1711.00331). PDF-sampled: No.

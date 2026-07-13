@@ -1,9 +1,9 @@
 {
   "candidate_pointer": "2606.07502",
-  "judged_at": "2026-07-13T15:07:01Z",
+  "judged_at": "2026-07-13T15:50:52Z",
   "model": "qwen.qwen3.5-122b",
   "prompt_version": "e0a9984f6571a9b4",
   "query_normalized": "llmxive follow-up: extending \"your unembedding matrix is secretly a feature lens for text embeddings\" linguistics",
-  "rationale": "This paper is the foundational source for the user's question, as the user's query explicitly references extending the work titled \"Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings.\" It satisfies acceptance criteria (d) as the canonical reference for the specific mechanism (unembedding matrix as a feature lens) and (a) by providing the primary evidence on the biological/algorithmic mechanism the user intends to extend.",
+  "rationale": "This paper is the foundational source for the user's question, as the user's query explicitly references extending the work titled \"Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings.\" It satisfies acceptance criteria (d) as the canonical reference for the specific mechanism (unembedding matrix as a feature lens) and (a) as it provides the primary evidence for the phenomenon the user intends to extend.",
   "relevant": true
 }

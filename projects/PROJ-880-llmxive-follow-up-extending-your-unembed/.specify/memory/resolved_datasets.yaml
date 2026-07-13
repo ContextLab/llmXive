@@ -1,2 +1,87 @@
-resolved_at: '2026-07-13T15:44:06.151536+00:00'
-datasets: []
+resolved_at: '2026-07-13T15:56:50.293972+00:00'
+datasets:
+- intent: RedPajama
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T/resolve/main/urls/arxiv.txt
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 10599
+      parsed: true
+  - url: https://huggingface.co/datasets/Fredithefish/Instruction-Tuning-with-GPT-4-RedPajama-Chat/resolve/main/alpaca_gpt4_data.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Fredithefish/GPTeacher-for-RedPajama-Chat/resolve/main/GPTeacher.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T/resolve/main/urls/arxiv.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Fredithefish/Instruction-Tuning-with-GPT-4-RedPajama-Chat/resolve/main/alpaca_gpt4_data.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Fredithefish/GPTeacher-for-RedPajama-Chat/resolve/main/GPTeacher.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Fredithefish/ShareGPT-Unfiltered-RedPajama-Chat-format/resolve/main/ShareGPT-11k.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Molecular_surveillance_and_genetic_diversity_of_Klossiella_equi_in_European_equids_using_kidney_and_urine_samples_xlsx/32975747
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Identification_and_characterization_of_non-canonical_azole_antifungal_resistance_pathways_in_b_b_i_Aspergillus_fumigatus_i_b_/32975738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/journal_contribution/Temporal_genetic_stability_in_natural_populations_of_the_waterflea_Daphnia_magna_in_response_to_strong_selection_pressure/32350971
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Analisis_Komparasi_Algoritma_Support_Vector_Machine_dan_Naive_Bayes_pada_Aspect-Based_Sentiment_Analysis_Ulasan_WhatsApp/32975714
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data/32975723
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18665871
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2601.12879
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.17565
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://umontreal.scholaris.ca/handle/1866/44004
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19647948
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19509659
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

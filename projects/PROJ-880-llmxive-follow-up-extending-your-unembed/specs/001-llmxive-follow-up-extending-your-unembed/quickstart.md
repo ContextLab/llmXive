@@ -1,92 +1,80 @@
-# Quickstart: llmXive Follow-up: Extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
+# Quickstart: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
 
-## 1. Prerequisites
+## Prerequisites
 
-*   **Python**: 3.11+
-*   **System**: Linux (GitHub Actions runner or local Linux machine).
-*   **RAM**: Minimum 8 GB (recommended 16 GB for safety, but 7 GB is the target limit).
-*   **Disk**: ~20 GB free space (for model weights and data).
-*   **Hugging Face Token**: Required to access Llama-3 and Qwen models. Set `HF_TOKEN` environment variable.
+- Python 3.11+
+- Git
+- ~Sufficient disk space (for model weights and datasets)
+- Internet access (for HuggingFace downloads)
 
-## 2. Installation
+## Installation
 
-```bash
-# Clone the project
-git clone <repo-url>
-cd projects/PROJ-880-llmxive-follow-up-extending-your-unembed
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-880-llmxive-follow-up-extending-your-unembed
+    ```
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-# Install dependencies
-pip install -r code/requirements.txt
-```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: This installs CPU-only versions of `torch` and `transformers`.*
 
-## 3. Configuration
+## Data Acquisition & Validation
 
-Create a `.env` file in the project root:
-
-```bash
-HF_TOKEN=your_huggingface_token_here
-RANDOM_SEED=42
-K_COMPONENTS=50
-PERMUTATION_SWEEPS=10000
-```
-
-## 4. Running the Pipeline
-
-The pipeline is executed in phases. You can run the full pipeline or individual steps.
-
-### Full Pipeline (Recommended)
+The pipeline automatically downloads and validates datasets on first run. To manually verify:
 
 ```bash
-python code/run_pipeline.py
+python code/data_loader.py --download
 ```
 
 This will:
-1.  Download and verify frequency lists.
-2.  Extract edge spectra for Llama-3, BLOOM, and Qwen.
-3.  Compute average token vectors.
-4.  Perform Procrustes alignment.
-5.  Run permutation tests and generate the final report.
+1.  Fetch RedPajama subsets and OSCAR filters to `data/raw/`.
+2.  **Validate** all URLs against the verified manifest.
+3.  Generate checksums for all downloaded files.
+4.  Generate checksums for all source files in `code/`.
 
-### Individual Steps
+## Running the Pipeline
 
-**Step 1: Data Ingestion**
-```bash
-python code/data_ingestion.py
-```
-
-**Step 2: SVD Extraction**
-```bash
-python code/svd_extraction.py --model llama-3-8b
-python code/svd_extraction.py --model bloom-7b1
-python code/svd_extraction.py --model qwen1.5-7b
-```
-
-**Step 3: Alignment & Projection**
-```bash
-python code/alignment.py
-python code/projection.py
-```
-
-**Step 4: Statistics**
-```bash
-python code/stats.py
-```
-
-## 5. Verifying Results
-
-Check the `data/results/` directory for the final output files.
-Run the validation script to ensure schema compliance:
+Execute the full research pipeline:
 
 ```bash
-python code/validate_results.py
+python code/main.py
 ```
 
-## 6. Troubleshooting
+This script performs the following steps in order:
+1.  **Validate & Download**: Fetches datasets and checks checksums. Fails if validation fails.
+2.  **Model Loading**: Loads Llama-3, Mistral, and BLOOM $W_U$ matrices.
+3.  **SVD Extraction**: Computes top-k singular vectors (with a fallback to a smaller k).
+4.  **Token Projection**: Projects token embeddings onto the subspace.
+5.  **Similarity & Attribution**: Computes cosine similarities and token rankings.
+6.  **Bootstrap Test**: Runs multiple iterations using the Within-Language Baseline.
+7.  **WALS Validation**: Computes correlation with external typological features.
+8.  **Artifact Hashing**: Generates hashes for all `data/` and `code/` artifacts.
+9.  **Report Generation**: Saves `similarity_report.json`, `permutation_result.json`, and `wals_validation.json` to `data/reports/`.
 
-*   **OOM Error**: If you get a MemoryError, ensure you are using `TruncatedSVD` and not `SVD`. Check that `safetensors` is being used.
-*   **HF Token Error**: Ensure `HF_TOKEN` is set and the token has read access to the private models (if applicable).
-*   **Missing Data**: If a frequency list is missing, the script will raise `DataMissingError`. Check the `data/raw/` directory.
+## Inspecting Results
+
+- **Subspace Similarities**: `data/reports/similarity_report.json`
+- **Token Attribution**: `data/reports/token_attribution.json`
+- **Statistical Test**: `data/reports/permutation_result.json`
+- **WALS Validation**: `data/reports/wals_validation.json`
+
+To visualize the results (optional):
+```bash
+python code/visualize.py
+```
+
+## Troubleshooting
+
+- **OOM Error**: If you encounter "Out of Memory", ensure no other GPU/CPU intensive processes are running. The script is designed for moderate RAM usage.; if you have less, reduce `k` in `code/config.py`.
+- **Dataset Missing**: If the OSCAR filter fails, check your internet connection. The script will fall back to available subsets and log a warning.
+- **Numerical Instability**: If SVD fails, the script will log the specific singular values and skip the problematic matrix, proceeding with others.
+- **Validation Failure**: If `validate_sources()` fails, the pipeline will abort. Check the `data_loader.py` manifest for updated URLs.

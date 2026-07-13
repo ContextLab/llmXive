@@ -4,28 +4,28 @@
 
 **Verdict**: pass
 
-The question investigates a substantive linguistic and mechanistic phenomenon: whether the "edge spectrum" of unembedding matrices encodes universal priors or language-specific statistical artifacts. It explicitly asks about the semantic composition of these subspaces across different linguistic typologies, independent of any specific algorithmic implementation or performance benchmark.
+The question asks about the nature of the "edge spectrum" subspace within LLM unembedding matrices—specifically whether it encodes a universal prior or language-specific noise. This is a substantive inquiry into the geometric and semantic properties of learned representations, independent of the specific SVD or projection methods used to measure it.
 
 ### Circularity check
 
 **Verdict**: pass
 
-The predictor (singular vectors derived from the unembedding matrix structure) and the predicted variable (semantic composition inferred from token loadings and cross-lingual frequency comparisons) are distinct in their derivation logic. The analysis relies on the geometric structure of the weight matrix to define the subspace and then interrogates that subspace against independent corpus frequency data and token semantics, avoiding the trap of predicting a matrix property from the same matrix property in a mechanically guaranteed way.
+The predictor (orientation of the edge spectrum subspace derived from the unembedding matrix $W_U$) and the predicted variable (linguistic typology or language-specific token composition) are derived from distinct sources: the model weights versus external linguistic/corpus characteristics. While the subspace is extracted from the model, the question tests if that internal structure correlates with *external* language properties, avoiding a mechanical guarantee where the answer is predetermined by the construction of the metric alone.
 
 ### Triviality check
 
 **Verdict**: pass
 
-A positive result (universal prior) would suggest that current anisotropy correction methods are broadly applicable across languages, a significant finding for multilingual NLP. A null result (language-specific composition) would demonstrate that static, universal filters fail for non-English languages, necessitating corpus-aware adaptation strategies; both outcomes provide actionable theoretical and practical insights into the nature of LLM representations.
+Both outcomes are informative: confirming universality would suggest a fundamental, training-dynamic-induced artifact across all LLMs, while finding language-specific shifts would imply that current models fail to learn a truly universal "common sense" prior, requiring dynamic filtering strategies. A null result (no correlation) would also be significant, challenging the hypothesis that the edge spectrum encodes linguistic priors at all.
 
 ### Question-narrowing check
 
 **Verdict**: pass
 
-The question is framed as a domain inquiry into the nature of "common sense" versus "frequency patterns" within the model's geometry. It does not constrain the inquiry to a specific library version, hardware budget, or architectural tweak, but rather asks about the fundamental behavior of the unembedding matrix across typologies.
+The question clearly names a domain relationship: the invariance (or lack thereof) of a specific representational subspace across linguistic typologies. It does not frame the inquiry around the performance of a specific algorithm, hardware constraints, or implementation details, but rather focuses on the scientific property of the model's internal geometry.
 
 ### Overall verdict
 
 **Verdict**: validated
 
-All four checks pass; the research question is well-scoped, non-circular, and addresses a meaningful gap in understanding the universality of LLM embedding anisotropy. The proposed methodology directly tests the hypothesis without reducing the inquiry to a trivial benchmark or implementation detail.
+All four checks pass. The research question is well-framed as a scientific inquiry into the universality of LLM internal representations, free from implementation narrowing or circular construction. The proposed methodology (comparing SVD subspaces across multilingual models) aligns directly with the question's intent to distinguish between universal artifacts and language-specific noise.

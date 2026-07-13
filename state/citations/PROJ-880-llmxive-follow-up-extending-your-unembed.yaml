@@ -1,1 +1,11 @@
-[]
+- artifact_hash: a31b16e33e1384cf23e35fe5b72bbe289a6d066427d5b5ecf3ed2e3538563d5e
+  artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "WALS Online -\n            Home"
+  kind: url
+  value: https://wals.info/`
+  verification_status: verified
+  verified_against_url: https://wals.info/
+  verified_at: '2026-07-13T16:25:07.563245Z'

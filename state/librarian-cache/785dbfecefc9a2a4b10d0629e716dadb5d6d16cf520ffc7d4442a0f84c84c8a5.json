@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-13T15:07:12Z",
+  "fetched_at": "2026-07-13T15:51:09Z",
   "field": "linguistics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,8 +9,8 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings\"",
       "target_n": 5
     },
-    "duration_seconds": 63.696,
-    "ended_at": "2026-07-13T15:07:12Z",
+    "duration_seconds": 79.62,
+    "ended_at": "2026-07-13T15:51:09Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
@@ -19,95 +19,98 @@
         ],
         [
           2,
-          "semantic interpretation of output embeddings"
+          "linear probing of LLM unembedding weights"
         ],
         [
           3,
-          "linear probing of language model output layers"
+          "semantic interpretation of output projection matrices"
         ],
         [
           4,
-          "decoding weights as semantic directions"
+          "decoding layer as linguistic feature detector"
         ],
         [
           5,
-          "feature visualization in transformer output space"
+          "emergent linear representations in transformer output layers"
         ],
         [
           6,
-          "linguistic properties of unembedding vectors"
+          "geometric structure of token embedding spaces"
         ],
         [
           7,
-          "semantic decoding in large language models"
+          "interpreting LLM output weights linguistically"
         ],
         [
           8,
-          "output projection matrix interpretability"
+          "unembedding matrix correspondence to syntactic features"
         ],
         [
           9,
-          "semantic feature extraction from word embeddings"
+          "linear decoding of semantic attributes from language models"
         ],
         [
           10,
-          "linear representation hypothesis in LLMs"
+          "probing output embeddings for linguistic phenomena"
         ],
         [
           11,
-          "output layer weights and semantic meaning"
+          "feature lens hypothesis in large language models"
         ],
         [
           12,
-          "decoding linear probes for language understanding"
+          "mapping unembedding weights to semantic dimensions"
         ],
         [
           13,
-          "semantic structure of vocabulary embeddings"
+          "linear separability in LLM output spaces"
         ],
         [
           14,
-          "interpretability of LLM output projections"
+          "interpreting the final layer of transformer language models"
         ],
         [
           15,
-          "feature lens analysis in neural language models"
+          "semantic alignment of unembedding and embedding matrices"
         ],
         [
           16,
-          "semantic alignment of unembedding and input embeddings"
+          "mechanistic interpretability of LLM output projections"
         ],
         [
           17,
-          "linguistic analysis of decoder weight matrices"
+          "linguistic feature extraction from unembedding weights"
         ],
         [
           18,
-          "semantic direction discovery in output space"
+          "correspondence between unembedding vectors and word meanings"
         ],
         [
           19,
-          "unembedding matrix as linguistic probe"
+          "analyzing the geometry of text embeddings via unembedding"
         ],
         [
           20,
-          "semantic interpretation of final layer representations"
+          "linear readout of linguistic categories from LLMs"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
+        "decoding layer as linguistic feature detector": 1,
+        "emergent linear representations in transformer output layers": 4,
+        "linear probing of LLM unembedding weights": 1,
         "llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings\" linguistics": 0,
-        "semantic interpretation of output embeddings": 4,
+        "semantic interpretation of output projection matrices": 0,
         "unembedding matrix as feature lens": 2
       },
-      "total_queries_issued": 2
+      "total_queries_issued": 5
     },
     "extracted_queries": [
-      "unembedding matrix feature lens semantic decoding",
-      "probe classifiers linear representation analysis",
-      "representational geometry semantic space alignment",
-      "semantic similarity interpretability linear probing",
-      "latent space semantic composition hypothesis"
+      "unembedding matrix semantic feature extraction",
+      "word2vec skip-gram latent semantic analysis",
+      "linear probe interpretability transformer representations",
+      "distributional semantics vector space geometry",
+      "compositionality emergence latent space alignment"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -125,37 +128,52 @@
       ]
     },
     "per_query_hit_count": {
-      "latent space semantic composition hypothesis": 3,
+      "compositionality emergence latent space alignment": 0,
+      "distributional semantics vector space geometry": 3,
+      "linear probe interpretability transformer representations": 3,
       "llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings\" linguistics": 3,
-      "probe classifiers linear representation analysis": 3,
-      "representational geometry semantic space alignment": 3,
-      "semantic similarity interpretability linear probing": 3,
-      "unembedding matrix feature lens semantic decoding": 3
+      "unembedding matrix semantic feature extraction": 3,
+      "word2vec skip-gram latent semantic analysis": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 3,
+      "rejected_count": 6,
       "rejections": [
         {
-          "primary_pointer": "1809.09924",
-          "rationale": "The paper focuses on image embeddings and visual semantic similarity using class hierarchies, which is an off-domain application compared to the user's specific question about text embeddings and linguistic feature lenses. While both involve \"embeddings,\" the constructs (visual vs. linguistic) and domains (computer vision vs. NLP) are distinct, failing the criteria for same-mechanism evidence or cross-vocabulary relevance.",
-          "title": "Hierarchy-based Image Embeddings for Semantic Image Retrieval"
+          "primary_pointer": "2306.00978",
+          "rationale": "The paper focuses on the engineering mechanism of weight quantization and activation-aware scaling for model compression, which is distinct from the user's question regarding the linguistic interpretation of unembedding matrices as feature lenses. While both involve LLM internal representations, the candidate paper does not measure the same biological/algorithmic mechanism, domain variables, or empirical population required by criteria (a) or (b), nor does it serve as a foundational reference fo",
+          "title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration"
         },
         {
-          "primary_pointer": "1409.8403",
-          "rationale": "The paper focuses on fine-grained image classification and the compatibility between image and class embeddings, which is an off-domain application (computer vision) compared to the user's specific question about linguistic text embeddings and the theoretical properties of unembedding matrices. While both involve \"embeddings,\" the paper does not measure the same mechanism, domain, or variables as the user's inquiry into text-based feature lenses, failing to satisfy any of the inclusion criteria ",
-          "title": "Evaluation of Output Embeddings for Fine-Grained Image Classification"
+          "primary_pointer": "2010.05985",
+          "rationale": "The paper focuses on frequentist statistical inference for predicting linguistic typological features from structured databases (WALS), which is a distinct construct from the user's question regarding the internal mechanics of LLM unembedding matrices as feature lenses for text embeddings. There is no overlap in the biological/algorithmic mechanism, the specific variables (unembedding weights vs. typological feature prediction), or the empirical domain (neural network interpretability vs. lingui",
+          "title": "NEMO: Frequentist Inference Approach to Constrained Linguistic Typology Feature Prediction in SIGTYP 2020 Shared Task"
         },
         {
-          "primary_pointer": "cmp-lg/9606024",
-          "rationale": "The paper focuses on Data-Oriented Parsing (DOP) and stochastic grammars for semantic interpretation, which is a distinct methodological construct from the user's question regarding the relationship between LLM unembedding matrices and feature lenses for text embeddings. While both fall under the broad domain of NLP, the paper does not measure the specific mechanism (unembedding matrices as feature lenses), variables, or empirical setting described in the user's query, nor does it serve as a fou",
-          "title": "A Data-Oriented Approach to Semantic Interpretation"
+          "primary_pointer": "1412.7659",
+          "rationale": "The paper focuses on visual representations and geometric group theory (SO(3) rotations) in computer vision, which is an off-domain topic relative to the user's question about text embeddings and linguistics. While both fields involve \"embeddings\" and \"linear transformations,\" the paper does not address the specific mechanism of unembedding matrices as feature lenses for text, nor does it study the linguistic domain or the specific variables mentioned in the user's query.",
+          "title": "Transformation Properties of Learned Visual Representations"
+        },
+        {
+          "primary_pointer": "2201.00978",
+          "rationale": "The paper focuses exclusively on computer vision architectures (Transformer-in-Transformer for images) and does not address the user's specific question regarding text embeddings, linguistic feature lenses, or LLM unembedding matrices. It fails all inclusion criteria (a-f) as it belongs to a distinct domain (vision vs. NLP) with no measurable connection to the user's mechanism or variables.",
+          "title": "PyramidTNT: Improved Transformer-in-Transformer Baselines with Pyramid Architecture"
+        },
+        {
+          "primary_pointer": "2411.16170",
+          "rationale": "The paper focuses on efficient linear attention mechanisms for visual Transformers (computer vision), whereas the user's question concerns the linguistic interpretation of unembedding matrices in text-based LLMs. This constitutes an off-domain rejection as the paper addresses a distinct construct (visual attention efficiency) sharing only the broad keyword \"Transformer\" without any measurable connection to the specific mechanism, domain, or variables of text embedding feature lenses.",
+          "title": "CARE Transformer: Mobile-Friendly Linear Visual Transformer via Decoupled Dual Interaction"
+        },
+        {
+          "primary_pointer": "2404.05657",
+          "rationale": "The paper focuses on computational efficiency and architectural simplification in Vision Transformers by removing attention layers, which is a distinct construct from the user's question regarding the linguistic interpretation of unembedding matrices as feature lenses. It does not measure the same mechanism, variables, or domain (linguistics/text embeddings) and falls under the rejection rule for distinct constructs sharing only homonym keywords (e.g., \"Transformer\" and \"MLP\" in a different cont",
+          "title": "MLP Can Be A Good Transformer Learner"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-13T15:06:08Z",
+    "started_at": "2026-07-13T15:49:49Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"your unembedding matrix is secretly a feature lens for text embeddings\" linguistics",
       "raw": "llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings\" linguistics"
@@ -175,7 +193,7 @@
           "primary_pointer": "1602.00245"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
-        "failed_at": "2026-07-13T15:06:38Z",
+        "failed_at": "2026-07-13T15:50:21Z",
         "reason": "query_irrelevant"
       },
       {
@@ -192,7 +210,7 @@
           "primary_pointer": "1601.01126"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
-        "failed_at": "2026-07-13T15:06:38Z",
+        "failed_at": "2026-07-13T15:50:21Z",
         "reason": "query_irrelevant"
       },
       {
@@ -208,221 +226,60 @@
           "primary_pointer": "2606.14257"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
-        "failed_at": "2026-07-13T15:06:38Z",
+        "failed_at": "2026-07-13T15:50:21Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Semantic communication is an emerging research area that has gained a wide range of attention recently. Despite this growing interest, there remains a notable absence of a comprehensive and widely-accepted framework for characterizing semantic communication. This paper introduces a new conceptualization of semantic communication and formulates two fundamental problems, which we term language exploitation and language design. Our contention is that the challenge of language design can be effectively situated within the broader framework of joint source-channel coding theory, underpinned by a comprehensive end-to-end distortion metric. To tackle the language exploitation problem, we put forth three approaches: semantic encoding, semantic decoding, and a synergistic combination of both in the form of combined semantic encoding and decoding. Furthermore, we establish the semantic distortion-cost region as a critical framework for assessing the language exploitation problem. For each of the three proposed approaches, the achievable distortion-cost region is characterized. Overall, this paper aims to shed light on the intricate dynamics of semantic communication, paving the way for a deeper understanding of this evolving field.",
+          "claimed_abstract": "A new method of feature extraction in the social network for within-network classification is proposed in the paper. The method provides new features calculated by combination of both: network structure information and class labels assigned to nodes. The influence of various features on classification performance has also been studied. The experiments on real-world data have shown that features created owing to the proposed method can lead to significant improvement of classification accuracy.",
           "claimed_authors": [
-            "Yulin Shao",
-            "Qi Cao",
-            "Deniz Gunduz"
+            "Tomasz Kajdanowicz",
+            "Przemyslaw Kazienko",
+            "Piotr Doskocz"
           ],
-          "claimed_title": "A Theory of Semantic Communication",
+          "claimed_title": "Label-dependent Feature Extraction in Social Networks for Node Classification",
           "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2212.01485"
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0095"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='A Theory of Semantic Communication')",
-        "failed_at": "2026-07-13T15:06:38Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Label-dependent Feature Extraction in Social Networks for Node Classification')",
+        "failed_at": "2026-07-13T15:50:21Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Weak gravitational lensing has the potential to select clusters independently of their baryon content, dynamical state, and star formation history. We present steps toward the first shear-selected sample of clusters, from the Deep Lens Survey (DLS), a deep BVRz' imaging survey of 28 square degrees. Cluster redshifts are determined from photometric redshifts of members and from lensing tomography, and in some cases have been confirmed spectroscopically. DLS imaging data are also used to derive mass-to-light ratios, and upcoming Chandra and XMM time will yield X-ray luminosities and temperatures for a subsample of 12 clusters. Thus we can begin to address any baryon or luminous-matter bias which may be present in current optical and X-ray samples. When the DLS is complete, we expect to have a sample of ~ 100 shear-selected clusters from z ~ 0.2-1.",
+          "claimed_abstract": "Over the last several years, research on facial recognition based on Deep Neural Network has evolved with approaches like task-specific loss functions, image normalization and augmentation, network architectures, etc. However, there have been few approaches with attention to how human faces differ from person to person. Premising that inter-personal differences are found both generally and locally on the human face, I propose FusiformNet, a novel framework for feature extraction that leverages the nature of discriminative facial features. Tested on Image-Unrestricted setting of Labeled Faces in the Wild benchmark, this method achieved a state-of-the-art accuracy of 96.67% without labeled outside data, image augmentation, normalization, or special loss functions. Likewise, the method also performed on a par with previous state-of-the-arts when pre-trained on CASIA-WebFace dataset. Considering its ability to extract both general and local facial features, the utility of FusiformNet may not be limited to facial recognition but also extend to other DNN-based tasks.",
           "claimed_authors": [
-            "V. E. Margoniner",
-            "the Deep Lens Survey Team"
+            "Kyo Takano"
           ],
-          "claimed_title": "Shear-selected clusters from the Deep Lens Survey",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2003,
-          "primary_pointer": "astro-ph/0303381"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Shear-selected clusters from the Deep Lens Survey')",
-        "failed_at": "2026-07-13T15:06:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The popularity of the Semantic Web (SW) encourages organizations to organize and publish semantic data using the RDF model. This growth poses new requirements to Business Intelligence (BI) technologies to enable On-Line Analytical Processing (OLAP)-like analysis over semantic data. The incorporation of semantic data into a Data Warehouse (DW) is not supported by the traditional Extract-Transform-Load (ETL) tools because they do not consider semantic issues in the integration process. In this paper, we propose a layer-based integration process and a set of high-level RDF-based ETL constructs required to define, map, extract, process, transform, integrate, update, and load (multidimensional) semantic data. Different to other ETL tools, we automate the ETL data flows by creating metadata at the schema level. Therefore, it relieves ETL developers from the burden of manual mapping at the ETL operation level. We create a prototype, named Semantic ETL Construct (SETLCONSTRUCT), based on the innovative ETL constructs proposed here. To evaluate SETLCONSTRUCT, we create a multidimensional semantic DW by integrating a Danish Business dataset and an EU Subsidy dataset using it and compare it with the previous programmable framework SETLPROG in terms of productivity, development time and performance. The evaluation shows that 1) SETLCONSTRUCT uses 92% fewer Number of Typed Characters (NOTC) than SETLPROG, and SETLAUTO (the extension of SETLCONSTRUCT for generating ETL execution flow automatically) further reduces the Number of Used Concepts (NOUC) by another 25%; 2) using SETLCONSTRUCT, the development time is almost cut in half compared to SETLPROG, and is cut by another 27% using SETLAUTO; 3) SETLCONSTRUCT is scalable and has similar performance compared to SETLPROG.",
-          "claimed_authors": [
-            "Rudra Pratap Deb Nath",
-            "Oscar Romero",
-            "Torben Bach Pedersen",
-            "Katja Hose"
-          ],
-          "claimed_title": "High-Level ETL for Semantic Data Warehouses -- Full Version",
+          "claimed_title": "FusiformNet: Extracting Discriminative Facial Features on Different Levels",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2006.07180"
+          "primary_pointer": "2011.00577"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='High-Level ETL for Semantic Data Warehouses -- Full Version')",
-        "failed_at": "2026-07-13T15:06:38Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='FusiformNet: Extracting Discriminative Facial Features on Different Levels')",
+        "failed_at": "2026-07-13T15:50:21Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The rings of symmetric polynomials form an inverse system whose limit, the ring of symmetric functions, is the model for the bosonic Fock space representation of the affine Lie algebra. We categorify this construction by considering an inverse limit of categories of polynomial representation of general linear groups. We show that this limit naturally carries an action of the affine Lie algebra (in the sense of Rouquier), thereby obtaining a famiy of categorifications of the bosonic Fock space representation.",
+          "claimed_abstract": "The rise of deepfake technology brings forth new questions about the authenticity of various forms of media found online today. Videos and images generated by artificial intelligence (AI) have become increasingly more difficult to differentiate from genuine media, resulting in the need for new models to detect artificially-generated media. While many models have attempted to solve this, most focus on direct image processing, adapting a convolutional neural network (CNN) or a recurrent neural network (RNN) that directly interacts with the video image data. This paper introduces an approach of using solely facial landmarks for deepfake detection. Using a dataset consisting of both deepfake and genuine videos of human faces, this paper describes an approach for extracting facial landmarks for deepfake detection, focusing on identifying subtle inconsistencies in facial movements instead of raw image processing. Experimental results demonstrated that this feature extraction technique is effective in various neural network models, with the same facial landmarks tested on three neural network models, with promising performance metrics indicating its potential for real-world applications. The findings discussed in this paper include RNN and artificial neural network (ANN) models with accuracy between 96% and 93%, respectively, with a CNN model hovering around 78%. This research challenges the assumption that raw image processing is necessary to identify deepfake videos by presenting a facial feature extraction approach compatible with various neural network models while requiring fewer parameters.",
           "claimed_authors": [
-            "Jiuzu Hong",
-            "Oded Yacobi"
+            "Benjamin Carter",
+            "Nathan Dilla",
+            "Micheal Callahan",
+            "Atuhaire Ambala"
           ],
-          "claimed_title": "Polynomial representations and categorifications of Fock Space",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1101.2456"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Polynomial representations and categorifications of Fock Space')",
-        "failed_at": "2026-07-13T15:06:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We study finite-dimensional representations of hyper loop algebras over non-algebraically closed fields. The main results concern the classification of the irreducible representations, the construction of the Weyl modules, base change, tensor products of irreducible and Weyl modules, and the block decomposition of the underlying abelian category. Several results are interestingly related to the study of irreducible representations of polynomial algebras and Galois theory.",
-          "claimed_authors": [
-            "Dijana Jakelic",
-            "Adriano Moura"
-          ],
-          "claimed_title": "Finite-Dimensional Representations of Hyper Loop Algebras Over Non-Algebraically Closed Fields",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2007,
-          "primary_pointer": "0711.0795"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Finite-Dimensional Representations of Hyper Loop Algebras Over Non-Algebraically Closed Fields')",
-        "failed_at": "2026-07-13T15:06:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "It is shown that an algebra $Λ$ can be lifted with nilpotent Jacobson radical $r = r(Λ)$ and has a generalized matrix unit $\\{e_{ii}\\}_I$ with each $\\bar e_{ii} $ in the center of $\\bar Λ= Λ/r$ iff $Λ$ is isomorphic to a generalized path algebra with weak relations. Representations of the generalized path algebras are given. As a corollary, $Λ$ is a finite algebra with non-zero unity element over perfect field $k$ (e.g. a field with characteristic zero or a finite field) iff $Λ$ is isomorphic to a generalized path algebra $k (D, Ω, ρ)$ of finite directed graph with weak relations and $dim {\\} Ω< \\infty $; $Λ$ is a generalized elementary algebra which can be lifted with nilpotent Jacobson radical and has a complete set of pairwise orthogonal idempotents iff $Λ$ is isomorphic to a path algebra with relations.",
-          "claimed_authors": [
-            "Shouchuan Zhang",
-            "Yao-Zhong Zhang"
-          ],
-          "claimed_title": "Structures and Representations of Generalized Path Algebras",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2004,
-          "primary_pointer": "math/0402188"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Structures and Representations of Generalized Path Algebras')",
-        "failed_at": "2026-07-13T15:06:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The question of whether people's experience in the world shapes conceptual representation and lexical semantics is longstanding. Word-association, feature-listing and similarity rating tasks aim to address this question but require a subjective interpretation of the latent dimensions identified. In this study, we introduce a supervised representational-alignment method that (i) determines whether two groups of individuals share the same basis of a certain category, and (ii) explains in what respects they differ. In applying this method, we show that congenital blindness induces conceptual reorganization in both a-modal and sensory-related verbal domains, and we identify the associated semantic shifts. We first apply supervised feature-pruning to a language model (GloVe) to optimize prediction accuracy of human similarity judgments from word embeddings. Pruning identifies one subset of retained GloVe features that optimizes prediction of judgments made by sighted individuals and another subset that optimizes judgments made by blind. A linear probing analysis then interprets the latent semantics of these feature-subsets by learning a mapping from the retained GloVe features to 65 interpretable semantic dimensions. We applied this approach to seven semantic domains, including verbs related to motion, sight, touch, and amodal verbs related to knowledge acquisition. We find that blind individuals more strongly associate social and cognitive meanings to verbs related to motion or those communicating non-speech vocal utterances (e.g., whimper, moan). Conversely, for amodal verbs, they demonstrate much sparser information. Finally, for some verbs, representations of blind and sighted are highly similar. The study presents a formal approach for studying interindividual differences in word meaning, and the first demonstration of how blindness impacts conceptual representation of everyday verbs.",
-          "claimed_authors": [
-            "Wanqian Bao",
-            "Uri Hasson"
-          ],
-          "claimed_title": "Identifying and interpreting non-aligned human conceptual representations using language modeling",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2403.06204"
-        },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Identifying and interpreting non-aligned human conceptual representations using language modeling')",
-        "failed_at": "2026-07-13T15:06:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper proposes a novel approach to semantic ontology alignment using contextual descriptors. A formalization was developed that enables the integration of essential and contextual descriptors to create a comprehensive knowledge model. The hierarchical structure of the semantic approach and the mathematical apparatus for analyzing potential conflicts between concepts, particularly in the example of \"Transparency\" and \"Privacy\" in the context of artificial intelligence, are demonstrated. Experimental studies showed a significant improvement in ontology alignment metrics after the implementation of contextual descriptors, especially in the areas of privacy, responsibility, and freedom & autonomy. The application of contextual descriptors achieved an average overall improvement of approximately 4.36%. The results indicate the effectiveness of the proposed approach for more accurately reflecting the complexity of knowledge and its contextual dependence.",
-          "claimed_authors": [
-            "Eduard Manziuk",
-            "Oleksander Barmak",
-            "Pavlo Radiuk",
-            "Vladislav Kuznetsov",
-            "Iurii Krak",
-            "Sergiy Yakovlev"
-          ],
-          "claimed_title": "Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2411.19113"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence')",
-        "failed_at": "2026-07-13T15:06:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Diffusion models, trained on large amounts of data, showed remarkable performance for image synthesis. They have high error consistency with humans and low texture bias when used for classification. Furthermore, prior work demonstrated the decomposability of their bottleneck layer representations into semantic directions. In this work, we analyze how well such representations are aligned to human responses on a triplet odd-one-out task. We find that despite the aforementioned observations: I) The representational alignment with humans is comparable to that of models trained only on ImageNet-1k. II) The most aligned layers of the denoiser U-Net are intermediate layers and not the bottleneck. III) Text conditioning greatly improves alignment at high noise levels, hinting at the importance of abstract textual information, especially in the early stage of generation.",
-          "claimed_authors": [
-            "Lorenz Linhardt",
-            "Marco Morik",
-            "Sidney Bender",
-            "Naima Elosegui Borras"
-          ],
-          "claimed_title": "An Analysis of Human Alignment of Latent Diffusion Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2403.08469"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='An Analysis of Human Alignment of Latent Diffusion Models')",
-        "failed_at": "2026-07-13T15:06:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Artificial Intelligence federates numerous scientific fields in the aim of developing machines able to assist human operators performing complex treatments -- most of which demand high cognitive skills (e.g. learning or decision processes). Central to this quest is to give machines the ability to estimate the likeness or similarity between things in the way human beings estimate the similarity between stimuli.\n  In this context, this book focuses on semantic measures: approaches designed for comparing semantic entities such as units of language, e.g. words, sentences, or concepts and instances defined into knowledge bases. The aim of these measures is to assess the similarity or relatedness of such semantic entities by taking into account their semantics, i.e. their meaning -- intuitively, the words tea and coffee, which both refer to stimulating beverage, will be estimated to be more semantically similar than the words toffee (confection) and coffee, despite that the last pair has a higher syntactic similarity. The two state-of-the-art approaches for estimating and quantifying semantic similarities/relatedness of semantic entities are presented in detail: the first one relies on corpora analysis and is based on Natural Language Processing techniques and semantic models while the second is based on more or less formal, computer-readable and workable forms of knowledge such as semantic networks, thesaurus or ontologies. (...) Beyond a simple inventory and categorization of existing measures, the aim of this monograph is to convey novices as well as researchers of these domains towards a better understanding of semantic similarity estimation and more generally semantic measures.",
-          "claimed_authors": [
-            "Sébastien Harispe",
-            "Sylvie Ranwez",
-            "Stefan Janaqi",
-            "Jacky Montmain"
-          ],
-          "claimed_title": "Semantic Similarity from Natural Language and Ontology Analysis",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1704.05295"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Semantic Similarity from Natural Language and Ontology Analysis')",
-        "failed_at": "2026-07-13T15:06:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We describe our system for finding good answers in a community forum, as defined in SemEval-2016, Task 3 on Community Question Answering. Our approach relies on several semantic similarity features based on fine-tuned word embeddings and topics similarities. In the main Subtask C, our primary submission was ranked third, with a MAP of 51.68 and accuracy of 69.94. In Subtask A, our primary submission was also third, with MAP of 77.58 and accuracy of 73.39.",
-          "claimed_authors": [
-            "Todor Mihaylov",
-            "Preslav Nakov"
-          ],
-          "claimed_title": "SemanticZ at SemEval-2016 Task 3: Ranking Relevant Answers in Community Question Answering Using Semantic Similarity Based on Fine-tuned Word Embeddings",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1911.08743"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='SemanticZ at SemEval-2016 Task 3: Ranking Relevant Answers in Community Question Answering Using Semantic Similarity Based on Fine-tuned Word Embeddings')",
-        "failed_at": "2026-07-13T15:06:38Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper investigates the efficacy of RWKV, a novel language model architecture known for its linear attention mechanism, for generating sentence embeddings in a zero-shot setting. I conduct a layer-wise analysis to evaluate the semantic similarity captured by embeddings from different hidden layers of a pre-trained RWKV model. The performance is assessed on the Microsoft Research Paraphrase Corpus (MRPC) dataset using Spearman correlation and compared against a GloVe-based baseline. My results indicate that while RWKV embeddings capture some semantic relatedness, they underperform compared to the GloVe baseline in terms of Spearman correlation. I also analyze the inference time and GPU memory usage, highlighting the computational trade-offs associated with RWKV embeddings. The findings suggest that while RWKV offers potential advantages in terms of linear scaling, its zero-shot sentence embedding quality for semantic similarity tasks requires further investigation and potential task-specific fine-tuning to match or exceed simpler baselines.",
-          "claimed_authors": [
-            "Xinghan Pan"
-          ],
-          "claimed_title": "Exploring RWKV for Sentence Embeddings: Layer-wise Analysis and Baseline Comparison for Semantic Similarity",
+          "claimed_title": "Deepfake Detection Via Facial Feature Extraction and Modeling",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2502.14620"
+          "primary_pointer": "2507.18815"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Exploring RWKV for Sentence Embeddings: Layer-wise Analysis and Baseline Comparison for Semantic Similarity')",
-        "failed_at": "2026-07-13T15:06:38Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Deepfake Detection Via Facial Feature Extraction and Modeling')",
+        "failed_at": "2026-07-13T15:50:21Z",
         "reason": "query_irrelevant"
       },
       {
@@ -457,7 +314,7 @@
           "primary_pointer": "2603.29727"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
-        "failed_at": "2026-07-13T15:06:38Z",
+        "failed_at": "2026-07-13T15:50:21Z",
         "reason": "query_irrelevant"
       },
       {
@@ -488,7 +345,7 @@
           "primary_pointer": "2507.19375"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
-        "failed_at": "2026-07-13T15:06:38Z",
+        "failed_at": "2026-07-13T15:50:21Z",
         "reason": "query_irrelevant"
       },
       {
@@ -521,7 +378,134 @@
           "primary_pointer": "2512.20263"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2')",
-        "failed_at": "2026-07-13T15:06:38Z",
+        "failed_at": "2026-07-13T15:50:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When a three-dimensional object moves relative to an observer, a change occurs on the observer's image plane and in the visual representation computed by a learned model. Starting with the idea that a good visual representation is one that transforms linearly under scene motions, we show, using the theory of group representations, that any such representation is equivalent to a combination of the elementary irreducible representations. We derive a striking relationship between irreducibility and the statistical dependency structure of the representation, by showing that under restricted conditions, irreducible representations are decorrelated. Under partial observability, as induced by the perspective projection of a scene onto the image plane, the motion group does not have a linear action on the space of images, so that it becomes necessary to perform inference over a latent representation that does transform linearly. This idea is demonstrated in a model of rotating NORB objects that employs a latent representation of the non-commutative 3D rotation group SO(3).",
+          "claimed_authors": [
+            "Taco S. Cohen",
+            "Max Welling"
+          ],
+          "claimed_title": "Transformation Properties of Learned Visual Representations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1412.7659"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Transformation Properties of Learned Visual Representations')",
+        "failed_at": "2026-07-13T15:50:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Improving the interpretability of brain decoding approaches is of primary interest in many neuroimaging studies. Despite extensive studies of this type, at present, there is no formal definition for interpretability of brain decoding models. As a consequence, there is no quantitative measure for evaluating the interpretability of different brain decoding methods. In this paper, we present a simple definition for interpretability of linear brain decoding models. Then, we propose to combine the interpretability and the performance of the brain decoding into a new multi-objective criterion for model selection. Our preliminary results on the toy data show that optimizing the hyper-parameters of the regularized linear classifier based on the proposed criterion results in more informative linear models. The presented definition provides the theoretical background for quantitative evaluation of interpretability in linear brain decoding.",
+          "claimed_authors": [
+            "Seyed Mostafa Kia",
+            "Andrea Passerini"
+          ],
+          "claimed_title": "Interpretability in Linear Brain Decoding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1606.05672"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Interpretability in Linear Brain Decoding')",
+        "failed_at": "2026-07-13T15:50:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, molecular representation learning has emerged as a key area of focus in various chemical tasks. However, many existing models fail to fully consider the geometric information of molecular structures, resulting in less intuitive representations. Moreover, the widely used message-passing mechanism is limited to provide the interpretation of experimental results from a chemical perspective. To address these challenges, we introduce a novel Transformer-based framework for molecular representation learning, named the Geometry-aware Transformer (GeoT). GeoT learns molecular graph structures through attention-based mechanisms specifically designed to offer reliable interpretability, as well as molecular property prediction. Consequently, GeoT can generate attention maps of interatomic relationships associated with training objectives. In addition, GeoT demonstrates comparable performance to MPNN-based models while achieving reduced computational complexity. Our comprehensive experiments, including an empirical simulation, reveal that GeoT effectively learns the chemical insights into molecular structures, bridging the gap between artificial intelligence and molecular sciences.",
+          "claimed_authors": [
+            "Bumju Kwak",
+            "Jiwon Park",
+            "Taewon Kang",
+            "Jeonghee Jo",
+            "Byunghan Lee",
+            "Sungroh Yoon"
+          ],
+          "claimed_title": "GeoT: A Geometry-aware Transformer for Reliable Molecular Property Prediction and Chemically Interpretable Representation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.15516"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='GeoT: A Geometry-aware Transformer for Reliable Molecular Property Prediction and Chemically Interpretable Representation Learning')",
+        "failed_at": "2026-07-13T15:50:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a new framework for compositional distributional semantics in which the distributional contexts of lexemes are expressed in terms of anchored packed dependency trees. We show that these structures have the potential to capture the full sentential contexts of a lexeme and provide a uniform basis for the composition of distributional knowledge in a way that captures both mutual disambiguation and generalization.",
+          "claimed_authors": [
+            "David Weir",
+            "Julie Weeds",
+            "Jeremy Reffin",
+            "Thomas Kober"
+          ],
+          "claimed_title": "Aligning Packed Dependency Trees: a theory of composition for distributional semantics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1608.07115"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Aligning Packed Dependency Trees: a theory of composition for distributional semantics')",
+        "failed_at": "2026-07-13T15:50:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We show that the spheres in Hilbert geometry have the same volume growth entropy as those in the Lobachevsky space. We give the asymptotic estimates for the ratio of the volume of metric ball to the area of the metric sphere in Hilbert geometry. Derived estimates agree with the well-known fact in the Lobachevsky space",
+          "claimed_authors": [
+            "Alexander A. Borisenko",
+            "Eugeny A. Olin"
+          ],
+          "claimed_title": "Asymptotic Properties of Hilbert Geometry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0711.0446"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='Asymptotic Properties of Hilbert Geometry')",
+        "failed_at": "2026-07-13T15:50:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the scientific motivations, the mission concept and the instrumentation of SPACE, a class-M mission proposed for concept study at the first call of the ESA Cosmic-Vision 2015-2025 planning cycle. SPACE aims to produce the largest three-dimensional evolutionary map of the Universe over the past 10 billion years by taking near-IR spectra and measuring redshifts for more than half a billion galaxies at 0<z<2 down to AB~23 over 3πsr of the sky. In addition, SPACE will also target a smaller sky field, performing a deep spectroscopic survey of millions of galaxies to AB~26 and at 2<z<10+. These goals are unreachable with ground-based observations due to the ~500 times higher sky background. To achieve the main science objectives, SPACE will use a 1.5m diameter Ritchey-Chretien telescope equipped with a set of arrays of Digital Micro-mirror Devices (DMDs) covering a total field of view of 0.4 deg2, and will perform large-multiplexing multi-object spectroscopy (e.g. ~6000 targets per pointing) at a spectral resolution of R~400 as well as diffraction-limited imaging with continuous coverage from 0.8mum to 1.8mum.",
+          "claimed_authors": [
+            "A. Cimatti",
+            "M. Robberto",
+            "C. M. Baugh",
+            "S. V. W. Beckwith",
+            "R. Content",
+            "E. Daddi",
+            "G. De Lucia",
+            "B. Garilli",
+            "L. Guzzo",
+            "G. Kauffmann",
+            "M. Lehnert",
+            "D. Maccagni",
+            "A. Martinez-Sansigre",
+            "F. Pasian",
+            "I. N. Reid",
+            "P. Rosati",
+            "R. Salvaterra",
+            "M. Stiavelli",
+            "Y. Wang",
+            "M. Zapatero Osorio",
+            "the SPACE team"
+          ],
+          "claimed_title": "SPACE: the SPectroscopic All-sky Cosmic Explorer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0804.4433"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Your UnEmbedding Matrix is Secretly a Feature Lens', candidate_title='SPACE: the SPectroscopic All-sky Cosmic Explorer')",
+        "failed_at": "2026-07-13T15:50:21Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -548,7 +532,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-13T15:06:43Z"
+          "verified_at": "2026-07-13T15:50:26Z"
         }
       },
       {
@@ -578,36 +562,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-13T15:06:43Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Lutfi Kerem Senel",
-            "Ihsan Utlu",
-            "Veysel Yucesoy",
-            "Aykut Koc",
-            "Tolga Cukur"
-          ],
-          "title": "Semantic Structure and Interpretability of Word Embeddings",
-          "venue": "arXiv",
-          "year": 2017
-        },
-        "primary_pointer": "1711.00331",
-        "summary": "Dense word embeddings, which encode semantic meanings of words to low dimensional vector spaces have become very popular in natural language processing (NLP) research due to their state-of-the-art performances in many NLP tasks. Word embeddings are substantially successful in capturing semantic relations among words, so a meaningful semantic structure must be present in the respective vector spaces. However, in many cases, this semantic structure is broadly and heterogeneously distributed across the embedding dimensions, which makes interpretation a big challenge. In this study, we propose a statistical method to uncover the latent semantic structure in the dense word embeddings. To perform our analysis we introduce a new dataset (SEMCAT) that contains more than 6500 words semantically grouped under 110 categories. We further propose a method to quantify the interpretability of the word embeddings; the proposed method is a practical alternative to the classical word intrusion test that requires human intervention.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1711.00331",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.75,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-13T15:06:48Z"
+          "verified_at": "2026-07-13T15:50:26Z"
         }
       }
     ]
