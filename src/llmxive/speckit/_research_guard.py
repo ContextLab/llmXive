@@ -194,12 +194,30 @@ def _extract_references(research_md_text: str) -> list[str]:
     return refs
 
 
+#: Statuses meaning "the server REFUSED OUR PROBE", not "this reference is dead".
+#: A bot-blocking host (openalex.org), an auth-walled endpoint, a rate limiter, or an
+#: API whose probe shape we got wrong (a bare api.github.com/search/repositories with
+#: no `q=` → 422) all answer this way while the resource is perfectly present. Such a
+#: refusal is NOT evidence against the reference — and, unlike a 5xx or a timeout, it
+#: NEVER recovers on a re-run, so hard-blocking on it wedged live projects forever
+#: (67 advance_errors). We therefore do not fail FR-006 on these. A 404/410 — the
+#: signal that actually says "this reference does not exist" — still hard-blocks, as
+#: do 5xx (transient; recovers on re-run) and DNS/connection failures. This mirrors
+#: the policy the citation layer already applies to 401/403/429.
+_PROBE_REFUSED = frozenset({401, 403, 407, 422, 429})
+#: Servers that reject a HEAD but serve a GET (405/501), plus the refusal statuses —
+#: a HEAD is the request most often blocked, so it is worth one ranged-GET retry
+#: before we conclude anything at all.
+_RETRY_WITH_GET = frozenset({405, 501}) | _PROBE_REFUSED
+
+
 def _probe(url: str, *, timeout: int) -> None:
-    """HEAD-then-GET-range probe; accept final status 200-399 only.
+    """HEAD-then-GET-range probe; accept final status 200-399.
 
     Raises:
-        UnreachableReference: on any 4xx/5xx, timeout, DNS/connection
-            failure, or malformed URL.
+        UnreachableReference: on 404/410 (the reference does not exist), 5xx, a
+            timeout, a DNS/connection failure, or a malformed URL. An access-denied
+            refusal (:data:`_PROBE_REFUSED`) is NOT raised — see that constant.
     """
     if not (url.lower().startswith("http://") or url.lower().startswith("https://")):
         raise UnreachableReference(url, "malformed URL (no http(s):// scheme)")
@@ -219,9 +237,15 @@ def _probe(url: str, *, timeout: int) -> None:
         try:
             resp = _request("HEAD")
         except urllib.error.HTTPError as he:
-            # Some servers reject HEAD with 405/501 — fall back to a tiny GET.
-            if he.code in (405, 501):
-                resp = _request("GET", {"Range": "bytes=0-0"})
+            # A HEAD is the request servers most often reject. Retry once as a tiny
+            # ranged GET before drawing any conclusion.
+            if he.code in _RETRY_WITH_GET:
+                try:
+                    resp = _request("GET", {"Range": "bytes=0-0"})
+                except urllib.error.HTTPError as ge:
+                    if ge.code in _PROBE_REFUSED:
+                        return  # refused, not absent — the reference stands
+                    raise
             else:
                 raise
         status = getattr(resp, "status", None) or resp.getcode()
@@ -231,6 +255,8 @@ def _probe(url: str, *, timeout: int) -> None:
     except UnreachableReference:
         raise
     except urllib.error.HTTPError as he:
+        if he.code in _PROBE_REFUSED:
+            return  # refused, not absent — the reference stands
         raise UnreachableReference(url, f"HTTP {he.code}") from he
     except urllib.error.URLError as ue:
         raise UnreachableReference(url, f"connection/DNS failure: {ue.reason}") from ue

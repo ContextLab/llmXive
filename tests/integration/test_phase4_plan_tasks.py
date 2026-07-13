@@ -349,6 +349,31 @@ class TestUrlReachability:
         with pytest.raises(UnreachableReference):
             assert_urls_reachable(f"Dead link: {_dead_url()}")
 
+    # --- access-denied is NOT a dead reference (the false-positive wedge) -------
+    #
+    # A 403/401/429 means the source REFUSED OUR PROBE — the resource is there. It
+    # is what a bot-blocking host (openalex.org) or a rate limiter returns, and it
+    # NEVER self-heals on a re-run, so blocking on it wedged live projects forever
+    # against perfectly healthy sources (67 advance_errors). Only 404/410 prove a
+    # reference does not exist; those still hard-block (test_404_raises), as do
+    # 5xx (transient, recovers on re-run) and DNS failures. Same policy the
+    # citation layer already adopted for 401/403/429.
+
+    @pytest.mark.parametrize("status", [401, 403, 429])
+    def test_access_denied_does_not_raise(self, http_server, status: int) -> None:
+        from llmxive.speckit._research_guard import assert_urls_reachable
+        base, set_status = http_server
+        set_status(status)
+        assert_urls_reachable(f"Bot-blocked but live source: {base}/dataset")
+
+    def test_unprocessable_probe_does_not_raise(self, http_server) -> None:
+        """422 = the ENDPOINT exists, our probe's shape was wrong (e.g. a bare
+        api.github.com/search/repositories with no `q=`). Not a dead reference."""
+        from llmxive.speckit._research_guard import assert_urls_reachable
+        base, set_status = http_server
+        set_status(422)
+        assert_urls_reachable(f"API endpoint: {base}/search/repositories")
+
     def test_zero_refs_is_noop(self) -> None:
         from llmxive.speckit._research_guard import assert_urls_reachable
         assert_urls_reachable("This research.md cites no external references.")
