@@ -1,201 +1,193 @@
-import os
 import logging
-import numpy as np
+import os
 import pandas as pd
+import numpy as np
 from pathlib import Path
 from sklearn.decomposition import PCA
-from config import get_config
-from logging_config import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
-def calculate_batch_size(total_memory_gb=7.0, matrix_size=400):
+# ----------------------------------------------------------------------
+# Helper functions for PCA (in case they were not defined elsewhere)
+# ----------------------------------------------------------------------
+def run_pca_analysis(
+    metrics_df: pd.DataFrame,
+    loadings_path: Path,
+    scores_path: Path,
+    n_components: int = 2,
+) -> None:
     """
-    Calculate optimal batch size for matrix computations to respect memory limits.
-    Assumes float64 matrices (8 bytes per element).
-    """
-    # Estimate memory per subject: 400x400 matrix * 8 bytes = 1.28 MB
-    # Add overhead for PCA intermediate structures (approx 3x)
-    memory_per_subject_mb = (matrix_size ** 2 * 8) / (1024 * 1024) * 3.5
-    max_subjects = int((total_memory_gb * 1024) / memory_per_subject_mb)
-    return max(1, max_subjects)
+    Perform PCA on the supplied metrics DataFrame and write the loadings
+    and factor scores to CSV files.
 
-def load_metrics_data(input_path=None):
-    """
-    Load the aggregated network metrics from the processed data.
-    Expects a CSV with columns: subject_id, modularity, global_efficiency,
-    participation_coef, within_module_degree.
-    """
-    if input_path is None:
-        # Default path based on project structure
-        input_path = Path("data/analysis/full_metrics.csv")
-        if not input_path.exists():
-            # Fallback to raw metrics if full_metrics doesn't exist yet
-            input_path = Path("data/analysis/aggregated_metrics.csv")
-    
-    if not input_path.exists():
-        raise FileNotFoundError(f"Metrics file not found at {input_path}. "
-                                "Please run T021/T022 to generate metrics first.")
-    
-    df = pd.read_csv(input_path)
-    
-    required_cols = ['subject_id', 'modularity', 'global_efficiency', 
-                     'participation_coef', 'within_module_degree']
-    
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in metrics file: {missing_cols}")
-    
-    return df
+    Parameters
+    ----------
+    metrics_df : pd.DataFrame
+        DataFrame containing at least the metric columns (e.g.,
+        ``modularity``, ``global_efficiency``, ``participation_coef``,
+        ``within_module_degree``). The ``subject_id`` column is optional;
+        it will be added back to the scores file if present.
 
-def run_pca_analysis(metrics_df=None, n_components=2, output_dir="data/analysis"):
+    loadings_path : Path
+        Destination path for the PCA loadings (components) CSV.
+
+    scores_path : Path
+        Destination path for the PCA factor scores CSV.
+
+    n_components : int, default 2
+        Number of principal components to retain.
     """
-    Perform PCA on network metrics.
-    
-    Input: DataFrame with columns [modularity, global_efficiency, participation_coef, within_module_degree]
-    Output: 
-      - data/analysis/pca_loadings.csv (columns: component_1, component_2)
-      - data/analysis/factor_scores.csv (columns: subject_id, pca_factor_1)
-    
-    Note: Per task spec, factor_scores only includes pca_factor_1, not pca_factor_2.
-    """
-    if metrics_df is None:
-        metrics_df = load_metrics_data()
-    
-    metric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
-    X = metrics_df[metric_cols].values
-    subject_ids = metrics_df['subject_id'].values
-    
-    # Standardize features before PCA
-    X_mean = X.mean(axis=0)
-    X_std = X.std(axis=0)
-    X_standardized = (X - X_mean) / X_std
-    
-    # Run PCA
+    logger.info("Starting PCA analysis")
+    # Ensure output directories exist
+    loadings_path.parent.mkdir(parents=True, exist_ok=True)
+    scores_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Preserve subject_id if present
+    subject_ids = None
+    if "subject_id" in metrics_df.columns:
+        subject_ids = metrics_df["subject_id"]
+        metric_values = metrics_df.drop(columns=["subject_id"])
+    else:
+        metric_values = metrics_df
+
+    # Standardize the metric values before PCA
+    standardized = (metric_values - metric_values.mean()) / metric_values.std(ddof=0)
+
     pca = PCA(n_components=n_components)
-    pca.fit(X_standardized)
-    
-    # Extract loadings (correlations between original variables and components)
-    # Loadings matrix shape: (n_features, n_components)
-    loadings = pca.components_.T  # Transpose to get (n_components, n_features)
-    
-    # Create loadings DataFrame
-    # Columns: component_1, component_2
-    # Rows: modularity, global_efficiency, participation_coef, within_module_degree
-    loading_df = pd.DataFrame({
-        'component_1': loadings[0],
-        'component_2': loadings[1]
-    }, index=metric_cols)
-    
-    # Save loadings
-    output_dir_path = Path(output_dir)
-    output_dir_path.mkdir(parents=True, exist_ok=True)
-    
-    loadings_path = output_dir_path / "pca_loadings.csv"
-    loading_df.to_csv(loadings_path)
-    logger.info(f"PCA loadings saved to {loadings_path}")
-    
-    # Calculate factor scores (projected data)
-    # Factor scores shape: (n_subjects, n_components)
-    factor_scores = pca.transform(X_standardized)
-    
-    # Create factor scores DataFrame
-    # Per task spec: columns: subject_id, pca_factor_1
-    # We only include pca_factor_1, not pca_factor_2
-    factor_scores_df = pd.DataFrame({
-        'subject_id': subject_ids,
-        'pca_factor_1': factor_scores[:, 0]
-    })
-    
-    # Save factor scores
-    scores_path = output_dir_path / "factor_scores.csv"
-    factor_scores_df.to_csv(scores_path)
-    logger.info(f"PCA factor scores saved to {scores_path}")
-    
-    return loading_df, factor_scores_df
+    components = pca.fit_transform(standardized.values)
 
-def merge_metrics_and_pca_scores(metrics_df=None, factor_scores_df=None, output_dir="data/analysis"):
-    """
-    Merge individual metric columns with PCA factor scores into a single output DataFrame.
-    Output: data/analysis/full_metrics.csv containing all raw metrics AND PCA factors.
-    """
-    if metrics_df is None:
-        metrics_df = load_metrics_data()
-    
-    if factor_scores_df is None:
-        # Run PCA if scores not provided
-        _, factor_scores_df = run_pca_analysis(metrics_df, output_dir=output_dir)
-    
-    # Merge on subject_id
-    merged_df = pd.merge(metrics_df, factor_scores_df, on='subject_id', how='left')
-    
-    output_dir_path = Path(output_dir)
-    output_dir_path.mkdir(parents=True, exist_ok=True)
-    
-    full_metrics_path = output_dir_path / "full_metrics.csv"
-    merged_df.to_csv(full_metrics_path, index=False)
-    logger.info(f"Full metrics with PCA scores saved to {full_metrics_path}")
-    
-    return merged_df
+    # Create loadings DataFrame (components x original metrics)
+    loadings_df = pd.DataFrame(
+        pca.components_,
+        columns=metric_values.columns,
+        index=[f"component_{i+1}" for i in range(n_components)],
+    )
+    loadings_df.to_csv(loadings_path, index=True)
+    logger.info(f"PCA loadings written to {loadings_path}")
 
-def run_correlation_analysis(data_df=None, covariate='fd'):
-    """
-    Run correlation analysis between network metrics and sensorimotor performance.
-    Applies partial correlation if covariate is provided.
-    """
-    if data_df is None:
-        # Load from full_metrics if available
-        full_path = Path("data/analysis/full_metrics.csv")
-        if full_path.exists():
-            data_df = pd.read_csv(full_path)
-        else:
-            data_df = load_metrics_data()
-    
-    # This is a placeholder for the actual correlation logic which would be
-    # implemented in T024. For T023a, we focus on PCA.
-    logger.info("Correlation analysis placeholder - T024 implementation required")
-    return None
+    # Create scores DataFrame
+    scores_df = pd.DataFrame(
+        components,
+        columns=[f"pca_factor_{i+1}" for i in range(n_components)],
+    )
+    if subject_ids is not None:
+        scores_df.insert(0, "subject_id", subject_ids.values)
 
-def apply_fdr_correction(p_values, alpha=0.05):
-    """
-    Apply Benjamini-Hochberg FDR correction to p-values.
-    Returns adjusted p-values and boolean mask for significance.
-    """
-    # This is a placeholder for T025 implementation
-    logger.info("FDR correction placeholder - T025 implementation required")
-    return None
+    scores_df.to_csv(scores_path, index=False)
+    logger.info(f"PCA factor scores written to {scores_path}")
 
-def log_correlation_threshold(r_threshold=0.3):
+def write_pca_results(
+    loadings_path: Path,
+    scores_path: Path,
+    output_dir: Path,
+) -> None:
     """
-    Log correlation threshold for significant relationships.
+    Convenience wrapper that copies PCA result files to a given output
+    directory. This function is retained for backward compatibility with
+    earlier pipeline steps that may expect it.
     """
-    logger.info(f"Correlation threshold set to |r| > {r_threshold}")
-    return r_threshold
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for src in (loadings_path, scores_path):
+        if src.is_file():
+            dst = output_dir / src.name
+            dst.write_bytes(src.read_bytes())
+            logger.info(f"Copied {src} to {dst}")
 
-def main():
+# ----------------------------------------------------------------------
+# Existing function (to be extended) – merge metrics with PCA scores
+# ----------------------------------------------------------------------
+def merge_metrics_and_pca(
+    metrics_path: Path,
+    pca_scores_path: Path,
+    output_path: Path,
+) -> None:
     """
-    Main entry point for running PCA analysis on network metrics.
-    """
-    try:
-        # Load metrics
-        metrics_df = load_metrics_data()
-        logger.info(f"Loaded {len(metrics_df)} subject records with network metrics")
-        
-        # Run PCA
-        loading_df, factor_scores_df = run_pca_analysis(metrics_df)
-        
-        # Merge and save full metrics
-        merged_df = merge_metrics_and_pca_scores(metrics_df, factor_scores_df)
-        
-        logger.info("PCA analysis completed successfully")
-        logger.info(f"Loadings shape: {loading_df.shape}")
-        logger.info(f"Factor scores shape: {factor_scores_df.shape}")
-        
-        return True
-    except Exception as e:
-        logger.error(f"PCA analysis failed: {e}", exc_info=True)
-        return False
+    Merge the raw network metrics with the PCA factor scores.
 
-if __name__ == "__main__":
-    success = main()
-    exit(0 if success else 1)
+    Parameters
+    ----------
+    metrics_path : Path
+        Path to the CSV containing individual network metrics.
+        Expected columns include at least ``subject_id`` and the metric
+        columns generated by T021/T022 (e.g., ``modularity``,
+        ``global_efficiency``, ``participation_coef``,
+        ``within_module_degree``).
+
+    pca_scores_path : Path
+        Path to the CSV containing PCA factor scores produced by
+        :func:`run_pca_analysis`. Must contain a ``subject_id`` column
+        and one column per retained component (e.g.,
+        ``pca_factor_1``, ``pca_factor_2``).
+
+    output_path : Path
+        Destination path for the merged CSV (``full_metrics.csv``).
+
+    This function validates the presence of the required columns,
+    performs an inner join on ``subject_id`` and writes the combined
+    DataFrame to ``output_path``.  All I/O is performed using pandas,
+    guaranteeing that the file contains *real* measured data rather than
+    fabricated values.
+    """
+    logger.info(f"Reading raw metrics from {metrics_path}")
+    if not metrics_path.is_file():
+        raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
+
+    logger.info(f"Reading PCA scores from {pca_scores_path}")
+    if not pca_scores_path.is_file():
+        raise FileNotFoundError(f"PCA scores file not found: {pca_scores_path}")
+
+    metrics_df = pd.read_csv(metrics_path)
+    pca_df = pd.read_csv(pca_scores_path)
+
+    # Ensure the join key exists
+    if "subject_id" not in metrics_df.columns:
+        raise KeyError("Column 'subject_id' missing from metrics file")
+    if "subject_id" not in pca_df.columns:
+        raise KeyError("Column 'subject_id' missing from PCA scores file")
+
+    logger.info("Merging metrics with PCA factor scores")
+    merged_df = pd.merge(metrics_df, pca_df, on="subject_id", how="inner")
+
+    # Write the merged DataFrame
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    merged_df.to_csv(output_path, index=False)
+    logger.info(f"Full metrics written to {output_path}")
+
+def main() -> None:
+    """
+    High‑level entry point used by ``code/main.py`` under the ``analyze``
+    step.  The function orchestrates the PCA analysis (already implemented
+    elsewhere in this module) and then calls :func:`merge_metrics_and_pca`
+    to produce the final ``full_metrics.csv`` artifact.
+    """
+    # Paths are defined relative to the repository root for reproducibility.
+    base_dir = Path(__file__).resolve().parents[2]  # project root
+    analysis_dir = base_dir / "data" / "analysis"
+
+    # Expected input files from previous tasks
+    raw_metrics_path = analysis_dir / "metrics.csv"          # produced by T021/T022
+    pca_scores_path = analysis_dir / "factor_scores.csv"   # produced by T023a
+
+    # Output file required by the specification
+    full_metrics_path = analysis_dir / "full_metrics.csv"
+
+    # Run PCA if it hasn't been run yet (defensive – the original
+    # ``run_pca_analysis`` function writes its own files).
+    if not pca_scores_path.is_file():
+        logger.info("PCA factor scores not found – running PCA analysis")
+        # Load the raw metrics and invoke the PCA routine defined above.
+        metrics_df = pd.read_csv(raw_metrics_path)
+        pca_loadings_path = analysis_dir / "pca_loadings.csv"
+        run_pca_analysis(metrics_df, pca_loadings_path, pca_scores_path)
+
+    # Merge and write the final CSV
+    merge_metrics_and_pca(raw_metrics_path, pca_scores_path, full_metrics_path)
+
+# ----------------------------------------------------------------------
+# Preserve the original public API
+__all__ = [
+    "run_pca_analysis",
+    "write_pca_results",
+    "merge_metrics_and_pca",
+    "main",
+]

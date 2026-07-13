@@ -9,48 +9,80 @@ The gate detected that your reported numbers are NOT real measurements: they are
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
 - code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…nput to output (assuming synthetic input is already 'corrected' f…”
+- code/quickstart.md: synthetic/fake INPUT data not authorized by the spec — “…t will run validation on synthetic data or skip heavy preprocess…”
 - code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…0)) -> Path:     """     Generates a synthetic NIfTI-like file with kno…”
 - code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Generating synthetic data at {output_path} with sh…”
 - code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…ape}")          # Create dummy data with known properties…”
 - code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…)          logger.info(f"Synthetic data generated: {output_path}…”
 - code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…hing logic by running on synthetic data     with forced small ba…”
 - code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…temporary directory for synthetic data     with tempfile.Tempor…”
-- code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…_dir)                  # Generate synthetic data for 3 "subjects"…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 10 fabricated/simulated-result signal(s) — results are not real measurements: code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…nput to output (assuming synthetic input is already 'corrected' f…”; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…0)) -> Path:     """     Generates a synthetic NIfTI-like file with kno…”; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Generating synthetic data at {output_path} with sh…”; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=1); python code/main.py --step analyze (rc=1)
+**Summary**: 11 fabricated/simulated-result signal(s) — results are not real measurements: code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…nput to output (assuming synthetic input is already 'corrected' f…”; code/quickstart.md: synthetic/fake INPUT data not authorized by the spec — “…t will run validation on synthetic data or skip heavy preprocess…”; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…0)) -> Path:     """     Generates a synthetic NIfTI-like file with kno…”; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=1); python code/main.py --step analyze (rc=1); 1 declared deliverable(s) absent: data/analysis/full_metrics.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --step download_preprocess --subjects 50 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 8, in <module>
-    from data.metrics import main as metrics_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/metrics.py", line 10, in <module>
-    from nilearn.input_data import NiftiLabelsMasker
-ModuleNotFoundError: No module named 'nilearn.input_data'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 93, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 75, in main
+    setup_logging(log_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/logging_config.py", line 54, in setup_logging
+    root_logger.setLevel(level)
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py", line 1464, in setLevel
+    self.level = _checkLevel(level)
+                 ^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py", line 210, in _checkLevel
+    raise TypeError("Level not an integer or a valid string: %r"
+TypeError: Level not an integer or a valid string: PosixPath('logs/pipeline.log')
 - python code/main.py --step extract_metrics -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 8, in <module>
-    from data.metrics import main as metrics_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/metrics.py", line 10, in <module>
-    from nilearn.input_data import NiftiLabelsMasker
-ModuleNotFoundError: No module named 'nilearn.input_data'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 93, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 75, in main
+    setup_logging(log_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/logging_config.py", line 54, in setup_logging
+    root_logger.setLevel(level)
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py", line 1464, in setLevel
+    self.level = _checkLevel(level)
+                 ^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py", line 210, in _checkLevel
+    raise TypeError("Level not an integer or a valid string: %r"
+TypeError: Level not an integer or a valid string: PosixPath('logs/pipeline.log')
 - python code/main.py --step analyze -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 8, in <module>
-    from data.metrics import main as metrics_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/metrics.py", line 10, in <module>
-    from nilearn.input_data import NiftiLabelsMasker
-ModuleNotFoundError: No module named 'nilearn.input_data'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 93, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 75, in main
+    setup_logging(log_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/logging_config.py", line 54, in setup_logging
+    root_logger.setLevel(level)
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py", line 1464, in setLevel
+    self.level = _checkLevel(level)
+                 ^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py", line 210, in _checkLevel
+    raise TypeError("Level not an integer or a valid string: %r"
+TypeError: Level not an integer or a valid string: PosixPath('logs/pipeline.log')
 - python code/main.py --step viz_report -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 8, in <module>
-    from data.metrics import main as metrics_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/metrics.py", line 10, in <module>
-    from nilearn.input_data import NiftiLabelsMasker
-ModuleNotFoundError: No module named 'nilearn.input_data'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 93, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 75, in main
+    setup_logging(log_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/logging_config.py", line 54, in setup_logging
+    root_logger.setLevel(level)
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py", line 1464, in setLevel
+    self.level = _checkLevel(level)
+                 ^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py", line 210, in _checkLevel
+    raise TypeError("Level not an integer or a valid string: %r"
+TypeError: Level not an integer or a valid string: PosixPath('logs/pipeline.log')
+
+## Declared deliverables still missing
+
+- data/analysis/full_metrics.csv
 
 ## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
 
@@ -77,3 +109,13 @@ print("FIELDS=" + ",".join(fields))
 ```
 
 Write the loader to use this package/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a website endpoint.
+
+## Declared deliverables NOT produced — make the run-book produce them
+
+Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
+
+- `data/analysis/full_metrics.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/viz/network.py` — NOT invoked by the run-book
+    - `code/viz/scatter.py` — NOT invoked by the run-book
+    - `code/analysis/correlations.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/analysis/full_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
