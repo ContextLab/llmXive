@@ -47,3 +47,53 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T19:39:14Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/quickstart.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000246 named Constitution VI
+  claim_id: c_57400cf4
+  context: Prerequisites for the analysis pipeline include the OpenNeuro dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000246_named_Constitution_VI
+  kind: entity_fact
+  raw_text: OpenNeuro dataset `ds000246` (Constitution VI) accessible (downloaded
+    or via API)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T23:49:37Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/quickstart.md
+  attempts: 1
+  canonical: All scripts use random_seed=42
+  claim_id: c_d982698c
+  context: Notes section regarding reproducibility settings.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All scripts use `random_seed=42` for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T23:50:38Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/quickstart.md
+  attempts: 1
+  canonical: Graph metric calculation requires 7GB+ RAM
+  claim_id: c_58ecba25
+  context: Notes section regarding system requirements for graph metric calculation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_metric_calculation_requires_7GB+_RAM
+  kind: entity_fact
+  raw_text: Ensure sufficient RAM (7GB+) for graph metric calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T23:51:57Z'
