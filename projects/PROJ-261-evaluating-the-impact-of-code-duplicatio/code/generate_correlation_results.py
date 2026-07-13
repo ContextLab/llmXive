@@ -2,19 +2,18 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from correlation_analysis import main as correlation_main
+from correlation_analysis import run_correlation_analysis
 
 logger = logging.getLogger(__name__)
 
 def main() -> None:
     """
-    Wrapper script invoked by the quickstart run‑book.  It simply forwards
-    to ``correlation_analysis.main`` which writes the required CSV file.
+    Wrapper entry‑point used by ``code/main.py`` and the quick‑start run‑book.
+    It simply forwards to the full correlation analysis routine.
     """
-    logger.info("Generating correlation results...")
-    correlation_main()
-    logger.info("Correlation generation complete.")
+    logger.info("Running correlation analysis")
+    run_correlation_analysis()
+    logger.info("Correlation analysis finished")
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()

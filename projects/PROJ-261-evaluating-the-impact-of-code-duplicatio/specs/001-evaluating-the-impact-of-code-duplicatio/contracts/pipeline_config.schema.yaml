@@ -1,42 +1,61 @@
+# Schema for the pipeline configuration file
+$schema: "http://json-schema.org/draft-07/schema#"
+title: PipelineConfig
+description: |
+  Top‑level configuration used by the pipeline. It aggregates settings for data
+  loading, clone detection thresholds, model inference, and analysis parameters.
 type: object
 description: Schema for the overall pipeline configuration.
 properties:
+  dataset_name:
+    type: string
+    description: Identifier of the code corpus (e.g., "codeparrot/github-code").
+  model_name:
+    type: string
+    description: HuggingFace model identifier for perplexity computation.
+  quantization_bits:
+    type: integer
+    description: Number of bits for 8‑bit quantisation (typically 8).
+  streaming_enabled:
+    type: boolean
+    description: Whether the dataset should be streamed.
+  pii_scan_enabled:
+    type: boolean
+    description: Toggle for the PII scanning step.
   clone_thresholds:
     type: array
     items:
       type: number
-    description: List of clone‑density thresholds used in sensitivity analysis.
+    description: List of clone‑density thresholds (e.g., [0.7, 0.8, 0.9]).
   random_seed:
     type: integer
-    description: Global random seed for reproducibility.
+    description: Seed for all stochastic processes.
   memory_limit_mb:
     type: integer
-    description: Maximum memory (in MB) allowed for model inference.
+    description: Maximum memory allowed for model inference.
   max_runtime_seconds:
     type: integer
     description: Upper bound on total pipeline runtime.
-  dataset_name:
+  significance_threshold:
+    type: number
+    description: p‑value threshold for statistical significance.
+  figure_format:
     type: string
-    description: Identifier of the source code dataset (e.g., "codeparrot/github-code").
-  model_name:
-    type: string
-    description: HuggingFace identifier of the language model to evaluate.
-  quantization_bits:
+    enum: ["png", "pdf"]
+    description: Desired output format for visualizations.
+  figure_dpi:
     type: integer
-    description: Number of bits used for 8‑bit quantization.
-  streaming_enabled:
-    type: boolean
-    description: Whether dataset streaming mode is enabled.
-  pii_scan_enabled:
-    type: boolean
-    description: Flag to enable or disable PII scanning.
+    description: DPI resolution for generated figures.
 required:
-  - clone_thresholds
-  - random_seed
-  - memory_limit_mb
-  - max_runtime_seconds
   - dataset_name
   - model_name
   - quantization_bits
   - streaming_enabled
-  - pii_scan_enabled
+  - clone_thresholds
+  - random_seed
+  - memory_limit_mb
+  - max_runtime_seconds
+  - significance_threshold
+  - figure_format
+  - figure_dpi
+additionalProperties: false

@@ -1,163 +1,87 @@
-"""
-Data loader utilities for the project.
-
-This module provides:
-- ``stream_dataset``: a placeholder for streaming a HuggingFace dataset.
-  In production it would use ``datasets.load_dataset(..., streaming=True)``.
-  For the integration tests it can be monkey‑patched to return a custom generator.
-- ``download_and_save_sample``: downloads (or streams) a sample of the
-  ``codeparrot/github-code`` dataset, handling transient network errors with
-  retries and back‑off. The function writes a CSV file with a header
-  ``id,content`` and stops when the written byte count exceeds ``max_bytes``.
-  It is deliberately tolerant in its signature to satisfy all call‑sites.
-- ``main``: a tiny CLI that parses ``--output`` (ignoring any unknown arguments)
-  and invokes ``download_and_save_sample``. After the call it marks the function
-  object with a ``called`` attribute so that the integration test can verify that
-  the download routine was invoked.
-"""
-
 from __future__ import annotations
-
 import csv
 import logging
-import os
-import sys
 import time
 from pathlib import Path
-from typing import Any, Callable, Iterable, List, Optional
+from typing import Any, Optional
+
+from datasets import load_dataset
 
 logger = logging.getLogger(__name__)
 
-# --------------------------------------------------------------------------- #
-# Placeholder streaming implementation
-# --------------------------------------------------------------------------- #
-def stream_dataset(*args: Any, **kwargs: Any) -> Iterable[dict]:
-    """
-    Stream records from the ``codeparrot/github-code`` dataset.
-
-    In the real pipeline this would use the ``datasets`` library, e.g.:
-
-    >>> from datasets import load_dataset
-    >>> return load_dataset("codeparrot/github-code", split="train", streaming=True)
-
-    For unit/integration testing the function is monkey‑patched, so the body
-    simply raises ``NotImplementedError`` to make accidental usage evident.
-    """
-    raise NotImplementedError(
-        "stream_dataset must be monkey‑patched in tests or implemented for real runs."
-    )
-
-# --------------------------------------------------------------------------- #
-# Download helper
-# --------------------------------------------------------------------------- #
 def download_and_save_sample(
-    output_path: Optional[Path | str] = None,
-    max_bytes: int = 500 * 1024 * 1024,
-    max_retries: int = 3,
-    backoff_factor: float = 1.5,
-    **_: Any,
+    sample_size: int = 100,
+    output_path: Optional[Path] = None,
+    *args,
+    **kwargs,
 ) -> None:
     """
-    Download a (sample) CSV from the streaming dataset and write it to ``output_path``.
+    Download a sample from the ``codeparrot/github-code`` dataset using streaming
+    mode and write it to ``data/raw/github-code-sample.csv`` (or a custom path).
 
-    Parameters
-    ----------
-    output_path: pathlib.Path | str | None
-        Destination file. If ``None`` the default location
-        ``data/raw/github-code-sample.csv`` (relative to the project root) is used.
-    max_bytes: int
-        Upper bound on the number of bytes written. The function stops writing
-        once this limit would be exceeded.
-    max_retries: int
-        Number of retry attempts after a transient ``ConnectionError``.
-    backoff_factor: float
-        Multiplier for exponential back‑off (seconds). ``time.sleep`` is used;
-        tests monkey‑patch it to avoid real delays.
+    The function is tolerant to a variety of call signatures:
+    * ``download_and_save_sample()`` – uses defaults.
+    * ``download_and_save_sample(sample_size=…)`` – keyword argument.
+    * ``download_and_save_sample(…)`` – positional argument (interpreted as
+      ``sample_size``).
+    * ``download_and_save_sample(sample_size=…, output_path=…)`` – both explicit.
+
+    It implements a simple exponential‑backoff retry strategy to cope with
+    transient network errors or HTTP 429 rate‑limit responses.
     """
-    # Resolve the output path
+    # Resolve positional arguments
+    if args:
+        # If the first positional argument is an int, treat it as sample_size
+        if isinstance(args[0], int):
+            sample_size = args[0]
+
+    # Resolve keyword arguments that may override defaults
+    if "sample_size" in kwargs:
+        sample_size = kwargs["sample_size"]
+    if "output_path" in kwargs:
+        output_path = Path(kwargs["output_path"])
+
+    # Default output location
     if output_path is None:
         output_path = Path("data/raw/github-code-sample.csv")
-    else:
-        output_path = Path(output_path)
 
-    # Ensure parent directory exists
+    # Ensure the output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    attempt = 0
-    while attempt <= max_retries:
+    # Load the dataset with streaming; retry on failures
+    max_retries = 5
+    backoff = 1  # seconds
+    for attempt in range(max_retries):
         try:
-            # Obtain a generator (may raise ConnectionError on first call)
-            generator = stream_dataset()
-            with output_path.open("w", newline="", encoding="utf-8") as csvfile:
-                writer = csv.writer(csvfile)
-                # Write header
-                writer.writerow(["id", "content"])
-                bytes_written = len("id,content\n".encode("utf-8"))
-                for record in generator:
-                    row = [record.get("id", ""), record.get("content", "")]
-                    line = f"{row[0]},{row[1]}\n"
-                    line_bytes = len(line.encode("utf-8"))
-                    if bytes_written + line_bytes > max_bytes:
-                        logger.debug(
-                            "Reached max_bytes limit (%d bytes); stopping write.", max_bytes
-                        )
-                        break
-                    writer.writerow(row)
-                    bytes_written += line_bytes
-            # Successful write – exit retry loop
-            logger.info("Sample data written to %s", output_path)
-            break
-        except ConnectionError as exc:
-            attempt += 1
-            if attempt > max_retries:
-                logger.error(
-                    "Exceeded maximum retries (%d) for streaming dataset.", max_retries
-                )
-                raise
-            sleep_seconds = backoff_factor ** attempt
-            logger.warning(
-                "Transient error during streaming (attempt %d/%d): %s. "
-                "Retrying after %.2f seconds.",
-                attempt,
-                max_retries,
-                exc,
-                sleep_seconds,
+            ds = load_dataset(
+                "codeparrot/github-code",
+                split="train",
+                streaming=True,
             )
-            time.sleep(sleep_seconds)
-        except Exception:
-            # Any other exception is considered fatal – re‑raise for visibility.
-            logger.exception("Unexpected error while streaming dataset.")
-            raise
+            break
+        except Exception as exc:  # pragma: no cover – exercised via integration test
+            logger.warning(
+                f"Attempt {attempt + 1}/{max_retries} to load dataset failed: {exc}"
+            )
+            if attempt == max_retries - 1:
+                raise
+            time.sleep(backoff)
+            backoff *= 2
 
-# --------------------------------------------------------------------------- #
-# CLI entry point
-# --------------------------------------------------------------------------- #
-def main(argv: Optional[List[str]] = None) -> None:
-    """
-    Minimal CLI for the data loader.
+    # Write the requested number of rows to CSV
+    written = 0
+    fieldnames = ["file_path", "code"]
+    with output_path.open("w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for record in ds:
+            # The dataset provides a ``content`` field with the source code.
+            # Some versions expose it as ``code``; we handle both.
+            file_path = record.get("file_path") or record.get("path") or f"file_{written}.py"
+            code = record.get("content") or record.get("code") or ""
+            writer.writerow({"file_path": file_path, "code": code})
+            written += 1
+            if written >= sample_size:
+                break
 
-    Accepts ``--output <path>``; all other arguments are ignored to satisfy
-    the integration test that passes stray comment tokens.
-    """
-    if argv is None:
-        argv = sys.argv[1:]
-
-    # Simple manual parsing – we only care about ``--output``.
-    output_path: Optional[Path] = None
-    if "--output" in argv:
-        idx = argv.index("--output")
-        if idx + 1 < len(argv):
-            output_path = Path(argv[idx + 1])
-
-    # Invoke the download routine.
-    download_and_save_sample(output_path=output_path)
-
-    # Mark the function as having been called so the test can assert it.
-    try:
-        setattr(download_and_save_sample, "called", True)
-    except Exception:
-        # If the attribute cannot be set (unlikely), we silently ignore.
-        pass
-
-if __name__ == "__main__":
-    main()
+    logger.info(f"Wrote {written} rows to {output_path}")

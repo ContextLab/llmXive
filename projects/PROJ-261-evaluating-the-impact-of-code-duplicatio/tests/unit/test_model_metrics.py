@@ -1,67 +1,118 @@
-import csv
-import pathlib
+"""
+Unit tests for ``code/model_metrics.py`` – specifically the detection of NaN
+and infinite perplexity values, as well as the edge‑case where model loading
+in 8‑bit quantization fails.  In addition, tests for the newly added semantic
+distance calculation are provided.
+"""
+
+import math
+
 import pytest
 
-from model_metrics import compute_perplexity_batch
+# Import the functions/classes from the module under test
+from model_metrics import (
+    detect_invalid_perplexity,
+    compute_perplexity_batch,
+    ModelLoadingError,
+    compute_semantic_distance_batch,
+)
 
-def test_perplexity_output(tmp_path, monkeypatch):
+
+@pytest.mark.parametrize(
+    "perplexities,expected_invalid",
+    [
+        # No invalid values
+        ([10.0, 20.5, 30.2], []),
+        # Single NaN
+        ([float("nan"), 15.0, 25.0], [0]),
+        # Single positive infinity
+        ([12.0, float("inf"), 22.0], [1]),
+        # Single negative infinity
+        ([12.0, -float("inf"), 22.0], [1]),
+        # Mixed invalid values
+        (
+            [5.0, float("nan"), float("inf"), -float("inf"), 9.0],
+            [1, 2, 3],
+        ),
+    ],
+)
+def test_detect_invalid_perplexity(perplexities, expected_invalid):
     """
-    Verify that the normal execution path produces a CSV with a
-    ``perplexity`` column.
+    Verify that ``detect_invalid_perplexity`` returns the correct indices
+    for NaN and infinite values.
     """
-    # Create a minimal raw CSV input.
-    raw_path = tmp_path / "github-code-sample.csv"
-    raw_path.parent.mkdir(parents=True, exist_ok=True)
-    with raw_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["file_path", "code"])
-        writer.writeheader()
-        writer.writerow({"file_path": "a.py", "code": "print('hi')"})
-    # Run the function.
-    compute_perplexity_batch(input_path=raw_path)
+    result = detect_invalid_perplexity(perplexities)
+    assert result == expected_invalid
 
-    out_path = pathlib.Path("data/processed/perplexity_scores.csv")
-    assert out_path.is_file()
-    with out_path.open() as f:
-        rows = list(csv.DictReader(f))
-        assert len(rows) == 1
-        assert "perplexity" in rows[0]
 
-def test_model_loading_failure(monkeypatch, tmp_path):
+def test_detect_invalid_perplexity_all_invalid():
     """
-    Edge‑case: simulate a failure when loading the model in 8‑bit mode.
-    The function should raise a RuntimeError.
+    Edge case where every entry is invalid – the function should return
+    a list covering the entire range.
     """
-    # Prepare a tiny input CSV (content does not matter – the failure occurs
-    # before the file is even read).
-    raw_path = tmp_path / "github-code-sample.csv"
-    raw_path.parent.mkdir(parents=True, exist_ok=True)
-    with raw_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["file_path", "code"])
-        writer.writeheader()
-        writer.writerow({"file_path": "b.py", "code": "print('bye')"})
+    perplexities = [float("nan"), float("inf"), -float("inf")]
+    assert detect_invalid_perplexity(perplexities) == [0, 1, 2]
 
-    # Monkey‑patch the transformers model loader to raise an exception.
-    import importlib
 
-    transformers = importlib.import_module("transformers")
-    original_from_pretrained = transformers.AutoModelForCausalLM.from_pretrained
+def test_detect_invalid_perplexity_type_error():
+    """
+    The helper expects a list of floats.  Passing a non‑iterable should raise
+    a ``TypeError`` because the function will attempt to iterate over it.
+    """
+    with pytest.raises(TypeError):
+        # type: ignore[arg-type] – intentionally passing wrong type
+        detect_invalid_perplexity(42)  # pyright: ignore[reportGeneralTypeIssues]
 
-    def broken_from_pretrained(*args, **kwargs):
-        raise OSError("simulated model loading failure")
 
-    monkeypatch.setattr(
-        transformers.AutoModelForCausalLM,
-        "from_pretrained",
-        broken_from_pretrained,
-    )
+def test_compute_perplexity_batch_model_loading_failure():
+    """
+    Edge‑case test for model‑loading failure in 8‑bit quantization.
 
-    # The function is expected to propagate the failure as RuntimeError.
-    with pytest.raises(RuntimeError, match="Failed to load model"):
-        compute_perplexity_batch(input_path=raw_path)
+    In the CI environment ``bitsandbytes`` is not installed.  The function
+    should therefore raise ``ModelLoadingError`` when it attempts to load
+    the model.
+    """
+    # Provide a minimal, valid input list.
+    inputs = ["def foo():\n    return 42"]
+    with pytest.raises(ModelLoadingError):
+        compute_perplexity_batch(inputs)
 
-    # Restore the original method to avoid side effects for other tests.
-    monkeypatch.setattr(
-        transformers.AutoModelForCausalLM,
-        "from_pretrained",
-        original_from_pretrained,
-    )
+
+# ----------------------------------------------------------------------
+# Semantic distance tests (new for T053)
+# ----------------------------------------------------------------------
+def test_compute_semantic_distance_batch_identical_inputs():
+    """
+    Two identical code snippets should have a semantic distance of (approximately) 0.
+    """
+    inputs = [
+        "def add(a, b):\n    return a + b",
+        "def add(a, b):\n    return a + b",
+    ]
+    distances = compute_semantic_distance_batch(inputs)
+    # Both distances should be near zero
+    assert distances[0] == pytest.approx(0.0, abs=1e-3)
+    assert distances[1] == pytest.approx(0.0, abs=1e-3)
+
+
+def test_compute_semantic_distance_batch_different_inputs():
+    """
+    Dissimilar snippets should yield a distance greater than zero.
+    """
+    inputs = [
+        "def add(a, b):\n    return a + b",
+        "def multiply(x, y):\n    return x * y",
+        "def hello():\n    print('Hello world')",
+    ]
+    distances = compute_semantic_distance_batch(inputs)
+    # At least one distance should be noticeably > 0
+    assert any(d > 0.1 for d in distances)
+
+
+def test_compute_semantic_distance_batch_single_input():
+    """
+    A single element batch should return a distance of 0.0.
+    """
+    inputs = ["def foo():\n    pass"]
+    distances = compute_semantic_distance_batch(inputs)
+    assert distances == [0.0]

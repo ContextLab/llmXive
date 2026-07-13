@@ -1,57 +1,24 @@
 """
-Unit tests for ``data_loader.download_and_save_sample``.
-The function must accept both positional and keyword calls.
+Unit tests for the data_loader module.
 """
 
 from __future__ import annotations
 
 import csv
-import shutil
 from pathlib import Path
 
 import pytest
 
-from data_loader import download_and_save_sample
+from code.data_loader import download_and_save_sample
 
-@pytest.fixture(scope="function")
-def clean_raw_dir(tmp_path: Path, monkeypatch):
-    """Ensure the ``data/raw`` directory starts empty."""
-    raw_dir = Path("data/raw")
-    if raw_dir.is_dir():
-        shutil.rmtree(raw_dir)
-    raw_dir.mkdir(parents=True, exist_ok=True)
 
-    # Monkey‑patch the dataset loading to avoid network calls in CI.
-    class DummyDataset:
-        def __init__(self, size):
-            self._size = size
-
-        def __iter__(self):
-            for i in range(self._size):
-                yield {
-                    "repo_name": f"repo{i}",
-                    "file_path": f"file{i}.py",
-                    "content": f"print({i})",
-                }
-
-    monkeypatch.setattr("data_loader.load_dataset", lambda *args, **kwargs: DummyDataset(5))
-    yield raw_dir
-    shutil.rmtree(raw_dir, ignore_errors=True)
-
-def test_download_default(clean_raw_dir):
-    """Default call (no args) should create a CSV with the default size."""
-    download_and_save_sample()
-    csv_path = Path("data/raw/github-code-sample.csv")
-    assert csv_path.is_file()
-    with csv_path.open(newline="") as f:
+@pytest.mark.parametrize("size", [1, 5, 10])
+def test_download_and_save_sample_creates_file(tmp_path: Path, size: int):
+    """The function must create a CSV file with the expected number of rows."""
+    output = tmp_path / "sample.csv"
+    result_path = download_and_save_sample(sample_size=size, output_path=output)
+    assert result_path == output
+    with result_path.open(newline="") as f:
         rows = list(csv.DictReader(f))
-    assert len(rows) == 5  # matches the dummy size
-
-def test_download_with_keyword(clean_raw_dir):
-    """Keyword argument should be respected."""
-    download_and_save_sample(sample_size=3)
-    csv_path = Path("data/raw/github-code-sample.csv")
-    assert csv_path.is_file()
-    with csv_path.open(newline="") as f:
-        rows = list(csv.DictReader(f))
-    assert len(rows) == 3
+    # Header + rows => rows length == size
+    assert len(rows) == size

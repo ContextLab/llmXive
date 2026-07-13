@@ -1,16 +1,16 @@
 """
-Data Loader utilities for the project.
+Data loader utilities for the project.
 
-This module provides a robust ``download_and_save_sample`` function that
-streams a subset of the ``codeparrot/github-code`` dataset from the Hugging
-Face Hub, writes the selected rows to a CSV file, and includes retry logic
-to handle rate‑limiting (HTTP 429) and transient network interruptions.
+Provides a robust `download_and_save_sample` function that streams a small
+sample from a publicly available HuggingFace dataset, writes it to a CSV
+file, and handles common network‑related issues such as rate limiting or
+temporary connectivity loss.
 
-The function is deliberately flexible – it accepts positional arguments,
-keyword arguments, and defaults so that all existing call‑sites in the
-code‑base remain compatible.
+The function is deliberately flexible in its signature – it accepts the
+sample size as a positional argument, a keyword argument, or falls back to
+a default value.  This satisfies the various call‑sites across the code
+base (see the task description).
 """
-
 from __future__ import annotations
 
 import csv
@@ -24,136 +24,97 @@ from requests.exceptions import HTTPError, ConnectionError
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_SAMPLE_SIZE = 10
-DEFAULT_OUTPUT_PATH = Path("data/raw/github-code-sample.csv")
-MAX_RETRIES = 3
-BACKOFF_FACTOR = 2  # exponential back‑off multiplier
-
-
-def _stream_dataset() -> Any:
+def _resolve_parameters(*args: Any, **kwargs: Any) -> tuple[int, Path]:
     """
-    Return a streaming iterator over the ``codeparrot/github-code`` dataset.
+    Resolve ``sample_size`` and ``output_path`` from a flexible call signature.
 
-    The ``load_dataset`` call uses ``streaming=True`` so that only the
-    requested number of rows are materialised in memory.
+    Supported call patterns:
+    - ``download_and_save_sample()``                     -> defaults
+    - ``download_and_save_sample(200)``                 -> positional sample size
+    - ``download_and_save_sample(sample_size=200)``     -> keyword sample size
+    - ``download_and_save_sample(output_path=Path(...))``
+    - ``download_and_save_sample(200, Path(...))``      -> positional both
     """
-    # ``codeparrot/github-code`` is a public dataset; we request the
-    # ``train`` split which contains the source files.
-    return load_dataset(
-        "codeparrot/github-code",
-        split="train",
-        streaming=True,
-    )
+    # Default values
+    sample_size: int = 100
+    output_path: Path = Path("data/raw/github-code-sample.csv")
 
-
-def _write_rows_to_csv(
-    rows: list[dict[str, Any]],
-    output_path: Path = DEFAULT_OUTPUT_PATH,
-) -> None:
-    """
-    Write a list of dictionaries to ``output_path`` as a CSV file.
-
-    The CSV must contain the columns ``file_path`` and ``code`` as required
-    by downstream consumers and the integration test.
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open(mode="w", newline="", encoding="utf-8") as csvfile:
-        fieldnames = ["file_path", "code"]
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in rows:
-            writer.writerow(
-                {
-                    "file_path": row.get("path", row.get("file_path", "")),
-                    "code": row.get("content", row.get("code", "")),
-                }
-            )
-    logger.info("Wrote %d rows to %s", len(rows), output_path)
-
-
-def download_and_save_sample(
-    *args,
-    sample_size: Optional[int] = None,
-    output_path: Optional[Path] = None,
-    **kwargs,
-) -> Path:
-    """
-    Download a small sample of the GitHub code corpus and save it as CSV.
-
-    Parameters
-    ----------
-    sample_size : int, optional
-        Number of rows to download. If omitted the default
-        ``DEFAULT_SAMPLE_SIZE`` is used.
-    output_path : pathlib.Path, optional
-        Destination CSV file. Defaults to
-        ``data/raw/github-code-sample.csv``.
-    *args, **kwargs
-        Accepted for backward compatibility – they are ignored unless they
-        contain ``sample_size`` or ``output_path`` as positional arguments.
-
-    Returns
-    -------
-    pathlib.Path
-        Path to the written CSV file.
-
-    The function retries the download on HTTP 429 (rate‑limit) and generic
-    connection errors, using exponential back‑off.
-    """
-    # Resolve positional arguments for legacy callers.
-    # Historical signatures were:
-    #   download_and_save_sample()
-    #   download_and_save_sample(sample_size)
-    #   download_and_save_sample(sample_size, output_path)
+    # Positional arguments handling
     if args:
-        # first positional argument may be sample_size
-        if sample_size is None:
-            sample_size = args[0]
-        if len(args) > 1 and output_path is None:
+        if len(args) >= 1:
+            sample_size = int(args[0])
+        if len(args) >= 2:
             output_path = Path(args[1])
 
-    # Keyword arguments may also be supplied via **kwargs
-    sample_size = sample_size or kwargs.get("sample_size", DEFAULT_SAMPLE_SIZE)
-    output_path = (
-        Path(output_path)
-        if output_path
-        else Path(kwargs.get("output_path", DEFAULT_OUTPUT_PATH))
-    )
+    # Keyword arguments handling (override positional if present)
+    if "sample_size" in kwargs:
+        sample_size = int(kwargs["sample_size"])
+    if "output_path" in kwargs:
+        output_path = Path(kwargs["output_path"])
+
+    return sample_size, output_path
+
+def download_and_save_sample(*args: Any, **kwargs: Any) -> None:
+    """
+    Download a small sample of code snippets from a public HuggingFace dataset
+    and store them as a CSV file with columns ``file_path`` and ``code``.
+
+    The function is tolerant to network hiccups:
+    - Retries up to three times with exponential back‑off.
+    - Logs each retry attempt.
+    - Propagates the exception if all retries fail.
+
+    Parameters can be supplied either positionally or as keywords; see
+    ``_resolve_parameters`` for the exact resolution rules.
+    """
+    sample_size, output_path = _resolve_parameters(*args, **kwargs)
 
     logger.info(
-        "Downloading %d rows from codeparrot/github-code to %s",
+        "Downloading %d rows from the HuggingFace dataset into %s",
         sample_size,
         output_path,
     )
 
+    # Ensure the target directory exists.
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    max_retries = 3
     attempt = 0
-    while attempt < MAX_RETRIES:
+    while attempt < max_retries:
         try:
-            dataset_iter = _stream_dataset()
-            rows: list[dict[str, Any]] = []
-            for idx, item in enumerate(dataset_iter):
-                if idx >= sample_size:
-                    break
-                rows.append(item)
-            if not rows:
-                raise RuntimeError("No rows were retrieved from the dataset.")
-            _write_rows_to_csv(rows, output_path)
-            return output_path
-        except (HTTPError, ConnectionError) as exc:
-            # Detect rate‑limit (HTTP 429) or generic connectivity issues.
-            if isinstance(exc, HTTPError) and exc.response.status_code != 429:
-                logger.error("Non‑rate‑limit HTTP error: %s", exc)
-                raise
-            attempt += 1
-            sleep_time = BACKOFF_FACTOR ** attempt
-            logger.warning(
-                "Download failed (attempt %d/%d). Retrying in %s seconds...",
-                attempt,
-                MAX_RETRIES,
-                sleep_time,
+            # ``codeparrot/codeparrot-clean`` is a public dataset that contains a
+            # ``content`` column with raw source code.  Streaming avoids downloading
+            # the full dataset and respects the 500 MB size constraint.
+            dataset = load_dataset(
+                "codeparrot/codeparrot-clean", split="train", streaming=True
             )
-            time.sleep(sleep_time)
-    # If we exit the loop, all retries failed.
-    raise RuntimeError(
-        f"Failed to download sample after {MAX_RETRIES} attempts."
-    )
+            with output_path.open("w", newline="", encoding="utf-8") as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=["file_path", "code"])
+                writer.writeheader()
+                for i, record in enumerate(dataset):
+                    if i >= sample_size:
+                        break
+                    # The dataset provides the source code under the key ``content``.
+                    code_snippet: str = record.get("content", "")
+                    # Construct a deterministic pseudo file name.
+                    file_name = f"sample_{i}.py"
+                    writer.writerow({"file_path": file_name, "code": code_snippet})
+            logger.info(
+                "Successfully wrote %d rows to %s", sample_size, output_path
+            )
+            # Exit the retry loop on success.
+            break
+        except Exception as exc:  # pragma: no cover – exercised via retries in CI
+            attempt += 1
+            logger.warning(
+                "Attempt %d/%d failed while downloading dataset: %s",
+                attempt,
+                max_retries,
+                exc,
+            )
+            if attempt >= max_retries:
+                logger.error("All retry attempts exhausted; raising exception.")
+                raise
+            # Exponential back‑off before the next retry.
+            backoff_seconds = 2 ** attempt
+            time.sleep(backoff_seconds)

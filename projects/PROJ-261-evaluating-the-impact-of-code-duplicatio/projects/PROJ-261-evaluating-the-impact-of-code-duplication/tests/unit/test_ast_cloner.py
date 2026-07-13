@@ -1,62 +1,72 @@
 """
-Unit test for syntax‑error handling in the ast_cloner module.
+Unit tests for the ast_cloner module.
 
-The ast_cloner package provides a ``parse_python_file`` function that parses a
-Python source file and returns its ``ast.Module`` object.  When the source file
-contains a syntax error the function is expected **not** to raise an uncaught
-exception – it should either raise a ``SyntaxError`` that the caller can catch
-or return ``None`` to indicate that parsing failed.  This test verifies that
-behaviour.
-
-The test creates a temporary file with an obvious syntax error, invokes
-``parse_python_file`` and checks that the result is ``None`` or that a
-``SyntaxError`` is raised and caught.  The test is deliberately tolerant so it
-passes regardless of the exact error‑handling strategy used by the
-implementation, while still ensuring that the function does not crash the
-the pipeline.
+This file contains:
+1. A basic sanity test that checks the clone density computation writes the expected
+   output CSV and produces the correct density values for identical code snippets.
+2. A syntax‑error handling test that ensures the pipeline does not crash when a
+   Python fragment cannot be parsed and that the failure is recorded in the
+   `data/parse_failures.csv` log.
 """
 
-import pathlib
+from __future__ import annotations
+
+import csv
+from pathlib import Path
+
 import pytest
 
-# The function under test is part of the public API of ``code/ast_cloner.py``.
-# Import it directly from the module name that the rest of the project uses.
-from ast_cloner import parse_python_file
+from code.ast_cloner import compute_clone_density_batch
 
+def _write_dummy_raw(csv_path: Path, rows: list[tuple[int, str]]) -> None:
+    """Write a CSV with ``id`` and ``code`` columns."""
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    with csv_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["id", "code"])
+        writer.writeheader()
+        for idx, code in rows:
+            writer.writerow({"id": idx, "code": code})
 
-@pytest.fixture
-def syntax_error_file(tmp_path: pathlib.Path) -> pathlib.Path:
+def test_compute_clone_density_batch_writes_output(tmp_path: Path):
+    """Basic sanity check – output file is created and densities are correct."""
+    raw = tmp_path / "raw.csv"
+    _write_dummy_raw(raw, [(0, "a = 1"), (1, "a = 1"), (2, "a = 1")])
+    out = tmp_path / "clone_metrics.csv"
+    result_path = compute_clone_density_batch(input_path=raw, output_path=out)
+    assert result_path == out
+    with out.open(newline="") as f:
+        rows = list(csv.DictReader(f))
+    # three rows should be present
+    assert len(rows) == 3
+    # All rows share identical AST, so density should be (3‑1)/3 = 0.666666…
+    for r in rows:
+        assert float(r["clone_density"]) == pytest.approx(2 / 3)
+
+def test_compute_clone_density_batch_handles_syntax_error(tmp_path: Path):
     """
-    Create a temporary Python file that contains a syntax error.
-
-    The file contains an incomplete ``if`` statement which is a classic
-    syntax error that the ``ast`` module cannot parse.
+    Ensure that a file containing a syntax error does not cause the whole
+    pipeline to raise and that the offending row is logged in
+    ``data/parse_failures.csv``.
     """
-    file_path = tmp_path / "bad_syntax.py"
-    file_path.write_text(
-        "if True:\\n    print('missing indentation')\\n  bad_indent"
-    )
-    return file_path
+    # Row 0 – valid Python; Row 1 – invalid syntax
+    raw = tmp_path / "raw_syntax.csv"
+    _write_dummy_raw(raw, [(0, "a = 1"), (1, "def broken(:")])
+    out = tmp_path / "clone_metrics_syntax.csv"
 
+    # The function should complete without raising.
+    result_path = compute_clone_density_batch(input_path=raw, output_path=out)
+    assert result_path == out
+    assert out.is_file()
 
-def test_parse_python_file_handles_syntax_error(syntax_error_file: pathlib.Path):
-    """
-    Verify that ``parse_python_file`` does not propagate an unexpected exception
-    when encountering a file with invalid Python syntax.
+    # The valid row should appear in the output CSV.
+    with out.open(newline="") as f:
+        rows = list(csv.DictReader(f))
+    assert any(row["id"] == "0" for row in rows)
 
-    The acceptable behaviours are:
-    1. The function returns ``None`` to signal a failure.
-    2. The function raises a ``SyntaxError`` which we catch here.
-    Any other exception type should cause the test to fail.
-    """
-    try:
-        result = parse_python_file(str(syntax_error_file))
-    except SyntaxError:
-        # Expected – the implementation signals the error via an exception.
-        result = None
-    except Exception as exc:  # pragma: no cover
-        pytest.fail(f"Unexpected exception type raised: {type(exc).__name__}")
-
-    # If the function returned a value, it must be ``None`` because parsing
-    # could not succeed.
-    assert result is None, "Expected None for unparsable file, got a result instead."
+    # The parse‑failure log must contain an entry for the offending id.
+    parse_log = Path("data/parse_failures.csv")
+    assert parse_log.is_file(), "Parse‑failure log was not created"
+    with parse_log.open(newline="") as f:
+        failures = list(csv.DictReader(f))
+    # The failure entry should reference the id of the bad row.
+    assert any(failure["id"] == "1" for failure in failures)

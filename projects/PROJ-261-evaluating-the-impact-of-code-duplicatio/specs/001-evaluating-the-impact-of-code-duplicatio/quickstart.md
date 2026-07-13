@@ -1,34 +1,39 @@
-# Quickstart Run‑Book
+# Quickstart – end‑to‑end execution
 
-This document lists the commands that must be executed in order to generate all
-research artefacts for the project.
+This document describes the commands that constitute a full run of the
+research pipeline. The commands are deliberately ordered to respect data
+dependencies.
 
 ```bash
-# 1️⃣ Download a small sample of the GitHub‑code corpus
+# 1️⃣ Stream a small sample of the CodeParrot/GitHub‑Code dataset
 python code/data_loader.py
 
-# 2️⃣ Run the main US‑1 pipeline (clone density & perplexity)
-python code/main.py
+# 2️⃣ Scan for PII in the freshly downloaded data
+python code/pii_scanner.py
 
-# 3️⃣ Run bug‑detection (US‑2) – already implemented in previous tasks
+# 3️⃣ Compute clone density metrics
+python code/ast_cloner.py
+
+# 4️⃣ Compute model perplexity (and semantic distance)
+python code/model_metrics.py
+
+# 5️⃣ Run bug‑detection evaluation on HumanEval
 python code/bug_detection.py
 
-# 4️⃣ Generate correlation results (US‑2)
-python code/generate_correlation_results.py
+# 6️⃣ **Generate correlation results (T034)**
+python code/save_correlation_results.py
 
-# 5️⃣ Produce visualisations (US‑3)
+# 7️⃣ Produce visualisations (scatter plots, sensitivity analysis)
 python code/visualization/plotting.py
 
-# 6️⃣ Validate that all expected artefacts exist
+# 8️⃣ Validate that all expected outputs exist
 python code/quickstart_validation.py
 ```
 
-After the above commands complete without error, the following files should be present:
+After the final step completes, you should find the following artefacts:
 
 - `data/processed/clone_metrics.csv`
 - `data/processed/perplexity_scores.csv`
 - `data/processed/bug_detection_results.csv`
 - `data/analysis/correlation_results.csv`
-- `data/analysis/figures/` (PNG/PDF plots)
-
-The validation step will raise an error if any of these are missing.
+- `data/analysis/figures/` (PNG & PDF visualisations)
