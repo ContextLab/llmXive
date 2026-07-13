@@ -1,7 +1,6 @@
 """
-Extraction logic for A/B test summaries from fetched HTML.
-Produces ABTestSummary objects (mapped to ABSummary in usage),
-handles missing fields, and logs ERR-001 through ERR-099 codes.
+Extractor module for A/B test summaries.
+Extracts metrics from fetched HTML files and produces ABTestSummary objects.
 """
 import json
 import logging
@@ -13,353 +12,312 @@ from bs4 import BeautifulSoup
 
 from code.src.models.data_models import ABTestSummary
 from code.src.utils.logger import get_default_logger, AuditLogger, get_error_message
-
-# Map of error codes to descriptions
-ERROR_CODES = {
-    "ERR-001": "Missing required field: title",
-    "ERR-002": "Missing required field: domain",
-    "ERR-003": "Missing required field: sample_size_control",
-    "ERR-004": "Missing required field: sample_size_treatment",
-    "ERR-005": "Missing required field: conversion_rate_control",
-    "ERR-006": "Missing required field: conversion_rate_treatment",
-    "ERR-007": "Missing required field: p_value",
-    "ERR-008": "Malformed p-value format",
-    "ERR-009": "Missing required field: effect_size",
-    "ERR-010": "Malformed effect_size format",
-    "ERR-011": "Missing required field: test_type",
-    "ERR-012": "Missing required field: publication_year",
-    "ERR-013": "Missing required field: confidence_interval",
-    "ERR-014": "Malformed confidence_interval format",
-    "ERR-015": "Missing required field: outcome_type",
-    "ERR-016": "Inconsistent sample sizes (control vs treatment)",
-    "ERR-017": "Invalid conversion rate value (out of bounds)",
-    "ERR-018": "Invalid p-value (out of bounds)",
-    "ERR-019": "Invalid effect size (out of bounds)",
-    "ERR-020": "Missing URL in metadata",
-    "ERR-021": "Missing fetch timestamp in metadata",
-    "ERR-022": "Malformed HTML structure",
-    "ERR-023": "Could not extract numeric value",
-    "ERR-024": "Conflicting sample sizes detected",
-    "ERR-025": "Missing baseline conversion rate",
-    "ERR-026": "Missing treatment conversion rate",
-    "ERR-027": "Missing control conversion rate",
-    "ERR-028": "Missing p-value reported",
-    "ERR-029": "Missing effect size reported",
-    "ERR-030": "Missing test type reported",
-    "ERR-031": "Missing publication year",
-    "ERR-032": "Missing confidence interval",
-    "ERR-033": "Missing outcome type",
-    "ERR-034": "Malformed numeric value for sample_size_control",
-    "ERR-035": "Malformed numeric value for sample_size_treatment",
-    "ERR-036": "Malformed numeric value for conversion_rate_control",
-    "ERR-037": "Malformed numeric value for conversion_rate_treatment",
-    "ERR-038": "Malformed numeric value for p_value",
-    "ERR-039": "Malformed numeric value for effect_size",
-    "ERR-040": "Malformed numeric value for confidence_interval",
-}
+from code.src.utils.helpers import safe_float, parse_inequality_p
 
 logger = get_default_logger(__name__)
+audit_logger = AuditLogger()
 
 
-def extract_single_float(text: str, error_code: str) -> Optional[float]:
-    """Extract a single float from text, logging error if not found."""
-    if not text:
-        logger.warning(get_error_message(error_code))
+def extract_single_float(text: Optional[str], field_name: str) -> Optional[float]:
+    """
+    Extract a single float value from text.
+    Handles various formats like '0.05', '5%', '<0.001', '>0.1'.
+    Returns None if extraction fails.
+    """
+    if text is None or text.strip() == "":
+        audit_logger.log_warning(f"Missing {field_name} in source text")
         return None
 
-    # Clean text: remove %, commas, whitespace
-    cleaned = re.sub(r'[%,\s]', '', text.strip())
+    text = text.strip()
+
+    # Handle inequality p-values
+    if text.startswith('<') or text.startswith('>'):
+        return parse_inequality_p(text)
+
+    # Remove percentage signs and convert
+    if '%' in text:
+        text = text.replace('%', '')
+        try:
+            val = float(text) / 100.0
+            return val
+        except ValueError:
+            audit_logger.log_error("ERR-002", f"Invalid percentage format for {field_name}: {text}")
+            return None
+
+    # Standard float extraction
+    try:
+        return float(text)
+    except ValueError:
+        # Try to extract number from text like "p = 0.05"
+        match = re.search(r'[\d.]+', text)
+        if match:
+            try:
+                return float(match.group())
+            except ValueError:
+                audit_logger.log_error("ERR-003", f"Failed to parse {field_name} from: {text}")
+                return None
+
+        audit_logger.log_error("ERR-003", f"Failed to parse {field_name} from: {text}")
+        return None
+
+
+def extract_single_int(text: Optional[str], field_name: str) -> Optional[int]:
+    """
+    Extract a single integer value from text.
+    Returns None if extraction fails.
+    """
+    if text is None or text.strip() == "":
+        audit_logger.log_warning(f"Missing {field_name} in source text")
+        return None
+
+    text = text.strip()
+
+    # Remove common non-numeric characters
+    text = re.sub(r'[,\s]', '', text)
 
     try:
-        value = float(cleaned)
-        return value
+        return int(float(text))  # Handle "100.0" style
     except ValueError:
-        logger.warning(get_error_message(error_code))
+        # Try to extract first number from text
+        match = re.search(r'\d+', text)
+        if match:
+            try:
+                return int(match.group())
+            except ValueError:
+                audit_logger.log_error("ERR-004", f"Failed to parse {field_name} from: {text}")
+                return None
+
+        audit_logger.log_error("ERR-004", f"Failed to parse {field_name} from: {text}")
         return None
 
 
-def extract_single_int(text: str, error_code: str) -> Optional[int]:
-    """Extract a single int from text, logging error if not found."""
-    if not text:
-        logger.warning(get_error_message(error_code))
-        return None
-
-    # Clean text: remove commas, whitespace
-    cleaned = re.sub(r'[,\s]', '', text.strip())
-
-    try:
-        value = int(float(cleaned))  # Handle "100.0" cases
-        return value
-    except ValueError:
-        logger.warning(get_error_message(error_code))
-        return None
-
-
-def extract_field_from_html(soup: BeautifulSoup, selectors: List[str], error_code: str) -> Optional[str]:
-    """Extract field value from HTML using multiple possible selectors."""
+def extract_field_from_html(soup: BeautifulSoup, selectors: List[str], field_name: str) -> Optional[str]:
+    """
+    Extract text from HTML using a list of CSS selectors.
+    Returns the first non-empty match.
+    """
     for selector in selectors:
         try:
             element = soup.select_one(selector)
-            if element:
-                text = element.get_text(strip=True)
-                if text:
-                    return text
-        except Exception:
+            if element and element.get_text(strip=True):
+                return element.get_text(strip=True)
+        except Exception as e:
+            logger.debug(f"Selector {selector} failed for {field_name}: {e}")
             continue
 
-    logger.warning(get_error_message(error_code))
+    audit_logger.log_error("ERR-001", f"Failed to extract {field_name} from HTML using selectors: {selectors}")
     return None
 
 
-def extract_summary_from_html(html_content: str, url: str, metadata: Dict[str, Any]) -> Optional[ABTestSummary]:
+def extract_summary_from_html(html_path: Path, url: str) -> Optional[ABTestSummary]:
     """
-    Extract A/B test summary from HTML content.
+    Extract A/B test summary from a single HTML file.
     Returns ABTestSummary object or None if extraction fails completely.
     """
     try:
-        soup = BeautifulSoup(html_content, 'html.parser')
+        with open(html_path, 'r', encoding='utf-8', errors='ignore') as f:
+            html_content = f.read()
     except Exception as e:
-        logger.error(f"ERR-022: Malformed HTML structure - {str(e)}")
+        audit_logger.log_error("ERR-005", f"Failed to read HTML file {html_path}: {e}")
         return None
 
-    # Extract fields with appropriate selectors and error codes
-    title = extract_field_from_html(soup, [
-        'h1', 'h2', '.title', '.post-title', 'meta[property="og:title"]',
-        'title'
-    ], "ERR-001")
+    soup = BeautifulSoup(html_content, 'html.parser')
 
-    domain = extract_field_from_html(soup, [
-        'meta[property="og:site_name"]', '.domain', '.site-name'
-    ], "ERR-002")
-    if not domain and url:
+    # Define selectors for common patterns
+    selectors_map = {
+        'baseline_rate': [
+            'span[data-testid="baseline-rate"]',
+            'td.baseline-rate',
+            '.baseline-rate',
+            '[class*="baseline"]',
+            'td:contains("Control")',
+            'td:contains("Baseline")',
+        ],
+        'treatment_rate': [
+            'span[data-testid="treatment-rate"]',
+            'td.treatment-rate',
+            '.treatment-rate',
+            '[class*="treatment"]',
+            'td:contains("Variant")',
+            'td:contains("Treatment")',
+        ],
+        'sample_size_control': [
+            'span[data-testid="control-n"]',
+            'td.control-n',
+            '.control-n',
+            '[class*="control"]',
+            'td:contains("Control") ~ td',
+        ],
+        'sample_size_treatment': [
+            'span[data-testid="treatment-n"]',
+            'td.treatment-n',
+            '.treatment-n',
+            '[class*="treatment"]',
+            'td:contains("Variant") ~ td',
+        ],
+        'p_value': [
+            'span[data-testid="p-value"]',
+            'td.p-value',
+            '.p-value',
+            '[class*="p-value"]',
+            'td:contains("p-value")',
+            'td:contains("p=")',
+            'td:contains("P-value")',
+        ],
+        'effect_size': [
+            'span[data-testid="effect-size"]',
+            'td.effect-size',
+            '.effect-size',
+            '[class*="effect"]',
+            'td:contains("Effect")',
+        ],
+        'confidence_interval': [
+            'span[data-testid="ci"]',
+            'td.ci',
+            '.ci',
+            '[class*="confidence"]',
+            'td:contains("CI")',
+        ],
+        'test_type': [
+            'span[data-testid="test-type"]',
+            'td.test-type',
+            '.test-type',
+            '[class*="test"]',
+            'td:contains("Test")',
+        ],
+        'domain': [
+            'meta[name="domain"]',
+            'meta[property="og:domain"]',
+            'span.domain',
+            '.domain',
+        ],
+        'publication_year': [
+            'meta[name="year"]',
+            'meta[property="article:published_time"]',
+            'span.year',
+            '.year',
+            'time',
+        ],
+    }
+
+    # Extract fields
+    raw_data = {}
+    for field, selectors in selectors_map.items():
+        raw_data[field] = extract_field_from_html(soup, selectors, field)
+
+    # Convert to typed values
+    baseline_rate = extract_single_float(raw_data.get('baseline_rate'), 'baseline_rate')
+    treatment_rate = extract_single_float(raw_data.get('treatment_rate'), 'treatment_rate')
+    sample_size_control = extract_single_int(raw_data.get('sample_size_control'), 'sample_size_control')
+    sample_size_treatment = extract_single_int(raw_data.get('sample_size_treatment'), 'sample_size_treatment')
+    p_value = extract_single_float(raw_data.get('p_value'), 'p_value')
+    effect_size = extract_single_float(raw_data.get('effect_size'), 'effect_size')
+
+    # Infer domain from URL if not found in HTML
+    domain = raw_data.get('domain')
+    if not domain:
         from code.src.utils.helpers import domain_from_url
         domain = domain_from_url(url)
+        if domain:
+            logger.info(f"Inferred domain '{domain}' from URL for {html_path}")
 
-    # Sample sizes
-    sample_size_control = extract_field_from_html(soup, [
-        'meta[name="sample-size-control"]', '.n-control', '.sample-control',
-        '[data-sample-control]', 'p:contains("control group")',
-        'p:contains("n=")'
-    ], "ERR-003")
-    n_control = extract_single_int(sample_size_control, "ERR-034") if sample_size_control else None
+    # Infer publication year
+    pub_year = extract_single_int(raw_data.get('publication_year'), 'publication_year')
 
-    sample_size_treatment = extract_field_from_html(soup, [
-        'meta[name="sample-size-treatment"]', '.n-treatment', '.sample-treatment',
-        '[data-sample-treatment]', 'p:contains("treatment group")',
-        'p:contains("n=")'
-    ], "ERR-004")
-    n_treatment = extract_single_int(sample_size_treatment, "ERR-035") if sample_size_treatment else None
-
-    # Conversion rates
-    conversion_rate_control = extract_field_from_html(soup, [
-        'meta[name="conversion-control"]', '.cr-control', '.rate-control',
-        '[data-cr-control]', 'p:contains("control rate")',
-        'p:contains("baseline")'
-    ], "ERR-005")
-    cr_control = extract_single_float(conversion_rate_control, "ERR-036") if conversion_rate_control else None
-
-    conversion_rate_treatment = extract_field_from_html(soup, [
-        'meta[name="conversion-treatment"]', '.cr-treatment', '.rate-treatment',
-        '[data-cr-treatment]', 'p:contains("treatment rate")'
-    ], "ERR-006")
-    cr_treatment = extract_single_float(conversion_rate_treatment, "ERR-037") if conversion_rate_treatment else None
-
-    # P-value
-    p_value_str = extract_field_from_html(soup, [
-        'meta[name="p-value"]', '.p-value', '.pval',
-        '[data-p-value]', 'p:contains("p=")', 'p:contains("p-value")'
-    ], "ERR-007")
-    p_value = extract_single_float(p_value_str, "ERR-038") if p_value_str else None
-
-    # Effect size
-    effect_size_str = extract_field_from_html(soup, [
-        'meta[name="effect-size"]', '.effect-size', '.es',
-        '[data-effect-size]', 'p:contains("effect size")',
-        'p:contains("lift")', 'p:contains("difference")'
-    ], "ERR-009")
-    effect_size = extract_single_float(effect_size_str, "ERR-039") if effect_size_str else None
-
-    # Test type
-    test_type = extract_field_from_html(soup, [
-        'meta[name="test-type"]', '.test-type',
-        '[data-test-type]', 'p:contains("z-test")',
-        'p:contains("t-test")', 'p:contains("fisher")'
-    ], "ERR-011")
-
-    # Publication year
-    pub_year_str = extract_field_from_html(soup, [
-        'meta[name="publication-year"]', '.year', '.date',
-        '[data-year]', 'time[datetime]', 'p:contains("20")'
-    ], "ERR-012")
-    pub_year = extract_single_int(pub_year_str, "ERR-041") if pub_year_str else None
-
-    # Confidence interval
-    ci_str = extract_field_from_html(soup, [
-        'meta[name="confidence-interval"]', '.ci', '.confidence',
-        '[data-ci]', 'p:contains("CI")', 'p:contains("confidence")'
-    ], "ERR-013")
-
-    # Outcome type
-    outcome_type = extract_field_from_html(soup, [
-        'meta[name="outcome-type"]', '.outcome-type',
-        '[data-outcome-type]', 'p:contains("binary")',
-        'p:contains("continuous")'
-    ], "ERR-015")
-
-    # Validate required fields and log specific errors
-    errors = []
-    if not title: errors.append("ERR-001")
-    if not domain: errors.append("ERR-002")
-    if n_control is None: errors.append("ERR-003")
-    if n_treatment is None: errors.append("ERR-004")
-    if cr_control is None: errors.append("ERR-005")
-    if cr_treatment is None: errors.append("ERR-006")
-    if p_value is None: errors.append("ERR-007")
-    if effect_size is None: errors.append("ERR-009")
-    if not test_type: errors.append("ERR-011")
-    if not pub_year: errors.append("ERR-012")
-    if not outcome_type: errors.append("ERR-015")
-
-    # Log all errors
-    for err_code in errors:
-        logger.warning(get_error_message(err_code))
-
-    # Check for sample size mismatch
-    if n_control is not None and n_treatment is not None:
-        if abs(n_control - n_treatment) > 0:
-            logger.warning(get_error_message("ERR-016"))
-
-    # Validate numeric ranges
-    if cr_control is not None and (cr_control < 0 or cr_control > 1):
-        logger.warning(get_error_message("ERR-017"))
-    if cr_treatment is not None and (cr_treatment < 0 or cr_treatment > 1):
-        logger.warning(get_error_message("ERR-017"))
-    if p_value is not None and (p_value < 0 or p_value > 1):
-        logger.warning(get_error_message("ERR-018"))
-    if effect_size is not None and abs(effect_size) > 100:
-        logger.warning(get_error_message("ERR-019"))
-
-    # Create summary object even if some fields are missing
-    # Missing fields will be None, which downstream components can handle
-    summary = ABTestSummary(
-      source_url=url,
-      domain=domain,
-      title=title,
-      sample_size_control=n_control,
-      sample_size_treatment=n_treatment,
-      conversion_rate_control=cr_control,
-      conversion_rate_treatment=cr_treatment,
-      p_value=p_value,
-      effect_size=effect_size,
-      test_type=test_type,
-      publication_year=pub_year,
-      confidence_interval=ci_str,
-      outcome_type=outcome_type,
-      fetch_timestamp=metadata.get('fetch_timestamp'),
-      repository_id=metadata.get('repository_id', 'unknown')
-  )
-
-    return summary
+    # Create summary object
+    try:
+        summary = ABTestSummary(
+            url=url,
+            domain=domain,
+            baseline_rate=baseline_rate,
+            treatment_rate=treatment_rate,
+            sample_size_control=sample_size_control,
+            sample_size_treatment=sample_size_treatment,
+            p_value=p_value,
+            effect_size=effect_size,
+          confidence_interval=raw_data.get('confidence_interval'),
+            test_type=raw_data.get('test_type'),
+            publication_year=pub_year,
+            raw_html_path=str(html_path),
+            extraction_timestamp=None,  # Will be set by caller
+        )
+        return summary
+    except Exception as e:
+        audit_logger.log_error("ERR-006", f"Failed to create ABTestSummary from extracted data: {e}")
+        return None
 
 
-def extract_all(html_files: List[Path], urls: List[str], metadata_list: List[Dict[str, Any]]) -> List[ABTestSummary]:
+def extract_all(input_dir: Path, output_path: Path) -> List[ABTestSummary]:
     """
-    Extract summaries from multiple HTML files.
-    Returns list of ABTestSummary objects.
+    Extract summaries from all HTML files in input directory.
+    Writes results to output JSON file.
     """
     summaries = []
-    for i, (html_file, url, metadata) in enumerate(zip(html_files, urls, metadata_list)):
-        try:
-            with open(html_file, 'r', encoding='utf-8', errors='ignore') as f:
-                html_content = f.read()
+    html_files = list(input_dir.glob('*.html'))
 
-            summary = extract_summary_from_html(html_content, url, metadata)
-            if summary:
-                summaries.append(summary)
-        except Exception as e:
-            logger.error(f"Failed to extract from {html_file}: {str(e)}")
-            # Create a minimal summary with error flags
-            summary = ABTestSummary(
-                source_url=url,
-                domain=None,
-                title=None,
-                sample_size_control=None,
-                sample_size_treatment=None,
-                conversion_rate_control=None,
-                conversion_rate_treatment=None,
-                p_value=None,
-                effect_size=None,
-                test_type=None,
-                publication_year=None,
-                confidence_interval=None,
-                outcome_type=None,
-                fetch_timestamp=metadata.get('fetch_timestamp'),
-                repository_id=metadata.get('repository_id', 'unknown')
-            )
+    if not html_files:
+        audit_logger.log_warning(f"No HTML files found in {input_dir}")
+        # Create empty output file
+        with open(output_path, 'w') as f:
+            json.dump([], f, indent=2)
+        return summaries
+
+    logger.info(f"Found {len(html_files)} HTML files to process")
+
+    for html_file in html_files:
+        # Extract URL from filename (assuming format: {url_hash}.html or similar)
+        url = html_file.stem  # Fallback if no URL in filename
+        # Try to find URL in metadata or filename pattern
+        if '_' in html_file.name:
+            # Assume format: domain_url_hash.html or similar
+            parts = html_file.stem.split('_')
+            if len(parts) >= 2:
+                url = parts[1]  # Take second part as URL
+
+        summary = extract_summary_from_html(html_file, url)
+        if summary:
+            summary.extraction_timestamp = datetime.now().isoformat()
             summaries.append(summary)
+            logger.info(f"Successfully extracted summary from {html_file.name}")
+        else:
+            logger.warning(f"Failed to extract summary from {html_file.name}")
 
+    # Write to JSON
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump([s.model_dump() for s in summaries], f, indent=2)
+
+    logger.info(f"Wrote {len(summaries)} summaries to {output_path}")
     return summaries
 
 
 def write_summaries_to_json(summaries: List[ABTestSummary], output_path: Path) -> None:
-    """Write extracted summaries to JSON file."""
+    """
+    Write a list of ABTestSummary objects to a JSON file.
+    """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    data = [summary.model_dump() for summary in summaries]
-
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, default=str)
-
-    logger.info(f"Extracted {len(summaries)} summaries to {output_path}")
+    with open(output_path, 'w') as f:
+        json.dump([s.model_dump() for s in summaries], f, indent=2)
+    logger.info(f"Wrote {len(summaries)} summaries to {output_path}")
 
 
 def main():
-    """Main entry point for extraction."""
+    """
+    Entry point for extractor script.
+    Usage: python -m code.src.audit.extractor --input data/raw --output data/processed/summaries.json
+    """
     import argparse
-    from code.src.audit.fetcher import fetch_html_to_file
+    from datetime import datetime
 
-    parser = argparse.ArgumentParser(description='Extract A/B test summaries from fetched HTML')
-    parser.add_argument('--input-dir', type=Path, default=Path('data/raw'),
-                      help='Directory containing fetched HTML files')
-    parser.add_argument('--output', type=Path, default=Path('data/extracted_summaries.json'),
-                      help='Output JSON file for extracted summaries')
-    parser.add_argument('--urls-file', type=Path, default=Path('input/urls.csv'),
-                      help='CSV file containing URLs')
+    parser = argparse.ArgumentParser(description='Extract A/B test summaries from HTML files')
+    parser.add_argument('--input', type=Path, required=True, help='Input directory containing HTML files')
+    parser.add_argument('--output', type=Path, required=True, help='Output JSON file path')
     args = parser.parse_args()
 
-    # Read URLs
-    urls = []
-    if args.urls_file.exists():
-        import csv
-        with open(args.urls_file, 'r') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                urls.append(row['url'])
-
-    # Find HTML files
-    html_files = sorted(args.input_dir.glob('*.html'))
-    if not html_files:
-        logger.error("No HTML files found in input directory")
-        return 1
-
-    # Prepare metadata
-    from datetime import datetime
-    metadata_list = []
-    for i, html_file in enumerate(html_files):
-        metadata_list.append({
-            'fetch_timestamp': datetime.now().isoformat(),
-            'repository_id': f'repo_{i:04d}'
-        })
-
-    # Extract summaries
-    summaries = extract_all(html_files, urls[:len(html_files)], metadata_list)
-
-    # Write output
-    write_summaries_to_json(summaries, args.output)
-
-    return 0
+    logger.info(f"Starting extraction from {args.input} to {args.output}")
+    summaries = extract_all(args.input, args.output)
+    logger.info(f"Extraction complete. Found {len(summaries)} valid summaries.")
 
 
 if __name__ == '__main__':
-    import sys
-    sys.exit(main())
+    main()

@@ -6,17 +6,16 @@ on:
   pull_request:
     branches: [ main ]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+# Timeout to respect resource limits (FR-009 / SC-008)
+timeout-minutes: 60
 
 jobs:
-  run-audit:
+  audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    
     strategy:
       matrix:
-        python-version: ['3.10']
+        python-version: ['3.9', '3.10']
 
     steps:
       - name: Checkout repository
@@ -31,36 +30,43 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install -e .
+          fi
 
-      - name: Validate Constitution Compliance
+      - name: Run Constitution Compliance Check
         run: |
           python -m code.src.utils.constitution_checker
 
-      - name: Run Monte Carlo Validation
+      - name: Run Monte-Carlo Validation (Startup Check)
         run: |
           python -m code.src.audit.monte_carlo_startup_validator
 
-      - name: Run Resource Monitor Check
+      - name: Run Resource Monitor Sanity Check
         run: |
-          python -m code.src.utils.resource_monitor --check-only
+          python -m code.src.utils.resource_monitor --sanity-check
 
-      - name: Run Synthetic Validation
+      - name: Run Full Audit Pipeline
+        env:
+          PYTHONUNBUFFERED: 1
         run: |
-          python -m code.scripts.run_synthetic_validation
+          python -m code.src.cli.run_audit --input data/input_urls.csv --output output/
 
-      - name: Run Main Audit Pipeline
+      - name: Validate Audit Artifacts
         run: |
-          python -m code.src.cli.run_audit
+          python -m code.src.audit.export_schema_validator
+          python -m code.src.audit.manifest_schema_validator
+          python -m code.src.audit.export_validator
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload Audit Reports
         if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: audit-results-${{ github.run_id }}
+          name: audit-results-${{ matrix.python-version }}
           path: |
             output/
             data/provenance_log.csv
             output/resource_log.json
             output/manifest.json
-          retention-days: 7

@@ -185,10 +185,6 @@
   \ \u2014 status=not_enough_info], and runs audit pipeline (verify workflow runs\
   \ and respects limits) [DEPENDS ON: T010]."
 : 1
-? 'T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,
-  {{claim:c_fe5ce674}}, timeout a predefined duration, and runs audit pipeline (verify
-  workflow runs and respects limits) [DEPENDS ON: T010].'
-: 2
 ? "T013 Create Dockerfile for optional local execution (uses only CPU\u2011compatible\
   \ base image [UNRESOLVED-CLAIM: c_0e949e9d \u2014 status=not_enough_info]) (build\
   \ Docker image successfully). **(No dependency on T012)**"
@@ -204,6 +200,10 @@
 ? "T019 HTML fetching with retries and timeout in `src/audit/fetcher.py` (uses `requests`)\
   \ (verify fetched HTML files are saved to `data/raw/` [UNRESOLVED-CLAIM: c_17f9398e\
   \ \u2014 status=not_enough_info]). **DEPENDS ON:** T018."
+: 1
+? "T020 Extraction logic in `src/audit/extractor.py` \u2192 produces `ABSummary` objects,\
+  \ handles missing fields, logs `ERR-001`\u2011`ERR-099` (FR\u2011007) (verify extraction\
+  \ JSON exists and logs contain appropriate ERR codes). **DEPENDS ON:** T019."
 : 1
 ? "T020 Extraction logic in `src/audit/extractor.py` \u2192 produces `ABSummary` objects,\
   \ handles missing fields, logs `ERR-001`\u2011`ERR-099` (FR\u2011007) [UNRESOLVED-CLAIM:\
@@ -415,6 +415,11 @@
 ? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
   \ entry with a missing baseline conversion rate is flagged in the audit notes as\
   \ required by FR\u2011012. [UNRESOLVED-CLAIM: c_4d616c9e \u2014 status=not_enough_info]\
+  \ **DEPENDS ON:** T025."
+: 1
+? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to Verify that any\
+  \ entry with a missing baseline conversion rate is flagged in the audit notes as\
+  \ required by FR\u2011012. [UNRESOLVED-CLAIM: c_ea68a467 \u2014 status=not_enough_info]\
   \ **DEPENDS ON:** T025."
 : 1
 ? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to verify that any\

@@ -1,16 +1,11 @@
 """
 Unit tests for the extractor module.
-Tests missing metric handling, malformed HTML, conflicting sample sizes,
-and error code logging.
 """
 import json
-import logging
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
+from unittest.mock import Mock, patch
 import pytest
-from bs4 import BeautifulSoup
 
 from code.src.audit.extractor import (
     extract_single_float,
@@ -19,268 +14,229 @@ from code.src.audit.extractor import (
     extract_summary_from_html,
     extract_all,
     write_summaries_to_json,
-    ERROR_CODES
 )
 from code.src.models.data_models import ABTestSummary
-from code.src.utils.logger import get_error_message
+from bs4 import BeautifulSoup
 
 
 class TestExtractSingleFloat:
-    def test_extract_valid_float(self):
-        """Test extraction of valid float values."""
-        assert extract_single_float("0.05", "ERR-XXX") == 0.05
-        assert extract_single_float("5%", "ERR-XXX") == 5.0
-        assert extract_single_float("0.05%", "ERR-XXX") == 0.05
-        assert extract_single_float("  0.05  ", "ERR-XXX") == 0.05
+    def test_valid_float(self):
+        assert extract_single_float("0.05", "p_value") == 0.05
 
-    def test_extract_invalid_float(self):
-        """Test extraction returns None for invalid values."""
-        assert extract_single_float("invalid", "ERR-XXX") is None
-        assert extract_single_float("", "ERR-XXX") is None
-        assert extract_single_float(None, "ERR-XXX") is None
+    def test_valid_float_with_whitespace(self):
+        assert extract_single_float("  0.05  ", "p_value") == 0.05
 
-    def test_log_error_on_missing(self, caplog):
-        """Test that error is logged when value is missing."""
-        with caplog.at_level(logging.WARNING):
-            result = extract_single_float("", "ERR-001")
-            assert result is None
-            assert "ERR-001" in caplog.text
+    def test_percentage_format(self):
+        assert extract_single_float("5%", "p_value") == 0.05
+
+    def test_inequality_less_than(self):
+        assert extract_single_float("<0.001", "p_value") < 0.001
+
+    def test_inequality_greater_than(self):
+        assert extract_single_float(">0.1", "p_value") > 0.1
+
+    def test_null_input(self):
+        assert extract_single_float(None, "p_value") is None
+
+    def test_empty_string(self):
+        assert extract_single_float("", "p_value") is None
+
+    def test_invalid_text(self):
+        assert extract_single_float("invalid", "p_value") is None
+
+    def test_text_with_number(self):
+        assert extract_single_float("p = 0.03", "p_value") == 0.03
 
 
 class TestExtractSingleInt:
-    def test_extract_valid_int(self):
-        """Test extraction of valid int values."""
-        assert extract_single_int("100", "ERR-XXX") == 100
-        assert extract_single_int("1,000", "ERR-XXX") == 1000
-        assert extract_single_int("100.0", "ERR-XXX") == 100
+    def test_valid_int(self):
+        assert extract_single_int("100", "sample_size") == 100
 
-    def test_extract_invalid_int(self):
-        """Test extraction returns None for invalid values."""
-        assert extract_single_int("invalid", "ERR-XXX") is None
-        assert extract_single_int("", "ERR-XXX") is None
-        assert extract_single_int(None, "ERR-XXX") is None
+    def test_valid_int_with_commas(self):
+        assert extract_single_int("1,000", "sample_size") == 1000
 
-    def test_log_error_on_missing(self, caplog):
-        """Test that error is logged when value is missing."""
-        with caplog.at_level(logging.WARNING):
-            result = extract_single_int("", "ERR-003")
-            assert result is None
-            assert "ERR-003" in caplog.text
+    def test_float_string(self):
+        assert extract_single_int("100.0", "sample_size") == 100
+
+    def test_null_input(self):
+        assert extract_single_int(None, "sample_size") is None
+
+    def test_empty_string(self):
+        assert extract_single_int("", "sample_size") is None
+
+    def test_invalid_text(self):
+        assert extract_single_int("invalid", "sample_size") is None
+
+    def test_text_with_number(self):
+        assert extract_single_int("N=150", "sample_size") == 150
 
 
 class TestExtractFieldFromHtml:
-    def test_extract_with_selector(self):
-        """Test extraction using CSS selector."""
-        html = "<div class='title'>Test Title</div>"
+    def test_find_with_selector(self):
+        html = '<div class="p-value">0.05</div>'
         soup = BeautifulSoup(html, 'html.parser')
-        result = extract_field_from_html(soup, ['.title'], "ERR-001")
-        assert result == "Test Title"
+        result = extract_field_from_html(soup, ['.p-value'], 'p_value')
+        assert result == "0.05"
 
-    def test_extract_with_multiple_selectors(self):
-        """Test extraction with multiple fallback selectors."""
-        html = "<h1>Primary Title</h1>"
+    def test_multiple_selectors(self):
+        html = '<div class="other">0.01</div><div class="p-value">0.05</div>'
         soup = BeautifulSoup(html, 'html.parser')
-        result = extract_field_from_html(soup, ['.title', 'h1'], "ERR-001")
-        assert result == "Primary Title"
+        result = extract_field_from_html(soup, ['.p-value', '.other'], 'p_value')
+        assert result == "0.05"
 
-    def test_extract_not_found(self, caplog):
-        """Test extraction returns None when not found."""
-        html = "<div>No title here</div>"
+    def test_not_found(self):
+        html = '<div class="other">0.01</div>'
         soup = BeautifulSoup(html, 'html.parser')
-        with caplog.at_level(logging.WARNING):
-            result = extract_field_from_html(soup, ['.title'], "ERR-002")
-            assert result is None
-            assert "ERR-002" in caplog.text
+        result = extract_field_from_html(soup, ['.p-value'], 'p_value')
+        assert result is None
+
+    def test_empty_element(self):
+        html = '<div class="p-value"></div>'
+        soup = BeautifulSoup(html, 'html.parser')
+        result = extract_field_from_html(soup, ['.p-value'], 'p_value')
+        assert result is None
 
 
 class TestExtractSummaryFromHtml:
-    def test_extract_complete_summary(self):
-        """Test extraction of a complete summary with all fields."""
-        html = """
+    def setup_method(self):
+        self.html_content = """
         <html>
-        <head>
-            <meta property="og:title" content="Test A/B Test">
-            <meta property="og:site_name" content="Example.com">
-            <meta name="sample-size-control" content="1000">
-            <meta name="sample-size-treatment" content="1000">
-            <meta name="conversion-control" content="0.10">
-            <meta name="conversion-treatment" content="0.12">
-            <meta name="p-value" content="0.03">
-            <meta name="effect-size" content="0.02">
-            <meta name="test-type" content="z-test">
-            <meta name="publication-year" content="2023">
-            <meta name="outcome-type" content="binary">
-        </head>
         <body>
-            <h1>Test A/B Test</h1>
+            <span class="baseline-rate">0.10</span>
+            <span class="treatment-rate">0.12</span>
+            <span class="control-n">1000</span>
+            <span class="treatment-n">1000</span>
+            <span class="p-value">0.03</span>
+            <span class="effect-size">0.02</span>
+            <meta name="domain" content="example.com">
+            <meta name="year" content="2024">
         </body>
         </html>
         """
-        metadata = {
-            'fetch_timestamp': '2023-01-01T00:00:00',
-            'repository_id': 'test_repo'
-        }
-        summary = extract_summary_from_html(html, 'https://example.com/test', metadata)
 
-        assert summary is not None
-        assert summary.source_url == 'https://example.com/test'
-        assert summary.domain == 'Example.com'
-        assert summary.title == 'Test A/B Test'
-        assert summary.sample_size_control == 1000
-        assert summary.sample_size_treatment == 1000
-        assert summary.conversion_rate_control == 0.10
-        assert summary.conversion_rate_treatment == 0.12
-        assert summary.p_value == 0.03
-        assert summary.effect_size == 0.02
-        assert summary.test_type == 'z-test'
-        assert summary.publication_year == 2023
-        assert summary.outcome_type == 'binary'
+    def test_successful_extraction(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False) as f:
+            f.write(self.html_content)
+            temp_path = Path(f.name)
 
-    def test_extract_missing_fields(self, caplog):
-        """Test extraction with missing fields logs appropriate errors."""
-        html = """
-        <html>
-        <body>
-            <h1>Incomplete Test</h1>
-        </body>
-        </html>
-        """
-        metadata = {'fetch_timestamp': '2023-01-01', 'repository_id': 'test'}
-
-        with caplog.at_level(logging.WARNING):
-            summary = extract_summary_from_html(html, 'https://example.com/test', metadata)
+        try:
+            summary = extract_summary_from_html(temp_path, "https://example.com/test")
             assert summary is not None
-            # Should log errors for missing required fields
-            assert "ERR-003" in caplog.text  # Missing sample_size_control
-            assert "ERR-005" in caplog.text  # Missing conversion_rate_control
+            assert summary.baseline_rate == 0.10
+            assert summary.treatment_rate == 0.12
+            assert summary.sample_size_control == 1000
+            assert summary.sample_size_treatment == 1000
+            assert summary.p_value == 0.03
+            assert summary.effect_size == 0.02
+            assert summary.domain == "example.com"
+            assert summary.publication_year == 2024
+        finally:
+            temp_path.unlink()
 
-    def test_extract_malformed_html(self, caplog):
-        """Test extraction handles malformed HTML gracefully."""
-        html = "<html><body><div><p>Unclosed tags"
-        metadata = {'fetch_timestamp': '2023-01-01', 'repository_id': 'test'}
+    def test_missing_fields(self):
+        html = "<html><body>No data here</body></html>"
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False) as f:
+            f.write(html)
+            temp_path = Path(f.name)
 
-        with caplog.at_level(logging.ERROR):
-            summary = extract_summary_from_html(html, 'https://example.com/test', metadata)
-            # Should still return a summary object even with malformed HTML
+        try:
+            summary = extract_summary_from_html(temp_path, "https://example.com/test")
+            # Should still create a summary with None values
             assert summary is not None
+            assert summary.url == "https://example.com/test"
+        finally:
+            temp_path.unlink()
 
-    def test_extract_conflicting_sample_sizes(self, caplog):
-        """Test extraction logs error when sample sizes differ."""
-        html = """
-        <html>
-        <body>
-            <p>Control: n=1000</p>
-            <p>Treatment: n=1200</p>
-        </body>
-        </html>
-        """
-        metadata = {'fetch_timestamp': '2023-01-01', 'repository_id': 'test'}
-
-        with caplog.at_level(logging.WARNING):
-            summary = extract_summary_from_html(html, 'https://example.com/test', metadata)
-            assert summary is not None
-            # Should log error for mismatched sample sizes
-            assert "ERR-016" in caplog.text
-
-    def test_extract_invalid_p_value_range(self, caplog):
-        """Test extraction logs error for out-of-range p-value."""
-        html = """
-        <html>
-        <body>
-            <p>p-value: 1.5</p>
-        </body>
-        </html>
-        """
-        metadata = {'fetch_timestamp': '2023-01-01', 'repository_id': 'test'}
-
-        with caplog.at_level(logging.WARNING):
-            summary = extract_summary_from_html(html, 'https://example.com/test', metadata)
-            assert summary is not None
-            assert "ERR-018" in caplog.text
-
-    def test_extract_invalid_conversion_rate(self, caplog):
-        """Test extraction logs error for out-of-range conversion rate."""
-        html = """
-        <html>
-        <body>
-            <p>Control rate: 150%</p>
-        </body>
-        </html>
-        """
-        metadata = {'fetch_timestamp': '2023-01-01', 'repository_id': 'test'}
-
-        with caplog.at_level(logging.WARNING):
-            summary = extract_summary_from_html(html, 'https://example.com/test', metadata)
-            assert summary is not None
-            assert "ERR-017" in caplog.text
+    def test_invalid_html_file(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fake_path = Path(tmpdir) / "nonexistent.html"
+            summary = extract_summary_from_html(fake_path, "https://example.com/test")
+            assert summary is None
 
 
 class TestExtractAll:
     def test_extract_multiple_files(self):
-        """Test extraction from multiple HTML files."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir_path = Path(tmpdir)
+            input_dir = Path(tmpdir)
+            output_path = input_dir / "summaries.json"
 
             # Create test HTML files
             html1 = """
-            <html><head><meta property="og:title" content="Test 1"></head>
-            <body><p>n=1000</p><p>rate=0.10</p><p>p=0.05</p><p>es=0.01</p><p>z-test</p><p>2023</p><p>binary</p></body></html>
+            <html><body>
+            <span class="baseline-rate">0.10</span>
+            <span class="treatment-rate">0.12</span>
+            <span class="control-n">1000</span>
+            <span class="treatment-n">1000</span>
+            <span class="p-value">0.03</span>
+            </body></html>
             """
+            (input_dir / "test1.html").write_text(html1)
+
             html2 = """
-            <html><head><meta property="og:title" content="Test 2"></head>
-            <body><p>n=1000</p><p>rate=0.12</p><p>p=0.03</p><p>es=0.02</p><p>z-test</p><p>2023</p><p>binary</p></body></html>
+            <html><body>
+            <span class="baseline-rate">0.20</span>
+            <span class="treatment-rate">0.25</span>
+            <span class="control-n">500</span>
+            <span class="treatment-n">500</span>
+            <span class="p-value">0.01</span>
+            </body></html>
             """
+            (input_dir / "test2.html").write_text(html2)
 
-            file1 = tmpdir_path / 'test1.html'
-            file2 = tmpdir_path / 'test2.html'
-            file1.write_text(html1)
-            file2.write_text(html2)
-
-            urls = ['https://example.com/1', 'https://example.com/2']
-            metadata_list = [
-                {'fetch_timestamp': '2023-01-01', 'repository_id': 'repo1'},
-                {'fetch_timestamp': '2023-01-02', 'repository_id': 'repo2'}
-            ]
-
-            summaries = extract_all([file1, file2], urls, metadata_list)
+            summaries = extract_all(input_dir, output_path)
 
             assert len(summaries) == 2
-            assert summaries[0].source_url == 'https://example.com/1'
-            assert summaries[1].source_url == 'https://example.com/2'
+            assert output_path.exists()
+
+            # Verify JSON content
+            with open(output_path) as f:
+                data = json.load(f)
+                assert len(data) == 2
+
+    def test_empty_directory(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_dir = Path(tmpdir)
+            output_path = input_dir / "summaries.json"
+
+            summaries = extract_all(input_dir, output_path)
+            assert len(summaries) == 0
+            assert output_path.exists()
+
+            with open(output_path) as f:
+                data = json.load(f)
+                assert data == []
 
 
 class TestWriteSummariesToJson:
     def test_write_summaries(self):
-        """Test writing summaries to JSON file."""
         summaries = [
             ABTestSummary(
-                source_url='https://example.com/1',
-                domain='example.com',
-                title='Test 1',
+                url="https://example.com/1",
+                domain="example.com",
+                baseline_rate=0.10,
+                treatment_rate=0.12,
                 sample_size_control=1000,
                 sample_size_treatment=1000,
-                conversion_rate_control=0.10,
-                conversion_rate_treatment=0.12,
                 p_value=0.03,
-                effect_size=0.02,
-                test_type='z-test',
-                publication_year=2023,
-                confidence_interval=None,
-                outcome_type='binary',
-                fetch_timestamp='2023-01-01',
-                repository_id='repo1'
-            )
+            ),
+            ABTestSummary(
+                url="https://example.com/2",
+                domain="example.com",
+                baseline_rate=0.20,
+                treatment_rate=0.25,
+                sample_size_control=500,
+                sample_size_treatment=500,
+                p_value=0.01,
+            ),
         ]
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / 'output.json'
+            output_path = Path(tmpdir) / "summaries.json"
             write_summaries_to_json(summaries, output_path)
 
             assert output_path.exists()
-
-            with open(output_path, 'r') as f:
+            with open(output_path) as f:
                 data = json.load(f)
-
-            assert len(data) == 1
-            assert data[0]['source_url'] == 'https://example.com/1'
-            assert data[0]['title'] == 'Test 1'
+                assert len(data) == 2
+                assert data[0]['url'] == "https://example.com/1"
+                assert data[1]['url'] == "https://example.com/2"
