@@ -1243,6 +1243,10 @@
     "classified_at": "2026-07-09T13:12:48Z",
     "verdict": false
   },
+  "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl::1.6.0": {
+    "classified_at": "2026-07-13T19:07:57Z",
+    "verdict": false
+  },
   "PROJ-892-llmxive-follow-up-extending-collectionlo::1.6.0": {
     "classified_at": "2026-07-06T08:01:09Z",
     "verdict": false

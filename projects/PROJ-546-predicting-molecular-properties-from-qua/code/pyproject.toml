@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "molecular-properties-prediction"
+version = "0.1.0"
+description = "Predicting Molecular Properties from Quantum Chemical Calculations"
+requires-python = ">=3.11"
+dependencies = [
+    "scikit-learn>=1.4.0",
+    "pandas>=2.2.0",
+    "rdkit>=2024.1.0",
+    "requests>=2.31.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+# Inherit settings from .ruff.toml or define here if preferred
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["download_data", "generate_descriptors", "utils", "validators"]

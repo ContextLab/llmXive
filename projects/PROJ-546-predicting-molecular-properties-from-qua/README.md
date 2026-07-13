@@ -1,41 +1,34 @@
 # PROJ-546: Predicting Molecular Properties from Quantum Chemical Calculations
 
 ## Overview
-This project implements a pipeline to predict molecular properties (specifically reaction barriers)
-using descriptors generated from semi-empirical (DFTB+) and high-level DFT (Psi4) calculations.
-The goal is to evaluate the trade-off between computational cost and prediction accuracy.
+This project implements a pipeline to predict molecular properties (specifically reaction barrier heights) using semi-empirical (DFTB+) and high-level DFT (Psi4) quantum chemical calculations, followed by machine learning modeling.
 
 ## Project Structure
-```
-.
-├── code/ # Source code for the pipeline
-│ ├── utils/ # Utility functions (error handling, memory monitoring)
-│ ├── validators/ # Data validation logic
-│ ├── download_data.py # Data fetching script
-│ ├── generate_descriptors.py
-│ ├── train_models.py
-│ └──...
-├── data/ # Data artifacts (raw, processed, reports)
-├── figures/ # Generated plots and visualizations
-├── tests/ # Unit and integration tests
-├── specs/ # Feature specifications and design docs
-└── README.md
-```
+- `code/`: Source code for data downloading, descriptor generation, model training, and evaluation.
+- `data/`: Raw and processed datasets, including downloaded CSVs and generated descriptors.
+- `tests/`: Unit and integration tests for the pipeline components.
+- `specs/`: Feature specifications and design documents.
+- `figures/`: Generated plots and visualizations.
+
+## Prerequisites
+- Python 3.11+
+- DFTB+ (for semi-empirical calculations)
+- Psi4 (for high-level DFT calculations)
+- RDKit (for molecular handling)
 
 ## Setup
-1. Ensure Python 3.11+ is installed.
-2. Install dependencies:
+1. Install dependencies:
  ```bash
  pip install -r code/requirements.txt
  ```
-3. Ensure DFTB+ and Psi4 are installed and available in your PATH (for descriptor generation tasks).
+2. Ensure DFTB+ and Psi4 are installed and accessible in your PATH.
 
 ## Usage
-Follow the tasks in `tasks.md` to execute the pipeline step-by-step.
-Key entry points:
-- `python code/download_data.py`
-- `python code/generate_descriptors.py`
-- `python code/train_models.py`
+See `code/` scripts for individual pipeline steps:
+- `download_data.py`: Fetch experimental barrier dataset from Zenodo.
+- `generate_descriptors.py`: Compute HOMO/LUMO/Mayer descriptors.
+- `train_models.py`: Train Random Forest models.
+- `evaluate_models.py`: Compare model performance.
 
 ## License
-MIT
+MIT License

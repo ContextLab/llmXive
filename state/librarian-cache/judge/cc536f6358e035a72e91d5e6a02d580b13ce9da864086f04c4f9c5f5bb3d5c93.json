@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.00425",
+  "judged_at": "2026-07-13T19:08:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kwai keye-vl-2.0 technical report\" computer science",
+  "rationale": "The candidate paper focuses on quantization techniques for Multimodal Large Language Models (MLLMs) to improve inference efficiency, which is a distinct technical domain from the user's question regarding the \"Kwai Keye-VL-2.0 Technical Report\" and its specific follow-up research. While both involve large vision-language models, the paper does not address the specific architecture, mechanisms, or empirical findings of the Kwai Keye-VL-2.0 model or its direct extensions, failing to meet the crite",
+  "relevant": false
+}

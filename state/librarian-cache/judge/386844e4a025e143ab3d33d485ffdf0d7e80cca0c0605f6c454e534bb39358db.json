@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.13549",
+  "judged_at": "2026-07-13T19:08:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kwai keye-vl-2.0 technical report\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the domain of Multimodal Large Language Models (MLLMs), which is the specific technical context of the \"Kwai Keye-VL-2.0\" report the user is extending. It provides the necessary background on architectures, training strategies, and evaluation metrics that a literature review for a follow-up technical report would require to situate the new work within the broader field.",
+  "relevant": true
+}

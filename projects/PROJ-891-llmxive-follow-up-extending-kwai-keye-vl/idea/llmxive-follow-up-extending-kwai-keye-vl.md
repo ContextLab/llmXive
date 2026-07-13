@@ -5,33 +5,78 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Kwai Keye-VL-2.0 Technical Report"
 
-## Summary of the prior work
-The paper introduces Kwai Keye-VL-2.0, a 30B-parameter Mixture-of-Experts (MoE) multimodal model that achieves lossless 256K context processing for ultra-long videos by adapting DeepSeek Sparse Attention (DSA) to a GQA-based architecture. It employs a four-stage pre-training curriculum and Cross-Modal Multi-Teacher On-Policy Distillation (MOPD) to enable agentic intelligence and prevent catastrophic forgetting while maintaining a sparse active parameter count of only 3B. The model demonstrates state-of-the-art performance in fine-grained temporal localization and long-video comprehension by utilizing native-resolution vision encoding and a unified visual-language processing strategy.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Does the "native-resolution" visual encoding strategy in Keye-VL-2.0 exhibit a non-linear dependency on input aspect ratio complexity, such that models trained on uniformly square-cropped datasets suffer a measurable degradation in temporal grounding accuracy when presented with extreme aspect ratios (e.g., <0.2 or >5.0) despite the theoretical capacity of 2D RoPE?
+## Research question
 
-**Why it matters:** While the paper claims native-resolution encoding preserves layout and geometry, it remains unverified whether the model's attention mechanisms (specifically the DSA indexer) can robustly distinguish critical visual tokens in highly distorted or elongated video frames without explicit aspect-ratio regularization, a gap that could severely impact real-world surveillance or mobile-shot video analysis.
+Does the native-resolution visual encoding strategy in Keye-VL-2.0 exhibit a non-linear dependency on input aspect ratio complexity, such that temporal grounding accuracy degrades significantly when processing extreme aspect ratios (e.g., <0.2 or >5.0) despite the theoretical capacity of 2D RoPE?
+
+## Motivation
+
+While the original report claims native-resolution encoding preserves layout and geometry, it remains unverified whether the model's attention mechanisms (specifically the DSA indexer) can robustly distinguish critical visual tokens in highly distorted or elongated video frames without explicit aspect-ratio regularization. Addressing this gap is critical for real-world applications like mobile-shot video analysis or surveillance, where extreme aspect ratios are common but may currently cause silent performance failures in "state-of-the-art" models.
+
+## Related work
+
+- [Kwai Keye-VL-2.0 Technical Report](https://arxiv.org/abs/2606.10651) — Establishes the baseline architecture using 2D RoPE and DSA for long-video understanding, claiming robustness to native resolutions but lacking specific evaluation on extreme aspect ratio distortions.
+- [Kwai Keye-VL Technical Report](https://arxiv.org/abs/2507.01949) — Provides the foundational context for the evolution from static-image-focused MLLMs to dynamic video comprehension, highlighting the general challenge of temporal localization which this project targets under specific geometric stress.
+- [A Survey on Multimodal Large Language Models](https://arxiv.org/abs/2306.13549) — Offers a broad overview of MLLM architectures and their typical failure modes on non-standard inputs, serving as a methodological precedent for stress-testing visual encoders against geometric perturbations.
+
+## Expected results
+
+We expect to observe a statistically significant (>15%) drop in mean Intersection-over-Union (mIoU) for temporal grounding tasks when the model processes extreme aspect ratios compared to square-cropped baselines. This result would demonstrate that while 2D RoPE allows token processing, the sparse attention indexing fails to prioritize relevant segments under spatial token dispersion, revealing a hidden bias in the "native-resolution" claim.
 
 ## Methodology sketch
-**Data:** Construct a synthetic benchmark dataset of 500 short video clips (10–30 seconds) derived from open-source datasets (e.g., ActivityNet) by programmatically padding or cropping them to extreme aspect ratios (1:10, 10:1, 1:20, 20:1) while preserving the original content and temporal annotations (ground truth timestamps).
 
-**Procedure:** Since the model itself requires GPU inference, we will use the released Keye-VL-2.0 checkpoints to run a "CPU-tractable" evaluation protocol where we: (1) Pre-process the videos to the extreme aspect ratios, (2) Run the model on a single CPU node using the quantized (INT4) version of the 3B active parameters via CPU-offloaded inference (e.g., llama.cpp or Optimum-Intel) to measure latency and memory footprint, and (3) Quantify the drop in mean Intersection-over-Union (mIoU) for temporal grounding tasks compared to a baseline set of square-cropped versions of the same videos.
+- **Data Construction**: Programmatically generate a synthetic benchmark of 500 short video clips (10–30s) from ActivityNet by applying extreme padding/cropping to create aspect ratios of 1:10, 10:1, 1:20, and 20:1, preserving original temporal ground-truth annotations.
+- **Preprocessing**: Normalize video frames to the model's native resolution requirements while maintaining the extreme aspect ratios; generate a control set of square-cropped versions of the same videos.
+- **Inference Setup**: Load the quantized (INT4) Keye-VL-2.0 checkpoint (3B active parameters) on a CPU-only environment using `llama.cpp` or `Optimum-Intel` with CPU offloading to measure latency and memory footprint within the 7GB RAM constraint.
+- **Execution**: Run the model on both the extreme-aspect and square-cropped datasets to generate temporal grounding predictions (start/end timestamps) for each clip.
+- **Evaluation**: Calculate the mean Intersection-over-Union (mIoU) for the predicted timestamps against the preserved ground-truth annotations for both datasets.
+- **Statistical Analysis**: Perform a paired t-test (or Wilcoxon signed-rank test if normality assumptions fail) to compare the mIoU distributions between the extreme-aspect and square-cropped conditions, checking for a statistically significant difference (p < 0.05).
+- **Independence Check**: Ensure the evaluation target (mIoU against ground-truth timestamps from ActivityNet) is independent of the predictor inputs (the distorted video frames), avoiding circular validation.
 
-**Expected Result:** We hypothesize that while the 2D RoPE allows the model to *process* the tokens, the DSA Lightning Indexer will fail to prioritize relevant temporal segments in extreme aspect ratios due to spatial token dispersion, resulting in a statistically significant (>15%) drop in mIoU compared to square inputs, thereby revealing a hidden bias in the "native-resolution" claim that requires aspect-ratio-aware training augmentation.
+## Duplicate-check
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Reviewed existing ideas: None in the immediate corpus (this is a specific follow-up to the provided preprint).
+- Closest match: None (N/A).
+- Verdict: NOT a duplicate
 
-- **Kwai Keye-VL-2.0 Technical Report** — Kwai Keye Team, Bin Wen, Changyi Liu, Chengru Song, Chongling Rao, Guowang Zhang, Han Li, Haonan Fan, Hengrui Ju, Jiankang Chen, Jiapeng Chen, Jiawei Yuan, Kaixuan Yang, Kaiyu Jiang, Kun Gai, Lingzhi Zhou, Na Nie, Sen Na, Tianke Zhang, Tingting Gao, Xuanyu Zheng, Yulong Chen, Fan Yang, Haixuan Gao, Lele Yang, Mingqiao Liu, Muxi Diao, Qi Zhang, Qile Su, Wei Chen, Wentao Hong, Xingyu Lu, Yancheng Long, Yankai Yang, Yingxin Li, Yiyang Fan, Yu Xia, Yuzhe Chen, Ziliang Lai, Chuan Yi, Haonan Jia, Tianming Liang, Weixin Xu, Xiaoxiao Ma, Yang Tian, Yufei Han, Feng Han, Hang Li, Jing Wang, Jinghui Jia, Junmin Chen, Junyu Shi, Ruilin Zhang. https://arxiv.org/abs/2606.10651.
 
-```bibtex
-@article{orig_arxiv_2606_10651,
-  title = {Kwai Keye-VL-2.0 Technical Report},
-  author = {Kwai Keye Team and Bin Wen and Changyi Liu and Chengru Song and Chongling Rao and Guowang Zhang and Han Li and Haonan Fan and Hengrui Ju and Jiankang Chen and Jiapeng Chen and Jiawei Yuan and Kaixuan Yang and Kaiyu Jiang and Kun Gai and Lingzhi Zhou and Na Nie and Sen Na and Tianke Zhang and Tingting Gao and Xuanyu Zheng and Yulong Chen and Fan Yang and Haixuan Gao and Lele Yang and Mingqiao Liu and Muxi Diao and Qi Zhang and Qile Su and Wei Chen and Wentao Hong and Xingyu Lu and Yancheng Long and Yankai Yang and Yingxin Li and Yiyang Fan and Yu Xia and Yuzhe Chen and Ziliang Lai and Chuan Yi and Haonan Jia and Tianming Liang and Weixin Xu and Xiaoxiao Ma and Yang Tian and Yufei Han and Feng Han and Hang Li and Jing Wang and Jinghui Jia and Junmin Chen and Junyu Shi and Ruilin Zhang},
-  year = {2026},
-  eprint = {2606.10651},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.10651},
-  url = {https://arxiv.org/abs/2606.10651}
-}
-```
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-13T19:08:43Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Kwai Keye-VL-2.0 Technical Report" computer science
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Kwai Keye-VL-2.0 Technical Report" computer science | 0 |
+| 1 | Kwai Keye-VL-2.0 architecture details | 2 |
+| 2 | multimodal large language model technical reports | 5 |
+| 3 | vision-language model scaling laws | 0 |
+| 4 | Kwai Keye-VL pretraining strategies | 0 |
+| 5 | large multimodal model instruction tuning | 0 |
+| 6 | computer vision and NLP integration techniques | 0 |
+| 7 | Kwai Keye-VL benchmark performance | 0 |
+| 8 | next-generation vision-language transformers | 0 |
+| 9 | multimodal foundation model improvements | 0 |
+| 10 | Kwai Keye-VL-2.0 inference optimization | 0 |
+| 11 | large scale multimodal reasoning | 0 |
+| 12 | efficient vision-language model training | 0 |
+| 13 | Kwai Keye-VL dataset construction | 0 |
+| 14 | multimodal alignment methods | 0 |
+| 15 | Kwai Keye-VL-2.0 ablation studies | 0 |
+| 16 | advanced visual question answering systems | 0 |
+| 17 | Kwai Keye-VL-2.0 parameter efficiency | 0 |
+| 18 | cross-modal attention mechanisms in VL models | 0 |
+| 19 | Kwai Keye-VL-2.0 evaluation metrics | 0 |
+| 20 | large language model visual grounding | 0 |
+
+### Verified citations
+
+1. **Kwai Keye-VL-2.0 Technical Report** (2026).  Kwai Keye Team, Bin Wen, Changyi Liu, Chengru Song, Chongling Rao, et al.. arXiv. [2606.10651](https://arxiv.org/abs/2606.10651). PDF-sampled: Yes.
+2. **Kwai Keye-VL Technical Report** (2025).  Kwai Keye Team, Biao Yang, Bin Wen, Changyi Liu, Chenglong Chu, et al.. arXiv. [2507.01949](https://arxiv.org/abs/2507.01949). PDF-sampled: No.
+3. **A Survey on Multimodal Large Language Models** (2023). Shukang Yin, Chaoyou Fu, Sirui Zhao, Ke Li, Xing Sun, et al.. arXiv. [2306.13549](https://arxiv.org/abs/2306.13549). PDF-sampled: No.

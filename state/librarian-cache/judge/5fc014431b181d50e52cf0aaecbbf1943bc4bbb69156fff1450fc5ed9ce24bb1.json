@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.01949",
+  "judged_at": "2026-07-13T19:08:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kwai keye-vl-2.0 technical report\" computer science",
+  "rationale": "This paper is the foundational technical report for the \"Kwai Keye-VL\" model family, which is the direct subject of the user's \"follow-up\" research question; it satisfies criterion (d) as the canonical reference for the model's architecture, training recipe, and benchmarks that any subsequent extension or analysis must cite.",
+  "relevant": true
+}

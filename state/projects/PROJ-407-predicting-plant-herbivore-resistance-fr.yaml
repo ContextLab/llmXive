@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T18:44:51.317890Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-407-predicting-plant-herbivore-resistance-fr
-last_run_id: ff00dbc2-43d1-48a8-babf-593883e1265b
+last_run_id: 2115a377-4d05-45e4-9800-474d6b384cf0
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-407-predicting-plant-herbivore-resistance-fr/specs/001-predicting-plant-herbivore-resistance-fr
 title: Predicting Plant Herbivore Resistance from Publicly Available Metabolomic Data
-updated_at: '2026-07-11T09:40:48.019004Z'
+updated_at: '2026-07-13T18:49:10.392818Z'

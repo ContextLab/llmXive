@@ -1,12 +1,24 @@
+# Pre-commit configuration for automated linting and formatting
+# Install hooks with: pre-commit install
+# Run manually: pre-commit run --all-files
+
 repos:
-  - repo: https://github.com/psf/black
-    rev: 24.4.2
-    hooks:
-      - id: black
-        language_version: python3.11
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.8
+    rev: v0.6.9
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black
+        language_version: python3.11
+  - repo: local
+    hooks:
+      - id: check-requirements
+        name: Check requirements.txt
+        entry: python -c "import sys; sys.exit(0 if open('requirements.txt').read() else 1)"
+        language: system
+        pass_filenames: false
+        always_run: true

@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "molecular-property-prediction"
+version = "0.1.0"
+description = "Predicting molecular properties from quantum chemical calculations"
+requires-python = ">=3.11"
+dependencies = [
+    "scikit-learn>=1.5.0",
+    "pandas>=2.2.2",
+    "rdkit>=2024.3.1",
+    "requests>=2.32.3",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "ARG"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

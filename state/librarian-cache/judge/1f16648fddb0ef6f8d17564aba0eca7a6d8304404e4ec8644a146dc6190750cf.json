@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.13394",
+  "judged_at": "2026-07-13T19:08:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kwai keye-vl-2.0 technical report\" computer science",
+  "rationale": "The paper does not address the user's specific research question because the user is asking for a follow-up or extension to a specific technical report (\"Kwai Keye-VL-2.0\"), whereas the candidate paper is a general evaluation benchmark (MME) for the broader field of Multimodal Large Language Models. While both involve MLLMs, the candidate paper does not measure the specific mechanism, variables, or empirical population of the \"Kwai Keye-VL-2.0\" model or its specific technical contributions, fail",
+  "relevant": false
+}

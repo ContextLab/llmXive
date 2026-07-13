@@ -1,16 +1,11 @@
 # Core dependencies
-pandas==2.0.3
-scikit-learn==1.3.0
-rdkit==2023.9.1
-requests==2.31.0
+scikit-learn>=1.4.0
+pandas>=2.2.0
+rdkit>=2024.1.0
+requests>=2.31.0
 
-# DFTB+ and utilities
-# Note: DFTB+ must be installed separately via package manager or conda
-# pip install dftb+ is not available, use:
-# conda install -c conda-forge dftb+
-
-# Testing
-pytest==7.4.0
-
-# Utilities
-tqdm==4.66.1
+# Development and tooling dependencies
+ruff>=0.6.0
+black>=24.8.0
+pre-commit>=3.8.0
+pytest>=8.3.0

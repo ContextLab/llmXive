@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T19:27:47.075850Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-891-llmxive-follow-up-extending-kwai-keye-vl
-last_run_id: null
+last_run_id: 2aad11bd-c2be-40a8-9b03-e24b313c5434
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Kwai Keye-VL-2.0 Technical Report"'
-updated_at: '2026-07-02T19:27:47.075850Z'
+updated_at: '2026-07-13T19:09:13.871636Z'

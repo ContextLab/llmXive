@@ -1,0 +1,729 @@
+{
+  "fetched_at": "2026-07-13T19:08:43Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\"",
+      "target_n": 5
+    },
+    "duration_seconds": 76.532,
+    "ended_at": "2026-07-13T19:08:43Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Kwai Keye-VL-2.0 architecture details"
+        ],
+        [
+          2,
+          "multimodal large language model technical reports"
+        ],
+        [
+          3,
+          "vision-language model scaling laws"
+        ],
+        [
+          4,
+          "Kwai Keye-VL pretraining strategies"
+        ],
+        [
+          5,
+          "large multimodal model instruction tuning"
+        ],
+        [
+          6,
+          "computer vision and NLP integration techniques"
+        ],
+        [
+          7,
+          "Kwai Keye-VL benchmark performance"
+        ],
+        [
+          8,
+          "next-generation vision-language transformers"
+        ],
+        [
+          9,
+          "multimodal foundation model improvements"
+        ],
+        [
+          10,
+          "Kwai Keye-VL-2.0 inference optimization"
+        ],
+        [
+          11,
+          "large scale multimodal reasoning"
+        ],
+        [
+          12,
+          "efficient vision-language model training"
+        ],
+        [
+          13,
+          "Kwai Keye-VL dataset construction"
+        ],
+        [
+          14,
+          "multimodal alignment methods"
+        ],
+        [
+          15,
+          "Kwai Keye-VL-2.0 ablation studies"
+        ],
+        [
+          16,
+          "advanced visual question answering systems"
+        ],
+        [
+          17,
+          "Kwai Keye-VL-2.0 parameter efficiency"
+        ],
+        [
+          18,
+          "cross-modal attention mechanisms in VL models"
+        ],
+        [
+          19,
+          "Kwai Keye-VL-2.0 evaluation metrics"
+        ],
+        [
+          20,
+          "large language model visual grounding"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Kwai Keye-VL-2.0 architecture details": 2,
+        "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer science": 0,
+        "multimodal large language model technical reports": 5
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "multimodal large language model architecture scaling",
+      "KV-2.0 dense retrieval vision-language benchmark",
+      "cross-modal alignment instruction tuning framework",
+      "multimodal perplexity zero-shot evaluation metrics",
+      "training data contamination vision-language pretraining"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.10651"
+      ]
+    },
+    "per_query_hit_count": {
+      "KV-2.0 dense retrieval vision-language benchmark": 3,
+      "cross-modal alignment instruction tuning framework": 3,
+      "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer science": 3,
+      "multimodal large language model architecture scaling": 3,
+      "multimodal perplexity zero-shot evaluation metrics": 3,
+      "training data contamination vision-language pretraining": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2312.05434",
+          "rationale": "The paper focuses on a specific downstream application (harmful meme detection) using distilled reasoning, whereas the user's question targets the technical architecture, scaling laws, or foundational methodology of the \"Kwai Keye-VL-2.0\" model itself. While both involve multimodal LLMs, the candidate paper does not measure the same mechanism, establish a baseline for the specific model family, or serve as a foundational reference for the technical report's core contributions, failing to meet cr",
+          "title": "Beneath the Surface: Unveiling Harmful Memes with Multimodal Reasoning Distilled from Large Language Models"
+        },
+        {
+          "primary_pointer": "2502.00425",
+          "rationale": "The candidate paper focuses on quantization techniques for Multimodal Large Language Models (MLLMs) to improve inference efficiency, which is a distinct technical domain from the user's question regarding the \"Kwai Keye-VL-2.0 Technical Report\" and its specific follow-up research. While both involve large vision-language models, the paper does not address the specific architecture, mechanisms, or empirical findings of the Kwai Keye-VL-2.0 model or its direct extensions, failing to meet the crite",
+          "title": "MQuant: Unleashing the Inference Potential of Multimodal Large Language Models via Full Static Quantization"
+        },
+        {
+          "primary_pointer": "2306.13394",
+          "rationale": "The paper does not address the user's specific research question because the user is asking for a follow-up or extension to a specific technical report (\"Kwai Keye-VL-2.0\"), whereas the candidate paper is a general evaluation benchmark (MME) for the broader field of Multimodal Large Language Models. While both involve MLLMs, the candidate paper does not measure the specific mechanism, variables, or empirical population of the \"Kwai Keye-VL-2.0\" model or its specific technical contributions, fail",
+          "title": "MME: A Comprehensive Evaluation Benchmark for Multimodal Large Language Models"
+        },
+        {
+          "primary_pointer": "2605.17152",
+          "rationale": "The paper is a tutorial overview on multilingual multimodal AI for low-resource languages and does not measure the specific mechanisms, variables, or empirical baselines related to the \"Kwai Keye-VL-2.0\" technical report or its specific follow-up extensions. It fails to satisfy any inclusion criteria (a-f) as it addresses a broad subfield rather than the specific model architecture, dataset, or causal mechanism implied by the user's request for a follow-up to a specific technical report.",
+          "title": "Multilingual and Multimodal LLMs in the Wild: Building for Low-Resource Languages"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T19:07:26Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"kwai keye-vl-2.0 technical report\" computer science",
+      "raw": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, Multimodal Large Language Model (MLLM) represented by GPT-4V has been a new rising research hotspot, which uses powerful Large Language Models (LLMs) as a brain to perform multimodal tasks. The surprising emergent capabilities of MLLM, such as writing stories based on images and OCR-free math reasoning, are rare in traditional multimodal methods, suggesting a potential path to artificial general intelligence. To this end, both academia and industry have endeavored to develop MLLMs that can compete with or even better than GPT-4V, pushing the limit of research at a surprising speed. In this paper, we aim to trace and summarize the recent progress of MLLMs. First of all, we present the basic formulation of MLLM and delineate its related concepts, including architecture, training strategy and data, as well as evaluation. Then, we introduce research topics about how MLLMs can be extended to support more granularity, modalities, languages, and scenarios. We continue with multimodal hallucination and extended techniques, including Multimodal ICL (M-ICL), Multimodal CoT (M-CoT), and LLM-Aided Visual Reasoning (LAVR). To conclude the paper, we discuss existing challenges and point out promising research directions. In light of the fact that the era of MLLM has only just begun, we will keep updating this survey and hope it can inspire more research. An associated GitHub link collecting the latest papers is available at https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models.",
+          "claimed_authors": [
+            "Shukang Yin",
+            "Chaoyou Fu",
+            "Sirui Zhao",
+            "Ke Li",
+            "Xing Sun",
+            "Tong Xu",
+            "Enhong Chen"
+          ],
+          "claimed_title": "A Survey on Multimodal Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.13549"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='A Survey on Multimodal Large Language Models')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) are increasingly becoming the preferred foundation platforms for many Natural Language Processing tasks such as Machine Translation, owing to their quality often comparable to or better than task-specific models, and the simplicity of specifying the task through natural language instructions or in-context examples. Their generality, however, opens them up to subversion by end users who may embed into their requests instructions that cause the model to behave in unauthorized and possibly unsafe ways. In this work we study these Prompt Injection Attacks (PIAs) on multiple families of LLMs on a Machine Translation task, focusing on the effects of model size on the attack success rates. We introduce a new benchmark data set and we discover that on multiple language pairs and injected prompts written in English, larger models under certain conditions may become more susceptible to successful attacks, an instance of the Inverse Scaling phenomenon (McKenzie et al., 2023). To our knowledge, this is the first work to study non-trivial LLM scaling behaviour in a multi-lingual setting.",
+          "claimed_authors": [
+            "Zhifan Sun",
+            "Antonio Valerio Miceli-Barone"
+          ],
+          "claimed_title": "Scaling Behavior of Machine Translation with Large Language Models under Prompt Injection Attacks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.09832"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='Scaling Behavior of Machine Translation with Large Language Models under Prompt Injection Attacks')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multimodal large language models (MLLMs) have garnered widespread attention due to their ability to understand multimodal input. However, their large parameter sizes and substantial computational demands severely hinder their practical deployment and application.While quantization is an effective way to reduce model size and inference latency, its application to MLLMs remains underexplored. In this paper, we propose MQuant, a post-training quantization (PTQ) framework designed to tackle the unique challenges of multimodal large language models (MLLMs). Conventional quantization often struggles with MLLMs because of (a) high inference latency from large visual token counts, (b) distributional disparities between visual and textual tokens, and (c) extreme outliers introduced by Hadamard-based transformations. To address these issues, MQuant introduces: Modality-Specific Static Quantization (MSQ), assigning distinct static scales for visual vs. textual tokens; Attention-Invariant Flexible Switching (AIFS), reordering tokens to preserve casual attention while eliminating expensive token-wise scale computations; Rotation Magnitude Suppression (RMS), mitigating weight outliers arising from online Hadamard rotations. On five mainstream MLLMs (including Qwen-VL, MiniCPM-V, CogVLM2), MQuant under W4A8 achieves near-floating-point accuracy (<1% degradation) while reducing inference latency by up to 30%, significantly outperforming existing PTQ baselines. Our MQuant effectively bridges the gap for efficient and accurate MLLMs inference in resource-constrained devices. Code has been released in https://github.com/StiphyJay/MQuant.",
+          "claimed_authors": [
+            "JiangYong Yu",
+            "Sifan Zhou",
+            "Dawei Yang",
+            "Shuo Wang",
+            "Shuoyu Li",
+            "Xing Hu",
+            "Chen Xu",
+            "Zukang Xu",
+            "Changyong Shu",
+            "Zhihang Yuan"
+          ],
+          "claimed_title": "MQuant: Unleashing the Inference Potential of Multimodal Large Language Models via Full Static Quantization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.00425"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='MQuant: Unleashing the Inference Potential of Multimodal Large Language Models via Full Static Quantization')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tool learning aims to augment large language models (LLMs) with diverse tools, enabling them to act as agents for solving practical tasks. Due to the limited context length of tool-using LLMs, adopting information retrieval (IR) models to select useful tools from large toolsets is a critical initial step. However, the performance of IR models in tool retrieval tasks remains underexplored and unclear. Most tool-use benchmarks simplify this step by manually pre-annotating a small set of relevant tools for each task, which is far from the real-world scenarios. In this paper, we propose ToolRet, a heterogeneous tool retrieval benchmark comprising 7.6k diverse retrieval tasks, and a corpus of 43k tools, collected from existing datasets. We benchmark six types of models on ToolRet. Surprisingly, even the models with strong performance in conventional IR benchmarks, exhibit poor performance on ToolRet. This low retrieval quality degrades the task pass rate of tool-use LLMs. As a further step, we contribute a large-scale training dataset with over 200k instances, which substantially optimizes the tool retrieval ability of IR models.",
+          "claimed_authors": [
+            "Zhengliang Shi",
+            "Yuhan Wang",
+            "Lingyong Yan",
+            "Pengjie Ren",
+            "Shuaiqiang Wang",
+            "Dawei Yin",
+            "Zhaochun Ren"
+          ],
+          "claimed_title": "Retrieval Models Aren't Tool-Savvy: Benchmarking Tool Retrieval for Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.01763"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title=\"Retrieval Models Aren't Tool-Savvy: Benchmarking Tool Retrieval for Large Language Models\")",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Benchmark accuracy is often implicitly assumed to reflect grounded visual understanding in vision-language models (VLMs), yet it remains unclear to what extent such scores truly reflect reliance on visual evidence. Motivated by a surprising observation that removing a substantial fraction of image tokens only degrades model performance very slightly on a widely used hallucination benchmark, we systematically investigate this mismatch in a set of open-source VLMs. Our analysis spans multiple levels of granularity, spanning global visual degradation, localized occlusion, question reformulation, answer-space expansion, and decision-level analyses beyond standard accuracy. We further complement these behavioral results with a layer-wise analysis of vision-token geometry. Throughout the experiments, we find that although VLMs do incorporate visual input, their predictions are less sensitive to the loss of fine-grained visual evidence that standard accuracy should have suggested. Even when the final prediction remains unchanged, the model's internal support for the correct answer may already be weakened. We further complement a representation-level analysis, which shows increasing similarity among visual tokens in deeper layers, providing a possible explanation for our findings. Together, these results suggest that current benchmarks are not sufficient to reliably evaluate fine-grained visual grounding in VLMs.",
+          "claimed_authors": [
+            "Zixuan Lan",
+            "Luzhe Sun",
+            "Matthew R. Walter",
+            "Jiawei Zhou"
+          ],
+          "claimed_title": "Seeing without Looking: Do Vision-Language Benchmarks Really Test Vision?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.22903"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='Seeing without Looking: Do Vision-Language Benchmarks Really Test Vision?')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Vehicle search is one basic task for the efficient traffic management in terms of the AI City. Most existing practices focus on the image-based vehicle matching, including vehicle re-identification and vehicle tracking. In this paper, we apply one new modality, i.e., the language description, to search the vehicle of interest and explore the potential of this task in the real-world scenario. The natural language-based vehicle search poses one new challenge of fine-grained understanding of both vision and language modalities. To connect language and vision, we propose to jointly train the state-of-the-art vision models with the transformer-based language model in an end-to-end manner. Except for the network structure design and the training strategy, several optimization objectives are also re-visited in this work. The qualitative and quantitative experiments verify the effectiveness of the proposed method. Our proposed method has achieved the 1st place on the 5th AI City Challenge, yielding competitive performance 18.69% MRR accuracy on the private test set. We hope this work can pave the way for the future study on using language description effectively and efficiently for real-world vehicle retrieval systems. The code will be available at https://github.com/ShuaiBai623/AIC2021-T5-CLV.",
+          "claimed_authors": [
+            "Shuai Bai",
+            "Zhedong Zheng",
+            "Xiaohan Wang",
+            "Junyang Lin",
+            "Zhu Zhang",
+            "Chang Zhou",
+            "Yi Yang",
+            "Hongxia Yang"
+          ],
+          "claimed_title": "Connecting Language and Vision for Natural Language-Based Vehicle Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.14897"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='Connecting Language and Vision for Natural Language-Based Vehicle Retrieval')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite vision-language models' (VLMs) remarkable capabilities as versatile visual assistants, two substantial challenges persist within the existing VLM frameworks: (1) lacking task diversity in pretraining and visual instruction tuning, and (2) annotation error and bias in GPT-4 synthesized instruction tuning data. Both challenges lead to issues such as poor generalizability, hallucination, and catastrophic forgetting. To address these challenges, we construct Vision-Flan, the most diverse publicly available visual instruction tuning dataset to date, comprising 187 diverse tasks and 1,664,261 instances sourced from academic datasets, and each task is accompanied by an expert-written instruction. In addition, we propose a two-stage instruction tuning framework, in which VLMs are firstly finetuned on Vision-Flan and further tuned on GPT-4 synthesized data. We find this two-stage tuning framework significantly outperforms the traditional single-stage visual instruction tuning framework and achieves the state-of-the-art performance across a wide range of multi-modal evaluation benchmarks. Finally, we conduct in-depth analyses to understand visual instruction tuning and our findings reveal that: (1) GPT-4 synthesized data does not substantially enhance VLMs' capabilities but rather modulates the model's responses to human-preferred formats; (2) A minimal quantity (e.g., 1,000) of GPT-4 synthesized data can effectively align VLM responses with human-preference; (3) Visual instruction tuning mainly helps large-language models (LLMs) to understand visual features.",
+          "claimed_authors": [
+            "Zhiyang Xu",
+            "Chao Feng",
+            "Rulin Shao",
+            "Trevor Ashby",
+            "Ying Shen",
+            "Di Jin",
+            "Yu Cheng",
+            "Qifan Wang",
+            "Lifu Huang"
+          ],
+          "claimed_title": "Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.11690"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the swiftly expanding domain of Natural Language Processing (NLP), the potential of GPT-based models for the financial sector is increasingly evident. However, the integration of these models with financial datasets presents challenges, notably in determining their adeptness and relevance. This paper introduces a distinctive approach anchored in the Instruction Tuning paradigm for open-source large language models, specifically adapted for financial contexts. Through this methodology, we capitalize on the interoperability of open-source models, ensuring a seamless and transparent integration. We begin by explaining the Instruction Tuning paradigm, highlighting its effectiveness for immediate integration. The paper presents a benchmarking scheme designed for end-to-end training and testing, employing a cost-effective progression. Firstly, we assess basic competencies and fundamental tasks, such as Named Entity Recognition (NER) and sentiment analysis to enhance specialization. Next, we delve into a comprehensive model, executing multi-task operations by amalgamating all instructional tunings to examine versatility. Finally, we explore the zero-shot capabilities by earmarking unseen tasks and incorporating novel datasets to understand adaptability in uncharted terrains. Such a paradigm fortifies the principles of openness and reproducibility, laying a robust foundation for future investigations in open-source financial large language models (FinLLMs).",
+          "claimed_authors": [
+            "Neng Wang",
+            "Hongyang Yang",
+            "Christina Dan Wang"
+          ],
+          "claimed_title": "FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.04793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To transfer knowledge from seen attribute-object compositions to recognize unseen ones, recent compositional zero-shot learning (CZSL) methods mainly discuss the optimal classification branches to identify the elements, leading to the popularity of employing a three-branch architecture. However, these methods mix up the underlying relationship among the branches, in the aspect of consistency and diversity. Specifically, consistently providing the highest-level features for all three branches increases the difficulty in distinguishing classes that are superficially similar. Furthermore, a single branch may focus on suboptimal regions when spatial messages are not shared between the personalized branches. Recognizing these issues and endeavoring to address them, we propose a novel method called Focus-Consistent Multi-Level Aggregation (FOMA). Our method incorporates a Multi-Level Feature Aggregation (MFA) module to generate personalized features for each branch based on the image content. Additionally, a Focus-Consistent Constraint encourages a consistent focus on the informative regions, thereby implicitly exchanging spatial information between all branches. Extensive experiments on three benchmark datasets (UT-Zappos, C-GQA, and Clothing16K) demonstrate that our FOMA outperforms SOTA.",
+          "claimed_authors": [
+            "Fengyuan Dai",
+            "Siteng Huang",
+            "Min Zhang",
+            "Biao Gong",
+            "Donglin Wang"
+          ],
+          "claimed_title": "Focus-Consistent Multi-Level Aggregation for Compositional Zero-Shot Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.17083"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='Focus-Consistent Multi-Level Aggregation for Compositional Zero-Shot Learning')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of Video Diffusion Transformers (Video DiTs) marks a milestone in video generation. However, directly applying existing video editing methods to Video DiTs often incurs substantial computational overhead, due to resource-intensive attention modification or finetuning. To alleviate this problem, we present DFVEdit, an efficient zero-shot video editing method tailored for Video DiTs. DFVEdit eliminates the need for both attention modification and fine-tuning by directly operating on clean latents via flow transformation. To be more specific, we observe that editing and sampling can be unified under the continuous flow perspective. Building upon this foundation, we propose the Conditional Delta Flow Vector (CDFV) -- a theoretically unbiased estimation of DFV -- and integrate Implicit Cross Attention (ICA) guidance as well as Embedding Reinforcement (ER) to further enhance editing quality. DFVEdit excels in practical efficiency, offering at least 20x inference speed-up and 85% memory reduction on Video DiTs compared to attention-engineering-based editing methods. Extensive quantitative and qualitative experiments demonstrate that DFVEdit can be seamlessly applied to popular Video DiTs (e.g., CogVideoX and Wan2.1), attaining state-of-the-art performance on structural fidelity, spatial-temporal consistency, and editing quality.",
+          "claimed_authors": [
+            "Lingling Cai",
+            "Kang Zhao",
+            "Hangjie Yuan",
+            "Xiang Wang",
+            "Yingya Zhang",
+            "Kejie Huang"
+          ],
+          "claimed_title": "DFVEdit: Conditional Delta Flow Vector for Zero-shot Video Editing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.20967"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='DFVEdit: Conditional Delta Flow Vector for Zero-shot Video Editing')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the past few years, the emergence of pre-training models has brought uni-modal fields such as computer vision (CV) and natural language processing (NLP) to a new era. Substantial works have shown they are beneficial for downstream uni-modal tasks and avoid training a new model from scratch. So can such pre-trained models be applied to multi-modal tasks? Researchers have explored this problem and made significant progress. This paper surveys recent advances and new frontiers in vision-language pre-training (VLP), including image-text and video-text pre-training. To give readers a better overall grasp of VLP, we first review its recent advances from five aspects: feature extraction, model architecture, pre-training objectives, pre-training datasets, and downstream tasks. Then, we summarize the specific VLP models in detail. Finally, we discuss the new frontiers in VLP. To the best of our knowledge, this is the first survey focused on VLP. We hope that this survey can shed light on future research in the VLP field.",
+          "claimed_authors": [
+            "Feilong Chen",
+            "Duzhen Zhang",
+            "Minglun Han",
+            "Xiuyi Chen",
+            "Jing Shi",
+            "Shuang Xu",
+            "Bo Xu"
+          ],
+          "claimed_title": "VLP: A Survey on Vision-Language Pre-training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.09061"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='VLP: A Survey on Vision-Language Pre-training')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper surveys vision-language pre-training (VLP) methods for multimodal intelligence that have been developed in the last few years. We group these approaches into three categories: ($i$) VLP for image-text tasks, such as image captioning, image-text retrieval, visual question answering, and visual grounding; ($ii$) VLP for core computer vision tasks, such as (open-set) image classification, object detection, and segmentation; and ($iii$) VLP for video-text tasks, such as video captioning, video-text retrieval, and video question answering. For each category, we present a comprehensive review of state-of-the-art methods, and discuss the progress that has been made and challenges still being faced, using specific systems and models as case studies. In addition, for each category, we discuss advanced topics being actively explored in the research community, such as big foundation models, unified modeling, in-context few-shot learning, knowledge, robustness, and computer vision in the wild, to name a few.",
+          "claimed_authors": [
+            "Zhe Gan",
+            "Linjie Li",
+            "Chunyuan Li",
+            "Lijuan Wang",
+            "Zicheng Liu",
+            "Jianfeng Gao"
+          ],
+          "claimed_title": "Vision-Language Pre-training: Basics, Recent Advances, and Future Trends",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.09263"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='Vision-Language Pre-training: Basics, Recent Advances, and Future Trends')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\" computer scienc', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-13T19:07:57Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            " Kwai Keye Team",
+            "Bin Wen",
+            "Changyi Liu",
+            "Chengru Song",
+            "Chongling Rao",
+            "Guowang Zhang",
+            "Han Li",
+            "Haonan Fan",
+            "Hengrui Ju",
+            "Jiankang Chen",
+            "Jiapeng Chen",
+            "Jiawei Yuan",
+            "Kaixuan Yang",
+            "Kaiyu Jiang",
+            "Kun Gai",
+            "Lingzhi Zhou",
+            "Na Nie",
+            "Sen Na",
+            "Tianke Zhang",
+            "Tingting Gao",
+            "Xuanyu Zheng",
+            "Yulong Chen",
+            "Fan Yang",
+            "Haixuan Gao",
+            "Lele Yang",
+            "Mingqiao Liu",
+            "Muxi Diao",
+            "Qi Zhang",
+            "Qile Su",
+            "Wei Chen",
+            "Wentao Hong",
+            "Xingyu Lu",
+            "Yancheng Long",
+            "Yankai Yang",
+            "Yingxin Li",
+            "Yiyang Fan",
+            "Yu Xia",
+            "Yuzhe Chen",
+            "Ziliang Lai",
+            "Chuan Yi",
+            "Haonan Jia",
+            "Tianming Liang",
+            "Weixin Xu",
+            "Xiaoxiao Ma",
+            "Yang Tian",
+            "Yufei Han",
+            "Feng Han",
+            "Hang Li",
+            "Jing Wang",
+            "Jinghui Jia",
+            "Junmin Chen",
+            "Junyu Shi",
+            "Ruilin Zhang"
+          ],
+          "title": "Kwai Keye-VL-2.0 Technical Report",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.10651",
+        "summary": "We introduce Kwai Keye-VL-2.0-30B-A3B, an open-source Mixture-of-Experts (MoE) multimodal foundation model designed to advance long-video understanding and agentic intelligence. To address the challenges of ultra-long contexts, information redundancy, and prohibitive computational costs inherent in hour-level videos, Keye-VL-2.0 is the first to adapt DeepSeek Sparse Attention (DSA) to GQA-based multimodal architectures, enabling lossless 256K context processing while capturing critical frames and long-range temporal dependencies. This architecture is underpinned by a highly optimized training and inference infrastructure, including scalable video I/O, heterogeneous ViT-LM parallelism, and custom DSA kernels that significantly maximize throughput and minimize computational overhead. Furthermore, to overcome the algorithmic dilemma of catastrophic forgetting during multi-task alignment, we introduce Cross-Modal Multi-Teacher On-Policy Distillation (MOPD) paired with Context-RL and Video-RL. By distilling dense token-level teacher feedback from on-policy rollouts back into the MoE backbone, which activates only 3B parameters, Keye-VL-2.0 natively empowers advanced agent collaboration across Code, Tool, and Search scenarios with multimodal self-correction. Extensive evaluations across video understanding, temporal grounding, reasoning, STEM, and agent benchmarks demonstrate that Keye-VL-2.0-30B-A3B achieves state-of-the-art performance among models of similar scale, particularly excelling in fine-grained temporal localization on TimeLens and long-video comprehension on Video-MME-v2 and LongVideoBench. We release our model checkpoints to accelerate community progress toward scalable and robust multimodal agentic applications.",
+        "summary_grounded_pdf": true,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.10651",
+          "http_status": 200,
+          "pdf_sample_score": 0.5296,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T19:07:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            " Kwai Keye Team",
+            "Biao Yang",
+            "Bin Wen",
+            "Changyi Liu",
+            "Chenglong Chu",
+            "Chengru Song",
+            "Chongling Rao",
+            "Chuan Yi",
+            "Da Li",
+            "Dunju Zang",
+            "Fan Yang",
+            "Guorui Zhou",
+            "Hao Peng",
+            "Haojie Ding",
+            "Jiaming Huang",
+            "Jiangxia Cao",
+            "Jiankang Chen",
+            "Jingyun Hua",
+            "Jin Ouyang",
+            "Kaibing Chen",
+            "Kaiyu Jiang",
+            "Kaiyu Tang",
+            "Kun Gai",
+            "Shengnan Zhang",
+            "Siyang Mao",
+            "Sui Huang",
+            "Tianke Zhang",
+            "Tingting Gao",
+            "Wei Chen",
+            "Wei Yuan",
+            "Xiangyu Wu",
+            "Xiao Hu",
+            "Xingyu Lu",
+            "Yang Zhou",
+            "Yi-Fan Zhang",
+            "Yiping Yang",
+            "Yulong Chen",
+            "Zhenhua Wu",
+            "Zhenyu Li",
+            "Zhixin Ling",
+            "Ziming Li",
+            "Dehua Ma",
+            "Di Xu",
+            "Haixuan Gao",
+            "Hang Li",
+            "Jiawei Guo",
+            "Jing Wang",
+            "Lejian Ren",
+            "Muhao Wei",
+            "Qianqian Wang",
+            "Qigen Hu",
+            "Shiyao Wang",
+            "Tao Yu",
+            "Xinchen Luo",
+            "Yan Li",
+            "Yiming Liang",
+            "Yuhang Hu",
+            "Zeyi Lu",
+            "Zhuoran Yang",
+            "Zixing Zhang"
+          ],
+          "title": "Kwai Keye-VL Technical Report",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.01949",
+        "summary": "While Multimodal Large Language Models (MLLMs) demonstrate remarkable capabilities on static images, they often fall short in comprehending dynamic, information-dense short-form videos, a dominant medium in today's digital landscape. To bridge this gap, we introduce \\textbf{Kwai Keye-VL}, an 8-billion-parameter multimodal foundation model engineered for leading-edge performance in short-video understanding while maintaining robust general-purpose vision-language abilities. The development of Keye-VL rests on two core pillars: a massive, high-quality dataset exceeding 600 billion tokens with a strong emphasis on video, and an innovative training recipe. This recipe features a four-stage pre-training process for solid vision-language alignment, followed by a meticulous two-phase post-training process. The first post-training stage enhances foundational capabilities like instruction following, while the second phase focuses on stimulating advanced reasoning. In this second phase, a key innovation is our five-mode ``cold-start'' data mixture, which includes ``thinking'', ``non-thinking'', ``auto-think'', ``think with image'', and high-quality video data. This mixture teaches the model to decide when and how to reason. Subsequent reinforcement learning (RL) and alignment steps further enhance these reasoning capabilities and correct abnormal model behaviors, such as repetitive outputs. To validate our approach, we conduct extensive evaluations, showing that Keye-VL achieves state-of-the-art results on public video benchmarks and remains highly competitive on general image-based tasks (Figure 1). Furthermore, we develop and release the \\textbf{KC-MMBench}, a new benchmark tailored for real-world short-video scenarios, where Keye-VL shows a significant advantage.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.01949",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T19:08:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shukang Yin",
+            "Chaoyou Fu",
+            "Sirui Zhao",
+            "Ke Li",
+            "Xing Sun",
+            "Tong Xu",
+            "Enhong Chen"
+          ],
+          "title": "A Survey on Multimodal Large Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.13549",
+        "summary": "Recently, Multimodal Large Language Model (MLLM) represented by GPT-4V has been a new rising research hotspot, which uses powerful Large Language Models (LLMs) as a brain to perform multimodal tasks. The surprising emergent capabilities of MLLM, such as writing stories based on images and OCR-free math reasoning, are rare in traditional multimodal methods, suggesting a potential path to artificial general intelligence. To this end, both academia and industry have endeavored to develop MLLMs that can compete with or even better than GPT-4V, pushing the limit of research at a surprising speed. In this paper, we aim to trace and summarize the recent progress of MLLMs. First of all, we present the basic formulation of MLLM and delineate its related concepts, including architecture, training strategy and data, as well as evaluation. Then, we introduce research topics about how MLLMs can be extended to support more granularity, modalities, languages, and scenarios. We continue with multimodal hallucination and extended techniques, including Multimodal ICL (M-ICL), Multimodal CoT (M-CoT), and LLM-Aided Visual Reasoning (LAVR). To conclude the paper, we discuss existing challenges and point out promising research directions. In light of the fact that the era of MLLM has only just begun, we will keep updating this survey and hope it can inspire more research. An associated GitHub link collecting the latest papers is available at https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.13549",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T19:08:10Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"kwai keye-vl-2.0 technical report\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
