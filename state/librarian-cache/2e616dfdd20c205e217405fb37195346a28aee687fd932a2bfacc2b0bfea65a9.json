@@ -1,0 +1,561 @@
+{
+  "fetched_at": "2026-07-13T22:42:08Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Question Answering\"",
+      "target_n": 5
+    },
+    "duration_seconds": 76.112,
+    "ended_at": "2026-07-13T22:42:08Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Optimal Cognitive Core for Retrieval-Augmented Generation"
+        ],
+        [
+          2,
+          "faithful question answering in LLMs"
+        ],
+        [
+          3,
+          "cognitive architecture for RAG systems"
+        ],
+        [
+          4,
+          "reducing hallucination in retrieval-augmented language models"
+        ],
+        [
+          5,
+          "grounding LLM responses with retrieved evidence"
+        ],
+        [
+          6,
+          "cognitive consistency in large language model generation"
+        ],
+        [
+          7,
+          "knowledge integration strategies for faithful QA"
+        ],
+        [
+          8,
+          "attention mechanisms for evidence-based reasoning"
+        ],
+        [
+          9,
+          "cognitive core design for language agents"
+        ],
+        [
+          10,
+          "faithfulness metrics in generative question answering"
+        ],
+        [
+          11,
+          "retrieval-based verification for LLM outputs"
+        ],
+        [
+          12,
+          "cognitive alignment in retrieval-augmented systems"
+        ],
+        [
+          13,
+          "optimizing retrieval contexts for accurate generation"
+        ],
+        [
+          14,
+          "semantic fidelity in LLM-based question answering"
+        ],
+        [
+          15,
+          "cognitive grounding of language model responses"
+        ],
+        [
+          16,
+          "evidence-based generation in large language models"
+        ],
+        [
+          17,
+          "reducing factual inconsistency in RAG pipelines"
+        ],
+        [
+          18,
+          "cognitive reasoning frameworks for QA systems"
+        ],
+        [
+          19,
+          "faithful generation through optimal context selection"
+        ],
+        [
+          20,
+          "linguistic analysis of hallucination in RAG models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Optimal Cognitive Core for Retrieval-Augmented Generation": 4,
+        "faithful question answering in LLMs": 5,
+        "llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Question Answering\" linguistics": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "retrieval-augmented generation faithfulness hallucination",
+      "cognitive core linguistics pragmatics discourse",
+      "grounding theory semantic alignment LLM",
+      "question answering evaluation faithfulness metrics",
+      "cognitive architecture language model reasoning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2601.07528"
+      ]
+    },
+    "per_query_hit_count": {
+      "cognitive architecture language model reasoning": 3,
+      "cognitive core linguistics pragmatics discourse": 3,
+      "grounding theory semantic alignment LLM": 3,
+      "llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Question Answering\" linguistics": 3,
+      "question answering evaluation faithfulness metrics": 3,
+      "retrieval-augmented generation faithfulness hallucination": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 8,
+      "rejections": [
+        {
+          "primary_pointer": "2506.06962",
+          "rationale": "The paper focuses on image generation and visual retrieval mechanisms, which is an off-domain application compared to the user's question regarding linguistic question answering and the \"OCC-RAG\" framework. While both involve \"Retrieval Augmented Generation\" (RAG), the specific mechanism (patch-level visual retrieval vs. cognitive core for text) and the domain (computer vision vs. linguistics/NLP) are distinct, failing the criteria for same-mechanism evidence or shared empirical population.",
+          "title": "AR-RAG: Autoregressive Retrieval Augmentation for Image Generation"
+        },
+        {
+          "primary_pointer": "2402.12317",
+          "rationale": "The paper focuses on code generation and retrieval-augmented generation (RAG) for programming tasks, which is an off-domain application compared to the user's specific interest in \"linguistics\" and the \"OCC-RAG\" framework for faithful question answering. While both involve RAG, the paper does not address the linguistic mechanisms, cognitive core concepts, or question-answering faithfulness metrics central to the user's query, failing to meet the criteria for same-mechanism evidence or domain ove",
+          "title": "EVOR: Evolving Retrieval for Code Generation"
+        },
+        {
+          "primary_pointer": "2411.18583",
+          "rationale": "The paper focuses on the *automation of the literature review process* using RAG, whereas the user's question concerns the *linguistic mechanisms and cognitive architecture* (specifically \"OCC-RAG\" and \"faithful question answering\") within an LLM system. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords,\" as the paper addresses the tool for writing reviews rather than the theoretical or empirical study of the specific RAG mechanism the user is investigatin",
+          "title": "Automated Literature Review Using NLP Techniques and LLM-Based Retrieval-Augmented Generation"
+        },
+        {
+          "primary_pointer": "2502.00306",
+          "rationale": "The paper focuses on security vulnerabilities (membership inference attacks) in Retrieval-Augmented Generation (RAG) systems, whereas the user's question targets the linguistic mechanisms of \"OCC-RAG\" for faithful question answering. While both involve RAG, the paper does not measure the same biological/algorithmic mechanism, variables, or domain as the user's specific inquiry into the \"Optimal Cognitive Core\" framework, nor does it serve as a foundational reference for that specific linguistic ",
+          "title": "Riddle Me This! Stealthy Membership Inference for Retrieval-Augmented Generation"
+        },
+        {
+          "primary_pointer": "1912.02145",
+          "rationale": "The paper focuses on general data augmentation and sampling strategies for domain-agnostic QA models, which does not address the user's specific inquiry into \"OCC-RAG,\" \"Optimal Cognitive Core,\" or the linguistic mechanisms of faithful question answering. It fails to meet any inclusion criteria (a-f) as it neither measures the specific cognitive core mechanism, studies the specific RAG architecture, nor provides a foundational baseline for the \"OCC-RAG\" framework mentioned in the prompt.",
+          "title": "An Exploration of Data Augmentation and Sampling Techniques for Domain-Agnostic Question Answering"
+        },
+        {
+          "primary_pointer": "2510.25621",
+          "rationale": "The paper focuses on a specific application domain (Persian Islamic QA) and a different architectural mechanism (iterative refinement for multi-hop reasoning) rather than the \"Optimal Cognitive Core\" mechanism or the specific linguistic extension of the \"OCC-RAG\" framework requested by the user. While both address RAG faithfulness, the candidate paper does not measure the same biological/algorithmic mechanism, share the same independent/dependent variables in the user's specific context, or serv",
+          "title": "FARSIQA: Faithful and Advanced RAG System for Islamic Question Answering"
+        },
+        {
+          "primary_pointer": "2108.12898",
+          "rationale": "The paper focuses on generating answer candidates for educational quizzes, which is a distinct task from the user's question about extending the \"OCC-RAG\" framework for faithful question answering using linguistics. It does not measure the same cognitive mechanisms, address the specific RAG architecture, or study the linguistic properties required for the user's proposed follow-up research.",
+          "title": "Generating Answer Candidates for Quizzes and Answer-Aware Question Generators"
+        },
+        {
+          "primary_pointer": "1911.11403",
+          "rationale": "The paper focuses on answer selection and quality classification in community question answering (cQA) forums, which is a distinct construct from the user's specific inquiry into \"OCC-RAG\" (a retrieval-augmented generation framework for faithful QA) and its linguistic extensions. While both involve question answering, the candidate paper does not measure the same mechanism (optimal cognitive core retrieval), variables, or domain (LLM RAG systems vs. human cQA forums), and thus fails to meet the ",
+          "title": "SemEval-2015 Task 3: Answer Selection in Community Question Answering"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T22:40:52Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"occ-rag: optimal cognitive core for faithful question answering\" linguistics",
+      "raw": "llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Question Answering\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While Retrieval-Augmented Generation (RAG) mitigates hallucination and knowledge staleness in Large Language Models (LLMs), existing frameworks often falter on complex, multi-hop queries that require synthesizing information from disparate sources. Current advanced RAG methods, employing iterative or adaptive strategies, lack a robust mechanism to systematically identify and fill evidence gaps, often propagating noise or failing to gather a comprehensive context. We introduce FAIR-RAG, a novel agentic framework that transforms the standard RAG pipeline into a dynamic, evidence-driven reasoning process. At its core is an Iterative Refinement Cycle governed by a module we term Structured Evidence Assessment (SEA). The SEA acts as an analytical gating mechanism: it deconstructs the initial query into a checklist of required findings and audits the aggregated evidence to identify confirmed facts and, critically, explicit informational gaps. These gaps provide a precise signal to an Adaptive Query Refinement agent, which generates new, targeted sub-queries to retrieve missing information. This cycle repeats until the evidence is verified as sufficient, ensuring a comprehensive context for a final, strictly faithful generation. We conducted experiments on challenging multi-hop QA benchmarks, including HotpotQA, 2WikiMultiHopQA, and MusiQue. In a unified experimental setup, FAIR-RAG significantly outperforms strong baselines. On HotpotQA, it achieves an F1-score of 0.453 -- an absolute improvement of 8.3 points over the strongest iterative baseline -- establishing a new state-of-the-art for this class of methods on these benchmarks. Our work demonstrates that a structured, evidence-driven refinement process with explicit gap analysis is crucial for unlocking reliable and accurate reasoning in advanced RAG systems for complex, knowledge-intensive tasks.",
+          "claimed_authors": [
+            "Mohammad Aghajani Asl",
+            "Majid Asgari-Bidhendi",
+            "Behrooz Minaei-Bidgoli"
+          ],
+          "claimed_title": "FAIR-RAG: Faithful Adaptive Iterative Refinement for Retrieval-Augmented Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.22344"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='FAIR-RAG: Faithful Adaptive Iterative Refinement for Retrieval-Augmented Generation')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce Autoregressive Retrieval Augmentation (AR-RAG), a novel paradigm that enhances image generation by autoregressively incorporating knearest neighbor retrievals at the patch level. Unlike prior methods that perform a single, static retrieval before generation and condition the entire generation on fixed reference images, AR-RAG performs context-aware retrievals at each generation step, using prior-generated patches as queries to retrieve and incorporate the most relevant patch-level visual references, enabling the model to respond to evolving generation needs while avoiding limitations (e.g., over-copying, stylistic bias, etc.) prevalent in existing methods. To realize AR-RAG, we propose two parallel frameworks: (1) Distribution-Augmentation in Decoding (DAiD), a training-free plug-and-use decoding strategy that directly merges the distribution of model-predicted patches with the distribution of retrieved patches, and (2) Feature-Augmentation in Decoding (FAiD), a parameter-efficient fine-tuning method that progressively smooths the features of retrieved patches via multi-scale convolution operations and leverages them to augment the image generation process. We validate the effectiveness of AR-RAG on widely adopted benchmarks, including Midjourney-30K, GenEval and DPG-Bench, demonstrating significant performance gains over state-of-the-art image generation models.",
+          "claimed_authors": [
+            "Jingyuan Qi",
+            "Zhiyang Xu",
+            "Qifan Wang",
+            "Lifu Huang"
+          ],
+          "claimed_title": "AR-RAG: Autoregressive Retrieval Augmentation for Image Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.06962"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='AR-RAG: Autoregressive Retrieval Augmentation for Image Generation')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently the retrieval-augmented generation (RAG) has been successfully applied in code generation. However, existing pipelines for retrieval-augmented code generation (RACG) employ static knowledge bases with a single source, limiting the adaptation capabilities of Large Language Models (LLMs) to domains they have insufficient knowledge of. In this work, we develop a novel pipeline, EVOR, that employs the synchronous evolution of both queries and diverse knowledge bases. On two realistic settings where the external knowledge is required to solve code generation tasks, we compile four new datasets associated with frequently updated libraries and long-tail programming languages, named EVOR-BENCH. Extensive experiments demonstrate that EVOR achieves two to four times of execution accuracy compared to other methods such as Reflexion (Shinn et al., 2024), DocPrompting (Zhou et al., 2023), etc. We demonstrate that EVOR is flexible and can be easily combined with them to achieve further improvement. Further analysis reveals that EVOR benefits from the synchronous evolution of queries and documents and the diverse information sources in the knowledge base. We hope that our studies will inspire more insights into the design of advanced RACG pipelines in future research. Our model, code, and data are available at https://arks-codegen.github.io.",
+          "claimed_authors": [
+            "Hongjin Su",
+            "Shuyang Jiang",
+            "Yuhang Lai",
+            "Haoyuan Wu",
+            "Boao Shi",
+            "Che Liu",
+            "Qian Liu",
+            "Tao Yu"
+          ],
+          "claimed_title": "EVOR: Evolving Retrieval for Code Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.12317"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='EVOR: Evolving Retrieval for Code Generation')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The goal of argumentation mining, an evolving research field in computational linguistics, is to design methods capable of analyzing people's argumentation. In this article, we go beyond the state of the art in several ways. (i) We deal with actual Web data and take up the challenges given by the variety of registers, multiple domains, and unrestricted noisy user-generated Web discourse. (ii) We bridge the gap between normative argumentation theories and argumentation phenomena encountered in actual data by adapting an argumentation model tested in an extensive annotation study. (iii) We create a new gold standard corpus (90k tokens in 340 documents) and experiment with several machine learning methods to identify argument components. We offer the data, source codes, and annotation guidelines to the community under free licenses. Our findings show that argumentation mining in user-generated Web discourse is a feasible but challenging task.",
+          "claimed_authors": [
+            "Ivan Habernal",
+            "Iryna Gurevych"
+          ],
+          "claimed_title": "Argumentation Mining in User-Generated Web Discourse",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.02403"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='Argumentation Mining in User-Generated Web Discourse')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The capabilities and use cases of automatic natural language processing (NLP) have grown significantly over the last few years. While much work has been devoted to understanding how humans deal with discourse connectives, this phenomenon is understudied in computational systems. Therefore, it is important to put NLP models under the microscope and examine whether they can adequately comprehend, process, and reason within the complexity of natural language. In this chapter, we introduce the main mechanisms behind automatic sentence processing systems step by step and then focus on evaluating discourse connective processing. We assess nine popular systems in their ability to understand English discourse connectives and analyze how context and language understanding tasks affect their connective comprehension. The results show that NLP systems do not process all discourse connectives equally well and that the computational processing complexity of different connective kinds is not always consistently in line with the presumed complexity order found in human processing. In addition, while humans are more inclined to be influenced during the reading procedure but not necessarily in the final comprehension performance, discourse connectives have a significant impact on the final accuracy of NLP systems. The richer knowledge of connectives a system learns, the more negative effect inappropriate connectives have on it. This suggests that the correct explicitation of discourse connectives is important for computational natural language processing.",
+          "claimed_authors": [
+            "Ruiqi Li",
+            "Liesbeth Allein",
+            "Damien Sileo",
+            "Marie-Francine Moens"
+          ],
+          "claimed_title": "When Do Discourse Markers Affect Computational Sentence Understanding?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.00368"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='When Do Discourse Markers Affect Computational Sentence Understanding?')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Knowledge graphs can guide large language models (LLMs) reasoning, but the graph seen by a system is usually a retrieved, linked, temporally scoped, and incomplete evidence state rather than a complete account of truth. We develop a theoretical perspective on grounding observable LLM trajectories under such incomplete graph evidence.The evidence state induces entity anchors, typed relation residuals, path energies, and support regions, while the language model supplies a prior over candidate trajectories. We show that, under open-world incompleteness, no hard rule based only on the observed state can both reject every false unsupported trajectory and retain every true-but-unobserved one.We then characterize soft grounding as a KL-regularized deformation of the LLM prior: finite slack preserves support for unsupported but non-contradicted trajectories, whereas hard conditioning appears as an infinite-penalty limit.The framework also yields stability bounds under evidence perturbations and clarifies the constraint regimes appropriate for GraphRAG, KGQA, graph agents, constrained decoding, and faithful generation. The claims are evidence-relative: KG compatibility is treated as declared support, not factual truth.",
+          "claimed_authors": [
+            "Jiaqi Li",
+            "Fanghui Song"
+          ],
+          "claimed_title": "Grounding LLM Reasoning under Incomplete Graph Evidence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.30247"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='Grounding LLM Reasoning under Incomplete Graph Evidence')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper proposes a novel approach to semantic ontology alignment using contextual descriptors. A formalization was developed that enables the integration of essential and contextual descriptors to create a comprehensive knowledge model. The hierarchical structure of the semantic approach and the mathematical apparatus for analyzing potential conflicts between concepts, particularly in the example of \"Transparency\" and \"Privacy\" in the context of artificial intelligence, are demonstrated. Experimental studies showed a significant improvement in ontology alignment metrics after the implementation of contextual descriptors, especially in the areas of privacy, responsibility, and freedom & autonomy. The application of contextual descriptors achieved an average overall improvement of approximately 4.36%. The results indicate the effectiveness of the proposed approach for more accurately reflecting the complexity of knowledge and its contextual dependence.",
+          "claimed_authors": [
+            "Eduard Manziuk",
+            "Oleksander Barmak",
+            "Pavlo Radiuk",
+            "Vladislav Kuznetsov",
+            "Iurii Krak",
+            "Sergiy Yakovlev"
+          ],
+          "claimed_title": "Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.19113"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_authors": [
+            "Jae Hyung Yee"
+          ],
+          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9707234"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To produce a domain-agnostic question answering model for the Machine Reading Question Answering (MRQA) 2019 Shared Task, we investigate the relative benefits of large pre-trained language models, various data sampling strategies, as well as query and context paraphrases generated by back-translation. We find a simple negative sampling technique to be particularly effective, even though it is typically used for datasets that include unanswerable questions, such as SQuAD 2.0. When applied in conjunction with per-domain sampling, our XLNet (Yang et al., 2019)-based submission achieved the second best Exact Match and F1 in the MRQA leaderboard competition.",
+          "claimed_authors": [
+            "Shayne Longpre",
+            "Yi Lu",
+            "Zhucheng Tu",
+            "Chris DuBois"
+          ],
+          "claimed_title": "An Exploration of Data Augmentation and Sampling Techniques for Domain-Agnostic Question Answering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.02145"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='An Exploration of Data Augmentation and Sampling Techniques for Domain-Agnostic Question Answering')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We explore the applicability of machine translation evaluation (MTE) methods to a very different problem: answer ranking in community Question Answering. In particular, we adopt a pairwise neural network (NN) architecture, which incorporates MTE features, as well as rich syntactic and semantic embeddings, and which efficiently models complex non-linear interactions. The evaluation results show state-of-the-art performance, with sizeable contribution from both the MTE features and from the pairwise NN architecture.",
+          "claimed_authors": [
+            "Francisco Guzmán",
+            "Lluís Màrquez",
+            "Preslav Nakov"
+          ],
+          "claimed_title": "Machine Translation Evaluation Meets Community Question Answering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.02998"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='Machine Translation Evaluation Meets Community Question Answering')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present our work on the BioASQ pipeline. The goal is to answer four types of questions: summary, yes/no, factoids, and list. Our goal is to empirically evaluate different modules involved: the feature extractor and the sentence selection block. We used our pipeline to test the effectiveness of each module for all kinds of question types and perform error analysis. We defined metrics that are useful for future research related to the BioASQ pipeline critical to improve the performance of the training pipeline.",
+          "claimed_authors": [
+            "Ankit Shah",
+            "Srishti Singh",
+            "Shih-Yen Tao"
+          ],
+          "claimed_title": "Feature extraction and evaluation for BioMedical Question Answering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.14013"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='Feature extraction and evaluation for BioMedical Question Answering')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Language understanding is a key scientific issue in the fields of cognitive and computer science. However, the two disciplines differ substantially in the specific research questions. Cognitive science focuses on analyzing the specific mechanism of the brain and investigating the brain's response to language; few studies have examined the brain's language system as a whole. By contrast, computer scientists focus on the efficiency of practical applications when choosing research questions but may ignore the most essential laws of language. Given these differences, can a combination of the disciplines offer new insights for building intelligent language models and studying language cognitive mechanisms? In the following text, we first review the research questions, history, and methods of language understanding in cognitive and computer science, focusing on the current progress and challenges. We then compare and contrast the research of language understanding in cognitive and computer sciences. Finally, we review existing work that combines insights from language cognition and language computation and offer prospects for future development trends.",
+          "claimed_authors": [
+            "Shaonan Wang",
+            "Nai Ding",
+            "Nan Lin",
+            "Jiajun Zhang",
+            "Chengqing Zong"
+          ],
+          "claimed_title": "Language Cognition and Language Computation -- Human and Machine Language Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.04788"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='Language Cognition and Language Computation -- Human and Machine Language Understanding')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) provide capabilities far beyond sentence completion, including question answering, summarization, and natural-language inference. While many of these capabilities have potential application to cognitive systems, our research is exploiting language models as a source of task knowledge for cognitive agents, that is, agents realized via a cognitive architecture. We identify challenges and opportunities for using language models as an external knowledge source for cognitive systems and possible ways to improve the effectiveness of knowledge extraction by integrating extraction with cognitive architecture capabilities, highlighting with examples from our recent work in this area.",
+          "claimed_authors": [
+            "James R. Kirk",
+            "Robert E. Wray",
+            "John E. Laird"
+          ],
+          "claimed_title": "Exploiting Language Models as a Source of Knowledge for Cognitive Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.06846"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"OCC-RAG: Optimal Cognitive Core for Faithful Quest', candidate_title='Exploiting Language Models as a Source of Knowledge for Cognitive Agents')",
+        "failed_at": "2026-07-13T22:41:26Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gagan Bhatia",
+            "Hamdy Mubarak",
+            "Mustafa Jarrar",
+            "George Mikros",
+            "Fadi Zaraket",
+            "Mahmoud Alhirthani",
+            "Mutaz Al-Khatib",
+            "Logan Cochrane",
+            "Kareem Darwish",
+            "Rashid Yahiaoui",
+            "Firoj Alam"
+          ],
+          "title": "From RAG to Agentic RAG for Faithful Islamic Question Answering",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.07528",
+        "summary": "Large Language Models (LLMs) are increasingly used for Islamic question answering, where ungrounded responses may carry serious religious consequences. Yet standard MCQ/MRC-style evaluations (MCQ: Multiple choice questions, MRC: Machine Reading Comprehension) do not capture key real-world failure modes, notably free-form hallucinations and the ability to abstain when evidence is insufficient. To address this gap, we introduce IslamicFaithQA, a 3,810-item bilingual (Arabic/English) generative benchmark with atomic single-gold answers, which enables direct measurement of hallucination and abstention. We additionally developed an end-to-end grounded Islamic modeling suite consisting of (i) 25K Arabic text-grounded SFT reasoning pairs, (ii) 5K bilingual preference samples for reward-guided alignment, and (iii) a verse-level Qur'an retrieval corpus of ~6k atomic verses (ayat). Building on these resources, we develop an agentic Quran-grounding framework (agentic RAG) that uses structured tool calls for iterative evidence seeking and answer revision. Experiments across Arabic-centric and multilingual LLMs show that retrieval improves correctness and that agentic RAG yields the largest gains beyond standard RAG, achieving state-of-the-art performance and stronger Arabic-English robustness even with a small model (i.e., Qwen3 4B). We made the datasets are publicly available. https://huggingface.co/datasets/QCRI/IslamicFaithQA",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.07528",
+          "http_status": 200,
+          "pdf_sample_score": 0.2735,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T22:41:36Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"occ-rag: optimal cognitive core for faithful question answering\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

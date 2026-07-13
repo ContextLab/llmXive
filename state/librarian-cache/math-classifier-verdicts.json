@@ -1283,6 +1283,10 @@
     "classified_at": "2026-07-08T07:15:19Z",
     "verdict": false
   },
+  "PROJ-895-llmxive-follow-up-extending-occ-rag-opti::1.6.0": {
+    "classified_at": "2026-07-13T22:41:26Z",
+    "verdict": false
+  },
   "PROJ-899-llmxive-follow-up-extending-evalverse-pi::1.6.0": {
     "classified_at": "2026-07-05T00:58:56Z",
     "verdict": false

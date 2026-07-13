@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.25621",
+  "judged_at": "2026-07-13T22:41:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"occ-rag: optimal cognitive core for faithful question answering\" linguistics",
+  "rationale": "The paper focuses on a specific application domain (Persian Islamic QA) and a different architectural mechanism (iterative refinement for multi-hop reasoning) rather than the \"Optimal Cognitive Core\" mechanism or the specific linguistic extension of the \"OCC-RAG\" framework requested by the user. While both address RAG faithfulness, the candidate paper does not measure the same biological/algorithmic mechanism, share the same independent/dependent variables in the user's specific context, or serv",
+  "relevant": false
+}

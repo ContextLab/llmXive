@@ -1,0 +1,38 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Sensitivity Analysis Results
+description: Schema for sensitivity_results.csv output from gradient-free sensitivity analysis.
+type: object
+properties:
+  layer_id:
+    type: integer
+    description: "Layer index in the model"
+  param_id:
+    type: string
+    description: "Unique identifier for parameter (e.g., 'layer_3.head_2.weight')"
+  param_type:
+    type: string
+    enum:
+      - attention_head
+      - feed_forward_neuron
+    description: "Type of parameter masked"
+  sensitivity_score:
+    type: number
+    description: "Z-score of performance drop when masked"
+  delta_faithfulness:
+    type: number
+    description: "Change in faithfulness score relative to baseline"
+  random_baseline_mean:
+    type: number
+    description: "Average faithfulness score from random subsets of the same size"
+  random_baseline_std:
+    type: number
+    description: "Standard deviation of faithfulness score from random subsets"
+required:
+  - layer_id
+  - param_id
+  - param_type
+  - sensitivity_score
+  - delta_faithfulness
+  - random_baseline_mean
+  - random_baseline_std
+additionalProperties: false

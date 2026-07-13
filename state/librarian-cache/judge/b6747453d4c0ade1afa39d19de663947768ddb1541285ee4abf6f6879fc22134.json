@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1911.11403",
+  "judged_at": "2026-07-13T22:42:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"occ-rag: optimal cognitive core for faithful question answering\" linguistics",
+  "rationale": "The paper focuses on answer selection and quality classification in community question answering (cQA) forums, which is a distinct construct from the user's specific inquiry into \"OCC-RAG\" (a retrieval-augmented generation framework for faithful QA) and its linguistic extensions. While both involve question answering, the candidate paper does not measure the same mechanism (optimal cognitive core retrieval), variables, or domain (LLM RAG systems vs. human cQA forums), and thus fails to meet the ",
+  "relevant": false
+}

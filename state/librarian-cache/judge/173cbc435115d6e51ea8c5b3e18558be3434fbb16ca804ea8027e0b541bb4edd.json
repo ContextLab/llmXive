@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.07528",
+  "judged_at": "2026-07-13T22:42:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"occ-rag: optimal cognitive core for faithful question answering\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (faithful question answering via RAG) and measures the same dependent variables (hallucination rates, abstention capability, and correctness) within the specific domain of religious text retrieval, which is a direct linguistic and domain extension of the user's \"OCC-RAG\" focus.",
+  "relevant": true
+}

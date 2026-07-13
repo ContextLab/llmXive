@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1912.02145",
+  "judged_at": "2026-07-13T22:41:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"occ-rag: optimal cognitive core for faithful question answering\" linguistics",
+  "rationale": "The paper focuses on general data augmentation and sampling strategies for domain-agnostic QA models, which does not address the user's specific inquiry into \"OCC-RAG,\" \"Optimal Cognitive Core,\" or the linguistic mechanisms of faithful question answering. It fails to meet any inclusion criteria (a-f) as it neither measures the specific cognitive core mechanism, studies the specific RAG architecture, nor provides a foundational baseline for the \"OCC-RAG\" framework mentioned in the prompt.",
+  "relevant": false
+}

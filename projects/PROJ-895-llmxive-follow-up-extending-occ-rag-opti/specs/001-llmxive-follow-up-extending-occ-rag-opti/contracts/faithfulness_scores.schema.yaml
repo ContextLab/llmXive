@@ -1,0 +1,31 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Faithfulness Scores
+description: Schema for faithfulness_scores.csv containing per-sample metrics.
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique ID for QA sample"
+  model_type:
+    type: string
+    enum:
+      - original
+      - pruned
+      - random_pruned
+    description: "Model variant used for evaluation"
+  con_fiqa_accuracy:
+    type: number
+    description: "ConFiQA accuracy score"
+  citation_precision:
+    type: number
+    description: "Citation precision score"
+  context_faithfulness_score:
+    type: number
+    description: "Weighted sum of ConFiQA accuracy and citation precision"
+required:
+  - sample_id
+  - model_type
+  - con_fiqa_accuracy
+  - citation_precision
+  - context_faithfulness_score
+additionalProperties: false

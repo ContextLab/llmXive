@@ -1,0 +1,31 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Validation Results
+description: Schema for statistical_results.json from paired t-test.
+type: object
+properties:
+  p_value_original_vs_pruned:
+    type: number
+    description: "p-value from paired t-test (Original vs. Pruned)"
+  p_value_sensitivity_vs_random:
+    type: number
+    description: "p-value from paired t-test (Sensitivity-Pruned vs. Random-Pruned)"
+  confidence_interval:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "95% confidence interval for mean difference"
+  is_significant_sensitivity:
+    type: boolean
+    description: "True if p-value_sensitivity_vs_random < 0.05 (supports sparse core)"
+  collinearity_coefficient:
+    type: number
+    description: "Pearson correlation between sensitivity scores and random subset"
+required:
+  - p_value_original_vs_pruned
+  - p_value_sensitivity_vs_random
+  - confidence_interval
+  - is_significant_sensitivity
+  - collinearity_coefficient
+additionalProperties: false
