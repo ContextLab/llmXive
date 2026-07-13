@@ -2,5 +2,9 @@
   {
     "symbol": "get_model_config",
     "owner": null
+  },
+  {
+    "symbol": "log_pipeline_summary",
+    "owner": null
   }
 ]

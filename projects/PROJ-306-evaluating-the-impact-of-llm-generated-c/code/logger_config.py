@@ -1,160 +1,173 @@
-import logging
-import sys
-from pathlib import Path
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
+
+import functools
+import json
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Optional
+from typing import Any, Callable, Dict, Optional
 
-# Global logger registry to prevent duplicate handlers
-_loggers = {}
+# -------------------------------------------------------------------------
+# Core data structures
+# -------------------------------------------------------------------------
 
-def setup_logger(name: str, log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+
+
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
+
+    This logger is self‑contained and does **not** delegate to the stdlib
+    ``logging`` module because its ``log`` signature differs from what the
+    project expects.
     """
-    Set up a logger with file and console handlers.
-    Ensures handlers are not added multiple times if called repeatedly.
-    
-    Args:
-        name: Logger name (e.g., 'pipeline', 'generation')
-        log_file: Optional path to log file. If None, only console output.
-        level: Logging level (default: INFO)
-    
-    Returns:
-        Configured logger instance
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list[LogEntry] = []
+
+    def log(self, *args: Any, **kwargs: Any) -> LogEntry:
+        """Record an operation.
+
+        The first positional argument (if any) is treated as the operation name.
+        All keyword arguments are stored as parameters.
+        """
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no‑op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+
+        return _noop
+
+
+# -------------------------------------------------------------------------
+# Global logger singleton
+# -------------------------------------------------------------------------
+
+_GLOBAL_LOGGER: Optional[ReproducibilityLogger] = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
+    """Return a module‑wide singleton logger."""
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+# -------------------------------------------------------------------------
+# Utility decorators / functions
+# -------------------------------------------------------------------------
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual‑purpose: decorator (@log_operation) OR direct logging call.
+
+    The direct‑call path ALWAYS returns a ``LogEntry`` (callers use
+    ``.to_json()``); the decorator path returns the wrapped function.
     """
-    if name in _loggers:
-        return _loggers[name]
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
 
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    logger.propagate = False  # Prevent duplicate logging in parent loggers
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
 
-    # Clear existing handlers to ensure clean state if re-initialized
-    if logger.handlers:
-        logger.handlers.clear()
+        return _wrapper
 
-    # Formatter with timestamp and level
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
 
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
 
-    # File handler if specified
-    if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+# -------------------------------------------------------------------------
+# Additional convenience functions required by the project
+# -------------------------------------------------------------------------
 
-    _loggers[name] = logger
-    return logger
+def setup_logger(name: str = "pipeline") -> ReproducibilityLogger:
+    """Create or retrieve a named logger."""
+    return get_logger(name)
 
-def get_pipeline_logger() -> logging.Logger:
-    """Get the main pipeline logger."""
-    return setup_logger(
-        'pipeline',
-        log_file='outputs/pipeline.log',
-        level=logging.INFO
-    )
 
-def log_model_usage(logger: logging.Logger, task_id: str, model_name: str, success: bool, duration_seconds: float = 0.0):
+def get_pipeline_logger() -> ReproducibilityLogger:
+    """Alias used by older modules."""
+    return get_logger("pipeline")
+
+
+def log_model_usage(logger: ReproducibilityLogger, model_name: str) -> LogEntry:
+    """Record which model was used for generation."""
+    return logger.log("model_usage", model=model_name)
+
+
+def log_generation_result(
+    logger: ReproducibilityLogger,
+    task_id: str,
+    success: bool,
+    error_message: Optional[str] = None,
+) -> LogEntry:
+    """Log the outcome of the LLM generation step."""
+    params: Dict[str, Any] = {"task_id": task_id, "success": success}
+    if error_message:
+        params["error_message"] = error_message
+    return logger.log("generation_result", **params)
+
+
+def log_coverage_result(
+    logger: ReproducibilityLogger,
+    task_id: str,
+    coverage: Dict[str, Any],
+    success: bool,
+    error_message: Optional[str] = None,
+) -> LogEntry:
+    """Log the outcome of the coverage measurement step."""
+    params: Dict[str, Any] = {
+        "task_id": task_id,
+        "coverage": coverage,
+        "success": success,
+    }
+    if error_message:
+        params["error_message"] = error_message
+    return logger.log("coverage_result", **params)
+
+
+def log_pipeline_summary(
+    logger: ReproducibilityLogger,
+    *args: Any,
+    **kwargs: Any,
+) -> None:
+    """Log a high‑level summary of the pipeline run.
+
+    This function is tolerant to both the old signature
+    ``log_pipeline_summary(logger, results)`` and the newer explicit
+    signature ``log_pipeline_summary(logger, successful, failed,
+    duration_seconds)``. It never raises; missing information is filled
+    with ``None``.
     """
-    Log model usage details with robust error handling.
-    
-    Args:
-        logger: Logger instance
-        task_id: Task identifier
-        model_name: Name of the model used
-        success: Whether the generation was successful
-        duration_seconds: Time taken for generation
-    """
-    status = "SUCCESS" if success else "FAILED"
-    msg = f"Model Usage | Task: {task_id} | Model: {model_name} | Status: {status}"
-    if duration_seconds > 0:
-        msg += f" | Duration: {duration_seconds:.2f}s"
-    
-    if success:
-        logger.info(msg)
+    # Old style: a single positional argument containing a results list/dict
+    if len(args) == 1 and not kwargs:
+        results = args[0]
+        successful = sum(1 for r in results if r.get("result") == "success")
+        failed = sum(1 for r in results if r.get("result") != "success")
+        duration_seconds = None
     else:
-        logger.error(msg)
+        successful = kwargs.get("successful")
+        failed = kwargs.get("failed")
+        duration_seconds = kwargs.get("duration_seconds")
 
-def log_generation_result(logger: logging.Logger, task_id: str, success: bool, error_message: Optional[str] = None, output_path: Optional[str] = None):
-    """
-    Log generation results with detailed error information.
-    
-    Args:
-        logger: Logger instance
-        task_id: Task identifier
-        success: Whether generation succeeded
-        error_message: Error details if failed
-        output_path: Path to generated file if successful
-    """
-    if success:
-        msg = f"Generation | Task: {task_id} | Status: SUCCESS"
-        if output_path:
-            msg += f" | Output: {output_path}"
-        logger.info(msg)
-    else:
-        msg = f"Generation | Task: {task_id} | Status: FAILED"
-        if error_message:
-            # Sanitize error message for logging (truncate if too long)
-            safe_error = str(error_message)[:500] if error_message else "Unknown error"
-            msg += f" | Error: {safe_error}"
-        logger.error(msg)
-
-def log_coverage_result(logger: logging.Logger, task_id: str, success: bool, coverage_data: Optional[dict] = None, error_message: Optional[str] = None):
-    """
-    Log coverage execution results.
-    
-    Args:
-        logger: Logger instance
-        task_id: Task identifier
-        success: Whether coverage execution succeeded
-        coverage_data: Coverage metrics if successful
-        error_message: Error details if failed
-    """
-    if success:
-        msg = f"Coverage | Task: {task_id} | Status: SUCCESS"
-        if coverage_data:
-            line_cov = coverage_data.get('line_coverage', 'N/A')
-            branch_cov = coverage_data.get('branch_coverage', 'N/A')
-            msg += f" | Line: {line_cov}% | Branch: {branch_cov}%"
-        logger.info(msg)
-    else:
-        msg = f"Coverage | Task: {task_id} | Status: FAILED"
-        if error_message:
-            safe_error = str(error_message)[:500] if error_message else "Unknown error"
-            msg += f" | Error: {safe_error}"
-        logger.error(msg)
-
-def log_pipeline_summary(logger: logging.Logger, total_tasks: int, successful: int, failed: int, duration_seconds: float):
-    """
-    Log a summary of the entire pipeline run.
-    
-    Args:
-        logger: Logger instance
-        total_tasks: Total number of tasks processed
-        successful: Number of successful tasks
-        failed: Number of failed tasks
-        duration_seconds: Total execution time
-    """
-    success_rate = (successful / total_tasks * 100) if total_tasks > 0 else 0.0
-    logger.info("=" * 60)
-    logger.info("PIPELINE SUMMARY")
-    logger.info("=" * 60)
-    logger.info(f"Total Tasks: {total_tasks}")
-    logger.info(f"Successful:  {successful} ({success_rate:.1f}%)")
-    logger.info(f"Failed:      {failed}")
-    logger.info(f"Total Time:  {duration_seconds:.2f}s")
-    logger.info("=" * 60)
-    
-    if failed > 0:
-        logger.warning(f"⚠️  Pipeline completed with {failed} failures. Check error logs for details.")
-    else:
-        logger.info("✅ Pipeline completed successfully with no failures.")
+    summary = {
+        "successful_tasks": successful,
+        "failed_tasks": failed,
+        "duration_seconds": duration_seconds,
+        "timestamp": datetime.utcnow().isoformat(),
+    }
+    logger.log("pipeline_summary", **summary)

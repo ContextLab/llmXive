@@ -12,35 +12,18 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/sensitivity_analyzer.py: synthetic/fake INPUT data not authorized by the spec — “…resent, we skip to avoid fake data.             if human_co…”; 1 command(s) failed: python code/main.py --num-tasks 100 --output-dir data/processed (rc=2)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/sensitivity_analyzer.py: synthetic/fake INPUT data not authorized by the spec — “…resent, we skip to avoid fake data.             if human_co…”; 1 command(s) failed: python code/main.py --num-tasks 100 --output-dir data/processed (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/main.py --num-tasks 100 --output-dir data/processed -> rc=2
-    usage: main.py [-h] [--dataset DATASET] [--model MODEL]
-               [--batch-size BATCH_SIZE] [--output-dir OUTPUT_DIR]
-main.py: error: unrecognized arguments: --num-tasks 100
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real, installable source was discovered AND verified by actually loading data from it:
-
-- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
-- **Verified**: this loads **164** real records with fields: task_id, prompt, canonical_solution, test, entry_point.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import datasets
-
-ds_dict = datasets.load_dataset('openai/openai_humaneval')
-total_records = sum(len(split) for split in ds_dict.values())
-print(f"RECORDS={total_records}")
-
-first_split = next(iter(ds_dict.values()))
-print("FIELDS=" + ",".join(first_split.column_names))
-```
-
-Write the loader to use this package/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a website endpoint.
+- python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1
+    \'\'\'\n', 'human_solution': "    from math import floor, ceil\n\n    if value.count('.') == 1:\n        # remove trailing zeros\n        while (value[-1] == '0'):\n            value = value[:-1]\n\n    num = float(value)\n    if value[-2:] == '.5':\n        if num > 0:\n            res = ceil(num)\n        else:\n            res = floor(num)\n    elif len(value) > 0:\n        res = int(round(num))\n    else:\n        res = 0\n\n    return res\n\n", 'test_suite_path': 'data/benchmarks/processed/tests/humaneval_HumanEval/99.py', 'difficulty': 'medium', 'code_patterns': {'loops': 1, 'conditionals': 6, 'recursion': 0, 'list_comprehension': 0, 'lambda': 0}, 'dataset_source': 'humaneval'} not found in catalog.
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py", line 295, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py", line 286, in main
+    log_pipeline_summary(logger, results)
+TypeError: log_pipeline_summary() missing 3 required positional arguments: 'successful', 'failed', and 'duration_seconds'
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -50,11 +33,98 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_model_config` — defined in `code/config.py`; called 4 way(s):
+### `get_model_config` — defined in `code/config.py`; called 5 way(s):
 
-- code/config.py: codebase (e.g. ``get_model_config()`` without arguments in ``main.py``).
+- code/config.py: # Called as get_model_config() -> return Config-like object for .fallback_model access
+- code/config.py: # Called as get_model_config(name) -> return ModelConfig
 - code/llm_generator.py: config = get_model_config(candidate_model)
-- code/main.py: default=get_model_config().fallback_model,
-- code/main.py: model_cfg = get_model_config(args.model)
+- code/main.py: # get_model_config() returns a Config object with .fallback_model
+- code/main.py: cfg = get_model_config()
 
 Make `get_model_config` in `code/config.py` accept ALL of the above.
+
+### `log_pipeline_summary` — defined in `code/logger_config.py`; called 1 way(s):
+
+- code/main.py: log_pipeline_summary(logger, results)
+
+Make `log_pipeline_summary` in `code/logger_config.py` accept ALL of the above.
+
+## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module
+
+`code/logger_config.py` keeps breaking across rounds because it mixes the stdlib `logging` module (whose `Logger.log(level, msg)` needs an INTEGER level and has no `to_json`) with a custom `LogEntry`. That hybrid can never satisfy all callers. Replace the contents of `code/logger_config.py` with the self-contained reference below — it ALREADY defines every symbol callers need (`get_logger`, `log_operation`, `ReproducibilityLogger`, `LogEntry`), returns a `LogEntry` (with `.to_json()`) from direct `log_operation(...)` calls, supports `@log_operation`, and resolves any `.info`/`.debug`/`.warning` via `__getattr__`. Do NOT reach for the stdlib `logging` module again. Adjust only if a call site listed above needs a field it lacks.
+
+```python
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
+
+import functools
+import json
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from typing import Any
+
+
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+
+
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
+
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list = []
+
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
+
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
+    """
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
+
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
+
+        return _wrapper
+
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
+```

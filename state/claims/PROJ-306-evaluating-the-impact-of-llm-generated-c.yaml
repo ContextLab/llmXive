@@ -106,41 +106,64 @@
   updated_at: '2026-07-13T19:54:28Z'
 - artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
   attempts: 1
+  canonical: branch_coverage is N/A for HumanEval tasks
+  claim_id: c_d69a4480
+  context: For HumanEval tasks (identified by task_id prefix 'HumanEval/' or dataset_source='humaneval'
+    in catalog), explicitly validate and log branch_coverage as N/A before writing
+    to coverage_reports/{task_id}.json to ensure artifact compliance at generation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Branch_coverage_is_N/A_for_HumanEval_tasks
+  kind: entity_fact
+  raw_text: For HumanEval tasks (identified by task_id prefix 'HumanEval/' or dataset_source='humaneval'
+    in catalog), explicitly validate and log branch_coverage as N/A before writing
+    to coverage_reports/{task_id}.json to ensure artifact compliance at generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T20:49:02Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
   canonical: stats_summary.csv contains columns mean_llm, mean_human, mean_diff, p_value,
     cohen_d, test_type
-  claim_id: c_16fcd1eb
-  context: Implement statistical summary generation to output data/processed/stats_summary.csv
-    with mean difference, p-value, Cohen's d, and test type.
+  claim_id: c_d31b0ecb
+  context: T026 [US2] Implement statistical summary generation (FR-005) to output
+    `data/processed/stats_summary.csv` with mean difference, p-value, Cohen's d, and
+    test type.
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
     source_url: https://en.wikipedia.org/wiki/Stats_summary.csv_contains_columns_mean_llm,_mean_human,_mea
   kind: entity_fact
-  raw_text: 'stats_summary.csv is produced with columns: mean_llm, mean_human, mean_diff,
-    p_value, cohen_d, test_type.'
+  raw_text: 'The statistical analysis will output `data/processed/stats_summary.csv`
+    with columns: `mean_llm`, `mean_human`, `mean_diff`, `p_value`, `cohen_d`, `test_type`.'
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T20:47:34Z'
+  updated_at: '2026-07-13T21:05:05Z'
 - artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
   attempts: 1
-  canonical: corrected p-values are written to data/processed/corrected_pvalues.csv
-  claim_id: c_3b56e76e
-  context: 'Implement family-wise error correction (Bonferroni or Holm-Bonferroni)
-    for subgroup hypothesis tests. Output: Write corrected p-values to data/processed/corrected_pvalues.csv
-    (single source of truth).'
+  canonical: HumanEval tasks have branch_coverage logged as N/A
+  claim_id: c_30c4e0c1
+  context: 'T012 [P] [US1] Implement `code/coverage_runner.py` to execute `pytest
+    --cov` on generated files and parse output for `line_coverage` and `branch_coverage`.
+    Validation: For HumanEval tasks, explicitly validate and log `branch_coverage`
+    as `N/A` before writing to `coverage_reports/{task_id}.json`.'
   evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Corrected_p-values_are_written_to_data/processed/corrected_p
+    entailment_evidence: HumanEval tasks have branch coverage logged as N/A
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/HumanEval_tasks_have_branch_coverage_logged_as_N/A
   kind: entity_fact
-  raw_text: Corrected p-values are written to data/processed/corrected_pvalues.csv
-    (single source of truth).
-  resolved_value: null
+  raw_text: For HumanEval tasks, explicitly validate and log `branch_coverage` as
+    `N/A` before writing to `coverage_reports/{task_id}.json`.
+  resolved_value: HumanEval tasks have branch_coverage logged as N/A
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T20:49:33Z'
+  status: verified
+  updated_at: '2026-07-13T21:05:22Z'
