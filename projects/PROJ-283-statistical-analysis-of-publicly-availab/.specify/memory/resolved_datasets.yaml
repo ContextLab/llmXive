@@ -1,0 +1,101 @@
+resolved_at: '2026-07-13T20:14:19.157962+00:00'
+datasets:
+- intent: PGN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kenhktsui/go_pgn_string_v2/resolve/main/data/train-00000-of-00001-eddece98ae526f38.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kenhktsui/go_pgn_string_leela_zero/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/rawsh/pgnpuzzles/resolve/main/chess_finetuning_train
+      (11).jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 163947
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kenhktsui/go_pgn_string_v2/resolve/main/data/train-00000-of-00001-eddece98ae526f38.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kenhktsui/go_pgn_string_leela_zero/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rawsh/pgnpuzzles/resolve/main/chess_finetuning_train
+      (11).jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/Contralateral_lower-limb_muscle_activation_induced_by_PNF_patterns_sEMG_dataset_and_analysis_code/32978393
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ctsnet.figshare.com/articles/media/The_Cox-Maze_III_Procedure_Combined_With_Valve-Sparing_Aortic_Surgery_and_CABG/32975501
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/Complete_Supplementary_Material_from_CP4SBI_local_conformal_calibration_of_credible_sets_in_simulation-based_inference/32978404
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/figure/Supplementary_Figure_1_from_Sex_ratio_shapes_female_response_to_sexual_conflict_in_the_wild/32978401
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/A_PC_Algorithm_for_Max-Linear_Bayesian_Networks/32978398
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16312
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journalrip.com/Article/jrip-22748
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8095531
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4665551
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5767528
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://borealisdata.ca/dataset.xhtml?persistentId=doi:10.5683/SP3/CMBIPN
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publikationen.uni-tuebingen.de/xmlui/handle/10900/158048
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drum.lib.umd.edu/handle/1903/35435
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publications.rwth-aachen.de/record/1035893
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18224601
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
