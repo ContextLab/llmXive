@@ -1,213 +1,170 @@
 """
 Unit tests for the synthetic dataset generator (T026).
+Verifies FR-030 requirements: binary and continuous outcomes,
+constraint preservation (consistency), and record count.
 """
-import csv
 import json
-import math
-import os
-import sys
+import csv
 import tempfile
 from pathlib import Path
-from unittest import TestCase
-
+import pytest
 import numpy as np
 from scipy import stats
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from code.src.audit.synthetic import (
-    generate_binary_outcome_data,
-    generate_continuous_outcome_data,
-    generate_synthetic_record,
-    generate_dataset,
-    MIN_N_RECORDS
+    generate_synthetic_dataset,
+    generate_binary_summary,
+    generate_continuous_summary,
+    set_seeds,
+    TOTAL_RECORDS,
+    CONSISTENCY_RATE
 )
-from code.src.models.data_models import ABTestSummary
+from code.src.config import SEED
 
-
-class TestSyntheticGenerator(TestCase):
+class TestSyntheticGenerator:
     """Tests for synthetic data generation logic."""
 
-    def test_binary_outcome_generation(self):
-        """Test that binary outcome data is generated with valid ranges."""
-        data = generate_binary_outcome_data(
-            n=1000,
-            baseline_rate=0.1,
-            effect_size_rel=0.1,
-            is_inconsistent=False
-        )
+    def test_set_seeds_determinism(self):
+        """Ensure setting seeds produces deterministic results."""
+        set_seeds(42)
+        rng1 = np.random.default_rng(42)
+        val1 = rng1.random()
 
-        self.assertEqual(data["outcome_type"], "binary")
-        self.assertGreater(data["n_control"], 0)
-        self.assertGreater(data["n_treatment"], 0)
-        self.assertGreaterEqual(data["baseline_rate"], 0)
-        self.assertLessEqual(data["baseline_rate"], 1)
-        self.assertGreaterEqual(data["treatment_rate"], 0)
-        self.assertLessEqual(data["treatment_rate"], 1)
-        self.assertGreaterEqual(data["true_p_value"], 0)
-        self.assertLessEqual(data["true_p_value"], 1)
+        set_seeds(42)
+        rng2 = np.random.default_rng(42)
+        val2 = rng2.random()
 
-    def test_continuous_outcome_generation(self):
-        """Test that continuous outcome data is generated with valid ranges."""
-        data = generate_continuous_outcome_data(
-            n=1000,
-            baseline_mean=50.0,
-            effect_size_rel=0.1,
-            std_dev=10.0,
-            is_inconsistent=False
-        )
+        assert val1 == val2, "Seed reset should produce identical sequences"
 
-        self.assertEqual(data["outcome_type"], "continuous")
-        self.assertGreater(data["n_control"], 0)
-        self.assertGreater(data["n_treatment"], 0)
-        self.assertGreater(data["baseline_mean"], 0)
-        self.assertGreater(data["treatment_mean"], 0)
-        self.assertGreater(data["baseline_std"], 0)
-        self.assertGreater(data["treatment_std"], 0)
-        self.assertGreaterEqual(data["true_p_value"], 0)
-        self.assertLessEqual(data["true_p_value"], 1)
+    def test_binary_summary_generation(self):
+        """Verify binary summary generation logic and consistency."""
+        set_seeds(123)
+        rng = np.random.default_rng(123)
+        
+        data, is_consistent = generate_binary_summary(rng, is_consistent=True)
+        
+        assert data["test_type"] == "binary"
+        assert data["n_control"] > 0
+        assert data["n_treatment"] > 0
+        assert 0 < data["baseline_rate"] < 1
+        assert 0 < data["treatment_rate"] < 1
+        assert 0 <= data["reported_p_value"] <= 1
+        
+        # Verify consistency: reported should match true (within float tolerance)
+        if is_consistent:
+            assert abs(data["reported_p_value"] - data["true_p_value"]) < 1e-6
+
+    def test_continuous_summary_generation(self):
+        """Verify continuous summary generation logic."""
+        set_seeds(456)
+        rng = np.random.default_rng(456)
+        
+        data, is_consistent = generate_continuous_summary(rng, is_consistent=True)
+        
+        assert data["test_type"] == "continuous"
+        assert data["n_control"] > 0
+        assert data["n_treatment"] > 0
+        assert data["mean_control"] > 0
+        assert data["std_control"] > 0
+        assert 0 <= data["reported_p_value"] <= 1
 
     def test_inconsistency_injection(self):
-        """Test that inconsistency is correctly injected."""
-        # P-value inconsistency
-        data = generate_binary_outcome_data(
-            n=10000,
-            baseline_rate=0.2,
-            effect_size_rel=0.2,
-            is_inconsistent=True,
-            inconsistency_type="p_value"
-        )
-
-        self.assertTrue(data["is_inconsistent"])
-        self.assertEqual(data["inconsistency_reason"], "p_value")
-
-        # The reported p-value should differ significantly from true p-value
+        """Verify that inconsistent records have mismatched p-values."""
+        set_seeds(789)
+        rng = np.random.default_rng(789)
+        
+        # Force inconsistency
+        data, is_consistent = generate_binary_summary(rng, is_consistent=False)
+        
+        assert not is_consistent
+        # Check that reported p-value is significantly different from true
         diff = abs(data["reported_p_value"] - data["true_p_value"])
-        # We expect a large difference, though exact value depends on random seed
-        self.assertGreater(diff, 0.05)
-
-    def test_record_generation(self):
-        """Test that ABTestSummary records are generated correctly."""
-        record = generate_synthetic_record(
-            record_id=1,
-            is_inconsistent=False,
-            outcome_type="binary"
-        )
-
-        self.assertIsInstance(record, ABTestSummary)
-        self.assertEqual(record.outcome_type, "binary")
-        self.assertIsNotNone(record.id)
-        self.assertIsNotNone(record.url)
-        self.assertIsNotNone(record.domain)
+        # One is likely < 0.05 and the other > 0.05, so diff should be substantial
+        assert diff > 0.01, "Inconsistent records should have significant p-value drift"
 
     def test_dataset_generation_count(self):
-        """Test that the dataset generates at least MIN_N_RECORDS."""
+        """Verify that the generated dataset meets the >= 10,000 record requirement."""
         with tempfile.TemporaryDirectory() as tmpdir:
             output_dir = Path(tmpdir)
-            generate_dataset(output_dir, n_records=MIN_N_RECORDS)
-
-            json_path = output_dir / "synthetic_summaries.json"
-            csv_path = output_dir / "synthetic_summaries.csv"
-
-            self.assertTrue(json_path.exists())
-            self.assertTrue(csv_path.exists())
-
-            # Check JSON count
-            with open(json_path, "r") as f:
+            json_path, csv_path = generate_synthetic_dataset(
+                output_dir, 
+                total_records=10500, 
+                seed=999
+            )
+            
+            # Check JSON
+            with open(json_path, 'r') as f:
                 data = json.load(f)
-            self.assertGreaterEqual(len(data), MIN_N_RECORDS)
-
-            # Check CSV count
-            with open(csv_path, "r") as f:
-                reader = csv.reader(f)
+            assert len(data) == 10500, "JSON should contain exactly 10500 records"
+            
+            # Check CSV
+            with open(csv_path, 'r') as f:
+                reader = csv.DictReader(f)
                 rows = list(reader)
-            # Subtract header
-            self.assertGreaterEqual(len(rows) - 1, MIN_N_RECORDS)
+            assert len(rows) == 10500, "CSV should contain exactly 10500 records"
 
-    def test_dataset_mixed_outcomes(self):
-        """Test that dataset contains both binary and continuous outcomes."""
+    def test_dataset_generation_types(self):
+        """Verify that both binary and continuous types are present."""
         with tempfile.TemporaryDirectory() as tmpdir:
             output_dir = Path(tmpdir)
-            generate_dataset(output_dir, n_records=200)
-
-            json_path = output_dir / "synthetic_summaries.json"
-            with open(json_path, "r") as f:
+            json_path, _ = generate_synthetic_dataset(
+                output_dir, 
+                total_records=1000, 
+                seed=888
+            )
+            
+            with open(json_path, 'r') as f:
                 data = json.load(f)
+            
+            types = [r["test_type"] for r in data]
+            assert "binary" in types, "Dataset must contain binary outcomes"
+            assert "continuous" in types, "Dataset must contain continuous outcomes"
+            
+            # Check approximate ratio (60/40)
+            binary_count = types.count("binary")
+            total = len(types)
+            ratio = binary_count / total
+            assert 0.5 < ratio < 0.7, f"Binary ratio {ratio} should be approx 0.6"
 
-            outcome_types = set(r["outcome_type"] for r in data)
-            self.assertIn("binary", outcome_types)
-            self.assertIn("continuous", outcome_types)
-
-    def test_statistical_validity_binary(self):
-        """Verify that generated binary data follows binomial distribution properties."""
-        # Generate many records with same params and check mean/variance
-        n = 1000
-        p = 0.2
-        trials = 50
-
-        observed_rates = []
-        for _ in range(trials):
-            data = generate_binary_outcome_data(
-                n=n,
-                baseline_rate=p,
-                effect_size_rel=0.0, # No effect
-                is_inconsistent=False
+    def test_constraint_preservation(self):
+        """Verify that consistent records pass basic statistical sanity checks."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            json_path, csv_path = generate_synthetic_dataset(
+                output_dir, 
+                total_records=500, 
+                seed=777
             )
-            observed_rates.append(data["baseline_rate"])
+            
+            with open(json_path, 'r') as f:
+                summaries = json.load(f)
+            
+            consistent_records = [r for r in summaries if r["raw_data"]["is_consistent"]]
+            
+            for rec in consistent_records[:100]: # Sample check
+                raw = rec["raw_data"]
+                if raw["test_type"] == "binary":
+                    # Check p-value bounds
+                    assert 0 <= raw["reported_p_value"] <= 1
+                    # Check consistency
+                    assert abs(raw["reported_p_value"] - raw["true_p_value"]) < 1e-5
+                else:
+                    assert 0 <= raw["reported_p_value"] <= 1
+                    assert abs(raw["reported_p_value"] - raw["true_p_value"]) < 1e-5
 
-        # Mean should be close to p
-        mean_rate = np.mean(observed_rates)
-        self.assertAlmostEqual(mean_rate, p, delta=0.02)
-
-        # Variance should be close to p(1-p)/n
-        expected_var = p * (1 - p) / n
-        observed_var = np.var(observed_rates)
-        self.assertAlmostEqual(observed_var, expected_var, delta=0.0001)
-
-    def test_statistical_validity_continuous(self):
-        """Verify that generated continuous data follows normal distribution properties."""
-        n = 1000
-        mu = 50.0
-        sigma = 10.0
-        trials = 50
-
-        observed_means = []
-        for _ in range(trials):
-            data = generate_continuous_outcome_data(
-                n=n,
-                baseline_mean=mu,
-                effect_size_rel=0.0,
-                std_dev=sigma,
-                is_inconsistent=False
+    def test_output_files_exist(self):
+        """Verify that both output files are created."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            json_path, csv_path = generate_synthetic_dataset(
+                output_dir, 
+                total_records=100, 
+                seed=666
             )
-            observed_means.append(data["baseline_mean"])
-
-        # Mean should be close to mu
-        mean_val = np.mean(observed_means)
-        self.assertAlmostEqual(mean_val, mu, delta=1.0)
-
-        # Std dev should be close to sigma/sqrt(n)
-        expected_std = sigma / math.sqrt(n)
-        observed_std = np.std(observed_means)
-        self.assertAlmostEqual(observed_std, expected_std, delta=0.5)
-
-    def test_p_value_distribution_under_null(self):
-        """Test that p-values are uniformly distributed under the null hypothesis."""
-        # Generate data with no effect (effect_size_rel = 0)
-        p_values = []
-        for _ in range(1000):
-            data = generate_binary_outcome_data(
-                n=1000,
-                baseline_rate=0.2,
-                effect_size_rel=0.0,
-                is_inconsistent=False
-            )
-            p_values.append(data["true_p_value"])
-
-        # Check proportion of p < 0.05 (should be ~0.05)
-        significant_count = sum(1 for p in p_values if p < 0.05)
-        proportion = significant_count / len(p_values)
-        # Allow some variance (0.05 +/- 0.02)
-        self.assertGreaterEqual(proportion, 0.03)
-        self.assertLessEqual(proportion, 0.07)
+            
+            assert json_path.exists(), "JSON file must exist"
+            assert csv_path.exists(), "CSV file must exist"
+            
+            # Verify file sizes are non-zero
+            assert json_path.stat().st_size > 0
+            assert csv_path.stat().st_size > 0

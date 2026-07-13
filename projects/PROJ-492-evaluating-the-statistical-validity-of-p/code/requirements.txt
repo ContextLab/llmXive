@@ -9,7 +9,6 @@ pyyaml
 jsonschema
 psutil
 pytest
-mypy
 black
 ruff
 pre-commit

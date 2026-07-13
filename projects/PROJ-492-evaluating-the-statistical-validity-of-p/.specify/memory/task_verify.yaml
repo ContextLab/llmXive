@@ -552,7 +552,7 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
   \ ** (constraint\u2011preservation\u20112958f04c) (files are created and contain\
   \ \u2265 10 000 records.). **DEPENDS ON:** T006\u2011T012. <!-- SKIPPED: YAML+regex\
   \ parse failed (while parsing a block mapping"
-: 1
+: 2
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 {{claim:c_44abad1e}} (binary AND continuous outcomes) **and {{claim:c_b7e273c3}}\
   \ ** (constraint\u2011preservation\u20112958f04c) (verify files are created and\
