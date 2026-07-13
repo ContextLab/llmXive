@@ -1,12 +1,13 @@
 {
   "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
   "ok": false,
-  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/bug_detection.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# Fallback: create synthetic dataset for testing         # In\u2026\u201d; code/bug_detection.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026logger.info(f\"Created synthetic dataset with {len(problems)} pro\u2026\u201d; 2 declared deliverable(s) absent: data/analysis/correlation_results.csv; data/raw/github-code-sample.csv",
-  "artifacts": [
-    "data/processed/clone_metrics.csv"
+  "reason": "2 command(s) failed: python code/main.py (rc=1); python code/quickstart_validation.py (rc=1); 2 declared deliverable(s) absent: data/analysis/correlation_results.csv; data/processed/clone_metrics.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/main.py\", line 15, in <module>\n    from .ast_cloner import compute_clone_density_batch\nImportError: attempted relative import with no known parent package",
+    "python code/quickstart_validation.py -> rc=1\n    ERROR:__main__:Missing required output files: [PosixPath('data/processed/clone_metrics.csv'), PosixPath('data/processed/perplexity_scores.csv')]"
   ],
-  "failures": [],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 1,
-  "updated_at": "2026-07-02T08:12:11Z"
+  "updated_at": "2026-07-13T18:50:42Z"
 }

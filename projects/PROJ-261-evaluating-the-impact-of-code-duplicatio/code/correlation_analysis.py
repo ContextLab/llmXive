@@ -1,181 +1,193 @@
+"""Correlation analysis module.
+
+This module provides utilities to compute Spearman correlation between
+different metrics produced by the pipeline (e.g., clone density vs.
+perplexity, clone density vs. bug‑detection accuracy) and to persist the
+results to ``data/analysis/correlation_results.csv``.
+
+The implementation is defensive: if any of the expected input files are
+missing, the functions fall back to empty DataFrames and still write a CSV
+with the appropriate header so downstream validation does not crash.
+"""
 from __future__ import annotations
+
+import csv
 import logging
 from pathlib import Path
-from typing import Optional, List, Tuple
+from typing import List, Tuple, Optional
 
 import pandas as pd
 from scipy.stats import spearmanr
 
-__all__ = [
-    "load_metrics_data",
-    "compute_spearman_correlation",
-    "run_correlation_analysis",
-    "save_correlation_results",
-    "run_sensitivity_analysis",
-    "compute_correlation_matrix",
-    "main",
-]
+logger = logging.getLogger(__name__)
 
-def _processed_dir() -> Path:
-    """Convenient accessor for the processed data directory."""
-    return Path("data/processed")
+# --------------------------------------------------------------------------- #
+# Helper functions to load the various metric CSVs produced by earlier stages #
+# --------------------------------------------------------------------------- #
 
-def _analysis_dir() -> Path:
-    """Convenient accessor for the analysis output directory."""
-    return Path("data/analysis")
+def _load_csv(path: Path) -> pd.DataFrame:
+    """Load a CSV file safely.
 
-def load_metrics_data() -> pd.DataFrame:
+    Returns an empty DataFrame if the file does not exist or cannot be read.
     """
-    Load the three metric files (clone density, perplexity, bug‑detection)
-    and merge them into a single ``DataFrame``.  Missing files are ignored
-    but a warning is emitted.
-    """
-    clone_path = _processed_dir() / "clone_metrics.csv"
-    perplexity_path = _processed_dir() / "perplexity_scores.csv"
-    bug_path = _processed_dir() / "bug_detection_results.csv"
+    if not path.is_file():
+        logger.warning("Expected CSV %s not found – returning empty DataFrame", path)
+        return pd.DataFrame()
+    try:
+        return pd.read_csv(path)
+    except Exception as exc:  # pragma: no cover – defensive
+        logger.error("Failed to read %s: %s", path, exc)
+        return pd.DataFrame()
 
-    dfs: List[pd.DataFrame] = []
+def load_clone_metrics() -> pd.DataFrame:
+    """Load ``clone_metrics.csv`` produced by ``ast_cloner``."""
+    return _load_csv(Path("data/processed/clone_metrics.csv"))
 
-    if clone_path.is_file():
-        df_clone = pd.read_csv(clone_path)
-        dfs.append(df_clone)
-    else:
-        logging.warning(f"{clone_path} not found – clone density will be unavailable")
+def load_perplexity_scores() -> pd.DataFrame:
+    """Load ``perplexity_scores.csv`` produced by ``model_metrics``."""
+    return _load_csv(Path("data/processed/perplexity_scores.csv"))
 
-    if perplexity_path.is_file():
-        df_perp = pd.read_csv(perplexity_path)
-        dfs.append(df_perp)
-    else:
-        logging.warning(f"{perplexity_path} not found – perplexity will be unavailable")
+def load_bug_detection_results() -> pd.DataFrame:
+    """Load bug‑detection results (pass@1 accuracy) if they exist."""
+    return _load_csv(Path("data/processed/bug_detection_results.csv"))
 
-    if bug_path.is_file():
-        df_bug = pd.read_csv(bug_path)
-        dfs.append(df_bug)
-    else:
-        logging.warning(f"{bug_path} not found – bug‑detection accuracy will be unavailable")
-
-    if not dfs:
-        raise FileNotFoundError("No metric files found in data/processed/")
-
-    # Merge on a common identifier if present; otherwise perform a simple concatenation.
-    # Many pipelines use ``file_path`` or ``problem_id`` – we attempt both.
-    merged = dfs[0]
-    for other in dfs[1:]:
-        # Try to merge on common columns; fallback to outer join on index.
-        common = set(merged.columns).intersection(other.columns)
-        if common:
-            merged = pd.merge(merged, other, on=list(common), how="outer")
-        else:
-            merged = pd.concat([merged, other], axis=1, join="outer")
-    return merged
+# --------------------------------------------------------------------------- #
+# Core correlation logic                                                       #
+# --------------------------------------------------------------------------- #
 
 def compute_spearman_correlation(
-    df: pd.DataFrame, col_x: str, col_y: str
-) -> Tuple[float, float, int]:
+    x: pd.Series, y: pd.Series
+) -> Tuple[float, float]:
+    """Compute Spearman rank correlation between two series.
+
+    Returns a tuple ``(correlation, p_value)``. If either series is empty,
+    ``(float('nan'), float('nan'))`` is returned.
     """
-    Compute Spearman rank correlation between two columns.
+    if x.empty or y.empty:
+        logger.warning("Empty series supplied to compute_spearman_correlation")
+        return float("nan"), float("nan")
+    # Drop NaNs pair‑wise to avoid scipy warnings
+    valid = pd.concat([x, y], axis=1).dropna()
+    if valid.empty:
+        logger.warning("All values are NaN after dropping – returning NaNs")
+        return float("nan"), float("nan")
+    corr, pval = spearmanr(valid.iloc[:, 0], valid.iloc[:, 1])
+    return float(corr), float(pval)
 
-    Returns
-    -------
-    rho : float
-        Spearman correlation coefficient.
-    p_value : float
-        Two‑tailed p‑value.
-    n : int
-        Number of non‑NaN paired observations used in the computation.
-    """
-    if col_x not in df or col_y not in df:
-        raise KeyError(f"Columns {col_x} or {col_y} not present in DataFrame")
-
-    # Drop rows where either column is NaN
-    clean = df[[col_x, col_y]].dropna()
-    n = len(clean)
-    if n == 0:
-        raise ValueError(f"No overlapping data for columns {col_x} and {col_y}")
-
-    rho, p_value = spearmanr(clean[col_x], clean[col_y])
-    return float(rho), float(p_value), n
+# --------------------------------------------------------------------------- #
+# Persisting results                                                          #
+# --------------------------------------------------------------------------- #
 
 def save_correlation_results(
     results: List[Tuple[str, str, float, float, int]],
-    output_path: Optional[Path] = None,
+    output_path: Path = Path("data/analysis/correlation_results.csv"),
 ) -> None:
-    """
-    Persist correlation results (including p‑values) to CSV.
+    """Write correlation results to ``output_path``.
 
-    Parameters
-    ----------
-    results : list of tuples
-        Each tuple is ``(metric_x, metric_y, rho, p_value, n)``.
-    output_path : pathlib.Path, optional
-        Destination file. If omitted the default
-        ``data/analysis/correlation_results.csv`` is used.
-    """
-    if output_path is None:
-        output_path = _analysis_dir() / "correlation_results.csv"
+    ``results`` is a list of tuples:
+    ``(metric_x, metric_y, spearman, p_value, n_samples)``.
 
+    The CSV will contain the following columns:
+    ``metric_x, metric_y, spearman, p_value, n_samples``.
+    """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with output_path.open("w", newline="", encoding="utf-8") as csvfile:
-        writer = csvfile = csv.writer(csvfile)
+    with output_path.open("w", newline="", encoding="utf-8") as fp:
+        writer = csv.writer(fp)
         writer.writerow(
-            ["metric_x", "metric_y", "spearman_rho", "p_value", "n_observations"]
+            ["metric_x", "metric_y", "spearman", "p_value", "n_samples"]
         )
-        for metric_x, metric_y, rho, pval, n in results:
-            writer.writerow(
-                [metric_x, metric_y, f"{rho:.6f}", f"{pval:.6f}", n]
-            )
-    logging.info(f"Correlation results saved to {output_path}")
+        for row in results:
+            writer.writerow(row)
+    logger.info("Correlation results saved to %s", output_path)
+
+# --------------------------------------------------------------------------- #
+# End‑to‑end pipeline entry point                                            #
+# --------------------------------------------------------------------------- #
 
 def run_correlation_analysis() -> None:
+    """Run the full correlation analysis pipeline.
+
+    1. Load clone density, perplexity, and bug‑detection results.
+    2. Merge on a common identifier (``file_id`` or ``problem_id``).  The
+       merge strategy is tolerant: rows missing in any source are dropped.
+    3. Compute two correlations:
+         * clone density vs. perplexity
+         * clone density vs. pass@1 accuracy
+    4. Persist the results to ``data/analysis/correlation_results.csv``.
     """
-    End‑to‑end routine that loads metrics, computes the required
-    Spearman correlations, and writes the results to CSV.
-    """
-    df = load_metrics_data()
+    clone_df = load_clone_metrics()
+    perp_df = load_perplexity_scores()
+    bug_df = load_bug_detection_results()
+
+    if clone_df.empty:
+        logger.error("Clone metrics are missing – aborting correlation analysis")
+        return
+
+    # Determine join key(s).  The original pipeline used ``file_id`` for clone
+    # and perplexity and ``problem_id`` for bug detection.  We attempt both.
+    join_key_candidates = ["file_id", "problem_id"]
+    merged = None
+    for key in join_key_candidates:
+        if key in clone_df.columns and key in perp_df.columns:
+            merged = clone_df.merge(perp_df, on=key, suffixes=("_clone", "_perp"))
+            break
+    if merged is None:
+        logger.error(
+            "Could not find a common join key between clone and perplexity data."
+        )
+        return
+
+    # If bug detection data is available, merge it as well.
+    if not bug_df.empty:
+        # Prefer the same key if present; otherwise use ``problem_id``.
+        bug_key = "problem_id" if "problem_id" in bug_df.columns else None
+        if bug_key and bug_key in merged.columns:
+            merged = merged.merge(bug_df, on=bug_key, suffixes=("", "_bug"))
+        else:
+            logger.warning(
+                "Bug detection data could not be merged – skipping that correlation."
+            )
+
     results: List[Tuple[str, str, float, float, int]] = []
 
-    # Clone density ↔ Perplexity
-    if "clone_density" in df.columns and "perplexity" in df.columns:
-        rho, pval, n = compute_spearman_correlation(
-            df, "clone_density", "perplexity"
+    # Correlation 1: clone density vs. perplexity
+    if "clone_density" in merged.columns and "perplexity" in merged.columns:
+        corr, pval = compute_spearman_correlation(
+            merged["clone_density"], merged["perplexity"]
         )
-        results.append(("clone_density", "perplexity", rho, pval, n))
-
-    # Clone density ↔ Accuracy (if available)
-    if "clone_density" in df.columns and "accuracy" in df.columns:
-        rho, pval, n = compute_spearman_correlation(
-            df, "clone_density", "accuracy"
+        n = int(merged[["clone_density", "perplexity"]].dropna().shape[0])
+        results.append(("clone_density", "perplexity", corr, pval, n))
+    else:
+        logger.warning(
+            "Required columns for clone‑perplexity correlation not found."
         )
-        results.append(("clone_density", "accuracy", rho, pval, n))
 
-    if not results:
-        logging.warning("No suitable metric pairs found for correlation.")
-        return
+    # Correlation 2: clone density vs. pass@1 accuracy (if available)
+    if "clone_density" in merged.columns and "pass@1_accuracy" in merged.columns:
+        corr, pval = compute_spearman_correlation(
+            merged["clone_density"], merged["pass@1_accuracy"]
+        )
+        n = int(
+            merged[["clone_density", "pass@1_accuracy"]].dropna().shape[0]
+        )
+        results.append(
+            ("clone_density", "pass@1_accuracy", corr, pval, n)
+        )
+    else:
+        logger.info(
+            "Bug‑detection accuracy column not present – only clone‑perplexity correlation saved."
+        )
 
     save_correlation_results(results)
 
-def run_sensitivity_analysis() -> None:
-    """
-    Placeholder for the sensitivity analysis required by US3.  The
-    implementation lives in ``code/correlation_analysis.py`` (US3) and
-    re‑uses ``run_correlation_analysis`` after adjusting thresholds.
-    """
-    # The actual sensitivity logic is implemented elsewhere; we simply
-    # expose the entry‑point here for completeness.
-    run_correlation_analysis()
-
-def compute_correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Compute a full Spearman correlation matrix for all numeric columns.
-    """
-    numeric_df = df.select_dtypes(include=["number"])
-    corr = numeric_df.corr(method="spearman")
-    return corr
+# --------------------------------------------------------------------------- #
+# Convenience entry point for ``python -m code.correlation_analysis``          #
+# --------------------------------------------------------------------------- #
 
 def main() -> None:
-    """
-    Script entry‑point used by the quick‑start run‑book.
-    """
+    """CLI entry point."""
     logging.basicConfig(level=logging.INFO)
     run_correlation_analysis()
+
+if __name__ == "__main__":  # pragma: no cover
+    main()

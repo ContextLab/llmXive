@@ -1,12 +1,9 @@
-# Core dependencies (already present in the project)
-datasets
-transformers
-bitsandbytes
-scipy
-matplotlib
-pytest
-
-# Added for memory‑monitoring and safe file handling
-psutil
-# Optional progress bar used by data loader (already a transitive dep of datasets)
-tqdm
+datasets>=2.0.0
+transformers>=4.35.0
+bitsandbytes>=0.43.0
+scipy>=1.11.0
+pandas>=2.1.0
+torch>=2.0.0
+psutil>=5.9.0
+pytest>=7.0.0
+matplotlib>=3.8.0

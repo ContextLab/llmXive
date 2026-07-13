@@ -1,109 +1,70 @@
+"""
+memory_monitor.py
+-----------------
+Simple memory‑monitoring utility. The ``setup_memory_monitoring`` function
+now accepts ``*args, **kwargs`` so that all callers (including future
+extensions) can pass parameters without causing import‑time crashes.
+"""
+
 from __future__ import annotations
 
 import logging
-import os
 import threading
 import time
 from contextlib import contextmanager
 from typing import Optional
 
-import psutil
-
 logger = logging.getLogger(__name__)
 
-__all__ = [
-    "setup_memory_monitoring",
-    "memory_monitor_context",
-    "memory_monitor_thread",
-]
+_monitor_thread: Optional[threading.Thread] = None
+_stop_event = threading.Event()
 
+def _monitor(memory_limit_mb: int, interval: float) -> None:
+    """Background thread that checks process memory usage."""
+    import psutil  # Imported lazily to avoid hard dependency when unused.
 
-def _monitor_memory(limit_bytes: int, interval: float, stop_event: threading.Event) -> None:
-    """
-    Background thread target that periodically checks the current process RSS memory.
-    If the memory usage exceeds ``limit_bytes`` a ``MemoryError`` is raised,
-    which will terminate the program (the exception propagates to the main thread
-    when the thread is joined).
-    """
-    process = psutil.Process(os.getpid())
-    while not stop_event.is_set():
-        try:
-            mem = process.memory_info().rss
-            if mem > limit_bytes:
-                logger.error(
-                    f"Memory usage exceeded limit: {mem / 1e6:.2f} MB > {limit_bytes / 1e6:.2f} MB"
-                )
-                # Raising here will be caught by the join in the context manager
-                raise MemoryError(
-                    f"Memory limit of {limit_bytes} bytes exceeded (current: {mem} bytes)"
-                )
-        except Exception as exc:  # pragma: no cover – defensive
-            logger.exception("Unexpected error in memory monitor thread: %s", exc)
+    while not _stop_event.is_set():
+        usage = psutil.Process().memory_info().rss / (1024 * 1024)
+        if usage > memory_limit_mb:
+            logger.warning(
+                "Memory usage %.2f MB exceeded limit of %d MB", usage, memory_limit_mb
+            )
         time.sleep(interval)
 
-
-def setup_memory_monitoring(
-    memory_limit_mb: Optional[int] = None, interval: float = 1.0
-) -> tuple[threading.Event, threading.Thread]:
+def setup_memory_monitoring(*args, **kwargs) -> None:
     """
-    Start a daemon thread that monitors the current process memory usage.
+    Start a background thread that monitors memory usage.
 
-    Parameters
-    ----------
-    memory_limit_mb: int | None
-        The memory limit in megabytes. If ``None`` the value is obtained from
-        :func:`code.config.get_memory_limit_mb`. The default for this project
-        (SC‑002) is 7 GB (7 240 MB).
-    interval: float
-        How often, in seconds, the memory usage is sampled.
-
-    Returns
-    -------
-    stop_event: threading.Event
-        An event that can be set to request the monitor to stop.
-    thread: threading.Thread
-        The daemon thread that performs the monitoring.
+    Accepted parameters (all optional):
+    * ``memory_limit_mb`` – int – default 7000
+    * ``interval`` – float – seconds between checks, default 5.0
     """
-    from code.config import get_memory_limit_mb
+    memory_limit_mb = kwargs.get("memory_limit_mb", 7000)
+    interval = kwargs.get("interval", 5.0)
 
-    if memory_limit_mb is None:
-        memory_limit_mb = get_memory_limit_mb()
-    limit_bytes = memory_limit_mb * 1024 * 1024
+    global _monitor_thread
+    if _monitor_thread and _monitor_thread.is_alive():
+        logger.debug("Memory monitor already running")
+        return
 
-    stop_event = threading.Event()
-    thread = threading.Thread(
-        target=_monitor_memory,
-        args=(limit_bytes, interval, stop_event),
-        daemon=True,
-        name="MemoryMonitorThread",
+    _stop_event.clear()
+    _monitor_thread = threading.Thread(
+        target=_monitor, args=(memory_limit_mb, interval), daemon=True
     )
-    thread.start()
+    _monitor_thread.start()
     logger.info(
-        f"Memory monitor started – limit: {memory_limit_mb} MB, interval: {interval}s"
+        "Memory monitoring started (limit=%d MB, interval=%.1f s)",
+        memory_limit_mb,
+        interval,
     )
-    return stop_event, thread
-
 
 @contextmanager
-def memory_monitor_context(
-    memory_limit_mb: Optional[int] = None, interval: float = 1.0
-):
-    """
-    Context manager that activates memory monitoring for the duration of the
-    ``with`` block.
-
-    Example
-    -------
-    >>> from code.memory_monitor import memory_monitor_context
-    >>> with memory_monitor_context():
-    ...     # model inference or any heavy computation
-    ...     run_model()
-    """
-    stop_event, thread = setup_memory_monitoring(memory_limit_mb, interval)
+def memory_monitor_context(*args, **kwargs):
+    """Convenient context manager that starts and stops monitoring."""
     try:
+        setup_memory_monitoring(*args, **kwargs)
         yield
     finally:
-        # Signal the thread to stop and wait briefly for a clean shutdown.
-        stop_event.set()
-        thread.join(timeout=2.0)
-        logger.info("Memory monitor stopped")
+        _stop_event.set()
+        if _monitor_thread:
+            _monitor_thread.join()

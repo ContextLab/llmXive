@@ -1,47 +1,37 @@
-# Quickstart for Evaluating Code Duplication Impact
+# Quickstart Guide
 
-This document provides the minimal commands required to run the full research
-pipeline from end‑to‑end. All commands should be executed from the repository
-root.
+This document describes the commands required to run the full research pipeline
+from raw data acquisition to final analysis artefacts.
 
-```bash
-# 1️⃣ Install dependencies
-pip install -r requirements.txt
+## Prerequisites
 
-# 2️⃣ Stream a 500 MB subset of the CodeParrot GitHub corpus [UNRESOLVED-CLAIM: c_09a28615 — status=not_enough_info]
-python code/data_loader.py
+* Python 3.11
+* All dependencies installed via ``pip install -r requirements.txt``
 
-# 3️⃣ Scan for PII (optional but recommended)
-python code/pii_scanner.py
+## Execution steps
 
-# 4️⃣ Compute clone density metrics
-python code/ast_cloner.py
+1. **Download a sample of the GitHub‑code corpus**
+ ```bash
+ python code/data_loader.py
+ ```
+ (The script is also invoked automatically by the main pipeline.)
 
-# 5️⃣ Compute model perplexity scores (8‑bit quantised)
-python code/model_metrics.py
+2. **Run the complete pipeline** – this will generate the processed metrics
+ and the correlation results required by the validation step.
+ ```bash
+ python code/main.py
+ ```
 
-# 6️⃣ Evaluate bug‑detection (HumanEval) and compute pass@1
-python code/bug_detection.py
+3. **Validate the produced artefacts** – ensures that all expected files are
+ present and non‑empty.
+ ```bash
+ python code/quickstart_validation.py
+ ```
 
-# 7️⃣ Correlation analysis (duplication ↔ perplexity ↔ accuracy)
-python code/correlation_analysis.py
+After step 2 finishes, you should find the following files on disk:
 
-# 8️⃣ Generate visualisations
-python code/visualization/plotting.py
+* `data/processed/clone_metrics.csv`
+* `data/processed/perplexity_scores.csv`
+* `data/analysis/correlation_results.csv`
 
-# 9️⃣ Validate that all expected artefacts exist
-python code/quickstart_validation.py
-```
-
-After the above steps complete you should find the following artefacts in the
-repository:
-
-- `data/raw/github-code-sample.csv` – streamed subset of the CodeParrot corpus
-- `data/processed/clone_metrics.csv` – clone‑density per file/problem
-- `data/processed/perplexity_scores.csv` – token‑level perplexity per file
-- `data/processed/bug_detection_results.csv` – pass@1 and clone density per HumanEval problem
-- `data/analysis/correlation_results.csv` – Spearman correlation matrix and p‑values
-- `data/analysis/figures/` – PNG/PDF visualisations
-
-The quickstart validation script (`code/quickstart_validation.py`) will raise an
-error if any of the above artefacts are missing or malformed.
+These artefacts are used by downstream tasks and the integration tests.

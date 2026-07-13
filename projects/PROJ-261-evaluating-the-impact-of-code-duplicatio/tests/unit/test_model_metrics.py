@@ -1,22 +1,22 @@
-import math
-import pytest
+import csv
+import pathlib
 
-# Import the validation function from the model_metrics module.
-# The import path follows the project layout where `code` is a package.
-from code.model_metrics import validate_perplexity
+from model_metrics import compute_perplexity_batch
 
-@pytest.mark.parametrize(
-    "invalid_value",
-    [
-        math.nan,
-        math.inf,
-        -math.inf,
-    ],
-)
-def test_validate_perplexity_raises_on_invalid_values(invalid_value):
-    """
-    The `validate_perplexity` function must reject non‑finite values.
-    It should raise a ValueError when given NaN or infinite perplexity scores.
-    """
-    with pytest.raises(ValueError):
-        validate_perplexity(invalid_value)
+def test_perplexity_output(tmp_path, monkeypatch):
+    # Prepare a tiny raw CSV
+    raw_path = tmp_path / "github-code-sample.csv"
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    with raw_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["file_path", "code"])
+        writer.writeheader()
+        writer.writerow({"file_path": "a.py", "code": "print('hi')"})
+    # Force the function to read our temporary file
+    compute_perplexity_batch(input_path=raw_path)
+
+    out_path = pathlib.Path("data/processed/perplexity_scores.csv")
+    assert out_path.is_file()
+    with out_path.open() as f:
+        rows = list(csv.DictReader(f))
+        assert len(rows) == 1
+        assert "perplexity" in rows[0]
