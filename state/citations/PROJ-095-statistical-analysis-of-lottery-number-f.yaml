@@ -1,33 +1,44 @@
-- artifact_hash: e78bfe229ffc4004a91309ae10f33d2fb7a82854f926fa5a4c5917214de0a89e
+- artifact_hash: 3cd946ead2a2f2f323f8d2e646437880ac966553be833a99262b6974d6fc878e
   artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/lottery-draws/uk-lotto`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/lottery-draws/uk-lotto
-  verified_at: '2026-07-12T15:13:46.750178Z'
-- artifact_hash: e78bfe229ffc4004a91309ae10f33d2fb7a82854f926fa5a4c5917214de0a89e
+  value: https://data.ca.gov/dataset/lottery-draw-games-results`
+  verification_status: mismatch
+  verified_against_url: https://data.ca.gov/dataset/lottery-draw-games-results
+  verified_at: '2026-07-13T02:58:16.837801Z'
+- artifact_hash: 3cd946ead2a2f2f323f8d2e646437880ac966553be833a99262b6974d6fc878e
   artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://raw.githubusercontent.com/lottery-data/uk-lotto/main/draws.csv`
+  value: https://data.gov.uk/dataset/national-lottery-results`
   verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/lottery-data/uk-lotto/main/draws.csv
-  verified_at: '2026-07-12T15:13:46.750178Z'
-- artifact_hash: e78bfe229ffc4004a91309ae10f33d2fb7a82854f926fa5a4c5917214de0a89e
+  verified_against_url: https://www.data.gov.uk/dataset/national-lottery-results
+  verified_at: '2026-07-13T02:58:16.837801Z'
+- artifact_hash: 3cd946ead2a2f2f323f8d2e646437880ac966553be833a99262b6974d6fc878e
   artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.calottery.com/en/draw-games/numbers`
+  value: https://github.com/datasets/lottery-results`
   verification_status: mismatch
-  verified_against_url: https://www.calottery.com/en/draw-games/numbers
-  verified_at: '2026-07-12T15:13:46.750178Z'
+  verified_against_url: https://github.com/datasets/lottery-results
+  verified_at: '2026-07-13T02:58:16.837801Z'
+- artifact_hash: b52288f9e872c96c71d9314b54f3e4135ec31ef549c8a0016832b88878e83678
+  artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Replication crisis - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Replication_crisis
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Replication_crisis
+  verified_at: '2026-07-13T03:37:51.004783Z'

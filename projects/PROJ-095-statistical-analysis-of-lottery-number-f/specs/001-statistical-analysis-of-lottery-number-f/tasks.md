@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directories: `mkdir -p data/raw data/processed data/results code tests/unit tests/integration`
+- [ ] T001a [P] Create project directories: `mkdir -p data/raw data/processed data/results code tests/unit tests/integration config`
 - [ ] T001b [P] Initialize `__init__.py` files: `touch code/__init__.py tests/__init__.py tests/unit/__init__.py tests/integration/__init__.py`
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`pandas`, `numpy`, `scipy`, `requests`, `pyyaml`, `memory_profiler`, `pytest`) in `requirements.txt`
+- [ ] T002 Initialize a Python project with pinned dependencies using a compatible major version. (`pandas`, `numpy`, `scipy`, `requests`, `pyyaml`, `memory_profiler`, `pytest`) in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -56,11 +56,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/data_utils.py` for deterministic CSV loading and checksum verification (Constitution Principle III)
-- [ ] T005 [P] Implement `code/constants.py` defining draw parameters (e.g., `NUMBERS_PER_DRAW=6`, `MAX_BALL=49`, `BIRTHDAY_THRESHOLD=31`)
-- [ ] T006 [P] Create `code/exceptions.py` for custom data errors (e.g., `MissingSalesError`, `InvalidDrawFormatError`)
-- [ ] T007 [P] Setup `tests/conftest.py` with fixtures for mock data and fixed random seeds
-- [ ] T008 [P] Implement `code/ingestion.py` as a 'Pre-CI Data Fetch' script to download the UK National Lottery historical draws CSV from `https://data.gov.uk/dataset/lottery-draws` (Primary) or fallback to `https://raw.githubusercontent.com/datasets/lottery-data/master/uk_lotto.csv` (Mirror). **Output**: Save to `data/raw/lottery_draws.csv`. **Steps**: 1. Verify URL reachability via HEAD request. 2. Download and save. 3. Generate SHA256 checksum and log. 4. Handle missing `total_sales` by logging a warning but retaining the row for frequency analysis.
+- [X] T004 [P] Implement `code/data_utils.py` for deterministic CSV loading and checksum verification (Constitution Principle III)
+- [X] T005 [P] Implement `code/constants.py` defining draw parameters (e.g., `NUMBERS_PER_DRAW=6`, `MAX_BALL=49`, `BIRTHDAY_THRESHOLD=31`)
+- [X] T006 [P] Create `code/exceptions.py` for custom data errors (e.g., `MissingSalesError`, `InvalidDrawFormatError`)
+- [~] T007 [P] Setup `tests/conftest.py` with fixtures for mock data and fixed random seeds
+- [~] T008a [P] Generate `config/data_sources.json` containing the verified URL(s) for lottery data ingestion. **Input**: Read `research.md` (Phase 0 output) to identify the canonical source. **Output**: Save a JSON object `{"source_name": "UK National Lottery", "url": "..."}`. This config file is the runtime source for T008.
+- [~] T008 [P] Implement `code/ingestion.py` as a 'Pre-CI Data Fetch' script to download the lottery historical draws CSV. **Input**: Read the URL from `config/data_sources.json` (generated by T008a). **Output**: Save to `data/raw/lottery_draws.csv`. **Steps**: 1. Verify URL reachability via HEAD request. 2. Download and save. 3. Generate SHA checksum and log. 4. Handle missing `total_sales` by logging a warning but retaining the row for frequency analysis.
+- [~] T008b [P] Generate `data/checksums.json` containing the SHA256 checksum for the downloaded file to satisfy T008's verification requirement.
+- [~] T011a [P] Create `data/schemas/final_report.schema.json` defining the exact structure of `final_report.json` (including `correlation_coefficient`, `p_value`, `confidence_interval`, `bonferroni_adjusted_p`, `sensitivity_table`, `is_significant`, `outlier_sensitivity_delta`, `warnings`, `control_variable_note`). **Note**: Keys `correlation_coefficient` and `p_value` are marked as 'required' in the schema, but will be populated by downstream tasks (T016, T023) before T026 runs. **Output**: This file must exist before T026 runs.
+- [~] T011b [P] Create `data/processed/legacy_metrics.json` with static content: `{ "is_legacy": true, "reason": "Chi-Square invalid for n=6; replaced by per-draw metrics", "metric_replaced": "draw_uniformity_deviation", "replacement": "birthday_cluster_ratio, consecutive_pattern_count" }`. **Purpose**: Explicitly documents the rejection of the invalid metric per FR-002/Plan resolution.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -68,22 +72,19 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Draw Uniformity Analysis (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest historical draw data and calculate `draw_uniformity_deviation` (per-draw and rolling) to quantify birthday clustering and consecutive patterns.
+**Goal**: Ingest historical draw data and calculate valid `birthday_cluster_ratio` and `consecutive_pattern_count` metrics to quantify birthday clustering and consecutive patterns, replacing the scientifically invalid per-draw Chi-Square.
 
-**Independent Test**: Can be fully tested by running the ingestion script against a static, known CSV dataset and verifying the calculated `draw_uniformity_deviation` matches a manually computed reference value for that specific draw.
+**Independent Test**: Can be fully tested by running the ingestion script against a static, known CSV dataset and verifying the calculated `birthday_cluster_ratio` and `consecutive_pattern_count` match manually computed reference values.
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `code/metrics.py` function `calculate_birthday_ratio(draw_numbers)` returning float (0.0 to 1.0)
-- [ ] T010 [US1] Implement `code/metrics.py` function `calculate_consecutive_ratio(draw_numbers)` returning float (0.0 to 1.0)
-- [ ] T011 [US1] Implement `code/metrics.py` function `calculate_multiples_ratio(draw_numbers)` returning float (0.0 to 1.0)
-- [ ] T011a [US1] Implement `code/metrics.py` function `calculate_per_draw_chi_square(draw_numbers)`. **Requirement**: Calculate Chi-Square statistic for the single draw (n=6) against uniform distribution. **Note**: Mark this metric as `legacy` in schema and output due to statistical degeneracy (n=6), but implement to satisfy FR-002 literal text. Output key: `draw_uniformity_deviation_legacy`.
-- [ ] T011b [US1] Implement `code/metrics.py` function `calculate_rolling_uniformity_deviation(dataframe, window_size=50)`. **Formula**: 1. Aggregate frequency counts for the 50 draws in the window (total N=300 balls). 2. Calculate Chi-Square goodness-of-fit against a uniform distribution of 300 balls. 3. Assign the resulting statistic to the timestamp of the LAST draw in the window. Output key: `draw_uniformity_deviation_rolling`.
-- [ ] T012 [US1] Implement `code/processing.py` to join raw draws with metrics. **Output 1**: `data/processed/per_draw_metrics.json` (contains `draw_uniformity_deviation_legacy` from T011a). **Output 2**: `data/processed/rolling_window_metrics.json` (contains `draw_uniformity_deviation_rolling` from T011b). Flag `is_majority_birthday` if `birthday_cluster_ratio > 0.5` (using entity name `birthday_cluster_ratio` from spec).
-- [ ] T013 [US1] Handle missing `total_sales` by logging a warning and excluding from sales-dependent checks while retaining in frequency analysis (Spec Edge Case); ensure `draw_uniformity_deviation` is calculated regardless of sales data presence
-- [ ] T014 [US1] Save processed metrics to `data/processed/draw_metrics.json` with schema validation (consolidating legacy and primary metrics)
-- [ ] T015 [US1] Unit test `test_metrics.py` for `calculate_birthday_ratio` with known inputs (e.g., [1,2,3,4,5,6] -> 1.0, [32,33,34,35,36,37] -> 0.0)
-- [ ] T016 [US1] Unit test `test_metrics.py` for `calculate_rolling_uniformity_deviation` ensuring stability on constant data
+- [~] T009 [US1] Implement `code/metrics.py` function `calculate_birthday_ratio(draw_numbers)` returning float (0.0 to 1.0)
+- [~] T010 [US1] Implement `code/metrics.py` function `calculate_consecutive_ratio(draw_numbers)` returning float (0.0 to 1.0)
+- [~] T011 [US1] Implement `code/metrics.py` functions `calculate_birthday_ratio` and `calculate_consecutive_ratio` to produce the primary metrics `birthday_cluster_ratio` and `consecutive_pattern_count`. **Output**: Save to `data/processed/metrics.json` with keys `birthday_cluster_ratio` and `consecutive_pattern_count`. Flag `is_majority_birthday` if `birthday_cluster_ratio > 0.5`.
+- [~] T012 [US1] Handle missing `total_sales` by logging a warning and excluding from sales-dependent checks while retaining in frequency analysis (Spec Edge Case); ensure metrics are calculated regardless of sales data presence
+- [~] T013 [US1] Save processed metrics to `data/processed/metrics.json` with schema validation
+- [~] T014 [US1] Unit test `test_metrics.py` for `calculate_birthday_ratio` with known inputs (e.g., [1,2,3,4,5,6] -> 1.0, [32,33,34,35,36,37] -> 0.0)
+- [~] T015 [US1] Unit test `test_metrics.py` for `calculate_consecutive_ratio` with known inputs
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -91,18 +92,18 @@
 
 ## Phase 4: User Story 2 - Jackpot Correlation and Anomaly Detection (Priority: P2)
 
-**Goal**: Compute correlation between jackpot magnitude and uniformity deviation, acknowledging data limitations regarding Quick Pick rates.
+**Goal**: Compute correlation between jackpot magnitude and valid uniformity metrics (`birthday_cluster_ratio`, `consecutive_pattern_count`), acknowledging data limitations regarding Quick Pick rates.
 
 **Independent Test**: Can be tested by providing a pre-processed dataset with known correlations and verifying the system outputs the correct correlation coefficient and p-value within an acceptable tolerance.
 
 ### Implementation for User Story 2
 
-- [ ] T017a [US2] Implement `code/analysis.py` function `compute_correlation_continuous(dataframe, method='spearman')` using `data/processed/per_draw_metrics.json` (from T011a). **Requirement**: Compute correlation between `jackpot_amount` (continuous) and `draw_uniformity_deviation_legacy`. Return coefficient, p-value, and `control_variable_note` (FR-004). **Primary Output**: `data/results/correlation_result.json`.
-- [ ] T018 [US2] Implement logic to flag tiers with < 5 draws as "Insufficient Data" and exclude from regression (Spec Edge Case). **Output Format**: Add a top-level key `warnings` in `data/results/correlation_result.json` containing an array of objects with keys `type` (string: "insufficient_data") and `reason` (string).
-- [ ] T019 [US2] Implement outlier handling: run analysis with and without extreme jackpots (> 10x global mean of `jackpot_amount`) and report delta. **Output Format**: Add a top-level key `outlier_sensitivity_delta` (float) to `data/results/correlation_result.json`, representing the absolute difference in correlation coefficient between the full dataset and the dataset with jackpots > 10x mean removed.
-- [ ] T018b [US2] **Optional Exploratory**: Implement binning by "Small/Medium/Large" tiers. **Constraint**: Do NOT include in `final_report.json`. Save results to `data/results/exploratory_binned_analysis.json` only.
-- [ ] T020 [US2] Unit test `test_analysis.py` for correlation computation against a small synthetic dataset with known r-value
-- [ ] T021 [US2] Integration test `test_pipeline.py` to verify end-to-end flow from raw CSV to correlation JSON output
+- [~] T016a [US2] Implement `code/analysis.py` function `compute_correlation_continuous(dataframe, method='spearman')` using `data/processed/metrics.json` (from T011). **Requirement**: Compute correlation between `jackpot_amount` and `birthday_cluster_ratio` (primary) and `consecutive_pattern_count` (secondary). Return coefficient, p-value, and `control_variable_note` (FR-004). **Primary Output**: `data/results/correlation_result.json`.
+- [~] T017 [US2] Implement logic to flag tiers with < 5 draws as "Insufficient Data" and exclude from regression (Spec Edge Case). **Output Format**: Add a top-level key `warnings` in `data/results/correlation_result.json` containing an array of objects with keys `type` (string: "insufficient_data") and `reason` (string).
+- [~] T018 [US2] Implement outlier handling: run analysis with and without extreme jackpots (> 10x global mean of `jackpot_amount`) and report delta. **Output Format**: Add a top-level key `outlier_sensitivity_delta` (float) to `data/results/correlation_result.json`, representing the absolute difference in correlation coefficient between the full dataset and the dataset with jackpots > 10x mean removed.
+- [~] T018b [US2] Implement binning by "Small/Medium/Large" tiers. **Requirement**: This is a required deliverable per Spec US-2 Acceptance Scenario 1. **Output**: Save results to `data/results/correlation_result.json` under a nested key `tier_analysis`. **Note**: T026 will aggregate this into `final_report.json`.
+- [ ] T019 [US2] Unit test `test_analysis.py` for correlation computation against a small synthetic dataset with known r-value
+- [ ] T020 [US2] Integration test `test_pipeline.py` to verify end-to-end flow from raw CSV to correlation JSON output
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -116,11 +117,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T022 [US3] Implement `code/validation.py` function `bootstrap_correlation(data, iterations=1000)` generating 95% CI
-- [ ] T023 [US3] Implement `code/validation.py` function `sweep_birthday_thresholds(data, thresholds)` to evaluate performance across a range of threshold values.
-- [ ] T024 [US3] Implement Bonferroni correction logic in `code/validation.py` for 'birthday, consecutive, multiples' patterns (FR-007). **Input**: Collect p-values from the three specific tests (birthday, consecutive, multiples) generated by T010, T011, and T011a logic. **Output**: Adjusted p-values and corrected alpha.
-- [ ] T025 [US3] Implement `code/validation.py` function `analyze_time_binned_aggregates(dataframe)` to satisfy Plan's 'time-binned' requirement as a secondary validation
-- [ ] T026 [US3] Implement `code/main.py` orchestration to run all analysis steps and aggregate results into `data/results/final_report.json`
+- [ ] T021 [US3] Implement `code/validation.py` function `bootstrap_correlation(data, iterations=1000)` generating 95% CI
+- [ ] T022 [US3] Implement `code/validation.py` function `sweep_birthday_thresholds(data, thresholds)` to evaluate performance across a range of threshold values.
+- [ ] T022b [US3] Implement `code/validation.py` function `verify_ci_precision(ci_width, effect_size)` to measure SC-004. **Logic**: Calculate CI width and compare to effect size. If width > 0.2 * |effect_size|, log a warning "CI width exceeds precision threshold" and record the width in the output. **Do NOT raise an error**. **Output**: Include precision status in `data/results/validation_report.json`.
+- [ ] T023 [US3] Implement `code/validation.py` function `perform_hypothesis_tests(dataframe)` to generate p-values for 'birthday' and 'consecutive' tests. **Output**: Save to `data/results/hypothesis_tests.json`.
+- [ ] T024 [US3] Implement Bonferroni correction logic in `code/validation.py` for 'birthday' and 'consecutive' patterns (FR-007). **Input**: Collect p-values from `data/results/hypothesis_tests.json` (produced by T023). **Output**: Adjusted p-values and corrected alpha.
+- [ ] T025b [US3] Implement `code/validation.py` function `check_sales_data_availability(dataframe)` to explicitly check for `total_sales` data. **Logic**: If `total_sales` is missing for > 20% of draws, log a warning "Sales data insufficient for sales sensitivity analysis". **Output**: Generate a note in `data/results/validation_report.json` stating "Sales sensitivity analysis not performed due to data unavailability" if the check fails, or the results if it passes. This task explicitly handles the sales data variable without claiming to control for Quick Pick rates.
+- [ ] T026 [US3] Implement `code/main.py` orchestration to run all analysis steps (including T022b and T025b) and aggregate results into `data/results/final_report.json`. **Dependency**: Must run after T022b and T025b. **Validation**: Must validate output against `data/schemas/final_report.schema.json` (created in T011a) and include the `control_variable_note` with exact text "Quick Pick rate unobservable; no control applied". **Aggregation**: Must read `tier_analysis` from `data/results/correlation_result.json` (produced by T018b) and include it in the final report.
 - [ ] T027 [US3] Unit test `test_validation.py` for bootstrap CI generation (verify width and centering)
 - [ ] T028 [US3] Unit test `test_validation.py` for sensitivity analysis output structure
 
@@ -133,13 +136,15 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T029 [P] Generate `quickstart.md` with instructions to run the Pre-CI data fetch and the main analysis pipeline
-- [ ] T030 Code cleanup and refactoring to ensure memory usage stays under 7GB; implement `memory_profiler` checks and chunk data if > 500MB. **Deliverable**: A script `tests/test_memory_limit.py` that runs the full pipeline and asserts max RSS < 7GB.
+- [ ] T030 [P] Add `memory_profiler` decorator to `code/main.py` to track memory usage during execution.
+- [ ] T030b [P] Create `tests/test_memory_limit.py` that runs the full pipeline and asserts max RSS < 7GB. **Deliverable**: A script `tests/test_memory_limit.py` that asserts max RSS < 7GB.
+- [ ] T030c [P] Refactor `code/ingestion.py` and `code/metrics.py` to ensure memory usage stays under a predefined threshold. **Specific Targets**: 1. Replace `pandas.read_csv` with `chunked` reading where applicable. 2. Convert `list` to `generator` in `metrics.py` for large dataset iteration. 3. Ensure no full-dataset copies are made in memory simultaneously.
 - [ ] T031 [P] Add unit tests for edge cases: Zero variance jackpot tier, missing sales data, extreme outliers
 - [ ] T032 Run `pytest` with coverage and ensure complete branch coverage on core logic
-- [ ] T033a [P] Create `data/schemas/final_report.schema.json` defining the exact structure of `final_report.json` (including `correlation_coefficient`, `p_value`, `confidence_interval`, `bonferroni_adjusted_p`, `sensitivity_table`, `is_significant`, `outlier_sensitivity_delta`, `warnings`).
-- [ ] T033 [P] Verify `data/results/final_report.json` contains all required fields and validate against `data/schemas/final_report.schema.json` (created in T033a). **Action**: Assert `p_value < 0.05` implies `is_significant` is true.
-- [ ] T034 Generate a 'Metric Stability Note' in `final_report.json` flagging if the per-draw `draw_uniformity_deviation` (T011a) shows high variance due to n=6 degeneracy
-- [ ] T035 Generate a 'Constitution Compliance Note' in `final_report.json` explicitly stating that Quick Pick control was omitted due to data unavailability (FR-003), as per Plan's proposed amendment, and flagging the governance gap for review
+- [ ] T033 [P] Implement logic in `code/validation.py` to set `is_significant` to `true` if `p_value < 0.05 (Wikipedia: Replication crisis, https://en.wikipedia.org/wiki/Replication_crisis)`, and `false` otherwise.
+- [ ] T033b [P] Unit test `test_validation.py` to verify `is_significant` logic works correctly for various `p_value` inputs.
+- [ ] T033c [P] Validate `data/results/final_report.json` against `data/schemas/final_report.schema.json` (created in T011a). **Action**: Assert `control_variable_note` contains the exact text "Quick Pick rate unobservable; no control applied" as per FR-004.
+- [ ] T034 [P] Generate a 'Constitution Compliance Note' in `final_report.json` explicitly stating that Quick Pick control was omitted due to data unavailability (FR-003), and that sales data sensitivity analysis was checked (T025b), as per Constitution Principle VI. **Note**: This note is aggregated by T026; T034 ensures the logic to generate this note exists in `main.py`.
 
 ---
 
@@ -150,13 +155,13 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. **Must complete first** as it produces the `draw_uniformity_deviation` metric required by US2 and US3.
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. **Must complete first** as it produces the `birthday_cluster_ratio` and `consecutive_pattern_count` metrics required by US2 and US3.
 - **User Story 2 (P2)**: Depends on US1 output (processed metrics).
 - **User Story 3 (P3)**: Depends on US2 output (correlation results) to perform bootstrapping and sensitivity analysis.
 
@@ -180,11 +185,11 @@
 ```bash
 # Launch all unit tests for User Story 1 together:
 Task: "Unit test test_metrics.py for calculate_birthday_ratio"
-Task: "Unit test test_metrics.py for calculate_rolling_uniformity_deviation"
+Task: "Unit test test_metrics.py for calculate_consecutive_ratio"
 
 # Launch metric implementation in parallel:
 Task: "Implement calculate_birthday_ratio"
-Task: "Implement calculate_per_draw_chi_square"
+Task: "Implement calculate_consecutive_ratio"
 ```
 
 ---
@@ -196,7 +201,7 @@ Task: "Implement calculate_per_draw_chi_square"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1 (Ingestion + Metrics)
-4. **STOP and VALIDATE**: Verify `draw_uniformity_deviation` calculation against a manual reference.
+4. **STOP and VALIDATE**: Verify `birthday_cluster_ratio` calculation against a manual reference.
 5. Deploy/demo if ready.
 
 ### Incremental Delivery
@@ -218,6 +223,9 @@ Task: "Implement calculate_per_draw_chi_square"
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - **Data Integrity**: Ensure all data sources are real and verified. No synthetic data generation for input.
-- **Compute Safety**: Ensure rolling window calculations and bootstrapping are optimized to run within 6 hours on 2 CPU cores.
-- **Constitution Compliance**: Explicitly handle the missing Quick Pick data as per the Plan's amendment (flag, do not fabricate) and generate the required compliance note (T035).
-- **Metric Validity**: Acknowledge the scientific critique of per-draw Chi-Square (T011a) by flagging its instability in the final report (T034), while still implementing the Spec requirement. **Primary Analysis** must use the per-draw metric (T011a) for correlation (T017a) to satisfy FR-002, with rolling window (T011b) as robustness check.
+- **Compute Safety**: Ensure metric calculations and bootstrapping are optimized to run within 6 hours on 2 CPU cores. [UNRESOLVED-CLAIM: c_00c600bd — status=not_enough_info]
+- **Constitution Compliance**: Explicitly handle the missing Quick Pick data as per the Plan's amendment (flag, do not fabricate) and perform sales data availability checks (T025b) to comply with Constitution Principle VI.
+- **Metric Validity**: Implemented `birthday_cluster_ratio` and `consecutive_pattern_count` as the primary valid metrics for FR-002, replacing the scientifically invalid per-draw Chi-Square.
+- **Schema Compliance**: Ensure `final_report.json` includes `control_variable_note` with the exact text mandated by FR-004.
+- **Dependency Fix**: T011a (Schema) and T011b (Legacy Flag) are now in Phase 2 to ensure they exist before T026 (Orchestration) runs. T026 explicitly depends on T011a.
+- **Config Management**: T008a generates `config/data_sources.json` which T008 reads for the URL, ensuring the task is executable based on verified research.

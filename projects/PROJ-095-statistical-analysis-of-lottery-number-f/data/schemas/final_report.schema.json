@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Final Report Schema",
+  "description": "Schema for the final lottery draw integrity analysis report.",
+  "type": "object",
+  "required": [
+    "correlation_coefficient",
+    "p_value",
+    "confidence_interval",
+    "bonferroni_adjusted_p",
+    "sensitivity_table",
+    "is_significant",
+    "outlier_sensitivity_delta",
+    "warnings",
+    "control_variable_note"
+  ],
+  "properties": {
+    "correlation_coefficient": {
+      "type": "number",
+      "description": "Spearman correlation coefficient between jackpot amount and uniformity metrics."
+    },
+    "p_value": {
+      "type": "number",
+      "description": "Raw p-value for the correlation test."
+    },
+    "confidence_interval": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "95% Confidence interval [lower_bound, upper_bound] for the correlation coefficient."
+    },
+    "bonferroni_adjusted_p": {
+      "type": "number",
+      "description": "P-value adjusted using Bonferroni correction for multiple hypothesis testing."
+    },
+    "sensitivity_table": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "threshold": {
+            "type": "number",
+            "description": "The threshold value used for sensitivity analysis."
+          },
+          "metric_value": {
+            "type": "number",
+            "description": "The resulting metric value at this threshold."
+          }
+        },
+        "required": ["threshold", "metric_value"]
+      },
+      "description": "Table of sensitivity analysis results across different threshold values."
+    },
+    "is_significant": {
+      "type": "boolean",
+      "description": "True if the adjusted p-value is less than 0.05, indicating statistical significance."
+    },
+    "outlier_sensitivity_delta": {
+      "type": "number",
+      "description": "Absolute difference in correlation coefficient when extreme outliers (>10x mean jackpot) are removed."
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["insufficient_data", "missing_sales", "ci_precision", "other"],
+            "description": "Category of the warning."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Detailed explanation of the warning."
+          }
+        },
+        "required": ["type", "reason"]
+      },
+      "description": "List of warnings generated during analysis (e.g., insufficient data in tiers)."
+    },
+    "control_variable_note": {
+      "type": "string",
+      "description": "Mandatory note regarding the inability to control for Quick Pick rates.",
+      "const": "Quick Pick rate unobservable; no control applied"
+    },
+    "tier_analysis": {
+      "type": "object",
+      "description": "Optional: Results broken down by jackpot tiers (Small/Medium/Large).",
+      "properties": {
+        "small": {
+          "type": "object",
+          "properties": {
+            "count": {"type": "integer"},
+            "correlation": {"type": "number"},
+            "p_value": {"type": "number"}
+          }
+        },
+        "medium": {
+          "type": "object",
+          "properties": {
+            "count": {"type": "integer"},
+            "correlation": {"type": "number"},
+            "p_value": {"type": "number"}
+          }
+        },
+        "large": {
+          "type": "object",
+          "properties": {
+            "count": {"type": "integer"},
+            "correlation": {"type": "number"},
+            "p_value": {"type": "number"}
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,216 @@
+- artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/tasks.md
+  attempts: 1
+  canonical: calculate_birthday_ratio returns float between 0.0 and 1.0
+  claim_id: c_b98c3006
+  context: 'Phase 3: User Story 1 - Data Ingestion and Draw Uniformity Analysis. Implementation
+    for User Story 1 - T009 [US1] Implement code/metrics.py function calculate_birthday_ratio(draw_numbers)
+    returning float (0.0 to 1.0)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/metrics.py function calculate_birthday_ratio(draw_numbers)
+    returning float (0.0 to 1.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:32:33Z'
+- artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/tasks.md
+  attempts: 1
+  canonical: calculate_consecutive_ratio returns float between 0.0 and 1.0
+  claim_id: c_813ed1ca
+  context: 'Phase 3: User Story 1 - Data Ingestion and Draw Uniformity Analysis. Implementation
+    for User Story 1 - T010 [US1] Implement code/metrics.py function calculate_consecutive_ratio(draw_numbers)
+    returning float (0.0 to 1.0)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/metrics.py function calculate_consecutive_ratio(draw_numbers)
+    returning float (0.0 to 1.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:33:38Z'
+- artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/tasks.md
+  attempts: 1
+  canonical: calculate_birthday_ratio returns 1.0 for input [1,2,3,4,5,6] and 0.0
+    for [32,33,34,35,36,37]
+  claim_id: c_076ecad5
+  context: 'Phase 3: User Story 1 - Data Ingestion and Draw Uniformity Analysis. Implementation
+    for User Story 1 - T014 [US1] Unit test test_metrics.py for calculate_birthday_ratio
+    with known inputs (e.g., [1,2,3,4,5,6] -> 1.0, [32,33,34,35,36,37] -> 0.0)'
+  evidence:
+    asserted: '1.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Unit test test_metrics.py for calculate_birthday_ratio with known inputs
+    (e.g., [1,2,3,4,5,6] -> 1.0, [32,33,34,35,36,37] -> 0.0)
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T03:33:38Z'
+- artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/tasks.md
+  attempts: 1
+  canonical: outlier handling compares analysis with jackpots > 10x global mean removed
+  claim_id: c_fd1a95c6
+  context: 'Phase 4: User Story 2 - Jackpot Correlation and Anomaly Detection. Implementation
+    for User Story 2 - T018 [US2] Implement outlier handling: run analysis with and
+    without extreme jackpots (> 10x global mean of jackpot_amount) and report delta.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/outlier_handling_compares_analysis_with_jackpots_%3E_10x_globa
+  kind: entity_fact
+  raw_text: 'Implement outlier handling: run analysis with and without extreme jackpots
+    (> 10x global mean of jackpot_amount) and report delta.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:34:41Z'
+- artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/tasks.md
+  attempts: 1
+  canonical: bootstrap_correlation uses 1000 iterations to generate 95% CI
+  claim_id: c_781ec0f5
+  context: 'Phase 5: User Story 3 - Robustness Validation and Sensitivity Analysis.
+    Implementation for User Story 3 - T021 [US3] Implement code/validation.py function
+    bootstrap_correlation(data, iterations=1000) generating 95% CI'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/validation.py function bootstrap_correlation(data, iterations=1000)
+    generating 95% CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:35:07Z'
+- artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/tasks.md
+  attempts: 1
+  canonical: CI width warning triggers if width exceeds 0.2 times absolute effect
+    size
+  claim_id: c_afde5679
+  context: 'Phase 5: User Story 3 - Robustness Validation and Sensitivity Analysis.
+    Implementation for User Story 3 - T022b [US3] ... Logic: Calculate CI width and
+    compare to effect size. If width > 0.2 * |effect_size|, log a warning...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If CI width > 0.2 * |effect_size|, log a warning 'CI width exceeds precision
+    threshold'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:35:07Z'
+- artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/tasks.md
+  attempts: 1
+  canonical: Sales data warning triggers if total_sales missing for more than 20%
+    of draws
+  claim_id: c_60509cf8
+  context: 'Phase 5: User Story 3 - Robustness Validation and Sensitivity Analysis.
+    Implementation for User Story 3 - T025b [US3] ... Logic: If total_sales is missing
+    for > 20% of draws, log a warning...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sales_data_warning_triggers_if_total_sales_missing_for_more
+  kind: magnitude
+  raw_text: If total_sales is missing for > 20% of draws, log a warning 'Sales data
+    insufficient for sales sensitivity analysis'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:35:53Z'
+- artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/tasks.md
+  attempts: 1
+  canonical: is_significant is true if p_value is less than 0.05
+  claim_id: c_27d46f1a
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T033 [P] Implement logic in
+    code/validation.py to set is_significant to true if p_value < 0.05, and false
+    otherwise.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: A hypothesis is generally considered supported when the results match
+        the predicted pattern and that pattern is found to be statistically significant.
+        Under null hypothesis assumption, results are deemed statistically significant
+        when their probability falls below a predetermined threshold (the significance
+        level). This generally answers the question of how unlikely such results would
+        be by chance alone if no true effect existed in the statistical population.
+        If the probability associated with the test statistic exceeds the chosen critical
+        value, the results are considered statistically significant. The p-value represents
+        the probability of obtaining results at least as extreme as observed, assuming
+        the null hypothesis is true. The standard threshold p < 0.05 means accepting
+        a 5% false positive rate. Some fields use smaller p-values, such as p < 0.01
+        (1% chance of a false positive) or p < 0.001 (0.1% chance of a false positive).
+        But a smaller chance of a false positive often requires greater sample sizes
+        or a greater chance of a false negative (a correct hypothesis being erroneously
+        found incorrect). Although p-value testing is the most commonly used method,
+        it is not the only one.
+      source_id: Replication crisis
+      url: https://en.wikipedia.org/wiki/Replication_crisis
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: Implement logic in code/validation.py to set is_significant to true if
+    p_value < 0.05, and false otherwise.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T03:36:25Z'
+- artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/tasks.md
+  attempts: 1
+  canonical: max RSS asserted to be less than 7GB
+  claim_id: c_1dc782bd
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T030b [P] Create tests/test_memory_limit.py
+    that runs the full pipeline and asserts max RSS < 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Max_RSS_asserted_to_be_less_than_7GB
+  kind: magnitude
+  raw_text: Create tests/test_memory_limit.py that runs the full pipeline and asserts
+    max RSS < 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:37:13Z'
+- artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/tasks.md
+  attempts: 1
+  canonical: metric calculations and bootstrapping optimized to run within 6 hours
+    on 2 CPU cores
+  claim_id: c_00c600bd
+  context: 'Notes section - Compute Safety: Ensure metric calculations and bootstrapping
+    are optimized to run within 6 hours on 2 CPU cores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure metric calculations and bootstrapping are optimized to run within
+    6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T03:37:50Z'

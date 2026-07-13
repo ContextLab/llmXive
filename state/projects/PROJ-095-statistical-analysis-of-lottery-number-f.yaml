@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T15:28:27.462464Z'
-current_stage: clarified
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-095-statistical-analysis-of-lottery-number-f
-last_run_id: 3f4f76a2-f7b2-4646-ac5f-1ee075eba749
+last_run_id: 24bd9eeb-0baa-4242-9634-21dd9fc847ed
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f
 title: Statistical Analysis of Lottery Number Frequency and Player Behavior
-updated_at: '2026-07-12T15:37:37.710059Z'
+updated_at: '2026-07-13T03:27:37.465128Z'

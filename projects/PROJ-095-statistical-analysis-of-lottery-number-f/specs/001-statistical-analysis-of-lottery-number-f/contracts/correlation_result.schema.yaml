@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationResult"
+description: "Schema for statistical correlation results and robustness checks."
+type: "object"
+properties:
+  correlation_coefficient:
+    type: "number"
+    description: "Spearman or Pearson correlation coefficient."
+  p_value:
+    type: "number"
+    description: "Raw p-value of the correlation test."
+  confidence_interval_lower:
+    type: "number"
+    description: "Lower bound of 95% CI from bootstrapping."
+  confidence_interval_upper:
+    type: "number"
+    description: "Upper bound of 95% CI from bootstrapping."
+  n_samples:
+    type: "integer"
+    description: "Number of samples used in the calculation."
+  control_variable_note:
+    type: "string"
+    description: "Note on uncontrolled confounders (e.g., Quick Pick)."
+  bonferroni_adjusted_p:
+    type: "number"
+    description: "P-value after Bonferroni correction."
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+          description: "Birthday clustering threshold used (e.g., 0.50)."
+        coefficient:
+          type: "number"
+          description: "Correlation coefficient at this threshold."
+      required:
+        - threshold
+        - coefficient
+    description: "Results of the sensitivity sweep."
+required:
+  - correlation_coefficient
+  - p_value
+  - confidence_interval_lower
+  - confidence_interval_upper
+  - n_samples
+  - control_variable_note
+  - bonferroni_adjusted_p
+  - sensitivity_analysis
+additionalProperties: false

@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DrawRecord"
+description: "Schema for a single lottery draw record with calculated bias metrics."
+type: "object"
+properties:
+  draw_date:
+    type: "string"
+    format: "date"
+    description: "Date of the lottery draw."
+  winning_numbers:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Sorted list of winning numbers."
+  jackpot_amount:
+    type: "number"
+    description: "Jackpot amount in USD."
+  total_sales:
+    type: "number"
+    description: "Total sales volume for the draw. May be null."
+    nullable: true
+  birthday_cluster_ratio:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Fraction of winning numbers in the range 1-31."
+  consecutive_pattern_count:
+    type: "integer"
+    description: "Count of consecutive number pairs in the draw."
+  is_majority_birthday:
+    type: "boolean"
+    description: "True if birthday_cluster_ratio > 0.5."
+  quick_pick_rate:
+    type: "number"
+    description: "Quick Pick rate. Always null per FR-003."
+    nullable: true
+required:
+  - draw_date
+  - winning_numbers
+  - jackpot_amount
+  - birthday_cluster_ratio
+  - consecutive_pattern_count
+  - is_majority_birthday
+additionalProperties: false

@@ -1,0 +1,11 @@
+? 'T001a [P] Create project directories: `mkdir -p data/raw data/processed data/results
+  code tests/unit tests/integration config`'
+: 2
+? 'T001b [P] Initialize `__init__.py` files: `touch code/__init__.py tests/__init__.py
+  tests/unit/__init__.py tests/integration/__init__.py`'
+: 2
+? T002 Initialize a Python project with pinned dependencies using a compatible major
+  version. (`pandas`, `numpy`, `scipy`, `requests`, `pyyaml`, `memory_profiler`, `pytest`)
+  in `requirements.txt`
+: 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
