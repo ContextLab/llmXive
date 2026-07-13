@@ -1,0 +1,28 @@
+{
+  "model_id": "JaCoText/JaCoText-1B",
+  "timestamp": "2023-10-27T10:00:00Z",
+  "checks": {
+    "size_check": {
+      "passed": false,
+      "value_mb": 1025.5,
+      "limit_mb": 1024,
+      "reason": "Model size exceeds 1GB limit"
+    },
+    "load_check": {
+      "passed": true
+    },
+    "inference_check": {
+      "passed": true,
+      "time_sec": 12.4
+    }
+  },
+  "metrics": {
+    "inference_time_sec": 12.4,
+    "tokens_generated": 45,
+    "success": true
+  },
+  "status": "failed_size",
+  "notes": [
+    "Model size 1025.50MB exceeds limit."
+  ]
+}

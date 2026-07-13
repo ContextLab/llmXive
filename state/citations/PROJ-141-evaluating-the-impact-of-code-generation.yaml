@@ -134,3 +134,14 @@
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2202.13169
   verified_at: '2026-07-11T01:05:54.829232Z'
+- artifact_hash: de200e7208d4209e80ddae3569b985450d29d45397092b10fcfea49c2d98c636
+  artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Implementation Science - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q6007191
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q6007191
+  verified_at: '2026-07-13T15:05:46.314255Z'

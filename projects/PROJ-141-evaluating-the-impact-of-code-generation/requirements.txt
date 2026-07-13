@@ -1,13 +1,17 @@
-# Existing dependencies
-Flask
-radon
-coverage
-pylint
-scipy
-statsmodels
-torch
-datasets
-cryptography
+# Core dependencies
+Flask==3.0.0
+radon==6.0.1
+coverage==7.3.2
+pylint==3.0.2
+scipy==1.11.4
+statsmodels==0.14.0
+torch==2.1.1
+datasets==2.14.6
 
-# Additional dependencies for submission handler
-# (No new dependencies required - uses standard library)
+# Additional dependencies
+cryptography==41.0.7
+pyyaml==6.0.1
+black==23.11.0
+flake8==6.1.0
+pytest==7.4.3
+requests==2.31.0

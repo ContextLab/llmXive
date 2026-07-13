@@ -3,7 +3,7 @@ Pre-commit hook to update the project state file timestamp.
 
 This script is designed to be called by a git pre-commit hook.
 It scans the git staged files for changes in the `data/`, `code/`, `tests/`, 
-`models/`, `logs/`, or `figures/` directories. If any changes are detected,
+`models/`, `logs/`, `figures/`, or `specs/` directories. If any changes are detected,
 it updates the `updated_at` field in the project state YAML file.
 
 Constitution V Compliance: Ensures the state file reflects the current 

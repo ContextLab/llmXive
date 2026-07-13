@@ -1,61 +1,97 @@
 """
-Unit tests for JaCoText CPU verification logic.
+Unit tests for JaCoText CPU verification module.
 """
-import unittest
+import pytest
 import json
 import os
-from unittest.mock import patch, MagicMock
+import sys
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Adjust path to import the module
-sys_path = Path(__file__).resolve().parent.parent.parent
-if str(sys_path) not in __import__('sys').path:
-    __import__('sys').path.insert(0, str(sys_path))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from models.jacotext_cpu import get_model_size_mb, verify_cpu_tractability
 
-class TestJaCoTextVerification(unittest.TestCase):
+class TestModelSize:
+    def test_get_model_size_mb_file(self, tmp_path):
+        """Test size calculation for a single file."""
+        file_path = tmp_path / "model.bin"
+        file_path.write_bytes(b"0" * 1024)  # 1KB
+        
+        size_mb = get_model_size_mb(str(file_path))
+        assert size_mb == 1024 / (1024 * 1024)
+    
+    def test_get_model_size_mb_dir(self, tmp_path):
+        """Test size calculation for a directory."""
+        file1 = tmp_path / "file1.bin"
+        file1.write_bytes(b"0" * 1024)
+        file2 = tmp_path / "file2.bin"
+        file2.write_bytes(b"0" * 2048)
+        
+        size_mb = get_model_size_mb(str(tmp_path))
+        assert size_mb == (1024 + 2048) / (1024 * 1024)
+    
+    def test_get_model_size_mb_not_found(self):
+        """Test error handling for missing path."""
+        with pytest.raises(FileNotFoundError):
+            get_model_size_mb("/nonexistent/path")
 
+class TestVerification:
+    @patch('models.jacotext_cpu.load_model')
+    @patch('models.jacotext_cpu.run_inference')
     @patch('models.jacotext_cpu.HfApi')
-    def test_get_model_size_mb_success(self, mock_hf_api):
-        """Test successful size retrieval"""
+    def test_verify_success(self, mock_api, mock_inference, mock_load):
+        """Test successful verification."""
+        # Mock HF API
         mock_info = MagicMock()
-        mock_info.siblings = [MagicMock(size=1000000), MagicMock(size=2000000)]
-        mock_hf_api.return_value.model_info.return_value = mock_info
-
-        size = get_model_size_mb("test/model")
+        mock_info.siblings = [MagicMock(size=500 * 1024 * 1024)] # 500MB
+        mock_api.return_value.model_info.return_value = mock_info
         
-        self.assertAlmostEqual(size, 2.86, places=2)
+        # Mock load
+        mock_load.return_value = (MagicMock(), MagicMock())
+        
+        # Mock inference
+        mock_inference.return_value = {
+            "success": True,
+            "time_seconds": 10.0,
+            "tokens_generated": 10
+        }
+        
+        result = verify_cpu_tractability("fake-model")
+        
+        assert result["status"] == "passed"
+        assert result["checks"]["size_check"]["passed"] is True
+        assert result["checks"]["inference_check"]["passed"] is True
 
+    @patch('models.jacotext_cpu.load_model')
     @patch('models.jacotext_cpu.HfApi')
-    def test_get_model_size_mb_error(self, mock_hf_api):
-        """Test error handling in size retrieval"""
-        mock_hf_api.return_value.model_info.side_effect = Exception("Network error")
+    def test_verify_size_exceeded(self, mock_api, mock_load):
+        """Test failure when model size > 1GB."""
+        # Mock HF API with large model
+        mock_info = MagicMock()
+        mock_info.siblings = [MagicMock(size=2 * 1024 * 1024 * 1024)] # 2GB
+        mock_api.return_value.model_info.return_value = mock_info
         
-        size = get_model_size_mb("test/model")
-        self.assertIsNone(size)
-
-    def test_verify_cpu_tractability_mocked(self):
-        """Test the verification flow with mocked transformers"""
-        # We cannot easily mock the full model loading without heavy mocking.
-        # Instead, we verify the logic path for size > 1GB
-        with patch('models.jacotext_cpu.get_model_size_mb', return_value=2000.0):
-            result = verify_cpu_tractability("fake/model")
-            self.assertEqual(result["status"], "failed_size_limit")
-            self.assertIn("exceeds 1GB", result["error"])
-
-    def test_verify_cpu_tractability_success_mocked(self):
-        """Test success path with mocked model loading"""
-        mock_tokenizer = MagicMock()
-        mock_model = MagicMock()
-        mock_model.parameters.return_value = [MagicMock(numel=100)] # Fake params
+        result = verify_cpu_tractability("fake-model")
         
-        with patch('models.jacotext_cpu.AutoTokenizer.from_pretrained', return_value=mock_tokenizer):
-            with patch('models.jacotext_cpu.AutoModelForCausalLM.from_pretrained', return_value=mock_model):
-                with patch('models.jacotext_cpu.get_model_size_mb', return_value=500.0):
-                    result = verify_cpu_tractability("fake/model")
-                    self.assertEqual(result["status"], "success")
-                    self.assertIsNotNone(result["inference_time_sec"])
+        assert result["status"] == "failed_size"
+        assert result["checks"]["size_check"]["passed"] is False
 
-if __name__ == '__main__':
-    unittest.main()
+    @patch('models.jacotext_cpu.load_model')
+    @patch('models.jacotext_cpu.HfApi')
+    def test_verify_load_failure(self, mock_api, mock_load):
+        """Test failure when model load fails."""
+        # Mock HF API
+        mock_info = MagicMock()
+        mock_info.siblings = [MagicMock(size=500 * 1024 * 1024)]
+        mock_api.return_value.model_info.return_value = mock_info
+        
+        # Mock load failure
+        mock_load.side_effect = RuntimeError("Load error")
+        
+        result = verify_cpu_tractability("fake-model")
+        
+        assert result["status"] == "failed_load"
+        assert result["checks"]["load_check"]["passed"] is False
