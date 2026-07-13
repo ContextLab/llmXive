@@ -25,6 +25,7 @@ import dataclasses
 import logging
 import re
 from pathlib import Path
+from typing import Any
 
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import REASONING_MAX_TOKENS, chat_with_fallback
@@ -190,9 +191,29 @@ REJECT_CAP = 3
 DEFAULT_VERIFY_CAP = 6
 
 
+#: Annotations the claims layer RE-STAMPS on every tick, minting a FRESH id each pass
+#: (``[UNRESOLVED-CLAIM: c_a1b2 — status=not_enough_info]``). They are not identity.
+_VOLATILE_MARK_RE = re.compile(r"\s*\[(?:UNRESOLVED-CLAIM|UNVERIFIED):[^\]]*\]")
+#: The leading speckit task id — ``T009``, ``T005C``, ``PT005C`` — a task's TRUE identity.
+_TASK_ID_RE = re.compile(r"^\*{0,2}([A-Za-z]{1,4}\d+[A-Za-z0-9]*)\b")
+
+
 def _task_key(rest: str) -> str:
-    """Stable identity of a task line = its id+description (mark-independent)."""
-    return rest.strip()
+    """Stable identity of a task line: its speckit task id (mark-independent).
+
+    MUST NOT depend on the line's prose. The claims layer re-annotates tasks.md every
+    tick with freshly-minted ``[UNRESOLVED-CLAIM: …]`` ids, so a text-derived key
+    changed on every pass — which silently defeated BOTH loop guards: the
+    ``already_verified`` snapshot stopped matching settled ``[X]`` work (re-judged,
+    then un-checked back to ``[ ]``), and ``reject_counts`` never accumulated, so
+    REJECT_CAP never fired. That made the redo loop unbreakable and no project could
+    ever drain in_progress. Falls back to claim-marker-stripped prose for the rare
+    id-less task line, so identity is stable under re-annotation either way."""
+    body = rest.strip()
+    m = _TASK_ID_RE.match(body)
+    if m:
+        return m.group(1)
+    return _VOLATILE_MARK_RE.sub("", body).strip()
 
 
 def claimed_done_keys(tasks_text: str) -> set[str]:
@@ -217,7 +238,7 @@ def run_verification_pass(
     notes_path: Path,
     state_path: Path,
     cap: int = DEFAULT_VERIFY_CAP,
-) -> dict:
+) -> dict[str, Any]:
     """Independently verify each newly-claimed (``[X]`` not in ``already_verified``)
     or previously-deferred (``[~]``) task in ``tasks_path``, rewriting its mark:
 
@@ -282,7 +303,7 @@ def run_verification_pass(
                 lines[i] = f"{m.group(1)}[X]{rest}"
                 reject_counts.pop(key, None)
                 LOGGER.warning(
-                    "[task-verifier] %r rejected %d× — accepting to avoid an "
+                    "[task-verifier] %r rejected %dx — accepting to avoid an "
                     "unbreakable redo loop (review panel is the final backstop)",
                     key, count,
                 )
@@ -296,6 +317,17 @@ def run_verification_pass(
     new_text = "\n".join(lines) + ("\n" if text.endswith("\n") else "")
     if new_text != text:
         tasks_path.write_text(new_text, encoding="utf-8")
+
+    # Drop reject counts for tasks that no longer exist in tasks.md. This also
+    # self-heals the legacy text-keyed entries stranded by the identity fix above
+    # (projects had accumulated ~205 dead keys for ~132 real tasks), so a task's
+    # count reflects ONLY its own consecutive rejections and REJECT_CAP can fire.
+    live_keys = {
+        _task_key(m.group(3))
+        for m in (_TASK_LINE_RE.match(line) for line in lines)
+        if m
+    }
+    reject_counts = {k: v for k, v in reject_counts.items() if k in live_keys}
 
     state_path.parent.mkdir(parents=True, exist_ok=True)
     if reject_counts:
@@ -331,8 +363,8 @@ def _write_notes(notes_path: Path, rejected: list[tuple[str, str]]) -> None:
 __all__ = [
     "DEFAULT_VERIFY_CAP",
     "REJECT_CAP",
-    "TaskVerdict",
     "VERIFIER_TEMPERATURE",
+    "TaskVerdict",
     "claimed_done_keys",
     "gather_evidence",
     "run_verification_pass",

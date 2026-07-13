@@ -185,12 +185,18 @@ def audit(*, papers_dir: Path | str, repo_root: Path | str = ".", class_path: Pa
 
     # Only paper PDFs enter the registry. A "paper PDF" is one of:
     #   - directly under papers_dir (e.g. papers/foo.pdf)
-    #   - in a paper-dir whose name follows main-llmxive / supplement-llmxive
-    #     naming (the convention enforced by the pipeline)
-    # Any PDF deeper than 1 level OR with a non-canonical name is a figure
-    # / logo / asset, not a paper.
-    _PAPER_PDF_STEMS = {"main-llmxive", "supplement-llmxive"}
-
+    #   - at depth 2 (papers_dir/<project>/<name>.pdf) with a stem carrying the
+    #     ``-llmxive`` suffix — the marker the compile/restyle pipeline stamps on
+    #     every PDF IT renders: main-llmxive, supplement-llmxive, and (from the
+    #     reviewed-preprint pipeline) original-llmxive + peer-review-llmxive.
+    # Any PDF deeper than 1 level is a figure / logo / asset, not a paper; and a
+    # depth-2 PDF WITHOUT the suffix (``original.pdf``, ``2606.30616.pdf``) is the
+    # upstream author's own arXiv file, whose LaTeX we neither produced nor control
+    # — auditing it for our own typesetting defects would be meaningless.
+    #
+    # This suffix rule REPLACES a hardcoded {main,supplement} stem set that predated
+    # the reviewed-preprint pipeline: it silently classified all 374 original-llmxive
+    # / peer-review-llmxive PDFs as non-papers, so the audit gate skipped every one.
     def _is_paper_pdf(p: Path) -> bool:
         try:
             rel = p.resolve().relative_to(papers_dir)
@@ -199,10 +205,8 @@ def audit(*, papers_dir: Path | str, repo_root: Path | str = ".", class_path: Pa
         # Top-level PDFs: keep (e.g. papers/foo.pdf)
         if len(rel.parts) == 1:
             return True
-        # Otherwise must be at depth 2 (papers_dir/<project>/<name>.pdf)
-        # AND the stem must match the canonical paper-PDF naming convention.
         if len(rel.parts) == 2:
-            return p.stem in _PAPER_PDF_STEMS
+            return p.stem.endswith("-llmxive")
         return False
 
     pdfs = sorted([

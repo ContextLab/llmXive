@@ -15,6 +15,8 @@ from __future__ import annotations
 
 from typing import cast
 
+from llmxive.backends.router import DEFAULT_MODEL
+
 from .types import Concern, ConcernResponse, Reviewer, ReviewSpec, Severity
 
 # --- EXEMPT stages (FR-029): no convergence loop runs here ---------------
@@ -421,7 +423,7 @@ def build_idea_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str | None = None,
+    model: str = DEFAULT_MODEL,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the idea convergence unit (FR-027).
 
@@ -454,7 +456,7 @@ def build_spec_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str | None = None,
+    model: str = DEFAULT_MODEL,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the spec convergence unit (T054).
 
@@ -488,7 +490,7 @@ def build_paper_spec_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str | None = None,
+    model: str = DEFAULT_MODEL,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the paper-spec convergence unit (T055).
 
@@ -513,7 +515,7 @@ def build_plan_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str | None = None,
+    model: str = DEFAULT_MODEL,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the research-plan convergence unit (T056).
 
@@ -537,7 +539,7 @@ def build_paper_plan_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str | None = None,
+    model: str = DEFAULT_MODEL,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the paper-plan convergence unit (T056).
 
@@ -560,7 +562,7 @@ def build_tasks_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str | None = None,
+    model: str = DEFAULT_MODEL,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the research-tasks convergence unit (T057).
 
@@ -586,7 +588,7 @@ def build_paper_tasks_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str | None = None,
+    model: str = DEFAULT_MODEL,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the paper-tasks convergence unit (T057).
 
@@ -610,7 +612,7 @@ def build_implement_reviewspec(
     repo_root: object,
     project_id: str,
     project_root: object | None = None,
-    model: str | None = None,
+    model: str = DEFAULT_MODEL,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the research-implement convergence unit (T058).
 
@@ -642,7 +644,7 @@ def build_paper_implement_reviewspec(
     backend: object,
     repo_root: object,
     project_id: str,
-    model: str | None = None,
+    model: str = DEFAULT_MODEL,
 ) -> ReviewSpec:
     """Build a LIVE ``ReviewSpec`` for the paper-implement convergence unit (T059).
 
@@ -686,7 +688,7 @@ def build_research_review_reviewspec(
     backend: object | None = None,
     repo_root: object | None = None,
     project_id: str | None = None,
-    model: str | None = None,
+    model: str = DEFAULT_MODEL,
 ) -> ReviewSpec:
     """Build the LIVE ``ReviewSpec`` for the research-review convergence
     unit (T042 WS3 / FR-034).
@@ -713,7 +715,7 @@ def build_paper_review_reviewspec(
     backend: object | None = None,
     repo_root: object | None = None,
     project_id: str | None = None,
-    model: str | None = None,
+    model: str = DEFAULT_MODEL,
 ) -> ReviewSpec:
     """Build the LIVE ``ReviewSpec`` for the paper-review convergence
     unit (T042 WS4 / FR-034).

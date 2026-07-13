@@ -73,6 +73,16 @@ MODEL_FALLBACKS: dict[str, list[str]] = {
     ],
 }
 
+#: The maintainer-default model — what a caller that does NOT pin one should use.
+#:
+#: A REAL backend requires a model (``DartmouthBackend.chat`` takes ``model`` as a
+#: REQUIRED keyword-only arg), so ``model=None`` is viable ONLY for the injected
+#: fake backends whose narrower signatures ``_chat_degrading`` degrades toward.
+#: Against Dartmouth a ``model=None`` call dies with ``TypeError: chat() missing 1
+#: required keyword-only argument: 'model'``. Public entry points that build live,
+#: real-backend units must therefore default to THIS rather than to ``None``.
+DEFAULT_MODEL: str = "qwen.qwen3.5-122b"
+
 #: Sanctioned PAID models permitted in MODEL_FALLBACKS as guarded fallbacks
 #: (Constitution IV stays satisfied: each is gated by the paid opt-in + daily
 #: credit-budget guard in ``backends/credits.py``, so it costs $0 and is off by
@@ -181,7 +191,9 @@ def chat_with_model_fallback(
     clean-abort path fires with state preserved — NEVER a human escalation);
     only an all-permanent exhaustion raises the aggregate ``BackendError``. On a
     ``model=None`` call there is no chain to walk — it is a single
-    signature-degrading ``chat``.
+    signature-degrading ``chat`` (the contract the injected-fake backends rely on;
+    callers talking to a REAL backend must pin a model — see
+    :data:`DEFAULT_MODEL`).
     """
     import time as _time
 
