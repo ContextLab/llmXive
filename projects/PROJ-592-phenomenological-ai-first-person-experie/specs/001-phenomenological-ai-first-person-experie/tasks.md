@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 [P] Write `scripts/init_project.py` script to scaffold directories: `code/`, `data/raw/`, `data/processed/`, `data/qualitative/`, `tests/unit/`, `tests/integration/`, `specs/contracts/`. **Execution**: Run `python scripts/init_project.py` to verify completion.
-- [X] T002 [P] Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (transformers, llama-cpp-python, sentence-transformers, scikit-learn, pandas, nltk, torch, datasets, statsmodels). **Execution**: Run `pip freeze > code/requirements.txt` after installing dependencies.
+- [X] T002 [P] {{claim:c_6e3384cd}} **Execution**: Run `pip freeze > code/requirements.txt` after installing dependencies.
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -56,7 +56,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `code/config.py` with:
- 1. Seeds, paths, and model IDs (Primary: `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF` for CI; Optional: 7B models for local only).
+ 1. Seeds, paths, and model IDs (Primary: `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF ` for CI; Optional: 7B models for local only).
  2. **Phenomenological Marker Dictionaries**: Define concrete lists for 'sensory' (e.g., see, hear, feel, touch, taste, smell, light, sound), 'temporal' (e.g., now, then, before, after, moment, duration), and 'intentional' (e.g., think, believe, desire, intend, perceive, experience) keywords as per FR-008 and FR-009.
 - [X] T005 [P] Setup `code/utils/logging.py` for structured logging, warning capture, and retry logic (multiple attempts per sample)
 - [X] T006 [P] Implement `code/utils/io.py` for JSON/CSV schema validation and artifact archiving
@@ -69,17 +69,17 @@
 
 ## Phase 3: User Story 1 - Automated Report Generation Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Generate the corpus of phenomenological reports using CPU-tractable models and four prompting strategies. [UNRESOLVED-CLAIM: c_1f223fe8 — status=not_enough_info]
+**Goal**: Generate the corpus of phenomenological reports using CPU-tractable models and four prompting strategies.
 
 **Independent Test**: Execute `code/generation/runner.py` and verify `data/raw/` contains ≥80 samples per strategy (totaling a substantial set of samples: 80 samples × 20 prompts × 4 strategies) with valid JSON metadata (seed, prompt, strategy) and no CUDA errors.
 
 ### Implementation for User Story 1
 
-- [X] T009 [P] [US1] Implement `code/generation/runner.py` using `llama-cpp-python` for `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF` (specifically `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`) on CPU-only environment (FR-002). **Constraint**: Do not use 7B models in this script; they are excluded from CI. Target volume: approximately 80 samples per prompt per strategy, yielding a substantial total dataset for analysis. [UNRESOLVED-CLAIM: c_bc73919c — status=not_enough_info].
+- [X] T009 [P] [US1] Implement `code/generation/runner.py` using `llama-cpp-python` for `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF ` (specifically `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`) on CPU-only environment (FR-002). **Constraint**: Do not use 7B models in this script; they are excluded from CI. Target volume: approximately 80 samples per prompt per strategy, yielding a substantial total dataset for analysis..
 - [X] T010 [US1] Implement retry logic in `runner.py`: A fixed number of attempts per prompt/strategy combination, marking samples as missing after failure (FR-001).
-- [X] T011 [P] [US1] Create `code/generation/control_corpus.py` to generate ≥80 control samples using `datasets.load_dataset("arxiv_nlp")` [UNRESOLVED-CLAIM: c_734ce4bd — status=not_enough_info] with `filter='arxiv_nlp'` and random sampling. **Verification**: Ensure these samples are processed through the same three validity metrics (Consistency, Stability, Markers) as the phenomenological reports to compute discriminant validity (FR-001).
-- [X] T012 [P] [US1] Implement `code/generation/runner_local.py` for the second checkpoint (Mistral-7B or Llama-7B) using `llama-cpp-python` with 4-bit GGUF. **Note**: This script is for local execution only (users with ≥16GB RAM) [UNRESOLVED-CLAIM: c_03444300 — status=not_enough_info] and satisfies the "two checkpoints" requirement of FR-001/US-1. It is NOT used in the primary CI path.
-- [X] T013 [US1] Add timeout handling and sample-size logging to ensure ≥80 successful samples per condition. [UNRESOLVED-CLAIM: c_edf9488a — status=not_enough_info] **Note**: This is the CI minimum; The Plan's statistical power target is a research goal to be addressed via sensitivity analysis if CI limits are hit.
+- [X] T011 [P] [US1] Create `code/generation/control_corpus.py` to generate ≥80 control samples using `datasets.load_dataset("arxiv_nlp")` with `filter='arxiv_nlp'` and random sampling. **Verification**: Ensure these samples are processed through the same three validity metrics (Consistency, Stability, Markers) as the phenomenological reports to compute discriminant validity (FR-001).
+- [X] T012 [P] [US1] Implement `code/generation/runner_local.py` for the second checkpoint (Mistral-7B or Llama-7B) using `llama-cpp-python` with 4-bit GGUF. **Note**: This script is for local execution only (users with ≥16GB RAM) and satisfies the "two checkpoints" requirement of FR-001/US-1. It is NOT used in the primary CI path.
+- [X] T013 [US1] Add timeout handling and sample-size logging to ensure ≥80 successful samples per condition. **Note**: This is the CI minimum; The Plan's statistical power target is a research goal to be addressed via sensitivity analysis if CI limits are hit.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -93,12 +93,12 @@
 
 ### Implementation for User Story 2
 
-- [X] T014 [P] [US2] Implement `code/analysis/consistency.py`: Load NLI model `cross-encoder/stsb-distilroberta-base` (CPU-safe), compute pairwise contradiction counts [UNRESOLVED-CLAIM: c_0f65b395 — status=not_enough_info], handle length limits by skipping pairs with warnings (US-2 Edge Case).
+- [X] T014 [P] [US2] Implement `code/analysis/consistency.py`: Load NLI model `cross-encoder/stsb-distilroberta-base ` (CPU-safe), compute pairwise contradiction counts, handle length limits by skipping pairs with warnings (US-2 Edge Case).
 - [X] T015 [P] [US2] Implement `code/analysis/stability.py`: Compute embeddings for repeated generations, calculate cosine similarity, and store stability scores.
 - [X] T016 [P] [US2] Implement `code/analysis/markers.py`: Load the keyword dictionary defined in `code/config.py` (T004) to count sensory, temporal, and intentional markers (FR-008). **Dependency**: Requires T004 (Phase 2) and T009-T013 (Phase 3) to be complete.
 - [X] T017 [P] [US2] Implement `code/analysis/fdr_correction.py` and `code/analysis/tukey_hsd.py` for Benjamini-Hochberg FDR and Tukey HSD post-hoc tests (FR-005).
 - [X] T018 [US2] Implement `code/analysis/stats.py` to orchestrate metric aggregation. **Logic**: Run Shapiro-Wilk and Levene tests (FR-012). If assumptions (p≥0.05) hold, run ANOVA + FDR + Tukey. If violated, skip FDR/Tukey and run Kruskal-Wallis instead.
-- [X] T019 [US2] Implement `code/analysis/sensitivity_analysis.py` to test validity score weights (FR-006) and address the sample size gap (CI vs Research 1024) by analyzing robustness across sample subsets. **Justification**: Output a report justifying the fixed weights used in the Constitution based on sensitivity results. [UNRESOLVED-CLAIM: c_581cd45c — status=not_enough_info]
+- [X] T019 [US2] Implement `code/analysis/sensitivity_analysis.py` to test validity score weights (FR-006) and address the sample size gap (CI vs Research 1024) by analyzing robustness across sample subsets. **Justification**: Output a report justifying the fixed weights used in the Constitution based on sensitivity results.
 - [X] T020 [P] [US2] Implement `code/analysis/validity_justification.py` to cite phenomenology literature or perform alternative metric sensitivity (FR-009).
 - [X] T021 [P] [US3] Implement `code/validation/human_rater.py` to load generated reports, apply independent validation rubric from `code/validation/rubric.md` (FR-010), and store ratings. **Dependency**: Requires T020 to create the rubric.
 - [X] T022 [US2] Implement Cohen's κ calculation and threshold sensitivity analysis in `code/analysis/sensitivity_kappa.py`: Analyze robustness of conclusions across a range of kappa thresholds as required by FR-011. **Note**: Report the threshold as the benchmark., but do not enforce it as a hard gate in the analysis logic itself.
@@ -115,7 +115,7 @@
 
 **Goal**: Facilitate human evaluation, compute inter-rater reliability, and archive all artifacts.
 
-**Independent Test**: Verify `data/qualitative/` contains anonymized rating sheets, `code/validation/human_rater.py` calculates Cohen's κ correctly [UNRESOLVED-CLAIM: c_c0cd1446 — status=not_enough_info], and the archive script commits all artifacts.
+**Independent Test**: Verify `data/qualitative/` contains anonymized rating sheets, `code/validation/human_rater.py` calculates Cohen's κ correctly, and the archive script commits all artifacts.
 
 ### Implementation for User Story 3
 
@@ -133,14 +133,14 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T012 [P] [Optional] Implement `code/generation/runner_local.py` for local 7B model execution (Mistral-7B/Llama-7B) with explicit hardware warnings. **Note**: This is NOT required for primary research validity or CI execution (Plan.md). 7B models are excluded from the primary CI path due to RAM constraints.
-- [X] T030a [P] Add CLI usage examples and environment setup instructions to `quickstart.md`. **Examples**: Document `python main.py --mode generation`, `python main.py --mode analysis`, `python main.py --mode validate` [UNRESOLVED-CLAIM: c_ef315d04 — status=not_enough_info].
+- [ ] T030a [P] Add CLI usage examples and environment setup instructions to `quickstart.md`. **Examples**: Document `python main.py --mode generation`, `python main.py --mode analysis`, `python main.py --mode validate`. <!-- FAILED: unspecified -->
 - [X] T030b [P] Add schema descriptions and data flow diagrams to `data-model.md`
 - [X] T031a [P] Refactor `code/analysis/stats.py` to add type hints and remove duplicate imports.
 - [X] T031b [P] Refactor `code/utils/logging.py` to standardize log levels and output formats.
 - [X] T032 [P] Add unit tests in `tests/unit/`: specifically `tests/unit/test_markers.py::test_count_sensory_keywords`, `tests/unit/test_consistency.py::test_pairwise_contradiction`.
-- [X] T033 [P] Run `quickstart.md` validation to ensure full pipeline execution ≤6 hours on free-tier [UNRESOLVED-CLAIM: c_eee309de — status=not_enough_info] <!-- FAILED: unspecified -->
+- [X] T033 [P] Run `quickstart.md` validation to ensure full pipeline execution ≤6 hours on free-tier <!-- FAILED: unspecified -->
 - [X] T037 [US2/US3] Update `research.md` and `data-model.md` to document the implementation details of "Experience Trace" (T034) and "Stylistic Comparison" (T035) as secondary outputs for validity, addressing Review-DanRockmore and Review-DavidKrakauer concerns. **Note**: Do not modify `spec.md` or `plan.md` requirements; document implementation in research docs. **Dependency**: Must run after T034, T035, T036.
-- [ ] T038 [P] Add a "Phenomenological Incoherence" test case to `tests/unit/test_metrics.py` (Review-FreemanDyson): Verify that the system does not penalize inherently incoherent but phenomenologically accurate reports (e.g., stream-of-consciousness) if they maintain internal marker consistency.
+- [X] T038 [P] Add a "Phenomenological Incoherence" test case to `tests/unit/test_metrics.py` (Review-FreemanDyson): Verify that the system does not penalize inherently incoherent but phenomenologically accurate reports (e.g., stream-of-consciousness) if they maintain internal marker consistency.
 
 ---
 

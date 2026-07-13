@@ -1,16 +1,3 @@
-"""
-Main orchestration script for the Phenomenological AI pipeline.
-
-This script coordinates the full research workflow:
-1. Generation: Produces phenomenological reports using defined strategies.
-2. Metrics: Computes Consistency, Stability, and Marker presence scores.
-3. Stats: Performs statistical analysis (ANOVA/Kruskal-Wallis) and post-hoc tests.
-
-Usage:
-    python code/main.py --mode generation
-    python code/main.py --mode analysis
-    python code/main.py --mode full
-"""
 import os
 import sys
 import argparse
@@ -18,166 +5,160 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure code/ is in path for imports
+code_root = Path(__file__).parent
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
-from utils.logging import setup_logging, get_logger, export_warning_log
-from utils.io import safe_write_json, safe_write_csv, ensure_dir
-from config import CONFIG
-
-# Import Generation Pipeline
+from utils.logging import setup_logging, get_logger
+from utils.io import safe_write_csv, safe_write_json, ensure_dir
 from generation.runner import run_generation_pipeline
 from generation.control_corpus import generate_control_corpus
-
-# Import Analysis Modules
 from analysis.consistency import run_consistency_analysis
 from analysis.stability import run_stability_analysis
 from analysis.markers import run_marker_analysis
 from analysis.stats import orchestrate_analysis
 from analysis.sensitivity_analysis import run_sensitivity_analysis
 from analysis.validity_justification import run_validity_justification
+from analysis.sensitivity_kappa import run_sensitivity_kappa_analysis
+from validation.stratified_sampler import run_stratified_sampling
+from validation.human_rater import run_rating_pipeline
 
-logger = None
+logger = get_logger(__name__)
 
-def setup_environment():
-    """Ensure directories exist and logging is configured."""
-    global logger
-    setup_logging(level=logging.INFO)
-    logger = get_logger("main")
+def setup_environment(config_path: Optional[Path] = None):
+    """Initialize logging and validate paths."""
+    setup_logging()
+    if config_path:
+        logger.info(f"Using config from {config_path}")
+    else:
+        logger.info("No config provided, using defaults")
     
-    # Create required directories
-    ensure_dir(CONFIG["paths"]["raw"])
-    ensure_dir(CONFIG["paths"]["processed"])
-    ensure_dir(CONFIG["paths"]["qualitative"])
-    ensure_dir(CONFIG["paths"]["figures"])
+    # Ensure required directories exist
+    for dir_path in ["data/raw", "data/processed", "data/qualitative", "figures"]:
+        ensure_dir(dir_path)
     
-    logger.info(f"Project root: {project_root}")
-    logger.info(f"Data root: {CONFIG['paths']['raw']}")
+    logger.info("Environment setup complete")
 
-def run_generation_phase():
-    """Execute the data generation phase (US1)."""
-    logger.info("=" * 60)
-    logger.info("PHASE 1: GENERATION")
-    logger.info("=" * 60)
-
-    # 1. Generate Phenomenological Reports
-    logger.info("Starting phenomenological report generation...")
+def run_generation_phase(config_path: Optional[Path] = None):
+    """Execute the generation pipeline (US1)."""
+    logger.info("Starting generation phase...")
     try:
+        # Run main generation
         run_generation_pipeline()
-        logger.info("Phenomenological generation complete.")
-    except Exception as e:
-        logger.error(f"Generation pipeline failed: {e}", exc_info=True)
-        raise
-
-    # 2. Generate Control Corpus
-    logger.info("Starting control corpus generation...")
-    try:
+        logger.info("Main generation complete")
+        
+        # Run control corpus generation
         generate_control_corpus()
-        logger.info("Control corpus generation complete.")
+        logger.info("Control corpus generation complete")
     except Exception as e:
-        logger.error(f"Control corpus generation failed: {e}", exc_info=True)
+        logger.error(f"Generation phase failed: {e}")
         raise
 
-    logger.info("Generation phase finished.")
-
-def run_analysis_phase():
-    """Execute the metrics and statistical analysis phase (US2)."""
-    logger.info("=" * 60)
-    logger.info("PHASE 2: ANALYSIS")
-    logger.info("=" * 60)
-
-    # 1. Consistency Metric
-    logger.info("Computing Internal Consistency metrics...")
+def run_analysis_phase(config_path: Optional[Path] = None):
+    """Execute the analysis pipeline (US2)."""
+    logger.info("Starting analysis phase...")
     try:
+        # 1. Consistency
         run_consistency_analysis()
-        logger.info("Consistency analysis complete.")
-    except Exception as e:
-        logger.error(f"Consistency analysis failed: {e}", exc_info=True)
-        # Continue despite partial failure if possible, but log heavily
-    
-    # 2. Stability Metric
-    logger.info("Computing Semantic Stability metrics...")
-    try:
+        logger.info("Consistency analysis complete")
+        
+        # 2. Stability
         run_stability_analysis()
-        logger.info("Stability analysis complete.")
-    except Exception as e:
-        logger.error(f"Stability analysis failed: {e}", exc_info=True)
-
-    # 3. Marker Presence Metric
-    logger.info("Computing Phenomenological Marker scores...")
-    try:
+        logger.info("Stability analysis complete")
+        
+        # 3. Markers
         run_marker_analysis()
-        logger.info("Marker analysis complete.")
-    except Exception as e:
-        logger.error(f"Marker analysis failed: {e}", exc_info=True)
-
-    # 4. Aggregate and Statistical Testing
-    logger.info("Orchestrating statistical analysis...")
-    try:
+        logger.info("Marker analysis complete")
+        
+        # 4. Stats & Aggregation (Produces validity_scores.csv)
         orchestrate_analysis()
-        logger.info("Statistical analysis complete.")
+        logger.info("Statistical orchestration complete")
+        
+        # 5. Sensitivity & Justification
+        run_sensitivity_analysis()
+        logger.info("Sensitivity analysis complete")
+        
+        run_validity_justification()
+        logger.info("Validity justification complete")
+        
+        # 6. Kappa Sensitivity
+        run_sensitivity_kappa_analysis()
+        logger.info("Kappa sensitivity analysis complete")
+        
     except Exception as e:
-        logger.error(f"Statistical orchestration failed: {e}", exc_info=True)
+        logger.error(f"Analysis phase failed: {e}")
         raise
 
-    # 5. Sensitivity Analysis
-    logger.info("Running sensitivity analysis on weights...")
+def run_validation_phase(config_path: Optional[Path] = None):
+    """Execute the validation pipeline (US3)."""
+    logger.info("Starting validation phase...")
     try:
-        run_sensitivity_analysis()
-        logger.info("Sensitivity analysis complete.")
+        # 1. Stratified Sampling
+        run_stratified_sampling()
+        logger.info("Stratified sampling complete")
+        
+        # 2. Human Rating
+        run_rating_pipeline()
+        logger.info("Human rating pipeline complete")
     except Exception as e:
-        logger.error(f"Sensitivity analysis failed: {e}", exc_info=True)
+        logger.error(f"Validation phase failed: {e}")
+        raise
 
-    # 6. Validity Justification
-    logger.info("Generating validity justification report...")
-    try:
-        run_validity_justification()
-        logger.info("Validity justification complete.")
-    except Exception as e:
-        logger.error(f"Validity justification failed: {e}", exc_info=True)
-
-    logger.info("Analysis phase finished.")
+def run_full_pipeline(config_path: Optional[Path] = None):
+    """Run Generation -> Analysis -> Validation."""
+    logger.info("Starting full pipeline...")
+    run_generation_phase(config_path)
+    run_analysis_phase(config_path)
+    run_validation_phase(config_path)
+    logger.info("Full pipeline complete")
 
 def main():
-    """Main entry point for the pipeline."""
-    parser = argparse.ArgumentParser(
-        description="Phenomenological AI Research Pipeline Orchestrator"
+    parser = argparse.ArgumentParser(description="Phenomenological AI Research Pipeline")
+    parser.add_argument(
+        "--task", 
+        type=str, 
+        choices=["generate", "generate_control", "select_validation_sample", "analyze", "validate_human", "stats", "sensitivity-kappa", "full"],
+        help="Task to execute"
     )
     parser.add_argument(
-        "--mode",
-        choices=["generation", "analysis", "full"],
-        default="full",
-        help="Execution mode: generation only, analysis only, or full pipeline."
+        "--config", 
+        type=str, 
+        default="code/config.py",
+        help="Path to configuration file"
     )
     
     args = parser.parse_args()
     
-    try:
-        setup_environment()
-        
-        if args.mode in ["generation", "full"]:
-            run_generation_phase()
-        
-        if args.mode in ["analysis", "full"]:
-            run_analysis_phase()
-        
-        logger.info("=" * 60)
-        logger.info("PIPELINE COMPLETED SUCCESSFULLY")
-        logger.info("=" * 60)
-        
-    except KeyboardInterrupt:
-        logger.warning("Pipeline interrupted by user.")
+    config_path = Path(args.config) if args.config else None
+    
+    if args.task == "generate":
+        setup_environment(config_path)
+        run_generation_phase(config_path)
+    elif args.task == "generate_control":
+        setup_environment(config_path)
+        generate_control_corpus()
+    elif args.task == "select_validation_sample":
+        setup_environment(config_path)
+        run_stratified_sampling()
+    elif args.task == "analyze":
+        setup_environment(config_path)
+        run_analysis_phase(config_path)
+    elif args.task == "validate_human":
+        setup_environment(config_path)
+        run_validation_phase(config_path)
+    elif args.task == "stats":
+        setup_environment(config_path)
+        orchestrate_analysis()
+    elif args.task == "sensitivity-kappa":
+        setup_environment(config_path)
+        run_sensitivity_kappa_analysis()
+    elif args.task == "full":
+        setup_environment(config_path)
+        run_full_pipeline(config_path)
+    else:
+        parser.print_help()
         sys.exit(1)
-    except Exception as e:
-        logger.critical(f"Pipeline execution failed: {e}", exc_info=True)
-        sys.exit(1)
-    finally:
-        # Export any captured warnings to a log file
-        try:
-            export_warning_log(project_root / "data" / "processing_warnings.log")
-        except Exception:
-            pass
 
 if __name__ == "__main__":
     main()

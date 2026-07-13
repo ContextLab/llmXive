@@ -1,0 +1,14 @@
+status: none
+intent: Hugging Face datasets phenomenological LLM prompt strategies generation python
+  package dataset
+required_fields:
+- prompt_id
+- prompt_text
+- prompt_strategy
+- model_checkpoint
+- generated_text
+- seed
+- temperature
+- top_p
+- generation_timestamp
+- metadata_json

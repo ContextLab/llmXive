@@ -1,155 +1,128 @@
-# Phenomenological AI: First-Person Experience Modeling - Quick Start Guide
+# Phenomenological AI: First-Person Experience Modeling - Quick Start
 
-This guide provides the essential steps to set up the environment and run the
-automated science pipeline for generating and analyzing phenomenological reports.
+This guide provides instructions for setting up the environment and running the research pipeline.
 
-## Prerequisites
+## Environment Setup
 
+### Prerequisites
 - Python 3.11+
-- ≥8GB RAM (for CPU-only execution)
-- 20GB+ free disk space for model weights and generated data
+- pip package manager
+- At least 8GB RAM (recommended 16GB for local 7B models)
 
-## 1. Environment Setup
+### Installation
 
-### Clone and Navigate
-```bash
-git clone <repository-url>
-cd PROJ-592-phenomenological-ai-first-person-experie
-```
+1. Clone the repository and navigate to the project root:
+ ```bash
+ git clone <repository-url>
+ cd PROJ-592-phenomenological-ai-first-person-experie
+ ```
 
-### Create Virtual Environment
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-```
+2. Create and activate a virtual environment:
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate # On Windows:.venv\Scripts\activate
+ ```
 
-### Install Dependencies
-The project uses pinned dependencies defined in `code/requirements.txt`.
-```bash
-pip install --upgrade pip
-pip install -r code/requirements.txt
-```
+3. Install dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-### Verify Installation
-Ensure `llama-cpp-python` is correctly installed for CPU inference:
-```bash
-python -c "import llama_cpp; print(llama_cpp.__version__)"
-```
+4. Download the required model (TinyLlama-1.1B-Chat-v1.0-GGUF):
+ ```bash
+ # Ensure the model file exists at code/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+ # If missing, download from HuggingFace:
+ # huggingface-cli download TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf --local-dir code/models
+ ```
 
-## 2. Project Initialization
+5. Initialize project directories (if not already done):
+ ```bash
+ python scripts/init_project.py
+ ```
 
-Run the initialization script to create the required directory structure:
-```bash
-python scripts/init_project.py
-```
+## CLI Usage
 
-This creates:
-- `code/`: Source code
-- `data/raw/`: Generated samples
-- `data/processed/`: Analyzed metrics
-- `data/qualitative/`: Human ratings
-- `tests/unit/`, `tests/integration/`: Test suites
-- `specs/contracts/`: Data schemas
+The main entry point is `code/main.py`. Use the `--task` argument to select the phase or specific operation.
 
-## 3. Running the Pipeline
+### Generation Phase (US1)
 
-The main entry point is `code/main.py`. It supports three distinct modes
-corresponding to the project's user stories.
-
-### Mode 1: Generation (User Story 1)
-Generates the corpus of phenomenological reports using TinyLlama-1.1B (CPU-safe).
-This step creates the raw data required for analysis.
+Generate the corpus of phenomenological reports using the configured model and prompting strategies.
 
 ```bash
-python code/main.py --mode generation
+# Run full generation (phenomenological reports + control corpus)
+python code/main.py --task generate --config code/config.py
+
+# Generate control corpus only
+python code/main.py --task generate_control --config code/config.py
 ```
 
-**What it does:**
-- Loads 20 base prompts from `data/prompts/base_prompts.json`
-- Applies 4 prompting strategies (Direct, Hypothetical, Comparative, Role-play)
-- Generates ~80 samples per strategy (totaling ~6,400 samples) [UNRESOLVED-CLAIM: c_4ad78dba — status=not_enough_info]
-- Saves outputs to `data/raw/phenomenological_reports.json`
-- Generates a control corpus from `datasets.load_dataset("arxiv_nlp")` [UNRESOLVED-CLAIM: c_57053a7a — status=not_enough_info]
+**Output**: `data/raw/phenomenological_reports.json`, `data/raw/control_corpus.json`
 
-**Output:** `data/raw/phenomenological_reports.json`, `data/raw/control_corpus.json`
+### Analysis Phase (US2)
 
-### Mode 2: Analysis (User Story 2)
-Computes validity metrics (Consistency, Stability, Markers) and performs statistical analysis.
-Requires generation data to be present.
+Compute metrics (Consistency, Stability, Markers) and perform statistical analysis.
 
 ```bash
-python code/main.py --mode analysis
+# Run full analysis pipeline (metrics + stats)
+python code/main.py --task analyze --config code/config.py
+
+# Run statistical orchestration only (produces validity_scores.csv)
+python code/main.py --task stats --config code/config.py
 ```
 
-**What it does:**
-- Runs Consistency Analysis (NLI-based contradiction detection)
-- Runs Stability Analysis (embedding cosine similarity)
-- Runs Marker Analysis (sensory, temporal, intentional keyword counts)
-- Orchestrates statistical tests (ANOVA/Kruskal-Wallis, FDR, Tukey)
-- Performs sensitivity analysis on metric weights
+**Output**: `data/processed/validity_scores.csv`, `data/processed/metrics_*.json`
 
-**Output:** `data/processed/validity_scores.csv`, `data/processed/statistical_results.json`, `data/processed/experience_traces.json`
+### Validation Phase (US3)
 
-### Mode 3: Validation (User Story 3)
-Prepares data for human evaluation and archives artifacts for reproducibility.
+Select samples for human rating and run the rating pipeline.
 
 ```bash
-python code/main.py --mode validate
+# Run stratified sampling to select validation set
+python code/main.py --task select_validation_sample --config code/config.py
+
+# Run human rating pipeline (requires pre-configured rubric)
+python code/main.py --task validate_human --config code/config.py
 ```
 
-**What it does:**
-- Stratifies reports for representative sampling
-- Generates anonymized rating sheets for human raters
-- Computes inter-rater reliability (Cohen's κ)
-- Creates a reproducibility archive (`data/qualitative/archive.tar.gz`)
+**Output**: `data/qualitative/ratings.csv`, `data/qualitative/agreement_metrics.json`
 
-**Output:** `data/qualitative/rating_sheets.csv`, `data/qualitative/archive.tar.gz`
+### Sensitivity Analysis
 
-## 4. Full Pipeline Execution
-
-To run the entire pipeline sequentially (Generation → Analysis → Validation):
+Run specific sensitivity tests for robustness validation.
 
 ```bash
-python code/main.py --mode all
+# Run Kappa sensitivity analysis
+python code/main.py --task sensitivity-kappa --config code/config.py
 ```
 
-**Expected Duration:** ≤6 hours on a standard CPU (free-tier cloud instance).
+### Full Pipeline
 
-## 5. Testing
-
-Run unit tests to verify implementation correctness:
+Execute the entire research workflow: Generation → Analysis → Validation.
 
 ```bash
-pytest tests/unit/ -v
+python code/main.py --task full --config code/config.py
 ```
 
-Run integration tests to verify end-to-end data flow:
+## Data Outputs
 
+After a successful run, the following artifacts will be available:
+
+- `data/raw/phenomenological_reports.json`: Generated phenomenological reports
+- `data/raw/control_corpus.json`: Control samples from external dataset
+- `data/processed/validity_scores.csv`: Aggregated validity scores (Consistency, Stability, Markers)
+- `data/qualitative/ratings.csv`: Human rater scores
+- `figures/`: Generated plots and visualizations
+
+## Troubleshooting
+
+- **Import Errors**: Ensure you are running from the project root and `.venv` is activated.
+- **Model Not Found**: Verify the GGUF file exists in `code/models/`.
+- **CUDA Errors**: This pipeline is designed for CPU-only execution. Ensure no GPU drivers are interfering.
+
+## Reproducibility
+
+To archive all artifacts for reproducibility, run:
 ```bash
-pytest tests/integration/ -v
+python code/utils/archiver.py
 ```
-
-## 6. Troubleshooting
-
-- **CUDA Errors:** Ensure `llama-cpp-python` is installed without CUDA support.
- The pipeline is designed for CPU-only execution.
-- **Memory Errors:** If running locally with 7B models (T012), ensure ≥16GB RAM.
- The primary CI path uses TinyLlama-1.1B which fits in ≤4GB RAM [UNRESOLVED-CLAIM: c_7204de6d — status=not_enough_info].
-- **Missing Data:** If `data/raw/` is empty, run `--mode generation` first.
-- **Schema Validation:** All outputs are validated against schemas in `specs/contracts/`.
- If validation fails, check the logs for specific field errors.
-
-## 7. Configuration
-
-Edit `code/config.py` to customize:
-- Model paths (default: `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF`)
-- Seed values for reproducibility
-- Phenomenological marker dictionaries (sensory, temporal, intentional)
-- Output paths and logging levels
-
-## 8. Next Steps
-
-- Review `research.md` for the theoretical framework and hypothesis definitions.
-- Examine `data-model.md` for schema details and data flow diagrams.
-- Read `specs/contracts/` for precise data format specifications.
-- Consult `code/validation/rubric.md` for the human rating criteria.
+This will create a tarball in `data/archives/` containing prompts, seeds, scripts, and anonymized ratings.

@@ -12,3 +12,5 @@ scipy>=1.11.0
 pyyaml>=6.0
 ruff>=0.1.0
 black>=23.0.0
+config  # auto-added: imported by run-book but missing from venv
+llama_cpp  # auto-added: imported by run-book but missing from venv
