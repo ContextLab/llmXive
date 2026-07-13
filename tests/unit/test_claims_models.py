@@ -123,3 +123,43 @@ class TestClaim:
         assert c.resolved_value == "0.95"
         assert c.evidence == {"url": "x"}
         assert c.resolver == "grounding"
+
+
+# --- Claim identity must be idempotent under re-extraction (the ID-churn bug) ---
+#
+# `context` is the LLM's own free-text quote of the surrounding artifact text. The
+# claims layer INJECTS `[UNRESOLVED-CLAIM: <id> - ...]` markers back INTO that same
+# artifact, so on the next tick the quoted context contains the marker minted on the
+# previous tick -> a different hash -> a NEW claim id for the SAME claim. A
+# self-referential feedback loop: the registry accumulated 20,272 entries for only
+# 13,894 distinct canonical claims (one claim seen under 59 ids), the cache never
+# hit, and every claim was re-resolved from scratch every tick. Identity must ignore
+# the markers the layer itself stamps.
+
+def test_claim_id_ignores_injected_claim_markers() -> None:
+    from llmxive.claims.models import ClaimKind, compute_claim_id
+
+    clean = "the audit reports precision >= 85% on the held-out set"
+    marked = (
+        "the audit reports precision >= 85% "
+        "[UNRESOLVED-CLAIM: c_b60fadb6 — status=not_enough_info] on the held-out set"
+    )
+    assert compute_claim_id(ClaimKind.NUMERIC, "precision >= 85%", clean) == compute_claim_id(
+        ClaimKind.NUMERIC, "precision >= 85%", marked
+    )
+
+
+def test_claim_id_ignores_claim_pointers_and_whitespace() -> None:
+    from llmxive.claims.models import ClaimKind, compute_claim_id
+
+    a = compute_claim_id(ClaimKind.NUMERIC, "N >= 20", "the set contains {{claim:c_44abad1e}} items")
+    b = compute_claim_id(ClaimKind.NUMERIC, "N >= 20", "the  set contains   items")
+    assert a == b
+
+
+def test_claim_id_still_distinguishes_genuinely_different_context() -> None:
+    from llmxive.claims.models import ClaimKind, compute_claim_id
+
+    a = compute_claim_id(ClaimKind.NUMERIC, "p < 0.05", "reported for the ablation study")
+    b = compute_claim_id(ClaimKind.NUMERIC, "p < 0.05", "reported for the main experiment")
+    assert a != b
