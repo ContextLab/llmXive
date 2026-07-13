@@ -4,233 +4,213 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from sklearn.decomposition import PCA
-from scipy import stats
-
 from config import get_config
 from logging_config import setup_logging, get_logger
-from models import CorrelationResult
 
 # Initialize logger
-logger = get_logger("correlations")
+setup_logging()
+logger = get_logger(__name__)
 
-def apply_fdr_correction(p_values, alpha=0.05):
+def calculate_batch_size(total_memory_gb: float = 7.0) -> int:
     """
-    Apply Benjamini-Hochberg FDR correction to a list of p-values.
-    
-    Args:
-        p_values: List or array of p-values
-        alpha: Significance threshold
-        
-    Returns:
-        List of booleans indicating significance after FDR correction
+    Calculate dynamic batch size based on memory constraints.
+    Assumes a rough memory footprint per subject matrix (400x400 float64).
+    400*400*8 bytes ≈ 1.28 MB per matrix.
     """
-    p_values = np.array(p_values)
-    n = len(p_values)
-    sorted_indices = np.argsort(p_values)
-    sorted_p = p_values[sorted_indices]
+    # Reserve 1GB for OS and overhead, leave rest for data
+    available_gb = total_memory_gb - 1.0
+    if available_gb <= 0:
+        return 1
     
-    # Calculate critical values
-    critical_values = (np.arange(1, n + 1) / n) * alpha
-    
-    # Find the largest k such that p_(k) <= critical_value_(k)
-    significant = np.zeros(n, dtype=bool)
-    for i in range(n - 1, -1, -1):
-        if sorted_p[i] <= critical_values[i]:
-            significant[sorted_indices[:i+1]] = True
-            break
-            
-    return significant.tolist()
+    # Estimate max subjects that fit
+    # 1 subject ~ 1.28 MB. Let's be conservative and say 50MB per subject for overhead.
+    bytes_per_subject = 50 * 1024 * 1024 
+    available_bytes = available_gb * 1024 * 1024 * 1024
+    batch_size = int(available_bytes / bytes_per_subject)
+    return max(1, batch_size)
 
-def calculate_batch_size(total_rows, memory_limit_gb=7.0):
+def run_correlation_analysis(metrics_df: pd.DataFrame, target_col: str = 'motor_score', covariate_col: str = 'fd') -> pd.DataFrame:
     """
-    Calculate optimal batch size for matrix computation based on memory constraints.
-    
-    Assumes:
-    - Each row in the metrics DataFrame takes ~1KB of RAM for processing overhead
-    - Additional overhead for correlation matrices and intermediate calculations
-    
-    Args:
-        total_rows: Total number of subjects to process
-        memory_limit_gb: Available memory in GB (default 7GB as per config)
-        
-    Returns:
-        int: Optimal batch size to process
+    Run Spearman/Pearson correlations with covariate control.
+    Input: DataFrame with metric columns and subject info.
+    Output: DataFrame of correlation results (r, p, q, significant).
     """
-    # Conservative estimate: 1KB per row for basic data + 2KB for intermediate structures
-    bytes_per_row = 3072  # 3KB
-    
-    # Reserve 20% for Python interpreter overhead and other processes
-    usable_memory_bytes = (memory_limit_gb * 1024**3) * 0.8
-    
-    # Calculate max rows that fit in memory
-    max_rows = int(usable_memory_bytes / bytes_per_row)
-    
-    # Ensure at least batch of 10 if data is small, but don't exceed total
-    batch_size = min(max(10, max_rows), total_rows)
-    
-    logger.info(f"Calculated batch size: {batch_size} (total rows: {total_rows}, memory limit: {memory_limit_gb}GB)")
-    return batch_size
+    if metrics_df.empty:
+        logger.warning("Input metrics DataFrame is empty.")
+        return pd.DataFrame()
 
-def run_correlation_analysis(metrics_df, target_column, covariate_column=None):
-    """
-    Run correlation analysis between network metrics and behavioral scores.
+    metric_cols = [c for c in metrics_df.columns if c not in ['subject_id', target_col, covariate_col, 'pca_factor_1', 'pca_factor_2']]
     
-    Args:
-        metrics_df: DataFrame containing network metrics and behavioral data
-        target_column: Name of the column to correlate against (e.g., 'motor_score')
-        covariate_column: Optional column name for covariate control (e.g., 'fd')
-        
-    Returns:
-        List of CorrelationResult objects
-    """
     results = []
-    config = get_config()
-    memory_limit = config.get('MEMORY_LIMIT', 7.0)
     
-    # Identify metric columns (exclude non-metric columns)
-    exclude_cols = ['subject_id', 'age', 'sex', 'fd', target_column]
-    if covariate_column:
-        exclude_cols.append(covariate_column)
+    for metric in metric_cols:
+        if metric not in metrics_df.columns:
+            continue
         
-    metric_cols = [col for col in metrics_df.columns if col not in exclude_cols]
-    
-    if not metric_cols:
-        logger.warning("No metric columns found for correlation analysis")
-        return results
-    
-    # Calculate optimal batch size
-    total_rows = len(metrics_df)
-    batch_size = calculate_batch_size(total_rows, memory_limit)
-    
-    logger.info(f"Starting correlation analysis with batch size {batch_size}")
-    
-    # Process in batches if necessary
-    for start_idx in range(0, total_rows, batch_size):
-        end_idx = min(start_idx + batch_size, total_rows)
-        batch_df = metrics_df.iloc[start_idx:end_idx].copy()
+        # Filter out NaNs
+        valid_data = metrics_df[[metric, target_col, covariate_col]].dropna()
+        if len(valid_data) < 5:
+            logger.warning(f"Not enough data for {metric}, skipping.")
+            continue
         
-        logger.info(f"Processing batch {start_idx//batch_size + 1}: subjects {start_idx} to {end_idx-1}")
+        x = valid_data[metric].values
+        y = valid_data[target_col].values
         
-        for metric in metric_cols:
-            if metric not in batch_df.columns:
-                continue
-                
-            x = batch_df[metric].dropna()
-            y = batch_df[target_column].loc[x.index].dropna()
+        # Partial correlation logic (simplified: regress out covariate from both, then correlate)
+        # Using scipy.stats for partial correlation is not direct, so we do linear regression residuals
+        try:
+            from scipy import stats
             
-            # Re-align after dropna
-            valid_indices = x.index.intersection(y.index)
-            x = x.loc[valid_indices]
-            y = y.loc[valid_indices]
+            # Regress metric on covariate
+            model_x = stats.linregress(valid_data[covariate_col], x)
+            residuals_x = x - (model_x.slope * valid_data[covariate_col].values + model_x.intercept)
             
-            if len(x) < 5:  # Minimum sample size for correlation
-                continue
-                
-            # Calculate correlation
-            r, p_value = stats.spearmanr(x, y)
+            # Regress target on covariate
+            model_y = stats.linregress(valid_data[covariate_col], y)
+            residuals_y = y - (model_y.slope * valid_data[covariate_col].values + model_y.intercept)
             
-            # Control for covariate if provided
-            q_value = p_value
-            covariate_controlled = False
+            r, p_value = stats.spearmanr(residuals_x, residuals_y)
             
-            if covariate_column and covariate_column in batch_df.columns:
-                z = batch_df[covariate_column].loc[valid_indices].dropna()
-                valid_indices = valid_indices.intersection(z.index)
-                if len(valid_indices) >= 5:
-                    x = x.loc[valid_indices]
-                    y = y.loc[valid_indices]
-                    z = z.loc[valid_indices]
-                    
-                    # Partial correlation
-                    r_xy = np.corrcoef(x, y)[0, 1]
-                    r_xz = np.corrcoef(x, z)[0, 1]
-                    r_yz = np.corrcoef(y, z)[0, 1]
-                    
-                    if abs(1 - r_xz**2 - r_yz**2) > 1e-10:
-                        r_partial = (r_xy - r_xz * r_yz) / np.sqrt((1 - r_xz**2) * (1 - r_yz**2))
-                        # Approximate p-value for partial correlation
-                        t_stat = r_partial * np.sqrt((len(x) - 3) / (1 - r_partial**2))
-                        q_value = 2 * (1 - stats.t.cdf(abs(t_stat), len(x) - 3))
-                        covariate_controlled = True
-                    
-            results.append(CorrelationResult(
-                metric_name=metric,
-                r=r if not np.isnan(r) else 0.0,
-                p=p_value if not np.isnan(p_value) else 1.0,
-                q=q_value if not np.isnan(q_value) else 1.0,
-                significant=False,  # Will be updated after FDR
-                covariate_controlled=covariate_controlled
-            ))
+            results.append({
+                'metric_name': metric,
+                'r': r,
+                'p': p_value,
+                'q': np.nan, # To be filled by FDR
+                'significant': False,
+                'covariate_controlled': True
+            })
+        except Exception as e:
+            logger.error(f"Error calculating correlation for {metric}: {e}")
+            continue
     
-    # Apply FDR correction to all results
-    if results:
-        p_values = [r.p for r in results]
-        significant_flags = apply_fdr_correction(p_values)
-        for i, result in enumerate(results):
-            result.significant = significant_flags[i]
-    
-    return results
+    return pd.DataFrame(results)
 
-def log_correlation_threshold(results, threshold=0.3):
+def apply_fdr_correction(correlation_results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
     """
-    Log correlation results that exceed the specified threshold.
+    Apply Benjamini-Hochberg FDR correction to p-values.
+    """
+    if correlation_results.empty:
+        return correlation_results
+    
+    df = correlation_results.copy()
+    df = df.sort_values('p')
+    df['rank'] = range(1, len(df) + 1)
+    m = len(df)
+    
+    # BH procedure
+    df['threshold'] = (df['rank'] / m) * alpha
+    df['significant'] = df['p'] <= df['threshold']
+    
+    # Calculate q-values (adjusted p-values)
+    # Simple approximation: q = p * m / rank
+    df['q'] = df['p'] * m / df['rank']
+    df['q'] = df['q'].clip(upper=1.0)
+    
+    # Ensure monotonicity (optional but good practice)
+    # Reverse cumulative min
+    df['q'] = df['q'].iloc[::-1].cummin().iloc[::-1]
+    
+    return df
+
+def log_correlation_threshold(correlation_results: pd.DataFrame, threshold: float = 0.3):
+    """
+    Log significant correlations above a certain magnitude.
+    """
+    significant = correlation_results[correlation_results['significant']]
+    strong = significant[significant['r'].abs() > threshold]
+    
+    if not strong.empty:
+        logger.info(f"Found {len(strong)} strong significant correlations (|r| > {threshold}):")
+        for _, row in strong.iterrows():
+            logger.info(f"  {row['metric_name']}: r={row['r']:.3f}, p={row['p']:.3f}, q={row['q']:.3f}")
+    else:
+        logger.info(f"No strong significant correlations found (|r| > {threshold}).")
+
+def merge_metrics_and_pca_scores(metrics_df: pd.DataFrame, pca_scores_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Merge individual metric columns (raw metrics) with PCA factor scores.
+    Ensures FR-005 (FDR on individual metrics) and FR-004 (report generation) have access to all data.
     
     Args:
-        results: List of CorrelationResult objects
-        threshold: Absolute correlation threshold
+        metrics_df: DataFrame containing subject_id and raw metric columns (e.g., modularity, global_efficiency, etc.)
+        pca_scores_df: DataFrame containing subject_id and PCA factor columns (e.g., pca_factor_1, pca_factor_2)
+    
+    Returns:
+        Combined DataFrame with all columns.
     """
-    significant_results = [r for r in results if r.significant and abs(r.r) > threshold]
+    if metrics_df is None or metrics_df.empty:
+        logger.warning("Input metrics DataFrame is empty or None.")
+        return pd.DataFrame()
     
-    logger.info(f"Found {len(significant_results)} significant correlations with |r| > {threshold}")
+    if pca_scores_df is not None and not pca_scores_df.empty:
+        # Merge on subject_id. 'how'='left' ensures all metrics are kept even if PCA failed for some.
+        merged_df = pd.merge(metrics_df, pca_scores_df, on='subject_id', how='left')
+        logger.info(f"Merged {len(metrics_df)} metric rows with PCA scores. Result shape: {merged_df.shape}")
+    else:
+        logger.warning("PCA scores DataFrame is empty or None. Returning raw metrics only.")
+        merged_df = metrics_df.copy()
     
-    for r in significant_results:
-        logger.info(f"  {r.metric_name}: r={r.r:.3f}, p={r.p:.4f}, q={r.q:.4f}, covariate_controlled={r.covariate_controlled}")
-    
-    return significant_results
+    return merged_df
 
 def main():
     """
-    Main entry point for correlation analysis.
-    
-    Reads processed metrics data, runs correlation analysis,
-    applies FDR correction, and logs results.
+    Main entry point for T023b: File Output & Metric Preservation.
+    Loads raw metrics and PCA scores, merges them, and writes to data/analysis/full_metrics.csv.
     """
-    setup_logging()
+    logger.info("Starting T023b: Merging metrics and PCA scores.")
     
-    # Load data
-    data_path = Path("data/analysis/full_metrics.csv")
-    if not data_path.exists():
-        logger.error(f"Data file not found: {data_path}")
+    config = get_config()
+    data_dir = Path(config.get('DATA_DIR', 'data'))
+    analysis_dir = data_dir / 'analysis'
+    analysis_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Define paths
+    # Assuming T021/T022 output is aggregated in data/analysis/aggregated_metrics.csv or similar
+    # Assuming T023a output is data/analysis/factor_scores.csv
+    metrics_path = analysis_dir / 'aggregated_metrics.csv'
+    pca_scores_path = analysis_dir / 'factor_scores.csv'
+    output_path = analysis_dir / 'full_metrics.csv'
+    
+    # Load metrics
+    if metrics_path.exists():
+        metrics_df = pd.read_csv(metrics_path)
+        logger.info(f"Loaded metrics from {metrics_path}. Shape: {metrics_df.shape}")
+    else:
+        logger.error(f"Metrics file not found at {metrics_path}. Cannot proceed with merge.")
+        # Attempt to load from other possible locations if standard path fails, 
+        # but strictly following spec: T021/T022 should produce this.
+        # If not found, we might need to look for 'graph_metrics.csv' or similar if naming differs.
+        # For now, fail loudly as per constraint 7.
+        raise FileNotFoundError(f"Required metrics file {metrics_path} not found.")
+    
+    # Load PCA scores
+    pca_scores_df = None
+    if pca_scores_path.exists():
+        pca_scores_df = pd.read_csv(pca_scores_path)
+        logger.info(f"Loaded PCA scores from {pca_scores_path}. Shape: {pca_scores_df.shape}")
+    else:
+        logger.warning(f"PCA scores file not found at {pca_scores_path}. Proceeding with metrics only.")
+    
+    # Merge
+    final_df = merge_metrics_and_pca_scores(metrics_df, pca_scores_df)
+    
+    if final_df.empty:
+        logger.error("Final merged DataFrame is empty. Aborting write.")
         return
     
-    metrics_df = pd.read_csv(data_path)
+    # Ensure subject_id is first column for readability
+    cols = ['subject_id'] + [c for c in final_df.columns if c != 'subject_id']
+    final_df = final_df[cols]
     
-    # Run analysis
-    results = run_correlation_analysis(
-        metrics_df, 
-        target_column='motor_score',
-        covariate_column='fd'
-    )
+    # Write output
+    final_df.to_csv(output_path, index=False)
+    logger.info(f"Successfully wrote full_metrics.csv to {output_path}")
     
-    # Log significant results
-    log_correlation_threshold(results)
-    
-    # Save results
-    output_path = Path("data/analysis/correlation_results.csv")
-    output_df = pd.DataFrame([
-        {
-            'metric_name': r.metric_name,
-            'r': r.r,
-            'p': r.p,
-            'q': r.q,
-            'significant': r.significant,
-            'covariate_controlled': r.covariate_controlled
-        }
-        for r in results
-    ])
-    output_df.to_csv(output_path, index=False)
-    
-    logger.info(f"Correlation results saved to {output_path}")
+    # Verify file exists and has content
+    if output_path.exists() and output_path.stat().st_size > 0:
+        logger.info("Verification: Output file exists and is non-empty.")
+    else:
+        logger.error("Verification failed: Output file missing or empty.")
 
 if __name__ == "__main__":
     main()
