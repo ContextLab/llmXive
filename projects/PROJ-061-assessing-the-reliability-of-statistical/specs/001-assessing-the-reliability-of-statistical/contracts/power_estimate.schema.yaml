@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PowerEstimate"
+description: "Schema for a single power estimation record including theoretical, empirical, and error metrics."
+type: "object"
+required:
+  - dataset_id
+  - violation_type
+  - effect_size
+  - theoretical_power
+  - empirical_power
+  - absolute_error
+  - relative_error
+  - bootstrap_reliability_flag
+  - bootstrap_cv
+  - seed
+  - iterations
+  - grouping_strategy
+  - grouping_definition
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the source dataset."
+  violation_type:
+    type: "string"
+    enum:
+      - "none"
+      - "heavy_tail"
+      - "autocorrelation"
+      - "heterogeneity"
+    description: "Type of assumption violation applied."
+  effect_size:
+    type: "number"
+    description: "Cohen's d value used for the calculation (e.g., 0.5, 0.8)."
+  theoretical_power:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Power estimate from closed-form theoretical calculation on CLEAN data."
+  empirical_power:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Power estimate from Monte Carlo bootstrap simulation on PERTURBED data."
+  absolute_error:
+    type: "number"
+    minimum: 0.0
+    description: "Absolute difference between theoretical (clean) and empirical (perturbed) power."
+  relative_error:
+    type: "number"
+    description: "Relative error (Absolute Error / Theoretical Power)."
+  bootstrap_reliability_flag:
+    type: "string"
+    enum:
+      - "reliable"
+      - "unreliable"
+      - "skipped"
+    description: "Flag indicating the validity of the bootstrap estimate (FR-010)."
+  bootstrap_cv:
+    type: "number"
+    description: "Coefficient of Variation of the p-value distribution across iterations. Used to assess stability of the power estimator."
+  grouping_strategy:
+    type: "string"
+    enum:
+      - "natural"
+      - "synthetic_shift"
+      - "predefined_split"
+    description: "Method used to define groups for the t-test."
+  grouping_definition:
+    type: "string"
+    description: "Detailed description of the grouping (e.g., 'Setosa vs Rest', 'Class 1 vs Class 2+3')."
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."
+  iterations:
+    type: "integer"
+    minimum: 1000
+    description: "Number of bootstrap iterations performed."
+  achieved_magnitude:
+    type: "number"
+    description: "Actual magnitude of the induced violation (e.g., AR coefficient)."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the record creation."

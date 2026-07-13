@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1810.04996",
+  "judged_at": "2026-07-13T20:49:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the reliability of statistical power calculations in real-world datasets statistics",
+  "rationale": "The paper addresses selection bias and cherry-picking in machine learning model evaluation, which is a distinct construct from the reliability of *a priori* statistical power calculations (sample size justification) in real-world datasets. While both fall under the broad umbrella of statistical validity, the paper does not measure power, effect size estimation, or sample size adequacy (variables in the user's question), nor does it establish a baseline for power calculation accuracy, thus failin",
+  "relevant": false
+}

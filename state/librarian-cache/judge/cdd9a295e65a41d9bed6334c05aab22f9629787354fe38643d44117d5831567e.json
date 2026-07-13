@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1702.04552",
+  "judged_at": "2026-07-13T20:49:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the reliability of statistical power calculations in real-world datasets statistics",
+  "rationale": "The paper proposes a specific robust statistical test methodology and evaluates its performance, but it does not assess the reliability of statistical power calculations themselves, nor does it provide an empirical baseline or analysis of power calculation accuracy in real-world datasets as requested. It falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" because it uses the term \"power\" in the context of \"density power divergence\" (a robustness metric) rather t",
+  "relevant": false
+}

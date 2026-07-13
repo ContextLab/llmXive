@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1907.02664",
+  "judged_at": "2026-07-13T20:49:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the reliability of statistical power calculations in real-world datasets statistics",
+  "rationale": "The paper focuses on Byzantine-resilient distributed optimization and error correction in machine learning systems, which is a distinct construct from the user's question regarding the reliability of statistical power calculations in real-world datasets. The term \"power\" in the candidate paper refers to computational or system capacity (implied by resource overhead and corruption thresholds), not statistical power (the probability of correctly rejecting a false null hypothesis), constituting a r",
+  "relevant": false
+}

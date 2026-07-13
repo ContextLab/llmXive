@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1007.3210",
+  "judged_at": "2026-07-13T20:49:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the reliability of statistical power calculations in real-world datasets statistics",
+  "rationale": "The paper focuses on measuring instructors' attitudes toward teaching statistics (a social/educational construct), whereas the user's question concerns the reliability of statistical power calculations (a methodological/statistical property). This is a case of distinct constructs sharing only the keyword \"statistics,\" failing to meet any inclusion criteria (a-f) as it does not address the mechanism, variables, or empirical setting of power calculation reliability.",
+  "relevant": false
+}

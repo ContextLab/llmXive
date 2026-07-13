@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1207.5103",
+  "judged_at": "2026-07-13T20:49:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the reliability of statistical power calculations in real-world datasets statistics",
+  "rationale": "The paper discusses statistical concepts like randomization and post-selection only as analogies to explain Bell's theorem in quantum physics, rather than providing empirical evidence, baselines, or methodological frameworks for assessing the reliability of statistical power calculations in real-world datasets. It falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (using \"statistics\" and \"causality\" in a physics context unrelated to the user's specific inquiry ",
+  "relevant": false
+}

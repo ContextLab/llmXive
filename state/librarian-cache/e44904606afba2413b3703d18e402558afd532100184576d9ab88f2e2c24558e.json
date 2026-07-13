@@ -1,0 +1,796 @@
+{
+  "fetched_at": "2026-07-13T20:49:17Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Assessing the Reliability of Statistical Power Calculations in Real-World Datasets",
+      "target_n": 5
+    },
+    "duration_seconds": 106.745,
+    "ended_at": "2026-07-13T20:49:17Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "validity of statistical power estimates in empirical studies"
+        ],
+        [
+          2,
+          "accuracy of post-hoc power analysis with real data"
+        ],
+        [
+          3,
+          "robustness of power calculations under distributional violations"
+        ],
+        [
+          4,
+          "sensitivity analysis of sample size determination"
+        ],
+        [
+          5,
+          "statistical power in non-ideal data conditions"
+        ],
+        [
+          6,
+          "reliability of a priori power analysis for observational data"
+        ],
+        [
+          7,
+          "impact of data quality on statistical power estimation"
+        ],
+        [
+          8,
+          "challenges in computing power for complex survey data"
+        ],
+        [
+          9,
+          "statistical power under model misspecification"
+        ],
+        [
+          10,
+          "uncertainty in power calculations for small sample sizes"
+        ],
+        [
+          11,
+          "empirical evaluation of power analysis methods"
+        ],
+        [
+          12,
+          "statistical power in the presence of missing data"
+        ],
+        [
+          13,
+          "power estimation for heterogeneous datasets"
+        ],
+        [
+          14,
+          "reproducibility of power calculation results across datasets"
+        ],
+        [
+          15,
+          "limitations of traditional power analysis in applied research"
+        ],
+        [
+          16,
+          "statistical power under non-normality and outliers"
+        ],
+        [
+          17,
+          "validation of sample size formulas with real-world data"
+        ],
+        [
+          18,
+          "bias in statistical power estimates from pilot studies"
+        ],
+        [
+          19,
+          "statistical power for effect sizes in noisy environments"
+        ],
+        [
+          20,
+          "practical significance versus statistical power in large datasets"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Assessing the Reliability of Statistical Power Calculations in Real-World Datasets statistics": 0,
+        "accuracy of post-hoc power analysis with real data": 2,
+        "validity of statistical power estimates in empirical studies": 1
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "retrospective power analysis observed effect size",
+      "post-hoc power calculation sample size re-estimation",
+      "replication crisis statistical power estimation bias",
+      "power curve sensitivity analysis real-world data",
+      "winner's curse effect size inflation power"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1907.02664"
+      ]
+    },
+    "per_query_hit_count": {
+      "Assessing the Reliability of Statistical Power Calculations in Real-World Datasets statistics": 3,
+      "post-hoc power calculation sample size re-estimation": 3,
+      "power curve sensitivity analysis real-world data": 3,
+      "replication crisis statistical power estimation bias": 3,
+      "retrospective power analysis observed effect size": 3,
+      "winner's curse effect size inflation power": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "1207.5103",
+          "rationale": "The paper discusses statistical concepts like randomization and post-selection only as analogies to explain Bell's theorem in quantum physics, rather than providing empirical evidence, baselines, or methodological frameworks for assessing the reliability of statistical power calculations in real-world datasets. It falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (using \"statistics\" and \"causality\" in a physics context unrelated to the user's specific inquiry ",
+          "title": "Statistics, Causality and Bell's Theorem"
+        },
+        {
+          "primary_pointer": "1702.04552",
+          "rationale": "The paper proposes a specific robust statistical test methodology and evaluates its performance, but it does not assess the reliability of statistical power calculations themselves, nor does it provide an empirical baseline or analysis of power calculation accuracy in real-world datasets as requested. It falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" because it uses the term \"power\" in the context of \"density power divergence\" (a robustness metric) rather t",
+          "title": "A new class of robust two-sample Wald-type tests"
+        },
+        {
+          "primary_pointer": "1810.04996",
+          "rationale": "The paper addresses selection bias and cherry-picking in machine learning model evaluation, which is a distinct construct from the reliability of *a priori* statistical power calculations (sample size justification) in real-world datasets. While both fall under the broad umbrella of statistical validity, the paper does not measure power, effect size estimation, or sample size adequacy (variables in the user's question), nor does it establish a baseline for power calculation accuracy, thus failin",
+          "title": "A Simple Way to Deal with Cherry-picking"
+        },
+        {
+          "primary_pointer": "1007.3210",
+          "rationale": "The paper focuses on measuring instructors' attitudes toward teaching statistics (a social/educational construct), whereas the user's question concerns the reliability of statistical power calculations (a methodological/statistical property). This is a case of distinct constructs sharing only the keyword \"statistics,\" failing to meet any inclusion criteria (a-f) as it does not address the mechanism, variables, or empirical setting of power calculation reliability.",
+          "title": "Development and Initial Validation of a Scale to Measure Instructors' Attitudes toward Concept-Based Teaching of Introductory Statistics in the Health and Behavioral Sciences"
+        },
+        {
+          "primary_pointer": "2510.25766",
+          "rationale": "The paper focuses on improving attribution reliability in large language models through decomposition techniques, which is unrelated to the user's question about the statistical reliability of power calculations in real-world datasets. The shared term \"reliability\" refers to model trustworthiness in the paper versus statistical validity in the user's query, constituting a distinct construct sharing only a homonym keyword.",
+          "title": "Decomposition-Enhanced Training for Post-Hoc Attributions In Language Models"
+        },
+        {
+          "primary_pointer": "1907.02664",
+          "rationale": "The paper focuses on Byzantine-resilient distributed optimization and error correction in machine learning systems, which is a distinct construct from the user's question regarding the reliability of statistical power calculations in real-world datasets. The term \"power\" in the candidate paper refers to computational or system capacity (implied by resource overhead and corruption thresholds), not statistical power (the probability of correctly rejecting a false null hypothesis), constituting a r",
+          "title": "Data Encoding for Byzantine-Resilient Distributed Optimization"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T20:47:30Z",
+    "term_input": {
+      "normalized": "assessing the reliability of statistical power calculations in real-world datasets statistics",
+      "raw": "Assessing the Reliability of Statistical Power Calculations in Real-World Datasets statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Statistics has moved beyond the frequentist-Bayesian controversies of the past. Where does this leave our ability to interpret results? I suggest that a philosophy compatible with statistical practice, labeled here statistical pragmatism, serves as a foundation for inference. Statistical pragmatism is inclusive and emphasizes the assumptions that connect statistical models with observed data. I argue that introductory courses often mischaracterize the process of statistical inference and I propose an alternative \"big picture\" depiction.",
+          "claimed_authors": [
+            "Robert E. Kass"
+          ],
+          "claimed_title": "Statistical Inference: The Big Picture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1106.2895"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Statistical Inference: The Big Picture')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Increasing integration and availability of data on large groups of persons has been accompanied by proliferation of statistical and other algorithmic prediction tools in banking, insurance, marketiNg, medicine, and other FIelds (see e.g., Steyerberg (2009a;b)). Controversy may ensue when such tools are introduced to fields traditionally reliant on individual clinical evaluations. Such controversy has arisen about \"actuarial\" assessments of violence recidivism risk, i.e., the probability that someone found to have committed a violent act will commit another during a specified period. Recently Hart et al. (2007a) and subsequent papers from these authors in several reputable journals have claimed to demonstrate that statistical assessments of such risks are inherently too imprecise to be useful, using arguments that would seem to apply to statistical risk prediction quite broadly. This commentary examines these arguments from a technical statistical perspective, and finds them seriously mistaken in many particulars. They should play no role in reasoned discussions of violence recidivism risk assessment.",
+          "claimed_authors": [
+            "Peter B. Imrey",
+            "A. Philip Dawid"
+          ],
+          "claimed_title": "A Commentary on Statistical Assessment of Violence Recidivism Risk",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1503.03666"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='A Commentary on Statistical Assessment of Violence Recidivism Risk')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding how users authentically interact with Large Language Models (LLMs) remains a significant challenge in human-computer interaction research. Most existing studies rely on self-reported usage patterns or controlled experimental conditions, potentially missing genuine behavioral adaptations. This study presents a behavioral analysis of the use of English-speaking urban professional ChatGPT in India based on 238 authentic, unedited user prompts from 40 participants in 15+ Indian cities, collected using retrospective survey methodology in August 2025. Using authentic retrospective prompt collection via anonymous social media survey to minimize real-time observer effects, we analyzed genuine usage patterns. Key findings include: (1) 85\\% daily usage rate (34/40 users) indicating mature adoption beyond experimental use, (2) evidence of cross-domain integration spanning professional, personal, health and creative contexts among the majority of users, (3) 42.5\\% (17/40) primarily use ChatGPT for professional workflows with evidence of real-time problem solving integration, and (4) cultural context navigation strategies with users incorporating Indian cultural specifications in their prompts. Users develop sophisticated adaptation techniques and the formation of advisory relationships for personal guidance. The study reveals the progression from experimental to essential workflow dependency, with users treating ChatGPT as an integrated life assistant rather than a specialized tool. However, the findings are limited to urban professionals in English recruited through social media networks and require a larger demographic validation. This work contributes a novel methodology to capture authentic AI usage patterns and provides evidence-based insights into cultural adaptation strategies among this specific demographic of users.",
+          "claimed_authors": [
+            "Kalyani Khona"
+          ],
+          "claimed_title": "Behind India's ChatGPT Conversations: A Retrospective Analysis of 238 Unedited User Prompts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.13337"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title=\"Behind India's ChatGPT Conversations: A Retrospective Analysis of 238 Unedited User Prompts\")",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate the impact finite simulation box size has on the structural and kinematic properties of Cold Dark Matter haloes forming in cosmological simulations. Our approach involves generating a single realisation of the initial power spectrum of density perturbations and studying how truncation of this power spectrum on scales larger than L_cut affects the structure of dark matter haloes at z=0. In particular, we have examined the cases of L_cut = f_cut L_box with f_cut=1 (i.e. no truncation), 1/2, 1/3 and 1/4. In common with previous studies, we find that the suppression of long wavelength perturbations reduces the strength of clustering, as measured by a suppression of the 2-point correlation function xi(r), and reduces the numbers of the most massive haloes, as reflected in the depletion of the high mass end of the mass function n(M). Interestingly, we find that truncation has little impact on the internal properties of haloes. The masses of high mass haloes decrease in a systematic manner as L_cut is reduced, but the distribution of concentrations is unaffected. On the other hand, the median spin parameter is ~50% lower in runs with f_cut<1. We argue that this is an imprint of the linear growth phase of the halo's angular momentum by tidal torquing, and that the absence of any measurable trend in concentration and the weak trend observed in halo shape reflect the importance of virialisation and complex mass accretion histories for these quantities. These results are of interest for studies that require high mass resolution and statistical samples of simulated haloes, such as simulations of the population of first stars. Our analysis shows that large-scale tidal fields have relatively little effect on the internal properties of Cold Dark Matter haloes and hence may be ignored in such studies.",
+          "claimed_authors": [
+            "Chris Power",
+            "Alexander Knebe"
+          ],
+          "claimed_title": "The Impact of Box Size on the Properties of Dark Matter Haloes in Cosmological Simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0512281"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='The Impact of Box Size on the Properties of Dark Matter Haloes in Cosmological Simulations')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "EIE proposed to accelerate pruned and compressed neural networks, exploiting weight sparsity, activation sparsity, and 4-bit weight-sharing in neural network accelerators. Since published in ISCA'16, it opened a new design space to accelerate pruned and sparse neural networks and spawned many algorithm-hardware co-designs for model compression and acceleration, both in academia and commercial AI chips. In retrospect, we review the background of this project, summarize the pros and cons, and discuss new opportunities where pruning, sparsity, and low precision can accelerate emerging deep learning workloads.",
+          "claimed_authors": [
+            "Song Han",
+            "Xingyu Liu",
+            "Huizi Mao",
+            "Jing Pu",
+            "Ardavan Pedram",
+            "Mark A. Horowitz",
+            "William J. Dally"
+          ],
+          "claimed_title": "Retrospective: EIE: Efficient Inference Engine on Sparse and Compressed Neural Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.09552"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Retrospective: EIE: Efficient Inference Engine on Sparse and Compressed Neural Network')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) are increasingly used for long-document question answering, where reliable attribution to sources is critical for trust. Existing post-hoc attribution methods work well for extractive QA but struggle in multi-hop, abstractive, and semi-extractive settings, where answers synthesize information across passages. To address these challenges, we argue that post-hoc attribution can be reframed as a reasoning problem, where answers are decomposed into constituent units, each tied to specific context. We first show that prompting models to generate such decompositions alongside attributions improves performance. Building on this, we introduce DecompTune, a post-training method that teaches models to produce answer decompositions as intermediate reasoning steps. We curate a diverse dataset of complex QA tasks, annotated with decompositions by a strong LLM, and post-train Qwen-2.5 (7B and 14B) using a two-stage SFT + GRPO pipeline with task-specific curated rewards. Across extensive experiments and ablations, DecompTune substantially improves attribution quality, outperforming prior methods and matching or exceeding state-of-the-art frontier models.",
+          "claimed_authors": [
+            "Sriram Balasubramanian",
+            "Samyadeep Basu",
+            "Koustava Goswami",
+            "Ryan Rossi",
+            "Varun Manjunatha",
+            "Roshan Santhosh",
+            "Ruiyi Zhang",
+            "Soheil Feizi",
+            "Nedim Lipka"
+          ],
+          "claimed_title": "Decomposition-Enhanced Training for Post-Hoc Attributions In Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.25766"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Decomposition-Enhanced Training for Post-Hoc Attributions In Language Models')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Prior information is often incorporated informally when planning a clinical trial. Here, we present an approach on how to incorporate prior information, such as data from historical clinical trials, into the nuisance parameter based sample size re-estimation in a design with an internal pilot study. We focus on trials with continuous endpoints in which the outcome variance is the nuisance parameter. For planning and analyzing the trial frequentist methods are considered. Moreover, the external information on the variance is summarized by the Bayesian meta-analytic-predictive (MAP) approach. To incorporate external information into the sample size re-estimation, we propose to update the MAP prior based on the results of the internal pilot study and to re-estimate the sample size using an estimator from the posterior. By means of a simulation study, we compare the operating characteristics such as power and sample size distribution of the proposed procedure with the traditional sample size re-estimation approach which uses the pooled variance estimator. The simulation study shows that, if no prior-data conflict is present, incorporating external information into the sample size re-estimation improves the operating characteristics compared to the traditional approach. In the case of a prior-data conflict, that is when the variance of the ongoing clinical trial is unequal to the prior location, the performance of the traditional sample size re-estimation procedure is in general superior, even when the prior information is robustified. When considering to include prior information in sample size re-estimation, the potential gains should be balanced against the risks.",
+          "claimed_authors": [
+            "Tobias Mütze",
+            "Heinz Schmidli",
+            "Tim Friede"
+          ],
+          "claimed_title": "Sample size re-estimation incorporating prior information on a nuisance parameter",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1703.06957"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Sample size re-estimation incorporating prior information on a nuisance parameter')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The sample size of a clinical trial relies on information about nuisance parameters such as the outcome variance. When no or only limited information is available, it has been proposed to include an internal pilot study in the design of the trial. Based on the results of the internal pilot study, the initially planned sample size can be adjusted. In this paper, we study blinded sample size re-estimation in the 'gold standard' design for normally distributed outcomes. The 'gold standard' design is a three-arm clinical trial design which includes an active and a placebo control in addition to an experimental treatment. We compare several sample size re-estimation procedures in a simulation study assessing operating characteristics including power and type I error. We find that sample size re-estimation based on the popular one-sample variance estimator results in overpowered trials. Moreover, sample size re-estimation based on unbiased variance estimators such as the Xing-Ganju variance estimator results in underpowered trials, as it is expected since an overestimation of the variance and thus the sample size is in general required for the re-estimation procedure to eventually meet the target power. Moreover, we propose an inflation factor for the sample size re-estimation with the Xing-Ganju variance estimator and show that this approach results in adequately powered trials. Due to favorable features of Xing-Ganju variance estimator such as unbiasedness and a distribution independent of the group means, the inflation factor does not depend on the nuisance parameter and, therefore, can be calculated prior to a trial.",
+          "claimed_authors": [
+            "Tobias Mütze",
+            "Tim Friede"
+          ],
+          "claimed_title": "Blinded sample size re-estimation in three-arm trials with 'gold standard' design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.09878"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title=\"Blinded sample size re-estimation in three-arm trials with 'gold standard' design\")",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The replication crisis has prompted many to call for statistical reform within the psychological sciences. Here we examine issues within Frequentist statistics that may have led to the replication crisis, and we examine the alternative---Bayesian statistics---that many have suggested as a replacement. The Frequentist approach and the Bayesian approach offer radically different perspectives on evidence and inference with the Frequentist approach prioritising error control and the Bayesian approach offering a formal method for quantifying the relative strength of evidence for hypotheses. We suggest that rather than mere statistical reform, what is needed is a better understanding of the different modes of statistical inference and a better understanding of how statistical inference relates to scientific inference.",
+          "claimed_authors": [
+            "Lincoln J Colling",
+            "Denes Szucs"
+          ],
+          "claimed_title": "Statistical reform and the replication crisis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.01821"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Statistical reform and the replication crisis')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This Note investigates the bias of the sampling importance resampling (SIR) filter in estimation of the state transition noise in the state space model. The SIR filter may suffer from sample impoverishment that is caused by the resampling and therefore will benefit from a sampling proposal that has a heavier tail, e.g. the state transition noise simulated for particle preparation is bigger than the true noise involved with the state dynamics. This is because a comparably big transition noise used for particle propagation can spread overlapped particles to counteract impoverishment, giving better approximation of the posterior. As such, the SIR filter tends to yield a biased (bigger-than-the-truth) estimate of the transition noise if it is unknown and needs to be estimated, at least, in the forward-only filtering estimation. The bias is elaborated via the direct roughening approach by means of both qualitative logical deduction and quantitative numerical simulation.",
+          "claimed_authors": [
+            "Tiancheng Li"
+          ],
+          "claimed_title": "Bias of the SIR filter in estimation of the state transition noise",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1308.2426"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Bias of the SIR filter in estimation of the state transition noise')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dataset replication is a useful tool for assessing whether improvements in test accuracy on a specific benchmark correspond to improvements in models' ability to generalize reliably. In this work, we present unintuitive yet significant ways in which standard approaches to dataset replication introduce statistical bias, skewing the resulting observations. We study ImageNet-v2, a replication of the ImageNet dataset on which models exhibit a significant (11-14%) drop in accuracy, even after controlling for a standard human-in-the-loop measure of data quality. We show that after correcting for the identified statistical bias, only an estimated $3.6\\% \\pm 1.5\\%$ of the original $11.7\\% \\pm 1.0\\%$ accuracy drop remains unaccounted for. We conclude with concrete recommendations for recognizing and avoiding bias in dataset replication. Code for our study is publicly available at http://github.com/MadryLab/dataset-replication-analysis .",
+          "claimed_authors": [
+            "Logan Engstrom",
+            "Andrew Ilyas",
+            "Shibani Santurkar",
+            "Dimitris Tsipras",
+            "Jacob Steinhardt",
+            "Aleksander Madry"
+          ],
+          "claimed_title": "Identifying Statistical Bias in Dataset Replication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.09619"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Identifying Statistical Bias in Dataset Replication')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Across science and policy, decision-makers often need to draw conclusions about the best candidate among competing alternatives. For instance, researchers may seek to infer the effectiveness of the most successful treatment or determine which demographic group benefits most from a specific treatment. Similarly, in machine learning, practitioners are often interested in the population performance of the model that performs best empirically. However, cherry-picking the best candidate leads to the winner's curse: the observed performance for the winner is biased upwards, rendering conclusions based on standard measures of uncertainty invalid. We introduce the zoom correction, a novel approach for valid inference on the winner. Our method is flexible: it can be employed in both parametric and nonparametric settings, can handle arbitrary dependencies between candidates, and automatically adapts to the level of selection bias. The method easily extends to important related problems, such as inference on the top k winners, inference on the value and identity of the population winner, and inference on \"near-winners.\"",
+          "claimed_authors": [
+            "Tijana Zrnic",
+            "William Fithian"
+          ],
+          "claimed_title": "A Flexible Defense Against the Winner's Curse",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.18569"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title=\"A Flexible Defense Against the Winner's Curse\")",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the past decade, the increased availability of genome-wide association studies summary data has popularized Mendelian Randomization (MR) for conducting causal inference. MR analyses, incorporating genetic variants as instrumental variables, are known for their robustness against reverse causation bias and unmeasured confounders. Nevertheless, classical MR analyses utilizing summary data may still produce biased causal effect estimates due to the winner's curse and pleiotropic issues. To address these two issues and establish valid causal conclusions, we propose a unified robust Mendelian Randomization framework with summary data, which systematically removes the winner's curse and screens out invalid genetic instruments with pleiotropic effects. Different from existing robust MR literature, our framework delivers valid statistical inference on the causal effect neither requiring the genetic pleiotropy effects to follow any parametric distribution nor relying on perfect instrument screening property. Under appropriate conditions, we show that our proposed estimator converges to a normal distribution and its variance can be well estimated. We demonstrate the performance of our proposed estimator through Monte Carlo simulations and two case studies. The codes implementing the procedures are available at https://github.com/ChongWuLab/CARE/.",
+          "claimed_authors": [
+            "Zhongming Xie",
+            "Wanheng Zhang",
+            "Jingshen Wang",
+            "Chong Wu"
+          ],
+          "claimed_title": "Winner's Curse Free Robust Mendelian Randomization with Summary Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.04957"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title=\"Winner's Curse Free Robust Mendelian Randomization with Summary Data\")",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dielectric loaded structures are promising candidates for use in the structure wakefield acceleration (SWFA) technique, for both the collinear wakefield and the two-beam acceleration (CWA and TBA respectively) approaches, due to their low fabrication cost, low rf losses, and the potential to withstand high gradient. A short pulse (<=20 ns) TBA program is under development at the Argonne Wakefield Accelerator (AWA) facility where dielectric loaded structures are being used for both the power extractor/transfer structure (PETS) and the accelerator. In this study, an X-band 11.7 GHz dielectric PETS was developed and tested at the AWA facility to demonstrate high power wakefield generation. The PETS was driven by a train of eight electron bunches separated by 769.2 ps (9 times of the X-band rf period) in order to achieve coherent wakefield superposition. A total train charge of 360 nC was passed through the PETS structure to generate ~200 MW, ~3 ns flat-top rf pulses without rf breakdown. A future experiment is being planned to increase the generated rf power to approximately ~1 GW by optimizing the structure design and improving the drive beam quality.",
+          "claimed_authors": [
+            "Jiahang Shao",
+            "Chunguang Jing",
+            "Eric Wisniewski",
+            "Gwanghui Ha",
+            "Manoel Conde",
+            "Wanming Liu",
+            "John Power",
+            "Lianmin Zheng"
+          ],
+          "claimed_title": "Development and high-power testing of an X-band dielectric-loaded power extractor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.01069"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Development and high-power testing of an X-band dielectric-loaded power extractor')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In a randomized control trial, the precision of an average treatment effect estimator can be improved either by collecting data on additional individuals, or by collecting additional covariates that predict the outcome variable. We propose the use of pre-experimental data such as a census, or a household survey, to inform the choice of both the sample size and the covariates to be collected. Our procedure seeks to minimize the resulting average treatment effect estimator's mean squared error, subject to the researcher's budget constraint. We rely on a modification of an orthogonal greedy algorithm that is conceptually simple and easy to implement in the presence of a large number of potential covariates, and does not require any tuning parameters. In two empirical applications, we show that our procedure can lead to substantial gains of up to 58%, measured either in terms of reductions in data collection costs or in terms of improvements in the precision of the treatment effect estimator.",
+          "claimed_authors": [
+            "Pedro Carneiro",
+            "Sokbae Lee",
+            "Daniel Wilhelm"
+          ],
+          "claimed_title": "Optimal Data Collection for Randomized Control Trials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1603.03675"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Optimal Data Collection for Randomized Control Trials')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Power analyses are an important aspect of experimental design, because they help determine how experiments are implemented in practice. It is common to specify a desired level of power and compute the sample size necessary to obtain that power. Such calculations are well-known for completely randomized experiments, but there can be many benefits to using other experimental designs. For example, it has recently been established that rerandomization, where subjects are randomized until covariate balance is obtained, increases the precision of causal effect estimators. This work establishes the power of rerandomized treatment-control experiments, thereby allowing for sample size calculators. We find the surprising result that, while power is often greater under rerandomization than complete randomization, the opposite can occur for very small treatment effects. The reason is that inference under rerandomization can be relatively more conservative, in the sense that it can have a lower type-I error at the same nominal significance level, and this additional conservativeness adversely affects power. This surprising result is due to treatment effect heterogeneity, a quantity often ignored in power analyses. We find that heterogeneity increases power for large effect sizes but decreases power for small effect sizes.",
+          "claimed_authors": [
+            "Zach Branson",
+            "Xinran Li",
+            "Peng Ding"
+          ],
+          "claimed_title": "Power and Sample Size Calculations for Rerandomization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.02486"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Power and Sample Size Calculations for Rerandomization')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "A formal likelihood ratio hypothesis test for the validity of a parametric regression function is proposed, using a large-dimensional, nonparametric double cone alternative. For example, the test against a constant function uses the alternative of increasing or decreasing regression functions, and the test against a linear function uses the convex or concave alternative. The proposed test is exact, unbiased and the critical value is easily computed. The power of the test increases to one as the sample size increases, under very mild assumptions -- even when the alternative is mis-specified. That is, the power of the test converges to one for any true regression function that deviates (in a non-degenerate way) from the parametric null hypothesis. We also formulate tests for the linear versus partial linear model, and consider the special case of the additive model. Simulations show that our procedure behaves well consistently when compared with other methods. Although the alternative fit is non-parametric, no tuning parameters are involved.",
+          "claimed_authors": [
+            "Bodhisattva Sen",
+            "Mary Meyer"
+          ],
+          "claimed_title": "Testing against a linear regression model using ideas from shape-restricted estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.6849"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Testing against a linear regression model using ideas from shape-restricted estimation')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Algorithmic stability is a concept from learning theory that expresses the degree to which changes to the input data (e.g., removal of a single data point) may affect the outputs of a regression algorithm. Knowing an algorithm's stability properties is often useful for many downstream applications -- for example, stability is known to lead to desirable generalization properties and predictive inference guarantees. However, many modern algorithms currently used in practice are too complex for a theoretical analysis of their stability properties, and thus we can only attempt to establish these properties through an empirical exploration of the algorithm's behavior on various data sets. In this work, we lay out a formal statistical framework for this kind of \"black-box testing\" without any assumptions on the algorithm or the data distribution and establish fundamental bounds on the ability of any black-box test to identify algorithmic stability.",
+          "claimed_authors": [
+            "Byol Kim",
+            "Rina Foygel Barber"
+          ],
+          "claimed_title": "Black-box tests for algorithmic stability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.15546"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Black-box tests for algorithmic stability')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Bayesian hypothesis tests leverage posterior probabilities, Bayes factors, or credible intervals to inform data-driven decision making. We propose a framework for power curve approximation with such hypothesis tests. We present a fast approach to explore the approximate sampling distribution of posterior probabilities when the conditions for the Bernstein-von Mises theorem are satisfied. We extend that approach to consider segments of such sampling distributions in a targeted manner for each sample size explored. These sampling distribution segments are used to construct power curves for various types of posterior analyses. Our resulting method for power curve approximation is orders of magnitude faster than conventional power curve estimation for Bayesian hypothesis tests. We also prove the consistency of the corresponding power estimates and sample size recommendations under certain conditions.",
+          "claimed_authors": [
+            "Luke Hagar",
+            "Nathaniel T. Stevens"
+          ],
+          "claimed_title": "Fast Power Curve Approximation for Posterior Analyses",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.12427"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Fast Power Curve Approximation for Posterior Analyses')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This work concerns developing communication- and computation-efficient methods for large-scale multiple testing over networks, which is of interest to many practical applications. We take an asymptotic approach and propose two methods, proportion-matching and greedy aggregation, tailored to distributed settings. The proportion-matching method achieves the global BH performance yet only requires a one-shot communication of the (estimated) proportion of true null hypotheses as well as the number of p-values at each node. By focusing on the asymptotic optimal power, we go beyond the BH procedure by providing an explicit characterization of the asymptotic optimal solution. This leads to the greedy aggregation method that effectively approximates the optimal rejection regions at each node, while computation efficiency comes from the greedy-type approach naturally. Moreover, for both methods, we provide the rate of convergence for both the FDR and power. Extensive numerical results over a variety of challenging settings are provided to support our theoretical findings.",
+          "claimed_authors": [
+            "Mehrdad Pournaderi",
+            "Yu Xiang"
+          ],
+          "claimed_title": "On Large-Scale Multiple Testing Over Networks: An Asymptotic Approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.16059"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='On Large-Scale Multiple Testing Over Networks: An Asymptotic Approach')",
+        "failed_at": "2026-07-13T20:48:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In response to the unique challenge created by high-dimensional mediators in mediation analysis, this paper presents a novel procedure for testing the nullity of the mediation effect in the presence of high-dimensional mediators. The procedure incorporates two distinct features. Firstly, the test remains valid under all cases of the composite null hypothesis, including the challenging scenario where both exposure-mediator and mediator-outcome coefficients are zero. Secondly, it does not impose structural assumptions on the exposure-mediator coefficients, thereby allowing for an arbitrarily strong exposure-mediator relationship. To the best of our knowledge, the proposed test is the first of its kind to provably possess these two features in high-dimensional mediation analysis. The validity and consistency of the proposed test are established, and its numerical performance is showcased through simulation studies. The application of the proposed test is demonstrated by examining the mediation effect of DNA methylation between smoking status and lung cancer development.",
+          "claimed_authors": [
+            "Yinan Lin",
+            "Zijian Guo",
+            "Baoluo Sun",
+            "Zhenhua Lin"
+          ],
+          "claimed_title": "Testing High-Dimensional Mediation Effect with Arbitrary Exposure-Mediator Coefficients",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.05539"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Reliability of Statistical Power Calculations in Real-World Datase', candidate_title='Testing High-Dimensional Mediation Effect with Arbitrary Exposure-Mediator Coefficients')",
+        "failed_at": "2026-07-13T20:48:50Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Richard D. Gill"
+          ],
+          "title": "Statistics, Causality and Bell's Theorem",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1207.5103",
+        "summary": "Bell's [Physics 1 (1964) 195-200] theorem is popularly supposed to establish the nonlocality of quantum physics. Violation of Bell's inequality in experiments such as that of Aspect, Dalibard and Roger [Phys. Rev. Lett. 49 (1982) 1804-1807] provides empirical proof of nonlocality in the real world. This paper reviews recent work on Bell's theorem, linking it to issues in causality as understood by statisticians. The paper starts with a proof of a strong, finite sample, version of Bell's inequality and thereby also of Bell's theorem, which states that quantum theory is incompatible with the conjunction of three formerly uncontroversial physical principles, here referred to as locality, realism and freedom. Locality is the principle that the direction of causality matches the direction of time, and that causal influences need time to propagate spatially. Realism and freedom are directly connected to statistical thinking on causality: they relate to counterfactual reasoning, and to randomisation, respectively. Experimental loopholes in state-of-the-art Bell type experiments are related to statistical issues of post-selection in observational studies, and the missing at random assumption. They can be avoided by properly matching the statistical analysis to the actual experimental design, instead of by making untestable assumptions of independence between observed and unobserved variables. Methodological and statistical issues in the design of quantum Randi challenges (QRC) are discussed. The paper argues that Bell's theorem (and its experimental confirmation) should lead us to relinquish not locality, but realism.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1207.5103",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T20:48:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abhik Ghosh",
+            "Nirian Martin",
+            "Ayanendranath Basu",
+            "Leandro Pardo"
+          ],
+          "title": "A new class of robust two-sample Wald-type tests",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1702.04552",
+        "summary": "Parametric hypothesis testing associated with two independent samples arises frequently in several applications in biology, medical sciences, epidemiology, reliability and many more. In this paper, we propose robust Wald-type tests for testing such two sample problems using the minimum density power divergence estimators of the underlying parameters. In particular, we consider the simple two-sample hypothesis concerning the full parametric homogeneity of the samples as well as the general two-sample (composite) hypotheses involving nuisance parameters also. The asymptotic and theoretical robustness properties of the proposed Wald-type tests have been developed for both the simple and general composite hypotheses. Some particular cases of testing against one-sided alternatives are discussed with specific attention to testing the effectiveness of a treatment in clinical trials. Performances of the proposed tests have also been illustrated numerically through appropriate real data examples.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1702.04552",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T20:48:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Junpei Komiyama",
+            "Takanori Maehara"
+          ],
+          "title": "A Simple Way to Deal with Cherry-picking",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1810.04996",
+        "summary": "Statistical hypothesis testing serves as statistical evidence for scientific innovation. However, if the reported results are intentionally biased, hypothesis testing no longer controls the rate of false discovery. In particular, we study such selection bias in machine learning models where the reporter is motivated to promote an algorithmic innovation. When the number of possible configurations (e.g., datasets) is large, we show that the reporter can falsely report an innovation even if there is no improvement at all. We propose a `post-reporting' solution to this issue where the bias of the reported results is verified by another set of results. The theoretical findings are supported by experimental results with synthetic and real-world datasets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1810.04996",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T20:48:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rossi A. Hassad",
+            "Anthony P. M. Coxon"
+          ],
+          "title": "Development and Initial Validation of a Scale to Measure Instructors' Attitudes toward Concept-Based Teaching of Introductory Statistics in the Health and Behavioral Sciences",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1007.3210",
+        "summary": "Despite more than a decade of reform efforts, students continue to experience difficulty understanding and applying statistical concepts. The predominant focus of reform has been on content, pedagogy, technology and assessment, with little attention to instructor characteristics. However, there is strong theoretical and empirical evidence that instructors' attitudes impact the quality of teaching and learning. The objective of this study was to develop and initially validate a scale to measure instructors' attitudes toward reform-oriented (or concept-based) teaching of introductory statistics in the health and behavioral sciences, at the tertiary level. This scale will be referred to as FATS (Faculty Attitudes Toward Statistics). Data were obtained from 227 instructors (USA and international), and analyzed using factor analysis, multidimensional scaling and hierarchical cluster analysis. The overall scale consists of five sub-scales with a total of 25 items, and an overall alpha of 0.89. Construct validity was established. Specifically, the overall scale, and subscales (except perceived difficulty) plausibly differentiated between low-reform and high-reform practice instructors. Statistically significant differences in attitude were observed with respect to age, but not gender, employment status, membership status in professional organizations, ethnicity, highest academic qualification, and degree concentration. This scale can be considered a reliable and valid measure of instructors' attitudes toward reform-oriented (concept-based or constructivist) teaching of introductory statistics in the health and behavioral sciences at the tertiary level. These five dimensions influence instructors' attitudes. Additional studies are required to confirm these structural and psychometric properties.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1007.3210",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T20:48:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sriram Balasubramanian",
+            "Samyadeep Basu",
+            "Koustava Goswami",
+            "Ryan Rossi",
+            "Varun Manjunatha",
+            "Roshan Santhosh",
+            "Ruiyi Zhang",
+            "Soheil Feizi",
+            "Nedim Lipka"
+          ],
+          "title": "Decomposition-Enhanced Training for Post-Hoc Attributions In Language Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.25766",
+        "summary": "Large language models (LLMs) are increasingly used for long-document question answering, where reliable attribution to sources is critical for trust. Existing post-hoc attribution methods work well for extractive QA but struggle in multi-hop, abstractive, and semi-extractive settings, where answers synthesize information across passages. To address these challenges, we argue that post-hoc attribution can be reframed as a reasoning problem, where answers are decomposed into constituent units, each tied to specific context. We first show that prompting models to generate such decompositions alongside attributions improves performance. Building on this, we introduce DecompTune, a post-training method that teaches models to produce answer decompositions as intermediate reasoning steps. We curate a diverse dataset of complex QA tasks, annotated with decompositions by a strong LLM, and post-train Qwen-2.5 (7B and 14B) using a two-stage SFT + GRPO pipeline with task-specific curated rewards. Across extensive experiments and ablations, DecompTune substantially improves attribution quality, outperforming prior methods and matching or exceeding state-of-the-art frontier models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.25766",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T20:49:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1907.02664",
+        "summary": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1907.02664",
+          "http_status": 200,
+          "pdf_sample_score": 0.3275,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T20:49:01Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "assessing the reliability of statistical power calculations in real-world datasets statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

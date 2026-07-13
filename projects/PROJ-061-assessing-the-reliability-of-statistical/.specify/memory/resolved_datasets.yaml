@@ -1,0 +1,210 @@
+resolved_at: '2026-07-13T20:56:27.366210+00:00'
+datasets:
+- intent: UCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ucirvine/sms_spam/resolve/main/plain_text/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ucirvine/reuters21578/resolve/main/data/reuters21578.tar.gz
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://huggingface.co/datasets/ucirvine/sms_spam/resolve/main/plain_text/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://figshare.com/articles/poster/_07065145132_Mewar_International_University_Masaka_Nasarawa_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help/32978516
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/X_07033307887_Department_of_Nursing_Sciences_Clifford_University_Owerrinta_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_on_sale_and_still_ongoing_Applications_are_invited_from_suitably_qualified_candidates_/32978513
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Edusoko_University_Bida_Niger_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_form_purcha/32978510
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/V_07033307887_Department_of_Nursing_Sciences_Clifford_University_Owerrinta_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_on_sale_and_still_ongoing_Applications_are_invited_from_suitably_qualified_candidates_/32978501
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Philomath_University_Kuje_Abuja_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_form_purchase_r/32978507
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950533
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10685355
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61452
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4432825
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6592391
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343524
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343524
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343013
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343013
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.09641
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/poster/_07065145132_Mewar_International_University_Masaka_Nasarawa_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help/32978516
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/X_07033307887_Department_of_Nursing_Sciences_Clifford_University_Owerrinta_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_on_sale_and_still_ongoing_Applications_are_invited_from_suitably_qualified_candidates_/32978513
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Edusoko_University_Bida_Niger_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_form_purcha/32978510
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/V_07033307887_Department_of_Nursing_Sciences_Clifford_University_Owerrinta_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_on_sale_and_still_ongoing_Applications_are_invited_from_suitably_qualified_candidates_/32978501
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Philomath_University_Kuje_Abuja_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_form_purchase_r/32978507
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Max retries exceeded with url: /index.php/EEI/article/view/1972 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''beei.org'', port=443) at 0x7f392783e210>,
+      ''Connection to beei.org timed out. (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344750
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344750
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343792
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PowerEstimate
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/_07065145132_Mewar_International_University_Masaka_Nasarawa_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help/32978516
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/X_07033307887_Department_of_Nursing_Sciences_Clifford_University_Owerrinta_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_on_sale_and_still_ongoing_Applications_are_invited_from_suitably_qualified_candidates_/32978513
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Edusoko_University_Bida_Niger_State_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_form_purcha/32978510
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/V_07033307887_Department_of_Nursing_Sciences_Clifford_University_Owerrinta_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_on_sale_and_still_ongoing_Applications_are_invited_from_suitably_qualified_candidates_/32978501
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_07065145132_Philomath_University_Kuje_Abuja_has_opened_admissions_for_the_2026_2027_academic_session_Post-UTME_and_other_forms_are_available_for_Direct_Entry_JUPEB_IJMB_Master_s_and_PGD_programs_Applicants_can_get_help_with_form_purchase_r/32978507
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/figure/Additional_file_2_of_Contribution_of_classification_based_on_ferroptosis-related_genes_to_the_heterogeneity_of_MAFLD/19159047
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/figure/Additional_file_2_of_Contribution_of_classification_based_on_ferroptosis-related_genes_to_the_heterogeneity_of_MAFLD/19159047/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
