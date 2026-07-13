@@ -1,88 +1,50 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Intern-Atlas Extended Dataset Schema
-description: |
-  Schema for the processed features dataset derived from Intern-Atlas and retraction databases.
-  This dataset contains topological features and retraction labels for methods published between 2010-2018.
+title: Feature Dataset Schema
+description: Schema for the processed feature dataset used in model training.
 type: object
-required:
-  - metadata
-  - columns
 properties:
-  metadata:
-    type: object
-    properties:
-      source:
-        type: string
-        const: "Intern-Atlas + Retraction Watch"
-      extraction_date:
-        type: string
-        format: date-time
-      year_range:
-        type: object
-        properties:
-          start:
-            type: integer
-            const: 2010
-          end:
-            type: integer
-            const: 2018
-        required:
-          - start
-          - end
-      edge_types_used:
-        type: array
-        items:
-          type: string
-          enum: ["improves", "replaces", "extends"]
-      label_mapping:
-        type: object
-        properties:
-          robust:
-            type: integer
-            const: 0
-          fragile:
-            type: integer
-            const: 1
-          retraction_only:
-            type: integer
-            const: 2
-        required:
-          - robust
-          - fragile
-          - retraction_only
-    required:
-      - source
-      - extraction_date
-      - year_range
-      - edge_types_used
-      - label_mapping
-  columns:
-    type: array
-    description: |
-      Ordered list of columns in the resulting CSV.
-      Must include at least the core identifier, features, and label columns.
-    minItems: 10
-    items:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        dtype:
-          type: string
-          enum: ["string", "integer", "float", "boolean"]
-      required:
-        - name
-        - dtype
-    allOf:
-      - contains:
-          const: "doi"
-      - contains:
-          const: "bottleneck_resolution_ratio"
-      - contains:
-          const: "branching_entropy"
-      - contains:
-          const: "retraction_status"
-      - contains:
-          const: "retraction_status_binary"
+  paper_id:
+    type: string
+    description: Unique identifier for the paper (DOI or internal ID).
+  title:
+    type: string
+    description: Full title of the paper.
+  year:
+    type: integer
+    minimum: 2010
+    maximum: 2018
+    description: Publication year.
+  bottleneck_resolution_ratio:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Ratio of bottleneck-resolving edges to total outgoing edges.
+  branching_entropy:
+    type: number
+    minimum: 0.0
+    description: Shannon entropy of downstream method types.
+  citation_count:
+    type: integer
+    minimum: 0
+    description: Total incoming citations.
+  label:
+    type: integer
+    enum:
+      - 0
+      - 1
+      - 2
+    description: "0: Robust, 1: Fragile (methodological error), 2: Retraction-Only (fraud)."
+  field_of_study:
+    type: string
+    description: Domain classification.
+  publication_venue:
+    type: string
+    description: Journal or conference name.
+required:
+  - paper_id
+  - year
+  - bottleneck_resolution_ratio
+  - branching_entropy
+  - citation_count
+  - label
+additionalProperties: false

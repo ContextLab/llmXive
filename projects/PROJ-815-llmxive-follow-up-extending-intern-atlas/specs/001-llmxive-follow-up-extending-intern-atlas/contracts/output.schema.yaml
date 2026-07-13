@@ -1,0 +1,55 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Final Output Schema
+description: Schema for the final aggregated results and report data.
+type: object
+properties:
+  summary:
+    type: object
+    properties:
+      topological_model_auc: { type: number }
+      baseline_model_auc: { type: number }
+      improvement_delta: { type: number }
+      permutation_significance: { type: boolean }
+      stability_flag: { type: boolean }
+    required: [topological_model_auc, baseline_model_auc, improvement_delta, permutation_significance, stability_flag]
+  detailed_results:
+    type: array
+    items:
+      $ref: "#/definitions/ModelResult"
+  artifacts:
+    type: object
+    properties:
+      feature_dataset_checksum: { type: string }
+      model_checkpoint_checksum: { type: string }
+    required: [feature_dataset_checksum, model_checkpoint_checksum]
+definitions:
+  ModelResult:
+    type: object
+    properties:
+      model_type: { type: string }
+      auc_roc: { type: number }
+      precision: { type: number }
+      recall: { type: number }
+      f1_score: { type: number }
+      stability_flag: { type: boolean }
+      threshold_sweep:
+        type: object
+        properties:
+          "0.3": { type: object, properties: { fpr: { type: number }, fnr: { type: number } }, required: [fpr, fnr] }
+          "0.5": { type: object, properties: { fpr: { type: number }, fnr: { type: number } }, required: [fpr, fnr] }
+          "0.7": { type: object, properties: { fpr: { type: number }, fnr: { type: number } }, required: [fpr, fnr] }
+        required: ["0.3", "0.5", "0.7"]
+      permutation_test:
+        type: object
+        properties:
+          observed_auc: { type: number }
+          mean_permuted_auc: { type: number }
+          std_permuted_auc: { type: number }
+          significant: { type: boolean }
+        required: [observed_auc, mean_permuted_auc, std_permuted_auc, significant]
+    required: [model_type, auc_roc, stability_flag, threshold_sweep, permutation_test]
+required:
+  - summary
+  - detailed_results
+  - artifacts
+additionalProperties: false

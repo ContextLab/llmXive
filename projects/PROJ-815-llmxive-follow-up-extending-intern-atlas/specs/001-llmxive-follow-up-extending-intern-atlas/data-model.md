@@ -1,73 +1,65 @@
-# Data Model: Extending Intern-Atlas
+# Data Model: llmXive follow-up: extending "Intern-Atlas: A Methodological Evolution Graph as Research Infrastruct"
 
-This document defines the schema for the core entities used in the llmXive follow-up study: `MethodNode`, `RetractionLabel`, and `TopologicalFeatures`.
+## Overview
 
-## Entity Relationship Diagram
+This document defines the data structures used throughout the project, ensuring consistency between the extraction, training, and validation phases. All data is stored in CSV or Parquet format under `data/processed/`.
 
-```mermaid
-erDiagram
- MethodNode ||--o{ TopologicalFeatures: "has"
- MethodNode ||--o{ RetractionLabel: "may_have"
- MethodNode {
- string doi "Primary Identifier"
- string title "Method Title"
- string year "Publication Year (2010-2018)"
- string field_of_study "Research Domain"
- string venue "Publication Venue"
- int citation_count "Total Citations"
- }
- TopologicalFeatures {
- float bottleneck_resolution_ratio "Ratio of improves/replaces edges to total outgoing"
- float branching_entropy "Shannon entropy of downstream method types"
- int outgoing_edge_count "Total outgoing edges"
- int improves_count "Count of 'improves' edges"
- int replaces_count "Count of 'replaces' edges"
- }
- RetractionLabel {
- string reason "Retraction reason (e.g., methodological error, fraud)"
- int status_code "0=Robust, 1=Fragile, 2=Retraction-Only"
- date retraction_date "Date of retraction"
- string journal "Journal of retraction"
- }
-```
+## Entities
 
-## Entity Definitions
+### 1. MethodNode (Raw & Processed)
 
-### MethodNode
-Represents a scientific method or paper within the Intern-Atlas graph.
+Represents a single methodological paper in the Intern-Atlas graph.
 
-| Field | Type | Description | Constraints |
-|:--- |:--- |:--- |:--- |
-| `doi` | string | Digital Object Identifier | Unique, non-null |
-| `title` | string | Title of the method/paper | Non-null |
-| `year` | int | Publication year | Range: 2010-2018 |
-| `field_of_study` | string | Research domain | Non-null |
-| `venue` | string | Publication venue (journal/conference) | Non-null |
-| `citation_count` | int | Total number of citations | >= 0 |
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `paper_id` | string | Unique identifier for the paper (e.g., DOI or internal ID). | Intern-Atlas |
+| `title` | string | Full title of the paper. | Intern-Atlas |
+| `year` | integer | Publication year (2010-2018). | Intern-Atlas |
+| `outgoing_edges` | list[dict] | List of edges: `{"target_id": str, "type": str}`. | Intern-Atlas |
+| `incoming_citations` | integer | Total number of incoming citations. | Intern-Atlas |
+| `field_of_study` | string | Domain classification (e.g., "Machine Learning", "Biology"). | Intern-Atlas |
+| `publication_venue` | string | Journal or conference name. | Intern-Atlas |
 
-### TopologicalFeatures
-Derived metrics calculated from the graph structure surrounding a `MethodNode`.
+### 2. RetractionLabel
 
-| Field | Type | Description | Constraints |
-|:--- |:--- |:--- |:--- |
-| `doi` | string | Foreign Key to MethodNode | Unique per node |
-| `bottleneck_resolution_ratio` | float | (improves + replaces edges) / total outgoing edges | Range: [0.0, 1.0] |
-| `branching_entropy` | float | Shannon entropy of downstream method types | >= 0.0 |
-| `outgoing_edge_count` | int | Total outgoing edges in the graph | >= 0 |
-| `improves_count` | int | Count of outgoing 'improves' edges | >= 0 |
-| `replaces_count` | int | Count of outgoing 'replaces' edges | >= 0 |
+External truth label mapped to a MethodNode.
 
-### RetractionLabel
-Ground truth label indicating the robustness status of a method, mapped from retraction databases.
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `paper_id` | string | Matching paper ID. | Retraction Watch DB |
+| `status` | integer | 1 (Fragile), 2 (Retraction-Only), 0 (Robust). | Retraction Watch DB |
+| `reason` | string | Specific reason for retraction (if applicable). | Retraction Watch DB |
+| `source` | string | "Retraction Watch" or "Replication Index". | Retraction Watch DB |
 
-| Field | Type | Description | Constraints |
-|:--- |:--- |:--- |:--- |
-| `doi` | string | Foreign Key to MethodNode | Unique per node (if exists) |
-| `reason` | string | Specific reason for retraction | Matches constants (e.g., "methodological error") |
-| `status_code` | int | Categorical label | 0=Robust, 1=Fragile, 2=Retraction-Only |
-| `retraction_date` | date | Date the retraction was issued | Optional |
-| `journal` | string | Journal where retraction appeared | Optional |
+### 3. TopologicalFeatures
 
-## JSON Schema Reference
+Derived record for each MethodNode, ready for modeling.
 
-The formal JSON Schema for these entities is defined in `data-model.schema.json`.
+| Field | Type | Description | Calculation |
+| :--- | :--- | :--- | :--- |
+| `paper_id` | string | Foreign key to MethodNode. | Inherited |
+| `bottleneck_resolution_ratio` | float | Ratio of (`improves` + `replaces`) edges to total outgoing. | FR-002 |
+| `branching_entropy` | float | Shannon entropy of downstream edge types. | FR-003 |
+| `citation_count` | integer | Total incoming citations. | Inherited |
+| `label` | integer | 1 (Fragile), 0 (Robust). (Retraction-Only excluded from primary model). | FR-004 |
+
+### 4. ModelResult
+
+Record storing performance metrics.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `model_type` | string | "Topological" or "Baseline". |
+| `auc_roc` | float | Area Under the ROC Curve. |
+| `precision` | float | Precision score. |
+| `recall` | float | Recall score. |
+| `f1_score` | float | F1 score. |
+| `stability_flag` | boolean | True if VIF > 5 or MI > 0.1. |
+| `threshold_sweep` | dict | FPR/FNR for cutoffs {0.3, 0.5, 0.7}. |
+
+## Data Flow
+
+1.  **Raw Data**: `data/raw/intern_atlas_graph.json`, `data/raw/retraction_watch.csv`.
+2.  **Extraction**: `run_extraction.py` -> `data/processed/feature_dataset.csv` (contains `TopologicalFeatures` + `RetractionLabel`).
+3.  **Training**: `run_training.py` reads `feature_dataset.csv`, splits into train/val, trains models, outputs `data/processed/model_results.json` and `data/processed/permutation_results.csv`.
+4.  **Artifacts**: All files are checksummed and recorded in `state/...yaml`.

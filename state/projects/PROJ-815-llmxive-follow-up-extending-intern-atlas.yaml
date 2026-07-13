@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-815-llmxive-follow-up-extending-intern-atlas
-last_run_id: 6780bcf0-2c0b-4927-b70f-95dd272fa8e0
+last_run_id: f9fd8465-9e34-45ed-aeb3-e0d61d4038e0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas
 title: 'llmXive follow-up: extending "Intern-Atlas: A Methodological Evolution Graph
   as Research Infrastruct"'
-updated_at: '2026-07-12T23:57:28.600409Z'
+updated_at: '2026-07-13T00:15:31.612950Z'

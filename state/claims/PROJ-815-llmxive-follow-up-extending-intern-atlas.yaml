@@ -1,217 +1,271 @@
 - artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
   attempts: 1
-  canonical: 'retraction label mappings: 0=Robust, 1=Fragile, 2=Retraction-Only'
-  claim_id: c_b391da6f
-  context: 'Task T004: Create code/utils/constants.py defining constants for date
-    ranges (2010-2018), edge types (improves, replaces, extends), and retraction label
-    mappings (0=Robust, 1=Fragile, 2=Retraction-Only)'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Define constants for date ranges (2010-2018), edge types (improves, replaces,
-    extends), and retraction label mappings (0=Robust, 1=Fragile, 2=Retraction-Only)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T23:49:01Z'
-- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
-  attempts: 1
-  canonical: Levenshtein fuzzy match threshold ratio >= 0.85
-  claim_id: c_12860e98
-  context: 'Task T015: Implement code/data/merge_retractions.py: Map nodes to retraction
-    databases using exact DOI match first, then Levenshtein fuzzy match (ratio >=
-    0.85) for title/author'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Map nodes to retraction databases using exact DOI match first, then Levenshtein
-    fuzzy match (ratio >= 0.85) for title/author
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T23:49:30Z'
-- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
-  attempts: 1
-  canonical: Stratified Permutation Test n=100 iterations
-  claim_id: c_4017aab6
-  context: 'Task T031: Implement code/analysis/robustness_tests.py: Perform Stratified
-    Permutation Test with exactly n=100 iterations (as per FR-007 and Plan.md Phase
-    2 T010)'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Perform Stratified Permutation Test with exactly n=100 iterations
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T23:50:48Z'
-- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
-  attempts: 1
-  canonical: threshold sweep set 0.3, 0.5, 0.7
-  claim_id: c_b753ae60
-  context: 'Task T032: Implement code/analysis/sensitivity_analysis.py: Run threshold
-    sweep over the specific set {0.3, 0.5, 0.7} (as per FR-008 and SC-002)'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run threshold sweep over the specific set {0.3, 0.5, 0.7}
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T23:51:11Z'
-- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
-  attempts: 1
-  canonical: abort if VIF > 5 or MI > 0.1
-  claim_id: c_e266bcb8
-  context: 'Task T032: ...calculate VIF and MI for predictors; If VIF > 5 or MI >
-    0.1, the script MUST ABORT with a clear error message'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If VIF > 5 or MI > 0.1, the script MUST ABORT
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T23:51:11Z'
-- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
-  attempts: 1
-  canonical: plot resolution DPI=300
-  claim_id: c_abdd79db
-  context: 'Task T037: ...use PNG format with DPI=300 resolution as per SC-002'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Save plots with DPI=300 resolution
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T23:51:46Z'
-- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
-  attempts: 1
-  canonical: calculate bottleneck_resolution_ratio and branching_entropy
-  claim_id: c_d9448ed5
-  context: 'T014 [P] [US1] Implement code/data/compute_features.py: Calculate bottleneck_resolution_ratio
-    (improves/replaces edges / total outgoing) and branching_entropy (Shannon entropy
-    of downstream method types); handle nodes with 0 outgoing edges gracefully'
+  canonical: bottleneck_resolution_ratio calculation method
+  claim_id: c_56b61b3f
+  context: 'Implement `code/data/compute_features.py`: Calculate `bottleneck_resolution_ratio`
+    (improves/replaces edges / total outgoing) and `branching_entropy`...'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Calculate_bottleneck_resolution_ratio_and_branching_entropy
+    source_url: https://en.wikipedia.org/wiki/Bottleneck_resolution_ratio_calculation_method
   kind: entity_fact
-  raw_text: Calculate bottleneck_resolution_ratio (improves/replaces edges / total
-    outgoing) and branching_entropy (Shannon entropy of downstream method types)
+  raw_text: The pipeline computes bottleneck_resolution_ratio as the ratio of improves/replaces
+    edges to total outgoing edges.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-12T23:53:30Z'
+  updated_at: '2026-07-13T00:05:00Z'
 - artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
   attempts: 1
-  canonical: map nodes to retraction databases using Levenshtein ratio >= 0.85
-  claim_id: c_3c40be29
-  context: 'T015 [P] [US1] Implement code/data/merge_retractions.py: Map nodes to
-    retraction databases using exact DOI match first, then Levenshtein fuzzy match
-    (ratio >= 0.85) for title/author; implement duplicate resolution (earliest date,
-    then alphabetical journal)'
+  canonical: branching_entropy calculation method
+  claim_id: c_646f4e5f
+  context: Calculate `bottleneck_resolution_ratio` (improves/replaces edges / total
+    outgoing) and `branching_entropy` (Shannon entropy of downstream method types)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Branching_entropy_calculation_method
+  kind: entity_fact
+  raw_text: The pipeline computes branching_entropy as the Shannon entropy of downstream
+    method types.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:05:26Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: retraction mapping method DOI and Levenshtein ratio 0.85
+  claim_id: c_284792f7
+  context: Map nodes to retraction databases using exact DOI match first, then Levenshtein
+    fuzzy match (ratio >= 0.85) for title/author...
+  evidence:
+    asserted: '0.85'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Nodes are mapped to retraction databases using exact DOI match first,
+    then Levenshtein fuzzy match with a ratio of at least 0.85.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T00:05:26Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: duplicate resolution strategy earliest date then alphabetical journal
+  claim_id: c_35444e74
+  context: '...implement duplicate resolution (earliest date, then alphabetical journal)...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Duplicate_resolution_strategy_earliest_date_then_alphabetica
+  kind: magnitude
+  raw_text: Duplicate resolution for retraction mapping uses the earliest date first,
+    then alphabetical journal order.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:06:15Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: retraction label mapping 0 Robust 1 Fragile 2 Retraction-Only
+  claim_id: c_1817736a
+  context: '...assign label `1` (Fragile), `2` (Retraction-Only), or `0` (Robust)
+    based on retraction reason...'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Map nodes to retraction databases using exact DOI match first, then Levenshtein
-    fuzzy match (ratio >= 0.85) for title/author
+  raw_text: The retraction label 1 corresponds to Fragile, 2 corresponds to Retraction-Only,
+    and 0 corresponds to Robust.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-12T23:53:30Z'
+  updated_at: '2026-07-13T00:07:40Z'
 - artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
   attempts: 1
-  canonical: 'assign retraction labels based on reason: methodological error=1, fraud=2,
-    other=0, irreproducibility=1'
-  claim_id: c_a7da6811
-  context: T016 [US1] Implement label mapping logic in code/data/merge_retractions.py
-    to assign label 1 (Fragile), 2 (Retraction-Only), or 0 (Robust) based on retraction
-    reason (FR-004)
+  canonical: stratified time-based split early train later validation
+  claim_id: c_c884d4d6
+  context: Train Logistic Regression... ensure stratified time-based split (early
+    period train, later period val)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratified_time-based_split_early_train_later_validation
+  kind: entity_fact
+  raw_text: The model training uses a stratified time-based split with an early period
+    for training and a later period for validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:08:23Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: topological model Multinomial Logistic Regression 3-class
+  claim_id: c_f734e64f
+  context: Train **Multinomial (3-class) Logistic Regression** using only `bottleneck_resolution_ratio`
+    and `branching_entropy` to predict the full `retraction_status`...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Topological_model_Multinomial_Logistic_Regression_3-class
+  kind: entity_fact
+  raw_text: The topological model is a Multinomial Logistic Regression with 3 classes
+    predicting retraction status.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:09:17Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: baseline model predictors citation_count publication_year
+  claim_id: c_4ba70898
+  context: Train Logistic Regression using only `citation_count` and `publication_year`...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_predictors_citation_count_publication_year
+  kind: entity_fact
+  raw_text: The baseline model uses only citation_count and publication_year as predictors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:10:20Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: evaluation metrics AUC-ROC Precision Recall F1 Macro Per-class
+  claim_id: c_1a34dc91
+  context: Calculate AUC-ROC (One-vs-Rest), Precision, Recall, F1 (Macro and Per-class)
+    for both binary/multi-class models...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_metrics_AUC-ROC_Precision_Recall_F1_Macro_Per-cla
+  kind: entity_fact
+  raw_text: The evaluation calculates AUC-ROC (One-vs-Rest), Precision, Recall, and
+    F1 (Macro and Per-class).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:11:11Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: stratified permutation test 100 iterations
+  claim_id: c_4de10a61
+  context: Perform stratified permutation test with **exactly n=100 iterations** (as
+    per FR-007)...
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Assign label 1 (Fragile) for methodological error, label 2 (Retraction-Only)
-    for fraud, label 0 (Robust) for other, and label 1 (Fragile) for irreproducibility
+  raw_text: The stratified permutation test is performed with exactly 100 iterations.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-12T23:54:09Z'
+  updated_at: '2026-07-13T00:11:38Z'
 - artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
   attempts: 1
-  canonical: perform stratified permutation test with 100 iterations
-  claim_id: c_e1e7b52c
-  context: 'T031 [US3] Implement code/analysis/robustness_tests.py: Perform Stratified
-    Permutation Test with exactly n=100 iterations (as per FR-007 and Plan.md Phase
-    2 T010) shuffling labels within strata of ''field of study'' and ''publication
-    venue'''
+  canonical: threshold sweep values 0.3 0.5 0.7
+  claim_id: c_91d3ce86
+  context: Run threshold sweep over the **specific set {0.3, 0.5, 0.7}** (as per FR-008
+    and SC-002)...
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Perform Stratified Permutation Test with exactly n=100 iterations shuffling
-    labels within strata of field of study and publication venue
+  raw_text: The threshold sweep is run over the specific set of values {0.3, 0.5,
+    0.7}.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-12T23:54:48Z'
+  updated_at: '2026-07-13T00:12:19Z'
 - artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
   attempts: 1
-  canonical: run threshold sweep on 0.3, 0.5, 0.7 with abort on VIF > 5 or MI > 0.1
-  claim_id: c_2964868b
-  context: 'T032 [US3] Implement code/analysis/sensitivity_analysis.py: Run threshold
-    sweep over the specific set {0.3, 0.5, 0.7} (as per FR-008 and SC-002); calculate
-    and report FPR/FNR for each; calculate VIF and MI for predictors; If VIF > 5 or
-    MI > 0.1, the script MUST ABORT'
+  canonical: instability flag VIF > 5 or MI > 0.1
+  claim_id: c_4b4e783f
+  context: '...flag instability if VIF > 5 or MI > 0.1.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/instability_flag_VIF_%3E_5_or_MI_%3E_0.1
+  kind: magnitude
+  raw_text: Instability is flagged if the Variance Inflation Factor (VIF) is greater
+    than 5 or Mutual Information (MI) is greater than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:13:07Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: node filtering year range 2010 2018
+  claim_id: c_282d1e52
+  context: Load graph, filter nodes by year (2010-2018)...
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Run threshold sweep over the specific set {0.3, 0.5, 0.7} and abort if
-    VIF > 5 or MI > 0.1
+  raw_text: The analysis filters nodes by the year range 2010-2018.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-12T23:55:01Z'
+  updated_at: '2026-07-13T00:13:40Z'
 - artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
   attempts: 1
-  canonical: save threshold sensitivity plot with 300 DPI
-  claim_id: c_5a77f465
-  context: 'T037 [P] Generate plots: Save PR curve to data/processed/plots/pr_curve.png,
-    Permutation distribution to data/processed/plots/permutation_dist.png, and Threshold
-    sensitivity plot to data/processed/plots/threshold_sweep.png (MUST explicitly
-    label points {0.3, 0.5, 0.7} on x-axis, include legend for FPR/FNR values from
-    threshold_sweep_metrics.json, and use PNG format with DPI=300 resolution as per
-    SC-002)'
+  canonical: edge type exclusion LLM-inferred retraction-outcome
+  claim_id: c_5d15cfd6
+  context: '...validate edge types (exclude LLM-inferred and retraction-outcome types)...'
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Save threshold sensitivity plot to data/processed/plots/threshold_sweep.png
-    with DPI=300 resolution
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Edge_type_exclusion_LLM-inferred_retraction-outcome
+  kind: entity_fact
+  raw_text: The analysis excludes LLM-inferred and retraction-outcome edge types.
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-12T23:55:35Z'
+  updated_at: '2026-07-13T00:14:20Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: edge types improves replaces extends
+  claim_id: c_cd2800ef
+  context: '...defining constants for date ranges (2010-2018), edge types (`improves`,
+    `replaces`, `extends`)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Edge_types_improves_replaces_extends
+  kind: entity_fact
+  raw_text: The dataset includes edge types labeled as improves, replaces, and extends.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:15:07Z'

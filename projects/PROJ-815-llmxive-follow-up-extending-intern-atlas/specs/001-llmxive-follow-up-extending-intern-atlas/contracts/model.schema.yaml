@@ -1,89 +1,79 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: ModelResult Schema
-description: Schema for the output of model training and evaluation.
+title: Model Results Schema
+description: Schema for the output of the model training and validation phase.
 type: object
 properties:
   model_type:
     type: string
-    description: Type of model (Topological or Baseline).
     enum:
       - Topological
       - Baseline
+    description: Type of model trained.
   auc_roc:
     type: number
-    description: Area Under the ROC Curve.
     minimum: 0.0
     maximum: 1.0
+    description: Area Under the ROC Curve.
   precision:
     type: number
-    description: Precision score.
     minimum: 0.0
     maximum: 1.0
+    description: Precision score.
   recall:
     type: number
-    description: Recall score.
     minimum: 0.0
     maximum: 1.0
+    description: Recall score.
   f1_score:
     type: number
-    description: F1 Score.
     minimum: 0.0
     maximum: 1.0
+    description: F1 score.
   stability_flag:
     type: boolean
-    description: True if VIF > 5 or MI > 0.1, indicating potential instability.
-  permutation_count:
-    type: integer
-    description: Number of permutations performed (must be 100 per FR-007).
-    enum:
-      - 100
-    minimum: 100
-  permutation_mean_auc:
+    description: True if VIF > 5 or MI > 0.1.
+  vif_value:
     type: number
-    description: Mean AUC from permutation test (n=100).
-    minimum: 0.0
-    maximum: 1.0
-  permutation_std_auc:
-    type: number
-    description: Standard deviation of AUC from permutation test.
-    minimum: 0.0
-  vif_brr:
-    type: number
-    description: Variance Inflation Factor for bottleneck_resolution_ratio.
-    minimum: 1.0
-  vif_be:
-    type: number
-    description: Variance Inflation Factor for branching_entropy.
-    minimum: 1.0
-  mi_score:
+    description: Variance Inflation Factor for predictors.
+  mi_value:
     type: number
     description: Mutual Information between predictors.
-    minimum: 0.0
-    maximum: 1.0
-  stratification_keys:
-    type: array
-    description: Keys used for stratified permutation.
-    items:
-      type: string
-    example:
-      - "field_of_study"
-      - "publication_venue"
-  covariate_adjustment_applied:
-    type: boolean
-    description: True if the mandatory covariate adjustment (FR-012) was performed.
+  threshold_sweep:
+    type: object
+    description: FPR and FNR for cutoffs {0.3, 0.5, 0.7}.
+    properties:
+      "0.3":
+        type: object
+        properties:
+          fpr: { type: number }
+          fnr: { type: number }
+        required: [fpr, fnr]
+      "0.5":
+        type: object
+        properties:
+          fpr: { type: number }
+          fnr: { type: number }
+        required: [fpr, fnr]
+      "0.7":
+        type: object
+        properties:
+          fpr: { type: number }
+          fnr: { type: number }
+        required: [fpr, fnr]
+    required: ["0.3", "0.5", "0.7"]
+  permutation_test:
+    type: object
+    description: Results of the permutation test (n=100).
+    properties:
+      observed_auc: { type: number }
+      mean_permuted_auc: { type: number }
+      std_permuted_auc: { type: number }
+      significant: { type: boolean }
+    required: [observed_auc, mean_permuted_auc, std_permuted_auc, significant]
 required:
   - model_type
   - auc_roc
-  - precision
-  - recall
-  - f1_score
   - stability_flag
-  - permutation_count
-  - permutation_mean_auc
-  - permutation_std_auc
-  - vif_brr
-  - vif_be
-  - mi_score
-  - stratification_keys
-  - covariate_adjustment_applied
+  - threshold_sweep
+  - permutation_test
 additionalProperties: false

@@ -56,11 +56,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Create `code/utils/constants.py` defining constants for date ranges (2010-2018), edge types (`improves`, `replaces`, `extends`), and retraction label mappings (0=Robust, 1=Fragile, 2=Retraction-Only)
-- [ ] T005 [P] Implement `code/utils/graph_utils.py` with helper functions for graph loading, edge filtering, and metadata validation; **MUST include function `abort_if_llm_inferred()` that halts execution with a clear error if any edge type is detected as LLM-inferred** (per FR-002).
-- [ ] T006 [P] Create `docs/fallback_protocol.md` explicitly stating: **1. Trigger**: Missing ground truth labels. **2. Action**: Abort with message "No ground truth labels found for the specified time window; analysis cannot proceed." **3. Constraint**: NO synthetic data generation is permitted.
-- [~] T007 [P] Configure environment configuration (`.env.example`) and logging infrastructure (`code/utils/logging_config.py`) with keys for `DATA_PATH`, `LOG_LEVEL`, `SEED`
-- [~] T008 [P] Create `data-model.md` in `specs/001-llmxive-follow-up-extending-intern-atlas/` defining the schema for `MethodNode`, `RetractionLabel`, and `TopologicalFeatures`. **Deliverables**: 1) A Mermaid diagram illustrating entity relationships. 2) A `data-model.schema.json` file defining the JSON Schema for these entities.
-- [~] T009 [P] Create `contracts/` directory and files: `dataset.schema.yaml` and `model.schema.yaml` in `specs/001-llmxive-follow-up-extending-intern-atlas/contracts/`
+- [ ] T005 [P] Create `code/utils/graph_utils.py` with helper functions for graph loading, edge filtering, and metadata validation
+- [ ] T007 [P] Configure environment configuration (`.env.example`) and logging infrastructure (`code/utils/logging_config.py`) with keys for `DATA_PATH`, `LOG_LEVEL`, `SEED`
+- [ ] T008 [P] Create `data-model.md` in `specs/001-llmxive-follow-up-extending-intern-atlas/` defining the schema for `MethodNode`, `RetractionLabel`, and `TopologicalFeatures`
+- [ ] T009 [P] Create `contracts/` directory and files: `dataset.schema.yaml`, `model.schema.yaml`, and `output.schema.yaml` in `specs/001-llmxive-follow-up-extending-intern-atlas/contracts/` defining schemas for input data, model parameters, and final results respectively
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -110,9 +109,9 @@
 
 ## Phase 4: User Story 2 - Model Training and Validation (Priority: P2)
 
-**Goal**: Train and compare topological vs. citation-only models to predict retraction status.
+**Goal**: Train and compare topological vs. citation-only models to predict retraction status (3-class).
 
-**Independent Test**: The training script can be run with a fixed seed; output must show AUC-ROC and Precision-Recall for both models.
+**Independent Test**: The training script can be run with a fixed seed; output must show AUC-ROC (per-class/macro), Precision, Recall, and F1 for both models across all three classes.
 
 ### Tests for User Story 2 (Scaffolding - Parallel)
 
@@ -121,11 +120,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Implement `code/models/train_baseline.py`: Train Logistic Regression using only `citation_count` and `publication_year`; ensure stratified time-based split (early period train, later period val) with minimum positive case check
-- [ ] T024 [US2] Implement `code/models/train_topological.py`: Train **binary** Logistic Regression using only `bottleneck_resolution_ratio` and `branching_entropy` to predict binary `retraction_status_binary` (Fragile vs Robust); **Use binary label derived from T016b**; output coefficients. **Note**: The input dataset MUST preserve the original 3-state `retraction_status` (0,1,2) per FR-004; the model uses a derived binary target. **Do NOT implement multi-class classification.**
-- [ ] T025 [US2] Implement `code/models/evaluate.py`: Calculate AUC-ROC, Precision, Recall, F1 for both binary models; generate PR curves; compute delta metrics between topological and baseline models; save results to `data/processed/model_results.json`
-- [ ] T025b [US2] Validate contracts: Run schema validation on `data/processed/model_results.json` against `specs/001-llmxive-follow-up-extending-intern-atlas/contracts/model.schema.yaml`; **Abort if validation fails**.
-- [ ] T026 [US2] Implement comparison logic to report if topological model provides independent predictive power over citation baseline
+- [ ] T023 [P] [US2] Implement `code/models/train_baseline.py`: Train Logistic Regression using only `citation_count` and `publication_year`; ensure stratified time-based split (early period train, later period val) with minimum positive case check. Target: 3-class `retraction_status`.
+- [ ] T024 [US2] Implement `code/models/train_topological.py`: Train **Multinomial (3-class) Logistic Regression** using only `bottleneck_resolution_ratio` and `branching_entropy` to predict the full `retraction_status` (0=Robust, 1=Fragile, 2=Retraction-Only). **DO NOT** collapse or ignore class 2. Output coefficients for all three classes.
+- [ ] T025 [US2] Implement `code/models/evaluate.py`: Calculate AUC-ROC (One-vs-Rest), Precision, Recall, F1 (Macro and Per-class) for both binary/multi-class models; generate PR curves; compute delta metrics between topological and baseline models; save results to `data/processed/model_results.json`. Ensure metrics reflect the 3-class nature of the target.
+- [ ] T026 [US2] Implement comparison logic to report if topological model provides independent predictive power over citation baseline for the 3-class problem.
 
 ### Execution for User Story 2 (Sequential - After Implementation)
 
@@ -149,11 +147,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement `code/analysis/robustness_tests.py`: Perform **Stratified Permutation Test** with **exactly n=100 iterations** (as per FR-007 and Plan.md Phase 2 T010) shuffling labels within strata of 'field of study' and 'publication venue'; compare observed AUC to permuted distribution. **This single task satisfies both FR-007 (permutation) and FR-012 (covariate adjustment via stratification).** **Depends on T024**.
-- [ ] T032 [US3] Implement `code/analysis/sensitivity_analysis.py`: Run threshold sweep over the **specific set {0.3, 0.5, 0.7}** (as per FR-008 and SC-002); calculate and report FPR/FNR for each; calculate VIF and MI for predictors; **If VIF > 5 or MI > 0.1, the script MUST ABORT with a clear error message** (per Edge Cases logic); **Write instability flags to `data/processed/sensitivity_flags.json`** with the exact JSON structure: `{"vif_flag": <bool>, "mi_flag": <bool>, "threshold_sweep_status": <string>}`. **Depends on T024**.
-- [ ] T032a [US3] Implement `code/analysis/write_threshold_metrics.py`: **Explicitly write** the calculated FPR/FNR numerical values for thresholds {0.3, 0.5, 0.7} to `data/processed/threshold_sweep_metrics.json` in a machine-readable format (JSON). **This task satisfies SC-002 reporting requirements.** **Depends on T032**.
-- [ ] T033 [US3] Implement structural coupling diagnostic: If VIF > 5 (caught by T032 abort), **generate a diagnostic report** in `data/processed/structural_coupling_report.json` flagging the model as potentially unstable; **Do NOT re-run the model**. **Depends on T032**.
-- [ ] T034 [US3] Validate contracts: Run schema validation on `data/processed/sensitivity_flags.json`, `data/processed/structural_coupling_report.json`, and `data/processed/threshold_sweep_metrics.json` against `specs/001-llmxive-follow-up-extending-intern-atlas/contracts/model.schema.yaml`; **Abort if validation fails**.
+- [ ] T031 [P] [US3] Implement `code/analysis/robustness_tests.py`: Perform stratified permutation test with **exactly n=100 iterations** (as per FR-007) shuffling labels while controlling for `field_of_study` and `publication_venue`; compare observed AUC to permuted distribution. **Note: This task runs in parallel with T032/T034 ONLY after T024 is complete.**
+- [ ] T032 [US3] Implement `code/analysis/sensitivity_analysis.py`: Run threshold sweep over the **specific set {0.3, 0.5, 0.7}** (as per FR-008 and SC-002); calculate and report FPR/FNR for each; calculate VIF and MI for predictors; flag instability if VIF > 5 or MI > 0.1.
+- [ ] T033 [US3] Implement structural coupling diagnostic: If VIF > 5, re-run model with single predictor or composite metric and report as sensitivity analysis
+- [ ] T034 [US3] Implement covariate adjustment: **Conditional Execution**: This task runs ONLY if the stratified permutation test (T031) is skipped, fails, or is explicitly disabled. If T031 runs successfully, this task is marked skipped. Implementation: Logistic regression with `field_of_study` and `publication_venue` as covariates to control for confounding variables (as per FR-012).
 
 ### Execution for User Story 3 (Sequential - After Implementation)
 
@@ -203,6 +200,9 @@
 - Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
+- **T017 (Orchestrator)**: MUST run strictly after T015 and T016 complete to ensure merged dataset availability.
+- **T024 (Topological Model)**: MUST run after T017 completes.
+- **T034 (Covariate Adjustment)**: MUST run after T024 completes and is conditional on T031 status.
 
 ### Parallel Opportunities
 
@@ -267,10 +267,10 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **Critical**: Ensure edge types are strictly human-annotated; exclude any LLM-inferred edges to prevent semantic leakage (T005, T013).
-- **Critical**: Ensure the 'Retraction-Only' (2) label is preserved in the dataset and correctly converted for binary modeling (T016, T016b, T036a).
-- **Critical**: Ensure Stratified Permutation (T031) satisfies FR-012 'OR' condition by stratifying on confounding variables; no redundant covariate adjustment task needed.
-- **Critical**: Ensure VIF/MI flagging (T032) includes mandatory abort logic on instability.
-- **Critical**: Ensure the threshold sensitivity plot (T037) explicitly visualizes points {0.3, 0.5, 0.7} with DPI=300 and references the numerical artifact from T032a.
-- **Critical**: Ensure all data downloads (Intern-Atlas, Retraction Watch) use verified, canonical URLs and include checksum verification to prevent silent drift or fabrication.
-- **Critical**: Ensure no task generates synthetic input data; if real data is unavailable, the pipeline must abort (T017), never random generation.
+- **Critical**: Ensure the system aborts with the exact error message if ground truth is missing; no synthetic fallback is allowed.
+- **Critical**: Ensure edge types are strictly human-annotated; exclude any LLM-inferred edges to prevent semantic leakage.
+- **Critical**: Ensure permutation tests are stratified by field/venue to control confounding.
+- **Critical**: Ensure the retraction-only label (2) is preserved in the model as a distinct class (3-class multinomial), not collapsed to Robust (0).
+- **Critical**: Ensure FR-012 "OR" logic is respected: covariate adjustment (T034) is performed ONLY if the permutation test (T031) is not performed.
+- **Critical**: Ensure T017 explicitly quotes the required abort error message.
+- **Critical**: Ensure T015 uses Levenshtein ratio >= 0.85 as per FR-011.

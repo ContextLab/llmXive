@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 6c21f0740931503f97bf04ed4e77248f8633015a3ba2c5c402ca532f11ae9540
+  artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: dev-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/666687c79b7d75d2ed608051/9c7a32a40bb8c5b3c639bfa4d4cfca52f356c530dba1c3fb3343af47a39457c3?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dev-00000-of-00001.parquet%3B+filename%3D%22dev-00000-of-00001.parquet%22%3B&Expires=1783903398&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY2Njg3Yzc5YjdkNzVkMmVkNjA4MDUxLzljN2EzMmE0MGJiOGM1YjNjNjM5YmZhNGQ0Y2ZjYTUyZjM1NmM1MzBkYmExYzNmYjMzNDNhZjQ3YTM5NDU3YzNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGV2LTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJkZXYtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzOTAzMzk4fX19XX0_&Signature=MEUCIG3vz8VQQvo0hYUtFkh%7EMNVb5Q26nZYis4rreXpLTXgfAiEA9QgHxIGmwvzAbvZN3ExeDrwCLrrpL0wZsM-EC73OnzU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-12T23:43:18.855594Z'

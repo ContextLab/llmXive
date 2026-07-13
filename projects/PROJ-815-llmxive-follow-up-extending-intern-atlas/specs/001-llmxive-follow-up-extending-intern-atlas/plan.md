@@ -5,33 +5,46 @@
 
 ## Summary
 
-This project implements a computational analysis to determine if the topological structure of methodological evolution graphs (specifically the ratio of 'bottleneck-resolving' edges to 'incremental-variant' edges) predicts the long-term reproducibility (retraction status) of a methodological lineage. The approach involves extracting the Intern-Atlas graph (), computing topological features (Bottleneck Resolution Ratio, Branching Entropy), mapping nodes to retraction databases for ground truth labels, and training a logistic regression model to compare topological predictive power against a citation-count baseline. The implementation strictly adheres to CPU-only constraints and the project constitution.
+This feature implements a computational study to determine if the topological structure of methodological evolution graphs (specifically the ratio of 'bottleneck-resolving' edges to 'incremental-variant' edges) predicts the long-term reproducibility or stability of a methodological lineage. The system will ingest the Intern-Atlas graph snapshot and external retraction/replication databases to compute topological features (Bottleneck Resolution Ratio, Branching Entropy) for nodes published within a defined historical period. It will then train a lightweight logistic regression model to predict retraction status (Fragile vs. Robust) and compare it against a citation-count baseline, performing mandatory permutation tests (n=100) and threshold sensitivity analyses (cutoffs {0.3, 0.5, 0.7}) as defined in the specification.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `networkx`, `scikit-learn`, `pandas`, `numpy`, `requests`, `pyyaml`  
-**Storage**: Local CSV/Parquet files (intermediate), no external DB connection required for runtime (data fetched once).  
-**Testing**: `pytest` (contract tests for schema validation, unit tests for feature logic).  
-**Target Platform**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM, CPU-only).  
-**Project Type**: Research Pipeline / CLI Script  
-**Performance Goals**: Complete full pipeline (extraction, feature engineering, modeling, robustness checks) within 6 hours on free runner; memory usage < 7 GB.  
-**Constraints**: No GPU usage; no LLM inference for edge typing (must use human-annotated metadata); strict adherence to FR-007 (n=100 permutation) and FR-012 (mandatory covariate adjustment).  
-**Scale/Scope**: Method nodes published; target dataset size estimated to fit within 7 GB RAM after sampling if necessary.
+**Primary Dependencies**: `networkx`, `pandas`, `scikit-learn`, `numpy`, `pyyaml`, `requests`, `statsmodels` (for Firth's regression if needed)  
+**Storage**: Local CSV/Parquet files under `data/` (raw and derived). SQLite used ONLY for transient runtime caching (not persisted to `data/`, does not violate Data Hygiene Principle III).  
+**Testing**: `pytest` (unit tests for feature extraction logic, integration tests for pipeline flow).  
+**Target Platform**: Linux server (GitHub Actions free-tier: 2 CPU, 7GB RAM).  
+**Project Type**: Computational research pipeline / CLI tool.  
+**Performance Goals**: Complete full pipeline (extraction, modeling, validation) within 6 hours on CPU-only runner.  
+**Constraints**: 
+- No GPU usage; memory footprint < 7GB.
+- **Strict adherence to spec-defined thresholds**: 
+  - Permutation test: **n=100** (FR-007).
+  - Threshold sweep: **{0.3, 0.5, 0.7}** (FR-008).
+  - VIF/MI Flag: **VIF > 5** or **MI > 0.1** (FR-009).
+  - Fuzzy match: **Levenshtein >= 0.95** (FR-011, revised for precision).
+  - Label mapping: **1=Methodological, 2=Fraud, 0=Robust** (FR-004).
+  - Duplicate resolution: **Earliest date, then alphabetical journal** (FR-010).
+  - Confounding control: **Mandatory stratified permutation test or covariate adjustment** (FR-012).
+- **Exclude LLM-inferred edge types** (FR-002).
+- **Filter nodes -2018** (FR-001).
+- **CITATION_TITLE_OVERLAP_THRESHOLD = 0.7** (Constitution Principle II).
 
-> Domain-specific empirical specifics (exact counts, dataset sizes) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1.  **Reproducibility (NON-NEGOTIABLE)**: The plan mandates pinning random seeds in `code/` and fetching external datasets from canonical sources (GitHub/Retraction Watch) on every run. No local state dependencies.
-2.  **Verified Accuracy**: All citations to the Intern-Atlas graph and Retraction Watch Database will be validated against primary sources. The plan explicitly uses the verified GitHub repository URL for the Intern-Atlas snapshot and the Retraction Watch CSV dump.
-3.  **Data Hygiene**: The plan requires checksumming all raw data downloads (`data/raw/`) and writing derived features to new files (`data/derived/`) without modifying raw inputs.
-4.  **Single Source of Truth**: All metrics (AUC, VIF, FPR/FNR) will be generated by code and written to a single `results/metrics.yaml` file with the nested structure defined in `metrics_schema.schema.yaml`. The paper will reference this file, not hand-typed numbers.
-5.  **Versioning Discipline**: Content hashes will be recorded in the project state file for all artifacts.
-6.  **Graph-Topology Non-Circularity**: The plan strictly separates feature extraction (topology) from label assignment (external retraction DB). Features are derived *only* from graph structure; labels *only* from external databases. No LLM inference for edge types (per FR-002), enforced by `dataset.schema.yaml` which requires `matching_method` and excludes LLM-inferred types via validation logic.
-7.  **Interpretability**: The model is restricted to Logistic Regression (interpretable coefficients) using only topological features, avoiding black-box embeddings.
+| Principle | Compliance Status | Notes |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Plan mandates pinned random seeds, deterministic data fetching, and isolated virtualenv execution. |
+| **II. Verified Accuracy** | **PASS** | External citations (Retraction Watch, Intern-Atlas) will be validated against primary sources via the Reference-Validator Agent with **CITATION_TITLE_OVERLAP_THRESHOLD = 0.7**. |
+| **III. Data Hygiene** | **PASS** | Plan mandates checksumming of raw data, immutable derivations, and PII scanning. SQLite usage is strictly transient and does not violate immutability. |
+| **IV. Single Source of Truth** | **PASS** | All metrics will be derived from `data/` and `code/`; no hand-typed numbers in reports. |
+| **V. Versioning Discipline** | **PASS** | Content hashes will be recorded in `state/`; artifact updates will trigger **state/...yaml `updated_at` timestamp** updates. |
+| **VI. Graph-Topology Non-Circularity** | **PASS** | Plan explicitly separates feature extraction (topology) from label assignment (external retraction DB) to prevent circular evaluation. **Specific blinding mechanism**: The `run_extraction.py` script explicitly strips any retraction metadata from the graph before feature calculation and strictly separates the label assignment logic (external DB) from the feature extraction logic. |
+| **VII. Interpretability** | **PASS** | Logistic regression (interpretable coefficients) is the mandated model; black-box embeddings are excluded. |
 
 ## Project Structure
 
@@ -43,8 +56,10 @@ specs/001-methodological-evolution-fragility/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (Design artifacts)
-└── tasks.md             # (Removed: consolidated into Implementation Phases)
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    ├── model.schema.yaml
+    └── output.schema.yaml
 ```
 
 ### Source Code (repository root)
@@ -57,53 +72,35 @@ projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/
 │   └── cache/               # Temporary processing artifacts
 ├── code/
 │   ├── __init__.py
-│   ├── config.py            # Paths, seeds, thresholds
-│   ├── extraction.py        # Graph loading, filtering (-2018), edge typing
-│   ├── features.py          # BRR, Entropy, Collinearity checks
-│   ├── labeling.py          # Retraction DB mapping, fuzzy matching, abort logic
-│   ├── modeling.py          # Logistic Regression, Baseline, Permutation, Threshold Sweep
-│   ├── robustness.py        # Covariate adjustment, VIF/MI calculation
-│   └── main.py              # Orchestrator
-├── tests/
-│   ├── contract/            # Schema validation tests
-│   ├── unit/                # Feature calculation unit tests
-│   └── integration/         # End-to-end pipeline test (small subset)
-├── results/
-│   ├── metrics.yaml         # Final metrics (AUC, VIF, FPR/FNR) - nested structure
-│   └── plots/               # Generated figures (PR curves, threshold sweeps)
-├── requirements.txt
-└── README.md
+│   ├── requirements.txt
+│   ├── run_extraction.py          # Implements FR-001, FR-002, FR-003, FR-004, FR-010, FR-011. Includes abort logic for missing ground truth.
+│   ├── run_training.py            # Implements FR-005, FR-006, FR-007, FR-008, FR-009, FR-012
+│   ├── utils/
+│   │   ├── graph_utils.py         # Feature calculation logic (blinded to retraction status)
+│   │   ├── match_utils.py         # DOI/Title matching logic (Levenshtein >= 0.95)
+│   │   └── stats_utils.py         # Permutation (n=100), VIF, MI, Threshold Sweep {0.3, 0.5, 0.7} logic
+│   └── tests/
+│       ├── test_extraction.py
+│       └── test_training.py
+├── data/
+│   ├── raw/                       # Downloaded Intern-Atlas snapshot, Retraction DB
+│   └── processed/                 # Derived CSVs with features and labels
+├── paper/
+│   └── results/                   # Generated plots and final reports
+└── state/
+    └── projects/PROJ-815-llmxive-follow-up-extending-intern-atlas.yaml
 ```
 
-**Structure Decision**: A modular Python package structure (`code/`) is selected to separate concerns (extraction, features, modeling) and facilitate unit testing. This supports the "Reproducibility" and "Data Hygiene" principles by isolating transformation steps.
+**Traceability Matrix**:
+- `run_extraction.py`: FR-001 (Filter 2010-2018), FR-002 (Edge types), FR-003 (Entropy), FR-004 (Labels), FR-010 (Duplicates), FR-011 (Fuzzy match), **Abort logic for missing ground truth**.
+- `run_training.py`: FR-005 (Topo Model), FR-006 (Baseline), FR-007 (Perm n=100), FR-008 (Sweep {0.3, 0.5, 0.7}), FR-009 (VIF/MI), FR-012 (Confounding).
 
-## Implementation Phases
-
-### Phase 0: Data Acquisition & Validation
-- **T001**: Download Intern-Atlas graph snapshot (v1.0.0) and Retraction Watch CSV dump.
-- **T002**: Verify edge types are human-annotated (abort if LLM-inferred).
-- **T003**: Verify ground truth labels exist for -2018 (abort if not).
-
-### Phase 1: Feature Engineering & Labeling
-- **T004**: Compute Bottleneck Resolution Ratio (1-hop) and Branching Entropy.
-- **T005**: Map nodes to retraction DB (DOI + fuzzy match).
-- **T006**: Validate fuzzy matches (% spot-check).
-- **T007**: Construct binary target variable (1=Methodological Error, 0=All Others).
-
-### Phase 2: Modeling & Robustness
-- **T008**: Train Topological Logistic Regression.
-- **T009**: Train Baseline Logistic Regression (Citations).
-- **T010**: Perform Stratified Permutation Test (n=100).
-- **T011**: Perform Threshold Sweep across a range of representative values to evaluate model sensitivity..
-- **T012**: Calculate VIF/MI and flag instability.
-- **T013**: Perform mandatory covariate adjustment (stratified permutation).
-
-### Phase 3: Output & Reporting
-- **T014**: Generate `results/metrics.yaml` with nested structure.
-- **T015**: Generate plots.
+**Structure Decision**: A single `code/` directory with modular scripts (`run_extraction.py`, `run_training.py`) is selected to align with the linear pipeline nature of the research (Extraction -> Training -> Validation). This avoids the complexity of a web service or multi-language setup, ensuring maximum compatibility with the CPU-only CI runner. Directory creation is consolidated into Phase 1 setup tasks.
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| N/A | No constitution violations identified. | N/A |
+| N/A | Constitution Check passed. | N/A |

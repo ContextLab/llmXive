@@ -1,56 +1,49 @@
 """
-Project structure setup script for PROJ-815-llmxive-follow-up-extending-intern-atlas.
-Creates the required directory hierarchy for code, data, tests, and specs.
+Script to initialize the project directory structure for PROJ-815.
+This script creates the necessary folders for code, data, and tests.
 """
 import os
 import sys
 
-PROJECT_ROOT = "projects/PROJ-815-llmxive-follow-up-extending-intern-atlas"
+# Define the project root relative to the script location or current working directory
+# The task specifies paths relative to the project root.
+# We will assume the script is run from the project root or adjust accordingly.
+# To be safe, we calculate the project root as the parent of the 'code' directory if it exists,
+# or simply use the current working directory if we are creating the root structure.
 
-DIRECTORIES = [
-    # Code structure
-    os.path.join(PROJECT_ROOT, "code", "data"),
-    os.path.join(PROJECT_ROOT, "code", "models"),
-    os.path.join(PROJECT_ROOT, "code", "analysis"),
-    os.path.join(PROJECT_ROOT, "code", "utils"),
-    
-    # Data structure
-    os.path.join(PROJECT_ROOT, "data", "raw"),
-    os.path.join(PROJECT_ROOT, "data", "processed"),
-    
-    # Test structure
-    os.path.join(PROJECT_ROOT, "tests", "unit"),
-    os.path.join(PROJECT_ROOT, "tests", "integration"),
-    
-    # Ensure root exists
-    PROJECT_ROOT,
+# Based on the task description: "mkdir -p projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/{...}"
+# However, the constraint says: "All artifact paths are relative to the project root and MUST live under code/, data/..."
+# And the task description implies we are setting up the structure *inside* the project.
+# Let's assume the current working directory is the project root (PROJ-815-llmxive-follow-up-extending-intern-atlas).
+
+# Directories to create
+dirs = [
+    "code/data",
+    "code/models",
+    "code/analysis",
+    "code/utils",
+    "data/raw",
+    "data/processed",
+    "tests/unit",
+    "tests/integration"
 ]
 
 def main():
     created_count = 0
-    skipped_count = 0
+    for dir_path in dirs:
+        try:
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path, exist_ok=True)
+                print(f"Created directory: {dir_path}")
+                created_count += 1
+            else:
+                print(f"Directory already exists: {dir_path}")
+        except OSError as e:
+            print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
+            sys.exit(1)
     
-    print(f"Setting up project structure in: {PROJECT_ROOT}")
-    
-    for dir_path in DIRECTORIES:
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-            print(f"Created: {dir_path}")
-            created_count += 1
-        else:
-            skipped_count += 1
-            
-    print(f"\nSetup complete.")
-    print(f"  New directories: {created_count}")
-    print(f"  Existing directories: {skipped_count}")
-    
-    # Verify structure
-    missing = [d for d in DIRECTORIES if not os.path.exists(d)]
-    if missing:
-        print(f"ERROR: Failed to create the following directories: {missing}")
-        sys.exit(1)
-        
-    print("All directories verified successfully.")
+    print(f"Project structure initialization complete. Created {created_count} new directories.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
