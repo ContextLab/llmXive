@@ -84,6 +84,10 @@
   <!-- ATOMIZE: requested -->'
 : 1
 ? "T009 Set up structured logging infrastructure in `src/utils/logger.py` with error\u2011\
+  code format `ERR-###` (verify logs contain correct codes [UNRESOLVED-CLAIM: c_c3bf9b30\
+  \ \u2014 status=not_enough_info])."
+: 1
+? "T009 Set up structured logging infrastructure in `src/utils/logger.py` with error\u2011\
   code format `ERR-###` [UNRESOLVED-CLAIM: c_a556a205 \u2014 status=not_enough_info]\
   \ (verify logs contain correct codes)."
 : 1
@@ -196,6 +200,11 @@
   \ handles missing fields, logs `ERR-001`\u2011`ERR-099` (FR\u2011007) [UNRESOLVED-CLAIM:\
   \ c_9c7755f4 \u2014 status=not_enough_info] (verify extraction JSON exists and logs\
   \ contain appropriate ERR codes). **DEPENDS ON:** T019."
+: 1
+? "T020 Extraction logic in `src/audit/extractor.py` \u2192 produces `ABSummary` objects,\
+  \ handles missing fields, logs `ERR-001`\u2011`ERR-099` [UNRESOLVED-CLAIM: c_0f65bf92\
+  \ \u2014 status=not_enough_info] (FR\u2011007) (verify extraction JSON exists and\
+  \ logs contain appropriate ERR codes). **DEPENDS ON:** T019."
 : 1
 ? T020d **[P]** Verify that every row in `data/provenance_log.csv` contains URL, repository
   identifier, and fetch timestamp (run validation script `tests/unit/test_provenance_schema.py`).
@@ -334,10 +343,11 @@
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
   %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
-  \ prevalence estimates ** per FR\u2011004b (generate `AuditRecord` objects with\
-  \ data_quality_warning messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
+  \ prevalence estimates [UNRESOLVED-CLAIM: c_306bfede \u2014 status=not_enough_info]\
+  \ ** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
+  \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
   \ **DEPENDS ON:** T023. <!-- SKIPPED: non-mapping output -->"
-: 2
+: 1
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
   %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
@@ -648,7 +658,7 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
   size > 5\u202F%, inequality handling, sample\u2011size mismatch with data_quality_warning\
   \ generation (tests/unit/test_validator.py) (verify all tests pass) [DEPENDS ON:\
   \ T025]. <!-- FAILED: unspecified -->"
-: 1
+: 2
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power\
   \ [UNRESOLVED-CLAIM: c_21bdda9f \u2014 status=not_enough_info], writes result to\
@@ -949,6 +959,11 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
   \ [UNRESOLVED-CLAIM: c_ceb01b51 \u2014 status=not_enough_info] and verifying correct\
   \ Fisher p\u2011values with Bonferroni correction (tests/unit/test_subgroup_analysis.py)\
   \ (verify test passes)."
+: 1
+? "T059 Implement consistency checker in `src/audit/export_validator.py` that reads\
+  \ JSON and CSV, compares counts, and logs `ERR-201` if mismatch [UNRESOLVED-CLAIM:\
+  \ c_713b9c2e \u2014 status=not_enough_info] (plan.md) (verify no ERR\u2011201 logged)\
+  \ [DEPENDS ON: T056]."
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
