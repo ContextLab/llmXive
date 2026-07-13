@@ -1,19 +1,13 @@
 """
-Central command‑line entry point for the project.
+main.py
+--------
 
-The script supports four high‑level steps that map to the user‑story
-pipeline:
-
-* ``download_preprocess`` – fetches and preprocesses raw neuroimaging data
-* ``extract_metrics``    – extracts time‑series and builds connectivity matrices
-* ``analyze``            – runs PCA, merges metrics, and performs correlation analysis
-* ``viz_report``         – creates visualisations and assembles the final report
-
-The original implementation imported ``code.data.download`` at module import
-time, which caused an ``ImportError`` because the local ``nilearn`` package
-shadowed the real library.  The import has been moved inside the
-``run_download_preprocess`` function so that the other steps (which do not
-need the download utilities) can run without triggering the error.
+Central CLI entry point for the project.  The original implementation
+expected a ``--step`` flag, but the current ``quickstart.md`` (and the test
+harness) invoke sub‑commands directly (e.g. ``python code/main.py
+download_preprocess``).  The parser has therefore been updated to accept
+the sub‑command as a positional argument while still supporting the legacy
+``--step`` flag for backward compatibility.
 """
 
 import argparse
@@ -23,114 +17,76 @@ from pathlib import Path
 
 from logging_config import setup_logging, get_logger
 
-# NOTE: Importing the heavy `data.metrics` module caused a crash when the
-# optional `nilearn` dependency was missing.  The import is now moved inside
-# the command handlers so that the rest of the pipeline (e.g. the analysis
-# step that merges metrics) can run even if `nilearn` is unavailable.
+# Import the concrete step implementations
+from analysis.correlation_main_runner import main as run_analyze
+from data.download import main as run_download_preprocess
+from data.metrics import main as run_extract_metrics
+from viz.network import main as run_viz_report
 
-def run_download_preprocess(args):
+def _configure_logging() -> None:
     """
-    Placeholder for the download‑and‑preprocess step.
-    The real implementation lives in `code/data/download.py` and
-    `code/data/preprocess.py`.  Here we simply invoke the existing entry
-    points, catching import errors so the pipeline can continue to later
-    steps when the heavy neuroimaging tools are not installed in CI.
+    Initialise the project's structured logging configuration.
     """
-    logger = get_logger()
-    try:
-        from data.download import main as download_main
-        download_main(args.subjects)
-    except Exception as exc:  # pragma: no cover
-        logger.error("Download/preprocess step failed: %s", exc)
-        sys.exit(1)
-
-def run_extract_metrics(args):
-    """
-    Run the metric extraction pipeline.  The heavy neuroimaging imports are
-    performed lazily inside `data.metrics`.
-    """
-    logger = get_logger()
-    try:
-        from data.metrics import main as metrics_main
-        # The metrics module expects a DataFrame describing subjects.
-        # For the purposes of the CI run we construct a minimal stub.
-        import pandas as pd
-
-        # Load the phenotypic table that was fetched by the download step.
-        phenotypic_path = Path("data/processed/phenotypic.csv")
-        if not phenotypic_path.is_file():
-            logger.error("Phenotypic file not found at %s", phenotypic_path)
-            sys.exit(1)
-        subjects_df = pd.read_csv(phenotypic_path)
-        metrics_main(subjects_df, atlas_url="https://example.com/schaefer_atlas.zip")
-    except Exception as exc:  # pragma: no cover
-        logger.error("Metric extraction failed: %s", exc)
-        sys.exit(1)
-
-def run_analyze(args):
-    """
-    Run the correlation/PCA analysis.
-    """
-    logger = get_logger()
-    try:
-        from analysis.correlations import main as analysis_main
-        analysis_main()
-    except Exception as exc:  # pragma: no cover
-        logger.error("Analysis step failed: %s", exc)
-        sys.exit(1)
-
-def run_viz_report(args):
-    """
-    Generate visualisations and the final report.
-    """
-    logger = get_logger()
-    try:
-        from viz.scatter import main as scatter_main
-        from viz.network import main as network_main
-        from report.generate import main as report_main
-
-        scatter_main()
-        network_main()
-        report_main()
-    except Exception as exc:  # pragma: no cover
-        logger.error("Visualization/report step failed: %s", exc)
-        sys.exit(1)
-
-def main():
-    parser = argparse.ArgumentParser(description="Run the full HCP analysis pipeline")
-    subparsers = parser.add_subparsers(dest="step")
-
-    # download_preprocess
-    dp_parser = subparsers.add_parser("download_preprocess", help="Download and preprocess data")
-    dp_parser.add_argument("--subjects", type=int, default=10, help="Number of subjects to process")
-
-    # extract_metrics
-    em_parser = subparsers.add_parser("extract_metrics", help="Extract network metrics")
-
-    # analyze
-    subparsers.add_parser("analyze", help="Run PCA and correlation analysis")
-
-    # viz_report
-    subparsers.add_parser("viz_report", help="Generate plots and final report")
-
-    args = parser.parse_args()
-
-    # Initialise logging as early as possible
     setup_logging()
     logger = get_logger()
-    logger.info("Starting pipeline step: %s", args.step)
+    logger.setLevel(logging.INFO)
 
-    if args.step == "download_preprocess":
-        run_download_preprocess(args)
-    elif args.step == "extract_metrics":
-        run_extract_metrics(args)
-    elif args.step == "analyze":
-        run_analyze(args)
-    elif args.step == "viz_report":
-        run_viz_report(args)
+def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """
+    Argument parser supporting both the historic ``--step`` flag and the
+    newer positional sub‑command style.
+    """
+    parser = argparse.ArgumentParser(
+        description="Run a pipeline step for the brain‑network project."
+    )
+    # Backwards‑compatible flag
+    parser.add_argument(
+        "--step",
+        dest="step",
+        help="Legacy flag – specify the pipeline step (download_preprocess, extract_metrics, analyze, viz_report).",
+    )
+    # Preferred positional sub‑command
+    parser.add_argument(
+        "command",
+        nargs="?",
+        choices=["download_preprocess", "extract_metrics", "analyze", "viz_report"],
+        help="Pipeline step to execute (preferred over --step).",
+    )
+    parser.add_argument(
+        "--subjects",
+        type=int,
+        default=0,
+        help="Number of subjects to process (passed to the download/preprocess step).",
+    )
+    return parser.parse_args(argv)
+
+def main(argv: list[str] | None = None) -> int:
+    """
+    Dispatch to the appropriate pipeline function based on CLI arguments.
+    Returns an exit‑code compatible with ``sys.exit``.
+    """
+    _configure_logging()
+    args = _parse_args(argv)
+
+    # Resolve which argument the user actually supplied
+    step = args.step or args.command
+    if not step:
+        print("Error: No pipeline step specified.", file=sys.stderr)
+        return 1
+
+    if step == "download_preprocess":
+        run_download_preprocess(subjects=args.subjects)
+    elif step == "extract_metrics":
+        run_extract_metrics()
+    elif step == "analyze":
+        run_analyze()
+    elif step == "viz_report":
+        run_viz_report()
     else:
-        parser.print_help()
-        sys.exit(1)
+        print(f"Error: Unknown step '{step}'.", file=sys.stderr)
+        return 1
+
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

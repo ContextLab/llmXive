@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-284-investigating-the-relationship-between-b",
   "ok": false,
-  "reason": "5 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nput to output (assuming synthetic input is already 'corrected' f\u2026\u201d; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026original implementation generated synthetic NIfTI\u2011like data, which v\u2026\u201d; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d without     generating synthetic NIfTI data.  The function simply ca\u2026\u201d; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=2); python code/main.py --step extract_metrics (rc=2); python code/main.py --step analyze (rc=2); 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv",
+  "reason": "6 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/correlations.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026the previous steps; no   synthetic data or random numbers are in\u2026\u201d; code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nput to output (assuming synthetic input is already 'corrected' f\u2026\u201d; code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026original implementation generated synthetic NIfTI\u2011like data, which v\u2026\u201d; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=2); python code/main.py --step extract_metrics (rc=2); python code/main.py --step analyze (rc=2); 1 declared deliverable(s) absent: data/analysis/full_metrics.csv",
   "artifacts": [],
   "failures": [
     "python code/main.py --step download_preprocess --subjects 50 -> rc=2\n    usage: main.py [-h]\n               {download_preprocess,extract_metrics,analyze,viz_report} ...\nmain.py: error: unrecognized arguments: --step",
@@ -9,7 +9,7 @@
     "python code/main.py --step analyze -> rc=2\n    usage: main.py [-h]\n               {download_preprocess,extract_metrics,analyze,viz_report} ...\nmain.py: error: unrecognized arguments: --step",
     "python code/main.py --step viz_report -> rc=2\n    usage: main.py [-h]\n               {download_preprocess,extract_metrics,analyze,viz_report} ...\nmain.py: error: unrecognized arguments: --step"
   ],
-  "fix_rounds": 6,
+  "fix_rounds": 8,
   "model_tier": 1,
-  "updated_at": "2026-07-13T18:08:22Z"
+  "updated_at": "2026-07-13T19:00:20Z"
 }

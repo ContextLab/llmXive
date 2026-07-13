@@ -1,17 +1,16 @@
-import os
-import sys
+"""
+correlations_main_runner.py
+---------------------------
+Small wrapper that simply calls ``correlations.main``.  The quick‑start
+script expects a ``main`` function in this module, so we expose it here.
+"""
 import logging
-import pandas as pd
-from pathlib import Path
-from config import get_config
+from analysis.correlations import main as correlations_main
 
-# The main runner simply forwards to the analysis module's main entry point.
-# No changes are required for T023b, but we keep the file for completeness.
 def main() -> None:
-    from analysis import correlations
-
+    """Entry point used by ``code/main.py`` or the quick‑start run‑book."""
     logging.basicConfig(level=logging.INFO)
-    correlations.main()
+    correlations_main()
 
 if __name__ == "__main__":
     main()
