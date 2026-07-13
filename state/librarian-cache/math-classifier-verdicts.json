@@ -1239,6 +1239,10 @@
     "classified_at": "2026-07-13T19:18:23Z",
     "verdict": false
   },
+  "PROJ-887-llmxive-follow-up-extending-latentskill::1.6.0": {
+    "classified_at": "2026-07-13T20:21:47Z",
+    "verdict": false
+  },
   "PROJ-889-llmxive-follow-up-extending-tide-proacti::1.6.0": {
     "classified_at": "2026-07-09T21:39:42Z",
     "verdict": false

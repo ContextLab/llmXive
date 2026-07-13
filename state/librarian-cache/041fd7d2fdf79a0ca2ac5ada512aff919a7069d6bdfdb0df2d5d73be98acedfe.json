@@ -1,0 +1,574 @@
+{
+  "fetched_at": "2026-07-13T20:22:23Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills\"",
+      "target_n": 5
+    },
+    "duration_seconds": 66.85,
+    "ended_at": "2026-07-13T20:22:23Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "In-weight skill representation in large language models"
+        ],
+        [
+          2,
+          "From in-context learning to parameter-encoded capabilities"
+        ],
+        [
+          3,
+          "Latent skill formation in transformer weights"
+        ],
+        [
+          4,
+          "Internalizing in-context examples into model parameters"
+        ],
+        [
+          5,
+          "Weight-based skill acquisition in LLMs"
+        ],
+        [
+          6,
+          "Implicit knowledge encoding in neural language models"
+        ],
+        [
+          7,
+          "In-context learning mechanisms vs weight adaptation"
+        ],
+        [
+          8,
+          "Parameter-efficient skill storage in LLMs"
+        ],
+        [
+          9,
+          "Emergent latent abilities in pretrained language models"
+        ],
+        [
+          10,
+          "Internal representations of textual skills in transformers"
+        ],
+        [
+          11,
+          "Dynamic skill injection into language model weights"
+        ],
+        [
+          12,
+          "Static vs dynamic knowledge in large language models"
+        ],
+        [
+          13,
+          "Inference-time learning and parameter updates"
+        ],
+        [
+          14,
+          "Meta-learning and skill generalization in LLMs"
+        ],
+        [
+          15,
+          "Cognitive architectures for skill retention in AI"
+        ],
+        [
+          16,
+          "Neural plasticity and skill consolidation in language models"
+        ],
+        [
+          17,
+          "Mechanisms of skill transfer from context to weights"
+        ],
+        [
+          18,
+          "Representational geometry of learned skills in LLMs"
+        ],
+        [
+          19,
+          "Fine-tuning versus in-context learning for skill encoding"
+        ],
+        [
+          20,
+          "Linguistic generalization through weight modification"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "In-weight skill representation in large language models": 5,
+        "llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills\" linguistics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "in-weight knowledge retrieval parameter efficiency",
+      "LLM parameter editing sparse vector arithmetic",
+      "linguistic competence emergent capability scaling",
+      "probing classifiers linguistic feature extraction",
+      "mechanistic interpretability causal tracing neurons"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2405.11357"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM parameter editing sparse vector arithmetic": 3,
+      "in-weight knowledge retrieval parameter efficiency": 3,
+      "linguistic competence emergent capability scaling": 3,
+      "llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills\" linguistics": 3,
+      "mechanistic interpretability causal tracing neurons": 3,
+      "probing classifiers linguistic feature extraction": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2402.12065",
+          "rationale": "The paper focuses on the engineering technique of quantization to reduce memory and computational costs for LLM deployment, which is distinct from the user's question regarding the linguistic nature and extension of \"in-weight latent skills\" (a theoretical mechanism of skill representation). While both involve \"weights,\" the paper does not measure, analyze, or provide a baseline for the specific linguistic or cognitive mechanism of latent skills described in the user's query, failing to meet any",
+          "title": "WKVQuant: Quantizing Weight and Key/Value Cache for Large Language Models Gains More"
+        },
+        {
+          "primary_pointer": "2410.12096",
+          "rationale": "The paper focuses on integrating LLMs with Graph Structure Learning (GSL) for robust representation learning and noise filtering, which is a distinct construct from the user's question about \"LatentSkill\" and the linguistic mechanisms of in-weight latent skills. While both involve LLMs, the candidate paper does not measure the same biological/algorithmic mechanism (latent skill formation), nor does it study the same variables (in-context vs. in-weight skill transfer) or provide a foundational ba",
+          "title": "Bridging Large Language Models and Graph Structure Learning Models for Robust Representation Learning"
+        },
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on general techniques for improving human-like conversational behavior and emotional intelligence in LLMs, which is a distinct construct from the user's specific question about the mechanism of \"LatentSkill\" (transferring in-context textual skills to in-weight latent representations) and its linguistic implications. It does not measure the same biological/algorithmic pathway, establish a baseline for skill transfer, or serve as a foundational reference for the specific \"in-cont",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates LLM personality consistency (self-knowledge vs. action), which is a distinct psychological construct from the user's focus on \"LatentSkill\" and the mapping of in-context textual skills to in-weight latent representations. While both involve LLM internal states, the paper does not measure the specific mechanism of skill transfer, the linguistic properties of latent skills, or the \"in-weight\" encoding of textual abilities required by the user's question, failing to meet crit",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T20:21:16Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"latentskill: from in-context textual skills to in-weight latent skills\" linguistics",
+      "raw": "llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many questions cannot be answered simply; their answers must include numerous nuanced details and additional context. Complex Answer Retrieval (CAR) is the retrieval of answers to such questions. In their simplest form, these questions are constructed from a topic entity (e.g., `cheese') and a facet (e.g., `health effects'). While topic matching has been thoroughly explored, we observe that some facets use general language that is unlikely to appear verbatim in answers. We call these low-utility facets. In this work, we present an approach to CAR that identifies and addresses low-utility facets. We propose two estimators of facet utility. These include exploiting the hierarchical structure of CAR queries and using facet frequency information from training data. To improve the retrieval performance on low-utility headings, we also include entity similarity scores using knowledge graph embeddings. We apply our approaches to a leading neural ranking technique, and evaluate using the TREC CAR dataset. We find that our approach perform significantly better than the unmodified neural ranker and other leading CAR techniques. We also provide a detailed analysis of our results, and verify that low-utility facets are indeed more difficult to match, and that our approach improves the performance for these difficult queries.",
+          "claimed_authors": [
+            "Sean MacAvaney",
+            "Andrew Yates",
+            "Arman Cohan",
+            "Luca Soldaini",
+            "Kai Hui",
+            "Nazli Goharian",
+            "Ophir Frieder"
+          ],
+          "claimed_title": "Overcoming low-utility facets for complex answer retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.08772"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='Overcoming low-utility facets for complex answer retrieval')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The departure of subject-matter experts from industrial organizations results in the irreversible loss of tacit knowledge that is rarely captured through conventional documentation practices. This paper proposes Expert Mind, an experimental system that leverages Retrieval-Augmented Generation (RAG), large language models (LLMs), and multimodal capture techniques to preserve, structure, and make queryable the deep expertise of organizational knowledge holders. Drawing on the specific context of the energy sector, where decades of operational experience risk being lost to an aging workforce, we describe the system architecture, processing pipeline, ethical framework, and evaluation methodology. The proposed system addresses the knowledge elicitation problem through structured interviews, think-aloud sessions, and text corpus ingestion, which are subsequently embedded into a vector store and queried through a conversational interface. Preliminary design considerations suggest Expert Mind can significantly reduce knowledge transfer latency and improve onboarding efficiency. Ethical dimensions including informed consent, intellectual property, and the right to erasure are addressed as first-class design constraints.",
+          "claimed_authors": [
+            "Diego Ezequiel Cervera"
+          ],
+          "claimed_title": "Expert Mind: A Retrieval-Augmented Architecture for Expert Knowledge Preservation in the Energy Sector",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.14541"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='Expert Mind: A Retrieval-Augmented Architecture for Expert Knowledge Preservation in the Energy Sector')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The final goal of Information Retrieval (IR) is knowledge production. However, it has been argued that knowledge production is not an individual effort but a collaborative effort. Collaboration in information retrieval is geared towards knowledge sharing and creation of new knowledge by users. This paper discusses Collaborative Information Retrieval (CIR) and how it culminates to knowledge creation. It explains how created knowledge is organized and structured. It describes a functional architecture for the development of a CIR prototype called MECOCIR. Some of the features of the prototype are presented as well as how they facilitate collaborative knowledge exploitation. Knowledge creation is explained through the knowledge conversion/transformation processes proposed by Nonaka and CIR activities that facilitate these processes are high-lighted and discussed",
+          "claimed_authors": [
+            "Victor Odumuyiwa",
+            "David Amos"
+          ],
+          "claimed_title": "Collaborative Knowledge Creation and Management in Information Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1012.3278"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='Collaborative Knowledge Creation and Management in Information Retrieval')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This note is an expansion of three lectures given at the workshop \"Topology, Complex Analysis and Arithmetic of Hyperbolic Spaces\" held at Kyoto University in December of 2006 and will appear in the proceedings for this workshop.",
+          "claimed_authors": [
+            "D. B. McReynolds"
+          ],
+          "claimed_title": "Arithmetic lattices and weak spectral geometry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0706.3841"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='Arithmetic lattices and weak spectral geometry')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of Video Diffusion Transformers (Video DiTs) marks a milestone in video generation. However, directly applying existing video editing methods to Video DiTs often incurs substantial computational overhead, due to resource-intensive attention modification or finetuning. To alleviate this problem, we present DFVEdit, an efficient zero-shot video editing method tailored for Video DiTs. DFVEdit eliminates the need for both attention modification and fine-tuning by directly operating on clean latents via flow transformation. To be more specific, we observe that editing and sampling can be unified under the continuous flow perspective. Building upon this foundation, we propose the Conditional Delta Flow Vector (CDFV) -- a theoretically unbiased estimation of DFV -- and integrate Implicit Cross Attention (ICA) guidance as well as Embedding Reinforcement (ER) to further enhance editing quality. DFVEdit excels in practical efficiency, offering at least 20x inference speed-up and 85% memory reduction on Video DiTs compared to attention-engineering-based editing methods. Extensive quantitative and qualitative experiments demonstrate that DFVEdit can be seamlessly applied to popular Video DiTs (e.g., CogVideoX and Wan2.1), attaining state-of-the-art performance on structural fidelity, spatial-temporal consistency, and editing quality.",
+          "claimed_authors": [
+            "Lingling Cai",
+            "Kang Zhao",
+            "Hangjie Yuan",
+            "Xiang Wang",
+            "Yingya Zhang",
+            "Kejie Huang"
+          ],
+          "claimed_title": "DFVEdit: Conditional Delta Flow Vector for Zero-shot Video Editing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.20967"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='DFVEdit: Conditional Delta Flow Vector for Zero-shot Video Editing')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models offer impressive language capabilities but suffer from well-known limitations, including hallucinations, biases, privacy concerns, and high computational costs. These issues are largely driven by the combination of linguistic competence and factual memorization within a single monolithic model. This paper introduces and empirically supports the Fundamental Language Model (FLM) paradigm, which advocates for smaller, linguistically competent models that offload factual retrieval to external tools. We evaluate models ranging from 135M to 32B parameters across three dimensions: linguistic competence, external factual knowledge, and internal factual knowledge. Our findings reveal that while both linguistic competence and factual knowledge improve with scale, internal factual knowledge grows significantly faster, suggesting that model size is more closely tied to memorization than to core language ability. These results support a modular approach to language modeling, where compact, linguistically proficient models serve as the foundation for tool-augmented systems. The FLM paradigm offers a path toward more efficient, interpretable, and sustainable NLP solutions.",
+          "claimed_authors": [
+            "Jaime Collado-Montañez",
+            "L. Alfonso Ureña-López",
+            "Arturo Montejo-Ráez"
+          ],
+          "claimed_title": "Towards Fundamental Language Models: Does Linguistic Competence Scale with Model Size?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.02225"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='Towards Fundamental Language Models: Does Linguistic Competence Scale with Model Size?')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper reports on the state-of-the-art in application of multidimensional scaling (MDS) techniques to create semantic maps in linguistic research. MDS refers to a statistical technique that represents objects (lexical items, linguistic contexts, languages, etc.) as points in a space so that close similarity between the objects corresponds to close distances between the corresponding points in the representation. We focus on the use of MDS in combination with parallel corpus data as used in research on cross-linguistic variation.\n  We first introduce the mathematical foundations of MDS and then give an exhaustive overview of past research that employs MDS techniques in combination with parallel corpus data. We propose a set of terminology to succinctly describe the key parameters of a particular MDS application. We then show that this computational methodology is theory-neutral, i.e. it can be employed to answer research questions in a variety of linguistic theoretical frameworks. Finally, we show how this leads to two lines of future developments for MDS research in linguistics.",
+          "claimed_authors": [
+            "Martijn van der Klis",
+            "Jos Tellings"
+          ],
+          "claimed_title": "Generating semantic maps through multidimensional scaling: linguistic applications and theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.04946"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='Generating semantic maps through multidimensional scaling: linguistic applications and theory')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A lively research field has recently emerged that uses experimental methods to probe the linguistic behavior of modern deep networks. While work in this tradition often reports intriguing results about the grammatical skills of deep nets, it is not clear what their implications for linguistic theorizing should be. As a consequence, linguistically-oriented deep net analysis has had very little impact on linguistics at large. In this chapter, I suggest that deep networks should be treated as theories making explicit predictions about the acceptability of linguistic utterances. I argue that, if we overcome some obstacles standing in the way of seriously pursuing this idea, we will gain a powerful new theoretical tool, complementary to mainstream algebraic approaches.",
+          "claimed_authors": [
+            "Marco Baroni"
+          ],
+          "claimed_title": "On the proper role of linguistically-oriented deep net analysis in linguistic theorizing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.08694"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='On the proper role of linguistically-oriented deep net analysis in linguistic theorizing')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A new method of feature extraction in the social network for within-network classification is proposed in the paper. The method provides new features calculated by combination of both: network structure information and class labels assigned to nodes. The influence of various features on classification performance has also been studied. The experiments on real-world data have shown that features created owing to the proposed method can lead to significant improvement of classification accuracy.",
+          "claimed_authors": [
+            "Tomasz Kajdanowicz",
+            "Przemyslaw Kazienko",
+            "Piotr Doskocz"
+          ],
+          "claimed_title": "Label-dependent Feature Extraction in Social Networks for Node Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0095"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='Label-dependent Feature Extraction in Social Networks for Node Classification')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Over the last several years, research on facial recognition based on Deep Neural Network has evolved with approaches like task-specific loss functions, image normalization and augmentation, network architectures, etc. However, there have been few approaches with attention to how human faces differ from person to person. Premising that inter-personal differences are found both generally and locally on the human face, I propose FusiformNet, a novel framework for feature extraction that leverages the nature of discriminative facial features. Tested on Image-Unrestricted setting of Labeled Faces in the Wild benchmark, this method achieved a state-of-the-art accuracy of 96.67% without labeled outside data, image augmentation, normalization, or special loss functions. Likewise, the method also performed on a par with previous state-of-the-arts when pre-trained on CASIA-WebFace dataset. Considering its ability to extract both general and local facial features, the utility of FusiformNet may not be limited to facial recognition but also extend to other DNN-based tasks.",
+          "claimed_authors": [
+            "Kyo Takano"
+          ],
+          "claimed_title": "FusiformNet: Extracting Discriminative Facial Features on Different Levels",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.00577"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='FusiformNet: Extracting Discriminative Facial Features on Different Levels')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite the recent progress, little is known about the features captured by state-of-the-art neural relation extraction (RE) models. Common methods encode the source sentence, conditioned on the entity mentions, before classifying the relation. However, the complexity of the task makes it difficult to understand how encoder architecture and supporting linguistic knowledge affect the features learned by the encoder. We introduce 14 probing tasks targeting linguistic properties relevant to RE, and we use them to study representations learned by more than 40 different encoder architecture and linguistic feature combinations trained on two datasets, TACRED and SemEval 2010 Task 8. We find that the bias induced by the architecture and the inclusion of linguistic features are clearly expressed in the probing task performance. For example, adding contextualized word representations greatly increases performance on probing tasks with a focus on named entity and part-of-speech information, and yields better results in RE. In contrast, entity masking improves RE, but considerably lowers performance on entity type related probing tasks.",
+          "claimed_authors": [
+            "Christoph Alt",
+            "Aleksandra Gabryszak",
+            "Leonhard Hennig"
+          ],
+          "claimed_title": "Probing Linguistic Features of Sentence-Level Representations in Neural Relation Extraction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08134"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='Probing Linguistic Features of Sentence-Level Representations in Neural Relation Extraction')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mechanistic interpretability (MI) aims to understand AI models by reverse-engineering the exact algorithms neural networks learn. Most works in MI so far have studied behaviors and capabilities that are trivial and token-aligned. However, most capabilities important for safety and trust are not that trivial, which advocates for the study of hidden representations inside these networks as the unit of analysis. We formalize representations for features and behaviors, highlight their importance and evaluation, and perform an exploratory study of dishonesty representations in `Mistral-7B-Instruct-v0.1'. We justify that studying representations is an important and under-studied field, and highlight several challenges that arise while attempting to do so through currently established methods in MI, showing their insufficiency and advocating work on new frameworks for the same.",
+          "claimed_authors": [
+            "Satvik Golechha",
+            "James Dao"
+          ],
+          "claimed_title": "Challenges in Mechanistically Interpreting Model Representations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.03855"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='Challenges in Mechanistically Interpreting Model Representations')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mechanistic interpretability research requires reliable tools for analyzing transformer internals across diverse architectures. Current approaches face a fundamental tradeoff: custom implementations like TransformerLens ensure consistent interfaces but require coding a manual adaptation for each architecture, introducing numerical mismatch with the original models, while direct HuggingFace access through NNsight preserves exact behavior but lacks standardization across models. To bridge this gap, we develop nnterp, a lightweight wrapper around NNsight that provides a unified interface for transformer analysis while preserving original HuggingFace implementations. Through automatic module renaming and comprehensive validation testing, nnterp enables researchers to write intervention code once and deploy it across 50+ model variants spanning 16 architecture families. The library includes built-in implementations of common interpretability methods (logit lens, patchscope, activation steering) and provides direct access to attention probabilities for models that support it. By packaging validation tests with the library, researchers can verify compatibility with custom models locally. nnterp bridges the gap between correctness and usability in mechanistic interpretability tooling.",
+          "claimed_authors": [
+            "Clément Dumas"
+          ],
+          "claimed_title": "nnterp: A Standardized Interface for Mechanistic Interpretability of Transformers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.14465"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='nnterp: A Standardized Interface for Mechanistic Interpretability of Transformers')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sparse autoencoders (SAEs) have proven useful in disentangling the opaque activations of neural networks, primarily large language models, into sets of interpretable features. However, adapting them to domains beyond language, such as scientific data with group symmetries, introduces challenges that can hinder their effectiveness. We show that incorporating such group symmetries into the SAEs yields features more useful in downstream tasks. More specifically, we train autoencoders on synthetic images and find that a single matrix can explain how their activations transform as the images are rotated. Building on this, we develop adaptively equivariant SAEs that can adapt to the base model's level of equivariance. These adaptive SAEs discover features that lead to superior probing performance compared to regular SAEs, demonstrating the value of incorporating symmetries in mechanistic interpretability tools.",
+          "claimed_authors": [
+            "Ege Erdogan",
+            "Ana Lucic"
+          ],
+          "claimed_title": "Group Equivariance Meets Mechanistic Interpretability: Equivariant Sparse Autoencoders",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.09432"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LatentSkill: From In-Context Textual Skills to In-', candidate_title='Group Equivariance Meets Mechanistic Interpretability: Equivariant Sparse Autoencoders')",
+        "failed_at": "2026-07-13T20:21:47Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrew Shin",
+            "Kunitake Kaneko"
+          ],
+          "title": "Large Language Models Lack Understanding of Character Composition of Words",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2405.11357",
+        "summary": "Large language models (LLMs) have demonstrated remarkable performances on a wide range of natural language tasks. Yet, LLMs' successes have been largely restricted to tasks concerning words, sentences, or documents, and it remains questionable how much they understand the minimal units of text, namely characters. In this paper, we examine contemporary LLMs regarding their ability to understand character composition of words, and show that most of them fail to reliably carry out even the simple tasks that can be handled by humans with perfection. We analyze their behaviors with comparison to token level performances, and discuss the potential directions for future research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2405.11357",
+          "http_status": 200,
+          "pdf_sample_score": 0.1612,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T20:21:58Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"latentskill: from in-context textual skills to in-weight latent skills\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

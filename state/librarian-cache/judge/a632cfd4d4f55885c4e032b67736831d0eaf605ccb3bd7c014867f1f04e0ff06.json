@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.11357",
+  "judged_at": "2026-07-13T20:22:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"latentskill: from in-context textual skills to in-weight latent skills\" linguistics",
+  "rationale": "This paper satisfies criterion (a) by investigating the same underlying mechanism of \"latent skills\" (specifically, the model's internal representation and processing of sub-word character composition) that the user's question targets, even though it focuses on a specific linguistic failure mode rather than the full \"In-Context to In-Weight\" transfer framework. It provides essential empirical evidence on the granularity of LLM linguistic understanding, which is a canonical prerequisite for discu",
+  "relevant": true
+}

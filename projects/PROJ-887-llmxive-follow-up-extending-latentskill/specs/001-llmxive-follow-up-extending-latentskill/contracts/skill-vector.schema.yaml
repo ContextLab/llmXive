@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SkillVector"
+description: "Schema for a single flattened and normalized LoRA skill vector."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the task (e.g., 'alfworld_task_001')."
+  task_description:
+    type: "string"
+    description: "Natural language description of the task."
+  source:
+    type: "string"
+    description: "Source dataset name (e.g., 'ALFWorld', 'Search-QA')."
+  vector_shape:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Dimensions of the flattened vector (should be 1D, so [N])."
+  is_normalized:
+    type: "boolean"
+    description: "True if L2 normalization has been applied."
+  checksum:
+    type: "string"
+    description: "SHA256 checksum of the vector data for integrity verification."
+required:
+  - id
+  - task_description
+  - source
+  - vector_shape
+  - is_normalized
+  - checksum
+additionalProperties: false

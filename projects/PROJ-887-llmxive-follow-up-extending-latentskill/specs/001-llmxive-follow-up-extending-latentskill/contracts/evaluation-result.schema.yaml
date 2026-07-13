@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationResult"
+description: "Schema for a single evaluation run result."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Reference to the composite task being evaluated."
+  method:
+    type: "string"
+    enum:
+      - "nearest_neighbor"
+      - "arithmetic_mean"
+      - "weighted_mean"
+      - "baseline"
+    description: "The retrieval/interpolation strategy used."
+  run_id:
+    type: "integer"
+    description: "The run number (1 to N)."
+  success:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "Binary outcome: 1 for success, 0 for failure."
+  selection_latency_ms:
+    type: "number"
+    description: "Wall-clock time for skill selection in milliseconds."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the run."
+required:
+  - task_id
+  - method
+  - run_id
+  - success
+  - selection_latency_ms
+  - timestamp
+additionalProperties: false
