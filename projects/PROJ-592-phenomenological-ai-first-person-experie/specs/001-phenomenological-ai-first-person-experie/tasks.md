@@ -75,10 +75,10 @@
 
 ### Implementation for User Story 1
 
-- [X] T009 [P] [US1] Implement `code/generation/runner.py` using `llama-cpp-python` for `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF ` (specifically `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`) on CPU-only environment (FR-002). **Constraint**: Do not use 7B models in this script; they are excluded from CI. Target volume: approximately 80 samples per prompt per strategy, yielding a substantial total dataset for analysis..
+- [X] T009 [P] [US1] Implement `code/generation/runner.py` using `llama-cpp-python` for `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF ` (specifically `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`) on CPU-only environment (FR-002). **Constraint**: Do not use 7B models in this script; they are excluded from CI. Target volume: approximately 80 samples per prompt per strategy..
 - [X] T010 [US1] Implement retry logic in `runner.py`: A fixed number of attempts per prompt/strategy combination, marking samples as missing after failure (FR-001).
 - [X] T011 [P] [US1] Create `code/generation/control_corpus.py` to generate ≥80 control samples using `datasets.load_dataset("arxiv_nlp")` with `filter='arxiv_nlp'` and random sampling. **Verification**: Ensure these samples are processed through the same three validity metrics (Consistency, Stability, Markers) as the phenomenological reports to compute discriminant validity (FR-001).
-- [X] T012 [P] [US1] Implement `code/generation/runner_local.py` for the second checkpoint (Mistral-7B or Llama-7B) using `llama-cpp-python` with 4-bit GGUF. **Note**: This script is for local execution only ({{claim:c_b8cf8299}} (Wikipedia: Huawei Mate XT, https://en.wikipedia.org/wiki/Huawei_Mate_XT)) and satisfies the "two checkpoints" requirement of FR-001/US-1. It is NOT used in the primary CI path.
+- [X] T012 [P] [US1] Implement `code/generation/runner_local.py` for the second checkpoint (Mistral-7B or Llama-7B) using `llama-cpp-python` with 4-bit GGUF. **Note**: This script is for local execution only) and satisfies the "two checkpoints" requirement of FR-001/US-1. It is NOT used in the primary CI path.
 - [ ] T013 [US1] Add timeout handling and sample-size logging to ensure ≥80 successful samplesper condition. **Note**: This is the CI minimum; {{claim:c_028c1fdd}} <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |

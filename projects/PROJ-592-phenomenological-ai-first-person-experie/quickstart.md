@@ -1,119 +1,139 @@
-# Phenomenological AI: First-Person Experience Modeling - Quick Start Guide
+# Phenomenological AI: First-Person Experience Modeling - Quick Start
 
-This guide provides the essential steps to set up the environment and run the automated science pipeline for generating and analyzing phenomenological reports.
+This guide provides instructions for setting up the environment and running the automated science pipeline for modeling first-person experience in language models.
 
 ## Prerequisites
 
 - Python 3.9+
 - pip (Python package manager)
-- ~4GB RAM (for CPU-only TinyLlama execution)
-- ~2GB disk space for models and data
+- Git
 
-## 1. Environment Setup
+## Environment Setup
 
-### Clone and Navigate
-```bash
-git clone <repository-url>
-cd llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie
-```
+1. **Clone the repository** (if not already done):
+ ```bash
+ git clone <repository-url>
+ cd projects/PROJ-592-phenomenological-ai-first-person-experie
+ ```
 
-### Create Virtual Environment
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-```
+2. **Create a virtual environment** (recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-### Install Dependencies
-Install the core requirements, including `llama-cpp-python` for CPU inference and `datasets` for control corpus loading:
-```bash
-pip install --upgrade pip
-pip install -r requirements.txt
-```
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-> **Note on `llama-cpp-python`**: Ensure you have a compatible C++ compiler installed. For CPU-only execution, install with `CMAKE_ARGS="-DLLAMA_BLAS=OFF"` to avoid unnecessary dependencies.
-> ```bash
-> CMAKE_ARGS="-DLLAMA_BLAS=OFF" pip install llama-cpp-python
-> ```
+ *Note: Ensure you have sufficient disk space for model downloads (TinyLlama ~2GB).*
 
-### Download the Model
-The pipeline uses `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF` (specifically `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`).
-If not already present in `data/models/`, download it:
-```bash
-mkdir -p data/models
-wget -O data/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
-```
+4. **Verify installation**:
+ ```bash
+ python -c "import llama_cpp; print('llama-cpp-python installed')"
+ python -c "import datasets; print('datasets installed')"
+ ```
 
-## 2. Project Structure
+## Project Structure
 
-- `code/`: Source code for generation, analysis, and validation.
-- `data/raw/`: Generated phenomenological reports and control corpus samples.
-- `data/processed/`: Computed metrics (validity scores, statistics).
-- `data/qualitative/`: Human rating sheets and anonymized data.
-- `specs/`: Feature specifications and contracts.
+- `code/`: Source code for generation, analysis, and validation
+- `data/raw/`: Generated phenomenological reports and control corpus
+- `data/processed/`: Computed metrics and statistical analysis results
+- `data/qualitative/`: Human rater inputs and outputs
+- `specs/`: Feature specifications and contracts
+- `tests/`: Unit and integration tests
 
-## 3. Running the Pipeline
+## Running the Pipeline
 
-The main entry point is `code/main.py`. Use the `--task` argument to select the phase.
+The main entry point is `code/main.py`. It supports three primary modes of operation corresponding to the user stories.
 
-### A. Generate Phenomenological Reports (US1)
-Generates ~80 samples per prompt per strategy (4 strategies) using the TinyLlama model on CPU.
+### Mode 1: Generation (User Story 1)
+
+Generates the corpus of phenomenological reports using CPU-tractable models and four prompting strategies.
+
 ```bash
 python code/main.py --task generate --config code/config.py
 ```
-**Output**: `data/raw/generation_samples.json`
 
-### B. Generate Control Corpus (US1)
-Generates control samples from the `arxiv_nlp` dataset for discriminant validity testing.
-```bash
-python code/main.py --task generate_control --config code/config.py
-```
-**Output**: `data/raw/control_samples.json`
+**Output**: `data/raw/generation_output.jsonl` (and related files per strategy)
 
-### C. Analyze Metrics (US2)
-Computes Internal Consistency, Semantic Stability, and Marker Presence metrics.
+**Options**:
+- `--task generate`: Run the full generation pipeline
+- `--task generate_control`: Run the control corpus generation
+- `--config`: Path to configuration file (default: `code/config.py`)
+
+### Mode 2: Analysis (User Story 2)
+
+Computes Internal Consistency, Semantic Stability, and Marker Presence metrics, then performs statistical analysis.
+
 ```bash
 python code/main.py --task analyze --config code/config.py
 ```
-**Output**: Intermediate metric files in `data/processed/`
 
-### D. Statistical Analysis (US2)
-Performs Shapiro-Wilk, Levene, ANOVA/Kruskal-Wallis, and post-hoc tests.
-```bash
-python code/main.py --task stats --config code/config.py
-```
-**Output**: `data/processed/validity_scores.csv` and statistical summary logs.
+**Output**: `data/processed/validity_scores.csv`, `data/processed/statistical_results.json`
 
-### E. Validation & Sampling (US3)
-Selects a stratified sample for human rating.
+**Options**:
+- `--task analyze`: Run the full analysis pipeline (metrics + stats)
+- `--task stats`: Run only the statistical analysis on existing scores
+- `--task sensitivity-kappa`: Run sensitivity analysis for Cohen's κ thresholds
+
+### Mode 3: Validation (User Story 3)
+
+Facilitates human evaluation, computes inter-rater reliability, and archives artifacts.
+
 ```bash
 python code/main.py --task validate_human --config code/config.py
 ```
-**Output**: `data/qualitative/sampled_reports.json`
 
-### F. Full Pipeline (End-to-End)
-Executes Generation → Control → Analysis → Stats in sequence.
+**Output**: `data/qualitative/ratings.csv`, `data/qualitative/anonymized_ratings.csv`
+
+**Options**:
+- `--task validate_human`: Run the human rating pipeline
+- `--task select_validation_sample`: Select a stratified sample for human rating
+
+### Full Pipeline
+
+To run the entire pipeline end-to-end (Generation → Analysis → Validation):
+
 ```bash
-python code/main.py --task full --config code/config.py
+python code/main.py --task full_pipeline --config code/config.py
 ```
-**Expected Duration**: ≤6 hours on free-tier CPU resources.
 
-## 4. Verification
+**Expected Runtime**: ≤ 6 hours on free-tier CPU environments (as per T033).
 
-After running the full pipeline, verify the following artifacts exist:
-- `data/raw/generation_samples.json` (≥3200 samples expected: 20 prompts × 4 strategies × ~40 seeds)
-- `data/raw/control_samples.json` (≥80 samples)
-- `data/processed/validity_scores.csv` (Non-null scores for all metrics)
-- `data/qualitative/sampled_reports.json` (Stratified subset)
+## Troubleshooting
 
-## 5. Troubleshooting
+- **CUDA Errors**: Ensure you are running in a CPU-only environment. The primary CI path uses `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF` which runs on CPU.
+- **Import Errors**: Verify that `requirements.txt` dependencies are installed and that `code/` is in your `PYTHONPATH`.
+- **Missing Data**: If output files are missing, check the logs in `logs/` for specific error messages during execution.
 
-- **CUDA Errors**: Ensure you are not using a GPU. The `config.py` is set to CPU-only for TinyLlama.
-- **Memory Errors**: If OOM occurs, reduce `MAX_SAMPLES_PER_PROMPT` in `code/config.py`.
-- **Missing Model**: Verify `data/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf` exists.
+## Testing
 
-## 6. Next Steps
+Run unit tests to verify the implementation:
 
-- Review `specs/contracts/` for data schemas.
-- Implement custom analysis in `code/analysis/` modules.
-- Run human rating using `code/validation/human_rater.py` on the sampled reports.
-- Archive reproducibility data with `python code/main.py --task archive`.
+```bash
+python -m pytest tests/unit/ -v
+```
+
+Run integration tests:
+
+```bash
+python -m pytest tests/integration/ -v
+```
+
+## Configuration
+
+Edit `code/config.py` to adjust:
+- Model paths and IDs
+- Seed values for reproducibility
+- Phenomenological marker dictionaries (sensory, temporal, intentional)
+- Output paths and file names
+
+## Reproducibility
+
+All generated artifacts, seeds, and configurations are archived for reproducibility. Run the archiver script to create a reproducible package:
+
+```bash
+python code/utils/archiver.py
+```

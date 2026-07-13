@@ -2,57 +2,59 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 command(s) failed: python code/main.py --task generate --config code/config.py (rc=1); python code/main.py --task generate_control --config code/config.py (rc=1); python code/main.py --task select_validation_sample --config code/config.py (rc=2); 1 declared deliverable(s) absent: data/processed/validity_scores.csv
+**Summary**: 7 command(s) failed: python code/main.py --task generate --config code/config.py (rc=1); python code/main.py --task generate_control --config code/config.py (rc=1); python code/main.py --task select_validation_sample --config code/config.py (rc=1); 1 declared deliverable(s) absent: data/processed/validity_scores.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --task generate --config code/config.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 174, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 144, in main
-    log_operation("main_start", task=args.task, config=args.config)
-TypeError: log_operation() missing 1 required positional argument: 'message'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 27, in <module>
+    from generation.runner import main as generation_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/runner.py", line 36, in <module>
+    from utils.logging import get_logger, log_operation, retry_on_failure, capture_warning, WarningContext
+ImportError: cannot import name 'WarningContext' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/utils/logging.py)
 - python code/main.py --task generate_control --config code/config.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 174, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 144, in main
-    log_operation("main_start", task=args.task, config=args.config)
-TypeError: log_operation() missing 1 required positional argument: 'message'
-- python code/main.py --task select_validation_sample --config code/config.py -> rc=2
-    usage: main.py [-h]
-               [--task {generate,generate_control,analyze,stats,validate_human,sensitivity-kappa,archive,full}]
-               [--config CONFIG]
-main.py: error: argument --task: invalid choice: 'select_validation_sample' (choose from 'generate', 'generate_control', 'analyze', 'stats', 'validate_human', 'sensitivity-kappa', 'archive', 'full')
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 27, in <module>
+    from generation.runner import main as generation_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/runner.py", line 36, in <module>
+    from utils.logging import get_logger, log_operation, retry_on_failure, capture_warning, WarningContext
+ImportError: cannot import name 'WarningContext' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/utils/logging.py)
+- python code/main.py --task select_validation_sample --config code/config.py -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 27, in <module>
+    from generation.runner import main as generation_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/runner.py", line 36, in <module>
+    from utils.logging import get_logger, log_operation, retry_on_failure, capture_warning, WarningContext
+ImportError: cannot import name 'WarningContext' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/utils/logging.py)
 - python code/main.py --task analyze -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 174, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 144, in main
-    log_operation("main_start", task=args.task, config=args.config)
-TypeError: log_operation() missing 1 required positional argument: 'message'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 27, in <module>
+    from generation.runner import main as generation_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/runner.py", line 36, in <module>
+    from utils.logging import get_logger, log_operation, retry_on_failure, capture_warning, WarningContext
+ImportError: cannot import name 'WarningContext' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/utils/logging.py)
 - python code/main.py --task validate_human -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 174, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 144, in main
-    log_operation("main_start", task=args.task, config=args.config)
-TypeError: log_operation() missing 1 required positional argument: 'message'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 27, in <module>
+    from generation.runner import main as generation_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/runner.py", line 36, in <module>
+    from utils.logging import get_logger, log_operation, retry_on_failure, capture_warning, WarningContext
+ImportError: cannot import name 'WarningContext' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/utils/logging.py)
 - python code/main.py --task stats -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 174, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 144, in main
-    log_operation("main_start", task=args.task, config=args.config)
-TypeError: log_operation() missing 1 required positional argument: 'message'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 27, in <module>
+    from generation.runner import main as generation_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/runner.py", line 36, in <module>
+    from utils.logging import get_logger, log_operation, retry_on_failure, capture_warning, WarningContext
+ImportError: cannot import name 'WarningContext' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/utils/logging.py)
 - python code/main.py --task sensitivity-kappa -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 174, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 144, in main
-    log_operation("main_start", task=args.task, config=args.config)
-TypeError: log_operation() missing 1 required positional argument: 'message'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 27, in <module>
+    from generation.runner import main as generation_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/runner.py", line 36, in <module>
+    from utils.logging import get_logger, log_operation, retry_on_failure, capture_warning, WarningContext
+ImportError: cannot import name 'WarningContext' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/utils/logging.py)
 
 ## Declared deliverables still missing
 
@@ -66,7 +68,7 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `log_operation` — defined in `code/utils/logging.py`; called 14 way(s):
+### `log_operation` — defined in `code/utils/logging.py`; called 20 way(s):
 
 - code/main.py: log_operation("setup_environment", config_path=config_path)
 - code/main.py: log_operation("run_generation_phase")
@@ -79,18 +81,23 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 - code/main.py: log_operation("main_start", task=args.task, config=args.config)
 - code/main.py: log_operation("task_complete", task=args.task)
 - code/main.py: log_operation("task_failed", task=args.task, error=str(e))
-- code/utils/logging.py: # Decorator usage: @log_operation
-- code/generation/timeout_monitor.py: log_operation(
+- code/utils/logging.py: """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+- code/analysis/stats.py: log_operation("load_aggregated_scores_start")
+- code/analysis/stats.py: log_operation("load_aggregated_scores_complete", count=len(merged_records))
+- code/analysis/stats.py: log_operation("orchestrate_analysis_start")
+- code/analysis/stats.py: log_operation("orchestrate_analysis_complete", output=str(output_path))
+- code/analysis/stats.py: log_operation("stats_main_start")
+- code/generation/timeout_monitor.py: log_operation("timeout_monitor_main_start")
+- code/generation/timeout_monitor.py: log_operation("timeout_monitor_main_complete", output=str(output_path))
 - code/generation/runner.py: log_operation("generate_sample_attempt", strategy=strategy, seed=seed)
 
 Make `log_operation` in `code/utils/logging.py` accept ALL of the above.
 
-### `retry_on_failure` — defined in `code/utils/logging.py`; called 8 way(s):
+### `retry_on_failure` — defined in `code/utils/logging.py`; called 7 way(s):
 
-- code/utils/logging.py: - @retry_on_failure(max_attempts=3)
-- code/utils/logging.py: - @retry_on_failure(max_retries=3)
-- code/utils/logging.py: - @retry_on_failure(max_attempts=3, delay=2.0)
-- code/utils/logging.py: - @retry_on_failure(max_attempts=3, delay_seconds=2.0, logger=logger)
+- code/utils/logging.py: - @retry_on_failure(max_attempts=3, delay_seconds=1.0)
+- code/utils/logging.py: - @retry_on_failure(max_attempts=3, delay=5)
+- code/utils/logging.py: - @retry_on_failure(max_attempts=3, delay=2.0, logger=None)
 - code/validation/turing_simulation.py: @retry_on_failure(max_attempts=3, delay_seconds=1.0)
 - code/generation/runner_local.py: @retry_on_failure(max_attempts=3, delay=5)
 - code/generation/runner.py: @retry_on_failure(max_attempts=MAX_ATTEMPTS_PER_SAMPLE, delay=2.0, logger=None)

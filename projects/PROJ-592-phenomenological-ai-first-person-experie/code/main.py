@@ -1,6 +1,10 @@
 """
 Main orchestration script for the Phenomenological AI pipeline.
 Coordinates Generation, Analysis, Stats, and Validation phases.
+
+This script orchestrates the full pipeline to enable US1+US2 integration testing.
+It ensures that data flows correctly from generation through analysis to stats,
+producing real outputs to disk as specified in tasks.md.
 """
 import os
 import sys
