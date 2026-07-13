@@ -1,0 +1,613 @@
+{
+  "fetched_at": "2026-07-13T15:52:40Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Impact of Composition on the Weibull Modulus of Ceramics",
+      "target_n": 5
+    },
+    "duration_seconds": 55.213,
+    "ended_at": "2026-07-13T15:52:40Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "composition-dependent Weibull modulus in ceramic materials"
+        ],
+        [
+          2,
+          "statistical strength variability of ceramics based on chemical composition"
+        ],
+        [
+          3,
+          "Weibull distribution parameters for multi-component ceramic systems"
+        ],
+        [
+          4,
+          "microstructure-property relationships in brittle ceramics"
+        ],
+        [
+          5,
+          "influence of phase composition on ceramic fracture statistics"
+        ],
+        [
+          6,
+          "predictive modeling of Weibull modulus in advanced ceramics"
+        ],
+        [
+          7,
+          "composition-strength correlation in structural ceramics"
+        ],
+        [
+          8,
+          "reliability analysis of ceramic composites using Weibull statistics"
+        ],
+        [
+          9,
+          "effect of dopants and additives on ceramic failure probability"
+        ],
+        [
+          10,
+          "machine learning prediction of Weibull modulus for ceramics"
+        ],
+        [
+          11,
+          "fracture toughness and Weibull modulus in heterogeneous ceramics"
+        ],
+        [
+          12,
+          "processing-structure-property links in ceramic reliability"
+        ],
+        [
+          13,
+          "Weibull shape factor variation with ceramic formulation"
+        ],
+        [
+          14,
+          "statistical size effect and composition in ceramic strength"
+        ],
+        [
+          15,
+          "data-driven approaches to ceramic strength prediction"
+        ],
+        [
+          16,
+          "grain boundary chemistry effects on Weibull modulus"
+        ],
+        [
+          17,
+          "composition optimization for high Weibull modulus ceramics"
+        ],
+        [
+          18,
+          "brittle fracture statistics in engineered ceramic materials"
+        ],
+        [
+          19,
+          "multivariate analysis of ceramic composition and strength distribution"
+        ],
+        [
+          20,
+          "uncertainty quantification in ceramic strength prediction models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting the Impact of Composition on the Weibull Modulus of Ceramics materials science": 0,
+        "composition-dependent Weibull modulus in ceramic materials": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "Weibull distribution strength variability ceramics",
+      "ceramic microstructure grain size porosity fracture",
+      "microstructural heterogeneity flaw population statistical analysis",
+      "Weibull modulus experimental reliability ceramic failure",
+      "flaw size distribution fracture toughness critical stress"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1912.11742"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting the Impact of Composition on the Weibull Modulus of Ceramics materials science": 3,
+      "Weibull distribution strength variability ceramics": 3,
+      "Weibull modulus experimental reliability ceramic failure": 1,
+      "ceramic microstructure grain size porosity fracture": 3,
+      "flaw size distribution fracture toughness critical stress": 2,
+      "microstructural heterogeneity flaw population statistical analysis": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2504.04581",
+          "rationale": "The paper focuses on dislocation plasticity and deformation mechanisms in ceramics, which is a distinct construct from the Weibull modulus (a statistical measure of strength variability and flaw distribution). While both relate to ceramic mechanical properties, the paper does not measure the Weibull modulus, investigate the impact of composition on it, or provide a foundational method for predicting it, thus failing to meet the inclusion criteria for the user's specific question.",
+          "title": "Room-temperature dislocation plasticity in ceramics: Methods, Materials, and Mechanisms"
+        },
+        {
+          "primary_pointer": "2308.14403",
+          "rationale": "The paper focuses on optimizing sintering parameters to achieve density and single-phase purity in KTaO$_3$ ceramics and reports on dielectric permittivity and thermal conductivity, but it does not measure, model, or discuss the Weibull modulus (a statistical measure of mechanical strength variability) or the specific impact of composition on this metric. Consequently, it fails to satisfy the criteria for same-mechanism evidence, variable overlap, or foundational methodology regarding the Weibul",
+          "title": "Dense and single-phase KTaO$_{3}$ ceramics obtained by spark plasma sintering"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T15:51:45Z",
+    "term_input": {
+      "normalized": "predicting the impact of composition on the weibull modulus of ceramics materials science",
+      "raw": "Predicting the Impact of Composition on the Weibull Modulus of Ceramics materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Phosphorus (P) is considered to be one of the key elements for life, making it an important element to look for in the abundance analysis of spectra of stellar systems. Yet, there exists only a handful of spectroscopic studies to estimate the P abundances and investigate its trend across a range of metallicities. We have observed full HK band spectra at a spectral resolving power of R=45,000 with IGRINS instrument. Abundances are determined using SME in combination with 1D MARCS stellar atmosphere models. The investigated sample of stars have reliable stellar parameters estimated using optical FIES spectra (GILD; Jönsson et al. in prep.). In order to determine the P abundances from the 16482.92 Angstrom P line, we take special care of the CO($ν=7-4$) blend. We determine the C, N, O abundances from atomic carbon and a range of non-blended molecular lines (CO, CN, OH) which are aplenty in the H band region of K giant stars, assuring an appropriate modelling of the blending CO($ν=7-4$) line. We present [P/Fe] vs [Fe/H] trend for 38 K giant stars in the metallicity range of -1.2 dex $<$ [Fe/H] $<$ 0.4 dex. We find that our trend matches well with the compiled literature sample of prominently dwarf stars and limited number of giant stars. Our trend is found to be higher by $\\sim$ 0.05 - 0.1 dex compared to the theoretical chemical evolution trend in Cescutti et al. 2012 resulting from core collapse supernova (type II) of massive stars with the P yields from Kobayashi et al. (2006) arbitrarily increased by a factor of 2.75. Thus the enhancement factor might need to be $\\sim$ 0.05 - 0.1 dex higher to match our trend. We also find an empirically determined primary behaviour for phosphorus. Furthermore, the phosphorus abundance is found to be elevated by $\\sim$ 0.6 - 0.9 dex in two metal poor s-enriched stars compared to the theoretical chemical evolution trend.",
+          "claimed_authors": [
+            "G. Nandakumar",
+            "N. Ryde",
+            "M. Montelius",
+            "B. Thorsbro",
+            "H. Jönsson",
+            "G. Mace",
+            "Lund Observatory",
+            "Department of Astronomy",
+            "Theoretical Physics",
+            "Lund University",
+            "Box 43",
+            "SE-221 00 Lund",
+            " Sweden",
+            "Kapteyn Astronomical Institute",
+            "University of Groningen",
+            "Landleven 12",
+            "NL-9747 AD Groningen",
+            "the Netherlands",
+            "Department of Astronomy",
+            "School of Science",
+            "The University of Tokyo",
+            "7-3-1 Hongo",
+            " Bunkyo-ku",
+            "Tokyo 113-0033",
+            " Japan",
+            "Materials Science",
+            "Applied Mathematics",
+            "Malmö University",
+            "SE-205 06 Malmö",
+            " Sweden",
+            "Department of Astronomy",
+            "McDonald Observatory",
+            "The University of Texas",
+            " Austin",
+            "TX 78712",
+            " USA"
+          ],
+          "claimed_title": "The Galactic Chemical Evolution of phosphorus observed with IGRINS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.04940"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Composition on the Weibull Modulus of Ceramics material', candidate_title='The Galactic Chemical Evolution of phosphorus observed with IGRINS')",
+        "failed_at": "2026-07-13T15:52:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Weibull Modulus of Ceramics material', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-07-13T15:52:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On 2017 August 17 a binary neutron star coalescence candidate (later designated GW170817) with merger time 12:41:04 UTC was observed through gravitational waves by the Advanced LIGO and Advanced Virgo detectors. The Fermi Gamma-ray Burst Monitor independently detected a gamma-ray burst (GRB 170817A) with a time delay of $\\sim$1.7 s with respect to the merger time. From the gravitational-wave signal, the source was initially localized to a sky region of 31 deg$^2$ at a luminosity distance of $40^{+8}_{-8}$ Mpc and with component masses consistent with neutron stars. The component masses were later measured to be in the range 0.86 to 2.26 Msun. An extensive observing campaign was launched across the electromagnetic spectrum leading to the discovery of a bright optical transient (SSS17a, now with the IAU identification of AT 2017gfo) in NGC 4993 (at $\\sim$40 Mpc) less than 11 hours after the merger by the One-Meter, Two Hemisphere (1M2H) team using the 1 m Swope Telescope. The optical transient was independently detected by multiple teams within an hour. Subsequent observations targeted the object and its environment. Early ultraviolet observations revealed a blue transient that faded within 48 hours. Optical and infrared observations showed a redward evolution over $\\sim$10 days. Following early non-detections, X-ray and radio emission were discovered at the transient's position $\\sim$9 and $\\sim$16 days, respectively, after the merger. Both the X-ray and radio emission likely arise from a physical process that is distinct from the one that generates the UV/optical/near-infrared emission. No ultra-high-energy gamma-rays and no neutrino candidates consistent with the source were found in follow-up searches. (Abridged)",
+          "claimed_authors": [
+            " LIGO Scientific Collaboration",
+            " Virgo Collaboration",
+            "Fermi GBM",
+            " INTEGRAL",
+            "IceCube Collaboration",
+            "AstroSat Cadmium Zinc Telluride Imager Team",
+            "IPN Collaboration",
+            "The Insight-Hxmt Collaboration",
+            "ANTARES Collaboration",
+            "The Swift Collaboration",
+            "AGILE Team",
+            "The 1M2H Team",
+            "The Dark Energy Camera GW-EM Collaboration",
+            "the DES Collaboration",
+            "The DLT40 Collaboration",
+            " GRAWITA",
+            " :",
+            "GRAvitational Wave Inaf TeAm",
+            "The Fermi Large Area Telescope Collaboration",
+            " ATCA",
+            " :",
+            "Australia Telescope Compact Array",
+            " ASKAP",
+            " :",
+            "Australian SKA Pathfinder",
+            "Las Cumbres Observatory Group",
+            " OzGrav",
+            " DWF",
+            " AST3",
+            "CAASTRO Collaborations",
+            "The VINROUGE Collaboration",
+            "MASTER Collaboration",
+            " J-GEM",
+            " GROWTH",
+            " JAGWAR",
+            "Caltech- NRAO",
+            " TTU-NRAO",
+            "NuSTAR Collaborations",
+            " Pan-STARRS",
+            "The MAXI Team",
+            "TZAC Consortium",
+            "KU Collaboration",
+            "Nordic Optical Telescope",
+            " ePESSTO",
+            " GROND",
+            "Texas Tech University",
+            "SALT Group",
+            " TOROS",
+            " :",
+            "Transient Robotic Observatory of the South Collaboration",
+            "The BOOTES Collaboration",
+            " MWA",
+            " :",
+            "Murchison Widefield Array",
+            "The CALET Collaboration",
+            "IKI-GW Follow-up Collaboration",
+            "H. E. S. S. Collaboration",
+            "LOFAR Collaboration",
+            " LWA",
+            " :",
+            "Long Wavelength Array",
+            "HAWC Collaboration",
+            "The Pierre Auger Collaboration",
+            "ALMA Collaboration",
+            "Euro VLBI Team",
+            "Pi of the Sky Collaboration",
+            "The Chandra Team at McGill University",
+            " DFN",
+            " :",
+            "Desert Fireball Network",
+            " ATLAS",
+            "High Time Resolution Universe Survey",
+            " RIMAS",
+            " RATIR",
+            "SKA South Africa/MeerKAT"
+          ],
+          "claimed_title": "Multi-messenger Observations of a Binary Neutron Star Merger",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.05833"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Composition on the Weibull Modulus of Ceramics material', candidate_title='Multi-messenger Observations of a Binary Neutron Star Merger')",
+        "failed_at": "2026-07-13T15:52:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The joining of ceramics with metals have been extensively used in applications requiring high strength and excellent heat insulation. However, evaluating the residual stress generated inevitably due to the mismatch in coefficients of thermal expansion of ceramic and metal is challenging, which is very important for fabrication and characterization of layered inhomogeneous material. A simplified analytical model considering the overall deformation compatibility is established to compute the interlaminar residual stresses of the ZrO2/(ZrO2+Ni) sandwich ceramics, which agrees well with the results obtained by the commercial finite element package. The effects of the thickness ratio of the transitional layer to the middle layer, and the number of transitional layers on the properties of the ZrO2/(ZrO2+Ni) sandwich ceramics are researched to obtain the optimal structure.",
+          "claimed_authors": [
+            "Wenbin Zhou",
+            "Rubing Zhang",
+            "Shigang Ai",
+            "Yongmao Pei",
+            "Daining Fang"
+          ],
+          "claimed_title": "Analytical modelling of thermal residual stresses and optimal design of ZrO2/(ZrO2+Ni) sandwich ceramics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.09259"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Weibull Modulus of Ceramics material', candidate_title='Analytical modelling of thermal residual stresses and optimal design of ZrO2/(ZrO2+Ni) sandwich ceramics')",
+        "failed_at": "2026-07-13T15:52:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "YBCO fabrics composed of nanowires, produced by solution blow spinning (SBS) are so brittle that the Lorentz force produced by induced currents can be strong enough to damage them. On the other hand, it is known that silver addition improves the mechanical and flux pinning properties of ceramic superconductors. Thus, in this work, we show how we successfully obtained a polymeric precursor solution containing YBCO$+$Ag salts, which can be spun by the SBS route to produce ceramic samples. Yttrium, barium, copper, and silver metal acetates, and polyvinylpyrrolidone (PVP) (in a ratio of 5:1wt [PVP:acetates]) were dissolved in a solution with 61.5 wt\\% of methanol, 12 wt\\% of propionic acid, and 26.5 wt\\% of ammonium hydroxide, together with 6 wt\\% of PVP in solution. Three different amounts of silver (10 wt\\%, 20 wt\\%, and 30 wt\\%) were used in YBa$_2$Cu$_3$O$_{7-x}$. The TGA characterizations revealed a lowering of crystallization and partial melting temperatures by about \\SI{30}{\\celsius}. SEM images show that after burning out the polymer, a fabric composed of nanowires of diameters up to \\SI{380}{\\nano \\metre} is produced. However, after the sintering process at \\SI{925}{\\celsius} for \\SI{1}{\\hour}, the nanowires shrink into a porous-like sample.",
+          "claimed_authors": [
+            "A. L. Pessoa",
+            "M. J. Raine",
+            "D. P. Hampshire",
+            "D. K. Namburi",
+            "J. H. Durrell",
+            "R. Zadorosny"
+          ],
+          "claimed_title": "Successful production of Solution Blow Spun YBCO+Ag complex ceramics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.07287"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Weibull Modulus of Ceramics material', candidate_title='Successful production of Solution Blow Spun YBCO+Ag complex ceramics')",
+        "failed_at": "2026-07-13T15:52:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We apply the Weibull distribution -- a two-parameter family from extreme-value theory -- as a diagnostic framework for element-wise weight magnitude distributions in transformers. At initialization, i.i.d. Gaussian weights give |w| ~ HalfNormal, yielding k ~ 1.20 via middle-80% probability-plot fit (the protocol used throughout this work). This anchor makes k a principled, architecture-independent measuring stick for training dynamics; fitting each weight matrix independently at every layer at every checkpoint enables per-component, per-layer, and per-step diagnostics that aggregate statistics cannot resolve.\n  Applying this framework to 12 model entries spanning 7 architectural families (Pythia, OLMo-1/2, LLaMA-3, Mistral, Qwen2.5/3) reveals three findings. First, FFN modules and the attention output projection W_o -- the Transmission Class -- fall in a narrow k band: median terminal k in [1.186, 1.204] across 12 entries (cross-family CV = 0.51%), shared across SwiGLU/GeLU activations, Pre-LN/QK-Norm placements, and 70M-14B sizes. Second, the attention input projections W_q, W_k -- the Selection Class -- depart from the Weibull family, with severity shaped by storage: separately-stored Q/K (OLMo-1, OLMo-2) yields k in [0.76, 0.99] (deep); GQA models yield k in [1.10, 1.16] (mild); Pythia's merged W_qkv occupies a transitional zone tracking training budget T/tau monotonically. Third, lambda grows substantially during training and scales with sqrt(eta/lambda_wd) within the Pythia family (Pearson r = 0.94, three Transmission kinds), directionally consistent with Fan et al. (2025). The two parameters carry independent information: k labels the functional class, lambda labels training progress.\n  We release npm-weibull-py v0.4 (Python library) and DATABASE_v9_1 at https://github.com/tiexinding/NPM-Weibull-public .",
+          "claimed_authors": [
+            "Tiexin Ding"
+          ],
+          "claimed_title": "A Two-Parameter Weibull Framework for Diagnosing Transformer Weight Distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.18898"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Weibull Modulus of Ceramics material', candidate_title='A Two-Parameter Weibull Framework for Diagnosing Transformer Weight Distributions')",
+        "failed_at": "2026-07-13T15:52:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To this date the safety assessment of materials, used for example in the nuclear power sector, commonly relies on a fracture mechanical analysis utilizing macroscopic concepts, where a global load quantity K or J is compared to the materials fracture toughness curve. Part of the experimental effort involved in these concepts is dedicated to the quantitative analysis of fracture surfaces. Within the scope of this study a methodology for the semi-supervised training of deep learning models for fracture surface segmentation on a macroscopic level was established. Therefore, three distinct and unique datasets were created to analyze the influence of structural similarity on the segmentation capability. The structural similarity differs due to the assessed materials and specimen, as well as imaging-induced variance due to fluctuations in image acquisition in different laboratories. The datasets correspond to typical isolated laboratory conditions, complex real-world circumstances, and a curated subset of the two. We implemented a weak-to-strong consistency regularization for semi-supervised learning. On the heterogeneous dataset we were able to train robust and well-generalizing models that learned feature representations from images across different domains without observing a significant drop in prediction quality. Furthermore, our approach reduced the number of labeled images required for training by a factor of 6. To demonstrate the success of our method and the benefit of our approach for the fracture mechanics assessment, we utilized the models for initial crack size measurements with the area average method. For the laboratory setting, the deep learning assisted measurements proved to have the same quality as manual measurements. For models trained on the heterogeneous dataset, very good measurement accuracies with mean deviations smaller than 1 % could be achieved...",
+          "claimed_authors": [
+            "Johannes Rosenberger",
+            "Johannes Tlatlik",
+            "Sebastian Münstermann"
+          ],
+          "claimed_title": "Macroscale fracture surface segmentation via semi-supervised learning considering the structural similarity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.18337"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Weibull Modulus of Ceramics material', candidate_title='Macroscale fracture surface segmentation via semi-supervised learning considering the structural similarity')",
+        "failed_at": "2026-07-13T15:52:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study fixation probabilities and times as a consequence of neutral genetic drift in subdivided populations, motivated by a model of the cultural evolutionary process of language change that is described by the same mathematics as the biological process. We focus on the growth of fixation times with the number of subpopulations, and variation of fixation probabilities and times with initial distributions of mutants. A general formula for the fixation probability for arbitrary initial condition is derived by extending a duality relation between forwards- and backwards-time properties of the model from a panmictic to a subdivided population. From this we obtain new formulae, formally exact in the limit of extremely weak migration, for the mean fixation time from an arbitrary initial condition for Wright's island model, presenting two cases as examples. For more general models of population subdivision, formulae are introduced for an arbitrary number of mutants that are randomly located, and a single mutant whose position is known. These formulae contain parameters that typically have to be obtained numerically, a procedure we follow for two contrasting clustered models. These data suggest that variation of fixation time with the initial condition is slight, but depends strongly on the nature of subdivision. In particular, we demonstrate conditions under which the fixation time remains finite even in the limit of an infinite number of demes. In many cases - except this last where fixation in a finite time is seen - the time to fixation is shown to be in precise agreement with predictions from formulae for the asymptotic effective population size.",
+          "claimed_authors": [
+            "R A Blythe"
+          ],
+          "claimed_title": "The propagation of a cultural or biological trait by neutral genetic drift in a subdivided population",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "q-bio/0606037"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Composition on the Weibull Modulus of Ceramics material', candidate_title='The propagation of a cultural or biological trait by neutral genetic drift in a subdivided population')",
+        "failed_at": "2026-07-13T15:52:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantifying the heterogeneity is an important issue in meta-analysis, and among the existing measures, the $I^2$ statistic is the most commonly used measure in the literature. In this paper, we show that the $I^2$ statistic was, in fact, defined as problematic or even completely wrong from the very beginning. To confirm this statement, we first present a motivating example to show that the $I^2$ statistic is heavily dependent on the study sample sizes, and consequently it may yield contradictory results for the amount of heterogeneity. Moreover, by drawing a connection between ANOVA and meta-analysis, the $I^2$ statistic is shown to have, mistakenly, applied the sampling errors of the estimators rather than the variances of the study populations. Inspired by this, we introduce an Intrinsic measure for Quantifying the heterogeneity in meta-analysis, and meanwhile study its statistical properties to clarify why it is superior to the existing measures. We further propose an optimal estimator, referred to as the IQ statistic, for the new measure of heterogeneity that can be readily applied in meta-analysis. Simulations and real data analysis demonstrate that the IQ statistic provides a nearly unbiased estimate of the true heterogeneity and it is also independent of the study sample sizes.",
+          "claimed_authors": [
+            "Ke Yang",
+            "Enxuan Lin",
+            "Tiejun Tong"
+          ],
+          "claimed_title": "IQ: Intrinsic measure for quantifying the heterogeneity in meta-analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.05755"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Composition on the Weibull Modulus of Ceramics material', candidate_title='IQ: Intrinsic measure for quantifying the heterogeneity in meta-analysis')",
+        "failed_at": "2026-07-13T15:52:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern statistical inference tasks often require iterative optimization methods to compute the solution. Convergence analysis from an optimization viewpoint only informs us how well the solution is approximated numerically but overlooks the sampling nature of the data. In contrast, recognizing the randomness in the data, statisticians are keen to provide uncertainty quantification, or confidence, for the solution obtained using iterative optimization methods. This paper makes progress along this direction by introducing the moment-adjusted stochastic gradient descents, a new stochastic optimization method for statistical inference. We establish non-asymptotic theory that characterizes the statistical distribution for certain iterative methods with optimization guarantees. On the statistical front, the theory allows for model mis-specification, with very mild conditions on the data. For optimization, the theory is flexible for both convex and non-convex cases. Remarkably, the moment-adjusting idea motivated from \"error standardization\" in statistics achieves a similar effect as acceleration in first-order optimization methods used to fit generalized linear models. We also demonstrate this acceleration effect in the non-convex setting through numerical experiments.",
+          "claimed_authors": [
+            "Tengyuan Liang",
+            "Weijie Su"
+          ],
+          "claimed_title": "Statistical Inference for the Population Landscape via Moment Adjusted Stochastic Gradients",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.07519"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Composition on the Weibull Modulus of Ceramics material', candidate_title='Statistical Inference for the Population Landscape via Moment Adjusted Stochastic Gradients')",
+        "failed_at": "2026-07-13T15:52:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The integration of Artificial Intelligence (AI) into safety-critical systems introduces a new reliability paradigm: silent failures, where AI produces confident but incorrect outputs that can be dangerous. This paper introduces the Formal Assurance and Monitoring Environment (FAME), a novel framework that confronts this challenge. FAME synergizes the mathematical rigor of offline formal synthesis with the vigilance of online runtime monitoring to create a verifiable safety net around opaque AI components. We demonstrate its efficacy in an autonomous vehicle perception system, where FAME successfully detected 93.5% of critical safety violations that were otherwise silent. By contextualizing our framework within the ISO 26262 and ISO/PAS 8800 standards, we provide reliability engineers with a practical, certifiable pathway for deploying trustworthy AI. FAME represents a crucial shift from accepting probabilistic performance to enforcing provable safety in next-generation systems.",
+          "claimed_authors": [
+            "Guan-Yan Yang",
+            "Farn Wang"
+          ],
+          "claimed_title": "Taming Silent Failures: A Framework for Verifiable AI Reliability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.22224"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Composition on the Weibull Modulus of Ceramics material', candidate_title='Taming Silent Failures: A Framework for Verifiable AI Reliability')",
+        "failed_at": "2026-07-13T15:52:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fracture toughness is the material property characterizing resistance to failure. Predicting its value from the solid structure at the atomistic scale remains elusive, even in the simplest situations of brittle fracture. We report here numerical simulations of crack propagation in two-dimensional fuse networks of different periodic geometries, which are electrical analogs of bidimensional brittle crystals under antiplanar loading. Fracture energy is determined from Griffith's analysis of energy balance during crack propagation, and fracture toughness is determined from fits of the displacement fields with Williams' asymptotic solutions. Significant size dependencies are evidenced in small lattices, with fracture energy and fracture toughness both converging algebraically with system size toward well-defined material-constant values in the limit of infinite system size. The convergence speed depends on the loading conditions and is faster when the symmetry of the considered lattice increases. The material constants at infinity obey Irwin's relation and properly define the material resistance to failure. Their values are approached up to $\\sim$ 15 % using the recent analytical method proposed in Nguyen and Bonamy (Phys Rev Lett 123:205503, 2019). Nevertheless, the deviation remains finite and does not vanish when the system size goes to infinity. We finally show that this deviation is a consequence of the lattice discreetness and decreases when the super-singular terms of Williams' solutions (absent in a continuum medium but present here due to lattice discreetness) are taken into account.",
+          "claimed_authors": [
+            "Thuy Nguyen",
+            "Daniel Bonamy"
+          ],
+          "claimed_title": "Size-dependency and lattice-discreetness effect on fracture toughness in 2D crystals under antiplanar loading",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.21839"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Composition on the Weibull Modulus of Ceramics material', candidate_title='Size-dependency and lattice-discreetness effect on fracture toughness in 2D crystals under antiplanar loading')",
+        "failed_at": "2026-07-13T15:52:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linear Elastic Fracture Mechanics (LEFM) provides a consistent framework to evaluate quantitatively the energy flux released to the tip of a growing crack. Still, the way in which the crack selects its velocity in response to this energy flux remains far from completely understood. To uncover the underlying mechanisms, we experimentally studied damage and dissipation processes that develop during the dynamic failure of polymethylmethacrylate (PMMA), classically considered as the archetype of brittle amorphous materials. We evidenced a well-defined critical velocity along which failure switches from nominally-brittle to quasi-brittle, where crack propagation goes hand in hand with the nucleation and growth of microcracks. Via post-mortem analysis of the fracture surfaces, we were able to reconstruct the complete spatiotemporal microcracking dynamics with micrometer/nanosecond resolution. We demonstrated that the true local propagation speed of individual crack fronts is limited to a fairly low value, which can be much smaller than the apparent speed measured at the continuum-level scale. By coalescing with the main front, microcracks boost the macroscale velocity through an acceleration factor of geometrical origin. We discuss the key role of damage-related internal variables in the selection of macroscale fracture dynamics.",
+          "claimed_authors": [
+            "Davy Dalmas",
+            "Claudia Guerra",
+            "Julien Scheibert",
+            "Daniel Bonamy"
+          ],
+          "claimed_title": "Damage mechanisms in the dynamic fracture of nominally brittle polymers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1304.6283"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting the Impact of Composition on the Weibull Modulus of Ceramics material', candidate_title='Damage mechanisms in the dynamic fracture of nominally brittle polymers')",
+        "failed_at": "2026-07-13T15:52:17Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrew J. Wright",
+            "Qingyang Wang",
+            "Chuying Huang",
+            "Andy Nieto",
+            "Renkun Chen",
+            "Jian Luo"
+          ],
+          "title": "From High-Entropy Ceramics to Compositionally-Complex Ceramics: A Case Study of Fluorite Oxides",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1912.11742",
+        "summary": "Using fluorite oxides as an example, this study broadens high-entropy ceramics (HECs) to compositionally-complex ceramics (CCCs) or multi-principal cation ceramics (MPCCs) to include medium-entropy and/or non-equimolar compositions. Nine compositions of compositionally-complex fluorite oxides (CCFOs) with the general formula of (Hf1/3Zr1/3Ce1/3)1-x(Y1/2X1/2)xO2-delta (X = Yb, Ca, and Gd; x = 0.4, 0.148, and 0.058) are fabricated. The phase stability, mechanical properties, and thermal conductivities are measured. Compared with yttria-stabilized zirconia, these CCFOs exhibit increased cubic phase stability and reduced thermal conductivity, while retaining high Young's modulus (~210 GPa) and nanohardness (~18 GPa). Moreover, the temperature-dependent thermal conductivity in the non-equimolar CCFOs shows an amorphous-like behavior. In comparison with their equimolar high-entropy counterparts, the medium-entropy non-equimolar CCFOs exhibit even lower thermal conductivity (k) while maintaining high modulus (E), thereby achieving higher E/k ratios. These results suggest a new direction to achieve thermally-insulative yet stiff CCCs (MPCCs) via exploring non-equimolar and/or medium-entropy compositions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1912.11742",
+          "http_status": 200,
+          "pdf_sample_score": 0.2345,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T15:52:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haoxuan Wang",
+            "Yifan Wang",
+            "Xu Liang",
+            "Wenshan Yu",
+            "Xufei Fang",
+            "Shengping Shen"
+          ],
+          "title": "Dislocation Engineering: A New Key to Enhancing Ceramic Performances",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.22820",
+        "summary": "Dislocations are line defects in crystalline solids and often exert a significant influence on the mechanical properties of metals. Recently, there has been a growing interest in using dislocations in ceramics to enhance materials performance. However, dislocation engineering has frequently been deemed uncommon in ceramics owing to the brittle nature of ceramics. Contradicting this conventional view, various approaches have been used to introduce dislocations into ceramic materials without crack formation, thereby paving the way for controlled ceramics performance. However, the influence of dislocations on functional properties is equally complicated owing to the intricate structure of ceramic materials. Furthermore, despite numerous experiments and simulations investigating dislocation-controlled properties in ceramics, comprehensive reviews summarizing the effects of dislocations on ceramics are still lacking. This review focuses on some representative dislocation-controlled properties of ceramic materials, including mechanical and some key functional properties, such as transport, ferroelectricity, thermal conductivity, and superconducting properties. A brief integration of dislocations in ceramic is anticipated to offer new insights for the advancement of dislocation engineering across various disciplines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.22820",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T15:52:17Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the impact of composition on the weibull modulus of ceramics materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

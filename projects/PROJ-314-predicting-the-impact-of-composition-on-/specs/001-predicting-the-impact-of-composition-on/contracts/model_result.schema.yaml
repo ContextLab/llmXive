@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResult"
+description: "Schema for the output of the model training and evaluation pipeline."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "RandomForest"
+      - "GradientBoosting"
+    description: "Type of model trained."
+  mae:
+    type: "number"
+    description: "Mean Absolute Error."
+  mae_95_ci:
+    type: "array"
+    description: "95% Confidence Interval for MAE via bootstrapping."
+    items:
+      type: "number"
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination."
+  feature_importance_ranking:
+    type: "array"
+    description: "List of top features by importance (or cluster names)."
+    items:
+      type: "string"
+  cv_stability_scores:
+    type: "object"
+    description: "Coefficient of Variation (CV) for top 5 features across folds."
+    additionalProperties:
+      type: "number"
+  vif_flags:
+    type: "array"
+    description: "List of features with VIF > 5."
+    items:
+      type: "string"
+  descriptor_sufficiency:
+    type: "boolean"
+    description: "True if descriptors capture class physics (no drop when group removed)."
+  baseline_mae:
+    type: "number"
+    description: "MAE of the global mean baseline."
+  improvement_percentage:
+    type: "number"
+    description: "Percentage improvement over baseline (must be >= 10% for SC-001)."
+  permutation_p_value:
+    type: "number"
+    description: "p-value from permutation test for SC-001."
+  is_significant:
+    type: "boolean"
+    description: "True if p < 0.05 and improvement >= 10%."
+required:
+  - "model_type"
+  - "mae"
+  - "mae_95_ci"
+  - "r_squared"
+  - "feature_importance_ranking"
+  - "vif_flags"
+  - "descriptor_sufficiency"
+  - "baseline_mae"
+  - "improvement_percentage"
+  - "permutation_p_value"
+  - "is_significant"

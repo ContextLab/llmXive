@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CeramicEntry"
+description: "Schema for a single ceramic material entry with computed descriptors."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the entry."
+  composition:
+    type: "string"
+    description: "Chemical formula (e.g., 'Al2O3')."
+  weibull_modulus:
+    type: "number"
+    description: "Target variable (Weibull modulus m)."
+  sample_count:
+    type: "integer"
+    description: "Number of samples in the Weibull test."
+    minimum: 30
+  sintering_temp:
+    type: ["number", "null"]
+    description: "Sintering temperature in Celsius. Can be null if imputed."
+  is_imputed:
+    type: "boolean"
+    description: "True if sintering_temp was imputed."
+  is_range_flag:
+    type: "boolean"
+    description: "True if the original weibull_modulus was a range."
+  range_original:
+    type: ["string", "null"]
+    description: "Original string representation if range (e.g., '10-15')."
+  range_uncertainty:
+    type: ["number", "null"]
+    description: "Width of the range (max - min)."
+  primary_anion_cation_group:
+    type: "string"
+    description: "Derived group classification (e.g., 'Oxide-Aluminum')."
+  source:
+    type: "string"
+    description: "Original dataset or paper source URL."
+  mean_atomic_radius:
+    type: "number"
+    description: "Computed mean atomic radius."
+  electronegativity_std:
+    type: "number"
+    description: "Computed standard deviation of electronegativity."
+  valence_electron_concentration:
+    type: "number"
+    description: "Computed valence electron concentration."
+  cation_size_variance:
+    type: "number"
+    description: "Computed variance of cation ionic radii."
+  is_high_bias_class:
+    type: "boolean"
+    description: "True if class has >40% imputed data."
+required:
+  - "id"
+  - "composition"
+  - "weibull_modulus"
+  - "sample_count"
+  - "primary_anion_cation_group"
+  - "source"
+  - "mean_atomic_radius"
+  - "electronegativity_std"
+  - "valence_electron_concentration"
+  - "cation_size_variance"
+  - "is_imputed"
+  - "is_range_flag"
+  - "is_high_bias_class"

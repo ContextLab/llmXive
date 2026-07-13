@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.22820",
+  "judged_at": "2026-07-13T15:52:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of composition on the weibull modulus of ceramics materials science",
+  "rationale": "This paper satisfies criterion (a) and (b) because it investigates the influence of a specific microstructural mechanism (dislocations) on the mechanical properties of ceramics, which is the fundamental physical basis for the Weibull modulus (a measure of strength variability). Although it does not explicitly mention \"Weibull modulus\" or \"composition\" in the abstract, it addresses the core domain (ceramics) and the causal mechanism (defect engineering) that determines the statistical distributio",
+  "relevant": true
+}

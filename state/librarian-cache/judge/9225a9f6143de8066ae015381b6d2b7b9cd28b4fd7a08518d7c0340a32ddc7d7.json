@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.04581",
+  "judged_at": "2026-07-13T15:52:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of composition on the weibull modulus of ceramics materials science",
+  "rationale": "The paper focuses on dislocation plasticity and deformation mechanisms in ceramics, which is a distinct construct from the Weibull modulus (a statistical measure of strength variability and flaw distribution). While both relate to ceramic mechanical properties, the paper does not measure the Weibull modulus, investigate the impact of composition on it, or provide a foundational method for predicting it, thus failing to meet the inclusion criteria for the user's specific question.",
+  "relevant": false
+}

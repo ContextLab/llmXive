@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1912.11742",
+  "judged_at": "2026-07-13T15:52:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of composition on the weibull modulus of ceramics materials science",
+  "rationale": "This paper satisfies criterion (b) by measuring mechanical properties (specifically Young's modulus and nanohardness) across a range of specific ceramic compositions, providing empirical data on how composition affects mechanical stiffness in the relevant domain. Although it does not explicitly report the \"Weibull modulus\" (a measure of strength variability), it establishes the foundational relationship between composition and mechanical behavior in compositionally-complex ceramics, which is the",
+  "relevant": true
+}
