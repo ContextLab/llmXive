@@ -1,143 +1,283 @@
 """
-Unit test for fallback logic (entropy/random) in the curriculum scheduler.
+Unit tests for the fallback logic (entropy/random) in CurriculumScheduler.
 
-This test verifies that when no tasks meet the Phase 1 or Phase 2 criteria,
-the scheduler correctly falls back to selecting the task with maximum entropy
-or randomly if entropy is tied/unavailable.
+This test suite verifies that when no tasks meet the target success rate criteria
+(after range expansion) or when all states are covered (deadlock), the scheduler
+correctly falls back to maximum entropy selection or random selection.
 
 Prerequisites:
-- T020: tests/fixtures/mock_coverage_history.json must exist.
+- T020: tests/fixtures/mock_coverage_history.json must exist
+- T005, T008, T019: code/scheduler/curriculum_scheduler.py must be implemented
 """
+
 import json
+import math
 import os
 import sys
 import unittest
-from typing import List, Dict, Any
+from pathlib import Path
+from typing import Dict, List, Any
 
 # Add project root to path for imports
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-from scheduler.curriculum_scheduler import (
-    select_max_entropy_task,
-    run_static_random_scheduler,
-    initialize_scheduler_config,
-    calculate_coverage_vector_mean
-)
+from scheduler.curriculum_scheduler import CurriculumScheduler
+from utils.constants import calculate_coverage_ratio
+
 
 class TestSchedulerFallback(unittest.TestCase):
     """Tests for fallback mechanisms in the curriculum scheduler."""
-
+    
     def setUp(self):
-        """Load mock data and initialize scheduler config."""
-        self.fixture_path = os.path.join(
-            project_root, "tests", "fixtures", "mock_coverage_history.json"
+        """Set up test fixtures and load mock data."""
+        self.fixture_path = (
+            project_root / "tests" / "fixtures" / "mock_coverage_history.json"
         )
         
-        if not os.path.exists(self.fixture_path):
-            self.skipTest(f"Mock fixture not found at {self.fixture_path}")
-
-        with open(self.fixture_path, 'r') as f:
-            self.mock_data = json.load(f)
-
-        self.config = initialize_scheduler_config()
-
-    def test_fallback_to_max_entropy_when_no_tasks_meet_criteria(self):
+        if not self.fixture_path.exists():
+            self.skipTest(
+                f"Mock fixture {self.fixture_path} not found. "
+                "Please ensure T020 has been completed."
+            )
+        
+        with open(self.fixture_path, "r") as f:
+            self.mock_history = json.load(f)
+        
+        # Initialize scheduler
+        self.scheduler = CurriculumScheduler(
+            task_pool=self.mock_history.get("task_pool", []),
+            history=self.mock_history.get("history", []),
+            coverage_vector=self.mock_history.get("current_coverage", []),
+            seed=42  # For reproducibility
+        )
+    
+    def test_fallback_to_max_entropy_when_no_tasks_in_range(self):
         """
-        Verify that when all tasks are either too easy or too hard (no Phase 1/2 candidates),
-        the scheduler selects the task with maximum entropy.
+        Test that scheduler falls back to max entropy selection when no tasks
+        meet the target success rate range (after range expansion).
+        
+        Scenario: All available tasks have success rates outside the expanded
+        range, so the scheduler should select tasks that maximize entropy
+        (i.e., target the least covered states).
         """
-        # Simulate a scenario where all tasks have mean coverage of 0.5 (mid-range),
-        # failing Phase 1 (< 0.05) and Phase 2 (0.3 - 0.7 range might be excluded by strict criteria
-        # or we force a scenario where specific thresholds aren't met but entropy is the tiebreaker).
+        # Create a scenario where no tasks are in the "sweet spot"
+        # by manipulating the task pool to have extreme success rates
+        extreme_tasks = [
+            {"task_id": "extreme_1", "success_rate": 0.01, "params": {}},
+            {"task_id": "extreme_2", "success_rate": 0.99, "params": {}},
+            {"task_id": "extreme_3", "success_rate": 0.02, "params": {}},
+        ]
         
-        # Construct a specific scenario: 
-        # Phase 1 requires mean < 0.05. 
-        # Phase 2 requires mean between 0.3 and 0.7 (example).
-        # If we have tasks with means [0.06, 0.2, 0.8], none fit Phase 1 or Phase 2.
-        # The fallback should pick the one with highest entropy.
+        scheduler_extreme = CurriculumScheduler(
+            task_pool=extreme_tasks,
+            history=[],
+            coverage_vector=[0.0] * len(self.mock_history.get("current_coverage", [])),
+            seed=42
+        )
         
-        # We will test the `select_max_entropy_task` function directly which is the fallback mechanism.
+        # Request a batch - should fall back to entropy-based selection
+        batch = scheduler_extreme.select_batch(batch_size=2)
         
-        tasks = self.mock_data.get("tasks", [])
-        if not tasks:
-            self.skipTest("No tasks in mock fixture")
+        # Verify we got tasks (not empty)
+        self.assertIsInstance(batch, list)
+        self.assertEqual(len(batch), 2)
+        
+        # Verify tasks are from the provided pool
+        task_ids = [t["task_id"] for t in batch]
+        for tid in task_ids:
+            self.assertIn(tid, ["extreme_1", "extreme_2", "extreme_3"])
+    
+    def test_fallback_to_random_on_deadlock(self):
+        """
+        Test that scheduler falls back to random selection when all states
+        are covered (deadlock prevention).
+        
+        Scenario: Coverage vector is all 1s (100% coverage), so there's
+        no state to target. Scheduler should randomly select tasks.
+        """
+        # Create a fully covered scenario
+        fully_covered_vector = [1.0] * len(self.mock_history.get("current_coverage", []))
+        
+        scheduler_deadlock = CurriculumScheduler(
+            task_pool=self.mock_history.get("task_pool", []),
+            history=self.mock_history.get("history", []),
+            coverage_vector=fully_covered_vector,
+            seed=42
+        )
+        
+        # Request a batch - should fall back to random selection
+        batch = scheduler_deadlock.select_batch(batch_size=3)
+        
+        # Verify we got tasks
+        self.assertIsInstance(batch, list)
+        self.assertEqual(len(batch), 3)
+        
+        # Verify tasks are from the pool
+        pool_ids = [t["task_id"] for t in self.mock_history.get("task_pool", [])]
+        for task in batch:
+            self.assertIn(task["task_id"], pool_ids)
+    
+    def test_entropy_calculation_validity(self):
+        """
+        Verify that the entropy-based selection actually considers state coverage.
+        
+        This test ensures that when some states are less covered, the scheduler
+        prioritizes tasks that can cover those states (higher entropy contribution).
+        """
+        # Create a coverage vector with some states covered, some not
+        partial_coverage = [1.0, 0.0, 0.0, 1.0, 0.0]
+        
+        # Create tasks that affect different states
+        tasks_with_state_info = [
+            {"task_id": "task_a", "success_rate": 0.5, "params": {"state_target": 1}},
+            {"task_id": "task_b", "success_rate": 0.5, "params": {"state_target": 2}},
+            {"task_id": "task_c", "success_rate": 0.5, "params": {"state_target": 4}},
+            {"task_id": "task_d", "success_rate": 0.5, "params": {"state_target": 0}},
+        ]
+        
+        scheduler_partial = CurriculumScheduler(
+            task_pool=tasks_with_state_info,
+            history=[],
+            coverage_vector=partial_coverage,
+            seed=42
+        )
+        
+        batch = scheduler_partial.select_batch(batch_size=2)
+        
+        # The scheduler should prefer tasks targeting uncovered states (1, 2, 4)
+        # over already covered states (0, 3)
+        selected_ids = [t["task_id"] for t in batch]
+        
+        # We expect at least one task targeting an uncovered state
+        uncovered_targets = {"task_a", "task_b", "task_c"}  # targets 1, 2, 4
+        covered_targets = {"task_d"}  # targets 0
+        
+        # At least one should be from uncovered targets (probabilistic, but likely)
+        # With seed=42, we can check the deterministic behavior
+        self.assertTrue(
+            any(tid in uncovered_targets for tid in selected_ids),
+            f"Expected at least one task targeting uncovered states, got {selected_ids}"
+        )
+    
+    def test_fallback_preserves_task_metadata(self):
+        """
+        Ensure that when falling back to entropy/random selection,
+        all task metadata is preserved correctly.
+        """
+        tasks_with_metadata = [
+            {
+                "task_id": "meta_1",
+                "success_rate": 0.01,
+                "params": {"difficulty": "hard", "app": "test_app"},
+                "metadata": {"source": "manual", "version": "1.0"}
+            },
+            {
+                "task_id": "meta_2",
+                "success_rate": 0.99,
+                "params": {"difficulty": "easy", "app": "other_app"},
+                "metadata": {"source": "auto", "version": "2.0"}
+            },
+        ]
+        
+        scheduler_meta = CurriculumScheduler(
+            task_pool=tasks_with_metadata,
+            history=[],
+            coverage_vector=[0.0] * 5,
+            seed=42
+        )
+        
+        batch = scheduler_meta.select_batch(batch_size=1)
+        
+        # Verify metadata is preserved
+        self.assertIn("task_id", batch[0])
+        self.assertIn("params", batch[0])
+        self.assertIn("metadata", batch[0])
+        self.assertEqual(batch[0]["task_id"], batch[0].get("task_id"))
+        self.assertEqual(batch[0]["params"]["difficulty"], "hard")
+    
+    def test_multiple_fallback_modes(self):
+        """
+        Test that the scheduler correctly handles multiple fallback scenarios:
+        1. Low coverage phase (target < 5%)
+        2. Sweet spot phase (30-70%)
+        3. Fallback to entropy when no tasks in range
+        4. Fallback to random on deadlock
+        """
+        # Test 1: Normal operation (should not fallback)
+        normal_batch = self.scheduler.select_batch(batch_size=2)
+        self.assertEqual(len(normal_batch), 2)
+        
+        # Test 2: Extreme case (should fallback to entropy)
+        extreme_tasks = [
+            {"task_id": "e1", "success_rate": 0.0, "params": {}},
+            {"task_id": "e2", "success_rate": 1.0, "params": {}},
+        ]
+        scheduler_extreme = CurriculumScheduler(
+            task_pool=extreme_tasks,
+            history=[],
+            coverage_vector=[0.0] * 5,
+            seed=42
+        )
+        extreme_batch = scheduler_extreme.select_batch(batch_size=1)
+        self.assertEqual(len(extreme_batch), 1)
+        
+        # Test 3: Deadlock (should fallback to random)
+        deadlock_scheduler = CurriculumScheduler(
+            task_pool=extreme_tasks,
+            history=[],
+            coverage_vector=[1.0] * 5,
+            seed=42
+        )
+        deadlock_batch = deadlock_scheduler.select_batch(batch_size=1)
+        self.assertEqual(len(deadlock_batch), 1)
+    
+    def test_fallback_with_empty_task_pool(self):
+        """
+        Test that scheduler handles empty task pool gracefully.
+        """
+        scheduler_empty = CurriculumScheduler(
+            task_pool=[],
+            history=[],
+            coverage_vector=[0.0] * 5,
+            seed=42
+        )
+        
+        batch = scheduler_empty.select_batch(batch_size=2)
+        
+        # Should return empty list or handle gracefully
+        self.assertIsInstance(batch, list)
+        self.assertEqual(len(batch), 0)
+    
+    def test_entropy_selection_deterministic_with_seed(self):
+        """
+        Verify that entropy-based selection is deterministic when seeded.
+        """
+        tasks = [
+            {"task_id": "t1", "success_rate": 0.01, "params": {"state_target": 1}},
+            {"task_id": "t2", "success_rate": 0.99, "params": {"state_target": 2}},
+        ]
+        
+        scheduler1 = CurriculumScheduler(
+            task_pool=tasks,
+            history=[],
+            coverage_vector=[0.0, 0.0, 0.0],
+            seed=123
+        )
+        
+        scheduler2 = CurriculumScheduler(
+            task_pool=tasks,
+            history=[],
+            coverage_vector=[0.0, 0.0, 0.0],
+            seed=123
+        )
+        
+        batch1 = scheduler1.select_batch(batch_size=1)
+        batch2 = scheduler2.select_batch(batch_size=1)
+        
+        # Should be identical with same seed
+        self.assertEqual(batch1[0]["task_id"], batch2[0]["task_id"])
 
-        # Calculate entropy for each task (simulated logic based on variance or specific metric)
-        # In the actual scheduler, entropy is calculated based on the state coverage vector.
-        # Here we verify the function exists and can select from a list.
-        
-        selected_task = select_max_entropy_task(tasks)
-        
-        self.assertIsNotNone(selected_task, "Max entropy task selection returned None")
-        self.assertIn("task_id", selected_task, "Selected task missing task_id")
-
-    def test_fallback_to_random_when_entropy_tied(self):
-        """
-        Verify that when multiple tasks have identical maximum entropy,
-        the scheduler falls back to random selection.
-        """
-        # Create a scenario with identical entropy
-        # Since we can't easily force the internal entropy calc to be identical without mocking,
-        # we test the random scheduler fallback logic which is the ultimate fallback.
-        
-        tasks = self.mock_data.get("tasks", [])
-        if not tasks:
-            self.skipTest("No tasks in mock fixture")
-
-        # Run static random scheduler (which is the fallback if entropy logic fails or is bypassed)
-        selected_task = run_static_random_scheduler(tasks, self.config)
-        
-        self.assertIsNotNone(selected_task, "Random scheduler returned None")
-        self.assertIn("task_id", selected_task, "Selected task missing task_id")
-        
-        # Verify it's a valid task from the list
-        task_ids = [t["task_id"] for t in tasks]
-        self.assertIn(selected_task["task_id"], task_ids, "Selected task not in input list")
-
-    def test_complete_fallback_chain(self):
-        """
-        Test the full logic flow where Phase 1 and Phase 2 fail, triggering fallback.
-        This mimics the logic in `run_scheduler` when no candidates are found.
-        """
-        tasks = self.mock_data.get("tasks", [])
-        
-        if not tasks:
-            self.skipTest("No tasks in mock fixture")
-
-        # Simulate a filter that returns empty (no tasks meet Phase 1 or 2 criteria)
-        # In the real code, this would be:
-        # phase1_candidates = [t for t in tasks if calculate_coverage_vector_mean(t) < 0.05]
-        # phase2_candidates = [t for t in tasks if 0.3 <= calculate_coverage_vector_mean(t) <= 0.7]
-        # if not phase1_candidates and not phase2_candidates:
-        #     return select_max_entropy_task(tasks) # Fallback 1
-        
-        # Here we directly verify the fallback function is callable and returns a task
-        fallback_task = select_max_entropy_task(tasks)
-        
-        self.assertIsNotNone(fallback_task)
-        self.assertIsInstance(fallback_task, dict)
-
-    def test_fallback_with_empty_task_list(self):
-        """
-        Verify behavior when the task list is empty (deadlock prevention).
-        """
-        empty_tasks = []
-        
-        # The scheduler should handle empty lists gracefully, likely returning None
-        # or raising a specific exception, but for this test we ensure it doesn't crash
-        # in a way that halts the pipeline.
-        
-        try:
-            result = select_max_entropy_task(empty_tasks)
-            # If it returns None, that's acceptable for an empty list
-            self.assertIsNone(result)
-        except IndexError:
-            # Expected if implementation doesn't guard against empty list
-            self.fail("select_max_entropy_task raised IndexError on empty list; should handle gracefully")
-        except Exception as e:
-            self.fail(f"Unexpected exception: {e}")
 
 if __name__ == "__main__":
     unittest.main()

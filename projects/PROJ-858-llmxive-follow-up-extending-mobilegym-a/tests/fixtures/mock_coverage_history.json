@@ -1,328 +1,40 @@
 {
-  "description": "Mock history of state coverage vectors for US-001 independent testing of the curriculum scheduler.",
-  "metadata": {
-    "generated_by": "T020",
-    "schema_version": "1.0",
-    "dimensions": 10,
-    "semantic_proxies": [
-      "dark_mode",
-      "unread_count",
-      "location_permission",
-      "camera_permission",
-      "microphone_permission",
-      "bluetooth_enabled",
-      "wifi_enabled",
-      "airplane_mode",
-      "do_not_disturb",
-      "battery_saver"
-    ]
-  },
+  "description": "Mock history of state coverage vectors for testing the curriculum scheduler",
+  "num_variables": 50,
   "history": [
     {
-      "step": 0,
-      "coverage_vector": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      "total_steps": 0,
-      "success_rate": 0.0
+      "timestamp": "2024-01-01T00:00:00Z",
+      "coverage_vector": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "coverage_ratio": 0.02
     },
     {
-      "step": 1,
-      "coverage_vector": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      "total_steps": 1,
-      "success_rate": 0.0
+      "timestamp": "2024-01-01T01:00:00Z",
+      "coverage_vector": [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "coverage_ratio": 0.06
     },
     {
-      "step": 2,
-      "coverage_vector": [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-      "total_steps": 2,
-      "success_rate": 0.5
+      "timestamp": "2024-01-01T02:00:00Z",
+      "coverage_vector": [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "coverage_ratio": 0.12
     },
     {
-      "step": 3,
-      "coverage_vector": [1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-      "total_steps": 3,
-      "success_rate": 0.33
+      "timestamp": "2024-01-01T03:00:00Z",
+      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "coverage_ratio": 0.20
     },
     {
-      "step": 4,
-      "coverage_vector": [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-      "total_steps": 4,
-      "success_rate": 0.25
+      "timestamp": "2024-01-01T04:00:00Z",
+      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "coverage_ratio": 0.32
     },
     {
-      "step": 5,
-      "coverage_vector": [1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-      "total_steps": 5,
-      "success_rate": 0.4
-    },
-    {
-      "step": 6,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
-      "total_steps": 6,
-      "success_rate": 0.5
-    },
-    {
-      "step": 7,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-      "total_steps": 7,
-      "success_rate": 0.57
-    },
-    {
-      "step": 8,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-      "total_steps": 8,
-      "success_rate": 0.62
-    },
-    {
-      "step": 9,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-      "total_steps": 9,
-      "success_rate": 0.66
-    },
-    {
-      "step": 10,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 10,
-      "success_rate": 0.7
-    },
-    {
-      "step": 11,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 11,
-      "success_rate": 0.72
-    },
-    {
-      "step": 12,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 12,
-      "success_rate": 0.75
-    },
-    {
-      "step": 13,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 13,
-      "success_rate": 0.77
-    },
-    {
-      "step": 14,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 14,
-      "success_rate": 0.78
-    },
-    {
-      "step": 15,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 15,
-      "success_rate": 0.8
-    },
-    {
-      "step": 16,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 16,
-      "success_rate": 0.81
-    },
-    {
-      "step": 17,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 17,
-      "success_rate": 0.82
-    },
-    {
-      "step": 18,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 18,
-      "success_rate": 0.83
-    },
-    {
-      "step": 19,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 19,
-      "success_rate": 0.84
-    },
-    {
-      "step": 20,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 20,
-      "success_rate": 0.85
-    },
-    {
-      "step": 21,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 21,
-      "success_rate": 0.86
-    },
-    {
-      "step": 22,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 22,
-      "success_rate": 0.87
-    },
-    {
-      "step": 23,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 23,
-      "success_rate": 0.88
-    },
-    {
-      "step": 24,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 24,
-      "success_rate": 0.89
-    },
-    {
-      "step": 25,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 25,
-      "success_rate": 0.9
-    },
-    {
-      "step": 26,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 26,
-      "success_rate": 0.91
-    },
-    {
-      "step": 27,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 27,
-      "success_rate": 0.92
-    },
-    {
-      "step": 28,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 28,
-      "success_rate": 0.93
-    },
-    {
-      "step": 29,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 29,
-      "success_rate": 0.94
-    },
-    {
-      "step": 30,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 30,
-      "success_rate": 0.95
-    },
-    {
-      "step": 31,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 31,
-      "success_rate": 0.96
-    },
-    {
-      "step": 32,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 32,
-      "success_rate": 0.97
-    },
-    {
-      "step": 33,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 33,
-      "success_rate": 0.98
-    },
-    {
-      "step": 34,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 34,
-      "success_rate": 0.99
-    },
-    {
-      "step": 35,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 35,
-      "success_rate": 1.0
-    },
-    {
-      "step": 36,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 36,
-      "success_rate": 1.0
-    },
-    {
-      "step": 37,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 37,
-      "success_rate": 1.0
-    },
-    {
-      "step": 38,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 38,
-      "success_rate": 1.0
-    },
-    {
-      "step": 39,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 39,
-      "success_rate": 1.0
-    },
-    {
-      "step": 40,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 40,
-      "success_rate": 1.0
-    },
-    {
-      "step": 41,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 41,
-      "success_rate": 1.0
-    },
-    {
-      "step": 42,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 42,
-      "success_rate": 1.0
-    },
-    {
-      "step": 43,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 43,
-      "success_rate": 1.0
-    },
-    {
-      "step": 44,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 44,
-      "success_rate": 1.0
-    },
-    {
-      "step": 45,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 45,
-      "success_rate": 1.0
-    },
-    {
-      "step": 46,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 46,
-      "success_rate": 1.0
-    },
-    {
-      "step": 47,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 47,
-      "success_rate": 1.0
-    },
-    {
-      "step": 48,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 48,
-      "success_rate": 1.0
-    },
-    {
-      "step": 49,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 49,
-      "success_rate": 1.0
-    },
-    {
-      "step": 50,
-      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      "total_steps": 50,
-      "success_rate": 1.0
+      "timestamp": "2024-01-01T05:00:00Z",
+      "coverage_vector": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      "coverage_ratio": 1.0
     }
-  ]
+  ],
+  "metadata": {
+    "generated_for": "T020",
+    "purpose": "Testing low-coverage selection, sweet-spot selection, and fallback logic"
+  }
 }

@@ -1,174 +1,287 @@
+"""
+State Coverage Instrumentation for MobileGym.
+
+This module handles the detection of state transitions, aggregation of
+coverage vectors from parallel rollouts, and writing of aggregated data.
+"""
 import json
 import os
-from typing import Any, Dict, List, Optional
+import threading
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from utils.constants import (
-    get_coverage_vector_dimensions,
-    get_semantic_proxies,
-    get_coverage_schema,
-)
-from utils.logging import get_task_logger, log_error
+from code.utils.constants import is_valid_coverage_vector, calculate_coverage_ratio
+from code.utils.logging import get_logger, configure_logging
 
-logger = get_task_logger(__name__)
+# Configure logging
+configure_logging()
+logger = get_logger(__name__)
 
-def initialize_coverage_vector() -> Dict[str, Any]:
+
+def initialize_coverage_vector(num_variables: int) -> List[int]:
     """
-    Initialize a binary state coverage vector based on the schema.
-    Returns a dictionary with 'vector' (list of 0s) and 'metadata'.
-    """
-    dims = get_coverage_vector_dimensions()
-    proxies = get_semantic_proxies()
-    
-    vector = [0] * dims
-    
-    return {
-        "vector": vector,
-        "metadata": {
-            "dimensions": dims,
-            "semantic_proxies": proxies,
-            "initialized_at": None,
-            "source": "initialization"
-        }
-    }
-
-def detect_transitions(
-    rollout_data: Dict[str, Any], current_vector: List[int]
-) -> List[int]:
-    """
-    Analyze rollout data to detect state transitions and update the vector.
+    Initialize a binary coverage vector with all zeros.
     
     Args:
-        rollout_data: Dictionary containing state observations from a rollout.
-        current_vector: The current binary coverage vector.
-        
-    Returns:
-        Updated binary coverage vector.
-        
-    Raises:
-        ValueError: If rollout_data structure is invalid.
-    """
-    if not isinstance(rollout_data, dict):
-        raise ValueError("Rollout data must be a dictionary.")
-        
-    new_vector = current_vector.copy()
-    dims = get_coverage_vector_dimensions()
-    proxies = get_semantic_proxies()
+        num_variables: The number of state variables to track
     
-    # Ensure the rollout data has the expected state structure
-    if "states" not in rollout_data:
-        logger.warning("Rollout data missing 'states' key; no transitions detected.")
-        return new_vector
-        
-    states = rollout_data["states"]
-    if not isinstance(states, list):
-        logger.warning("'states' in rollout data is not a list; skipping transition detection.")
-        return new_vector
-        
-    # Iterate through states to detect changes in semantic proxies
-    for step_idx, state in enumerate(states):
-        if not isinstance(state, dict):
-            continue
-            
-        for proxy_name in proxies:
-            # Check if the proxy exists in the state
-            if proxy_name in state:
-                # If the state indicates the proxy is active (e.g., True, 1, or non-None),
-                # set the corresponding bit in the vector to 1.
-                # We map the proxy name to an index. Assuming order matches get_semantic_proxies()
-                try:
-                    proxy_index = proxies.index(proxy_name)
-                    if proxy_index < dims:
-                        # Mark as covered if the proxy is present and active
-                        if state[proxy_name]:
-                            new_vector[proxy_index] = 1
-                except ValueError:
-                    # Proxy name not in list, skip
-                    continue
-                    
-    return new_vector
-
-def aggregate_vectors(
-    vectors: List[List[int]]
-) -> List[int]:
+    Returns:
+        A list of 0s with length num_variables
     """
-    Aggregate multiple coverage vectors into a single representative vector.
-    Uses logical OR (bitwise) aggregation: if any vector has a bit set, the result is set.
+    return [0] * num_variables
+
+
+def detect_state_transitions(rollout: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """
+    Extract state transitions from a rollout JSON.
     
     Args:
-        vectors: List of binary coverage vectors.
-        
+        rollout: A dictionary representing a single rollout with 'transitions' key
+    
     Returns:
-        Aggregated binary coverage vector.
+        A list of transition dictionaries
+    """
+    if not isinstance(rollout, dict):
+        logger.warning(f"Invalid rollout format: {type(rollout)}")
+        return []
+    
+    transitions = rollout.get("transitions", [])
+    if not isinstance(transitions, list):
+        logger.warning(f"Invalid transitions format in rollout: {rollout.get('rollout_id', 'unknown')}")
+        return []
+    
+    return transitions
+
+
+def aggregate_coverage_vectors(vectors: List[List[int]]) -> List[int]:
+    """
+    Aggregate multiple coverage vectors into a single vector using bitwise OR.
+    
+    Args:
+        vectors: A list of binary coverage vectors
+    
+    Returns:
+        A single aggregated coverage vector
     """
     if not vectors:
         return []
-        
-    dims = len(vectors[0])
-    if dims == 0:
-        return []
-        
-    # Initialize result with zeros
-    result = [0] * dims
     
+    num_variables = len(vectors[0])
+    if num_variables == 0:
+        return []
+    
+    # Verify all vectors have the same length
+    for i, vec in enumerate(vectors):
+        if len(vec) != num_variables:
+            logger.error(f"Vector length mismatch at index {i}: expected {num_variables}, got {len(vec)}")
+            raise ValueError(f"Vector length mismatch at index {i}")
+    
+    # Aggregate using bitwise OR
+    aggregated = [0] * num_variables
     for vec in vectors:
-        if len(vec) != dims:
-            logger.warning(f"Vector length mismatch: expected {dims}, got {len(vec)}. Skipping.")
-            continue
-        for i in range(dims):
-            if vec[i] == 1:
-                result[i] = 1
-                
-    return result
+        for i in range(num_variables):
+            aggregated[i] = aggregated[i] | vec[i]
+    
+    return aggregated
 
-def save_coverage_vector(
-    vector_data: Dict[str, Any],
-    output_path: str
-) -> None:
+
+def merge_coverage_vectors_threadsafe(shared_vector: List[int], local_vector: List[int]) -> None:
     """
-    Save the coverage vector data to a JSON file.
+    Thread-safe merge of a local vector into a shared vector.
+    
+    This function assumes the caller holds the appropriate lock.
     
     Args:
-        vector_data: Dictionary containing 'vector' and 'metadata'.
-        output_path: Path to save the JSON file.
+        shared_vector: The shared coverage vector to update (modified in place)
+        local_vector: The local vector to merge
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(vector_data, f, indent=2)
-    logger.info(f"Coverage vector saved to {output_path}")
+    if len(shared_vector) != len(local_vector):
+        raise ValueError(f"Vector length mismatch: {len(shared_vector)} vs {len(local_vector)}")
+    
+    for i in range(len(shared_vector)):
+        shared_vector[i] = shared_vector[i] | local_vector[i]
+
+
+def process_rollout_batch(rollouts: List[Dict[str, Any]], num_variables: int) -> List[int]:
+    """
+    Process a batch of rollouts and aggregate their coverage vectors.
+    
+    Args:
+        rollouts: A list of rollout dictionaries
+        num_variables: The number of state variables to track
+    
+    Returns:
+        An aggregated coverage vector
+    """
+    vectors = []
+    for rollout in rollouts:
+        try:
+            transitions = detect_state_transitions(rollout)
+            vector = _transitions_to_vector(transitions, num_variables)
+            vectors.append(vector)
+        except Exception as e:
+            logger.error(f"Error processing rollout {rollout.get('rollout_id', 'unknown')}: {e}")
+            continue
+    
+    if not vectors:
+        return initialize_coverage_vector(num_variables)
+    
+    return aggregate_coverage_vectors(vectors)
+
+
+def _transitions_to_vector(transitions: List[Dict[str, Any]], num_variables: int) -> List[int]:
+    """
+    Convert a list of transitions to a binary coverage vector.
+    
+    Args:
+        transitions: List of transition dictionaries
+        num_variables: Total number of state variables
+    
+    Returns:
+        A binary coverage vector
+    """
+    vector = initialize_coverage_vector(num_variables)
+    
+    for transition in transitions:
+        var_name = transition.get("state_var", "")
+        try:
+            # Extract index from variable name (e.g., "state_var_5" -> 5)
+            idx = int(var_name.split("_")[-1])
+            if 0 <= idx < num_variables:
+                vector[idx] = 1
+        except (ValueError, IndexError, KeyError):
+            logger.warning(f"Invalid transition format: {transition}")
+            continue
+    
+    return vector
+
+
+def process_rollouts_parallel(
+    rollouts: List[Dict[str, Any]],
+    num_variables: int,
+    max_workers: int = 8
+) -> List[int]:
+    """
+    Process rollouts in parallel and aggregate coverage vectors.
+    
+    This function distributes rollouts across multiple threads to improve
+    throughput for large batches, then aggregates the results.
+    
+    Args:
+        rollouts: A list of rollout dictionaries
+        num_variables: The number of state variables to track
+        max_workers: Maximum number of worker threads
+    
+    Returns:
+        An aggregated coverage vector
+    """
+    if not rollouts:
+        return initialize_coverage_vector(num_variables)
+    
+    shared_vector = initialize_coverage_vector(num_variables)
+    lock = threading.Lock()
+    
+    def process_chunk(chunk_rollouts: List[Dict[str, Any]]) -> List[int]:
+        """Process a chunk of rollouts and return a local vector."""
+        local_vector = initialize_coverage_vector(num_variables)
+        
+        for rollout in chunk_rollouts:
+            try:
+                transitions = detect_state_transitions(rollout)
+                vector = _transitions_to_vector(transitions, num_variables)
+                
+                # Merge into local vector
+                for i in range(num_variables):
+                    local_vector[i] = local_vector[i] | vector[i]
+            except Exception as e:
+                logger.error(f"Error processing rollout in chunk: {e}")
+                continue
+        
+        return local_vector
+    
+    # Split rollouts into chunks
+    chunk_size = max(1, len(rollouts) // max_workers)
+    chunks = [rollouts[i:i + chunk_size] for i in range(0, len(rollouts), chunk_size)]
+    
+    # Process chunks in parallel
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(process_chunk, chunk) for chunk in chunks]
+        
+        for future in as_completed(futures):
+            try:
+                local_vector = future.result()
+                
+                # Thread-safe merge into shared vector
+                with lock:
+                    merge_coverage_vectors_threadsafe(shared_vector, local_vector)
+            except Exception as e:
+                logger.error(f"Error in parallel processing: {e}")
+                continue
+    
+    return shared_vector
+
 
 def main():
     """
-    Main entry point for state coverage module.
-    Demonstrates initialization, transition detection, and aggregation.
+    Main entry point for testing the state coverage instrumentation.
+    
+    This function generates mock rollouts, processes them in parallel,
+    and outputs the aggregated coverage vector.
     """
-    logger.info("Starting state coverage module main.")
+    logger.info("Starting state coverage instrumentation test")
     
-    # Initialize
-    coverage_data = initialize_coverage_vector()
-    logger.info(f"Initialized coverage vector: {coverage_data}")
+    # Generate mock rollouts
+    num_rollouts = 100
+    num_variables = 50
+    rollouts = []
     
-    # Simulate some rollout data (in real usage, this comes from training/rollouts)
-    # This is just a demo of the logic; in production, data is loaded from real sources.
-    mock_rollout = {
-        "states": [
-            {"dark_mode": False, "unread_count": 0},
-            {"dark_mode": True, "unread_count": 5},  # Transition detected
-            {"dark_mode": True, "unread_count": 2}
-        ]
+    for i in range(num_rollouts):
+        rollout = {
+            "rollout_id": f"rollout_{i}",
+            "transitions": [
+                {
+                    "state_var": f"state_var_{(i * 3 + j) % num_variables}",
+                    "new_value": 1,
+                    "timestamp": time.time()
+                }
+                for j in range(4)
+            ]
+        }
+        rollouts.append(rollout)
+    
+    # Process in parallel
+    start_time = time.time()
+    aggregated_vector = process_rollouts_parallel(rollouts, num_variables, max_workers=8)
+    end_time = time.time()
+    
+    # Calculate coverage ratio
+    coverage_ratio = calculate_coverage_ratio(aggregated_vector)
+    
+    logger.info(f"Processed {num_rollouts} rollouts in {end_time - start_time:.2f} seconds")
+    logger.info(f"Final coverage vector: {aggregated_vector}")
+    logger.info(f"Coverage ratio: {coverage_ratio:.2%}")
+    
+    # Write results to file
+    output_path = Path("data/processed/coverage_vectors.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    result = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "num_rollouts": num_rollouts,
+        "num_variables": num_variables,
+        "coverage_vector": aggregated_vector,
+        "coverage_ratio": coverage_ratio,
+        "processing_time_seconds": end_time - start_time
     }
     
-    try:
-        updated_vector = detect_transitions(mock_rollout, coverage_data["vector"])
-        logger.info(f"Updated vector after transitions: {updated_vector}")
-        
-        # Aggregate with another mock vector
-        mock_vector_2 = [0, 1, 0, 0] # Assuming 4 dims for demo
-        aggregated = aggregate_vectors([updated_vector, mock_vector_2])
-        logger.info(f"Aggregated vector: {aggregated}")
-        
-    except Exception as e:
-        log_error(logger, "Error during state coverage processing", e)
-        raise
+    with open(output_path, "w") as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"Results written to {output_path}")
+
 
 if __name__ == "__main__":
+    import time
+    from datetime import datetime, timezone
     main()

@@ -1,29 +1,25 @@
 [project]
-name = "llmxive-follow-up-extending-mobilegym-a"
+name = "llmXive"
 version = "0.1.0"
 description = "State-Guided Curriculum for MobileGym"
 requires-python = ">=3.10"
-dependencies = [
-    "mobilegym @ git+https://github.com/llmXive/mobilegym.git@main",
-]
+dependencies = []
 
 [tool.black]
 line-length = 88
 target-version = ['py310']
-include = '\\.pyi?$'
-extend-exclude = '''
+include = '\.pyi?$'
+exclude = '''
 /(
-  # directories
-  \.eggs
-  | \.git
+    \.git
   | \.hg
   | \.mypy_cache
   | \.tox
   | \.venv
+  | _build
+  | buck-out
   | build
   | dist
+  | data
 )/
 '''
-
-[tool.ruff]
-# Ruff configuration is in .ruff.toml

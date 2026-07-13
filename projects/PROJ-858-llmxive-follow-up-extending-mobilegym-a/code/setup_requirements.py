@@ -1,43 +1,37 @@
-import os
 import subprocess
 import sys
+import os
+from pathlib import Path
 import hashlib
-from datetime import datetime
-from utils.logging import get_task_logger, log_task_start, log_task_complete, log_error
 
-logger = get_task_logger(__name__)
+MOBILEGYM_REPO_URL = "https://github.com/lm-sys/MobileGym.git"
+CHECKSUMS_FILE = "data/raw/.checksums.txt"
 
-REPO_URL = "https://github.com/llmXive/mobilegym.git"
-REQUIREMENTS_PATH = "requirements.txt"
-CHECKSUM_PATH = "data/raw/.checksums.txt"
-
-def get_git_commit_hash(repo_url: str) -> str:
+def get_git_commit_hash(repo_url: str, target_dir: Path) -> str:
     """
-    Clones (or fetches into) the repository and returns the current HEAD commit hash.
-    Uses a shallow clone for speed, but ensures we get the actual commit hash.
+    Clones the repository to a temporary location and retrieves the current HEAD commit hash.
+    Returns the full 40-character SHA-1 hash.
     """
-    logger.info(f"Fetching repository to determine commit hash: {repo_url}")
-    
-    # Create a temporary directory for the clone
-    temp_dir = "data/raw/.temp_mobilegym_clone"
-    os.makedirs(os.path.dirname(temp_dir), exist_ok=True)
-    
-    # Remove existing clone if present to ensure fresh state
-    if os.path.exists(temp_dir):
-        subprocess.run(["rm", "-rf", temp_dir], check=True)
-
     try:
-        # Clone the repository (shallow to save time)
-        # We fetch the full history for the commit hash to be reliable in some edge cases, 
-        # but shallow is usually fine for HEAD.
+        # Clone the repo to a temporary directory to get the hash
+        # We use a shallow clone for speed, but we need the commit hash of the tip
+        temp_dir = target_dir / ".tmp_mobilegym_clone"
+        if temp_dir.exists():
+            import shutil
+            shutil.rmtree(temp_dir)
+        
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Clone the repo
         subprocess.run(
-            ["git", "clone", "--depth", "1", repo_url, temp_dir],
+            ["git", "clone", repo_url, str(temp_dir)],
             check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
         )
-
-        # Get the commit hash
+        
+        # Get the commit hash of the current HEAD
         result = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             cwd=temp_dir,
@@ -45,78 +39,95 @@ def get_git_commit_hash(repo_url: str) -> str:
             capture_output=True,
             text=True
         )
+        
         commit_hash = result.stdout.strip()
-        logger.info(f"Retrieved commit hash: {commit_hash}")
+        
+        # Cleanup
+        import shutil
+        shutil.rmtree(temp_dir)
+        
         return commit_hash
-
+        
     except subprocess.CalledProcessError as e:
-        log_error(logger, "Failed to fetch repository or get commit hash", e)
-        raise RuntimeError(f"Failed to fetch repository {repo_url}: {e}")
-    finally:
-        # Cleanup temp directory
-        if os.path.exists(temp_dir):
-            subprocess.run(["rm", "-rf", temp_dir], check=True)
+        raise RuntimeError(f"Failed to clone repository or get commit hash: {e.stderr}")
+    except Exception as e:
+        raise RuntimeError(f"Error fetching MobileGym repository: {e}")
 
-def generate_requirements_txt(commit_hash: str) -> str:
+def create_requirements_txt(target_dir: Path, commit_hash: str) -> Path:
     """
-    Generates the content for requirements.txt, pinning mobilegym to the specific commit.
+    Creates a requirements.txt file with mobilegym pinned to the specific commit hash.
     """
-    content = f"""# MobileGym Research Pipeline Requirements
-# Generated: {datetime.now().isoformat()}
-# Source: {REPO_URL}
-
-# Core dependency: MobileGym pinned to specific commit for reproducibility
-git+{REPO_URL}@{commit_hash}#egg=mobilegym
-
-# Standard dependencies for the pipeline
-numpy>=1.24.0
-pandas>=2.0.0
-scipy>=1.10.0
-pyyaml>=6.0
-pytest>=7.0.0
-ruff>=0.1.0
-black>=23.0.0
-"""
-    return content
-
-def write_checksum_file(commit_hash: str) -> None:
-    """
-    Writes the commit hash to data/raw/.checksums.txt, overwriting the placeholder.
-    """
-    os.makedirs(os.path.dirname(CHECKSUM_PATH), exist_ok=True)
+    requirements_path = target_dir / "requirements.txt"
     
-    content = f"""# MobileGym Checksums
-# Generated: {datetime.now().isoformat()}
-# Repository: {REPO_URL}
-mobilegym={commit_hash}
-"""
+    # Format: git+https://...@<commit_hash>
+    # This ensures pip installs exactly that commit
+    requirements_content = f"git+{MOBILEGYM_REPO_URL}@{commit_hash}\n"
     
-    with open(CHECKSUM_PATH, "w") as f:
-        f.write(content)
+    # Add standard dependencies that might be needed for the project
+    # Based on the task list, we might need ruff, black, etc., but keeping it minimal
+    # to just satisfy the "Pin mobilegym" requirement first.
+    # We can add others if they are standard for the project.
+    standard_deps = [
+        "numpy",
+        "pandas",
+        "scikit-learn",
+        "matplotlib",
+        "pytest",
+        "ruff",
+        "black"
+    ]
     
-    logger.info(f"Wrote checksum file to {CHECKSUM_PATH}")
+    for dep in standard_deps:
+        requirements_content += f"{dep}\n"
+    
+    requirements_path.write_text(requirements_content)
+    return requirements_path
+
+def write_checksums_file(target_dir: Path, commit_hash: str, repo_url: str) -> Path:
+    """
+    Writes the commit hash and repo URL to the checksums file for reproducibility.
+    Format: <repo_name>:<commit_hash>
+    """
+    checksums_path = target_dir / CHECKSUMS_FILE
+    checksums_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Ensure the directory exists
+    checksums_path.write_text(f"mobilegym:{commit_hash}\n")
+    return checksums_path
 
 def main():
-    log_task_start(logger, "T002", "Initialize Python project with requirements.txt")
+    """
+    Main entry point to initialize the Python project requirements.
+    1. Fetches MobileGym commit hash.
+    2. Creates requirements.txt with pinned version.
+    3. Writes checksums to data/raw/.checksums.txt.
+    """
+    # Determine project root (assuming this script is in code/)
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent
+    
+    print(f"Project root: {project_root}")
+    
+    # 1. Get commit hash
+    print("Fetching MobileGym commit hash...")
     try:
-        # 1. Fetch the real commit hash
-        commit_hash = get_git_commit_hash(REPO_URL)
-        
-        # 2. Generate and write requirements.txt
-        req_content = generate_requirements_txt(commit_hash)
-        with open(REQUIREMENTS_PATH, "w") as f:
-            f.write(req_content)
-        logger.info(f"Created {REQUIREMENTS_PATH}")
-        
-        # 3. Update the checksum file
-        write_checksum_file(commit_hash)
-        
-        log_task_complete(logger, "T002")
-        return True
+        commit_hash = get_git_commit_hash(MOBILEGYM_REPO_URL, project_root)
+        print(f"Retrieved commit hash: {commit_hash}")
     except Exception as e:
-        log_error(logger, "Task T002 failed", e)
-        return False
+        print(f"Error: {e}")
+        sys.exit(1)
+    
+    # 2. Create requirements.txt
+    print("Creating requirements.txt...")
+    req_path = create_requirements_txt(project_root, commit_hash)
+    print(f"Created: {req_path}")
+    
+    # 3. Write checksums
+    print("Writing checksums...")
+    checksum_path = write_checksums_file(project_root, commit_hash, MOBILEGYM_REPO_URL)
+    print(f"Created: {checksum_path}")
+    
+    print("Project initialization complete.")
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    main()

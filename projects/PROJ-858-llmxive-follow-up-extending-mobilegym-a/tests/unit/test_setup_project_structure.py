@@ -1,53 +1,67 @@
 import os
-import pytest
+import sys
 import tempfile
 import shutil
-import sys
+from pathlib import Path
+import pytest
 
 # Add the code directory to the path for imports
-code_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "code")
-sys.path.insert(0, code_dir)
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from setup_project_structure import create_directory, DIRECTORIES
+from setup_project_structure import create_directories
 
-class TestProjectStructure:
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """Create a temporary directory to test in, then clean up."""
-        self.temp_dir = tempfile.mkdtemp()
-        original_cwd = os.getcwd()
-        os.chdir(self.temp_dir)
-        yield
+def test_directory_creation(tmp_path):
+    """Test that all required directories are created."""
+    # Change to a temporary directory to simulate a project root
+    original_cwd = Path.cwd()
+    try:
+        os.chdir(tmp_path)
+        
+        # Run the directory creation
+        result = create_directories()
+        
+        assert result is True, "create_directories should return True on success"
+        
+        # Verify all required directories exist
+        required_dirs = [
+            "code",
+            "code/scheduler",
+            "code/training",
+            "code/analysis",
+            "code/utils",
+            "data/raw",
+            "data/processed",
+            "data/validation",
+            "tests/unit",
+            "tests/integration",
+            "contracts",
+        ]
+        
+        for dir_name in required_dirs:
+            dir_path = tmp_path / dir_name
+            assert dir_path.exists(), f"Directory {dir_name} was not created"
+            assert dir_path.is_dir(), f"{dir_name} exists but is not a directory"
+            
+    finally:
+        # Restore original working directory
         os.chdir(original_cwd)
-        shutil.rmtree(self.temp_dir)
 
-    def test_create_directory_exists(self):
-        """Test that creating an existing directory returns True and doesn't error."""
-        assert create_directory("test_dir")
-        assert create_directory("test_dir")  # Should be idempotent
-
-    def test_create_nested_directory(self):
-        """Test creating a nested directory structure."""
-        assert create_directory("parent/child/grandchild")
-        assert os.path.isdir("parent/child/grandchild")
-
-    def test_all_directories_created(self):
-        """Test that all required directories can be created."""
-        for dir_path in DIRECTORIES:
-            # Change to a temp root for each test to simulate fresh start if needed,
-            # but since we are in a temp dir, just ensure they are created relative to it.
-            # Note: The actual script runs from root, so we simulate that here.
-            # We adjust the path to be relative to the temp dir for this test.
-            # The script logic is simple makedirs, so we test the function directly.
-            assert create_directory(dir_path), f"Failed to create {dir_path}"
-            assert os.path.isdir(dir_path), f"Directory {dir_path} does not exist"
-
-    def test_directory_list_completeness(self):
-        """Verify the DIRECTORIES list contains the required paths from T001."""
-        required = {
-            "code", "code/scheduler", "code/training", "code/analysis", "code/utils",
-            "data/raw", "data/processed", "data/validation",
-            "tests/unit", "tests/integration", "contracts"
-        }
-        actual = set(DIRECTORIES)
-        assert required.issubset(actual), f"Missing directories: {required - actual}"
+def test_idempotent_creation(tmp_path):
+    """Test that running the script twice doesn't cause errors."""
+    original_cwd = Path.cwd()
+    try:
+        os.chdir(tmp_path)
+        
+        # Run twice
+        create_directories()
+        result_second = create_directories()
+        
+        assert result_second is True, "Second run should also succeed"
+        
+        # Verify directories still exist
+        required_dirs = ["code", "data/raw", "tests/unit", "contracts"]
+        for dir_name in required_dirs:
+            assert (tmp_path / dir_name).exists()
+            
+    finally:
+        os.chdir(original_cwd)

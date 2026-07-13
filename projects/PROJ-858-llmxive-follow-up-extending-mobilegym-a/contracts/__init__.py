@@ -1,0 +1,3 @@
+"""
+Contract definitions and schemas.
+"""

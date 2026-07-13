@@ -6,12 +6,30 @@ import traceback
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
-LOG_FILE_PATH = "data/processed/execution.log"
+# Custom Exceptions
+class LlmXiveError(Exception):
+    """Base exception for LLMXive pipeline errors."""
+    pass
 
+class ConfigurationError(LlmXiveError):
+    """Raised when configuration is invalid or missing."""
+    pass
+
+class DataError(LlmXiveError):
+    """Raised when data loading or processing fails."""
+    pass
+
+class SchedulerError(LlmXiveError):
+    """Raised when scheduler logic fails."""
+    pass
+
+class CoverageError(LlmXiveError):
+    """Raised when coverage vector operations fail."""
+    pass
 
 class JSONFormatter(logging.Formatter):
-    """Custom formatter for structured JSON logging."""
-
+    """Custom formatter to output logs as JSON."""
+    
     def format(self, record: logging.LogRecord) -> str:
         log_entry = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -20,86 +38,72 @@ class JSONFormatter(logging.Formatter):
             "message": record.getMessage(),
             "module": record.module,
             "function": record.funcName,
-            "line": record.lineno,
+            "line": record.lineno
         }
-
+        
         if record.exc_info:
             log_entry["exception"] = {
-                "type": record.exc_info[0].__name__ if record.exc_info[0] else None,
-                "message": str(record.exc_info[1]) if record.exc_info[1] else None,
-                "traceback": traceback.format_exception(*record.exc_info),
+                "type": record.exc_info[0].__name__,
+                "message": str(record.exc_info[1]),
+                "traceback": traceback.format_exception(*record.exc_info)
             }
-
+        
+        # Add extra context if present
+        if hasattr(record, 'context'):
+            log_entry["context"] = record.context
+        
         return json.dumps(log_entry)
 
-
-def get_logger(name: str) -> logging.Logger:
+def get_logger(name: str = "llmxive") -> logging.Logger:
     """
-    Get or create a logger with JSON formatting.
-    Ensures the log directory exists.
+    Configures and returns a logger with JSON formatting.
     """
     logger = logging.getLogger(name)
+    
     if logger.handlers:
         return logger
-
+    
     logger.setLevel(logging.INFO)
-
-    # Ensure directory exists
-    log_dir = os.path.dirname(LOG_FILE_PATH)
-    if log_dir:
-        os.makedirs(log_dir, exist_ok=True)
-
-    # File handler
-    try:
-        fh = logging.FileHandler(LOG_FILE_PATH)
-        fh.setFormatter(JSONFormatter())
-        logger.addHandler(fh)
-    except Exception:
-        # Fallback to stderr if file logging fails
-        pass
-
-    # Console handler (optional, for debugging)
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setFormatter(JSONFormatter())
-    logger.addHandler(ch)
-
+    
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(JSONFormatter())
+    logger.addHandler(console_handler)
+    
     return logger
 
-
-def get_task_logger(task_name: str) -> logging.Logger:
-    """Get a logger specifically for a task context."""
-    return get_logger(f"llmXive.{task_name}")
-
-
-def log_error(logger: logging.Logger, message: str, exc: Optional[Exception] = None):
-    """Log an error message, optionally with exception info."""
-    if exc:
-        logger.error(message, exc_info=True)
-    else:
-        logger.error(message)
-
-
 def log_with_context(
-    logger: logging.Logger, message: str, context: Optional[Dict[str, Any]] = None
-):
-    """Log a message with additional context data."""
-    if context:
-        full_message = f"{message} | Context: {json.dumps(context)}"
-        logger.info(full_message)
-    else:
-        logger.info(message)
+    logger: logging.Logger,
+    level: int,
+    message: str,
+    context: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Logs a message with optional structured context.
+    """
+    extra = {"context": context} if context else {}
+    logger.log(level, message, extra=extra)
 
+def log_error(logger: logging.Logger, error: Exception, message: str = "An error occurred") -> None:
+    """
+    Logs an error with exception details.
+    """
+    log_with_context(
+        logger,
+        logging.ERROR,
+        message,
+        context={
+            "exception_type": type(error).__name__,
+            "exception_message": str(error)
+        }
+    )
 
-def log_task_start(logger: logging.Logger, task_id: str):
-    """Log the start of a task."""
-    logger.info(f"Task {task_id} started at {datetime.now(timezone.utc).isoformat()}")
-
-
-def log_task_complete(logger: logging.Logger, task_id: str):
-    """Log the completion of a task."""
-    logger.info(f"Task {task_id} completed at {datetime.now(timezone.utc).isoformat()}")
-
-
-def log_task_failed(logger: logging.Logger, task_id: str, reason: str):
-    """Log a task failure."""
-    logger.error(f"Task {task_id} failed: {reason}")
+def configure_logging(log_file: Optional[str] = None) -> None:
+    """
+    Configures global logging to also write to a file if specified.
+    """
+    if log_file:
+        logger = logging.getLogger("llmxive")
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(JSONFormatter())
+        logger.addHandler(file_handler)

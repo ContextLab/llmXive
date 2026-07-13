@@ -1,17 +1,20 @@
+# Ruff configuration for llmXive
+target-version = "py310"
+
 [lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "W", "I", "N", "UP", "ANN", "S", "B", "C4", "SIM"]
+ignore = ["ANN101", "ANN102", "S101"]
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# A list of file names to exclude from linting.
+extend-exclude = ["data/", "build/", "dist/", ".venv/"]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [lint.isort]
 known-first-party = ["utils", "scheduler", "training", "analysis"]

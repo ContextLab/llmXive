@@ -78,11 +78,11 @@
 
 ### Implementation for User Story 1 (Must precede tests)
 
-- [X] T014 [US1] Implement Phase 1 logic (target coverage < 5%) in `code/scheduler/curriculum_scheduler.py`
-- [~] T015 [US1] Implement Phase logic (target moderate success rate) with dynamic range expansion (10-90%) in `code/scheduler/curriculum_scheduler.py`
+- [ ] T014 [US1] Implement Phase 1 logic (target coverage < 5%) in `code/scheduler/curriculum_scheduler.py`
+- [ ] T015 [US1] Implement Phase logic (target moderate success rate) with dynamic range expansion (10-90%) in `code/scheduler/curriculum_scheduler.py`
 - [~] T016 [US1] Implement fallback to maximum entropy if no tasks meet criteria (including after a range of expansion) in `code/scheduler/curriculum_scheduler.py`.
 - [~] T017 [US1] Implement 'Static Random' baseline scheduler logic (random sampling) in `code/scheduler/curriculum_scheduler.py` to satisfy FR-003 experimental control.
-- [~] T018 [US1] Add logging for `metrics_triggered` to `data/processed/scheduler_trace.json` (Constitution Principle VI), ensuring the log entry includes the specific state variable names (e.g., 'dark_mode') and their transition values that triggered the selection. <!-- FAILED: unspecified -->
+- [~] T018 [US1] Add logging for `metrics_triggered` to `data/processed/scheduler_trace.json` (Constitution Principle VI), ensuring the log entry includes the specific state variable names (e.g., 'dark_mode') and their transition values that triggered the selection.
 - [~] T019 [US1] Implement deadlock prevention (random selection if all states covered) in `code/scheduler/curriculum_scheduler.py`
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
@@ -108,15 +108,15 @@
 ### Implementation for User Story 2
 
 - [~] T025 [US2] Implement state transition detection logic in `code/scheduler/state_coverage.py`
-- [~] T026 [US2] Implement parallel rollout aggregation logic to merge vectors safely in `code/scheduler/state_coverage.py` <!-- FAILED: unspecified -->
+- [~] T026 [US2] Implement parallel rollout aggregation logic to merge vectors safely in `code/scheduler/state_coverage.py`
 - [~] T027 [US2] Add error handling to skip malformed JSON rollouts without crashing the batch in `code/scheduler/state_coverage.py`
 - [~] T028 [US2] Write aggregated coverage vectors to `data/processed/coverage_vectors.json` with checksums
 - [~] T029 [US2] Generate the 'held-out test set' containing state variables NOT present in the training-time State Coverage Vector to satisfy FR-005 transfer evaluation requirements.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [US2] Unit test for binary vector bit-flipping on state change in `tests/unit/test_state_coverage.py`
-- [ ] T031 [P] [US2] Integration test for parallel rollout aggregation without race conditions in `tests/integration/test_parallel_coverage.py`
+- [~] T030 [P] [US2] Unit test for binary vector bit-flipping on state change in `tests/unit/test_state_coverage.py`
+- [~] T031 [P] [US2] Integration test for parallel rollout aggregation without race conditions in `tests/integration/test_parallel_coverage.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,16 +130,16 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement `code/training/runner.py` to orchestrate Static Random vs. State-Guided runs using identical **Qwen3-VL-4B-Instruct** model configuration (including quantization level and context window) to ensure experimental control; this task MUST generate `baseline_logs.json` for the Static Random run and `experimental_logs.json` for the State-Guided run.
-- [ ] T033 [US3] Implement `code/analysis/convergence.py` to calculate steps-to-target (read success rate threshold from config file) and report absolute/percentage difference.
-- [ ] T034 [US3] Implement `code/analysis/transfer.py` to evaluate on held-out test set (with state variables NOT present in the training-time State Coverage Vector).
-- [ ] T035 [US3] Implement variance calculation of success rates across high state-dependency apps in `code/analysis/transfer.py`
-- [ ] T036 [US3] Generate "Success Rate vs. Steps" plots and save to `data/processed/`
+- [~] T032 [US3] Implement `code/training/runner.py` to orchestrate Static Random vs. State-Guided runs using identical **Qwen3-VL-4B-Instruct** model configuration (including quantization level and context window) to ensure experimental control; this task MUST generate `baseline_logs.json` for the Static Random run and `experimental_logs.json` for the State-Guided run.
+- [~] T033 [US3] Implement `code/analysis/convergence.py` to calculate steps-to-target (read success rate threshold from config file) and report absolute/percentage difference.
+- [~] T034 [US3] Implement `code/analysis/transfer.py` to evaluate on held-out test set (with state variables NOT present in the training-time State Coverage Vector).
+- [~] T035 [US3] Implement variance calculation of success rates across high state-dependency apps in `code/analysis/transfer.py`
+- [~] T036 [US3] Generate "Success Rate vs. Steps" plots and save to `data/processed/`
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T037 [P] [US3] Unit test for convergence step calculation in `tests/unit/test_convergence.py`
-- [ ] T038 [P] [US3] Unit test for variance calculation across high-dependency apps in `tests/unit/test_transfer.py`
+- [~] T037 [P] [US3] Unit test for convergence step calculation in `tests/unit/test_convergence.py`
+- [~] T038 [P] [US3] Unit test for variance calculation across high-dependency apps in `tests/unit/test_transfer.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -153,7 +153,7 @@
 
 ### Implementation for User Story 4
 
-- [ ] T039 [US4] Implement `code/analysis/sensitivity.py` to compute **Pearson correlation coefficient (r)** between the **scalar count (sum of 1s) derived from the binary State Coverage Vector** and success rate on a held-out validation set.
+- [~] T039 [US4] Implement `code/analysis/sensitivity.py` to compute **Pearson correlation coefficient (r)** between the **scalar count (sum of 1s) derived from the binary State Coverage Vector** and success rate on a held-out validation set.
 - [ ] T040 [US4] Implement logic to flag "Invalid Proxy" if r < 0.3 and recommend expanding variable set
 - [ ] T041 [US4] Implement "Proxy Validated" logging if r ≥ 0.5
 - [ ] T042 [US4] Generate sensitivity analysis report in `data/processed/sensitivity_report.md`

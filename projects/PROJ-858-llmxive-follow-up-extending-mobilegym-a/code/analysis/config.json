@@ -1,0 +1,5 @@
+{
+  "coverage_vectors_path": "data/processed/coverage_vectors.json",
+  "validation_results_path": "data/processed/validation_results.json",
+  "output_path": "data/processed/sensitivity_report.json"
+}

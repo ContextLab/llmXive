@@ -1,0 +1,3 @@
+"""
+Validation data storage.
+"""
