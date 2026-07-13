@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2202.09061",
+  "judged_at": "2026-07-13T05:34:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"locateanything: fast and high-quality vision-language grounding with p\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the \"Vision-Language Pre-training\" (VLP) domain, which is the essential methodological and vocabulary cluster for any research extending a vision-language grounding model like \"LocateAnything.\" While it does not address the specific \"LocateAnything\" architecture or the \"llmXive\" follow-up directly, it provides the necessary background on pre-training objectives, datasets, and architectures that a liter",
+  "relevant": true
+}

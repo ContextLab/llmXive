@@ -1,0 +1,648 @@
+{
+  "fetched_at": "2026-07-13T05:34:50Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Language Grounding with P\"",
+      "target_n": 5
+    },
+    "duration_seconds": 52.059,
+    "ended_at": "2026-07-13T05:34:50Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "fast vision-language grounding"
+        ],
+        [
+          2,
+          "high-quality vision-language grounding"
+        ],
+        [
+          3,
+          "visual grounding with large language models"
+        ],
+        [
+          4,
+          "open-vocabulary object detection"
+        ],
+        [
+          5,
+          "vision-language models for localization"
+        ],
+        [
+          6,
+          "dense captioning and grounding"
+        ],
+        [
+          7,
+          "multimodal grounding in computer vision"
+        ],
+        [
+          8,
+          "zero-shot visual localization"
+        ],
+        [
+          9,
+          "referring expression comprehension"
+        ],
+        [
+          10,
+          "visual question answering with grounding"
+        ],
+        [
+          11,
+          "efficient vision-language pre-training"
+        ],
+        [
+          12,
+          "prompt-based visual grounding"
+        ],
+        [
+          13,
+          "large multimodal model localization"
+        ],
+        [
+          14,
+          "region-based vision-language understanding"
+        ],
+        [
+          15,
+          "scalable visual grounding methods"
+        ],
+        [
+          16,
+          "real-time vision-language grounding"
+        ],
+        [
+          17,
+          "fine-grained vision-language alignment"
+        ],
+        [
+          18,
+          "cross-modal attention for grounding"
+        ],
+        [
+          19,
+          "open-world visual recognition"
+        ],
+        [
+          20,
+          "multimodal retrieval and grounding"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "fast vision-language grounding": 5,
+        "llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Language Grounding with P\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "visual grounding dense prediction reference-free",
+      "locate anything benchmark zero-shot detection",
+      "open-vocabulary object detection region proposal",
+      "retrieval augmented vision language alignment",
+      "hallucination mitigation grounding precision recall"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2202.09061"
+      ]
+    },
+    "per_query_hit_count": {
+      "hallucination mitigation grounding precision recall": 3,
+      "llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Language Grounding with P\" computer science": 3,
+      "locate anything benchmark zero-shot detection": 3,
+      "open-vocabulary object detection region proposal": 3,
+      "retrieval augmented vision language alignment": 3,
+      "visual grounding dense prediction reference-free": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2507.07104",
+          "rationale": "The candidate paper focuses on a specific architecture (VLV auto-encoder) for cost-efficient captioning and knowledge distillation from diffusion models, which does not address the user's specific question regarding \"LocateAnything\" (a vision-language grounding method) or the \"llmXive\" follow-up context. While both fall under the broad domain of Vision-Language Models, the paper lacks the specific mechanism (grounding/localization), the specific prior work connection, or the empirical variables ",
+          "title": "Vision-Language-Vision Auto-Encoder: Scalable Knowledge Distillation from Diffusion Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T05:33:58Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"locateanything: fast and high-quality vision-language grounding with p\" computer science",
+      "raw": "llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Language Grounding with P\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A core task in embodied intelligence is ego-centric 3D visual grounding. Existing methods typically adopt two-stage, heterogeneous pipelines that pair a detector with a separate grounding model. Incompatible decoders and box heads hinder the transfer of object-level priors, and the split training causes redundant re-optimization. To overcome these limitations, we present DEGround, a straight, elegant, and effective framework that centers on object-level sharing over detection and grounding. It employs a set of queries that serves as the common object representation for both detection and grounding, which is decoded by a shared transformer and bounding box head. Building on this homogeneous framework, we further introduce two task-specific plug-in modules to enhance fine-grained instruction grounding. The Regional Activation Grounding module improves spatial-textual alignment by highlighting instruction-relevant regions, while the Query-wise Modulation module applies sentence-conditioned affine modulation to generate instruction-aware queries at initialization. Extensive experiments demonstrate that DEGround achieves the best performance on multiple benchmarks. Remarkably, it significantly outperforms previous methods by 7.52% at overall precision on the EmbodiedScan dataset.",
+          "claimed_authors": [
+            "Yani Zhang",
+            "Dongming Wu",
+            "Hao Shi",
+            "Yingfei Liu",
+            "Tiancai Wang",
+            "Xingping Dong"
+          ],
+          "claimed_title": "DEGround: An Effective Baseline for Ego-centric 3D Visual Grounding with a Homogeneous Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.05199"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='DEGround: An Effective Baseline for Ego-centric 3D Visual Grounding with a Homogeneous Framework')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Visual Grounding, also known as Referring Expression Comprehension and Phrase Grounding, aims to ground the specific region(s) within the image(s) based on the given expression text. This task simulates the common referential relationships between visual and linguistic modalities, enabling machines to develop human-like multimodal comprehension capabilities. Consequently, it has extensive applications in various domains. However, since 2021, visual grounding has witnessed significant advancements, with emerging new concepts such as grounded pre-training, grounding multimodal LLMs, generalized visual grounding, and giga-pixel grounding, which have brought numerous new challenges. In this survey, we first examine the developmental history of visual grounding and provide an overview of essential background knowledge. We systematically track and summarize the advancements, and then meticulously define and organize the various settings to standardize future research and ensure a fair comparison. Additionally, we delve into numerous related datasets and applications, and highlight several advanced topics. Finally, we outline the challenges confronting visual grounding and propose valuable directions for future research, which may serve as inspiration for subsequent researchers. By extracting common technical details, this survey encompasses the representative work in each subtopic over the past decade. To the best of our knowledge, this paper represents the most comprehensive overview currently available in the field of visual grounding. This survey is designed to be suitable for both beginners and experienced researchers, serving as an invaluable resource for understanding key concepts and tracking the latest research developments. We keep tracing related work at https://github.com/linhuixiao/Awesome-Visual-Grounding.",
+          "claimed_authors": [
+            "Linhui Xiao",
+            "Xiaoshan Yang",
+            "Xiangyuan Lan",
+            "Yaowei Wang",
+            "Changsheng Xu"
+          ],
+          "claimed_title": "Towards Visual Grounding: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.20206"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Towards Visual Grounding: A Survey')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The analysis of spatiotemporal data is essential in domains such as epidemiology and environmental monitoring, where understanding the interplay between spatially distributed phenomena and their temporal evolution is critical. Dense pixel visualizations offer a compact, effective overview of spatiotemporal dynamics. However, the necessary linearization of 2D geographic space into a 1D ordering inevitably introduces structural distortions that manifest as visual artifacts. We propose a measure-driven visual analytics approach that captures visual artifacts through neighborhood preservation measures for 1D orderings and renders them using visual boosting techniques such as glyphs, halos, and hatching. We demonstrate our approach through a usage scenario analyzing COVID-19 incidence data across German districts, showing that interactive, measure-driven boosting enables analysts to reliably distinguish genuine spatial patterns from linearization artifacts.",
+          "claimed_authors": [
+            "Julius Rauscher",
+            "Frederik L. Dennig",
+            "Udo Schlegel",
+            "Daniel A. Keim",
+            "Tobias Schreck"
+          ],
+          "claimed_title": "Visual Boosting Techniques for Spatiotemporal Dense Pixel Visualizations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.25298"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Visual Boosting Techniques for Spatiotemporal Dense Pixel Visualizations')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work builds upon the Euphemism Detection Shared Task proposed in the EMNLP 2022 FigLang Workshop, and extends it to few-shot and zero-shot settings. We demonstrate a few-shot and zero-shot formulation using the dataset from the shared task, and we conduct experiments in these settings using RoBERTa and GPT-3. Our results show that language models are able to classify euphemistic terms relatively well even on new terms unseen during training, indicating that it is able to capture higher-level concepts related to euphemisms.",
+          "claimed_authors": [
+            "Sedrick Scott Keh"
+          ],
+          "claimed_title": "Exploring Euphemism Detection in Few-Shot and Zero-Shot Settings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.12926"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Exploring Euphemism Detection in Few-Shot and Zero-Shot Settings')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This technical report outlines our submission to the zero-shot track of the Visual Anomaly and Novelty Detection (VAND) 2023 Challenge. Building on the performance of the WINCLIP framework, we aim to enhance the system's localization capabilities by integrating zero-shot segmentation models. In addition, we perform foreground instance segmentation which enables the model to focus on the relevant parts of the image, thus allowing the models to better identify small or subtle deviations. Our pipeline requires no external data or information, allowing for it to be directly applied to new datasets. Our team (Variance Vigilance Vanguard) ranked third in the zero-shot track of the VAND challenge, and achieve an average F1-max score of 81.5/24.2 at a sample/pixel level on the VisA dataset.",
+          "claimed_authors": [
+            "Matthew Baugh",
+            "James Batten",
+            "Johanna P. Müller",
+            "Bernhard Kainz"
+          ],
+          "claimed_title": "Zero-Shot Anomaly Detection with Pre-trained Segmentation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.09269"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Zero-Shot Anomaly Detection with Pre-trained Segmentation Models')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present OpenSeeD, a simple Open-vocabulary Segmentation and Detection framework that jointly learns from different segmentation and detection datasets. To bridge the gap of vocabulary and annotation granularity, we first introduce a pre-trained text encoder to encode all the visual concepts in two tasks and learn a common semantic space for them. This gives us reasonably good results compared with the counterparts trained on segmentation task only. To further reconcile them, we locate two discrepancies: $i$) task discrepancy -- segmentation requires extracting masks for both foreground objects and background stuff, while detection merely cares about the former; $ii$) data discrepancy -- box and mask annotations are with different spatial granularity, and thus not directly interchangeable. To address these issues, we propose a decoupled decoding to reduce the interference between foreground/background and a conditioned mask decoding to assist in generating masks for given boxes. To this end, we develop a simple encoder-decoder model encompassing all three techniques and train it jointly on COCO and Objects365. After pre-training, our model exhibits competitive or stronger zero-shot transferability for both segmentation and detection. Specifically, OpenSeeD beats the state-of-the-art method for open-vocabulary instance and panoptic segmentation across 5 datasets, and outperforms previous work for open-vocabulary detection on LVIS and ODinW under similar settings. When transferred to specific tasks, our model achieves new SoTA for panoptic segmentation on COCO and ADE20K, and instance segmentation on ADE20K and Cityscapes.\n  Finally, we note that OpenSeeD is the first to explore the potential of joint training on segmentation and detection, and hope it can be received as a strong baseline for developing a single model for both tasks in open world.",
+          "claimed_authors": [
+            "Hao Zhang",
+            "Feng Li",
+            "Xueyan Zou",
+            "Shilong Liu",
+            "Chunyuan Li",
+            "Jianfeng Gao",
+            "Jianwei Yang",
+            "Lei Zhang"
+          ],
+          "claimed_title": "A Simple Framework for Open-Vocabulary Segmentation and Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.08131"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='A Simple Framework for Open-Vocabulary Segmentation and Detection')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The generalisation to unseen objects in the 6D pose estimation task is very challenging. While Vision-Language Models (VLMs) enable using natural language descriptions to support 6D pose estimation of unseen objects, these solutions underperform compared to model-based methods. In this work we present Horyon, an open-vocabulary VLM-based architecture that addresses relative pose estimation between two scenes of an unseen object, described by a textual prompt only. We use the textual prompt to identify the unseen object in the scenes and then obtain high-resolution multi-scale features. These features are used to extract cross-scene matches for registration. We evaluate our model on a benchmark with a large variety of unseen objects across four datasets, namely REAL275, Toyota-Light, Linemod, and YCB-Video. Our method achieves state-of-the-art performance on all datasets, outperforming by 12.6 in Average Recall the previous best-performing approach.",
+          "claimed_authors": [
+            "Jaime Corsetti",
+            "Davide Boscaini",
+            "Francesco Giuliari",
+            "Changjae Oh",
+            "Andrea Cavallaro",
+            "Fabio Poiesi"
+          ],
+          "claimed_title": "High-resolution open-vocabulary object 6D pose estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.16384"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='High-resolution open-vocabulary object 6D pose estimation')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Oriented object detection is a fundamental yet challenging task in remote sensing (RS), aiming to locate and classify objects with arbitrary orientations. Recent advancements in deep learning have significantly enhanced the capabilities of oriented object detection methods. Given the rapid development of this field, a comprehensive survey of the recent advances in oriented object detection is presented in this paper. Specifically, we begin by tracing the technical evolution from horizontal object detection to oriented object detection and highlighting the specific related challenges, including feature misalignment, spatial misalignment, oriented bounding box (OBB) regression problems, and common issues encountered in RS. Subsequently, we further categorize the existing methods into detection frameworks, OBB regression techniques, feature representation approaches, and solutions to common issues and provide an in-depth discussion of how these methods address the above challenges. In addition, we cover several publicly available datasets and evaluation protocols. Furthermore, we provide a comprehensive comparison and analysis involving the state-of-the-art methods. Toward the end of this paper, we identify several future directions for oriented object detection research.",
+          "claimed_authors": [
+            "Kun Wang",
+            "Zi Wang",
+            "Zhang Li",
+            "Ang Su",
+            "Xichao Teng",
+            "Erting Pan",
+            "Minhao Liu",
+            "Qifeng Yu"
+          ],
+          "claimed_title": "Oriented object detection in optical remote sensing images using deep learning: a survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.10473"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Oriented object detection in optical remote sensing images using deep learning: a survey')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human cognition is constrained by processing limitations, leading to cognitive overload and inefficiencies in knowledge synthesis and decision-making. Large Language Models (LLMs) present an opportunity for cognitive augmentation, but their current reactive nature limits their real-world applicability. This position paper explores the potential of context-aware cognitive augmentation, where LLMs dynamically adapt to users' cognitive states and task environments to provide appropriate support. Through a think-aloud study in an exhibition setting, we examine how individuals interact with multi-modal information and identify key cognitive challenges in structuring, retrieving, and applying knowledge. Our findings highlight the need for AI-driven cognitive support systems that integrate real-time contextual awareness, personalized reasoning assistance, and socially adaptive interactions. We propose a framework for AI augmentation that seamlessly transitions between real-time cognitive support and post-experience knowledge organization, contributing to the design of more effective human-centered AI systems.",
+          "claimed_authors": [
+            " Xiangrong",
+            " Zhu",
+            "Yuan Xu",
+            "Tianjian Liu",
+            "Jingwei Sun",
+            "Yu Zhang",
+            "Xin Tong"
+          ],
+          "claimed_title": "Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.13684"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Wearable devices are transforming human capabilities by seamlessly augmenting cognitive functions. In this position paper, we propose a voice-based, interactive learning companion designed to amplify and extend cognitive abilities through informal learning. Our vision is threefold: (1) to enable users to discover new knowledge on-the-go through contextual interactive quizzes, fostering critical thinking and mindfulness, (2) to proactively detect misinformation, empowering users to critically assess information in real time, and (3) to provide spoken language correction and prompting hints for second language learning and effective communication. As an initial step toward this vision, we present Factually - a proactive, wearable fact-checking system integrated into devices like smartwatches or rings. Factually discreetly alerts users to potential falsehoods via vibrotactile feedback, helping them assess information critically. We demonstrate its utility through three illustrative scenarios, highlighting its potential to extend cognitive abilities for real-time misinformation detection. Early qualitative feedback suggests that Factually can enhance users' fact-checking capabilities, offering both practical and experiential benefits.",
+          "claimed_authors": [
+            "Chitralekha Gupta",
+            "Hanjun Wu",
+            "Praveen Sasikumar",
+            "Shreyas Sridhar",
+            "Priambudi Bagaskara",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Factually: Exploring Wearable Fact-Checking for Augmented Truth Discernment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.17204"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Factually: Exploring Wearable Fact-Checking for Augmented Truth Discernment')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Electronic Health Records (EHR) contain rich longitudinal patient information and are widely used in predictive modeling applications. However, effectively leveraging historical data remains challenging due to long trajectories, heterogeneous events, temporal irregularity, and the varying relevance of past clinical context. Existing approaches often rely on fixed windows or uniform aggregation, which can obscure clinically important signals. In this work, we introduce EHR-RAGp, a retrieval-augmented foundation model that dynamically integrates the most relevant patient history across diverse clinical event types. We propose a prototype-guided retrieval module that acts as an alignment mechanism and estimates the relevance of retrieved historical chunks with respect to a given prediction task, guiding the model towards the most informative context. Across multiple clinical prediction tasks, EHR-RAGp consistently outperforms state-of-the-art EHR foundation models and transformer-based baselines. Furthermore, integrating EHR-RAGp with existing clinical foundation models yields substantial performance gains. Overall, EHR-RAGp provides a scalable and efficient framework for leveraging long-range clinical context to improve downstream performance.",
+          "claimed_authors": [
+            "Saeed Shurrab",
+            "Mariam Al-Omari",
+            "Dana El Samad",
+            "Farah E. Shamout"
+          ],
+          "claimed_title": "EHR-RAGp: Retrieval-Augmented Prototype-Guided Foundation Model for Electronic Health Records",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.12335"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='EHR-RAGp: Retrieval-Augmented Prototype-Guided Foundation Model for Electronic Health Records')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Vision-Language Models (LVLMs) still struggle with vision hallucination, where generated responses are inconsistent with the visual input. Existing methods either rely on large-scale annotated data for fine-tuning, which incurs massive computational overhead, or employ static post-hoc strategies that overlook the dynamic nature of hallucination emergence. To address these, we introduce a new self-rewarding framework, enabling dynamic hallucination mitigation at inference time without external supervision. On the empirical side, we reveal that visual hallucination exhibits phase-wise dynamic patterns, peaking at the onset of each semantic phase. Drawing on these insights, we propose \\textbf{PSRD} (\\textbf{Phase-wise \\textbf{S}elf-\\textbf{R}eward \\textbf{D}ecoding) for online hallucination correction guided by phase-wise self-reward signals. To reduce the cost of repeated self-evaluation during decoding, we distill the hallucination guidance signal from LVLMs into a lightweight reward model. The reward model subsequently provides on-the-fly guidance for targeted intervention during the decoding process, enabling precise hallucination suppression. The proposed PSRD significantly reduces the hallucination rate of LLaVA-1.5-7B by 50.0% and consistently outperforms existing post-hoc methods across five hallucination evaluation benchmarks for four LVLMs. Further analysis confirms that PSRD effectively mitigates hallucination propagation and achieves a highly controllable trade-off between strong performance and inference efficiency.",
+          "claimed_authors": [
+            "Yu Zhang",
+            "Chuyang Sun",
+            "Kehai Chen",
+            "Xuefeng Bai",
+            "Yang Xiang",
+            "Min Zhang"
+          ],
+          "claimed_title": "Mitigating Multimodal Hallucination via Phase-wise Self-reward",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.17982"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Mitigating Multimodal Hallucination via Phase-wise Self-reward')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hallucination, where models generate fluent text unsupported by visual evidence, remains a major flaw in vision-language models and is particularly critical in sign language translation (SLT). In SLT, meaning depends on precise grounding in video, and gloss-free models are especially vulnerable because they map continuous signer movements directly into natural language without intermediate gloss supervision that serves as alignment. We argue that hallucinations arise when models rely on language priors rather than visual input. To capture this, we propose a token-level reliability measure that quantifies how much the decoder uses visual information. Our method combines feature-based sensitivity, which measures internal changes when video is masked, with counterfactual signals, which capture probability differences between clean and altered video inputs. These signals are aggregated into a sentence-level reliability score, providing a compact and interpretable measure of visual grounding. We evaluate the proposed measure on two SLT benchmarks (PHOENIX-2014T and CSL-Daily) with both gloss-based and gloss-free models. Our results show that reliability predicts hallucination rates, generalizes across datasets and architectures, and decreases under visual degradations. Beyond these quantitative trends, we also find that reliability distinguishes grounded tokens from guessed ones, allowing risk estimation without references; when combined with text-based signals (confidence, perplexity, or entropy), it further improves hallucination risk estimation. Qualitative analysis highlights why gloss-free models are more susceptible to hallucinations. Taken together, our findings establish reliability as a practical and reusable tool for diagnosing hallucinations in SLT, and lay the groundwork for more robust hallucination detection in multimodal generation.",
+          "claimed_authors": [
+            "Yasser Hamidullah",
+            "Koel Dutta Chowdhury",
+            "Yusser Al Ghussin",
+            "Shakib Yazdani",
+            "Cennet Oguz",
+            "Josef van Genabith",
+            "Cristina España-Bonet"
+          ],
+          "claimed_title": "Grounding or Guessing? Visual Signals for Detecting Hallucinations in Sign Language Translation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.18439"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Grounding or Guessing? Visual Signals for Detecting Hallucinations in Sign Language Translation')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study explores the potential to enhance the reflectance of solar insolation by the human settlement and grassland components of the Earth's terrestrial surface as a climate change mitigation measure. Preliminary estimates derived using a static radiative transfer model indicate that such efforts could amplify the planetary albedo enough to offset the current global annual average level of radiative forcing caused by anthropogenic greenhouse gases by as much as 30 percent or 0.76 W/m2. Terrestrial albedo amplification may thus extend, by about 25 years, the time available to advance the development and use of low-emission energy conversion technologies which ultimately remain essential to mitigate long-term climate change. However, additional study is needed to confirm the estimates reported here and to assess the economic and environmental impacts of active land-surface albedo amplification as a climate change mitigation measure.",
+          "claimed_authors": [
+            "Robert M. Hamwey"
+          ],
+          "claimed_title": "Active Amplification of the Terrestrial Albedo to Mitigate Climate Change: An Exploratory Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "physics/0512170"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Active Amplification of the Terrestrial Albedo to Mitigate Climate Change: An Exploratory Study')",
+        "failed_at": "2026-07-13T05:34:29Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Feilong Chen",
+            "Duzhen Zhang",
+            "Minglun Han",
+            "Xiuyi Chen",
+            "Jing Shi",
+            "Shuang Xu",
+            "Bo Xu"
+          ],
+          "title": "VLP: A Survey on Vision-Language Pre-training",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2202.09061",
+        "summary": "In the past few years, the emergence of pre-training models has brought uni-modal fields such as computer vision (CV) and natural language processing (NLP) to a new era. Substantial works have shown they are beneficial for downstream uni-modal tasks and avoid training a new model from scratch. So can such pre-trained models be applied to multi-modal tasks? Researchers have explored this problem and made significant progress. This paper surveys recent advances and new frontiers in vision-language pre-training (VLP), including image-text and video-text pre-training. To give readers a better overall grasp of VLP, we first review its recent advances from five aspects: feature extraction, model architecture, pre-training objectives, pre-training datasets, and downstream tasks. Then, we summarize the specific VLP models in detail. Finally, we discuss the new frontiers in VLP. To the best of our knowledge, this is the first survey focused on VLP. We hope that this survey can shed light on future research in the VLP field.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2202.09061",
+          "http_status": 200,
+          "pdf_sample_score": 0.2362,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T05:34:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiaying Lu",
+            "Jinmeng Rao",
+            "Kezhen Chen",
+            "Xiaoyuan Guo",
+            "Yawen Zhang",
+            "Baochen Sun",
+            "Carl Yang",
+            "Jie Yang"
+          ],
+          "title": "Evaluation and Enhancement of Semantic Grounding in Large Vision-Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.04041",
+        "summary": "Large Vision-Language Models (LVLMs) offer remarkable benefits for a variety of vision-language tasks. However, a challenge hindering their application in real-world scenarios, particularly regarding safety, robustness, and reliability, is their constrained semantic grounding ability, which pertains to connecting language to the physical-world entities or concepts referenced in images. Therefore, a crucial need arises for a comprehensive study to assess the semantic grounding ability of widely used LVLMs. Despite the significance, sufficient investigation in this direction is currently lacking. Our work bridges this gap by designing a pipeline for generating large-scale evaluation datasets covering fine-grained semantic information, such as color, number, material, etc., along with a thorough assessment of seven popular LVLMs' semantic grounding ability. Results highlight prevalent misgrounding across various aspects and degrees. To address this issue, we propose a data-centric enhancement method that aims to improve LVLMs' semantic grounding ability through multimodal instruction tuning on fine-grained conversations. Experiments on enhanced LVLMs demonstrate notable improvements in addressing misgrounding issues.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.04041",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T05:34:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhe Gan",
+            "Linjie Li",
+            "Chunyuan Li",
+            "Lijuan Wang",
+            "Zicheng Liu",
+            "Jianfeng Gao"
+          ],
+          "title": "Vision-Language Pre-training: Basics, Recent Advances, and Future Trends",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2210.09263",
+        "summary": "This paper surveys vision-language pre-training (VLP) methods for multimodal intelligence that have been developed in the last few years. We group these approaches into three categories: ($i$) VLP for image-text tasks, such as image captioning, image-text retrieval, visual question answering, and visual grounding; ($ii$) VLP for core computer vision tasks, such as (open-set) image classification, object detection, and segmentation; and ($iii$) VLP for video-text tasks, such as video captioning, video-text retrieval, and video question answering. For each category, we present a comprehensive review of state-of-the-art methods, and discuss the progress that has been made and challenges still being faced, using specific systems and models as case studies. In addition, for each category, we discuss advanced topics being actively explored in the research community, such as big foundation models, unified modeling, in-context few-shot learning, knowledge, robustness, and computer vision in the wild, to name a few.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2210.09263",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T05:34:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ranjan Sapkota",
+            "Manoj Karkee"
+          ],
+          "title": "Object Detection with Multimodal Large Vision-Language Models: An In-depth Review",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.19294",
+        "summary": "The fusion of language and vision in large vision-language models (LVLMs) has revolutionized deep learning-based object detection by enhancing adaptability, contextual reasoning, and generalization beyond traditional architectures. This in-depth review presents a structured exploration of the state-of-the-art in LVLMs, systematically organized through a three-step research review process. First, we discuss the functioning of vision language models (VLMs) for object detection, describing how these models harness natural language processing (NLP) and computer vision (CV) techniques to revolutionize object detection and localization. We then explain the architectural innovations, training paradigms, and output flexibility of recent LVLMs for object detection, highlighting how they achieve advanced contextual understanding for object detection. The review thoroughly examines the approaches used in integration of visual and textual information, demonstrating the progress made in object detection using VLMs that facilitate more sophisticated object detection and localization strategies. This review presents comprehensive visualizations demonstrating LVLMs' effectiveness in diverse scenarios including localization and segmentation, and then compares their real-time performance, adaptability, and complexity to traditional deep learning systems. Based on the review, its is expected that LVLMs will soon meet or surpass the performance of conventional methods in object detection. The review also identifies a few major limitations of the current LVLM modes, proposes solutions to address those challenges, and presents a clear roadmap for the future advancement in this field. We conclude, based on this study, that the recent advancement in LVLMs have made and will continue to make a transformative impact on object detection and robotic applications in the future.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.19294",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T05:34:35Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"locateanything: fast and high-quality vision-language grounding with p\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
