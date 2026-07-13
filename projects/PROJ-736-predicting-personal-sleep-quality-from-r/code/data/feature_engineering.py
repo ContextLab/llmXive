@@ -1,9 +1,4 @@
-"""
-Feature Engineering Module.
-
-Computes pairwise Pearson correlation, Fisher-z transformation, and extracts
-upper triangular vectors for connectivity matrices.
-"""
+"""Feature engineering module for connectivity matrices."""
 import os
 import sys
 import json
@@ -12,133 +7,155 @@ import numpy as np
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add code directory to path for imports
+code_dir = Path(__file__).parent.parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-from config import get_paths, get_hyperparameter
+from config import get_paths, ensure_dirs
+from utils.logging import log_stage_start, log_stage_complete, log_stage_error, get_logger
 
-logger = logging.getLogger(__name__)
-
-def compute_pairwise_correlation(time_series: np.ndarray) -> np.ndarray:
+def compute_pairwise_correlation(ts: np.ndarray) -> np.ndarray:
     """
     Compute pairwise Pearson correlation matrix.
     
     Args:
-        time_series: 2D array (Time x ROIs)
+        ts: Time series (n_timepoints, n_rois).
         
     Returns:
-        2D correlation matrix (ROIs x ROIs)
+        Correlation matrix (n_rois, n_rois).
     """
-    # Normalize time series
-    # corrcoef expects variables in rows or columns?
-    # np.corrcoef(x, y=None, rowvar=1) -> rowvar=1: rows are variables
-    # We have Time x ROIs, so ROIs are columns. rowvar=0.
-    corr_matrix = np.corrcoef(time_series, rowvar=0)
+    logger = get_logger()
+    logger.log("correlation_computed", shape=ts.shape)
+    
+    # Compute correlation matrix
+    corr_matrix = np.corrcoef(ts.T)
     return corr_matrix
 
-def fisher_z_transform(r_matrix: np.ndarray) -> np.ndarray:
+def fisher_z_transform(corr_matrix: np.ndarray) -> np.ndarray:
     """
     Apply Fisher-z transformation to correlation matrix.
     
     Args:
-        r_matrix: Correlation matrix
+        corr_matrix: Correlation matrix.
         
     Returns:
-        Z-transformed matrix
+        Fisher-z transformed matrix.
     """
-    # Clip values to [-0.999, 0.999] to avoid log(0)
-    r_clipped = np.clip(r_matrix, -0.999, 0.999)
-    z_matrix = 0.5 * np.log((1 + r_clipped) / (1 - r_clipped))
-    return z_matrix
+    logger = get_logger()
+    logger.log("fisher_z_applied", shape=corr_matrix.shape)
+    
+    # Fisher-z: z = 0.5 * ln((1+r)/(1-r))
+    # Clip to avoid division by zero
+    r = np.clip(corr_matrix, -0.999, 0.999)
+    z = 0.5 * np.log((1 + r) / (1 - r))
+    return z
 
 def extract_upper_triangular_vector(z_matrix: np.ndarray) -> np.ndarray:
     """
-    Extract upper triangular vector from symmetric matrix.
+    Extract upper triangular vector (excluding diagonal).
     
     Args:
-        z_matrix: Z-transformed matrix
+        z_matrix: Fisher-z transformed matrix.
         
     Returns:
-        1D vector of upper triangle elements
+        Vector of upper triangular elements.
     """
+    logger = get_logger()
+    logger.log("upper_triangular_extracted", shape=z_matrix.shape)
+    
     n = z_matrix.shape[0]
-    # Upper triangle, exclude diagonal
-    indices = np.triu_indices(n, k=1)
-    return z_matrix[indices]
+    # Indices for upper triangle (excluding diagonal)
+    i, j = np.triu_indices(n, k=1)
+    return z_matrix[i, j]
 
-def process_subject_features(time_series: np.ndarray) -> np.ndarray:
+def process_subject_features(subject_id: str, processed_dir: Path, results_dir: Path) -> bool:
     """
-    Full feature engineering pipeline for a subject.
+    Process features for a single subject.
     
     Args:
-        time_series: Preprocessed time series (Time x ROIs)
+        subject_id: Subject ID.
+        processed_dir: Directory with preprocessed data.
+        results_dir: Directory to save feature vectors.
         
     Returns:
-        Feature vector (n_edges,)
+        True if successful, False otherwise.
     """
-    corr = compute_pairwise_correlation(time_series)
-    z_corr = fisher_z_transform(corr)
-    vector = extract_upper_triangular_vector(z_corr)
-    return vector
-
-def save_feature_vector(subject_id: str, vector: np.ndarray, output_dir: str) -> None:
-    """Save the feature vector to disk."""
-    output_path = Path(output_dir) / f"{subject_id}.npy"
-    np.save(str(output_path), vector)
-    logger.info(f"Saved feature vector for {subject_id} to {output_path}")
-
-def main(subject_ids: List[str]) -> bool:
-    """
-    Orchestrate feature engineering for a list of subjects.
+    logger = get_logger()
+    log_stage_start(f"Features {subject_id}")
     
-    Args:
-        subject_ids: List of subject IDs.
+    try:
+        # Load preprocessed time series
+        input_path = processed_dir / f"{subject_id}_preprocessed.npy"
+        if not input_path.exists():
+            logger.log("preprocessed_missing", subject=subject_id)
+            return False
         
-    Returns:
-        True if all processed successfully.
-    """
-    paths = get_paths()
-    output_dir = paths['processed_dir'] / "features"
-    output_dir.mkdir(parents=True, exist_ok=True)
+        ts = np.load(str(input_path))
+        
+        # Compute correlation matrix
+        corr = compute_pairwise_correlation(ts)
+        
+        # Fisher-z transform
+        z = fisher_z_transform(corr)
+        
+        # Extract upper triangular vector
+        vec = extract_upper_triangular_vector(z)
+        
+        # Save feature vector
+        output_path = results_dir / f"{subject_id}_features.npy"
+        np.save(str(output_path), vec)
+        
+        logger.log("features_saved", path=str(output_path), shape=vec.shape)
+        log_stage_complete(f"Features {subject_id}")
+        return True
+        
+    except Exception as e:
+        log_stage_error(f"Features {subject_id}", error=str(e))
+        return False
+
+def save_feature_vector(vec: np.ndarray, output_path: Path) -> None:
+    """Save feature vector to disk."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    np.save(str(output_path), vec)
+
+def main() -> bool:
+    """Main entry point for feature engineering."""
+    logger = get_logger()
+    log_stage_start("Feature Engineering")
     
-    n_rois = get_hyperparameter('n_rois')
-    n_edges = (n_rois * (n_rois - 1)) // 2
-    
-    success_count = 0
-    
-    for sid in subject_ids:
-        logger.info(f"Processing features for {sid}")
-        try:
-            # Load preprocessed data (from T014b output)
-            # Assuming preprocessed data is saved as {sid}_preprocessed.npy
-            input_path = paths['processed_dir'] / "preprocessed" / f"{sid}_preprocessed.npy"
-            
-            if not input_path.exists():
-                # If preprocessed data doesn't exist, we cannot proceed.
-                # This is a real data constraint.
-                logger.error(f"Preprocessed data for {sid} not found at {input_path}")
-                continue
-                
-            time_series = np.load(str(input_path))
-            
-            # Compute features
-            vector = process_subject_features(time_series)
-            
-            # Verify shape
-            if len(vector) != n_edges:
-                logger.warning(f"Feature vector length mismatch for {sid}: expected {n_edges}, got {len(vector)}")
-            
-            # Save
-            save_feature_vector(sid, vector, str(output_dir))
-            success_count += 1
-            
-        except Exception as e:
-            logger.error(f"Failed to process features for {sid}: {e}")
-            continue
-            
-    return success_count > 0
+    try:
+        paths = get_paths()
+        processed_dir = paths["processed"]
+        results_dir = paths["results"]
+        
+        # Ensure results directory exists
+        ensure_dirs(paths)
+        
+        # Load filtered subjects
+        filtered_file = processed_dir / "filtered_subjects.json"
+        if not filtered_file.exists():
+            raise FileNotFoundError("Filtered subjects file not found.")
+        
+        with open(filtered_file, "r") as f:
+            subjects = json.load(f)
+        
+        logger.log("subjects_to_process", count=len(subjects))
+        
+        success_count = 0
+        for subject in subjects:
+            if process_subject_features(subject, processed_dir, results_dir):
+                success_count += 1
+        
+        logger.log("feature_engineering_complete", success=success_count, total=len(subjects))
+        
+        log_stage_complete("Feature Engineering")
+        return True
+        
+    except Exception as e:
+        log_stage_error("Feature Engineering", error=str(e))
+        return False
 
 if __name__ == "__main__":
-    sys.exit(0)
+    success = main()
+    sys.exit(0 if success else 1)

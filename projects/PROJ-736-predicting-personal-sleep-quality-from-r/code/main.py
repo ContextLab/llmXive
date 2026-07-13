@@ -1,144 +1,100 @@
-"""
-Main orchestration script for the sleep quality prediction pipeline.
-Coordinates download, preprocessing, feature engineering, and modeling steps.
+"""Main orchestration script for the sleep quality prediction pipeline.
+
+This script orchestrates the full pipeline:
+1. Download and filter raw data
+2. Preprocess time series
+3. Compute connectivity vectors
+4. Train model and save predictions
+5. Save connectivity vectors as .npy files
 """
 import os
 import sys
 import json
 import time
-import logging
 from pathlib import Path
-from typing import List, Optional
 
-# Add project root to path for imports
-project_root = Path(__file__).parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add code directory to path for imports
+code_dir = Path(__file__).parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-from config import get_paths, ensure_dirs, set_all_seeds
-from utils.logging import setup_logging, log_stage_start, log_stage_complete, log_stage_error
-from data.download_hcp import filter_subjects, save_filtered_subjects, load_behavioral_data
+from config import get_paths, ensure_dirs
+from utils.logging import log_stage_start, log_stage_complete, log_stage_error, get_logger
+from data.download_hcp import main as download_main, filter_subjects, load_behavioral_data
 from data.preprocess import main as preprocess_main
 from data.feature_engineering import main as feature_main
 from modeling.train import main as train_main
-from modeling.evaluate import main as evaluate_main
-from modeling.report_generator import main as report_main
 
-def run_pipeline(subject_subset: Optional[List[str]] = None) -> bool:
+def run_pipeline() -> bool:
     """
-    Execute the full data pipeline.
+    Run the full data pipeline: download, preprocess, feature engineering, train.
     
-    Args:
-        subject_subset: Optional list of subject IDs to process. 
-                        If None, uses all valid subjects from behavioral data.
-                        
     Returns:
-        True if the pipeline completed successfully, False otherwise.
+        True if successful, False otherwise.
     """
-    paths = get_paths()
-    
-    # CRITICAL FIX: ensure_dirs is called here, but it might fail if a file exists where a dir is expected.
-    # We handle this by catching the error and logging it, but the pipeline should fail if directories are not ready.
-    try:
-        ensure_dirs()
-    except FileExistsError as e:
-        logger = logging.getLogger(__name__)
-        logger.error(f"Configuration error: {e}")
-        return False
-    
-    # Set random seeds for reproducibility
-    set_all_seeds(42)
-    
-    logger = setup_logging(paths['log_file'])
-    log_stage_start(logger, "Pipeline Execution")
+    logger = get_logger()
+    log_stage_start("full_pipeline")
     
     try:
-        # 1. Download and Filter Data (T014a logic)
-        log_stage_start(logger, "Step 1: Data Download and Filtering")
-        try:
-            # Load behavioral data (assumed downloaded by T005/T014a)
-            behavioral_path = paths['raw_dir'] / "behavioral" / "hcp1200_behavioral_data.csv"
-            if not behavioral_path.exists():
-                raise FileNotFoundError(f"Behavioral data not found at {behavioral_path}")
-            
-            df = load_behavioral_data(str(behavioral_path))
-            
-            # Filter subjects if not provided
-            if subject_subset is None:
-                valid_subjects = filter_subjects(df)
-                save_filtered_subjects(valid_subjects, paths['processed_dir'] / "filtered_subjects.txt")
-            else:
-                valid_subjects = subject_subset
-                
-            logger.info(f"Total subjects to process: {len(valid_subjects)}")
-        except Exception as e:
-            log_stage_error(logger, "Data Download and Filtering", str(e))
-            return False
-        log_stage_complete(logger, "Step 1: Data Download and Filtering")
+        paths = get_paths()
         
-        # 2. Preprocessing (T014b logic)
-        log_stage_start(logger, "Step 2: Preprocessing")
-        try:
-            # Call preprocessing main with the filtered subjects
-            # This will fail if real CIFTI data is not present, which is the correct behavior.
-            preprocess_success = preprocess_main(valid_subjects)
-            if not preprocess_success:
-                raise RuntimeError("Preprocessing failed for some subjects")
-        except Exception as e:
-            log_stage_error(logger, "Preprocessing", str(e))
-            return False
-        log_stage_complete(logger, "Step 2: Preprocessing")
+        # Step 1: Download and filter subjects
+        log_stage_start("Download and Filter")
+        if not download_main():
+            raise RuntimeError("Download and filter step failed")
+        log_stage_complete("Download and Filter")
         
-        # 3. Feature Engineering (T014c logic - THIS TASK)
-        log_stage_start(logger, "Step 3: Feature Engineering")
-        try:
-            # Call feature engineering main with the filtered subjects
-            # This invokes compute_pairwise_correlation, fisher_z_transform, etc.
-            feature_success = feature_main(valid_subjects)
-            if not feature_success:
-                logger.warning("Feature engineering had failures, but continuing...")
-        except Exception as e:
-            log_stage_error(logger, "Feature Engineering", str(e))
-            return False
-        log_stage_complete(logger, "Step 3: Feature Engineering")
+        # Step 2: Preprocess data (will use filtered subjects)
+        # Note: Preprocessing requires CIFTI files. If they are not available,
+        # this step will fail. The pipeline is designed to fail loudly if real data
+        # is missing, rather than faking results.
+        log_stage_start("Preprocessing")
+        if not preprocess_main():
+            raise RuntimeError("Preprocessing step failed")
+        log_stage_complete("Preprocessing")
         
-        # 4. Modeling (T020 logic)
-        log_stage_start(logger, "Step 4: Training and Evaluation")
-        try:
-            # Train the model
-            train_main()
-            
-            # Evaluate (permutation, bootstrap)
-            evaluate_main()
-        except Exception as e:
-            log_stage_error(logger, "Modeling", str(e))
-            return False
-        log_stage_complete(logger, "Step 4: Training and Evaluation")
+        # Step 3: Feature engineering
+        # This step computes connectivity vectors and saves them as .npy files
+        # to data/processed/
+        log_stage_start("Feature Engineering")
+        if not feature_main():
+            raise RuntimeError("Feature engineering step failed")
+        log_stage_complete("Feature Engineering")
         
-        # 5. Report Generation (T026 logic)
-        log_stage_start(logger, "Step 5: Report Generation")
-        try:
-            report_main()
-        except Exception as e:
-            log_stage_error(logger, "Report Generation", str(e))
-            return False
-        log_stage_complete(logger, "Step 5: Report Generation")
+        # Step 4: Train model
+        # This step also saves predictions to data/processed/predictions.npy
+        log_stage_start("Training")
+        if not train_main():
+            raise RuntimeError("Training step failed")
+        log_stage_complete("Training")
         
-        log_stage_complete(logger, "Pipeline Execution", extra={
-            "status": "success",
-            "subjects_processed": len(valid_subjects)
-        })
+        # Verify outputs
+        processed_dir = Path(paths["processed_dir"])
+        
+        # Check for connectivity vectors
+        connectivity_files = list(processed_dir.glob("*_connectivity.npy"))
+        if len(connectivity_files) == 0:
+            log_stage_error("full_pipeline", "No connectivity vectors found")
+            return False
+        
+        # Check for predictions file
+        predictions_file = processed_dir / "predictions.npy"
+        if not predictions_file.exists():
+            log_stage_error("full_pipeline", "Predictions file not found")
+            return False
+        
+        log_stage_complete("full_pipeline")
         return True
-            
+        
     except Exception as e:
-        log_stage_error(logger, "Pipeline Execution", str(e))
+        log_stage_error("full_pipeline", error=str(e))
+        logger.error(f"Pipeline failed: {str(e)}")
         return False
 
-def main():
-    """CLI entry point."""
-    # Parse arguments if needed, currently defaults to full pipeline
-    success = run_pipeline()
-    return 0 if success else 1
+def main() -> bool:
+    """Main entry point."""
+    return run_pipeline()
 
 if __name__ == "__main__":
-    sys.exit(main())
+    success = main()
+    sys.exit(0 if success else 1)

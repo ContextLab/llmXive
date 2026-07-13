@@ -1,71 +1,73 @@
+"""Configuration management for the sleep quality prediction pipeline."""
 import os
 import random
 from pathlib import Path
-from typing import Dict, Any
-import numpy as np
+from typing import Dict, Any, Union
 
-# Global config state
-_config = {
-    'seed': 42,
-    'variance_threshold': 0.01,
-    'pca_retention': 0.95,
-    'subset_size': 100,
-    'n_splits_outer': 5,
-    'n_splits_inner': 3,
-    'elasticnet_l1_ratio': 0.5,
-    'elasticnet_max_iter': 10000,
-}
-
-
-def set_all_seeds(seed: int = 42) -> None:
-    """Set random seeds for reproducibility."""
-    _config['seed'] = seed
-    random.seed(seed)
-    np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-
-
-def get_paths() -> Dict[str, Path]:
-    """Get all project paths."""
-    project_root = Path(__file__).parent.parent
+def get_paths() -> Dict[str, str]:
+    """
+    Get all project paths relative to the project root.
+    
+    Returns:
+        Dictionary of path names to absolute paths.
+    """
+    # Assume project root is the parent of the code directory
+    code_dir = Path(__file__).parent
+    project_root = code_dir.parent
+    
     return {
-        'project_root': project_root,
-        'code_dir': project_root / 'code',
-        'data_dir': project_root / 'data',
-        'raw_dir': project_root / 'data' / 'raw',
-        'behavioral_dir': project_root / 'data' / 'raw' / 'behavioral',
-        'cifti_dir': project_root / 'data' / 'raw' / 'cifti',
-        'processed_dir': project_root / 'data' / 'processed',
-        'results_dir': project_root / 'data' / 'results',
-        'logs_dir': project_root / 'data' / 'logs',
-        'tests_dir': project_root / 'tests',
+        "project_root": str(project_root),
+        "code": str(code_dir),
+        "data_raw": str(project_root / "data" / "raw"),
+        "data_raw_behavioral": str(project_root / "data" / "raw" / "behavioral"),
+        "data_processed": str(project_root / "data" / "processed"),
+        "data_results": str(project_root / "data" / "results"),
+        "figures": str(project_root / "figures"),
+        "logs": str(project_root / "data" / "logs"),
+        "filtered_subjects": str(project_root / "data" / "processed" / "filtered_subjects.txt"),
+        "hcp_behavioral_csv": str(project_root / "data" / "raw" / "behavioral" / "hcp1200_behavioral_data.csv"),
     }
 
+def ensure_dirs(*paths: str) -> None:
+    """
+    Ensure that the given directories exist.
+    
+    Args:
+        *paths: Directory paths to ensure exist.
+    """
+    for p in paths:
+        Path(p).mkdir(parents=True, exist_ok=True)
 
-def get_hyperparameter(key: str) -> Any:
-    """Get a hyperparameter value."""
-    return _config.get(key)
-
-
-def update_hyperparameter(key: str, value: Any) -> None:
-    """Update a hyperparameter."""
-    _config[key] = value
-
-
-def ensure_dirs() -> None:
-    """Ensure all project directories exist."""
-    paths = get_paths()
-    for path in paths.values():
-        if isinstance(path, Path):
-            path.mkdir(parents=True, exist_ok=True)
-
-
-def get_config_summary() -> Dict[str, Any]:
-    """Get current configuration summary."""
-    return {
-        'seed': _config['seed'],
-        'variance_threshold': _config['variance_threshold'],
-        'pca_retention': _config['pca_retention'],
-        'subset_size': _config['subset_size'],
-        'paths': {k: str(v) for k, v in get_paths().items()},
+def get_hyperparameter(name: str, default: Any = None) -> Any:
+    """
+    Get a hyperparameter value from environment variables or config.
+    
+    Args:
+        name: Name of the hyperparameter.
+        default: Default value if not found.
+        
+    Returns:
+        The hyperparameter value.
+    """
+    # Check environment variable first
+    env_val = os.environ.get(f"HYP_{name.upper()}")
+    if env_val is not None:
+        # Try to convert to appropriate type
+        try:
+            if '.' in env_val:
+                return float(env_val)
+            return int(env_val)
+        except ValueError:
+            return env_val
+    
+    # Default hardcoded values for the pipeline
+    defaults = {
+        "variance_threshold": 0.01,
+        "pca_retention": 0.95,
+        "subset_size": 100,
+        "max_fd": 0.3,
+        "n_splits": 5,
+        "time_budget_seconds": 10800,  # 3 hours
     }
+    
+    return defaults.get(name, default)

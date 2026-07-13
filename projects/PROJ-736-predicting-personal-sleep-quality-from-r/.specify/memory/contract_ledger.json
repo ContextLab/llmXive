@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "symbol": "log_stage_start",
+    "owner": null
+  }
+]
