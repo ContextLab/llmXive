@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Subject"
+description: "Schema for a subject entity derived from WebVid-10M."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  video_url:
+    type: "string"
+    format: "uri"
+    description: "Source URL of the video in WebVid."
+  frame_paths:
+    type: "array"
+    items:
+      type: "string"
+    description: "Relative paths to the 5 extracted keyframe images."
+  complexity_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Visual complexity score (mean of 5-frame edge density/texture variance)."
+  raw_embedding_path:
+    type: "string"
+    description: "Relative path to the high-dimensional embedding tensor."
+required:
+  - subject_id
+  - video_url
+  - frame_paths
+  - complexity_score
+  - raw_embedding_path
+additionalProperties: false

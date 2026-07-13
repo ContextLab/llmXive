@@ -1,0 +1,115 @@
+resolved_at: '2026-07-13T09:25:05.788205+00:00'
+datasets:
+- intent: WebVid
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gigant/webvid-mini/resolve/main/data/train-00000-of-00002-c06e512c0296c4fd.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gigant/webvid-mini-frames/resolve/main/data/train-00000-of-00002-c52e120390386496.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/TempoFunk/webvid-10M/resolve/main/data/train/partitions/0000.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gigant/webvid-mini/resolve/main/data/train-00000-of-00002-c06e512c0296c4fd.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gigant/webvid-mini-frames/resolve/main/data/train-00000-of-00002-c52e120390386496.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/TempoFunk/webvid-10M/resolve/main/data/train/partitions/0000.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64a4d79ff489f7ced5591e8f/8bc0f2387b277d47de43d100b0596ffa0aa9180a72b1f03d190d3cfbc48bd110?response-content-type=application%2Fjson&user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27chat.json%3B+filename%3D%22chat.json%22%3B&Expires=1783938281&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRhNGQ3OWZmNDg5ZjdjZWQ1NTkxZThmLzhiYzBmMjM4N2IyNzdkNDdkZTQzZDEwMGIwNTk2ZmZhMGFhOTE4MGE3MmIxZjAzZDE5MGQzY2ZiYzQ4YmQxMTBcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdjaGF0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJjaGF0Lmpzb24lMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzkzODI4MX19fV19&Signature=MEUCIQCm1MWni~ER-6JdQnuSclRMZm6Z0kTo51WGMPaTCwevGgIgM90zHTDTUKAsWjx1N8wY~aYfaif2qUOod7wBm9or2uk_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Which_type_of_influencer_should_the_brand_cooperate_with_in_the_livestream_e-commerce_supply_chain_coupon-driven_or_content-oriented_/32973214
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Untitled_dBulk_Organic_Holi_Colour_Supply_for_Color_Runs_and_Cultural_Events_Worldwideocument/32973203
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_PA_b_b_is_critical_b_b_b_b_for_the_p_b_b_athogenicity_b_b_of_H9N2_avian_influenza_A_virus_in_mice_b_/28103315
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Quasi-static_and_low-velocity_impact_bending_performance_of_additively_manufactured_polymer-matrix_composites_Role_of_filament_architecture/32973089
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/vdvd/32973188
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20145933
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19429551
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19429551
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.15196
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20145933
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20145933
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DomainShuttle
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://aubh.figshare.com/articles/thesis/Untitled_Item/32973164
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Preparation_of_a_novel_grafted_chitosan_hydrogel_material_for_the_adsorptive_removal_of_Pt_IV_ions_from_simulated_wastewater_solutions/32973161
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Which_type_of_influencer_should_the_brand_cooperate_with_in_the_livestream_e-commerce_supply_chain_coupon-driven_or_content-oriented_/32973214
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Untitled_dBulk_Organic_Holi_Colour_Supply_for_Color_Runs_and_Cultural_Events_Worldwideocument/32973203
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_PA_b_b_is_critical_b_b_b_b_for_the_p_b_b_athogenicity_b_b_of_H9N2_avian_influenza_A_virus_in_mice_b_/28103315
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.26058
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

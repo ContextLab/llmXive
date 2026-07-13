@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CompressedVector"
+description: "Schema for a compressed latent vector derived from a subject."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Foreign key to the Subject."
+  target_dimension:
+    type: "integer"
+    enum:
+      - 16
+      - 24
+      - 32
+      - 40
+      - 48
+      - 64
+      - 80
+      - 96
+      - 112
+      - 128
+      - 160
+      - 192
+      - 256
+    description: "Target dimensionality of the latent space."
+  reconstruction_loss:
+    type: "number"
+    description: "Cosine similarity loss between original and reconstructed embedding (Test Set)."
+  vector_path:
+    type: "string"
+    description: "Relative path to the compressed tensor file."
+  model_checkpoint_path:
+    type: "string"
+    description: "Relative path to the trained Autoencoder checkpoint."
+required:
+  - subject_id
+  - target_dimension
+  - reconstruction_loss
+  - vector_path
+  - model_checkpoint_path
+additionalProperties: false

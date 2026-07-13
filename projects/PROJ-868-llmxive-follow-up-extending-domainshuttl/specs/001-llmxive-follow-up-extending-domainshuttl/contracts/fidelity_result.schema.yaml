@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FidelityResult"
+description: "Schema for the result of a generation and identity fidelity test."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Foreign key to the Subject."
+  target_dimension:
+    type: "integer"
+    description: "Dimensionality of the compressed vector used."
+  style_domain:
+    type: "string"
+    enum:
+      - "Anime"
+      - "Photorealistic"
+      - "Sketch"
+    description: "The style domain used for generation."
+  prompt:
+    type: "string"
+    description: "Text prompt used for generation."
+  generated_frame_paths:
+    type: "array"
+    items:
+      type: "string"
+    description: "Relative paths to the 5 generated images."
+  identity_score_mean:
+    type: "number"
+    description: "Mean CLIP Image Similarity score between generated frames and reference frames."
+  identity_score_std:
+    type: "number"
+    description: "Standard deviation of CLIP Image Similarity score (temporal coherence)."
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "timeout"
+      - "failed"
+    description: "Status of the generation task."
+required:
+  - subject_id
+  - target_dimension
+  - style_domain
+  - prompt
+  - generated_frame_paths
+  - identity_score_mean
+  - identity_score_std
+  - status
+additionalProperties: false

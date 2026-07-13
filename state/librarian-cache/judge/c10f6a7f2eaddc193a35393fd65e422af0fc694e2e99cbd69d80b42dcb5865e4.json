@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.05131",
+  "judged_at": "2026-07-13T09:18:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"domainshuttle: freeform open domain subject-driven text-to-video gener\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the domain of text-to-video generation, which is the specific technical field of the user's \"DomainShuttle\" follow-up. While it does not address the specific \"DomainShuttle\" mechanism, it provides the essential literature review baseline for the broader \"Freeform Open Domain Subject-driven Text-to-video\" area the user is extending.",
+  "relevant": true
+}

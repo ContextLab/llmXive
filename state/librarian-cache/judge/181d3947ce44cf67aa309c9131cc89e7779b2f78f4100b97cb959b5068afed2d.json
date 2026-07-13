@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.10005",
+  "judged_at": "2026-07-13T09:18:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"domainshuttle: freeform open domain subject-driven text-to-video gener\" computer science",
+  "rationale": "This paper satisfies criteria (b) and (d) as it addresses the same domain (text-to-video generation) and measures the dependent variable of \"narrative coherence\" and \"visual quality\" in open-domain cinematic synthesis, which are the core mechanisms and empirical goals of the user's \"DomainShuttle\" follow-up research.",
+  "relevant": true
+}
