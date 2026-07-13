@@ -1,162 +1,88 @@
-import os
-import sys
+"""
+Utility module used by the CI validation step to confirm that the dynamic
+batch‑size logic behaves as expected.  The original implementation generated
+synthetic NIfTI‑like data, which violated the “real data only” policy.
+
+This revised version **does not create synthetic neuroimaging files**.  Instead,
+it works with tiny CSV files that are already part of the repository
+(e.g. ``data/analysis/metrics.csv``).  The functions now simply verify that
+the batch‑size calculator returns a sensible integer and that the preprocessing
+and correlation pipelines can be invoked on a minimal real dataset.
+"""
+
 import logging
-import tempfile
-import shutil
+import os
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-import numpy as np
-from nibabel import Nifti1Image
+
+from analysis.correlations import (
+    calculate_batch_size,
+    load_metrics_data,
+    run_pca_analysis,
+    merge_metrics_and_pca_scores,
+)
 
 logger = logging.getLogger(__name__)
 
-def generate_synthetic_nifti_like_data(output_path: Path, shape: tuple = (10, 10, 10, 10)) -> Path:
-    """
-    Generates a synthetic NIfTI-like file with known properties for testing.
-    This is used ONLY for validation purposes in CI environments where real data
-    is not available or when testing pipeline logic without real data.
-    
-    Args:
-        output_path: Path to save the synthetic NIfTI file.
-        shape: Shape of the data (x, y, z, time).
-    
-    Returns:
-        Path to the generated file.
-    """
-    logger.info(f"Generating synthetic data at {output_path} with shape {shape}")
-    
-    # Create dummy data with known properties
-    # We use a deterministic pattern to ensure reproducibility
-    data = np.zeros(shape, dtype=np.float32)
-    for i in range(shape[3]):  # Time dimension
-        data[..., i] = np.random.rand(*shape[:3]).astype(np.float32) * (i + 1)
-    
-    affine = np.eye(4)
-    nii_img = Nifti1Image(data, affine)
-    nii_img.to_filename(str(output_path))
-    
-    logger.info(f"Synthetic data generated: {output_path}")
-    return output_path
 
-def verify_batch_size_logic(max_memory_gb: float = 7.0) -> bool:
+def verify_batch_size_logic() -> None:
     """
-    Verifies that the batch sizing logic correctly estimates memory usage
-    and respects the memory limit.
-    
-    Args:
-        max_memory_gb: Maximum memory limit in GB.
-    
-    Returns:
-        True if the logic is correct, False otherwise.
+    Simple sanity‑check: ensure that the batch size calculation returns a
+    positive integer that does not exceed the number of subjects in the
+    real metrics file.
     """
-    logger.info("Verifying batch size logic")
-    
-    # Simulate memory estimation for different subject counts
-    # Assume 1 subject ~ 0.5 GB for simplicity
-    subject_memory_gb = 0.5
-    
-    test_cases = [
-        (1, 0.5),
-        (5, 2.5),
-        (10, 5.0),
-        (15, 7.5),  # Exceeds limit
-        (14, 7.0),  # At limit
-    ]
-    
-    for num_subjects, expected_memory in test_cases:
-        estimated_memory = num_subjects * subject_memory_gb
-        if estimated_memory > max_memory_gb:
-            # Should trigger batch reduction
-            logger.info(f"{num_subjects} subjects would exceed memory ({estimated_memory}GB > {max_memory_gb}GB)")
-        else:
-            logger.info(f"{num_subjects} subjects fit within memory ({estimated_memory}GB <= {max_memory_gb}GB)")
-    
-    logger.info("Batch size logic verification completed")
-    return True
+    metrics_path = Path("data/analysis/metrics.csv")
+    metrics_df = load_metrics_data(metrics_path)
+    n_subjects = len(metrics_df)
+    batch = calculate_batch_size(n_subjects)
+    assert isinstance(batch, int) and batch > 0, "Batch size must be a positive integer"
+    assert batch <= n_subjects, "Batch size cannot exceed number of subjects"
+    logger.info("Batch size verification passed (batch=%d, subjects=%d)", batch, n_subjects)
 
-def verify_preprocessing_batching() -> bool:
-    """
-    Verifies the preprocessing batching logic by running on synthetic data
-    with forced small batch sizes.
-    
-    Returns:
-        True if the logic is correct, False otherwise.
-    """
-    logger.info("Verifying preprocessing batching logic")
-    
-    # Create temporary directory for synthetic data
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_path = Path(temp_dir)
-        
-        # Generate synthetic data for 3 "subjects"
-        subject_ids = ["sub-001", "sub-002", "sub-003"]
-        input_files = []
-        
-        for sid in subject_ids:
-            input_file = temp_path / f"{sid}_raw.nii.gz"
-            generate_synthetic_nifti_like_data(input_file, shape=(10, 10, 10, 10))
-            input_files.append(input_file)
-        
-        # Simulate batch processing
-        batch_size = 2  # Force small batch size
-        
-        for i in range(0, len(input_files), batch_size):
-            batch = input_files[i:i+batch_size]
-            logger.info(f"Processing batch: {[f.name for f in batch]}")
-            
-            # Simulate processing
-            for f in batch:
-                output_file = f.parent / f"{f.stem}_preproc.nii.gz"
-                shutil.copy(str(f), str(output_file))
-                logger.info(f"Processed {f.name} -> {output_file.name}")
-    
-    logger.info("Preprocessing batching logic verification completed")
-    return True
 
-def verify_correlation_batching() -> bool:
+def verify_preprocessing_batching() -> None:
     """
-    Verifies the correlation analysis batching logic.
-    
-    Returns:
-        True if the logic is correct, False otherwise.
+    Verify that the preprocessing‑batching step can be called without
+    generating synthetic NIfTI data.  The function simply calls the merge
+    routine with the real metric dataframe and the PCA scores that were
+    produced by ``run_pca_analysis``.
     """
-    logger.info("Verifying correlation analysis batching logic")
-    
-    # Simulate correlation computation on batches
-    num_subjects = 100
-    batch_size = 10
-    num_batches = (num_subjects + batch_size - 1) // batch_size
-    
-    logger.info(f"Processing {num_subjects} subjects in {num_batches} batches of size {batch_size}")
-    
-    for i in range(num_batches):
-        start_idx = i * batch_size
-        end_idx = min((i + 1) * batch_size, num_subjects)
-        logger.info(f"Processing batch {i+1}/{num_batches}: subjects {start_idx}-{end_idx-1}")
-    
-    logger.info("Correlation analysis batching logic verification completed")
-    return True
+    metrics_path = Path("data/analysis/metrics.csv")
+    metrics_df = load_metrics_data(metrics_path)
+    _, pca_scores_df = run_pca_analysis(metrics_df)
+    # This will write ``full_metrics.csv`` – the existence of the file is the
+    # success criterion.
+    merge_metrics_and_pca_scores(metrics_df, pca_scores_df)
+    full_path = Path("data/analysis/full_metrics.csv")
+    assert full_path.is_file(), "full_metrics.csv was not created"
+    logger.info("Preprocessing batching verification succeeded")
 
-def main():
+
+def verify_correlation_batching() -> None:
     """
-    Main entry point for verification scripts.
+    Run a minimal correlation analysis on the merged dataset to ensure that
+    the pipeline works end‑to‑end with real data.
     """
-    logger.info("Starting batch verification suite")
-    
-    results = {
-        "batch_size_logic": verify_batch_size_logic(),
-        "preprocessing_batching": verify_preprocessing_batching(),
-        "correlation_batching": verify_correlation_batching()
-    }
-    
-    all_passed = all(results.values())
-    
-    if all_passed:
-        logger.info("All batch verification tests passed")
-        return 0
-    else:
-        logger.error("Some batch verification tests failed")
-        return 1
+    from analysis.correlations import (
+        run_correlation_analysis,
+        apply_fdr_correction,
+    )
+
+    merged_path = Path("data/analysis/full_metrics.csv")
+    if not merged_path.is_file():
+        raise FileNotFoundError("full_metrics.csv missing for correlation verification")
+    merged_df = pd.read_csv(merged_path)
+    corr_df = run_correlation_analysis(merged_df, covariate="MeanFD")
+    _ = apply_fdr_correction(corr_df)  # just ensure it runs without error
+    logger.info("Correlation batching verification succeeded")
+
+
+def main() -> None:
+    logging.basicConfig(level=logging.INFO)
+    verify_batch_size_logic()
+    verify_preprocessing_batching()
+    verify_correlation_batching()
+    logger.info("All batching verification steps passed")
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -8,3 +8,4 @@ scipy  # auto-added: imported by run-book but missing from venv
 scikit-learn  # auto-added: imported by run-book but missing from venv
 nilearn  # auto-added: verified real data source (discovery)
 community  # auto-added: imported by run-book but missing from venv
+statsmodels  # auto-added: imported by run-book but missing from venv

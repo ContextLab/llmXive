@@ -1,62 +1,41 @@
-# Quickstart Guide
+# Quickstart
+
+This document describes the steps to run the full analysis pipeline on a
+clean checkout of the repository.
 
 ## Prerequisites
 
-- Python 3.11+
-- pip
-- Virtual environment (recommended)
+* Python 3.11+
+* All dependencies installed (`pip install -r requirements.txt`)
 
-## Setup
+## Steps
 
-1. Install dependencies:
+1. **Download & preprocess** (synthetic validation is performed automatically):
  ```bash
- pip install -r requirements.txt
+ python code/main.py download_preprocess
  ```
 
-2. Configure environment variables (if needed):
+2. **Extract metrics**:
  ```bash
- export HCP_CREDENTIALS="your_credentials"
+ python code/main.py extract_metrics
  ```
 
-## Running the Pipeline
+3. **Run analysis** (this will invoke the PCA, factor‑score generation and the
+ full‑metrics merge implemented in `code/analysis/correlations.py`):
+ ```bash
+ python code/main.py analyze
+ ```
 
-The pipeline is executed via `code/main.py` with specific steps.
+4. **Generate visualisations and report**:
+ ```bash
+ python code/main.py viz_report
+ ```
 
-### Step 1: Download and Preprocess Data
-```bash
-python code/main.py --step download_preprocess --subjects 50
-```
+After the pipeline finishes, you will find the following artefacts in
+`data/analysis/`:
 
-### Step 2: Extract Metrics
-```bash
-python code/main.py --step extract_metrics
-```
+* `pca_loadings.csv`
+* `factor_scores.csv`
+* `full_metrics.csv`
 
-### Step 3: Analyze (Correlations, PCA, Power)
-```bash
-python code/main.py --step analyze
-```
-*This step generates `data/analysis/full_metrics.csv`.*
-
-### Step 4: Visualize and Report
-```bash
-python code/main.py --step viz_report
-```
-
-### Run All Steps
-```bash
-python code/main.py --step all --subjects 50
-```
-
-## Output Artifacts
-
-- `data/analysis/full_metrics.csv`: Combined metrics and PCA scores.
-- `figures/*.png`: Generated plots.
-- `docs/report.md`: Final report.
-
-## Validation
-
-To validate the quickstart:
-```bash
-python code/tools/validate_quickstart.py
-```
+These files are consumed by the reporting step (`code/report/generate.py`).

@@ -18,3 +18,22 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-29T21:09:52Z'
+- artifact_path: projects/PROJ-284-investigating-the-relationship-between-b/quickstart.md
+  attempts: 1
+  canonical: pipeline generates pca_loadings.csv factor_scores.csv full_metrics.csv
+  claim_id: c_cccf645b
+  context: 'After the pipeline finishes, you will find the following artefacts in
+    data/analysis/: pca_loadings.csv, factor_scores.csv, full_metrics.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_generates_pca_loadings.csv_factor_scores.csv_full_m
+  kind: entity_fact
+  raw_text: 'After the pipeline finishes, you will find the following artefacts in
+    `data/analysis/`: `pca_loadings.csv`, `factor_scores.csv`, `full_metrics.csv`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:09:46Z'
