@@ -1,0 +1,552 @@
+{
+  "fetched_at": "2026-07-13T10:35:13Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus Interaction\"",
+      "target_n": 5
+    },
+    "duration_seconds": 68.765,
+    "ended_at": "2026-07-13T10:35:13Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "training search agents for corpus linguistics"
+        ],
+        [
+          2,
+          "direct corpus interaction with language models"
+        ],
+        [
+          3,
+          "retrieval-augmented generation for linguistic analysis"
+        ],
+        [
+          4,
+          "automated corpus querying with LLM agents"
+        ],
+        [
+          5,
+          "search agent optimization for text corpora"
+        ],
+        [
+          6,
+          "linguistic corpus exploration via AI agents"
+        ],
+        [
+          7,
+          "iterative search strategies for linguistic datasets"
+        ],
+        [
+          8,
+          "agent-based corpus mining in linguistics"
+        ],
+        [
+          9,
+          "natural language search interfaces for linguistic corpora"
+        ],
+        [
+          10,
+          "reinforcement learning for corpus search agents"
+        ],
+        [
+          11,
+          "query expansion techniques for linguistic corpora"
+        ],
+        [
+          12,
+          "automated hypothesis testing in corpus linguistics"
+        ],
+        [
+          13,
+          "LLM-driven corpus annotation and retrieval"
+        ],
+        [
+          14,
+          "interactive corpus analysis tools for linguists"
+        ],
+        [
+          15,
+          "semantic search in large-scale linguistic corpora"
+        ],
+        [
+          16,
+          "agent training for information extraction from text"
+        ],
+        [
+          17,
+          "corpus linguistics automation using generative AI"
+        ],
+        [
+          18,
+          "dialogue-based corpus querying systems"
+        ],
+        [
+          19,
+          "efficient corpus traversal algorithms for linguistics"
+        ],
+        [
+          20,
+          "machine learning approaches to corpus retrieval"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "direct corpus interaction with language models": 4,
+        "llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus Interaction\" linguistics": 0,
+        "training search agents for corpus linguistics": 3
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "corpus interaction retrieval augmented generation linguistics",
+      "search agent corpus querying text mining NLP",
+      "information retrieval query expansion semantic search",
+      "corpus linguistics concordance frequency distribution",
+      "grounding hallucination retrieval fidelity language models"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.14257"
+      ]
+    },
+    "per_query_hit_count": {
+      "corpus interaction retrieval augmented generation linguistics": 3,
+      "corpus linguistics concordance frequency distribution": 1,
+      "grounding hallucination retrieval fidelity language models": 3,
+      "information retrieval query expansion semantic search": 3,
+      "llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus Interaction\" linguistics": 3,
+      "search agent corpus querying text mining NLP": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2605.05991",
+          "rationale": "The paper focuses on e-commerce search relevance optimization using multi-agent systems, which is an off-domain application distinct from the user's specific interest in linguistics and corpus interaction for search agents. While both involve \"search agents,\" the paper does not measure the same biological, algorithmic, or linguistic mechanisms, nor does it provide a foundational methodology for the specific domain of linguistic corpus analysis requested.",
+          "title": "A Case-Driven Multi-Agent Framework for E-Commerce Search Relevance"
+        },
+        {
+          "primary_pointer": "2111.11170",
+          "rationale": "The paper focuses on a specific Romanian speech corpus for conversational agents in a purchasing context, which is distinct from the user's question about extending \"GrepSeek\" (a text-based search agent) into the linguistics domain. It fails to address the core mechanism of direct corpus interaction for search, the specific \"GrepSeek\" framework, or the linguistic analysis of search agents, and instead belongs to a different sub-domain (speech recognition and dialogue systems) with no measurable ",
+          "title": "Human-Machine Interaction Speech Corpus from the ROBIN project"
+        },
+        {
+          "primary_pointer": "2603.27043",
+          "rationale": "The paper introduces a specific bilingual speech corpus (MELI) for linguistic analysis, which does not address the user's question about extending a training framework for LLM search agents (\"GrepSeek\") to interact with linguistic corpora. While the paper provides a potential *data source* for such a system, it does not measure the same mechanism, establish an empirical baseline for agent training, or provide the foundational methodology for search agents, failing to meet any of the inclusion cr",
+          "title": "Introducing MELI: the Mandarin-English Language Interview Corpus"
+        },
+        {
+          "primary_pointer": "2504.13667",
+          "rationale": "The paper focuses on the broad educational and societal impacts of LLMs on children's cognition and interaction paradigms, which is distinct from the user's specific technical question about extending a corpus-interaction search agent (\"GrepSeek\") within the domain of linguistics. It does not measure the same mechanism, variables, or empirical population required for a literature review on training search agents for direct corpus interaction.",
+          "title": "Large Language Models Will Change The Way Children Think About Technology And Impact Every Interaction Paradigm"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T10:34:05Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"grepseek: training search agents for direct corpus interaction\" linguistics",
+      "raw": "llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus Interaction\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human cognition is constrained by processing limitations, leading to cognitive overload and inefficiencies in knowledge synthesis and decision-making. Large Language Models (LLMs) present an opportunity for cognitive augmentation, but their current reactive nature limits their real-world applicability. This position paper explores the potential of context-aware cognitive augmentation, where LLMs dynamically adapt to users' cognitive states and task environments to provide appropriate support. Through a think-aloud study in an exhibition setting, we examine how individuals interact with multi-modal information and identify key cognitive challenges in structuring, retrieving, and applying knowledge. Our findings highlight the need for AI-driven cognitive support systems that integrate real-time contextual awareness, personalized reasoning assistance, and socially adaptive interactions. We propose a framework for AI augmentation that seamlessly transitions between real-time cognitive support and post-experience knowledge organization, contributing to the design of more effective human-centered AI systems.",
+          "claimed_authors": [
+            " Xiangrong",
+            " Zhu",
+            "Yuan Xu",
+            "Tianjian Liu",
+            "Jingwei Sun",
+            "Yu Zhang",
+            "Xin Tong"
+          ],
+          "claimed_title": "Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.13684"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title='Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation')",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Wearable devices are transforming human capabilities by seamlessly augmenting cognitive functions. In this position paper, we propose a voice-based, interactive learning companion designed to amplify and extend cognitive abilities through informal learning. Our vision is threefold: (1) to enable users to discover new knowledge on-the-go through contextual interactive quizzes, fostering critical thinking and mindfulness, (2) to proactively detect misinformation, empowering users to critically assess information in real time, and (3) to provide spoken language correction and prompting hints for second language learning and effective communication. As an initial step toward this vision, we present Factually - a proactive, wearable fact-checking system integrated into devices like smartwatches or rings. Factually discreetly alerts users to potential falsehoods via vibrotactile feedback, helping them assess information critically. We demonstrate its utility through three illustrative scenarios, highlighting its potential to extend cognitive abilities for real-time misinformation detection. Early qualitative feedback suggests that Factually can enhance users' fact-checking capabilities, offering both practical and experiential benefits.",
+          "claimed_authors": [
+            "Chitralekha Gupta",
+            "Hanjun Wu",
+            "Praveen Sasikumar",
+            "Shreyas Sridhar",
+            "Priambudi Bagaskara",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Factually: Exploring Wearable Fact-Checking for Augmented Truth Discernment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.17204"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title='Factually: Exploring Wearable Fact-Checking for Augmented Truth Discernment')",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic temporal ordering of events described in discourse has been of great interest in recent years. Event orderings are conveyed in text via va rious linguistic mechanisms including the use of expressions such as \"before\", \"after\" or \"during\" that explicitly assert a temporal relation -- temporal signals. In this paper, we investigate the role of temporal signals in temporal relation extraction and provide a quantitative analysis of these expres sions in the TimeBank annotated corpus.",
+          "claimed_authors": [
+            "Leon Derczynski",
+            "Robert Gaizauskas"
+          ],
+          "claimed_title": "A Corpus-based Study of Temporal Signals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1203.5066"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title='A Corpus-based Study of Temporal Signals')",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent methods train search agents via reinforcement learning from (question, answer, evidence) tuples without requiring expert trajectories. The tuples serve as the training environment, and whose properties directly shape what search strategies and generalization abilities the agent can develop. While prior works have made encouraging progress in improving training data quality, existing environments remain predominantly text-based and existing approaches can struggle to construct training environments that are controllable, scalable, and account for multimodal data. Given this, we propose DocArena, a fully automated data curation pipeline building on the practical need for multimodal document search and question-answering. It transforms raw document collections into training environments for search agents without any human annotation. The pipeline first structures and indexes documents through MLLM-based visual perception, then profiles and leverage the cross-page information distribution to construct reasoning-intensive QA pairs, as well as performs cascaded quality assurance operations via MLLM. We introduce DocArena-79K with QA pairs from 8,336 documents spanning 16 domains and 49 languages. We further design a Doc-Search agent infrastructure that decouples visual perception from the policy model, allowing text-based LLMs to serve as the reasoning backbone for multimodal document retrieval and QA. Under a unified evaluation framework where only the policy model differs, experiments on six multimodal document scenarios and seven text-based QA benchmarks show that agents trained on DocArena data achieve the best performance on both retrieval accuracy and QA quality. Further analysis on agent search behaviors confirms the effectiveness and controllability of the constructed training environment.",
+          "claimed_authors": [
+            "Jiamian Wang",
+            "Ruiyi Zhang",
+            "Tong Yu",
+            "Jing Shi",
+            "Samyadeep Basu",
+            "Rajiv Jain",
+            "Zhiqiang Tao",
+            "Tong Sun"
+          ],
+          "claimed_title": "DocArena: Turning Raw Documents into Controllable Training Environments for Document Search Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.26122"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title='DocArena: Turning Raw Documents into Controllable Training Environments for Document Search Agents')",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Given the many technical, social, and policy shifts in access to scholarly content since the early days of text data mining, it is time to expand the conversation about text data mining from concerns of the researcher wishing to mine data to include concerns of researcher-authors about how their data are mined, by whom, for what purposes, and to whose benefits.",
+          "claimed_authors": [
+            "Christine L. Borgman"
+          ],
+          "claimed_title": "Text Data Mining from the Author's Perspective: Whose Text, Whose Mining, and to Whose Benefit?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.04552"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title=\"Text Data Mining from the Author's Perspective: Whose Text, Whose Mining, and to Whose Benefit?\")",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work several semantic approaches to concept-based query expansion and reranking schemes are studied and compared with different ontology-based expansion methods in web document search and retrieval. In particular, we focus on concept-based query expansion schemes, where, in order to effectively increase the precision of web document retrieval and to decrease the users browsing time, the main goal is to quickly provide users with the most suitable query expansion. Two key tasks for query expansion in web document retrieval are to find the expansion candidates, as the closest concepts in web document domain, and to rank the expanded queries properly. The approach we propose aims at improving the expansion phase for better web document retrieval and precision. The basic idea is to measure the distance between candidate concepts using the PMING distance, a collaborative semantic proximity measure, i.e. a measure which can be computed by using statistical results from web search engine. Experiments show that the proposed technique can provide users with more satisfying expansion results and improve the quality of web document retrieval.",
+          "claimed_authors": [
+            "Valentina Franzoni",
+            "Yuanxi Li",
+            "Clement H. C. Leung",
+            "Alfredo Milani"
+          ],
+          "claimed_title": "Semantic Evolutionary Concept Distances for Effective Information Retrieval in Query Expansion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1701.05311"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title='Semantic Evolutionary Concept Distances for Effective Information Retrieval in Query Expansion')",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Retrieval-Augmented Generation (RAG) is a prevalent approach to infuse a private knowledge base of documents with Large Language Models (LLM) to build Generative Q\\&A (Question-Answering) systems. However, RAG accuracy becomes increasingly challenging as the corpus of documents scales up, with Retrievers playing an outsized role in the overall RAG accuracy by extracting the most relevant document from the corpus to provide context to the LLM. In this paper, we propose the 'Blended RAG' method of leveraging semantic search techniques, such as Dense Vector indexes and Sparse Encoder indexes, blended with hybrid query strategies. Our study achieves better retrieval results and sets new benchmarks for IR (Information Retrieval) datasets like NQ and TREC-COVID datasets. We further extend such a 'Blended Retriever' to the RAG system to demonstrate far superior results on Generative Q\\&A datasets like SQUAD, even surpassing fine-tuning performance.",
+          "claimed_authors": [
+            "Kunal Sawarkar",
+            "Abhilasha Mangal",
+            "Shivam Raj Solanki"
+          ],
+          "claimed_title": "Blended RAG: Improving RAG (Retriever-Augmented Generation) Accuracy with Semantic Search and Hybrid Query-Based Retrievers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.07220"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title='Blended RAG: Improving RAG (Retriever-Augmented Generation) Accuracy with Semantic Search and Hybrid Query-Based Retrievers')",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative information retrieval (GenIR) is a promising neural retrieval paradigm that formulates document retrieval as a document identifier (docid) generation task, allowing for end-to-end optimization toward a unified global retrieval objective. However, existing GenIR models suffer from token-level misalignment, where models trained to predict the next token often fail to capture document-level relevance effectively. While reinforcement learning-based methods, such as reinforcement learning from relevance feedback (RLRF), aim to address this misalignment through reward modeling, they introduce significant complexity, requiring the optimization of an auxiliary reward function followed by reinforcement fine-tuning, which is computationally expensive and often unstable. To address these challenges, we propose direct document relevance optimization (DDRO), which aligns token-level docid generation with document-level relevance estimation through direct optimization via pairwise ranking, eliminating the need for explicit reward modeling and reinforcement learning. Experimental results on benchmark datasets, including MS MARCO document and Natural Questions, show that DDRO outperforms reinforcement learning-based methods, achieving a 7.4% improvement in MRR@10 for MS MARCO and a 19.9% improvement for Natural Questions. These findings highlight DDRO's potential to enhance retrieval effectiveness with a simplified optimization approach. By framing alignment as a direct optimization problem, DDRO simplifies the ranking optimization pipeline of GenIR models while offering a viable alternative to reinforcement learning-based methods.",
+          "claimed_authors": [
+            "Kidist Amde Mekonnen",
+            "Yubao Tang",
+            "Maarten de Rijke"
+          ],
+          "claimed_title": "Lightweight and Direct Document Relevance Optimization for Generative Information Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.05181"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title='Lightweight and Direct Document Relevance Optimization for Generative Information Retrieval')",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a novel treebank-driven approach to comparing syntactic structures in speech and writing using dependency-parsed corpora. Adopting a fully inductive, bottom-up method, we define syntactic structures as delexicalized dependency (sub)trees and extract them from spoken and written Universal Dependencies (UD) treebanks in two syntactically distinct languages, English and Slovenian. For each corpus, we analyze the size, diversity, and distribution of syntactic inventories, their overlap across modalities, and the structures most characteristic of speech. Results show that, across both languages, spoken corpora contain fewer and less diverse syntactic structures than their written counterparts, with consistent cross-linguistic preferences for certain structural types across modalities. Strikingly, the overlap between spoken and written syntactic inventories is very limited: most structures attested in speech do not occur in writing, pointing to modality-specific preferences in syntactic organization that reflect the distinct demands of real-time interaction and elaborated writing. This contrast is further supported by a keyness analysis of the most frequent speech-specific structures, which highlights patterns associated with interactivity, context-grounding, and economy of expression. We argue that this scalable, language-independent framework offers a useful general method for systematically studying syntactic variation across corpora, laying the groundwork for more comprehensive data-driven theories of grammar in use.",
+          "claimed_authors": [
+            "Kaja Dobrovoljc"
+          ],
+          "claimed_title": "Counting trees: A treebank-driven exploration of syntactic variation in speech and writing across languages",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.22774"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title='Counting trees: A treebank-driven exploration of syntactic variation in speech and writing across languages')",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Since the introduction of ChatGPT, large language models (LLMs) have demonstrated significant utility in various tasks, such as answering questions through retrieval-augmented generation. Context can be retrieved using a vectorized database, serving as a foundation for LLMs to generate responses. However, hallucinations in responses can undermine the reliability of LLMs in practical applications, and they are not easily detectable in the absence of ground truth, particularly in question-and-answer scenarios. This paper proposes a framework that integrates multiple small language models to verify responses generated by LLMs using the retrieved context from a vectorized database. By breaking down the responses into individual sentences and utilizing the probability of generating \"Yes\" tokens from the outputs of multiple models for a given set of questions, responses, and relevant context, hallucinations can be detected. The proposed framework is validated through experiments with real datasets comprising over 100 sets of questions, answers, and contexts, including responses with fully and partially correct sentences. The results demonstrate a 10\\% improvement in F1 scores for detecting correct responses compared to hallucinations, indicating that multiple small language models can be effectively employed for answer verification, providing a scalable and efficient solution for both academic and practical applications.",
+          "claimed_authors": [
+            "Ming Cheung"
+          ],
+          "claimed_title": "Hallucination Detection with Small Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.22486"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title='Hallucination Detection with Small Language Models')",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hallucination, where models generate fluent text unsupported by visual evidence, remains a major flaw in vision-language models and is particularly critical in sign language translation (SLT). In SLT, meaning depends on precise grounding in video, and gloss-free models are especially vulnerable because they map continuous signer movements directly into natural language without intermediate gloss supervision that serves as alignment. We argue that hallucinations arise when models rely on language priors rather than visual input. To capture this, we propose a token-level reliability measure that quantifies how much the decoder uses visual information. Our method combines feature-based sensitivity, which measures internal changes when video is masked, with counterfactual signals, which capture probability differences between clean and altered video inputs. These signals are aggregated into a sentence-level reliability score, providing a compact and interpretable measure of visual grounding. We evaluate the proposed measure on two SLT benchmarks (PHOENIX-2014T and CSL-Daily) with both gloss-based and gloss-free models. Our results show that reliability predicts hallucination rates, generalizes across datasets and architectures, and decreases under visual degradations. Beyond these quantitative trends, we also find that reliability distinguishes grounded tokens from guessed ones, allowing risk estimation without references; when combined with text-based signals (confidence, perplexity, or entropy), it further improves hallucination risk estimation. Qualitative analysis highlights why gloss-free models are more susceptible to hallucinations. Taken together, our findings establish reliability as a practical and reusable tool for diagnosing hallucinations in SLT, and lay the groundwork for more robust hallucination detection in multimodal generation.",
+          "claimed_authors": [
+            "Yasser Hamidullah",
+            "Koel Dutta Chowdhury",
+            "Yusser Al Ghussin",
+            "Shakib Yazdani",
+            "Cennet Oguz",
+            "Josef van Genabith",
+            "Cristina España-Bonet"
+          ],
+          "claimed_title": "Grounding or Guessing? Visual Signals for Detecting Hallucinations in Sign Language Translation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.18439"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GrepSeek: Training Search Agents for Direct Corpus', candidate_title='Grounding or Guessing? Visual Signals for Detecting Hallucinations in Sign Language Translation')",
+        "failed_at": "2026-07-13T10:34:35Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuchen Zhuang",
+            "Aaron Trinh",
+            "Rushi Qiang",
+            "Haotian Sun",
+            "Chao Zhang",
+            "Hanjun Dai",
+            "Bo Dai"
+          ],
+          "title": "Towards Better Instruction Following Retrieval Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.21439",
+        "summary": "Modern information retrieval (IR) models, trained exclusively on standard <query, passage> pairs, struggle to effectively interpret and follow explicit user instructions. We introduce InF-IR, a large-scale, high-quality training corpus tailored for enhancing retrieval models in Instruction-Following IR. InF-IR expands traditional training pairs into over 38,000 expressive <instruction, query, passage> triplets as positive samples. In particular, for each positive triplet, we generate two additional hard negative examples by poisoning both instructions and queries, then rigorously validated by an advanced reasoning model (o3-mini) to ensure semantic plausibility while maintaining instructional incorrectness. Unlike existing corpora that primarily support computationally intensive reranking tasks for decoder-only language models, the highly contrastive positive-negative triplets in InF-IR further enable efficient representation learning for smaller encoder-only models, facilitating direct embedding-based retrieval. Using this corpus, we train InF-Embed, an instruction-aware Embedding model optimized through contrastive learning and instruction-query attention mechanisms to align retrieval outcomes precisely with user intents. Extensive experiments across five instruction-based retrieval benchmarks demonstrate that InF-Embed significantly surpasses competitive baselines by 8.1% in p-MRR, measuring the instruction-following capabilities.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.21439",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T10:34:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vlad A. Neacsu"
+          ],
+          "title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.14257",
+        "summary": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.14257",
+          "http_status": 200,
+          "pdf_sample_score": 0.3309,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T10:34:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jing Yu Koh",
+            "Stephen McAleer",
+            "Daniel Fried",
+            "Ruslan Salakhutdinov"
+          ],
+          "title": "Tree Search for Language Model Agents",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.01476",
+        "summary": "Autonomous agents powered by language models (LMs) have demonstrated promise in their ability to perform decision-making tasks such as web automation. However, a key limitation remains: LMs, primarily optimized for natural language understanding and generation, struggle with multi-step reasoning, planning, and using environmental feedback when attempting to solve realistic computer tasks. Towards addressing this, we propose an inference-time search algorithm for LM agents to explicitly perform exploration and multi-step planning in interactive web environments. Our approach is a form of best-first tree search that operates within the actual environment space, and is complementary with most existing state-of-the-art agents. It is the first tree search algorithm for LM agents that shows effectiveness on realistic web tasks. On the challenging VisualWebArena benchmark, applying our search algorithm on top of a GPT-4o agent yields a 39.7% relative increase in success rate compared to the same baseline without search, setting a state-of-the-art success rate of 26.4%. On WebArena, search also yields a 28.0% relative improvement over a baseline agent, setting a competitive success rate of 19.2%. Our experiments highlight the effectiveness of search for web agents, and we demonstrate that performance scales with increased test-time compute. We conduct a thorough analysis of our results to highlight improvements from search, limitations, and promising directions for future work. Our code and models are publicly released at https://jykoh.com/search-agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.01476",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T10:34:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Meng Xiao",
+            "Xunxin Cai",
+            "Qingqing Long",
+            "Chengrui Wang",
+            "Yuanchun Zhou",
+            "Hengshu Zhu"
+          ],
+          "title": "Knowledge-Driven Agentic Scientific Corpus Distillation Framework for Biomedical Large Language Models Training",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.19565",
+        "summary": "Corpus distillation for biomedical large language models (LLMs) seeks to address the pressing challenge of insufficient quantity and quality in open-source annotated scientific corpora, which remains a bottleneck for effective LLM training in biomedical research. This paper proposes a knowledge-driven, agentic framework for scientific corpus distillation, tailored explicitly for LLM training in the biomedical domain, addressing the challenge posed by the complex hierarchy of biomedical knowledge. Central to our approach is a collaborative multi-agent architecture, where specialized agents, each guided by the Medical Subject Headings (MeSH) hierarchy, work in concert to autonomously extract, synthesize, and self-evaluate high-quality textual data from vast scientific literature. This agentic framework collectively generates and refines domain-specific question-answer pairs, ensuring comprehensive coverage and consistency with biomedical ontologies while minimizing manual involvement. Extensive experimental results show that language models trained on our multi-agent distilled datasets achieve notable improvements in biomedical question-answering tasks, outperforming both strong life sciences LLM baselines and advanced proprietary models. Notably, our AI-Ready dataset enables Llama3-70B to surpass GPT-4 with MedPrompt and Med-PaLM-2, despite their larger scale. Detailed ablation studies and case analyses further validate the effectiveness and synergy of each agent within the framework, highlighting the potential of multi-agent collaboration in biomedical LLM training.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2504.19565",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T10:34:45Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"grepseek: training search agents for direct corpus interaction\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

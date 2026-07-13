@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.05991",
+  "judged_at": "2026-07-13T10:35:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"grepseek: training search agents for direct corpus interaction\" linguistics",
+  "rationale": "The paper focuses on e-commerce search relevance optimization using multi-agent systems, which is an off-domain application distinct from the user's specific interest in linguistics and corpus interaction for search agents. While both involve \"search agents,\" the paper does not measure the same biological, algorithmic, or linguistic mechanisms, nor does it provide a foundational methodology for the specific domain of linguistic corpus analysis requested.",
+  "relevant": false
+}

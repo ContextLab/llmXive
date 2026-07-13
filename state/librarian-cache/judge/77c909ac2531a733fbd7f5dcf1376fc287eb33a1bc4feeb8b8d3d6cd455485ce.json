@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.21439",
+  "judged_at": "2026-07-13T10:34:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"grepseek: training search agents for direct corpus interaction\" linguistics",
+  "rationale": "This paper satisfies criterion (b) by measuring the dependent variable of \"instruction-following capability\" in retrieval models, which is the core mechanism of the user's \"GrepSeek\" search agents, and criterion (f) by providing the canonical alternative-vocabulary cluster (instruction-following IR, instruction-aware embeddings) for the user's query about training search agents for direct corpus interaction.",
+  "relevant": true
+}

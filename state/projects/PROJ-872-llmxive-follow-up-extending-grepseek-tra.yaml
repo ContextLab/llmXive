@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T14:09:49.813496Z'
-current_stage: brainstormed
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-872-llmxive-follow-up-extending-grepseek-tra
-last_run_id: null
+last_run_id: b403fcea-d801-4960-8148-5d7899648b38
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "GrepSeek: Training Search Agents for Direct
   Corpus Interaction"'
-updated_at: '2026-07-02T14:09:49.813496Z'
+updated_at: '2026-07-13T10:38:07.695574Z'

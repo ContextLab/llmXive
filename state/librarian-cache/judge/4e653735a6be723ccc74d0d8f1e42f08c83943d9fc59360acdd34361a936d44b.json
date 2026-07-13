@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.19565",
+  "judged_at": "2026-07-13T10:35:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"grepseek: training search agents for direct corpus interaction\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (training search/agent systems for direct corpus interaction and distillation) and domain (LLM training on scientific corpora) as the user's question, even though it applies the methodology to the biomedical domain rather than linguistics. It serves as a canonical reference for the \"agentic corpus distillation\" approach the user is extending.",
+  "relevant": true
+}
