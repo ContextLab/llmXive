@@ -1,0 +1,701 @@
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: verify 5 percent absolute improvement over both baselines
+  claim_id: c_3c8ed333
+  context: "Implement accuracy calculation in `code/evaluate.py` to verify \u2265\
+    \ 5% absolute improvement over both baselines"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u2265 5% absolute improvement over both baselines"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:46:31Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 2
+  canonical: train transformer encoder with less than 10 million parameters
+  claim_id: c_dd1ae68a
+  context: 'Goal: Train a <10M parameter Transformer encoder on the generated dataset
+    using only translation trajectories, ensuring execution within 6 hours on a 2-core
+    CPU with 7GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Train_transformer_encoder_with_less_than_10_million_paramete
+  kind: magnitude
+  raw_text: Train a <10M parameter Transformer encoder
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:51:40Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 2
+  canonical: execution within 6 hours on 2-core CPU with 7GB RAM
+  claim_id: c_617f2fa7
+  context: 'Goal: Train a <10M parameter Transformer encoder on the generated dataset
+    using only translation trajectories, ensuring execution within 6 hours on a 2-core
+    CPU with 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execution within 6 hours on a 2-core CPU with 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:51:40Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: test set contains 1000 rows
+  claim_id: c_38f2e36a
+  context: "Assert dataset validity: Add a validation step to code/generate_data.py\
+    \ that asserts the total row count of train.parquet + test.parquet is \u2265 5,000\
+    \ AND explicitly asserts that test.parquet contains \u2265 1,000 rows to ensure\
+    \ statistical power for US-3."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Test set contains \u2265 1,000 rows"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:51:40Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: verify 5 percent absolute improvement over baselines
+  claim_id: c_e0644677
+  context: "Implement accuracy calculation in code/evaluate.py to verify \u2265 5%\
+    \ absolute improvement over both baselines"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u2265 5% absolute improvement over both baselines"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:51:40Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: default thresholds tipping angle 15.0 and slippage 0.02
+  claim_id: c_4a608b98
+  context: Create code/config.yaml with default thresholds (tipping_angle=15.0, slippage=0.02)
+    and structure for sensitivity analysis parameters
+  evidence:
+    asserted: '15.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Thresholds: tipping_angle=15.0, slippage=0.02'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-12T23:51:40Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: Generate 5000 bi-manual manipulation episodes using PyBullet on CPU
+  claim_id: c_a25f0519
+  context: "Goal: Generate \u22655,000 bi-manual manipulation episodes using PyBullet\
+    \ on CPU, labeling them with stability outcomes based on physics metrics, ensuring\
+    \ strict exclusion of rotation/force data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate \u22655,000 bi-manual manipulation episodes using PyBullet on\
+    \ CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:59:59Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: Train a 10 million parameter Transformer encoder
+  claim_id: c_55a29564
+  context: 'Goal: Train a <10M parameter Transformer encoder using only translation
+    trajectories, ensuring execution within 6 hours on a 2-core CPU with 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a <10M parameter Transformer encoder
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-12T23:59:59Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: Model training execution within 6 hours on 2-core CPU with 7GB RAM
+  claim_id: c_20541120
+  context: 'Goal: Train a <10M parameter Transformer encoder using only translation
+    trajectories, ensuring execution within 6 hours on a 2-core CPU with 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure execution within 6 hours on a 2-core CPU with 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:00:41Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: Test dataset contains 1000 rows
+  claim_id: c_e67604b4
+  context: "Assert dataset validity: Add a validation step to code/generate_data.py\
+    \ that asserts the total row count of train.parquet + test.parquet is \u2265 5,000\
+    \ AND explicitly asserts that test.parquet contains \u2265 1,000 rows to ensure\
+    \ statistical power for US-3."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure test.parquet contains \u2265 1,000 rows"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:00:41Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: Tipping angle threshold of 15.0 degrees
+  claim_id: c_64350eda
+  context: Create code/config.yaml with default thresholds (tipping_angle=15.0, slippage=0.02)
+    and structure for sensitivity analysis parameters
+  evidence:
+    asserted: '15.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Use tipping angle threshold of 15.0 degrees
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T00:00:41Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: Slippage threshold of 0.02 meters
+  claim_id: c_07926903
+  context: Create code/config.yaml with default thresholds (tipping_angle=15.0, slippage=0.02)
+    and structure for sensitivity analysis parameters
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use slippage threshold of 0.02 meters
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:04:14Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis with thresholds swept 5 percent
+  claim_id: c_4c46028d
+  context: "Implement sensitivity analysis in code/evaluate.py to call the re-labeling\
+    \ function from T018 (which sweeps thresholds \xB15% on raw data and re-runs the\
+    \ geometry-disjoint split logic T016c) to compute metrics for each sweep and report\
+    \ accuracy variance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement sensitivity analysis with thresholds swept \xB15%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:04:14Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: generate at least 5000 bi-manual manipulation episodes using PyBullet
+    on CPU
+  claim_id: c_6cc4e629
+  context: "Goal: Generate \u22655,000 bi-manual manipulation episodes using PyBullet\
+    \ on CPU, labeling them with stability outcomes based on physics metrics, ensuring\
+    \ strict exclusion of rotation/force data."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_5000_bi-manual_manipulation_episodes_using
+  kind: magnitude
+  raw_text: "Generate \u22655,000 bi-manual manipulation episodes using PyBullet on\
+    \ CPU"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:06:04Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: train a transformer encoder with less than 10 million parameters
+  claim_id: c_1810c571
+  context: 'Goal: Train a <10M parameter Transformer encoder using only translation
+    trajectories, ensuring execution within 6 hours on a 2-core CPU with 7GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Train_a_transformer_encoder_with_less_than_10_million_parame
+  kind: magnitude
+  raw_text: Train a <10M parameter Transformer encoder
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:06:07Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: ensure execution within 6 hours on a 2-core CPU with 7GB RAM
+  claim_id: c_339022b9
+  context: 'Goal: Train a <10M parameter Transformer encoder using only translation
+    trajectories, ensuring execution within 6 hours on a 2-core CPU with 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure execution within 6 hours on a 2-core CPU with 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:06:07Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: ensure at least 5 percent accuracy improvement on novel geometries
+  claim_id: c_f9c78c91
+  context: "Goal: Statistically validate the translation-only model against a geometry-only\
+    \ baseline and a shuffled-translation control using McNemar's test, ensuring \u2265\
+    \ 5% accuracy improvement on novel geometries and reporting results associatively."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_at_least_5_percent_accuracy_improvement_on_novel_geom
+  kind: magnitude
+  raw_text: "ensure \u2265 5% accuracy improvement on novel geometries"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:07:18Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: assert test parquet contains at least 1000 rows
+  claim_id: c_afc78a61
+  context: "T016d [US1] **Assert dataset validity**: Add a validation step to `code/generate_data.py`\
+    \ that asserts the total row count of `train.parquet` + `test.parquet` is \u2265\
+    \ 5,000 AND explicitly asserts that `test.parquet` contains \u2265 1,000 rows\
+    \ to ensure statistical power for US-3."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_test_parquet_contains_at_least_1000_rows
+  kind: magnitude
+  raw_text: "asserts that test.parquet contains \u2265 1,000 rows"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:07:53Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: tipping angle threshold 15 degrees or slippage threshold 0.02 meters
+  claim_id: c_2fc78374
+  context: "T014 [US1] Implement labeling logic in `code/generate_data.py` to assign\
+    \ binary stability (1/0) based on **thresholds loaded from `config.yaml`** (tipping\
+    \ angle \u2265 15\xB0 or slippage \u2265 0.02m)"
+  evidence:
+    asserted: '15.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "thresholds (tipping angle \u2265 15\xB0 or slippage \u2265 0.02m)"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T00:07:53Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: default tipping angle 15.0 and slippage 0.02
+  claim_id: c_6de95fdb
+  context: T005b Create `code/config.yaml` with default thresholds (tipping_angle=15.0,
+    slippage=0.02) and structure for sensitivity analysis parameters
+  evidence:
+    asserted: '15.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: default thresholds (tipping_angle=15.0, slippage=0.02)
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T00:07:53Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: sweep thresholds plus or minus 5 percent on raw data
+  claim_id: c_b830d13f
+  context: "T033 [US3] Implement sensitivity analysis in `code/evaluate.py` to **call\
+    \ the re-labeling function from T018** (which sweeps thresholds \xB15% on raw\
+    \ data and **re-runs the geometry-disjoint split logic T016c**) to compute metrics\
+    \ for each sweep and report accuracy variance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sweep thresholds \xB15% on raw data"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:07:53Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: Generate at least 5000 bi-manual manipulation episodes using PyBullet
+    on CPU
+  claim_id: c_71a947d0
+  context: "Goal: Generate \u22655,000 bi-manual manipulation episodes using PyBullet\
+    \ on CPU, labeling them with stability outcomes based on physics metrics, ensuring\
+    \ strict exclusion of rotation/force data."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_5000_bi-manual_manipulation_episodes_using
+  kind: magnitude
+  raw_text: "Generate \u22655,000 bi-manual manipulation episodes using PyBullet on\
+    \ CPU"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:08:33Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: Train a Transformer encoder with fewer than 10 million parameters
+  claim_id: c_7cc3f0b3
+  context: 'Goal: Train a <10M parameter Transformer encoder using only translation
+    trajectories, ensuring execution within 6 hours on a 2-core CPU with 7GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Train_a_Transformer_encoder_with_fewer_than_10_million_param
+  kind: magnitude
+  raw_text: Train a <10M parameter Transformer encoder
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:08:38Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: Execution within 6 hours on a 2-core CPU with 7GB RAM
+  claim_id: c_29bebd7a
+  context: 'Goal: Train a <10M parameter Transformer encoder using only translation
+    trajectories, ensuring execution within 6 hours on a 2-core CPU with 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execution within 6 hours on a 2-core CPU with 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:08:38Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: Tipping angle threshold of 15 degrees or slippage threshold of 0.02 meters
+  claim_id: c_fe7d66cb
+  context: "Implement labeling logic in `code/generate_data.py` to assign binary stability\
+    \ (1/0) based on **thresholds loaded from `config.yaml`** (tipping angle \u2265\
+    \ 15\xB0 or slippage \u2265 0.02m)"
+  evidence:
+    asserted: '15.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Tipping angle \u2265 15\xB0 or slippage \u2265 0.02m"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T00:08:38Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: Test dataset contains at least 1000 rows
+  claim_id: c_4de949b6
+  context: "Add a validation step to `code/generate_data.py` that asserts the total\
+    \ row count of `train.parquet` + `test.parquet` is \u2265 5,000 AND explicitly\
+    \ asserts that `test.parquet` contains \u2265 1,000 rows to ensure statistical\
+    \ power for US-3."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_dataset_contains_at_least_1000_rows
+  kind: magnitude
+  raw_text: "test.parquet contains \u2265 1,000 rows"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:09:23Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: At least 5 percent accuracy improvement on novel geometries
+  claim_id: c_bef2ef92
+  context: "Goal: Statistically validate the translation-only model against a geometry-only\
+    \ baseline and a shuffled-translation control using McNemar's test, ensuring \u2265\
+    \ 5% accuracy improvement on novel geometries and reporting results associatively."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_5_percent_accuracy_improvement_on_novel_geometries
+  kind: magnitude
+  raw_text: "\u2265 5% accuracy improvement on novel geometries"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:10:20Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 0
+  canonical: tipping angle 15 degrees or slippage 0.02 meters
+  claim_id: c_6db7769b
+  context: "Implement labeling logic in `code/generate_data.py` to assign binary stability\
+    \ (1/0) based on **thresholds loaded from `config.yaml`** (tipping angle \u2265\
+    \ 15\xB0 or slippage \u2265 0.02m)"
+  evidence:
+    asserted: '15.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "tipping angle \u2265 15\xB0 or slippage \u2265 0.02m"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T00:18:42Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: train a 10 million parameter Transformer encoder
+  claim_id: c_784c5165
+  context: 'Goal: Train a <10M parameter Transformer encoder using only translation
+    trajectories, ensuring execution within 6 hours on a 2-core CPU with 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a <10M parameter Transformer encoder
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:18:42Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: execution within 6 hours on a 2-core CPU with 7GB RAM
+  claim_id: c_d280756e
+  context: 'Goal: Train a <10M parameter Transformer encoder using only translation
+    trajectories, ensuring execution within 6 hours on a 2-core CPU with 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execution within 6 hours on a 2-core CPU with 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:18:42Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 2
+  canonical: test set contains 1000 rows
+  claim_id: c_f4d69898
+  context: "Add a validation step to `code/generate_data.py` that asserts the total\
+    \ row count of `train.parquet` + `test.parquet` is \u2265 5,000 AND explicitly\
+    \ asserts that `test.parquet` contains \u2265 1,000 rows to ensure statistical\
+    \ power for US-3."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Test set contains \u2265 1,000 rows"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:18:42Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 2
+  canonical: 5 percent accuracy improvement on novel geometries
+  claim_id: c_74c25702
+  context: "Goal: Statistically validate the translation-only model against a geometry-only\
+    \ baseline and a shuffled-translation control using McNemar's test, ensuring \u2265\
+    \ 5% accuracy improvement on novel geometries and reporting results associatively."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure \u2265 5% accuracy improvement on novel geometries"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:18:42Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 4
+  canonical: generate 5000 bi-manual manipulation episodes using PyBullet on CPU
+  claim_id: c_c791e4bd
+  context: "Goal: Generate \u22655,000 bi-manual manipulation episodes using PyBullet\
+    \ on CPU, labeling them with stability outcomes based on physics metrics, ensuring\
+    \ strict exclusion of rotation/force data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate \u22655,000 bi-manual manipulation episodes using PyBullet on\
+    \ CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:19:23Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: train transformer encoder with less than 10 million parameters
+  claim_id: c_de525eeb
+  context: 'Goal: Train a <10M parameter Transformer encoder using only translation
+    trajectories, ensuring execution within 6 hours on a 2-core CPU with 7GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Train_transformer_encoder_with_less_than_10_million_paramete
+  kind: magnitude
+  raw_text: Train a <10M parameter Transformer encoder
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:19:26Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: execute within 6 hours on 2-core CPU with 7GB RAM
+  claim_id: c_27ce9442
+  context: 'Goal: Train a <10M parameter Transformer encoder using only translation
+    trajectories, ensuring execution within 6 hours on a 2-core CPU with 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execution within 6 hours on a 2-core CPU with 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:19:26Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: ensure 5 percent accuracy improvement on novel geometries
+  claim_id: c_bd918c0b
+  context: "Goal: Statistically validate the translation-only model against a geometry-only\
+    \ baseline and a shuffled-translation control using McNemar's test, ensuring Ensure\
+    \ \u2265 5% accuracy improvement on novel geometries and reporting results associatively."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure \u2265 5% accuracy improvement on novel geometries"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:19:26Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: test parquet contains 1000 rows
+  claim_id: c_839acb7d
+  context: "Add a validation step to code/generate_data.py that asserts the total\
+    \ row count of train.parquet + test.parquet is \u2265 5,000 AND explicitly asserts\
+    \ that test.parquet contains \u2265 1,000 rows to ensure statistical power for\
+    \ US-3."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "test.parquet contains \u2265 1,000 rows"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:19:26Z'
+- artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/tasks.md
+  attempts: 1
+  canonical: sweep thresholds 5 percent on raw data
+  claim_id: c_b1d3a2eb
+  context: "Implement sensitivity analysis in code/evaluate.py to call the re-labeling\
+    \ function from T018 (which sweeps thresholds \xB15% on raw data and re-runs the\
+    \ geometry-disjoint split logic T016c) to compute metrics for each sweep and report\
+    \ accuracy variance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sweep thresholds \xB15% on raw data"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T00:19:27Z'

@@ -20,33 +20,33 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-855-llmxive-follow-up-extending-translation/`) **including the `contracts/` directory**
-- [ ] T001b Generate `contracts/dataset.schema.yaml` and `contracts/model_output.schema.yaml` based on `data-model.md` definitions to ensure contract tests have valid schemas to validate against
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan (`projects/PROJ-855-llmxive-follow-up-extending-translation/`) **including the `contracts/` directory**
+- [X] T001b Generate `contracts/dataset.schema.yaml` and `contracts/model_output.schema.yaml` based on `data-model.md` definitions to ensure contract tests have valid schemas to validate against
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -56,9 +56,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/utils/data_utils.py` for schema validation and checksum verification
-- [ ] T005a [P] Implement `code/utils/physics_metrics.py` for tipping angle and slippage distance calculations, **including loading configurable thresholds from `config.yaml`**
-- [ ] T005b Create `code/config.yaml` with default thresholds (tipping_angle=15.0, slippage=0.02) and structure for sensitivity analysis parameters
+- [X] T004 [P] Implement `code/utils/data_utils.py` for schema validation and checksum verification
+- [X] T005a [P] Implement `code/utils/physics_metrics.py` for tipping angle and slippage distance calculations, **including loading configurable thresholds from `config.yaml`**
+- [X] T005b Create `code/config.yaml` with {{claim:c_6de95fdb}} and structure for sensitivity analysis parameters
 - [ ] T006 Create `data/` directory structure (`raw/`, `processed/`) and initialize `data/checksums.json`
 - [ ] T007 [P] Implement `tests/unit/test_labeling.py` to validate physics metric logic
 - [ ] T008 [P] Implement `tests/contract/test_schemas.py` to validate output against `specs/001-gene-regulation/contracts/`
@@ -82,17 +82,17 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/generate_data.py` with PyBullet simulation, noise injection, and episode generation loop
-- [ ] T012 [US1] Implement logic in `code/generate_data.py` to record ONLY relative wrist translation vectors and initial object bounding box coordinates
-- [ ] T013 [US1] Implement logic in `code/generate_data.py` to discard rotation quaternions, joint torques, and force sensor readings explicitly
-- [ ] T014 [US1] Implement labeling logic in `code/generate_data.py` to assign binary stability (1/0) based on **thresholds loaded from `config.yaml`** (tipping angle ≥ 15° or slippage ≥ 0.02m)
-- [ ] T015 [US1] Implement error handling in `code/generate_data.py` to catch numerical instabilities, discard incomplete episodes, and generate replacements to ensure ≥ 5,000 valid rows
-- [ ] T016 [US1] Save generated dataset to `data/raw/synthetic_episodes.parquet` and update `data/checksums.json`
-- [ ] T017 [US1] **Validate Raw Data**: Add validation step in `code/generate_data.py` to verify no forbidden columns exist **in the just-saved raw file** (enforcing FR-001). **This task must run immediately after T016**.
-- [ ] T016b [US1] **Derive** model-ready data from `data/raw/synthetic_episodes.parquet` to `data/processed/train.parquet` and `data/processed/test.parquet`; **ensure raw data remains immutable by reading only** and writing new files to `data/processed/`
-- [ ] T016c [US1] **Implement geometry-disjoint split**: In `code/generate_data.py` (or a helper script), split the raw data into train/test sets **based on unique object geometry IDs** to ensure the test set contains ONLY geometries not present in the training set. Save these as `data/processed/train.parquet` and `data/processed/test.parquet`.
-- [ ] T016d [US1] **Assert dataset validity**: Add a validation step to `code/generate_data.py` that asserts the total row count of `train.parquet` + `test.parquet` is ≥ 5,000 AND explicitly asserts that `test.parquet` contains ≥ 1,000 rows to ensure statistical power for US-3. Fail the script if these thresholds are not met.
-- [ ] T018 [US1] **Re-labeling for Sensitivity**: Add a function to `code/generate_data.py` that accepts custom thresholds (from `config.yaml` sweep), re-computes labels on the **raw** `synthetic_episodes.parquet`, and **re-executes the geometry-disjoint split logic (T016c)** to produce new processed splits for sensitivity analysis.
+- [~] T011 [US1] Implement `code/generate_data.py` with PyBullet simulation, noise injection, and episode generation loop
+- [~] T012 [US1] Implement logic in `code/generate_data.py` to record ONLY relative wrist translation vectors and initial object bounding box coordinates
+- [~] T013 [US1] Implement logic in `code/generate_data.py` to discard rotation quaternions, joint torques, and force sensor readings explicitly
+- [~] T014 [US1] Implement labeling logic in `code/generate_data.py` to assign binary stability (1/0) based on **thresholds loaded from `config.yaml`** ({{claim:c_6db7769b}})
+- [~] T015 [US1] Implement error handling in `code/generate_data.py` to catch numerical instabilities, discard incomplete episodes, and generate replacements to ensure ≥ 5,000 valid rows
+- [~] T016 [US1] Save generated dataset to `data/raw/synthetic_episodes.parquet` and update `data/checksums.json`
+- [~] T017 [US1] **Validate Raw Data**: Add validation step in `code/generate_data.py` to verify no forbidden columns exist **in the just-saved raw file** (enforcing FR-001). **This task must run immediately after T016**.
+- [~] T016b [US1] **Derive** model-ready data from `data/raw/synthetic_episodes.parquet` to `data/processed/train.parquet` and `data/processed/test.parquet`; **ensure raw data remains immutable by reading only** and writing new files to `data/processed/`
+- [~] T016c [US1] **Implement geometry-disjoint split**: In `code/generate_data.py` (or a helper script), split the raw data into train/test sets **based on unique object geometry IDs** to ensure the test set contains ONLY geometries not present in the training set. Save these as `data/processed/train.parquet` and `data/processed/test.parquet`.
+- [~] T016d [US1] **Assert dataset validity**: Add a validation step to `code/generate_data.py` that asserts the total row count of `train.parquet` + `test.parquet` is ≥ 5,000 AND explicitly asserts that `test.parquet` contains ≥ 1,000 rows to ensure statistical power for US-3. Fail the script if these thresholds are not met.
+- [~] T018 [US1] **Re-labeling for Sensitivity**: Add a function to `code/generate_data.py` that accepts custom thresholds (from `config.yaml` sweep), re-computes labels on the **raw** `synthetic_episodes.parquet`, and **re-executes the geometry-disjoint split logic (T016c)** to produce new processed splits for sensitivity analysis.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,24 +100,24 @@
 
 ## Phase 4: User Story 2 - Lightweight Sequence Model Training (Priority: P2)
 
-**Goal**: Train a <10M parameter Transformer encoder on the generated dataset using only translation trajectories, ensuring execution within 6 hours on a 2-core CPU with 7GB RAM.
+**Goal**: Train a <10M parameter Transformer encoder using only translation trajectories, ensuring execution within 6 hours on a 2-core CPU with 7GB RAM.
 
 **Independent Test**: The system can be tested by initiating the training job on a standard GitHub Actions runner (2 CPU, 7GB RAM) and verifying that the job completes without OOM errors, GPU allocation failures, or exceeding the 6-hour time limit.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for model architecture parameter count in `tests/unit/test_model_params.py`
-- [ ] T020 [P] [US2] Integration test for CPU-only training loop in `tests/integration/test_cpu_training.py`
+- [~] T019 [P] [US2] Unit test for model architecture parameter count in `tests/unit/test_model_params.py`
+- [~] T020 [P] [US2] Integration test for CPU-only training loop in `tests/integration/test_cpu_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/models/transformer.py` with a 4-layer Transformer encoder constrained to <10M parameters
-- [ ] T022 [US2] Implement `code/train_model.py` to load data from `data/processed/` (specifically `train.parquet`) and configure CPU-only training (no CUDA, no bitsandbytes)
-- [ ] T023 [US2] Implement training loop in `code/train_model.py` using binary cross-entropy loss, default floating-point precision, **integrated timeout handling**, and **instrument `psutil` to log peak RAM usage to stdout with prefix `[RAM-PEAK-MB]: <value>`** to satisfy SC-002 verification.
-- [ ] T024 [US2] Save trained model weights to `data/processed/trained_model.pt` and log parameter count
-- [ ] T025 [US2] Verify model summary output confirms < 10,000,000 parameters before saving
-- [ ] T027b [US2] **Train Geometry-Only Baseline**: Implement a lightweight model (Logistic Regression or simple MLP) in `code/train_baseline.py` that uses **only** the `initial_object_bounds` feature to predict stability; save to `data/processed/baseline_model.pt`. **Depends on T016b/T016c (processed data)**.
-- [ ] T027c [US2] **Train Shuffled-Translation Control**: Implement a training script `code/train_shuffled_control.py` that loads `train.parquet`, **randomly shuffles the translation trajectory sequences** to break temporal correlation while preserving marginal distributions, and trains a model on this data; save to `data/processed/shuffled_control_model.pt`.
+- [~] T021 [US2] Implement `code/models/transformer.py` with a 4-layer Transformer encoder constrained to <10M parameters
+- [~] T022 [US2] Implement `code/train_model.py` to load data from `data/processed/` (specifically `train.parquet`) and configure CPU-only training (no CUDA, no bitsandbytes)
+- [~] T023 [US2] Implement training loop in `code/train_model.py` using binary cross-entropy loss, default floating-point precision, **integrated timeout handling**, and **instrument `psutil` to log peak RAM usage to stdout with prefix `[RAM-PEAK-MB]: <value>`** to satisfy SC-002 verification.
+- [~] T024 [US2] Save trained model weights to `data/processed/trained_model.pt` and log parameter count
+- [~] T025 [US2] Verify model summary output confirms < 10,000,000 parameters before saving
+- [~] T027b [US2] **Train Geometry-Only Baseline**: Implement a lightweight model (Logistic Regression or simple MLP) in `code/train_baseline.py` that uses **only** the `initial_object_bounds` feature to predict stability; save to `data/processed/baseline_model.pt`. **Depends on T016b/T016c (processed data)**.
+- [~] T027c [US2] **Train Shuffled-Translation Control**: Implement a training script `code/train_shuffled_control.py` that loads `train.parquet`, **randomly shuffles the translation trajectory sequences** to break temporal correlation while preserving marginal distributions, and trains a model on this data; save to `data/processed/shuffled_control_model.pt`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, and all baseline models are ready for evaluation.
 
@@ -125,7 +125,7 @@
 
 ## Phase 5: User Story 3 - Statistical Validation & Baseline Comparison (Priority: P3)
 
-**Goal**: Statistically validate the translation-only model against a geometry-only baseline and a shuffled-translation control using McNemar's test, ensuring ≥ 5% accuracy improvement on novel geometries and reporting results associatively.
+**Goal**: Statistically validate the translation-only model against a geometry-only baseline and a shuffled-translation control using McNemar's test, ensuring Ensure ≥ 5% accuracy improvement on novel geometries and reporting results associatively.
 
 **Independent Test**: The system can be tested by running the evaluation script on the held-out test set and verifying the output includes the McNemar's test p-value, the accuracy of all models, and the calculated accuracy difference.
 
@@ -169,8 +169,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -178,8 +178,8 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on T016b/T016c (data processed)** from US1. **Includes T027b and T027c (Baselines)**.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on models from US2 (T025, T027b, T027c)**.
-  - **CRITICAL**: Phase 5 tasks (T028+) **MUST WAIT** for the completion of T025, T027b, and T027c.
-  - **Sensitivity Analysis (T033)**: **Depends explicitly on T011 (Raw Generation)** and **T016c (Geometry Split)** to ensure it re-runs the split logic on re-labeled data.
+ - **CRITICAL**: Phase 5 tasks (T028+) **MUST WAIT** for the completion of T025, T027b, and T027c.
+ - **Sensitivity Analysis (T033)**: **Depends explicitly on T011 (Raw Generation)** and **T016c (Geometry Split)** to ensure it re-runs the split logic on re-labeled data.
 
 ### Within Each User Story
 
@@ -238,9 +238,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Generation)
-   - Developer B: User Story 2 (Model Training + Baselines) - *Can start once US1 data is processed (T016c)*
-   - Developer C: User Story 3 (Evaluation) - *Can start once US2 models (Main, Baseline, Control) are trained*
+ - Developer A: User Story 1 (Data Generation)
+ - Developer B: User Story 2 (Model Training + Baselines) - *Can start once US1 data is processed (T016c)*
+ - Developer C: User Story 3 (Evaluation) - *Can start once US2 models (Main, Baseline, Control) are trained*
 3. Stories complete and integrate independently
 
 ---

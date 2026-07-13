@@ -1,0 +1,79 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Model Output Schema
+description: >
+  Schema for the output of the trained Transformer model during inference/evaluation.
+  Includes predictions, probabilities, and metadata.
+type: object
+required:
+  - predictions
+  - probabilities
+  - metadata
+properties:
+  predictions:
+    type: array
+    description: Binary predictions (0 or 1) for each sample in the batch
+    items:
+      type: integer
+      enum:
+        - 0
+        - 1
+  probabilities:
+    type: array
+    description: Probability scores (0.0 to 1.0) for the positive class (stable)
+    items:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+  metadata:
+    type: object
+    description: Metadata about the inference run
+    required:
+      - model_version
+      - timestamp
+      - input_shape
+    properties:
+      model_version:
+        type: string
+        description: Version string of the model weights
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of the inference
+      input_shape:
+        type: array
+        description: Shape of the input tensor [batch_size, sequence_length, features]
+        items:
+          type: integer
+      confidence_threshold:
+        type: number
+        description: Threshold used for binarization (default 0.5)
+        default: 0.5
+        minimum: 0.0
+        maximum: 1.0
+  confusion_matrix:
+    type: object
+    description: Optional confusion matrix if ground truth is provided
+    nullable: true
+    properties:
+      true_positive:
+        type: integer
+      true_negative:
+        type: integer
+      false_positive:
+        type: integer
+      false_negative:
+        type: integer
+additionalProperties: false
+examples:
+  - predictions: [1, 0, 1]
+    probabilities: [0.89, 0.12, 0.67]
+    metadata:
+      model_version: "v1.0.0"
+      timestamp: "2023-10-27T10:00:00Z"
+      input_shape: [3, 10, 3]
+      confidence_threshold: 0.5
+    confusion_matrix:
+      true_positive: 1
+      true_negative: 1
+      false_positive: 0
+      false_negative: 1

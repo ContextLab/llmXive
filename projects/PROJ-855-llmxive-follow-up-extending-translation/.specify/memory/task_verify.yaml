@@ -1,0 +1,5 @@
+T006 Create `data/` directory structure (`raw/`, `processed/`) and initialize `data/checksums.json`: 2
+T007 [P] Implement `tests/unit/test_labeling.py` to validate physics metric logic: 1
+T008 [P] Implement `tests/contract/test_schemas.py` to validate output against `specs/001-gene-regulation/contracts/`: 1
+T009 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`: 1
+T010 [P] [US1] Unit test for stability labeling logic (tipping/slippage thresholds) in `tests/unit/test_labeling_logic.py`: 1
