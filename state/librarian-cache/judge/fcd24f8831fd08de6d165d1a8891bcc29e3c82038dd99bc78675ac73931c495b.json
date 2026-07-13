@@ -1,6 +1,6 @@
 {
   "candidate_pointer": "2305.08378",
-  "judged_at": "2026-07-13T19:21:19Z",
+  "judged_at": "2026-07-13T19:39:17Z",
   "model": "qwen.qwen3.5-122b",
   "prompt_version": "e0a9984f6571a9b4",
   "query_normalized": "predicting the impact of cold work on recrystallization kinetics in aluminum alloys materials science",

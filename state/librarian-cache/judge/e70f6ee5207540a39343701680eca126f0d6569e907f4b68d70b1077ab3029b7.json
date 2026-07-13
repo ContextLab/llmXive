@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1803.03214",
+  "judged_at": "2026-07-13T19:39:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of cold work on recrystallization kinetics in aluminum alloys materials science",
+  "rationale": "This paper qualifies under category (d) as a foundational methodology and canonical reference for grain-boundary kinetics, which is the primary physical mechanism driving recrystallization, and under category (a) because it explicitly models the kinetic behavior of grain boundaries (the mechanism) that governs microstructural evolution in polycrystals, even though it does not specifically isolate \"cold work\" as a variable.",
+  "relevant": true
+}

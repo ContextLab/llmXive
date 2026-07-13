@@ -1,101 +1,96 @@
 # Feature Specification: Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum Alloys
 
-**Feature Branch**: `001-cold-work-recrystallization`  
-**Created**: 2026-07-14  
+**Feature Branch**: `001-predict-cold-work-kinetics`  
+**Created**: 2026-07-13  
 **Status**: Draft  
 **Input**: User description: "Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum Alloys"
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing
 
-### User Story 1 - Data Ingestion and Variable Validation (Priority: P1)
+### User Story 1 - Data Ingestion and Feature Construction (Priority: P1)
 
-As a materials researcher, I want to ingest experimental data from public repositories (NIST, HuggingFace) and automatically validate that all required variables (cold work %, alloy composition, annealing temperature, time-to-peak softening) are present and within physical bounds, so that I can proceed with analysis without manual data scrubbing.
+A materials scientist needs to ingest raw experimental data from public repositories (NIST, HuggingFace) and transform it into a structured dataset containing cold work percentages, alloy compositions (Mg, Si, Cu, Mn), annealing temperatures, and time-to-peak softening, while engineering interaction features to capture pinning effects.
 
-**Why this priority**: Without valid, complete input data, no modeling or kinetic analysis can occur. This is the foundational step that ensures the dataset-variable fit required for the study.
+**Why this priority**: Without a clean, engineered dataset containing the necessary interaction terms (e.g., `cold_work * Mn_content`) and temperature-normalized kinetics, no predictive modeling can occur. This is the foundational step that enables all subsequent analysis.
 
-**Independent Test**: The system can be tested by feeding a raw CSV file containing the required columns; it must output a cleaned dataset and a validation report listing any missing variables or out-of-bounds values (e.g., negative cold work, >100% deformation) without requiring any model training.
+**Independent Test**: The system can be tested by running the data pipeline on a provided sample CSV and verifying the output DataFrame contains the required columns, calculated interaction features, and Arrhenius-normalized time variables without errors.
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset with missing "time-to-peak softening" values for [deferred] of entries, **When** the ingestion script runs, **Then** the system flags these rows for exclusion and reports the count of excluded samples in the validation log.
-2. **Given** a dataset where "cold work percentage" contains a value of -5%, **When** the ingestion script runs, **Then** the system rejects this row as physically impossible and logs a warning with the specific row ID and value.
-3. **Given** a dataset with alloy composition columns (Mg, Si, Cu) but no "alloy series" identifier, **When** the ingestion script runs, **Then** the system attempts to derive the series only if the composition falls strictly within a defined boundary for a series (e.g., Mg > 2.5% for 5xxx); if the composition is ambiguous or falls between boundaries, the system flags the record as 'Unresolved Series' for exclusion. The system prioritizes continuous solute variables over nominal series labels for downstream modeling.
+1. **Given** a raw CSV file from the NIST repository containing cold work and annealing data, **When** the ingestion script is executed, **Then** the output is a pandas DataFrame with normalized composition variables, engineered interaction features (e.g., `cold_work * Mn_content`), and time-to-peak values normalized to a reference temperature (e.g., 450K).
+2. **Given** a dataset with missing alloy composition values for specific rows, **When** the cleaning step runs, **Then** those rows are either imputed using a defined strategy (e.g., mean of series) or flagged for exclusion, ensuring the final dataset has no null values in predictor columns.
 
 ---
 
-### User Story 2 - Kinetic Model Training and Feature Importance (Priority: P2)
+### User Story 2 - Predictive Model Training and Validation (Priority: P2)
 
-As a process engineer, I want to train a CPU-tractable Random Forest Regressor to predict time-to-peak softening based on cold work and composition, and receive a ranked list of feature importances, so that I can identify whether deformation level or specific solute content drives the kinetic variance.
+A researcher needs to train a Random Forest Regressor to predict time-to-peak softening using the engineered features and validate its performance using 5-fold cross-validation and a held-out test set to ensure generalization.
 
-**Why this priority**: This is the core analytical engine of the project. It directly addresses the research question regarding the "non-linear relationship" and the "modifier effect" of alloy composition.
+**Why this priority**: This delivers the core predictive capability. It moves beyond simple data preparation to generate the quantitative model that addresses the research question regarding the influence of cold work and composition.
 
-**Independent Test**: The system can be tested by running the training script on a pre-processed dataset; it must output a trained model artifact and a JSON report of feature importances, with execution completing within 60 minutes on a 2-CPU runner.
+**Independent Test**: The system can be tested by training the model on the full dataset (excluding the hold-out set) using a fixed random seed (seed=42) and an 80/20 stratified split, verifying that the cross-validation score is calculated and the model predicts values for the hold-out set with a Mean Absolute Error (MAE) below the threshold defined in SC-006.
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset of [deferred] rows with normalized composition and cold work features, **When** the training script executes, **Then** the model converges and outputs a ranked list of feature importances with confidence intervals for each feature.
-2. **Given** a dataset where "annealing temperature" varies but is controlled for in the model training, **When** the model is trained, **Then** the system correctly identifies and reports the interaction effect between "cold work percentage" and "annealing temperature" on the target variance.
-3. **Given** a dataset with collinear predictors (e.g., total solute content vs. individual elements), **When** the model is trained, **Then** the system logs a collinearity diagnostic warning and reports the variance inflation factor (VIF) for the top correlated features.
+1. **Given** the cleaned and engineered dataset split into training and test sets (80/20, seed=42), **When** the Random Forest model is trained with 5-fold cross-validation, **Then** the system outputs the mean cross-validation R² score and standard deviation.
+2. **Given** a held-out test set not used during training, **When** the trained model predicts time-to-peak softening, **Then** the Mean Absolute Error (MAE) is calculated and reported, demonstrating the model's ability to generalize to unseen alloy compositions and deformation levels.
 
 ---
 
-### User Story 3 - Validation and Sensitivity Analysis (Priority: P3)
+### User Story 3 - Statistical Significance and Interaction Analysis (Priority: P3)
 
-As a quality assurance specialist, I want to evaluate the model on a held-out test set and perform a sensitivity analysis on the prediction confidence intervals, so that I can quantify the model's generalization error and ensure the results are robust to minor parameter variations.
+A metallurgist needs to statistically verify that including alloy composition interaction terms significantly improves prediction accuracy compared to a baseline model using only cold work and additive composition effects, and identify which factors drive the variance.
 
-**Why this priority**: This validates the scientific rigor (methodological soundness) of the findings, ensuring the results are not overfitted and that the "saturation at high deformation" hypothesis is supported by robust statistics.
+**Why this priority**: This addresses the "research gap" by quantifying the *additional* explanatory power of interaction terms, moving beyond empirical heuristics to a statistically validated understanding of the mechanisms.
 
-**Independent Test**: The system can be tested by running the validation script on a separate test set; it must output R² and MAE metrics, plus a sensitivity report showing how error rates change when the prediction confidence interval is varied.
+**Independent Test**: The system can be tested by running a Likelihood Ratio Test (or equivalent permutation importance test) comparing the error distributions of the additive model and the interaction model, and verifying that feature importance scores are generated.
 
 **Acceptance Scenarios**:
 
-1. **Given** a held-out test set of 500 experimental points, **When** the validation script runs, **Then** the system calculates an R² score and reports it; if the R² is below a configurable threshold, the system flags the result as "Below Target Threshold" for scientific review without halting execution.
-2. **Given** a prediction confidence interval for "time-to-peak" defined as ±10%, **When** the sensitivity analysis runs, **Then** the system sweeps the interval across {[deferred], [deferred], [deferred]} and reports the variation in MAE and R² of the underlying regression model.
-3. **Given** an observational dataset (no randomization), **When** the results are generated, **Then** the system automatically appends a disclaimer to the output stating that findings are "associational, not causal" as per the inference framing requirement.
+1. **Given** two models (one additive: cold work + composition, one interaction: cold work + composition + interactions), **When** a Likelihood Ratio Test is performed on their prediction errors, **Then** the system reports a p-value indicating whether the interaction model's improvement is statistically significant (p < 0.05).
+2. **Given** the trained Random Forest model, **When** feature importance is extracted, **Then** the output lists the top 5 features (including interaction terms) ranked by their contribution to reducing variance, allowing the researcher to identify key pinning mechanisms.
 
 ### Edge Cases
 
-- What happens when the public dataset contains no entries for a specific alloy series (e.g., 6xxx) required for the analysis? The system must flag the missing series and exclude it from the "feature importance" ranking for that specific group.
-- How does the system handle datasets where the "time-to-peak softening" is recorded in seconds instead of minutes? The system must detect the unit (via heuristic or metadata) and normalize to minutes, or flag a unit mismatch error.
-- How does the system handle a scenario where the Random Forest model fails to converge due to extreme multicollinearity? The system must fall back to a linear regression with regularization (Ridge) and log the switch.
+- What happens when the dataset contains only pure aluminum (no alloying elements)? The system must handle zero variance in composition columns without crashing and flag that the "interaction effect" cannot be computed for this subset.
+- How does the system handle outliers in time-to-peak softening (e.g., > 1000 hours)? The system must cap or clip extreme values to prevent skewing the Random Forest training **before** any statistical testing is performed, logging any clipped values for review.
+- What occurs if the dataset size is < 50 rows? The system must halt training and return an error indicating insufficient data for meaningful 5-fold cross-validation, as a minimum of 50 samples is required to ensure statistical power in the validation split.
 
-## Requirements *(mandatory)*
+## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST ingest data from NIST Materials Data Repository and HuggingFace Datasets, parsing CSV/text to extract cold work %, alloy composition (Mg, Si, Cu, Mn), annealing temperature, and time-to-peak softening (See US-1).
-- **FR-002**: System MUST validate all input variables against physical bounds (e.g., 0 ≤ cold work ≤ 100%, positive time-to-peak) and exclude invalid rows before modeling (See US-1).
-- **FR-003**: System MUST train a Random Forest Regressor (Scikit-learn) using only CPU resources, limiting the dataset to <5,000 rows to ensure completion within 60 minutes on a 2-core runner with 7 GB RAM (See US-2).
-- **FR-004**: System MUST output a feature importance ranking that explicitly quantifies the contribution of "cold work percentage" versus specific solute elements to the variance in time-to-peak softening (See US-2).
-- **FR-005**: System MUST perform a sensitivity analysis on the prediction confidence interval by sweeping the interval over {[deferred], [deferred], [deferred]} and reporting the resulting change in MAE and R² (See US-3).
-- **FR-006**: System MUST detect and log collinearity diagnostics (e.g., VIF) for any predictors that are definitionally related (e.g., total solute vs. individual elements) and MUST NOT include both derived categorical Alloy Series and raw elemental weights simultaneously in the model input vector (See US-2).
-- **FR-007**: System MUST calculate permutation-based feature importance scores with 95% confidence intervals if the feature importance test involves more than 5 features (See US-2).
+- **FR-001**: System MUST ingest raw CSV/JSON data from specified URLs and parse it into a structured tabular format with columns for cold work (%), alloy composition (wt%), annealing temperature (K), and time-to-peak softening. (See US-1)
+- **FR-002**: System MUST engineer interaction features by multiplying cold work percentage with specific alloying element concentrations (e.g., `cold_work * Mn_content`) AND MUST normalize time-to-peak softening values to a reference temperature (e.g., 450K) using Arrhenius kinetics to account for temperature dependence. (See US-1)
+- **FR-003**: System MUST train a Random Forest Regressor using CPU-only execution. If the input dataset exceeds a predefined threshold, the system MUST truncate the dataset to a manageable subset of entries. The system MUST complete execution within the allocated CI runner timeout and available memory limits. (See US-2)
+- **FR-004**: System MUST perform 5-fold cross-validation and evaluate performance on a held-out test set (80/20 split, random seed=42) to calculate R² and Mean Absolute Error (MAE). (See US-2)
+- **FR-005**: System MUST execute a Likelihood Ratio Test (or equivalent statistical test) comparing the error distributions of an Additive Model (cold work + composition) and an Interaction Model (cold work + composition + interactions) to determine if the interaction terms provide statistically significant improvement (p < 0.05). (See US-3)
+- **FR-006**: System MUST output feature importance rankings to identify which alloying elements and interaction terms most significantly explain the variance in softening time. (See US-3)
+- **FR-007**: System MUST perform outlier clipping on the target variable (time-to-peak softening) prior to calculating any error metrics or performing statistical significance tests to ensure the tests are based on cleaned data. (See Edge Cases)
 
 ### Key Entities
 
-- **ExperimentalRecord**: Represents a single data point containing processing history (cold work, temperature) and kinetic outcome (time-to-peak).
-- **AlloyComposition**: Represents the chemical makeup of the sample, including wt% of major solutes. Note: Derived Alloy Series labels are stored for metadata but are excluded from the model input vector to prevent masking.
-- **KineticModel**: The trained regression model object mapping input features to predicted time-to-peak.
+- **ExperimentRecord**: Represents a single experimental data point containing cold work percentage, alloy composition (Mg, Si, Cu, Mn), annealing temperature, and observed time-to-peak softening.
+- **EngineeredFeatureSet**: A derived entity containing normalized composition variables, Arrhenius-normalized time variables, and calculated interaction terms (e.g., `cold_work * Mn_content`) used as inputs for the regression model.
+- **ModelPerformanceMetrics**: A record containing R², MAE, and p-values derived from cross-validation, held-out testing, and statistical significance comparisons.
 
-## Success Criteria *(mandatory)*
+## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: The model's predictive performance (R²) is measured against the held-out experimental test set to determine if the variance is explained by the combined factors (See US-3).
-- **SC-002**: The robustness of the prediction is measured against the sensitivity sweep results across a representative range of confidence interval thresholds (See US-3).
-- **SC-003**: The statistical validity of the feature importance claims is measured against the collinearity diagnostics and permutation-based confidence intervals (See US-2).
-- **SC-004**: The computational feasibility is measured against a fixed wall-clock time limit and RAM constraint on the standard GitHub Actions runner (See US-2).
-- **SC-005**: The data completeness is measured against the requirement that all variables needed for the regression (cold work, composition, temperature, time-to-peak) are present in the final dataset (See US-1).
+- **SC-001**: The R² score of the full model on the held-out test set (fixed seed=42, 80/20 split) is measured against the target of > 0.6 to determine if the model successfully explains the variance in softening time. (See FR-004)
+- **SC-002**: The p-value from the Likelihood Ratio Test comparing the Additive Model and the Interaction Model is measured against the significance threshold of 0.05 to confirm that interaction terms provide a statistically significant improvement beyond additive effects. (See FR-005)
+- **SC-003**: The statistical significance of the interaction term is measured via permutation importance (must be > 0.05) OR via the p-value of the Likelihood Ratio Test (must be < 0.05) to validate the pinning hypothesis, rather than relying on feature rank. (See FR-006)
+- **SC-004**: The total runtime of the analysis pipeline is measured against the allocated CI runner timeout to verify compute feasibility. (See FR-003)
+- **SC-005**: The memory usage during model training is measured against the available CI memory to ensure the dataset and model fit within the free-tier CI constraints. (See FR-003)
+- **SC-006**: The Mean Absolute Error (MAE) of the full model on the held-out test set is measured against a target of < 15% of the mean time-to-peak softening to ensure prediction accuracy. (See FR-004)
 
 ## Assumptions
 
-- The public datasets (NIST, HuggingFace) contain sufficient rows (>1,000) with the specific combination of cold work percentage and time-to-peak softening measurements to train a meaningful regression model.
-- The "time-to-peak softening" variable is recorded in a consistent unit (minutes) across all source datasets, or can be reliably normalized via metadata parsing.
-- The relationship between cold work and recrystallization kinetics is non-linear but can be adequately approximated by a Random Forest Regressor without requiring deep learning or GPU acceleration.
-- The "alloy series" (e.g., 5xxx, 6xxx) can be derived from the chemical composition (Mg, Si, Cu ratios) if not explicitly provided in the source data, but derived series labels will not be used as primary inputs for the kinetic model.
-- The observational nature of the data means the model will identify associations, not causal mechanisms; the results will be framed as "predictive of kinetics" rather than "causing kinetics."
-- The dataset size will naturally fall below a substantial threshold.; if it exceeds this, the system will randomly sample to fit the memory constraints without introducing significant bias.
+- The NIST Materials Data Repository and HuggingFace Datasets contain sufficient public records (≥ 100 valid entries) with explicit values for cold work percentage, specific alloying elements (Mg, Si, Cu, Mn), and time-to-peak softening.
+- The relationship between cold work and recrystallization is primarily associative in this observational dataset; no causal claims will be made regarding the mechanism of pinning without randomized controlled trials.
+- The Random Forest algorithm, when configured with default parameters and a modest number of trees (e.g., 100), will complete training within the allocated CI timeout for datasets ≤ 10,000 rows.
+- The "time-to-peak softening" variable is consistently reported in minutes or hours across all sources and can be normalized to a single unit (minutes) and then Arrhenius-normalized to a reference temperature (e.g., 450K) without loss of precision, assuming activation energies are available or estimated from literature.
+- Missing values in alloy composition columns are rare (< 5% of rows) and can be imputed using the mean value of the specific alloy series without introducing significant bias.
+- The dataset does not contain duplicate entries for the same experimental condition; if duplicates exist, they are treated as independent measurements of the same process.
+- Outliers in time-to-peak softening (> 1000 hours) are due to measurement error or non-representative conditions and can be safely clipped without invalidating the statistical analysis.

@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformanceMetrics"
+description: "Schema for output metrics from the recrystallization kinetics prediction pipeline."
+type: "object"
+properties:
+  r2_score:
+    type: "number"
+    description: "Coefficient of determination on the held-out test set."
+    minimum: -1
+  mae:
+    type: "number"
+    description: "Mean Absolute Error on the held-out test set (minutes)."
+    minimum: 0
+  cv_r2_mean:
+    type: "number"
+    description: "Mean R² from 5-fold cross-validation."
+  cv_r2_std:
+    type: "number"
+    description: "Standard deviation of R² from 5-fold CV."
+  interaction_p_value:
+    type: "number"
+    description: "Empirical p-value from the permutation test comparing additive vs. interaction models."
+    minimum: 0
+    maximum: 1
+  feature_importance:
+    type: "object"
+    description: "Map of feature name to importance score."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+  success_criteria_met:
+    type: "object"
+    description: "Booleans indicating whether each success criterion was satisfied."
+    properties:
+      r2_target:
+        type: "boolean"
+        description: "True if R² > 0.5"
+        default: false
+      mae_target:
+        type: "boolean"
+        description: "True if MAE < 35% of mean time"
+        default: false
+      interaction_significant:
+        type: "boolean"
+        description: "True if p-value < 0.05"
+        default: false
+    required:
+      - r2_target
+      - mae_target
+      - interaction_significant
+required:
+  - r2_score
+  - mae
+  - cv_r2_mean
+  - cv_r2_std
+  - interaction_p_value
+  - feature_importance

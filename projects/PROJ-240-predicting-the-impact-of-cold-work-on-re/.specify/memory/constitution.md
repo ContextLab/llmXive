@@ -37,13 +37,30 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re.yaml` `updated_at` timestamp.
 
-### VI. Computational Kinetic Stability
+### VI. Interaction-Feature Explicitness
 
-Given the project's reliance on a Random Forest Regressor to predict time-to-peak softening from limited experimental data (<5,000 rows), all model training pipelines MUST enforce CPU-only execution and strict memory bounds to ensure the 6-hour runtime constraint is met. Feature engineering steps involving interaction terms between cold work percentage and solute elements (Mg, Si, Cu, Mn) MUST be deterministic and documented in `code/` to prevent variance in the derived non-linear relationship from differing across execution environments.
+This project's modeling strategy explicitly relies on the hypothesis that
+the relationship between cold work strain and recrystallization kinetics is
+modulated by alloy composition (specifically dispersoid-forming elements like Mn and Si).
+Therefore, any feature set used for model training MUST include explicit
+interaction terms (e.g., `cold_work * Mn_content`) derived from the raw
+tabular data, and the model's feature importance analysis MUST report the
+contribution of these interaction terms separately from the main effects.
+This requirement is grounded in the "Methodology sketch" which mandates
+creating interaction features to capture the "pinning effect hypothesized
+in the literature," and the "Expected results" which predict that a simple
+linear metric is insufficient.
 
-### VII. Experimental Data Fidelity
+### VII. Computational Boundedness for CI/CD
 
-As the project addresses a gap where no unified dataset exists for aluminum alloys under varying cold work, the `data/` directory MUST strictly segregate raw experimental measurements of time-to-peak softening from derived features. The validation protocol MUST utilize a held-out test set of experimental data points that were explicitly excluded from training and feature selection to ensure the reported R² > 0.6 and MAE metrics reflect genuine predictive capability on unseen material compositions rather than overfitting to the specific alloy series (e.g., 5xxx vs. 6xxx) present in the training fold.
+All computational experiments in this project are constrained to complete
+within 6 hours on a standard 2-CPU runner using CPU-only libraries.
+Consequently, the dataset size MUST be capped at <10,000 rows, and the
+model architecture MUST be restricted to algorithms available in Scikit-learn
+that do not require GPU acceleration (e.g., Random Forest Regressor).
+This constraint is directly derived from the "Resource Check" section of the
+"Methodology sketch," which ensures the project remains executable within
+the standard GitHub Actions runner environment without external hardware.
 
 ## Reproducibility Requirements
 

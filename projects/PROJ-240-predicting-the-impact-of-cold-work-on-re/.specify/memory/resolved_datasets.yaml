@@ -1,88 +1,5 @@
-resolved_at: '2026-07-13T19:33:51.079870+00:00'
+resolved_at: '2026-07-13T19:51:25.352211+00:00'
 datasets:
-- intent: VIF
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/dongguanting/VIF-RAG-QA-20K/resolve/main/VIF-RAG_sampled%20(20K).json
-    source: huggingface
-    status: wrong_format
-    reason: HTTP 401
-  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?Expires=1783974769&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2ZDQyY2ViY2Y5N2Q4ODAxOWMxYzU0ZC9lNzk0Y2Q0OWIwMWUyYzQ2YjMzMjFiZjQ5OGIwNDdmZmMwYWVmZmI1OTkxMWIxMWM2NDU1MjFiNDU4MWY5ZDgyKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk3NDc2OX19fV19&Signature=MEUCICL~YOFhSf0NKBoky2XOFkzHiUsFHxy2LK8QPxiIpyoDAiEAqCsS4toGMoYdXKvpYiXt~YFHRJbb8iujGeKJOk48-bw_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&response-content-type=application%2Fjson&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T193249Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c45a6640ae85ab2fcf2b0dc55f369cd146c924c63c0271c2c7910ce76bd47c21
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Hydrothermal_Vent_Signatures_in_Gravid_Antarctic_Krill/32978291
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Analysis_of_fibrosis_in_cultured_non-glaucomatous_and_glaucomatous_trabecular_meshwork_cells/32978297
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/TCGA_expression_data_after_cleaning_procedure/32978285
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Analytical_vectorial_light-field_engineering_with_fixed-meta-atom_interferometric_metasurfaces_-_7969468_pdf/32906591
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/From_Matrix_Mechanics_to_Quantum_Circuits_Computational_Reproduction_of_Two_Spin-_1_2_Angular-Momentum_Coupling_Using_MATLAB_and_PennyLane/32978282
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20926278
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19154354
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20191456
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14837515
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19827885
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.vmcvdnd54
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://unsworks.unsw.edu.au/handle/1959.4/65013
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://unsworks.unsw.edu.au/handle/1959.4/106695
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Daily_COVID-19_Data_Socio-Economic_and_Governance_Indices_and_Statistical_Analysis_Results_for_54_African_Countries_14_February_12_June_2020_/32961629
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Daily_COVID-19_Data_Socio-Economic_and_Governance_Indices_and_Statistical_Analysis_Results_for_54_African_Countries_14_February_12_June_2020_/32961629/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: NIST
   status: verified
   candidates:
@@ -128,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/dataset/Hydrothermal_Vent_Signatures_in_Gravid_Antarctic_Krill/32978291
+  - url: https://acs.figshare.com/articles/journal_contribution/Benzoxazolinone-Based_Propionyl_Thiosemicarbazides_as_Multi-Target-Directed_Ligands_for_Alzheimer_s_Disease_Cholinesterase_and_MAO_Inhibition_Docking_and_Molecular_Dynamics/32978392
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Analysis_of_fibrosis_in_cultured_non-glaucomatous_and_glaucomatous_trabecular_meshwork_cells/32978297
+  - url: https://acs.figshare.com/articles/journal_contribution/Structural_and_Thermodynamic_Properties_of_RNA_Molecules_Using_a_Knowledge-Based_Model/32978389
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/TCGA_expression_data_after_cleaning_procedure/32978285
+  - url: https://acs.figshare.com/articles/media/Structural_and_Thermodynamic_Properties_of_RNA_Molecules_Using_a_Knowledge-Based_Model/32978386
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Analytical_vectorial_light-field_engineering_with_fixed-meta-atom_interferometric_metasurfaces_-_7969468_pdf/32906591
+  - url: https://acs.figshare.com/articles/media/Structural_and_Thermodynamic_Properties_of_RNA_Molecules_Using_a_Knowledge-Based_Model/32978383
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/From_Matrix_Mechanics_to_Quantum_Circuits_Computational_Reproduction_of_Two_Spin-_1_2_Angular-Momentum_Coupling_Using_MATLAB_and_PennyLane/32978282
+  - url: https://acs.figshare.com/articles/journal_contribution/Riding_toward_Selectivity_Optimization_of_Covalent_7_Azaindole-Based_BMX_Kinase_Inhibitors/32978380
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -176,15 +93,195 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ulri.figshare.com/articles/report/Specifying_Upholstered_Furniture_Fire_Barriers/32956658/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://ulri.figshare.com/articles/report/Specifying_Upholstered_Furniture_Fire_Barriers/32956658
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://ulri.figshare.com/articles/report/Specifying_Upholstered_Furniture_Fire_Barriers/32956658/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://osf.io/pk56t/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MAE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Maeji/autotrain-data-230121_t5_lcw99/resolve/main/raw/paper_summary.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/roszcz/maestro-v1-sustain/resolve/main/data/test-00000-of-00001-15d650750bca2093.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Benzoxazolinone-Based_Propionyl_Thiosemicarbazides_as_Multi-Target-Directed_Ligands_for_Alzheimer_s_Disease_Cholinesterase_and_MAO_Inhibition_Docking_and_Molecular_Dynamics/32978392
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Structural_and_Thermodynamic_Properties_of_RNA_Molecules_Using_a_Knowledge-Based_Model/32978389
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Structural_and_Thermodynamic_Properties_of_RNA_Molecules_Using_a_Knowledge-Based_Model/32978386
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Structural_and_Thermodynamic_Properties_of_RNA_Molecules_Using_a_Knowledge-Based_Model/32978383
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Riding_toward_Selectivity_Optimization_of_Covalent_7_Azaindole-Based_BMX_Kinase_Inhibitors/32978380
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8299749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13984656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10023439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6068475
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344433
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344433
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.gbif.org/occurrence/download/0036211-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://fair.unifg.it//handle/11369/369485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/ANALISIS_PREDIKTIF_ANOMALI_PERFORMA_BATERAI_SISTEM_MOBILE_MENGGUNAKAN_ALGORITMA_MACHINE_LEARNING_DAN_VALIDASI_STATISTIK_PADA_EKOSISTEM_LAYANAN_PUBLIK_DIGITAL/32974571/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Benzoxazolinone-Based_Propionyl_Thiosemicarbazides_as_Multi-Target-Directed_Ligands_for_Alzheimer_s_Disease_Cholinesterase_and_MAO_Inhibition_Docking_and_Molecular_Dynamics/32978392
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Structural_and_Thermodynamic_Properties_of_RNA_Molecules_Using_a_Knowledge-Based_Model/32978389
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Structural_and_Thermodynamic_Properties_of_RNA_Molecules_Using_a_Knowledge-Based_Model/32978386
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Structural_and_Thermodynamic_Properties_of_RNA_Molecules_Using_a_Knowledge-Based_Model/32978383
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Riding_toward_Selectivity_Optimization_of_Covalent_7_Azaindole-Based_BMX_Kinase_Inhibitors/32978380
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344750
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344750
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343792
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

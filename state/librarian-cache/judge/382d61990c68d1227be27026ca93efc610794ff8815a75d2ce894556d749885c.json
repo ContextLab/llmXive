@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1401.3997",
+  "judged_at": "2026-07-13T19:39:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of cold work on recrystallization kinetics in aluminum alloys materials science",
+  "rationale": "The paper investigates plastic deformation (cold work) in a high-entropy alloy system (Zr-Nb-Ti-Ta-Hf) but does not address recrystallization kinetics, nor does it study the specific domain of aluminum alloys required by the user's question. While it covers the \"cold work\" mechanism, it fails to satisfy the domain constraint (aluminum) and the dependent variable constraint (recrystallization kinetics), falling under the rejection rule for being off-domain regarding the specific material system a",
+  "relevant": false
+}

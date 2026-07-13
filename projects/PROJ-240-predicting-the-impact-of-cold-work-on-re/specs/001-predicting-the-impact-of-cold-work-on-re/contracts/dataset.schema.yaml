@@ -1,68 +1,72 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ExperimentalRecordSchema"
-description: "Schema for validated experimental records of aluminum alloy recrystallization."
+title: "AlloyExperimentDataset"
+description: "Schema for raw and processed experimental data on aluminum alloy recrystallization."
 type: "object"
 properties:
-  record_id:
-    type: "string"
-    description: "Unique identifier for the record."
-  cold_work_pct:
-    type: "number"
-    minimum: 0.0
-    maximum: 100.0
-    description: "Percentage of cold work deformation."
-  annealing_temp_c:
-    type: "number"
-    minimum: -273.15
-    description: "Annealing temperature in Celsius."
-  time_to_peak_min:
-    type: "number"
-    exclusiveMinimum: 0.0
-    description: "Time to peak softening in minutes."
-  composition:
+  metadata:
     type: "object"
     properties:
-      mg_wt:
-        type: "number"
-        minimum: 0.0
-        description: "Weight percent of Magnesium."
-      si_wt:
-        type: "number"
-        minimum: 0.0
-        description: "Weight percent of Silicon."
-      cu_wt:
-        type: "number"
-        minimum: 0.0
-        description: "Weight percent of Copper."
-      mn_wt:
-        type: "number"
-        minimum: 0.0
-        description: "Weight percent of Manganese."
+      source:
+        type: "string"
+        description: "Source of the data (e.g., 'NIST', 'Simulated', 'User Provided')."
+      generated_at:
+        type: "string"
+        format: "date-time"
+        description: "ISO timestamp of generation."
+      checksum:
+        type: "string"
+        description: "SHA256 checksum of the raw data file."
     required:
-      - mg_wt
-      - si_wt
-      - cu_wt
-      - mn_wt
-    additionalProperties: false
-  validation_status:
-    type: "string"
-    enum:
-      - "Valid"
-      - "Invalid"
-      - "Warning"
-    description: "Status after validation."
-  source_type:
-    type: "string"
-    enum:
-      - "Real"
-      - "Synthetic"
-    description: "Origin of the data record."
+      - source
+      - generated_at
+  columns:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of column names in the dataset."
+  data_sample:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        cold_work_pct:
+          type: "number"
+          minimum: 0
+          maximum: 100
+          description: "Percentage of cold work deformation."
+        mg_wt:
+          type: "number"
+          minimum: 0
+          description: "Magnesium weight percentage."
+        si_wt:
+          type: "number"
+          minimum: 0
+          description: "Silicon weight percentage."
+        cu_wt:
+          type: "number"
+          minimum: 0
+          description: "Copper weight percentage."
+        mn_wt:
+          type: "number"
+          minimum: 0
+          description: "Manganese weight percentage."
+        annealing_temp_k:
+          type: "number"
+          minimum: 273.15
+          description: "Annealing temperature in Kelvin."
+        time_to_peak:
+          type: "number"
+          minimum: 0
+          description: "Time to peak softening in minutes."
+        id:
+          type: "string"
+          description: "Unique row identifier."
+      required:
+        - cold_work_pct
+        - annealing_temp_k
+        - time_to_peak
+        - id
 required:
-  - record_id
-  - cold_work_pct
-  - annealing_temp_c
-  - time_to_peak_min
-  - composition
-  - validation_status
-  - source_type
-additionalProperties: false
+  - metadata
+  - columns
+  - data_sample

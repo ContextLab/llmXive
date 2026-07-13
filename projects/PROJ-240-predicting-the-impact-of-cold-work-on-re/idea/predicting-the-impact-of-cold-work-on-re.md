@@ -13,39 +13,45 @@ How does the degree of prior cold work deformation quantitatively influence the 
 
 ## Motivation
 
-Cold work is a critical processing step that determines the final mechanical properties of aluminum alloys, yet predicting the subsequent heat treatment response often relies on empirical heuristics. Establishing a data-driven quantitative link between deformation levels and recrystallization kinetics would optimize processing schedules and reduce trial-and-error experimentation in industrial settings, particularly for distinguishing the specific roles of alloy composition versus processing history.
+Cold work is a critical processing step that determines the final mechanical properties of aluminum alloys, yet predicting the subsequent heat treatment response often relies on empirical heuristics. Establishing a data-driven quantitative link that accounts for the interplay between deformation, alloy composition, and microstructural pinning mechanisms would optimize processing schedules and reduce trial-and-error experimentation in industrial settings.
 
 ## Literature gap analysis
 
 ### What we searched
-We queried Semantic Scholar, arXiv, and OpenAlex using combinations of "aluminum recrystallization kinetics," "cold work deformation time-to-peak," and "recrystallization nucleation aluminum." The search returned a sparse set of results, with only one paper directly addressing aluminum recrystallization nucleation and others focusing on different metals (Mg, Steel) or different phenomena (Hall-Petch breaks).
+
+We queried Semantic Scholar, arXiv, and OpenAlex using search strings combining "aluminum recrystallization kinetics," "cold work deformation," "time-to-peak softening," and "dispersoid pinning." The search specifically targeted studies quantifying the relationship between deformation levels and annealing response in Al alloys, as well as theoretical works on grain boundary kinetics.
 
 ### What is known
-- [On recrystallization nucleation in pure aluminum (2023)](https://arxiv.org/abs/2305.08378) — Establishes the fundamental mechanisms of nucleation in pure aluminum, providing a theoretical baseline for the initial stages of recrystallization, though it lacks the quantitative kinetic data for alloyed systems under varying cold work.
-- [Breaks in the Hall-Petch Relationship after Severe Plastic Deformation of Magnesium, Aluminum, Copper, and Iron (2024)](https://arxiv.org/abs/2402.11798) — Discusses the complex interplay of plastic deformation and grain refinement in aluminum, but focuses on strength mechanisms rather than the specific time-to-peak softening kinetics during annealing.
+
+- [On recrystallization nucleation in pure aluminum (2023)](https://arxiv.org/abs/2305.08378) — Establishes that nucleation mechanisms in pure aluminum are the rate-limiting step for subsequent grain growth, providing a baseline for understanding the initial stages of the kinetics.
+- [Orientation dependent pinning of (sub)grains by dispersoids during recovery and recrystallization in an Al-Mn alloy (2022)](https://arxiv.org/abs/2212.03527) — Demonstrates that microchemical states (specifically dispersoid pinning) significantly alter recovery and recrystallization rates, suggesting that composition cannot be ignored when modeling deformation effects.
+- [Grain-Boundary Kinetics: A Unified Approach (2018)](https://arxiv.org/abs/1803.03214) — Provides a theoretical framework for how grain boundary mobility drives polycrystalline evolution, though it lacks specific quantitative data linking cold work strain to time-to-peak softening in commercial Al alloys.
 
 ### What is NOT known
-There is currently no published work that quantitatively models the *time-to-peak softening* as a function of *cold work percentage* specifically for *aluminum alloys* (as opposed to pure aluminum or other metals) using a unified dataset. Existing literature treats nucleation mechanisms theoretically or focuses on strength (Hall-Petch) rather than the kinetic rate of softening, leaving the interaction between alloy composition and deformation history unquantified in a predictive framework.
+
+No published work provides a unified, quantitative regression model that simultaneously isolates the effect of cold work percentage from alloy-specific pinning factors (like Mn dispersoids) to predict time-to-peak softening across a broad range of commercial aluminum compositions. Existing studies are either limited to pure aluminum or specific alloy systems (e.g., Al-Mn) without generalizing the deformation-kinetics relationship.
 
 ### Why this gap matters
-Filling this gap is critical for industrial process optimization, as current heuristics cannot accurately predict how different alloy series (e.g., 5xxx vs. 6xxx) will respond to identical cold work levels. A quantitative model would enable precise control over annealing cycles, reducing energy consumption and preventing over- or under-processing in manufacturing.
+
+Filling this gap would allow metallurgists to predict heat treatment durations for new or mixed aluminum alloys without extensive experimental trials, directly reducing energy consumption and material waste in manufacturing. It would also clarify the relative weight of deformation energy versus microstructural pinning in driving recrystallization.
 
 ### How this project addresses the gap
-This project addresses the gap by aggregating scattered experimental data from public repositories to train a regression model that explicitly isolates the effect of cold work percentage while controlling for alloy composition. The methodology will quantify the variance explained by deformation versus composition, directly answering what additional factors are required to predict the kinetics.
+
+This project will aggregate public datasets to train a regression model that explicitly tests the interaction terms between cold work strain and alloy composition. By analyzing the variance explained by these interaction terms, the methodology will quantify exactly how much "additional material factors" are required to predict the kinetics, moving beyond pure empirical heuristics.
 
 ## Expected results
 
-We expect to observe a non-linear relationship where increased cold work initially accelerates recrystallization (reduced time-to-peak) but saturates at high deformation levels. Crucially, the model is expected to reveal that alloy composition (specifically solute content) acts as a significant modifier of this relationship, explaining the variance that deformation alone cannot. Confirmation will be achieved via a regression model achieving an R² > 0.6 on a held-out test set, with feature importance analysis identifying composition as a key predictor.
+We expect to observe that while increased cold work generally accelerates recrystallization, the magnitude of this effect is non-linear and heavily modulated by the presence of dispersoid-forming elements (e.g., Mn, Si). The model is expected to show that a simple linear deformation metric is insufficient, with interaction terms significantly improving the R² score (target > 0.6) on held-out data.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download public datasets containing aluminum alloy processing parameters from the NIST Materials Data Repository and HuggingFace Datasets (searching for "aluminum annealing," "recrystallization kinetics," and "cold work") using `wget` or `curl`.
-- **Data Cleaning**: Parse raw text and CSV data using Python (pandas) to extract numeric features: cold work percentage (%), alloy composition (wt% of Mg, Si, Cu, Mn), annealing temperature (°C), and the dependent variable: time-to-peak softening (minutes).
-- **Feature Engineering**: Normalize composition variables, encode categorical alloy series (e.g., 5xxx, 6xxx) as one-hot vectors, and create interaction terms between cold work and major solute elements to capture non-linear effects.
-- **Model Training**: Train a Random Forest Regressor (Scikit-learn, CPU-only) to predict time-to-peak softening. The model will be trained on a subset of the data to learn the mapping from deformation/composition inputs to the kinetic output.
-- **Validation**: Perform 5-fold cross-validation to assess generalization. **Crucially, validation will use a held-out test set of experimental data points that were *not* used in training or feature selection.** We will calculate the Mean Absolute Error (MAE) and R² between predicted and *experimentally measured* time-to-peak values. This ensures the evaluation target (experimental measurement) is independent of the model's construction.
-- **Statistical Analysis**: Apply a permutation importance test to rank features, determining whether cold work or specific alloying elements contribute more to the variance in the prediction.
-- **Resource Check**: Ensure all computation completes within 6 hours on a 2-CPU runner by limiting the dataset to <5,000 rows (sufficient for this specific regression task) and avoiding GPU-dependent libraries.
+- **Data Acquisition**: Use `wget` to retrieve CSV/JSON files from the NIST Materials Data Repository and HuggingFace Datasets filtering for "aluminum recrystallization," "annealing kinetics," and "cold work."
+- **Data Cleaning**: Parse raw text and tabular data using Python (pandas) to extract numeric features: cold work percentage (%), alloy composition (wt% of Mg, Si, Cu, Mn), annealing temperature (K), and time-to-peak softening (minutes/hours).
+- **Feature Engineering**: Normalize composition variables and create interaction features (e.g., `cold_work * Mn_content`) to capture the pinning effect hypothesized in the literature. Encode alloy series (5xxx, 6xxx) as one-hot vectors.
+- **Model Training**: Train a Random Forest Regressor (Scikit-learn, CPU-only) to predict `time-to-peak softening` using cold work, composition, temperature, and interaction terms as inputs.
+- **Validation**: Perform 5-fold cross-validation to assess generalization. Crucially, validate the model's predictive power against the *held-out* test set (independent of training inputs) to ensure the relationship is not circular. Calculate feature importance to identify which "additional factors" most significantly explain the variance.
+- **Statistical Analysis**: Apply a t-test to compare the mean absolute error of a model using only cold work versus the full model to verify that the inclusion of composition/pinning factors provides a statistically significant improvement (p < 0.05).
+- **Resource Check**: Ensure all computation completes within 6 hours on a 2-CPU runner by limiting the dataset to <10,000 rows and avoiding GPU-dependent libraries.
 
 ## Duplicate-check
 
@@ -56,7 +62,7 @@ We expect to observe a non-linear relationship where increased cold work initial
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-13T19:21:28Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-13T19:39:35Z
 **Outcome**: exhausted
 **Original term**: Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum Alloys materials science
 **Verified citation count**: 3
@@ -66,29 +72,29 @@ We expect to observe a non-linear relationship where increased cold work initial
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum Alloys materials science | 0 |
-| 1 | effect of cold rolling on recrystallization rate in aluminum | 4 |
-| 2 | stored energy influence on recrystallization kinetics aluminum alloys | 0 |
-| 3 | deformation temperature impact on nucleation and growth in aluminum | 0 |
-| 4 | cold work fraction and recrystallization time-temperature-transformation | 0 |
-| 5 | strain-induced recrystallization mechanisms in aluminum | 0 |
-| 6 | relationship between dislocation density and recrystallization speed | 0 |
-| 7 | annealing behavior of cold-worked aluminum alloys | 0 |
-| 8 | recrystallization nucleation sites in deformed aluminum microstructures | 0 |
-| 9 | kinetics of grain boundary migration after cold deformation | 0 |
-| 10 | role of solute drag in recrystallization of cold-worked aluminum | 0 |
-| 11 | predictive modeling of recrystallization in deformed aluminum | 0 |
-| 12 | stored energy distribution and recrystallization rates | 0 |
-| 13 | recovery and recrystallization competition in aluminum | 0 |
-| 14 | effect of pre-deformation on Avrami exponent in aluminum | 0 |
-| 15 | recrystallization texture evolution from cold work | 0 |
-| 16 | deformation microstructure evolution and recrystallization onset | 0 |
-| 17 | kinetic models for static recrystallization in aluminum | 0 |
-| 18 | influence of initial grain size on cold work recrystallization | 0 |
-| 19 | subgrain growth and recrystallization in cold-rolled aluminum | 0 |
-| 20 | thermodynamic driving force for recrystallization in deformed aluminum | 0 |
+| 1 | Effect of cold working on recrystallization rates in aluminum | 1 |
+| 2 | Stored energy from plastic deformation and recrystallization in Al alloys | 3 |
+| 3 | Cold rolling influence on nucleation and grain growth kinetics | 1 |
+| 4 | Deformation-induced recrystallization mechanisms in aluminum | 0 |
+| 5 | Relationship between dislocation density and recrystallization in Al | 0 |
+| 6 | Recrystallization behavior of cold-worked aluminum alloys | 0 |
+| 7 | Kinetics of static recrystallization after cold deformation | 0 |
+| 8 | Influence of pre-strain on recrystallization texture evolution in aluminum | 0 |
+| 9 | Modeling recrystallization kinetics following cold work in Al systems | 0 |
+| 10 | Role of deformation temperature on recrystallization in aluminum | 0 |
+| 11 | Microstructural evolution during recrystallization of cold-rolled aluminum | 0 |
+| 12 | Activation energy for recrystallization in cold-worked aluminum | 0 |
+| 13 | Recrystallization incubation time vs. degree of cold work in Al | 0 |
+| 14 | Effect of alloying elements on recrystallization after cold working | 0 |
+| 15 | Plastic strain effects on nucleation rates in aluminum recrystallization | 0 |
+| 16 | Recovery and recrystallization kinetics in deformed aluminum alloys | 0 |
+| 17 | Predictive models for recrystallization in cold-worked Al | 0 |
+| 18 | Grain refinement and recrystallization in heavily deformed aluminum | 0 |
+| 19 | Cold work intensity and recrystallization speed in aluminum | 0 |
+| 20 | Thermomechanical processing effects on recrystallization in Al alloys | 0 |
 
 ### Verified citations
 
-1. **Breaks in the Hall-Petch Relationship after Severe Plastic Deformation of Magnesium, Aluminum, Copper, and Iron** (2024). Shivam Dangwal, Kaveh Edalati, Ruslan Z. Valiev, Terence G. Langdon. arXiv. [2402.11798](https://arxiv.org/abs/2402.11798). PDF-sampled: No.
-2. **On recrystallization nucleation in pure aluminum** (2023). Adam Morawiec. arXiv. [2305.08378](https://arxiv.org/abs/2305.08378). PDF-sampled: No.
-3. **A new unified approach for modeling hot rolling of steel Part 1: Comparison of models for recrystallization** (2014). Jan Orend, Felix Hagemann, Frank Klose, Bengt Maas, Heinz Palkowski. arXiv. [1407.4260](https://arxiv.org/abs/1407.4260). PDF-sampled: No.
+1. **On recrystallization nucleation in pure aluminum** (2023). Adam Morawiec. arXiv. [2305.08378](https://arxiv.org/abs/2305.08378). PDF-sampled: No.
+2. **Orientation dependent pinning of (sub)grains by dispersoids during recovery and recrystallization in an Al-Mn alloy** (2022). Håkon W. Ånes, Antonius T. J. van Helvoort, Knut Marthinsen. arXiv. [2212.03527](https://arxiv.org/abs/2212.03527). PDF-sampled: No.
+3. **Grain-Boundary Kinetics: A Unified Approach** (2018). Jian Han, Spencer L. Thomas, David J. Srolovitz. arXiv. [1803.03214](https://arxiv.org/abs/1803.03214). PDF-sampled: No.
