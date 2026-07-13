@@ -18,88 +18,121 @@ if str(project_root) not in sys.path:
 
 from config import get_paths, ensure_dirs
 from utils.logging import log_stage_start, log_stage_complete, log_stage_error, setup_logging
+from data.download_hcp import filter_subjects
 
 def compute_pairwise_correlation(ts: np.ndarray) -> np.ndarray:
     """
-    Compute pairwise Pearson correlation matrix for the time series.
-    Input: (time, regions)
-    Output: (regions, regions) correlation matrix
+    Compute pairwise Pearson correlation matrix for a time series.
+    ts: (n_timepoints, n_regions)
+    Returns: (n_regions, n_regions) correlation matrix.
     """
-    n_regions = ts.shape[1]
-    corr_matrix = np.zeros((n_regions, n_regions))
-    
-    for i in range(n_regions):
-        for j in range(i, n_regions):
-            # Compute correlation
-            corr, _ = pearsonr(ts[:, i], ts[:, j])
-            corr_matrix[i, j] = corr
-            corr_matrix[j, i] = corr
-    
-    corr_matrix = np.dot(ts_std.T, ts_std) / (ts_std.shape[0] - 1)
-    return corr_matrix
+    # Center the data
+    ts_centered = ts - np.mean(ts, axis=0)
+    # Correlation = cov(x, y) / (std(x) * std(y))
+    # Using numpy corrcoef
+    try:
+        corr_matrix = np.corrcoef(ts, rowvar=False)
+        # Handle NaNs (constant regions)
+        corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
+        return corr_matrix
+    except Exception as e:
+        log_stage_error("Correlation", str(e))
+        return np.zeros((ts.shape[1], ts.shape[1]))
 
 def fisher_z_transform(r_matrix: np.ndarray) -> np.ndarray:
     """
-    Apply Fisher-z transformation to the correlation matrix.
+    Apply Fisher-z transformation to correlation matrix.
     z = 0.5 * ln((1+r)/(1-r))
     """
-    # Clip values to avoid division by zero or log of negative
-    r_clipped = np.clip(r_matrix, -0.9999, 0.9999)
-    z_matrix = 0.5 * np.log((1 + r_clipped) / (1 - r_clipped))
-    return z_matrix
+    # Clip values to avoid log(0) or log(negative)
+    r = np.clip(corr_matrix, -0.9999, 0.9999)
+    z = 0.5 * np.log((1 + r) / (1 - r))
+    return z
 
 def extract_upper_triangular_vector(z_matrix: np.ndarray) -> np.ndarray:
     """
-    Extract the upper triangular part of the matrix (excluding diagonal) as a vector.
+    Extract upper triangular part (excluding diagonal) as a 1D vector.
     """
     n = z_matrix.shape[0]
-    # Number of unique edges = n*(n-1)/2
-    num_edges = n * (n - 1) // 2
-    vector = np.zeros(num_edges)
-    
-    idx = 0
-    for i in range(n):
-        for j in range(i + 1, n):
-            vector[idx] = z_matrix[i, j]
-            idx += 1
-    
-    return vector
+    # indices of upper triangle
+    iu = np.triu_indices(n, k=1)
+    return z_matrix[iu]
 
-def process_subject_features(subject_id: str) -> np.ndarray:
+def process_subject_features(subject_id: str) -> Optional[np.ndarray]:
     """
-    Process a single subject's time series into a connectivity vector.
+    Load preprocessed time series, compute connectivity, transform, and vectorize.
     """
     paths = get_paths()
-    processed_dir = paths['processed_dir']
+    ts_path = os.path.join(paths['processed_timeseries'], f"sub-{subject_id}_ts.npy")
     
-    # Load preprocessed time series
-    ts_path = processed_dir / f"sub-{subject_id}_ts.npy"
-    if not ts_path.exists():
-        raise FileNotFoundError(f"Preprocessed time series not found for {subject_id}")
+    if not os.path.exists(ts_path):
+        log_stage_error("Feature Engineering", f"Time series not found for {subject_id}")
+        return None
     
     ts = np.load(ts_path)
     
-    # Compute correlation
-    corr_matrix = compute_pairwise_correlation(ts)
+    # 1. Correlation
+    corr = compute_pairwise_correlation(ts)
     
-    # Fisher-z transform
-    z_matrix = fisher_z_transform(corr_matrix)
+    # 2. Fisher Z
+    z = fisher_z_transform(corr)
     
-    # Extract upper triangular vector
-    feature_vector = extract_upper_triangular_vector(z_matrix)
+    # 3. Vectorize
+    vec = extract_upper_triangular_vector(z)
     
-    return feature_vector
+    return vec
 
 def save_feature_vector(subject_id: str, vector: np.ndarray):
+    """Save feature vector to disk."""
+    paths = get_paths()
+    out_path = os.path.join(paths['processed_features'], f"sub-{subject_id}_features.npy")
+    np.save(out_path, vector)
+
+def load_feature_vectors(subject_ids: List[str]) -> Tuple[np.ndarray, List[str]]:
+    """Load all feature vectors for a list of subjects."""
+    paths = get_paths()
+    vectors = []
+    valid_ids = []
+    
+    for sid in subject_ids:
+        path = os.path.join(paths['processed_features'], f"sub-{sid}_features.npy")
+        if os.path.exists(path):
+            vectors.append(np.load(path))
+            valid_ids.append(sid)
+    
+    if not vectors:
+        return np.array([]), []
+    
+    return np.vstack(vectors), valid_ids
+
+def main():
     """
-    Save the feature vector to disk.
+    Main entry point for feature engineering.
+    Processes all valid subjects and saves feature vectors.
     """
     paths = get_paths()
-    features_dir = paths['features_dir']
-    features_dir.mkdir(parents=True, exist_ok=True)
+    ensure_dirs()
     
-    output_path = features_dir / f"sub-{subject_id}_features.npy"
-    np.save(output_path, vector)
+    # Get valid subjects
+    behavioral_path = paths['raw_behavioral']
+    valid_subjects = filter_subjects(behavioral_path)
+    
+    if not valid_subjects:
+        log_stage_error("Feature Engineering", "No valid subjects found.")
+        return
+    
+    processed_count = 0
+    for subject_id in valid_subjects:
+        try:
+            vec = process_subject_features(subject_id)
+            if vec is not None:
+                save_feature_vector(subject_id, vec)
+                processed_count += 1
+        except Exception as e:
+            log_stage_error("Feature Engineering", f"Failed for {subject_id}: {e}")
+            continue
+    
+    log_stage_complete("Feature Engineering", f"Processed {processed_count} subjects.")
 
 def load_feature_vectors(subjects: List[str]) -> Tuple[np.ndarray, List[str]]:
     """

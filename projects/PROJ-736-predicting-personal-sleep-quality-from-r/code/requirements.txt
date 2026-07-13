@@ -1,7 +1,12 @@
-nibabel  # auto-added: imported by run-book but missing from venv
-nilearn  # auto-added: imported by run-book but missing from venv
-numpy  # auto-added: imported by run-book but missing from venv
-pandas  # auto-added: imported by run-book but missing from venv
-psutil  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
-scipy  # auto-added: imported by run-book but missing from venv
+nilearn>=0.10.0
+scikit-learn>=1.3.0
+pandas>=2.0.0
+numpy>=1.24.0
+nibabel>=5.1.0
+networkx>=3.1.0
+pytest>=7.3.0
+psutil>=5.9.0
+seaborn>=0.12.0
+matplotlib>=3.7.0
+requests>=2.31.0
+scipy>=1.11.0

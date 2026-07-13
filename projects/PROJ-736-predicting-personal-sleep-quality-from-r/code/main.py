@@ -9,99 +9,95 @@ import time
 from pathlib import Path
 from datetime import datetime
 
-# Add project root to path for imports
-project_root = Path(__file__).parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from config import get_paths, ensure_dirs
-from utils.logging import setup_logging, log_stage_start, log_stage_complete, log_stage_error
+# Import orchestration targets
 from data.download_hcp import main as download_main, filter_subjects
 from data.preprocess import main as preprocess_main
 from data.feature_engineering import main as feature_main
+from modeling.train import main as train_main
+from modeling.evaluate import main as evaluate_main
+from modeling.report_generator import main as report_main
+from modeling.interpret import main as interpret_main
+from modeling.finalize_report import main as finalize_main
+
+from config import get_paths, ensure_dirs
+from utils.logging import setup_logging, log_stage_start, log_stage_complete, log_stage_error
 
 def run_pipeline():
     """
-    Orchestration function for the sleep quality prediction pipeline.
-    Executes the following stages in order:
-    1. Download raw HCP data (T005)
-    2. Filter subjects based on Sleep Score and Motion (T007b)
-    3. Preprocess time series (T006)
-    4. Compute connectivity vectors (T007)
-    5. Save outputs to data/processed/
+    Orchestrate the full end-to-end research pipeline:
+    1. Download raw HCP data
+    2. Filter subjects based on behavioral criteria
+    3. Preprocess fMRI data (Schaefer parcellation, nuisance regression, filtering)
+    4. Engineer connectivity features (correlation, Fisher-z, vectorization)
+    5. Train predictive models
+    6. Evaluate with permutation tests and bootstrap
+    7. Interpret results and generate reports
     """
     start_time = time.time()
     paths = get_paths()
     ensure_dirs()
 
     # Setup logging
-    logger = setup_logging(paths['log_file'])
-    logger.info("Pipeline started")
+    logger = setup_logging()
+    log_stage_start("Pipeline", "Starting full research pipeline execution")
 
     try:
-        # Stage 1: Download raw data
-        log_stage_start(logger, "Data Download")
-        # Invoke the download function from download_hcp.py
-        # This fetches HCP minimally preprocessed CIFTI files and behavioral data
+        # --- Stage 1: Data Acquisition ---
+        log_stage_start("Data Ingestion", "Fetching HCP minimally preprocessed data and behavioral files")
         download_main()
-        log_stage_complete(logger, "Data Download")
+        log_stage_complete("Data Ingestion", "Raw data downloaded successfully")
 
-        # Stage 2: Filter subjects (T007b logic integrated here or called explicitly)
-        # The download_main should have produced the behavioral file.
-        # We now filter subjects based on Sleep Score and Motion.
-        log_stage_start(logger, "Subject Filtering")
-        # Note: filter_subjects is imported from download_hcp. 
-        # Depending on implementation, it might need to be called here to update the filtered list.
-        # Assuming filter_subjects writes a filtered list or updates the behavioral file.
-        # We call it to ensure the filtering logic is applied.
-        filtered_subjects = filter_subjects()
-        log_stage_complete(logger, "Subject Filtering", extra={"count": len(filtered_subjects)})
+        # --- Stage 2: Subject Filtering ---
+        log_stage_start("Subject Filtering", "Identifying valid subjects and excluding high motion")
+        # This updates the internal state or file markers used by subsequent stages
+        # We assume filter_subjects prepares the list of valid IDs for downstream steps
+        valid_subjects = filter_subjects()
+        log_stage_complete("Subject Filtering", f"Filtered to {len(valid_subjects)} valid subjects")
 
-        # Stage 3: Preprocess time series (T006)
-        log_stage_start(logger, "Preprocessing")
-        # Invoke preprocessing on the filtered subjects
-        preprocess_main(filtered_subjects)
-        log_stage_complete(logger, "Preprocessing")
+        # --- Stage 3: Preprocessing ---
+        log_stage_start("Preprocessing", "Running Schaefer parcellation and nuisance regression")
+        preprocess_main()
+        log_stage_complete("Preprocessing", "Time series extracted and cleaned")
 
-        # Stage 4: Feature Engineering (T007)
-        log_stage_start(logger, "Feature Engineering")
-        # Invoke feature engineering on the filtered subjects
-        # This step computes pairwise correlations, applies Fisher-z, and extracts vectors
-        feature_main(filtered_subjects)
-        log_stage_complete(logger, "Feature Engineering")
+        # --- Stage 4: Feature Engineering ---
+        log_stage_start("Feature Engineering", "Computing connectivity matrices and vectorizing")
+        feature_main()
+        log_stage_complete("Feature Engineering", "Feature vectors saved to data/processed/")
 
-        # Stage 5: Aggregate and save final outputs
-        log_stage_start(logger, "Aggregation and Saving")
-        # Load all feature vectors and save as a single .npy file
-        from data.feature_engineering import load_feature_vectors
-        feature_matrix, final_subjects = load_feature_vectors(filtered_subjects)
-        
-        # Save the feature matrix
-        output_path = paths['processed_dir'] / "connectivity_matrix.npy"
-        np.save(output_path, feature_matrix)
-        logger.info(f"Saved connectivity matrix to {output_path}")
-        
-        # Save subject IDs
-        subjects_path = paths['processed_dir'] / "subject_ids.npy"
-        np.save(subjects_path, np.array(final_subjects))
-        logger.info(f"Saved subject IDs to {subjects_path}")
-        
-        # Also save the behavioral data for the filtered subjects
-        import pandas as pd
-        behavioral_path = paths['behavioral_file']
-        df = pd.read_csv(behavioral_path)
-        mask = df['SubjectID' if 'SubjectID' in df.columns else df.columns[0]].astype(str).isin(final_subjects)
-        filtered_df = df[mask]
-        filtered_df.to_csv(paths['processed_dir'] / "filtered_behavioral.csv", index=False)
-        logger.info(f"Saved filtered behavioral data to {paths['processed_dir'] / 'filtered_behavioral.csv'}")
+        # --- Stage 5: Modeling ---
+        log_stage_start("Modeling", "Training ElasticNet models with nested CV")
+        train_main()
+        log_stage_complete("Modeling", "Model training complete; predictions saved")
 
-        elapsed = time.time() - start_time
-        logger.info(f"Pipeline completed successfully in {elapsed:.2f} seconds")
+        # --- Stage 6: Evaluation ---
+        log_stage_start("Evaluation", "Running permutation tests and bootstrap analysis")
+        evaluate_main()
+        log_stage_complete("Evaluation", "Statistical validation complete")
+
+        # --- Stage 7: Interpretation ---
+        log_stage_start("Interpretation", "Extracting non-zero coefficients and mapping edges")
+        interpret_main()
+        log_stage_complete("Interpretation", "Brain connectivity map generated")
+
+        # --- Stage 8: Reporting ---
+        log_stage_start("Reporting", "Generating final ResultReport.json")
+        report_main()
+        finalize_main()
+        log_stage_complete("Reporting", "Final report generated")
+
+        log_stage_complete("Pipeline", "Full pipeline execution successful")
         return True
 
     except Exception as e:
-        log_stage_error(logger, "Pipeline Execution", str(e))
-        raise
+        log_stage_error("Pipeline", str(e))
+        # Re-raise to ensure the script exits with non-zero status
+        raise e
 
 if __name__ == "__main__":
-    sys.exit(run_pipeline())
+    success = run_pipeline()
+    if success:
+        print("Pipeline completed successfully.")
+        sys.exit(0)
+    else:
+        print("Pipeline failed.")
+        sys.exit(1)
