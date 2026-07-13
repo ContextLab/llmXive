@@ -1,12 +1,19 @@
 pandas>=2.0.0
 numpy>=1.24.0
+scipy>=1.10.0
 torch>=2.0.0
 scikit-learn>=1.2.0
-scipy>=1.10.0
+rdkit>=2023.3.0
 pyarrow>=12.0.0
-rdkit>=2023.3.1
-joblib>=1.2.0
-matplotlib  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
+pyyaml>=6.0
+joblib>=1.3.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+requests>=2.31.0
+pre-commit>=3.3.0
+black>=23.0.0
+flake8>=6.0.0
+isort>=5.12.0
+pytest>=7.3.0
+pytest-cov>=4.1.0
 tqdm  # auto-added: imported by run-book but missing from venv

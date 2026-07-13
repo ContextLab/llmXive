@@ -20,7 +20,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data/generate_processed_data.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/generate_processed_data.py", line 10, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/generate_processed_data.py", line 9, in <module>
     import pandas as pd
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/__init__.py", line 22, in <module>
     from pandas.compat import (
@@ -99,7 +99,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/molecules_10k.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/quickstart_validation.py` — NOT invoked by the run-book
     - `code/data/generate_processed_data.py` — IS a run-book command
-    - `code/training/train_gnn.py` — IS a run-book command
     - `code/training/train_rf.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/molecules_10k.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
