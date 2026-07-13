@@ -1,0 +1,561 @@
+{
+  "fetched_at": "2026-07-13T13:44:43Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Polarity from SMILES Strings with Machine Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 74.9,
+    "ended_at": "2026-07-13T13:44:43Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "molecular dipole moment prediction using SMILES"
+        ],
+        [
+          2,
+          "machine learning models for molecular polarity estimation"
+        ],
+        [
+          3,
+          "deep learning for chemical property prediction from SMILES"
+        ],
+        [
+          4,
+          "graph neural networks for molecular dipole moments"
+        ],
+        [
+          5,
+          "quantitative structure-property relationship (QSPR) for polarity"
+        ],
+        [
+          6,
+          "SMILES-based regression for molecular descriptors"
+        ],
+        [
+          7,
+          "predicting dielectric constant from molecular structure"
+        ],
+        [
+          8,
+          "neural network architectures for chemical property inference"
+        ],
+        [
+          9,
+          "transformer models for molecular property prediction"
+        ],
+        [
+          10,
+          "learning molecular representations from SMILES strings"
+        ],
+        [
+          11,
+          "computational prediction of molecular dipole vectors"
+        ],
+        [
+          12,
+          "supervised learning for estimating molecular polarity"
+        ],
+        [
+          13,
+          "sequence-to-property models in cheminformatics"
+        ],
+        [
+          14,
+          "automated polarity prediction from chemical notations"
+        ],
+        [
+          15,
+          "feature extraction from SMILES for polarity classification"
+        ],
+        [
+          16,
+          "graph-based vs sequence-based molecular property prediction"
+        ],
+        [
+          17,
+          "in silico calculation of molecular polarity using AI"
+        ],
+        [
+          18,
+          "transfer learning for molecular property estimation"
+        ],
+        [
+          19,
+          "predicting solvation behavior from SMILES representations"
+        ],
+        [
+          20,
+          "end-to-end learning of molecular electronic properties"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistry": 0,
+        "machine learning models for molecular polarity estimation": 5,
+        "molecular dipole moment prediction using SMILES": 2
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "dipole moment SMILES deep learning",
+      "QM9 molecular property prediction GNN",
+      "molecular descriptors QSAR dipole",
+      "held-out test set dipole benchmark",
+      "representation learning molecular embeddings polarity"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2509.22435"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistry": 3,
+      "QM9 molecular property prediction GNN": 3,
+      "dipole moment SMILES deep learning": 3,
+      "held-out test set dipole benchmark": 3,
+      "molecular descriptors QSAR dipole": 2,
+      "representation learning molecular embeddings polarity": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2310.00208",
+          "rationale": "The paper focuses on the neutron electric dipole moment in the context of particle physics and CP symmetry, which is a distinct physical construct from molecular polarity in chemistry. Although both involve the word \"dipole\" or \"polarity,\" they belong to entirely different domains (subatomic physics vs. molecular chemistry) and do not share the same mechanism, variables, or empirical population required for inclusion.",
+          "title": "On the Quantum Uncertainty of the Neutron Electric Dipole Moment"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on the risks of changing data sources in the context of official statistics and policy-making, which is an entirely different domain from predicting molecular polarity using SMILES strings in computational chemistry. It shares no measurable connection to the user's specific mechanism (molecular property prediction), variables (polarity, SMILES), or empirical setting (chemical data), failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper provides general methodological recommendations for validating machine learning in biology (category d) but does not measure molecular polarity, analyze SMILES strings, or establish an empirical baseline for this specific chemical prediction task. It lacks the domain-specific mechanism, variables, or population required by criteria (a), (b), (c), or (e), and is therefore too generic to be a canonical reference for a literature review on predicting molecular polarity from SMILES.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2304.02381",
+          "rationale": "The paper focuses on a general methodology for interpreting machine learning models using energy landscapes and does not measure molecular polarity, utilize SMILES strings as input, or establish an empirical baseline for predicting molecular properties. While it mentions \"molecular sciences\" as an analogy for its method, it does not address the specific mechanism, variables, or domain of the user's question (predicting polarity from SMILES), failing to meet any of the inclusion criteria (a-f).",
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on learning curves in machine learning and does not address the specific domain of molecular polarity, SMILES strings, or chemical property prediction. It fails to meet any inclusion criteria (a-f) as it lacks the necessary biological/chemical mechanism, domain-specific variables, or canonical methodology for the user's chemistry-focused question.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "1905.04749",
+          "rationale": "The paper focuses on fake news detection in social media using natural language processing, which is an entirely different domain (social science/NLP) from the user's question about predicting molecular polarity in chemistry. It shares no measurable connection to the biological pathway, physical observable, or empirical population (molecules/SMILES) required by the user's research question, failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+          "title": "A Benchmark Study of Machine Learning Models for Online Fake News Detection"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T13:43:28Z",
+    "term_input": {
+      "normalized": "predicting molecular polarity from smiles strings with machine learning chemistry",
+      "raw": "Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-07-13T13:43:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-07-13T13:43:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-07-13T13:43:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
+          "claimed_authors": [
+            "Deep Pandey",
+            "Qi Yu"
+          ],
+          "claimed_title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11113"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='Learn to Accumulate Evidence from All Training Samples: Theory and Practice')",
+        "failed_at": "2026-07-13T13:43:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
+          "claimed_authors": [
+            "Julius Berner",
+            "Philipp Grohs",
+            "Gitta Kutyniok",
+            "Philipp Petersen"
+          ],
+          "claimed_title": "The Modern Mathematics of Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.04026"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='The Modern Mathematics of Deep Learning')",
+        "failed_at": "2026-07-13T13:43:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "These notes were compiled as lecture notes for a course developed and taught at the University of the Southern California. They should be accessible to a typical engineering graduate student with a strong background in Applied Mathematics.\n  The main objective of these notes is to introduce a student who is familiar with concepts in linear algebra and partial differential equations to select topics in deep learning. These lecture notes exploit the strong connections between deep learning algorithms and the more conventional techniques of computational physics to achieve two goals. First, they use concepts from computational physics to develop an understanding of deep learning algorithms. Not surprisingly, many concepts in deep learning can be connected to similar concepts in computational physics, and one can utilize this connection to better understand these algorithms. Second, several novel deep learning algorithms can be used to solve challenging problems in computational physics. Thus, they offer someone who is interested in modeling a physical phenomena with a complementary set of tools.",
+          "claimed_authors": [
+            "Deep Ray",
+            "Orazio Pinti",
+            "Assad A. Oberai"
+          ],
+          "claimed_title": "Deep Learning and Computational Physics (Lecture Notes)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.00942"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='Deep Learning and Computational Physics (Lecture Notes)')",
+        "failed_at": "2026-07-13T13:43:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+          "claimed_authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08900"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-07-13T13:43:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-07-13T13:43:59Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantitative structure-activity relationship (QSAR) modelling is effective 'bridge' to search the reliable relationship related bioactivity to molecular structure. A QSAR classification model contains a lager number of redundant, noisy and irrelevant descriptors. To address this problem, various of methods have been proposed for descriptor selection. Generally, they can be grouped into three categories: filters, wrappers, and embedded methods. Regularization method is an important embedded technology, which can be used for continuous shrinkage and automatic descriptors selection. In recent years, the interest of researchers in the application of regularization techniques is increasing in descriptors selection , such as, logistic regression(LR) with $L_1$ penalty. In this paper, we proposed a novel descriptor selection method based on self-paced learning(SPL) with Logsum penalized LR for predicting the bioactivity of molecular structure. SPL inspired by the learning process of humans and animals that gradually learns from easy samples(smaller losses) to hard samples(bigger losses) samples into training and Logsum regularization has capacity to select few meaningful and significant molecular descriptors, respectively. Experimental results on simulation and three public QSAR datasets show that our proposed SPL-Logsum method outperforms other commonly used sparse methods in terms of classification performance and model interpretation.",
+          "claimed_authors": [
+            "Liang-Yong Xia",
+            "Qing-Yong Wang"
+          ],
+          "claimed_title": "QSAR Classification Modeling for Bioactivity of Molecular Structure via SPL-Logsum",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.08615"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='QSAR Classification Modeling for Bioactivity of Molecular Structure via SPL-Logsum')",
+        "failed_at": "2026-07-13T13:44:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article looks at a simple modification to speedup the conventional Gauss Elimination. The proposed modification speeds up the conventional Gauss Elimination by a factor of nearly 9/7 (in the asymptotic limit).",
+          "claimed_authors": [
+            "Sivaram Ambikasaran"
+          ],
+          "claimed_title": "A simple way to speedup Gauss Elimination",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1101.4081"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='A simple way to speedup Gauss Elimination')",
+        "failed_at": "2026-07-13T13:44:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We construct viscous fluid flow sourced by a force dipole embedded in a cylindrical fluid membrane, coupled to external embedding fluids. We find analytic expressions for the flow, in the limit of infinitely long and thin tubular membranes. We utilize this solution to formulate the in-plane dynamics of a pair of pusher-type dipoles along the cylinder surface. We find that a mutually perpendicular dipole pair move together along helical geodesics, thus acting as curvature checkers, analogous to vortex dipoles. Since the cylindrical geometry breaks the in-plane rotational symmetry of the membrane, there is a difference in flows along the axial and transverse directions of the cylinder. This in turn leads to anisotropic hydrodynamic interaction between the dipoles and is remarkably different from flat and spherical fluid membranes. In particular, the flow along the compact direction of the cylinder has a local rigid rotation term (independent of the angular coordinate but decays along the axis of the cylinder). Due to this feature of the flow, we observe that the interacting dipole pair initially situated along the axial direction exhibits an overall drift along the compact angular direction of the tubular fluid membrane. We find that the drift for the dipole pair increases linearly with time. Our results are relevant for non-equilibrium dynamics of motor proteins in tubular membranes arising in nature, as well as in-vitro experiments (25).",
+          "claimed_authors": [
+            "Samyak Jain",
+            "Rickmoy Samanta"
+          ],
+          "claimed_title": "Force Dipole Interactions in Tubular Fluid Membranes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12061"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='Force Dipole Interactions in Tubular Fluid Membranes')",
+        "failed_at": "2026-07-13T13:44:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Counterfactual explanations provide means for prescriptive model explanations by suggesting actionable feature changes (e.g., increase income) that allow individuals to achieve favorable outcomes in the future (e.g., insurance approval). Choosing an appropriate method is a crucial aspect for meaningful counterfactual explanations. As documented in recent reviews, there exists a quickly growing literature with available methods. Yet, in the absence of widely available opensource implementations, the decision in favor of certain models is primarily based on what is readily available. Going forward - to guarantee meaningful comparisons across explanation methods - we present CARLA (Counterfactual And Recourse LibrAry), a python library for benchmarking counterfactual explanation methods across both different data sets and different machine learning models. In summary, our work provides the following contributions: (i) an extensive benchmark of 11 popular counterfactual explanation methods, (ii) a benchmarking framework for research on future counterfactual explanation methods, and (iii) a standardized set of integrated evaluation measures and data sets for transparent and extensive comparisons of these methods. We have open-sourced CARLA and our experimental results on Github, making them available as competitive baselines. We welcome contributions from other research groups and practitioners.",
+          "claimed_authors": [
+            "Martin Pawelczyk",
+            "Sascha Bielawski",
+            "Johannes van den Heuvel",
+            "Tobias Richter",
+            "Gjergji Kasneci"
+          ],
+          "claimed_title": "CARLA: A Python Library to Benchmark Algorithmic Recourse and Counterfactual Explanation Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2108.00783"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='CARLA: A Python Library to Benchmark Algorithmic Recourse and Counterfactual Explanation Algorithms')",
+        "failed_at": "2026-07-13T13:44:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A significant roadblock in multilingual neural language modeling is the lack of labeled non-English data. One potential method for overcoming this issue is learning cross-lingual text representations that can be used to transfer the performance from training on English tasks to non-English tasks, despite little to no task-specific non-English data. In this paper, we explore a natural setup for learning cross-lingual sentence representations: the dual-encoder. We provide a comprehensive evaluation of our cross-lingual representations on a number of monolingual, cross-lingual, and zero-shot/few-shot learning tasks, and also give an analysis of different learned cross-lingual embedding spaces.",
+          "claimed_authors": [
+            "Muthuraman Chidambaram",
+            "Yinfei Yang",
+            "Daniel Cer",
+            "Steve Yuan",
+            "Yun-Hsuan Sung",
+            "Brian Strope",
+            "Ray Kurzweil"
+          ],
+          "claimed_title": "Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.12836"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model')",
+        "failed_at": "2026-07-13T13:44:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Contrastive learning operates on a simple yet effective principle: Embeddings of positive pairs are pulled together, while those of negative pairs are pushed apart. In this paper, we propose a unified framework for understanding contrastive learning through the lens of cosine similarity, and present two key theoretical insights derived from this framework. First, in full-batch settings, we show that perfect alignment of positive pairs is unattainable when negative-pair similarities fall below a threshold, and this misalignment can be mitigated by incorporating within-view negative pairs into the objective. Second, in mini-batch settings, smaller batch sizes induce stronger separation among negative pairs in the embedding space, i.e., higher variance in their similarities, which in turn degrades the quality of learned representations compared to full-batch settings. To address this, we propose an auxiliary loss that reduces the variance of negative-pair similarities in mini-batch settings. Empirical results show that incorporating the proposed loss improves performance in small-batch settings.",
+          "claimed_authors": [
+            "Chungpa Lee",
+            "Sehee Lim",
+            "Kibok Lee",
+            "Jy-yong Sohn"
+          ],
+          "claimed_title": "On the Similarities of Embeddings in Contrastive Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09781"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='On the Similarities of Embeddings in Contrastive Learning')",
+        "failed_at": "2026-07-13T13:44:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the rising interest in graph representation learning, a variety of approaches have been proposed to effectively capture a graph's properties. While these approaches have improved performance in graph machine learning tasks compared to traditional graph techniques, they are still perceived as techniques with limited insight into the information encoded in these representations. In this work, we explore methods to interpret node embeddings and propose the creation of a robust evaluation framework for comparing graph representation learning algorithms and hyperparameters. We test our methods on graphs with different properties and investigate the relationship between embedding training parameters and the ability of the produced embedding to recover the structure of the original graph in a downstream task.",
+          "claimed_authors": [
+            "Antonia Gogoglou",
+            "C. Bayan Bruss",
+            "Keegan E. Hines"
+          ],
+          "claimed_title": "On the Interpretability and Evaluation of Graph Representation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.03081"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistr', candidate_title='On the Interpretability and Evaluation of Graph Representation Learning')",
+        "failed_at": "2026-07-13T13:44:00Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hanxuan Cai",
+            "Huimin Zhang",
+            "Duancheng Zhao",
+            "Jingxing Wu",
+            "Ling Wang"
+          ],
+          "title": "FP-GNN: a versatile deep learning architecture for enhanced molecular property prediction",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2205.03834",
+        "summary": "Deep learning is an important method for molecular design and exhibits considerable ability to predict molecular properties, including physicochemical, bioactive, and ADME/T (absorption, distribution, metabolism, excretion, and toxicity) properties. In this study, we advanced a novel deep learning architecture, termed FP-GNN, which combined and simultaneously learned information from molecular graphs and fingerprints. To evaluate the FP-GNN model, we conducted experiments on 13 public datasets, an unbiased LIT-PCBA dataset, and 14 phenotypic screening datasets for breast cell lines. Extensive evaluation results showed that compared to advanced deep learning and conventional machine learning algorithms, the FP-GNN algorithm achieved state-of-the-art performance on these datasets. In addition, we analyzed the influence of different molecular fingerprints, and the effects of molecular graphs and molecular fingerprints on the performance of the FP-GNN model. Analysis of the anti-noise ability and interpretation ability also indicated that FP-GNN was competitive in real-world situations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2205.03834",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T13:43:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Marcelo T. de Oliveira",
+            "Edson Katekawa"
+          ],
+          "title": "On the Virtues of Automated QSAR The New Kid on the Block",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1711.02639",
+        "summary": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1711.02639",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T13:44:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "William Colglazier",
+            "Nicholas Lubbers",
+            "Sergei Tretiak",
+            "Anders M. N. Niklasson",
+            "Maksim Kulichenko"
+          ],
+          "title": "Enhancing Molecular Dipole Moment Prediction with Multitask Machine Learning",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.22435",
+        "summary": "We present a multitask machine learning strategy for improving the prediction of molecular dipole moments by simultaneously training on quantum dipole magnitudes and inexpensive Mulliken atomic charges. With dipole magnitudes as the primary target and assuming only scalar dipole values are available without vector components we examine whether incorporating lower quality labels that do not quantitatively reproduce the target property can still enhance model accuracy. Mulliken charges were chosen intentionally as an auxiliary task, since they lack quantitative accuracy yet encode qualitative physical information about charge distribution. Our results show that including Mulliken charges with a small weight in the loss function yields up to a 30% improvement in dipole prediction accuracy. This multitask approach enables the model to learn a more physically grounded representation of charge distributions, thereby improving both the accuracy and consistency of dipole magnitude predictions. These findings highlight that even auxiliary data of limited quantitative reliability can provide valuable qualitative physical insights, ultimately strengthening the predictive power of machine learning models for molecular properties.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.22435",
+          "http_status": 200,
+          "pdf_sample_score": 0.2339,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T13:44:07Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular polarity from smiles strings with machine learning chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

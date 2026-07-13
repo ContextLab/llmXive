@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2310.00208",
+  "judged_at": "2026-07-13T13:44:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular polarity from smiles strings with machine learning chemistry",
+  "rationale": "The paper focuses on the neutron electric dipole moment in the context of particle physics and CP symmetry, which is a distinct physical construct from molecular polarity in chemistry. Although both involve the word \"dipole\" or \"polarity,\" they belong to entirely different domains (subatomic physics vs. molecular chemistry) and do not share the same mechanism, variables, or empirical population required for inclusion.",
+  "relevant": false
+}

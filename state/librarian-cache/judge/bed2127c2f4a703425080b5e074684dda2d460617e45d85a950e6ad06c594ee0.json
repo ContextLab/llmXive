@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1711.02639",
+  "judged_at": "2026-07-13T13:44:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular polarity from smiles strings with machine learning chemistry",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the core mechanism of predicting molecular properties (specifically activity, which relies on polarity and other descriptors) from chemical structures using machine learning, which is the foundational domain of the user's question. Although it focuses on \"activity\" rather than explicitly \"polarity,\" it establishes the empirical baseline and methodology for the same independent variable (SMILES/structure) and dependent variable type (molec",
+  "relevant": true
+}

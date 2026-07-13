@@ -9,34 +9,74 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can machine learning models trained exclusively on SMILES strings accurately predict molecular dipole moments with sufficient precision to serve as a surrogate for quantum mechanical calculations?
+How much predictive information about molecular dipole moments is captured by 2D topological representations (SMILES) versus requiring 3D structural or electronic descriptors, and which molecular features encoded in SMILES carry the strongest signal for polarity prediction?
 
 ## Motivation
 
-Accurate calculation of molecular polarity typically requires density functional theory (DFT), which is computationally prohibitive for large-scale screening. A lightweight ML model could accelerate materials discovery and drug design by providing rapid polarity estimates. This approach addresses the gap between high-accuracy quantum chemistry and the speed required for virtual screening.
+While quantum mechanical (QM) calculations provide high-fidelity dipole moments, they are computationally expensive for large-scale screening. Current machine learning approaches often rely on 3D conformers or pre-computed electronic descriptors, potentially obscuring the intrinsic information available in 2D topological strings (SMILES). Understanding the specific contribution of 2D features to polarity prediction is critical for determining the feasibility of ultra-lightweight screening pipelines that do not require conformational sampling or expensive electronic structure calculations.
 
 ## Related work
 
-- [Application advances of deep learning methods for de novo drug design and molecular dynamics simulation (2021)](https://doi.org/10.1002/wcms.1581) — Establishes the context for applying deep learning to molecular property prediction and simulation workflows.
-- [Machine Learning Harnesses Molecular Dynamics to Discover New $μ$ Opioid Chemotypes (2018)](http://arxiv.org/abs/1803.04479v1) — Demonstrates the integration of machine learning with molecular simulation data for chemical discovery tasks.
-- [GLORYx: Prediction of the Metabolites Resulting from Phase 1 and Phase 2 Biotransformations of Xenobiotics (2020)](https://doi.org/10.1021/acs.chemrestox.0c00224) — Shows precedent for using ML to predict chemical structural outcomes from molecular inputs.
-- [Physics-Inspired Interpretability Of Machine Learning Models (2023)](http://arxiv.org/abs/2304.02381v2) — Highlights the necessity of explainability in ML models applied to sensitive scientific domains like chemistry.
+- [Enhancing Molecular Dipole Moment Prediction with Multitask Machine Learning (2025)](https://arxiv.org/abs/2509.22435) — Demonstrates that multitask learning using atomic charges can improve dipole prediction, suggesting that electronic information is a key driver, but does not isolate the specific contribution of 2D topological features alone.
+- [FP-GNN: a versatile deep learning architecture for enhanced molecular property prediction (2022)](https://arxiv.org/abs/2205.03834) — Establishes the general capability of graph neural networks to predict physicochemical properties, though it typically utilizes 3D-aware or graph-based inputs rather than raw SMILES strings for polarity tasks.
+- [On the Virtues of Automated QSAR The New Kid on the Block (2017)](https://arxiv.org/abs/1711.02639) — Provides the historical and methodological context for using molecular descriptors in Quantitative Structure-Activity Relationship (QSAR) models, which is the foundational paradigm for this 2D-only approach.
 
 ## Expected results
 
-The model is expected to achieve a correlation coefficient (R²) > 0.85 between predicted and actual dipole moments on a held-out test set. Inference time per molecule should be orders of magnitude faster than DFT (milliseconds vs. minutes), with RMSE within 0.5 Debye of quantum mechanical ground truth.
+The study is expected to reveal that 2D topological descriptors capture a significant majority (>70%) of the variance in molecular dipole moments for rigid molecules, but performance degrades significantly for flexible or highly polarizable systems where 3D conformation is critical. Feature importance analysis will identify specific functional group patterns and topological indices within SMILES that serve as the primary proxies for electronic asymmetry.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the QM9 dataset (134k molecules) from the Maxwell Institute or Zenodo repository via `wget`/`curl` (publicly available SMILES and dipole moments).
-- **Preprocessing**: Parse SMILES strings using RDKit to generate 200+ standard molecular descriptors (e.g., topological indices, partial charges) on CPU.
-- **Model Selection**: Implement a Gradient Boosting Regressor (e.g., LightGBM or XGBoost) optimized for CPU inference; avoid deep neural networks to fit 7GB RAM and 6h time limits.
-- **Training**: Split data 80/20 for train/test; perform 5-fold cross-validation on the training set to tune hyperparameters (learning rate, depth).
-- **Evaluation**: Compute RMSE, MAE, and R² on the test set; compare inference latency against a baseline DFT calculation time estimate.
-- **Resource Management**: Process data in batches to ensure memory usage stays under 6GB; log all steps to ensure reproducibility within the GitHub Actions runner environment.
+- **Data Acquisition**: Download the QM9 dataset (134k molecules) from the Maxwell Institute or Zenodo repository via `wget`/`curl` to obtain paired SMILES strings and quantum-mechanically calculated dipole moments.
+- **Preprocessing**: Parse SMILES strings using RDKit to generate a feature matrix of 200+ 2D molecular descriptors (e.g., topological polar surface area, atom counts, connectivity indices) without generating 3D conformers.
+- **Model Selection**: Train a Gradient Boosting Regressor (LightGBM) on the 2D descriptor set, optimized for CPU inference to adhere to the 7GB RAM and 6h runtime constraints of the GitHub Actions runner.
+- **Training & Validation**: Split data 80/20 (train/test); perform 5-fold cross-validation to tune hyperparameters and prevent overfitting; ensure the validation target (dipole moment) is strictly independent of the 2D input features (no leakage of 3D geometry).
+- **Feature Analysis**: Apply SHAP (SHapley Additive exPlanations) values to the trained model to quantify the contribution of individual 2D descriptors to the dipole moment prediction, identifying the "strongest signal" features.
+- **Baseline Comparison**: Compare the 2D-only model performance against a theoretical baseline that assumes no 3D information is available, quantifying the performance gap (if any) attributable to the lack of conformational data.
+- **Resource Management**: Process the dataset in batches to ensure peak memory usage remains under 6GB; log all random seeds and hyperparameters for reproducibility.
 
 ## Duplicate-check
 
-- Reviewed existing ideas: (Project corpus scan completed).
-- Closest match: None observed (specific focus on dipole moment prediction from SMILES distinguishes this from general drug design or metabolism prediction).
+- Reviewed existing ideas: FP-GNN application, Automated QSAR frameworks, Multitask dipole prediction.
+- Closest match: Enhancing Molecular Dipole Moment Prediction with Multitask Machine Learning (similarity sketch: both address dipole prediction, but the prior work relies on multitask electronic charge inputs and does not isolate the specific information content of 2D topological strings alone).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-13T13:44:43Z
+**Outcome**: exhausted
+**Original term**: Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistry
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Molecular Polarity from SMILES Strings with Machine Learning chemistry | 0 |
+| 1 | molecular dipole moment prediction using SMILES | 2 |
+| 2 | machine learning models for molecular polarity estimation | 5 |
+| 3 | deep learning for chemical property prediction from SMILES | 0 |
+| 4 | graph neural networks for molecular dipole moments | 0 |
+| 5 | quantitative structure-property relationship (QSPR) for polarity | 0 |
+| 6 | SMILES-based regression for molecular descriptors | 0 |
+| 7 | predicting dielectric constant from molecular structure | 0 |
+| 8 | neural network architectures for chemical property inference | 0 |
+| 9 | transformer models for molecular property prediction | 0 |
+| 10 | learning molecular representations from SMILES strings | 0 |
+| 11 | computational prediction of molecular dipole vectors | 0 |
+| 12 | supervised learning for estimating molecular polarity | 0 |
+| 13 | sequence-to-property models in cheminformatics | 0 |
+| 14 | automated polarity prediction from chemical notations | 0 |
+| 15 | feature extraction from SMILES for polarity classification | 0 |
+| 16 | graph-based vs sequence-based molecular property prediction | 0 |
+| 17 | in silico calculation of molecular polarity using AI | 0 |
+| 18 | transfer learning for molecular property estimation | 0 |
+| 19 | predicting solvation behavior from SMILES representations | 0 |
+| 20 | end-to-end learning of molecular electronic properties | 0 |
+
+### Verified citations
+
+1. **FP-GNN: a versatile deep learning architecture for enhanced molecular property prediction** (2022). Hanxuan Cai, Huimin Zhang, Duancheng Zhao, Jingxing Wu, Ling Wang. arXiv. [2205.03834](https://arxiv.org/abs/2205.03834). PDF-sampled: No.
+2. **On the Virtues of Automated QSAR The New Kid on the Block** (2017). Marcelo T. de Oliveira, Edson Katekawa. arXiv. [1711.02639](https://arxiv.org/abs/1711.02639). PDF-sampled: No.
+3. **Enhancing Molecular Dipole Moment Prediction with Multitask Machine Learning** (2025). William Colglazier, Nicholas Lubbers, Sergei Tretiak, Anders M. N. Niklasson, Maksim Kulichenko. arXiv. [2509.22435](https://arxiv.org/abs/2509.22435). PDF-sampled: No.

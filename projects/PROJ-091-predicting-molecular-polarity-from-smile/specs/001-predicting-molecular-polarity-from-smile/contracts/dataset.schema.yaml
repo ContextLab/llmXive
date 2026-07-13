@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "QM9 Dataset Schema"
+description: "Schema for the raw QM9 dataset downloaded from HuggingFace"
+type: "object"
+properties:
+  smiles:
+    type: "string"
+    description: "Canonical SMILES string of the molecule"
+  dipole_moment:
+    type: "number"
+    description: "Dipole moment in Debye (scalar magnitude)"
+  mu_x:
+    type: "number"
+    description: "X component of the dipole moment vector"
+  mu_y:
+    type: "number"
+    description: "Y component of the dipole moment vector"
+  mu_z:
+    type: "number"
+    description: "Z component of the dipole moment vector"
+  id:
+    type: "string"
+    description: "Unique identifier for the molecule"
+required:
+  - "smiles"
+  - "dipole_moment"
+additionalProperties: true

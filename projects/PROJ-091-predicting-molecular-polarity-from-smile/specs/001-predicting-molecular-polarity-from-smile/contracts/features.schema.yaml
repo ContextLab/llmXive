@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "2D Descriptor Features Schema"
+description: "Schema for the processed 2D topological descriptor matrix"
+type: "object"
+properties:
+  smiles:
+    type: "string"
+    description: "Input SMILES string"
+  dipole_moment:
+    type: "number"
+    description: "Target variable (Debye)"
+  is_valid:
+    type: "boolean"
+    description: "Flag indicating if all descriptors were successfully calculated"
+  descriptors:
+    type: "object"
+    description: "Map of descriptor names to their numeric values"
+    additionalProperties:
+      type: "number"
+      description: "Value of the 2D topological descriptor"
+required:
+  - "smiles"
+  - "dipole_moment"
+  - "is_valid"
+  - "descriptors"
+additionalProperties: false

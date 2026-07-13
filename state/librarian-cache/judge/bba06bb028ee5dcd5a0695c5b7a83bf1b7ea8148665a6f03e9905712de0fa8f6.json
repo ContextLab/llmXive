@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-07-13T13:44:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular polarity from smiles strings with machine learning chemistry",
+  "rationale": "The paper focuses on the risks of changing data sources in the context of official statistics and policy-making, which is an entirely different domain from predicting molecular polarity using SMILES strings in computational chemistry. It shares no measurable connection to the user's specific mechanism (molecular property prediction), variables (polarity, SMILES), or empirical setting (chemical data), failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+  "relevant": false
+}

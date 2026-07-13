@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.12150",
+  "judged_at": "2026-07-13T13:44:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular polarity from smiles strings with machine learning chemistry",
+  "rationale": "The paper is a general survey on learning curves in machine learning and does not address the specific domain of molecular polarity, SMILES strings, or chemical property prediction. It fails to meet any inclusion criteria (a-f) as it lacks the necessary biological/chemical mechanism, domain-specific variables, or canonical methodology for the user's chemistry-focused question.",
+  "relevant": false
+}
