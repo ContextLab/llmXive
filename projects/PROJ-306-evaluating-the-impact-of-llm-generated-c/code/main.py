@@ -1,3 +1,8 @@
+"""
+Main orchestration script for the LLM Code Coverage Impact Study.
+
+Handles generation, coverage execution, and analysis pipeline triggering.
+"""
 import os
 import sys
 import json
@@ -6,215 +11,156 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-# Import from existing modules as per API surface
-from config import get_api_key, get_model_chain, get_model_config, resolve_model
-from utils import exponential_backoff_retry
-from dataset_loader import validate_and_create_catalog, load_mbpp_dataset, save_raw_mbpp_files, load_humaneval_dataset, save_raw_humaneval_files
+# Import project modules
+from config import get_model_chain, get_api_key
+from dataset_loader import validate_and_create_catalog
 from llm_generator import generate_code
-from coverage_runner import run_coverage_with_catalog_check, save_coverage_report, is_humaneval_task
-from error_handling import setup_logger, log_error, handle_syntax_error, handle_generation_failure, safe_execute_task
+from coverage_runner import run_coverage_with_catalog_check
+from analyzer import run_analysis_pipeline
+from sensitivity_analyzer import main as run_sensitivity_analysis
 
-# Constants
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-BENCHMARKS_RAW_DIR = DATA_DIR / "benchmarks" / "raw"
-BENCHMARKS_PROCESSED_DIR = DATA_DIR / "benchmarks" / "processed"
-GENERATED_DIR = DATA_DIR / "generated"
-COVERAGE_REPORTS_DIR = DATA_DIR / "coverage_reports"
+# Setup logging
+def setup_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler(f"outputs/pipeline_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
+        ]
+    )
+    return logging.getLogger(__name__)
 
-def save_error_report(task_id: str, error_message: str, output_dir: Path):
-    """
-    Save a JSON record for a failed task to the coverage_reports directory.
-    Schema: { "task_id": "...", "status": "failed", "error_message": "...", "timestamp": "..." }
-    """
+logger = setup_logging()
+
+def save_error_report(task_id: str, error_message: str, output_dir: str):
+    """Saves an error report JSON for a failed task."""
     report = {
         "task_id": task_id,
         "status": "failed",
-        "error_message": str(error_message),
-        "timestamp": datetime.utcnow().isoformat()
+        "error_message": error_message,
+        "timestamp": datetime.now().isoformat()
     }
-    report_path = output_dir / f"{task_id}.json"
-    with open(report_path, 'w', encoding='utf-8') as f:
+    report_path = Path(output_dir) / "coverage_reports"
+    report_path.mkdir(parents=True, exist_ok=True)
+    file_path = report_path / f"{task_id}.json"
+    with open(file_path, 'w') as f:
         json.dump(report, f, indent=2)
-    logging.error(f"Saved error report for {task_id} to {report_path}")
+    logger.error(f"Saved error report for {task_id}: {error_message}")
 
-def process_single_task(task: dict, model_name: str, output_dir: Path, logger: logging.Logger):
-    """
-    Process a single task: generate code and run coverage.
-    Handles SyntaxError and generic Exception, saving error reports on failure.
-    """
-    task_id = task.get('task_id', 'unknown')
+def load_task_catalog(catalog_path: str = "data/benchmarks/processed/catalog.json"):
+    """Loads the task catalog."""
+    if not os.path.exists(catalog_path):
+        logger.error(f"Catalog not found at {catalog_path}")
+        return []
+    with open(catalog_path, 'r') as f:
+        return json.load(f)
+
+def process_single_task(task: dict, model: str, output_dir: str):
+    """Processes a single task: generation -> coverage -> report."""
+    task_id = task.get('task_id')
     logger.info(f"Processing task: {task_id}")
-
+    
     try:
         # 1. Generate Code
-        # Ensure generated code is saved to data/generated/{task_id}.py
-        generated_path = GENERATED_DIR / f"{task_id}.py"
+        generated_file = generate_code(task, model, output_dir)
+        if not generated_file or not os.path.exists(generated_file):
+            raise Exception("Code generation failed or produced no file.")
         
-        # Check if code generation is needed or if we assume it exists (depending on pipeline state)
-        # For this orchestration, we call the generator. 
-        # Note: generate_code expects task details. 
-        # We pass the prompt and expected output path.
-        
-        # We wrap generation in a retry mechanism for API limits if applicable
-        # But primarily we need to catch SyntaxError during generation if the LLM produces bad code
-        # that causes issues later, or if the generation itself fails.
-        
-        # The task description implies generating code.
-        # We assume generate_code handles the actual API call and saving to the file.
-        # If generate_code raises an error, we catch it.
-        
-        # Note: The prompt says "Implement logic... to orchestrate generation and coverage".
-        # We assume generate_code returns the path or saves the file.
-        
-        # Let's call the generator. 
-        # We need to handle if the generation itself fails (e.g. API error, bad response).
-        try:
-            # Call the generator. We pass the task details.
-            # The existing generate_code function likely takes a task dict and model config.
-            # We need to ensure it saves to the correct location.
-            # If it doesn't, we might need to adjust, but the task says "extend existing".
-            # We assume generate_code(task, model) saves to GENERATED_DIR/{task_id}.py
-            # based on T009 description.
-            
-            # We need to pass the model config.
-            model_config = get_model_config(model_name)
-            
-            # Call generation
-            generated_file = generate_code(task, model_config)
-            
-            if not generated_file or not os.path.exists(generated_file):
-                raise FileNotFoundError(f"Generated code file not found: {generated_file}")
-                
-        except SyntaxError as se:
-            # Handle syntax error during generation (e.g. if we try to compile the output immediately)
-            # Or if the generation logic itself hits a syntax issue in parsing response
-            handle_syntax_error(task_id, str(se), output_dir)
-            save_error_report(task_id, f"SyntaxError during generation: {se}", output_dir)
-            return False
-        except Exception as gen_err:
-            # Generic exception during generation
-            handle_generation_failure(task_id, str(gen_err), output_dir)
-            save_error_report(task_id, f"Generation failed: {gen_err}", output_dir)
-            return False
-
         # 2. Run Coverage
-        # We need to run coverage on the generated file using the test suite from the catalog
-        # The catalog is expected to be at BENCHMARKS_PROCESSED_DIR / "catalog.json"
-        catalog_path = BENCHMARKS_PROCESSED_DIR / "catalog.json"
-        
-        if not os.path.exists(catalog_path):
-            # If catalog doesn't exist, we might need to create it first or fail gracefully
-            # For this task, we assume the catalog exists or is created by a previous step.
-            # However, the task says "orchestrate generation and coverage execution for a batch".
-            # We should ensure the catalog is ready if not present.
-            # But to keep this task focused on orchestration, we assume it's there.
-            # If not, we log and skip or error.
-            logger.warning(f"Catalog not found at {catalog_path}. Coverage cannot be run accurately.")
-            # We can still try to run coverage if we have the task_id, but we need the test suite path.
-            # Let's assume we fail coverage if catalog is missing.
-            save_error_report(task_id, "Coverage execution failed: Catalog not found", output_dir)
-            return False
-
-        # Run coverage
-        # run_coverage_with_catalog_check expects task_id and catalog_path
-        coverage_result = run_coverage_with_catalog_check(task_id, catalog_path, output_dir)
-        
-        if coverage_result is None:
-            # Coverage failed to run or parse
-            save_error_report(task_id, "Coverage execution failed", output_dir)
-            return False
-
-        logger.info(f"Successfully processed task {task_id}")
+        coverage_report = run_coverage_with_catalog_check(task_id, generated_file, output_dir)
+        if not coverage_report:
+            raise Exception("Coverage execution failed.")
+            
+        logger.info(f"Task {task_id} completed successfully.")
         return True
-
-    except SyntaxError as se:
-        # Catch SyntaxError that might bubble up from coverage or other steps
-        save_error_report(task_id, f"SyntaxError during processing: {se}", output_dir)
+        
+    except SyntaxError as e:
+        error_msg = f"SyntaxError: {str(e)}"
+        save_error_report(task_id, error_msg, output_dir)
         return False
     except Exception as e:
-        # Catch any other exception
-        save_error_report(task_id, f"Unexpected error: {e}", output_dir)
+        error_msg = f"Exception: {str(e)}"
+        save_error_report(task_id, error_msg, output_dir)
         return False
 
+def run_analysis_pipeline_wrapper(output_dir: str):
+    """
+    Triggers the statistical analysis pipeline after generation/coverage is complete.
+    This includes T029 sensitivity analysis.
+    """
+    logger.info("Starting Analysis Pipeline...")
+    
+    # 1. Run Statistical Analysis (T024-T028)
+    try:
+        run_analysis_pipeline(output_dir)
+        logger.info("Statistical analysis completed.")
+    except Exception as e:
+        logger.error(f"Statistical analysis failed: {e}")
+    
+    # 2. Run Sensitivity Analysis (T029)
+    try:
+        # The sensitivity_analyzer main function handles its own loading and saving
+        run_sensitivity_analysis()
+        logger.info("Sensitivity analysis completed.")
+    except Exception as e:
+        logger.error(f"Sensitivity analysis failed: {e}")
+
 def main():
-    parser = argparse.ArgumentParser(description="Orchestrate LLM code generation and coverage execution.")
-    parser.add_argument('--dataset', type=str, default='mbpp', choices=['mbpp', 'humaneval', 'both'],
-                        help='Dataset to use for generation.')
+    parser = argparse.ArgumentParser(description="LLM Code Coverage Impact Study Pipeline")
+    parser.add_argument('--dataset', type=str, choices=['mbpp', 'humaneval', 'all'], default='all',
+                        help='Dataset to process')
     parser.add_argument('--model', type=str, default='gpt-4',
-                        help='Model to use for code generation.')
+                        help='Model to use for code generation')
     parser.add_argument('--batch-size', type=int, default=10,
-                        help='Number of tasks to process in a batch.')
-    parser.add_argument('--output-dir', type=str, default=str(COVERAGE_REPORTS_DIR),
-                        help='Directory to save coverage reports and error reports.')
+                        help='Number of tasks to process in a batch')
+    parser.add_argument('--output-dir', type=str, default='data',
+                        help='Base output directory for data and reports')
+    # Removed --num-tasks as it was causing argument errors and is not in spec
     
     args = parser.parse_args()
-
-    # Setup logging
-    logger = setup_logger("main_orchestration")
-    logger.info(f"Starting orchestration for dataset: {args.dataset}, model: {args.model}, batch_size: {args.batch-size}")
-
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
+    
+    logger.info(f"Starting pipeline with args: {args}")
+    
     # Ensure directories exist
-    GENERATED_DIR.mkdir(parents=True, exist_ok=True)
-    BENCHMARKS_RAW_DIR.mkdir(parents=True, exist_ok=True)
-    BENCHMARKS_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    COVERAGE_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-
-    # 1. Load and Prepare Dataset
-    # We need to load the dataset and create the catalog if not exists
-    catalog_path = BENCHMARKS_PROCESSED_DIR / "catalog.json"
+    os.makedirs(f"{args.output_dir}/coverage_reports", exist_ok=True)
+    os.makedirs(f"{args.output_dir}/generated", exist_ok=True)
+    os.makedirs(f"{args.output_dir}/processed", exist_ok=True)
     
-    if not os.path.exists(catalog_path):
-        logger.info("Catalog not found. Creating catalog from raw datasets...")
-        # Load raw datasets
-        if args.dataset in ['mbpp', 'both']:
-            load_mbpp_dataset()
-            save_raw_mbpp_files()
-        if args.dataset in ['humaneval', 'both']:
-            load_humaneval_dataset()
-            save_raw_humaneval_files()
-        
-        # Create catalog
-        validate_and_create_catalog()
-    else:
-        logger.info(f"Catalog found at {catalog_path}")
-
-    # Load tasks from catalog
-    with open(catalog_path, 'r', encoding='utf-8') as f:
-        catalog = json.load(f)
+    # Load Catalog
+    catalog = load_task_catalog()
+    if not catalog:
+        logger.error("No tasks found in catalog. Exiting.")
+        return
     
-    tasks = catalog.get('tasks', [])
-    logger.info(f"Loaded {len(tasks)} tasks from catalog.")
-
-    # Select batch
-    tasks_to_process = tasks[:args.batch_size]
-    logger.info(f"Processing batch of {len(tasks_to_process)} tasks.")
-
+    # Filter tasks based on dataset if needed (simplified logic)
+    tasks_to_process = catalog
+    if args.dataset != 'all':
+        tasks_to_process = [t for t in catalog if t.get('dataset_source') == args.dataset]
+    
+    logger.info(f"Processing {len(tasks_to_process)} tasks.")
+    
     success_count = 0
     fail_count = 0
-
-    for task in tasks_to_process:
-        task_id = task.get('task_id', 'unknown')
-        logger.info(f"Processing task: {task_id}")
+    
+    for i, task in enumerate(tasks_to_process):
+        if i >= args.batch_size:
+            logger.info(f"Batch limit ({args.batch_size}) reached. Stopping generation/coverage.")
+            break
         
-        try:
-            success = process_single_task(task, args.model, output_dir, logger)
-            if success:
-                success_count += 1
-            else:
-                fail_count += 1
-        except SyntaxError as se:
-            # This should be caught inside process_single_task, but as a safety net
-            save_error_report(task_id, f"SyntaxError in orchestration loop: {se}", output_dir)
+        if process_single_task(task, args.model, args.output_dir):
+            success_count += 1
+        else:
             fail_count += 1
-        except Exception as e:
-            save_error_report(task_id, f"Exception in orchestration loop: {e}", output_dir)
-            fail_count += 1
-
-    logger.info(f"Batch processing complete. Success: {success_count}, Failed: {fail_count}")
+    
+    logger.info(f"Generation/Coverage complete: {success_count} success, {fail_count} failed.")
+    
+    # Trigger Analysis Pipeline (including T029)
+    # Only run if we have some successful results to analyze
+    if success_count > 0:
+        run_analysis_pipeline_wrapper(args.output_dir)
+    else:
+        logger.warning("No successful tasks to analyze. Skipping analysis pipeline.")
 
 if __name__ == "__main__":
     main()
