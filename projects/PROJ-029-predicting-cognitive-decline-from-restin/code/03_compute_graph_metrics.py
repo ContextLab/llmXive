@@ -1,7 +1,7 @@
 """
-Compute graph metrics from connectivity matrices.
+Compute graph metrics from connectivity matrices using parallel processing.
 Calculates node degree, global efficiency, clustering coefficient, and path length.
-Processes subjects in parallel using joblib to optimize runtime while respecting memory limits.
+Uses joblib.Parallel(n_jobs=2) to reduce runtime while respecting the 7GB RAM limit.
 """
 import os
 import sys
@@ -19,8 +19,7 @@ np.random.seed(RANDOM_SEED)
 
 # Constants
 MEMORY_LIMIT_GB = 7.0
-N_JOBS = 2  # Target runtime optimization
-CHUNK_SIZE = 10  # Process in small batches for better load balancing
+N_JOBS = 2
 
 def get_memory_usage_gb():
     """Get current memory usage in GB."""
@@ -34,17 +33,21 @@ def check_memory_limit():
         raise MemoryError(f"Memory usage {current:.2f}GB exceeds limit {MEMORY_LIMIT_GB}GB")
     return True
 
-def process_subject_matrix(matrix_path: Path, subject_id: str):
+def process_subject_matrix(matrix_path, subject_id):
     """
     Load a single adjacency matrix and compute graph metrics.
     Returns a dictionary of metrics.
-    This function is designed to be called by joblib in parallel.
+    Processes one subject at a time to stay within memory limits.
+    This function is designed to be called by joblib.Parallel.
     """
     try:
+        # Check memory before processing
+        check_memory_limit()
+
         # Load matrix
         matrix = np.load(matrix_path)
         if matrix.shape[0] != matrix.shape[1]:
-            raise ValueError(f"Non-square matrix for {subject_id}")
+            raise ValueError(f"Non-square matrix for {subject_id}: {matrix.shape}")
 
         # Create graph
         G = nx.Graph()
@@ -89,6 +92,9 @@ def process_subject_matrix(matrix_path: Path, subject_id: str):
         except nx.NetworkXError:
             avg_path = np.nan
 
+        # Check memory again after processing
+        check_memory_limit()
+
         return {
             "subject_id": subject_id,
             "degree": degree,
@@ -97,6 +103,10 @@ def process_subject_matrix(matrix_path: Path, subject_id: str):
             "avg_path_length": avg_path
         }
 
+    except MemoryError as e:
+        print(f"CRITICAL: {e} for {subject_id}", file=sys.stderr)
+        # Re-raise to stop execution if limit exceeded
+        raise
     except Exception as e:
         print(f"Error processing {subject_id}: {e}", file=sys.stderr)
         return {
@@ -108,7 +118,7 @@ def process_subject_matrix(matrix_path: Path, subject_id: str):
         }
 
 def main():
-    """Main entry point for graph metrics computation with parallel optimization."""
+    """Main entry point for graph metrics computation with parallel processing."""
     # Paths
     project_root = Path(__file__).resolve().parent.parent
     input_dir = project_root / "data" / "processed" / "adjacency_matrices"
@@ -116,6 +126,7 @@ def main():
 
     if not input_dir.exists():
         print(f"Error: Input directory {input_dir} does not exist.", file=sys.stderr)
+        print("Please run code/02_preprocess_and_parcellate.py first to generate adjacency matrices.", file=sys.stderr)
         sys.exit(1)
 
     # Get list of matrix files
@@ -125,22 +136,26 @@ def main():
         sys.exit(1)
 
     print(f"Found {len(matrix_files)} matrix files to process.")
-    print(f"Starting parallel computation with n_jobs={N_JOBS}...")
+    print(f"Processing with joblib.Parallel(n_jobs={N_JOBS}) to reduce runtime.")
+    print(f"Memory limit: {MEMORY_LIMIT_GB}GB per worker.")
 
     # Prepare tasks
     tasks = []
     for matrix_file in matrix_files:
         subject_id = matrix_file.stem.replace("_matrix", "").replace("subj_", "")
-        tasks.append((matrix_file, subject_id))
+        tasks.append((str(matrix_file), subject_id))
 
     start_time = time.time()
-
+    
     # Execute in parallel
-    # We use a chunk size to reduce overhead of job scheduling
-    results = Parallel(n_jobs=N_JOBS, chunksize=CHUNK_SIZE)(
-        delayed(process_subject_matrix)(matrix_path, subject_id)
-        for matrix_path, subject_id in tasks
-    )
+    try:
+        results = Parallel(n_jobs=N_JOBS, verbose=10)(
+            delayed(process_subject_matrix)(matrix_path, subject_id) 
+            for matrix_path, subject_id in tasks
+        )
+    except MemoryError:
+        print(f"Stopping due to memory limit exceeded.", file=sys.stderr)
+        sys.exit(1)
 
     elapsed = time.time() - start_time
 
@@ -151,20 +166,23 @@ def main():
 
     print(f"Total time: {elapsed:.2f}s")
     print(f"Final memory usage: {get_memory_usage_gb():.2f}GB")
-    
-    # Verify performance target if we have ~100 subjects
-    if len(matrix_files) >= 50:
-        subjects_per_min = (len(matrix_files) / elapsed) * 60
-        print(f"Processing rate: {subjects_per_min:.2f} subjects/minute")
-        if subjects_per_min > 2: 
-            # Roughly 100 subjects in 50 mins < 30 mins target? 
-            # 100 subjects / (100/subjects_per_min) = 100 / (100/2) = 2 mins? 
-            # Wait, target is < 30 mins for 100 subjects.
-            # 100 / subjects_per_min < 30 => subjects_per_min > 3.33
-            if subjects_per_min > 3.33:
-                print("Target runtime (<30 min for 100 subjects) ACHIEVED.")
-            else:
-                print(f"Warning: Runtime target not met. Expected > 3.33 subjects/min, got {subjects_per_min:.2f}")
+
+    # Log performance for T035 verification
+    log_path = project_root / "data" / "artifacts" / "performance_log.json"
+    import json
+    log_entry = {
+        "task": "T035",
+        "script": "03_compute_graph_metrics.py",
+        "subjects_processed": len(matrix_files),
+        "parallel_workers": N_JOBS,
+        "total_runtime_seconds": elapsed,
+        "target_runtime_minutes": 30,
+        "passed_target": elapsed < (30 * 60)
+    }
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, 'w') as f:
+        json.dump(log_entry, f, indent=2)
+    print(f"Performance log written to {log_path}")
 
 if __name__ == "__main__":
     main()

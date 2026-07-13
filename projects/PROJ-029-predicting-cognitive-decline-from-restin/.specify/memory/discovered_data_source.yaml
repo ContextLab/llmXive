@@ -1,0 +1,11 @@
+status: none
+intent: download OpenNeuro ds000246 ds000248 ADNI rs-fMRI BIDS dataset with AAL atlas
+  python package dataset
+required_fields:
+- subject_id
+- session
+- mmse_baseline
+- mmse_followup
+- moca_baseline
+- moca_followup
+- func_nifti_path

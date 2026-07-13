@@ -1,10 +1,3 @@
-T036 [P] Run the full `tests/` suite and ensure **all** tests pass: 1
-? "T037 Security hardening: Scan `data/raw/` for PII using `pybids`/`bids-validator`;\
-  \ automatically redact any personal identifiers found in JSON side\u2011cars or\
-  \ filenames"
-: 1
-"T038 Run `quickstart.md` validation to ensure end\u2011to\u2011end reproducibility on a fresh runner": 1
-? T043 [P] Add a CI step that logs peak memory usage for each major script (download,
-  preprocessing, modeling, permutation) to `data/artifacts/memory_profile.log` for
-  future audit
-: 1
+T030b: 2
+T035: 2
+T044: 2

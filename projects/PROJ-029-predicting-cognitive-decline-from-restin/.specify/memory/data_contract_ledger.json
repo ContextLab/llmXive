@@ -1,0 +1,10 @@
+[
+  {
+    "data_file": "data/processed/eligible_subjects.csv",
+    "required": []
+  },
+  {
+    "data_file": "data/processed/graph_metrics.csv",
+    "required": []
+  }
+]
