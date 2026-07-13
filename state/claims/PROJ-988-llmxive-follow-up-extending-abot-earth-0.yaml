@@ -1,0 +1,288 @@
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: alignment error less than 2 meters
+  claim_id: c_94495be0
+  context: Unit test for alignment error calculation in tests/unit/test_alignment.py
+    (verify < 2m residual)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alignment_error_less_than_2_meters
+  kind: magnitude
+  raw_text: verify < 2m residual
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:54:29Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: extract 100 square meter patches
+  claim_id: c_1e465c01
+  context: "Implement code/01_patch_extraction.py to extract 100m\xB2 patches from\
+    \ the downloaded 1km\xB2 aligned tiles"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "extract 100m\xB2 patches"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:55:19Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: 1 square kilometer aligned tiles
+  claim_id: c_4e4777ca
+  context: "extract 100m\xB2 patches from the downloaded 1km\xB2 aligned tiles"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "1km\xB2 aligned tiles"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:56:02Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: processing time within 45 minutes per scene and peak RAM under 6.5 gigabytes
+  claim_id: c_60f94ea1
+  context: Run 3D Gaussian Splatting (3DGS) and CPU-optimized inpainting (ONNX Runtime)
+    on degraded scenes within 45 mins/scene and < 6.5 GB RAM, measuring performance
+    metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: within 45 mins/scene and < 6.5 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:57:04Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: peak RAM usage under 6.5 gigabytes
+  claim_id: c_2b65eb21
+  context: Integration test for memory usage in tests/integration/test_memory_limits.py
+    (verify < 6.5 GB peak RAM)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify < 6.5 GB peak RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:57:04Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: scene completion time under 30 minutes
+  claim_id: c_6408f6fa
+  context: Implement code/03_3dgs_baseline.py to generate baseline 3DGS .ply scenes...
+    ensure completion < 30 mins per scene
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure completion < 30 mins per scene
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:57:04Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: camera focal length 1024 and center 256
+  claim_id: c_ba15f8c4
+  context: using fixed camera intrinsics (f=1024, c=256) and fixed poses
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: f=1024, c=256
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:57:43Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: output file size under 500 megabytes
+  claim_id: c_83a0c614
+  context: validate output .ply files for format compatibility and size < 500 MB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: size < 500 MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:57:43Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: alignment error less than 2 meters for paired samples
+  claim_id: c_44fb99cc
+  context: 'Independent Test: A script generates paired samples where alignment error
+    is < 2 meters, and degradation parameters (resolution, cloud coverage, NNF) are
+    verified against the ground truth.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alignment_error_less_than_2_meters_for_paired_samples
+  kind: magnitude
+  raw_text: A script generates paired samples where alignment error is < 2 meters
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T02:17:09Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: download Sentinel-2 and LiDAR for urban regions until alignment error
+    less than 2 meters
+  claim_id: c_feb42078
+  context: Implement code/01_data_curation.py to download Sentinel-2 (Microsoft Planetary
+    Computer) and LiDAR (USGS 3DEP/NYC) for urban regions; implement a while count
+    < 500 retry loop that repeatedly downloads and aligns new batches until a sufficient
+    number of valid samples (alignment error < 2m) are secured; save raw assets to
+    data/raw/ and generate data/processed/raw_manifest.csv listing all downloaded
+    IDs; output the final filtered dataset to data/processed/aligned_pairs.csv and
+    data/processed/alignment_report.csv
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_Sentinel-2_and_LiDAR_for_urban_regions_until_alignm
+  kind: magnitude
+  raw_text: output the final filtered dataset to data/processed/aligned_pairs.csv
+    and data/processed/alignment_report.csv
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T02:17:19Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: extract 100 square meter patches from 1 square kilometer tiles
+  claim_id: c_38d7ed3d
+  context: "Implement code/01_patch_extraction.py to extract 100m\xB2 patches from\
+    \ the downloaded 1km\xB2 aligned tiles (output of T012); output to data/processed/patches_100m2/;\
+    \ ensure this step occurs BEFORE degradation to satisfy compute budget constraints\
+    \ (SC-003, FR-003); generate data/processed/patch_manifest.csv"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "extract 100m\xB2 patches from the downloaded 1km\xB2 aligned tiles"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T02:17:27Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: run 3D Gaussian Splatting and CPU inpainting within 45 minutes per scene
+    and 6.5 GB RAM
+  claim_id: c_67baaffc
+  context: 'Goal: Run 3D Gaussian Splatting (3DGS) and CPU-optimized inpainting (ONNX
+    Runtime) on degraded scenes within 45 mins/scene and < 6.5 GB RAM, measuring performance
+    metrics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 3D Gaussian Splatting (3DGS) and CPU-optimized inpainting (ONNX Runtime)
+    on degraded scenes within 45 mins/scene and < 6.5 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T02:17:35Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: verify peak RAM less than 6.5 GB
+  claim_id: c_28a3253e
+  context: Integration test for memory usage in tests/integration/test_memory_limits.py
+    (verify < 6.5 GB peak RAM)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_RAM_less_than_6.5_GB
+  kind: magnitude
+  raw_text: verify < 6.5 GB peak RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T02:20:10Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: ensure completion less than 30 minutes per scene
+  claim_id: c_c4f3eb65
+  context: Implement code/03_3dgs_baseline.py to generate baseline 3DGS .ply scenes
+    from the degraded inputs in data/processed/nnf_varied_scenes/ (from T014b); output
+    to data/processed/reconstructed/baseline/; ensure completion < 30 mins per scene;
+    wrap execution with memory_profiler to log per-sample peak_ram_mb and wall_clock_time
+    to a temporary buffer
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_completion_less_than_30_minutes_per_scene
+  kind: magnitude
+  raw_text: ensure completion < 30 mins per scene
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T02:22:56Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: validate output PLY files for size less than 500 MB
+  claim_id: c_1021450a
+  context: Implement code/03_ply_validator.py to validate output .ply files for format
+    compatibility and size < 500 MB; ensure the staging performance logs from T024
+    are persisted before aggregation
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validate_output_PLY_files_for_size_less_than_500_MB
+  kind: magnitude
+  raw_text: validate output .ply files for format compatibility and size < 500 MB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T02:23:10Z'
+- artifact_path: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0/tasks.md
+  attempts: 1
+  canonical: perform statistical significance testing using Wilcoxon and Linear Mixed-Effects
+    model
+  claim_id: c_3c4137f3
+  context: 'Goal: Compute P-PSNR, P-SSIM, Chamfer Distance, and Geometric Divergence
+    Score (GDS) against LiDAR, perform statistical significance testing using Wilcoxon
+    and LMM, and identify the critical NNF threshold using the NNF-varied dataset
+    from T014.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_statistical_significance_testing_using_Wilcoxon_and
+  kind: entity_fact
+  raw_text: perform statistical significance testing using Wilcoxon and LMM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T02:23:29Z'

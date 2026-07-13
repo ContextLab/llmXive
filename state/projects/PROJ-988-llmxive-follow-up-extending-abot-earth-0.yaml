@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-04T02:58:15.161186Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-988-llmxive-follow-up-extending-abot-earth-0
-last_run_id: f01dc17f-f3d4-4c14-845f-62d57acdc701
+last_run_id: d0b0766c-ea04-4f39-926a-62270c361345
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/specs/001-llmxive-follow-up-extending-abot-earth-0
 title: 'llmXive follow-up: extending "ABot-Earth 0.5: Generative 3D Earth Model"'
-updated_at: '2026-07-13T01:05:58.510081Z'
+updated_at: '2026-07-13T02:02:21.216098Z'
