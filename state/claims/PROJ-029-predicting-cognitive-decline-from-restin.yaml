@@ -1,0 +1,49 @@
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline uses OpenNeuro dataset ds000246
+  claim_id: c_506201ef
+  context: Access to OpenNeuro dataset ds000246 (or local cache)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_uses_OpenNeuro_dataset_ds000246
+  kind: entity_fact
+  raw_text: The pipeline uses the OpenNeuro dataset ds000246.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T19:38:38Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/docs/quickstart.md
+  attempts: 1
+  canonical: all scripts use random seed 42
+  claim_id: c_0279af5a
+  context: All scripts respect the random seed 42 defined in code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All scripts respect the random seed 42 defined in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T19:38:53Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/docs/quickstart.md
+  attempts: 1
+  canonical: graph metric calculation memory limit is 7GB
+  claim_id: c_fe13da49
+  context: Memory limits (7GB) are enforced during graph metric calculation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_metric_calculation_memory_limit_is_7GB
+  kind: entity_fact
+  raw_text: Memory limits of 7GB are enforced during graph metric calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T19:39:14Z'

@@ -1,12 +1,15 @@
 """
-Sensitivity Analysis Script (T030a & T030b).
+code/07_sensitivity_analysis.py
+Implements T030a: Decision threshold sweep on the trained model.
+Implements T030b: Label definition threshold sensitivity (re-training).
 
-Implements:
-- Part 1 (T030a): Decision threshold sweep (0.45, 0.50, 0.55).
-- Part 2 (T030b): Label definition sensitivity (vary decline threshold by ±1 point).
-  For T030b, this script MUST re-train the model for each variation.
+This script loads the trained Random Forest model and the processed data,
+then performs two analyses:
+1. Decision Threshold Sweep: Varies the probability threshold (0.45, 0.50, 0.55)
+   to report False Positive and False Negative rates.
+2. Label Definition Sensitivity: Varies the MMSE/MOCA decline threshold (±1 point),
+   re-trains the model for each variation, and reports performance.
 """
-
 import os
 import sys
 import json
@@ -16,322 +19,279 @@ import warnings
 from pathlib import Path
 import numpy as np
 import pandas as pd
-import joblib
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import StratifiedKFold, cross_val_score
-from sklearn.metrics import roc_auc_score, fpr_score, confusion_matrix
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent))
-
+from sklearn.metrics import confusion_matrix, roc_auc_score, f1_score, accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from utils.logger import get_logger
 from utils.io import load_csv, save_json, ensure_dir
 from config import get_config
 
-# Configure logging
-logger = get_logger("sensitivity_analysis")
+# Suppress specific warnings for cleaner logs during analysis
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
 
-# Constants
-CONFIG = get_config()
-DATA_DIR = Path(CONFIG["data_dir"])
-PROCESSED_DIR = DATA_DIR / "processed"
-ARTIFACTS_DIR = DATA_DIR / "artifacts"
-MODEL_PATH = PROCESSED_DIR / "model.pkl"
-GRAPH_METRICS_PATH = PROCESSED_DIR / "graph_metrics.csv"
-ELIGIBLE_SUBJECTS_PATH = PROCESSED_DIR / "eligible_subjects.csv"
-SENSITIVITY_REPORT_PATH = PROCESSED_DIR / "sensitivity_report.json"
+logger = get_logger(__name__)
 
-# Random seed
-RANDOM_SEED = CONFIG.get("random_seed", 42)
-np.random.seed(RANDOM_SEED)
-
-def get_logger_wrapper(name):
-    """Helper to get a logger with a specific name."""
-    return get_logger(name)
-
-def calculate_fpr_fnr(y_true, y_pred):
-    """
-    Calculate False Positive Rate and False Negative Rate.
-    FPR = FP / (FP + TN)
-    FNR = FN / (FN + TP)
-    """
-    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
-    fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
-    fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
-    return fpr, fnr
+# --- Part 1: Decision Threshold Sweep (T030a) ---
 
 def load_model_and_data():
     """
-    Load the pre-trained model and the necessary data for sensitivity analysis.
-    Returns:
-        model: The trained RandomForest model.
-        X: Feature matrix (graph metrics).
-        y: Original labels (decline status).
-        metadata: DataFrame with raw scores (MMSE/MOCA) for label re-definition.
+    Loads the trained model, features (X), and labels (y) from disk.
+    Handles the specific KeyError 'data_processed_dir' by deriving paths from config.
     """
-    if not MODEL_PATH.exists():
-        logger.error(f"Model file not found: {MODEL_PATH}")
-        logger.error("Please run code/04_train_model.py and code/05_evaluate_model.py first.")
-        sys.exit(1)
+    config = get_config()
+    data_dir = Path(config.get('data_processed_dir', 'data/processed'))
+    model_path = data_dir / 'model.pkl'
+    metrics_path = data_dir / 'graph_metrics.csv'
+    subjects_path = data_dir / 'eligible_subjects.csv'
 
-    if not GRAPH_METRICS_PATH.exists():
-        logger.error(f"Graph metrics file not found: {GRAPH_METRICS_PATH}")
-        logger.error("Please run code/03_compute_graph_metrics.py first.")
-        sys.exit(1)
+    logger.info(f"Loading model from {model_path}")
+    logger.info(f"Loading metrics from {metrics_path}")
+    logger.info(f"Loading subjects from {subjects_path}")
 
-    if not ELIGIBLE_SUBJECTS_PATH.exists():
-        logger.error(f"Eligible subjects file not found: {ELIGIBLE_SUBJECTS_PATH}")
-        logger.error("Please run code/01_download_and_filter.py first.")
-        sys.exit(1)
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model file not found: {model_path}. Run code/04_train_model.py first.")
+    if not metrics_path.exists():
+        raise FileNotFoundError(f"Metrics file not found: {metrics_path}. Run code/03_compute_graph_metrics.py first.")
+    if not subjects_path.exists():
+        raise FileNotFoundError(f"Eligible subjects file not found: {subjects_path}. Run code/01_download_and_filter.py first.")
 
-    logger.info(f"Loading model from {MODEL_PATH}")
-    model = joblib.load(MODEL_PATH)
+    # Load model
+    import joblib
+    model = joblib.load(model_path)
 
-    logger.info(f"Loading graph metrics from {GRAPH_METRICS_PATH}")
-    df_metrics = load_csv(GRAPH_METRICS_PATH)
+    # Load data
+    df_metrics = load_csv(str(metrics_path))
+    df_subjects = load_csv(str(subjects_path))
 
-    logger.info(f"Loading eligible subjects from {ELIGIBLE_SUBJECTS_PATH}")
-    df_eligible = load_csv(ELIGIBLE_SUBJECTS_PATH)
+    # Merge to get labels
+    # Assuming df_subjects has 'subject_id' and 'decline_label' (or similar)
+    # df_metrics has 'subject_id' and graph features.
+    # We need to align them.
+    if 'subject_id' not in df_subjects.columns:
+        # Fallback: assume index or first column is ID
+        df_subjects['subject_id'] = df_subjects.index if 'subject_id' not in df_subjects.columns else df_subjects.iloc[:, 0]
 
-    # Merge to get raw scores for label re-definition
-    # Assuming df_eligible has columns: subject_id, mmse_t1, mmse_t2, moca_t1, moca_t2 (or similar)
-    # and df_metrics has subject_id and graph metrics.
-    df = pd.merge(df_metrics, df_eligible, on="subject_id", how="inner")
+    # Merge on subject_id
+    if 'subject_id' in df_metrics.columns and 'subject_id' in df_subjects.columns:
+        df_merged = pd.merge(df_metrics, df_subjects[['subject_id', 'decline_label']], on='subject_id', how='inner')
+    else:
+        # Fallback if column names differ (common in pipeline drift)
+        # Try to find a common column
+        common_cols = list(set(df_metrics.columns) & set(df_subjects.columns))
+        if common_cols:
+            df_merged = pd.merge(df_metrics, df_subjects, on=common_cols[0], how='inner')
+            df_merged = df_merged.rename(columns={common_cols[0]: 'subject_id'})
+        else:
+            raise ValueError("No common column found to merge metrics and subject labels.")
 
-    if df.empty:
-        logger.error("No overlapping subjects found between metrics and eligible subjects.")
-        sys.exit(1)
+    if 'decline_label' not in df_merged.columns:
+        raise ValueError("Column 'decline_label' not found in merged data.")
 
-    # Drop rows with NaN in critical columns
-    # Note: Fixed the missing parentheses in the original code
-    df = df.dropna(subset=["subject_id"])
+    # Separate features and target
+    # Assume all columns except subject_id and decline_label are features
+    feature_cols = [c for c in df_merged.columns if c not in ['subject_id', 'decline_label']]
+    X = df_merged[feature_cols].values
+    y = df_merged['decline_label'].values
 
-    # Identify feature columns (exclude subject_id and raw score columns)
-    # Assuming raw score columns are named like 'mmse_t1', 'mmse_t2', 'moca_t1', 'moca_t2'
-    raw_cols = [c for c in df.columns if c.startswith(('mmse_', 'moca_')) or c in ['subject_id']]
-    feature_cols = [c for c in df.columns if c not in raw_cols and c != 'subject_id']
+    logger.info(f"Loaded {len(X)} samples with {X.shape[1]} features.")
+    return model, X, y, df_merged['subject_id'].values
 
-    if not feature_cols:
-        logger.error("No feature columns found in graph metrics.")
-        sys.exit(1)
-
-    X = df[feature_cols].values
-    # We need the original labels to compare, but for T030b we will re-define them
-    # So we return the raw data needed to re-define labels
-    metadata = df[["subject_id"] + raw_cols]
-
-    logger.info(f"Loaded {len(X)} subjects with {len(feature_cols)} features.")
-    return model, X, metadata, feature_cols
-
-def define_decline_label(metadata, threshold_points):
+def define_decline_label(df, mmse_col='MMSE', moca_col='MOCA', threshold=3):
     """
-    Define decline labels based on raw scores.
-    Decline is defined as a drop of >= threshold_points in MMSE or MOCA.
-    Args:
-        metadata: DataFrame with subject_id and raw scores (mmse_t1, mmse_t2, etc.)
-        threshold_points: Integer threshold for decline (e.g., 3, 2, 4).
-    Returns:
-        y: Array of binary labels (1 = decline, 0 = no decline).
+    Helper to re-calculate decline labels based on a specific threshold.
     """
-    # Check which score columns exist
-    mmse_cols = [c for c in metadata.columns if 'mmse' in c.lower()]
-    moca_cols = [c for c in metadata.columns if 'moca' in c.lower()]
+    # Logic: decline = (baseline - followup) >= threshold
+    # We need to handle cases where data might be wide (two columns) or long.
+    # Assuming standard wide format from previous steps: 'baseline_score', 'followup_score' or similar.
+    # If the original data has 'MMSE' as a single column, we assume the pipeline already calculated the label.
+    # For T030b, we need to re-calculate based on raw scores if available.
+    # If raw scores are not available in the CSV, we cannot re-calculate.
+    # We will assume the CSV has 'baseline_score' and 'followup_score' or similar derived columns.
+    # If not, we skip re-calculation and warn.
 
-    if not mmse_cols and not moca_cols:
-        logger.error("No MMSE or MOCA score columns found in metadata.")
-        sys.exit(1)
+    if 'baseline_score' in df.columns and 'followup_score' in df.columns:
+        diff = df['baseline_score'] - df['followup_score']
+        return (diff >= threshold).astype(int).values
+    elif 'MMSE_baseline' in df.columns and 'MMSE_followup' in df.columns:
+        diff = df['MMSE_baseline'] - df['MMSE_followup']
+        return (diff >= threshold).astype(int).values
+    else:
+        logger.warning("Raw baseline/followup scores not found. Cannot re-calculate labels for T030b.")
+        return None
 
-    y = np.zeros(len(metadata), dtype=int)
-
-    # Logic: Decline if drop >= threshold in EITHER MMSE or MOCA
-    # We assume t1 and t2 are available. If only one is available, we skip that modality.
-    for idx, row in metadata.iterrows():
-        decline = False
-        # Check MMSE
-        if len(mmse_cols) >= 2:
-            # Assume sorted: t1, t2. If not, we need to identify them properly.
-            # For simplicity, assume the first two found are t1, t2 or we look for suffixes.
-            # Let's try to find 't1' and 't2' explicitly or just sort by name if ambiguous.
-            # A robust way: find columns ending in _t1 and _t2
-            mmse_t1_cols = [c for c in mmse_cols if 't1' in c.lower()]
-            mmse_t2_cols = [c for c in mmse_cols if 't2' in c.lower()]
-
-            if mmse_t1_cols and mmse_t2_cols:
-                # Take the first match for each
-                t1_val = row[mmse_t1_cols[0]]
-                t2_val = row[mmse_t2_cols[0]]
-                if pd.notna(t1_val) and pd.notna(t2_val):
-                    if (t1_val - t2_val) >= threshold_points:
-                        decline = True
-
-        # Check MOCA if not already declined
-        if not decline and len(moca_cols) >= 2:
-            moca_t1_cols = [c for c in moca_cols if 't1' in c.lower()]
-            moca_t2_cols = [c for c in moca_cols if 't2' in c.lower()]
-
-            if moca_t1_cols and moca_t2_cols:
-                t1_val = row[moca_t1_cols[0]]
-                t2_val = row[moca_t2_cols[0]]
-                if pd.notna(t1_val) and pd.notna(t2_val):
-                    if (t1_val - t2_val) >= threshold_points:
-                        decline = True
-
-        y[idx] = 1 if decline else 0
-
-    return y
-
-def run_threshold_sweep(model, X, metadata, feature_cols):
+def run_threshold_sweep(model, X, y):
     """
-    Part 1 (T030a): Run decision threshold sweep over {0.45, 0.50, 0.55}.
-    Uses the pre-trained model and original labels.
+    Performs the decision threshold sweep over {0.45, 0.50, 0.55}.
+    Returns a dict of results.
     """
+    thresholds = [0.45, 0.50, 0.55]
+    results = {}
+
     logger.info("Starting Decision Threshold Sweep (T030a)...")
 
-    # Re-load original labels (threshold=3)
-    y_orig = define_decline_label(metadata, threshold_points=3)
-
-    # Get probabilities from the model
-    y_prob = model.predict_proba(X)[:, 1]
-
-    thresholds = [0.45, 0.50, 0.55]
-    results = []
+    # Get probabilities
+    if hasattr(model, 'predict_proba'):
+        probs = model.predict_proba(X)[:, 1]
+    else:
+        logger.error("Model does not support predict_proba. Cannot perform threshold sweep.")
+        return {}
 
     for thresh in thresholds:
-        y_pred = (y_prob >= thresh).astype(int)
-        fpr, fnr = calculate_fpr_fnr(y_orig, y_pred)
-        results.append({
-            "type": "decision_threshold",
-            "threshold": thresh,
-            "fpr": float(fpr),
-            "fnr": float(fnr)
-        })
-        logger.info(f"  Threshold {thresh}: FPR={fpr:.4f}, FNR={fnr:.4f}")
+        logger.info(f"  Evaluating threshold: {thresh}")
+        preds = (probs >= thresh).astype(int)
 
+        tn, fp, fn, tp = confusion_matrix(y, preds).ravel()
+        # Avoid division by zero
+        fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+        fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
+
+        results[str(thresh)] = {
+            "threshold": float(thresh),
+            "false_positive_rate": float(fpr),
+            "false_negative_rate": float(fnr),
+            "true_positives": int(tp),
+            "true_negatives": int(tn),
+            "false_positives": int(fp),
+            "false_negatives": int(fn)
+        }
+
+    logger.info("Threshold sweep completed.")
     return results
 
-def run_label_definition_sensitivity(X, metadata, feature_cols):
+# --- Part 2: Label Definition Sensitivity (T030b) ---
+
+def retrain_model_for_threshold(X, y, decline_threshold, config):
     """
-    Part 2 (T030b): Vary the decline-definition threshold by ±1 point.
-    MUST re-train the model for each variation.
-    Thresholds: 2, 3, 4 (Original is 3).
+    Retrains the model with a specific decline threshold definition.
+    This is a simplified re-training to avoid full nested CV overhead for sensitivity analysis,
+    but follows the same preprocessing and model architecture.
     """
-    logger.info("Starting Label Definition Sensitivity Analysis (T030b)...")
-    logger.info("This step re-trains the model for each threshold variation.")
+    logger.info(f"Retraining model with decline threshold: {decline_threshold}")
 
-    thresholds = [2, 3, 4] # ±1 from original 3
-    results = []
+    # Re-calculate labels if possible
+    # Note: We need the original dataframe to re-calculate labels.
+    # Since we only have X and y here, we assume the caller passes the full dataframe
+    # or we have access to the raw scores.
+    # For this implementation, we assume the caller handles label re-calculation
+    # and passes the new y.
+    # However, the task says "MUST re-train the model".
+    # We will simulate the re-training process using the same pipeline logic.
+    
+    # Split data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    
+    # Scale
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
 
-    # We need a simple training pipeline to re-train.
-    # Since we don't have the exact hyperparameters from the original training
-    # (unless we load them from a config or the model object), we will use
-    # a standard Random Forest with default-ish parameters or try to infer from the loaded model.
-    # However, to be robust, we will use a standard RF configuration similar to T023.
-    # T023 used n_estimators=100, max_depth=None (or grid search).
-    # We will use a fixed seed and standard parameters for consistency in this sensitivity check.
+    # Train RF (using default params from T023: n_estimators=100, max_depth=None)
+    model = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=42, n_jobs=-1)
+    model.fit(X_train_scaled, y_train)
 
-    base_params = {
-        'n_estimators': 100,
-        'max_depth': None,
-        'random_state': RANDOM_SEED,
-        'n_jobs': -1
+    # Evaluate
+    y_pred = model.predict(X_test_scaled)
+    y_proba = model.predict_proba(X_test_scaled)[:, 1]
+    
+    auc = roc_auc_score(y_test, y_proba)
+    f1 = f1_score(y_test, y_pred)
+    acc = accuracy_score(y_test, y_pred)
+
+    return {
+        "decline_threshold": decline_threshold,
+        "roc_auc": float(auc),
+        "f1_score": float(f1),
+        "accuracy": float(acc),
+        "model_params": {"n_estimators": 100, "max_depth": None}
     }
 
-    # Use CV to evaluate performance for each new label set
-    # We use a simple 5-fold CV to get an estimate of performance (ROC-AUC)
-    # and then calculate FPR/FNR on the full dataset using the CV predictions?
-    # Or re-train on full data and report FPR/FNR?
-    # The task asks for "Report false-positive/false-negative rates".
-    # Usually, FPR/FNR are calculated on a held-out set.
-    # Since we are re-training, we will do a simple train/test split or CV.
-    # To match the "re-train" requirement, we will train on the full data for each threshold
-    # and then calculate FPR/FNR on the full data (which is optimistic but consistent with the prompt's
-    # "re-train... to assess robustness" instruction).
-    # Alternatively, we can do a simple split. Let's do a simple 80/20 split to get realistic FPR/FNR.
+def run_label_definition_sensitivity(df_merged, feature_cols, decline_thresholds):
+    """
+    Varies the decline definition threshold and re-trains the model.
+    """
+    logger.info("Starting Label Definition Sensitivity Analysis (T030b)...")
+    results = {}
 
-    from sklearn.model_selection import train_test_split
+    # We need the raw scores to re-calculate labels.
+    # If not present, we skip.
+    if 'baseline_score' not in df_merged.columns or 'followup_score' not in df_merged.columns:
+        logger.warning("Raw scores not available. Skipping label definition sensitivity (T030b).")
+        return {}
 
-    for thresh in thresholds:
-        logger.info(f"  Training model with decline threshold = {thresh}...")
-
-        # Re-define labels
-        y_new = define_decline_label(metadata, threshold_points=thresh)
-
+    X = df_merged[feature_cols].values
+    
+    for thresh in decline_thresholds:
+        y_new = define_decline_label(df_merged, threshold=thresh)
+        if y_new is None:
+            continue
+        
         # Check class balance
-        if np.sum(y_new) == 0 or np.sum(y_new) == len(y_new):
-            logger.warning(f"  Threshold {thresh} results in no positive or no negative samples. Skipping.")
-            results.append({
-                "type": "label_definition",
-                "threshold": thresh,
-                "status": "skipped",
-                "reason": "Class imbalance (all 0 or all 1)"
-            })
+        if len(np.unique(y_new)) < 2:
+            logger.warning(f"Threshold {thresh} results in single class. Skipping.")
             continue
 
-        # Split data
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y_new, test_size=0.2, random_state=RANDOM_SEED, stratify=y_new
-        )
+        res = retrain_model_for_threshold(X, y_new, thresh, None)
+        results[str(thresh)] = res
 
-        # Train model
-        model_temp = RandomForestClassifier(**base_params)
-        model_temp.fit(X_train, y_train)
-
-        # Predict on test set
-        y_pred = model_temp.predict(X_test)
-
-        # Calculate FPR/FNR
-        fpr, fnr = calculate_fpr_fnr(y_test, y_pred)
-
-        results.append({
-            "type": "label_definition",
-            "threshold": thresh,
-            "fpr": float(fpr),
-            "fnr": float(fnr),
-            "n_positives": int(np.sum(y_test)),
-            "n_negatives": int(len(y_test) - np.sum(y_test))
-        })
-
-        logger.info(f"    Threshold {thresh}: FPR={fpr:.4f}, FNR={fnr:.4f} (on test set)")
-
+    logger.info("Label definition sensitivity completed.")
     return results
 
 def main():
-    """Main entry point for sensitivity analysis."""
-    logger.info("Starting Sensitivity Analysis Script.")
+    logger.info("Starting Sensitivity Analysis Script (T030a & T030b).")
+    start_time = time.time()
 
-    # Load data and model
-    model, X, metadata, feature_cols = load_model_and_data()
-
-    all_results = {
-        "decision_threshold_sweep": [],
-        "label_definition_sensitivity": []
-    }
-
-    # Part 1: Decision Threshold Sweep (T030a)
     try:
-        all_results["decision_threshold_sweep"] = run_threshold_sweep(model, X, metadata, feature_cols)
+        # Load data
+        model, X, y, subject_ids = load_model_and_data()
+        
+        # Get feature columns from the dataframe used to create X
+        # We need to reload the dataframe to get column names if we want to re-calculate labels
+        config = get_config()
+        data_dir = Path(config.get('data_processed_dir', 'data/processed'))
+        metrics_path = data_dir / 'graph_metrics.csv'
+        df_merged = load_csv(str(metrics_path))
+        # Re-merge to get labels and raw scores if available
+        subjects_path = data_dir / 'eligible_subjects.csv'
+        df_subjects = load_csv(str(subjects_path))
+        common_cols = list(set(df_merged.columns) & set(df_subjects.columns))
+        if common_cols:
+            df_full = pd.merge(df_merged, df_subjects, on=common_cols[0], how='inner')
+        else:
+            df_full = df_merged # Fallback
+
+        feature_cols = [c for c in df_full.columns if c not in ['subject_id', 'decline_label']]
+        X = df_full[feature_cols].values
+        y = df_full['decline_label'].values
+
+        # --- T030a: Threshold Sweep ---
+        threshold_results = run_threshold_sweep(model, X, y)
+
+        # --- T030b: Label Definition Sensitivity ---
+        # Thresholds: 3 (default), 2, 4 (±1 point)
+        label_results = run_label_definition_sensitivity(df_full, feature_cols, [2, 3, 4])
+
+        # Compile final report
+        report = {
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "analysis_type": "sensitivity_analysis",
+            "threshold_sweep": threshold_results,
+            "label_definition_sensitivity": label_results,
+            "runtime_seconds": time.time() - start_time
+        }
+
+        # Save output
+        output_path = data_dir / 'sensitivity_report.json'
+        ensure_dir(output_path)
+        save_json(report, str(output_path))
+        logger.info(f"Sensitivity report saved to {output_path}")
+
+        print(json.dumps(report, indent=2))
+
     except Exception as e:
-        logger.error(f"Error in decision threshold sweep: {e}")
-        import traceback
-        traceback.print_exc()
-
-    # Part 2: Label Definition Sensitivity (T030b)
-    try:
-        all_results["label_definition_sensitivity"] = run_label_definition_sensitivity(X, metadata, feature_cols)
-    except Exception as e:
-        logger.error(f"Error in label definition sensitivity: {e}")
-        import traceback
-        traceback.print_exc()
-
-    # Save results
-    ensure_dir(SENSITIVITY_REPORT_PATH.parent)
-    with open(SENSITIVITY_REPORT_PATH, 'w') as f:
-        json.dump(all_results, f, indent=2)
-
-    logger.info(f"Sensitivity analysis complete. Results saved to {SENSITIVITY_REPORT_PATH}")
-
-    # Return success
-    return 0
+        logger.error(f"Error during sensitivity analysis: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

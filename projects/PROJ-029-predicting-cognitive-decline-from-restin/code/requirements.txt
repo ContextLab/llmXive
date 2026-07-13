@@ -11,5 +11,4 @@ fsl
 nilearn
 psutil
 joblib
-pybids
-scipy  # auto-added: imported by run-book but missing from venv
+scipy
