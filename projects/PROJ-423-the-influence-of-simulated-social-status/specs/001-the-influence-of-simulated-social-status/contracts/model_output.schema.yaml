@@ -1,0 +1,86 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: Schema for the JSON output of the Fixed-Effects Linear Model (ANOVA) analysis.
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model fitted (e.g., 'LM', 'ANOVA')."
+    enum:
+      - "LM"
+      - "ANOVA"
+  family:
+    type: string
+    description: "Statistical family used."
+    enum:
+      - "gaussian"
+      - "binomial"
+  fixed_effects:
+    type: object
+    description: "Dictionary of fixed effects coefficients."
+    additionalProperties:
+      type: object
+      properties:
+        estimate:
+          type: number
+        std_error:
+          type: number
+        p_value:
+          type: number
+        ci_lower:
+          type: number
+        ci_upper:
+          type: number
+      required:
+        - estimate
+        - std_error
+        - p_value
+        - ci_lower
+        - ci_upper
+  interaction_term:
+    type: object
+    description: "Specific details for the interaction term."
+    properties:
+      coefficient:
+        type: number
+      p_value:
+        type: number
+      significant:
+        type: boolean
+      recovered:
+        type: boolean
+        description: "True if the estimate is within 95% CI of the injected parameter."
+    required:
+      - coefficient
+      - p_value
+      - significant
+      - recovered
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factors for predictors."
+    additionalProperties:
+      type: number
+  sensitivity_analysis:
+    type: array
+    description: "Results of the outlier threshold sweep."
+    items:
+      type: object
+      properties:
+        threshold_sd:
+          type: number
+        interaction_estimate:
+          type: number
+        interaction_p_value:
+          type: number
+      required:
+        - threshold_sd
+        - interaction_estimate
+        - interaction_p_value
+required:
+  - model_type
+  - family
+  - fixed_effects
+  - interaction_term
+  - vif_scores
+  - sensitivity_analysis
+additionalProperties: false

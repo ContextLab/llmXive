@@ -1,0 +1,33 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Cleaned Experimental Data Schema
+description: Schema for the processed data file used in the Fixed-Effects Linear Model analysis.
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant (UUID)."
+  status_level:
+    type: string
+    description: "Experimental status cue."
+    enum:
+      - "High"
+      - "Low"
+  observed_behavior:
+    type: string
+    description: "Observed agent behavior."
+    enum:
+      - "Risky"
+      - "Conservative"
+  risk_taking_score:
+    type: number
+    description: "Outcome measure of risk-taking behavior."
+    minimum: 0
+  is_outlier:
+    type: boolean
+    description: "Flag indicating if the data point was excluded as an outlier."
+required:
+  - participant_id
+  - status_level
+  - observed_behavior
+  - risk_taking_score
+additionalProperties: false
