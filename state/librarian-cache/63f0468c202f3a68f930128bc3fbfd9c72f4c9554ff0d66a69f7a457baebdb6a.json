@@ -1,0 +1,637 @@
+{
+  "fetched_at": "2026-07-13T17:36:18Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials",
+      "target_n": 5
+    },
+    "duration_seconds": 62.829,
+    "ended_at": "2026-07-13T17:36:18Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning for phase change material discovery"
+        ],
+        [
+          2,
+          "data-driven discovery of phase change materials"
+        ],
+        [
+          3,
+          "predicting phase transition temperatures with machine learning"
+        ],
+        [
+          4,
+          "high-throughput screening of phase change materials using ML"
+        ],
+        [
+          5,
+          "machine learning models for thermophysical property prediction"
+        ],
+        [
+          6,
+          "computational discovery of novel phase change materials"
+        ],
+        [
+          7,
+          "artificial intelligence in phase change material design"
+        ],
+        [
+          8,
+          "crystal structure prediction for phase change materials"
+        ],
+        [
+          9,
+          "melting point prediction using deep learning"
+        ],
+        [
+          10,
+          "latent heat prediction via machine learning algorithms"
+        ],
+        [
+          11,
+          "materials informatics for phase change applications"
+        ],
+        [
+          12,
+          "supervised learning for phase change material classification"
+        ],
+        [
+          13,
+          "generative models for novel phase change material synthesis"
+        ],
+        [
+          14,
+          "descriptor-based machine learning for phase transitions"
+        ],
+        [
+          15,
+          "graph neural networks for phase change material property estimation"
+        ],
+        [
+          16,
+          "machine learning guided search for chalcogenide phase change materials"
+        ],
+        [
+          17,
+          "thermal conductivity prediction of phase change materials using AI"
+        ],
+        [
+          18,
+          "phase diagram prediction with machine learning"
+        ],
+        [
+          19,
+          "accelerated materials discovery for thermal energy storage"
+        ],
+        [
+          20,
+          "regression models for phase change material performance metrics"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials materials science": 0,
+        "machine learning for phase change material discovery": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "high-throughput screening phase transition entropy",
+      "perovskite chalcogenide binary alloy dataset",
+      "active learning Bayesian optimization materials discovery",
+      "formation energy stability band gap prediction",
+      "thermodynamic stability metastable phase identification"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1904.10423"
+      ]
+    },
+    "per_query_hit_count": {
+      "Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials materials science": 3,
+      "active learning Bayesian optimization materials discovery": 3,
+      "formation energy stability band gap prediction": 3,
+      "high-throughput screening phase transition entropy": 3,
+      "perovskite chalcogenide binary alloy dataset": 3,
+      "thermodynamic stability metastable phase identification": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on the risks of changing data sources in the context of official statistics and policy-making, which is an entirely different domain from materials science and the discovery of phase-change materials. It does not measure the same biological/physical mechanisms, variables, or empirical populations required by the user's question, nor does it provide a foundational methodology for materials property prediction.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper focuses exclusively on machine learning validation standards within the domain of biology, which is an off-domain entirely for the user's question regarding materials science and phase-change materials. It does not measure the specific physical mechanisms, variables, or empirical populations relevant to discovering novel phase-change materials, nor does it provide a foundational methodology specific to that field.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2602.11092",
+          "rationale": "The paper focuses on a software framework for benchmarking photonic and hybrid quantum machine learning algorithms, which is entirely off-domain from the user's question regarding the application of machine learning to discover novel phase-change materials in materials science. It shares no measurable connection to the specific mechanism (phase transitions), domain (materials science), or variables (material properties) required by the user's research question.",
+          "title": "MerLin: A Discovery Engine for Photonic and Hybrid Quantum Machine Learning"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on \"learning curves\" as a methodological tool for algorithm selection and resource management in machine learning, which does not address the specific domain of materials science, phase-change materials, or the predictive modeling of material properties. It fails to meet any inclusion criteria (a-f) as it studies the performance of ML algorithms themselves rather than the physical mechanism or empirical population of interest, and it is not a foundational reference ",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper is a general survey on active learning for data streams and does not address the specific domain of materials science, phase-change materials, or the predictive modeling of material properties. It fails to meet any inclusion criteria (a-f) as it lacks the necessary domain connection (off-domain entirely) and does not provide empirical baselines, mechanisms, or canonical references specific to the user's question about identifying novel materials.",
+          "title": "Active learning for data streams: a survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T17:35:15Z",
+    "term_input": {
+      "normalized": "investigating the predictive power of machine learning for identifying novel phase-change materials materials science",
+      "raw": "Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-07-13T17:35:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article reviews the application of fragment descriptors at different stages of virtual screening: filtering, similarity search, and direct activity assessment using QSAR/QSPR models. Several case studies are considered. It is demonstrated that the power of fragment descriptors stems from their universality, very high computational efficiency, simplicity of interpretation and versatility.",
+          "claimed_authors": [
+            "Igor I. Baskin",
+            "Alexandre Varnek"
+          ],
+          "claimed_title": "Fragment Descriptors in Virtual Screening",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.3723"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='Fragment Descriptors in Virtual Screening')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The dynamical responses of XY ferromagnet driven by linearly polarised propagating and standing magnetic field wave have been studied by Monte Carlo simulation in three dimensions. In the case of propagating magnetic field wave (with specified amplitude, frequency and the wavelength), the low temperature dynamical mode is a propagating spin wave and the system becomes structureless (or random) in the high temperature. A dynamical symmetry breaking phase transition is observed at a finite (nonzero) temperature. This symmetry breaking is confirmed by studying the statistical distribution of the angle of the spin vector. The dynamic nonequilibrium transition temperature was found to decrease as the amplitude of the propagating magnetic field wave increased. A comprehensive phase boundary is drawn in the plane formed by temperature and amplitude of propagating field wave. The phase boundary was observed to shrink (in the low temperature side) for longer wavelength of the propagating magnetic wave. In the case of standing magnetic field wave, the low temperature excitation is a standing spin wave which becomes structureless (or random) in the high temperature. Here also, like the case of propagating magnetic wave, a dynamical symmetry breaking nonequilibrium phase transition was observed. A comprehensive phase boundary is drawn. Unlike the case of propagating magnetic wave, the phase boundary does not show any systematic variation with the wavelength of the standing magnetic field wave. In the limit of vanishingly small amplitude of the field, the phase boundaries approach the recent Monte Carlo estimate of equilibrium transition temperature.",
+          "claimed_authors": [
+            "Muktish Acharyya"
+          ],
+          "claimed_title": "Driven spin wave modes in XY ferromagnet: Nonequilibrium phase transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.01619"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='Driven spin wave modes in XY ferromagnet: Nonequilibrium phase transition')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider the reduced density matrix for a disc in the ground state of the interacting fixed points of the large-N O(N) vector model in 2+1 dimensions. Using the map to the free energy on $\\mathbb{H}_2 \\times S^1$, we show that there is an instability in the Rényi entropies at $n = 1$, in the $N \\rightarrow \\infty$ limit, indicating a phase transition at or near this Rényi parameter. We close with a discussion of the finite-N case.",
+          "claimed_authors": [
+            "Harsha R. Hampapura",
+            "Albion Lawrence",
+            "Stefan Stanojevic"
+          ],
+          "claimed_title": "On phase transitions in the Rényi entropies of 2+1-d large-N interacting vector models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.04109"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='On phase transitions in the Rényi entropies of 2+1-d large-N interacting vector models')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We demonstrate synthesis of BaZr(S,Se)3 chalcogenide perovskite alloys by selenization of BaZrS3 thin films. The anion-exchange process produces films with tunable composition and band gap without changing the orthorhombic perovskite crystal structure or the film microstructure. The direct band gap is tunable between 1.5 and 1.9 eV. The alloy films made in this way feature 100x stronger photoconductive response and a lower density of extended defects, compared to alloy films made by direct growth. The perovskite structure is stable in high-selenium-content thin films with and without epitaxy. The manufacturing-compatible process of selenization in H2Se gas may spur the development of chalcogenide perovskite solar cell technology.",
+          "claimed_authors": [
+            "Kevin Ye",
+            "Ida Sadeghi",
+            "Michael Xu",
+            "Jack Van Sambeek",
+            "Tao Cai",
+            "Jessica Dong",
+            "Rishabh Kothari",
+            "James M. LeBeau",
+            "R. Jaramillo"
+          ],
+          "claimed_title": "A Processing Route to Chalcogenide Perovskites Alloys with Tunable Band Gap via Anion Exchange",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.09016"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='A Processing Route to Chalcogenide Perovskites Alloys with Tunable Band Gap via Anion Exchange')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "BaZrS3, a prototypical chalcogenide perovskite, has been shown to possess a direct band gap, an exceptionally strong near band edge light absorption, and good carrier transport. Coupled with its great stability, non-toxicity with earth abundant elements, it is thus a promising candidate for thin film solar cells. However, its reported band gap in the range of 1.7-1.8 eV is larger than the optimal value required to reach the Shockley-Queisser limit of a single junction solar cell. Here we report the synthesis of Ba(Zr1-xTix)S3 perovskite compounds with a reduced band gap. It is found that Ti alloying is extremely effective in band gap reduction of BaZrS3: a mere 4 at% alloying decreases the band gap from 1.78 to 1.51 eV, resulting in a theoretical maximum power conversion efficiency of 32%. Higher Ti-alloying concentration is found to destabilize the distorted chalcogenide perovskite phase.",
+          "claimed_authors": [
+            "Xiucheng Wei",
+            "Haolei Hui",
+            "Samanthe Perera",
+            "Aaron Sheng",
+            "David F. Watson",
+            "Yi-Yang Sun",
+            "Quanxi Jia",
+            "Shengbai Zhang",
+            "Hao Zeng"
+          ],
+          "claimed_title": "Ti-alloying of BaZrS3 chalcogenide perovskite for photovoltaics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.04261"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='Ti-alloying of BaZrS3 chalcogenide perovskite for photovoltaics')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial intelligence is reshaping scientific exploration, but most methods automate procedural tasks without engaging in scientific reasoning, limiting autonomy in discovery. We introduce Materials Agents for Simulation and Theory in Electronic-structure Reasoning (MASTER), an active learning framework where large language models autonomously design, execute, and interpret atomistic simulations. In MASTER, a multimodal system translates natural language into density functional theory workflows, while higher-level reasoning agents guide discovery through a hierarchy of strategies, including a single agent baseline and three multi-agent approaches: peer review, triage-ranking, and triage-forms. Across two chemical applications, CO adsorption on Cu-surface transition metal (M) adatoms and on M-N-C catalysts, reasoning-driven exploration reduces required atomistic simulations by up to 90% relative to trial-and-error selection. Reasoning trajectories reveal chemically grounded decisions that cannot be explained by stochastic sampling or semantic bias. Altogether, multi-agent collaboration accelerates materials discovery and marks a new paradigm for autonomous scientific exploration.",
+          "claimed_authors": [
+            "Samuel Rothfarb",
+            "Megan C. Davis",
+            "Ivana Matanovic",
+            "Baikun Li",
+            "Edward F. Holby",
+            "Wilton J. M. Kort-Kamp"
+          ],
+          "claimed_title": "Hierarchical Multi-agent Large Language Model Reasoning for Autonomous Functional Materials Discovery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.13930"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='Hierarchical Multi-agent Large Language Model Reasoning for Autonomous Functional Materials Discovery')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Real-world robots are becoming increasingly complex and commonly act in poorly understood environments where it is extremely challenging to model or learn their true dynamics. Therefore, it might be desirable to take a task-specific approach, wherein the focus is on explicitly learning the dynamics model which achieves the best control performance for the task at hand, rather than learning the true dynamics. In this work, we use Bayesian optimization in an active learning framework where a locally linear dynamics model is learned with the intent of maximizing the control performance, and used in conjunction with optimal control schemes to efficiently design a controller for a given task. This model is updated directly based on the performance observed in experiments on the physical system in an iterative manner until a desired performance is achieved. We demonstrate the efficacy of the proposed approach through simulations and real experiments on a quadrotor testbed.",
+          "claimed_authors": [
+            "Somil Bansal",
+            "Roberto Calandra",
+            "Ted Xiao",
+            "Sergey Levine",
+            "Claire J. Tomlin"
+          ],
+          "claimed_title": "Goal-Driven Dynamics Learning via Bayesian Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1703.09260"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='Goal-Driven Dynamics Learning via Bayesian Optimization')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We find that the frequency spectra of layered phononic and photonic composites admit a universal struc- ture, independent of the geometry of the periodic-cell and the specific physical properties. We show that this representation extends to highly deformable and multi-physical materials of tunable spectra. The structure is employed to establish universal properties of the corresponding band-gaps, and to rigorously determine their sta- tistical and optimal characteristics. Specifically, we investigate the density of the gaps, their maximal width and expected value. As a result, rules for tailoring the laminate according to desired spectra properties follow. Our representation further facilitates characterizing the tunability of the band-structure of soft and multi-physical materials.",
+          "claimed_authors": [
+            "Gal Shmuel",
+            "Ram Band"
+          ],
+          "claimed_title": "Universality and optimality of band-gaps in laminated media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1509.05213"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='Universality and optimality of band-gaps in laminated media')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The momentum spectrum of a periodic network (quantum graph) has a band-gap structure. We investigate the relative density of the bands or, equivalently, the probability that a randomly chosen momentum belongs to the spectrum of the periodic network. We show that this probability exhibits universal properties. More precisely, the probability to be in the spectrum does not depend on the edge lengths (as long as they are generic) and is also invariant within some classes of graph topologies.",
+          "claimed_authors": [
+            "Ram Band",
+            "Gregory Berkolaiko"
+          ],
+          "claimed_title": "Universality of the momentum band density of periodic networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1304.6028"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='Universality of the momentum band density of periodic networks')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many gamma-ray burst counterpart searches are being conducted in the optical-UV band. To both predict detectability and understand the meaning of any detections or upper limits, we extrapolate gamma-ray spectra from 54 bright gamma-ray bursts to optical-UV energies. We assume optical emission is concurrent with gamma-ray emission and do not consider quiescent or fading counterparts. We find that the spectrum must be steeper (greater flux at low energy) than a simple extrapolation of the gamma-ray spectrum for more than one simultaneous optical flash to be observable per year by current searches.",
+          "claimed_authors": [
+            "Lyle Ford",
+            "David Band"
+          ],
+          "claimed_title": "Extrapolations of BATSE Gamma-Ray Burst Spectra to the Optical-UV Band",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "astro-ph/9607054"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='Extrapolations of BATSE Gamma-Ray Burst Spectra to the Optical-UV Band')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Simple classical thermodynamic approach to the general description of metastable states is presented. It makes possible to calculate the explicit dependence of the Gibbs free energy on temperature, to calculate the heat capacity, the thermodynamic barrier, dividing metastable and more stable states, and the thermal expansion coefficient. Thermodynamic stability under mechanical loading is considered. The influence of the heating (cooling) rate on the measured dynamic heat capacity is investigated. A phase shift of the temperature oscillations of an ac heated sample is shown to be determined by the relaxation time of the relaxation of the metastable nonequilibrium state back to the metastable equilibrium one. This dependence allows one to calculate the relaxation time. A general description of the metastable phase equilibrium is proposed. Metastable states in AB3 alloys are considered. Reasons for the change from the diffusional mechanism of the supercritical nucleus growth to the martensitic one as the heating rate increases are discussed. The Ostwald stage rule is derived.",
+          "claimed_authors": [
+            "Yuri Kornyushin"
+          ],
+          "claimed_title": "Studying Thermodynamics of Metastable States",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "cond-mat/0702076"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='Studying Thermodynamics of Metastable States')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the distribution of the Schmidt coefficients of the reduced density matrix of a quantum system in a pure state. By applying general methods of statistical mechanics, we introduce a fictitious temperature and a partition function and translate the problem in terms of the distribution of the eigenvalues of random matrices. We investigate the appearance of two phase transitions, one at a positive temperature, associated to very entangled states, and one at a negative temperature, signalling the appearance of a significant factorization in the many-body wave function. We also focus on the presence of metastable states (related to 2-D quantum gravity) and study the finite size corrections to the saddle point solution.",
+          "claimed_authors": [
+            "A. De Pasquale",
+            "P. Facchi",
+            "G. Parisi",
+            "S. Pascazio",
+            "A. Scardicchio"
+          ],
+          "claimed_title": "Phase transitions and metastability in the distribution of the bipartite entanglement of a large quantum system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0911.3888"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='Phase transitions and metastability in the distribution of the bipartite entanglement of a large quantum system')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Ground-state structure is found and pressure-induced phase transitions up to 210 kbar are studied in mercury titanate from first principles within the density functional theory. It is established that the $R3c$ structure experimentally observed in HgTiO$_3$ is metastable at ambient pressure. With increasing the hydrostatic pressure, the ground-state structure changes following the $R{\\bar 3} \\to R3c \\to Pbnm$ sequence. It is shown that the appearance of ferroelectricity in HgTiO$_3$ at $P = 0$ is associated with an unstable phonon mode. Optical and elastic properties of different phases of mercury titanate are calculated. The quasiparticle band gap calculated in the \\emph{GW} approximation ($E_g = 2.43$ eV) agrees with experimental data better than the value obtained in the LDA approximation (1.49 eV). Analysis of the thermodynamic stability explains why the synthesis of mercury titanate is possible only at high pressures.",
+          "claimed_authors": [
+            "Alexander I. Lebedev"
+          ],
+          "claimed_title": "First-principles study of ferroelectricity and pressure-induced phase transitions in HgTiO$_3$",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1203.2370"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Predictive Power of Machine Learning for Identifying Novel Pha', candidate_title='First-principles study of ferroelectricity and pressure-induced phase transitions in HgTiO$_3$')",
+        "failed_at": "2026-07-13T17:35:48Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Soumya Sanyal",
+            "Janakiraman Balachandran",
+            "Naganand Yadati",
+            "Abhishek Kumar",
+            "Padmini Rajagopalan",
+            "Suchismita Sanyal",
+            "Partha Talukdar"
+          ],
+          "title": "MT-CGCNN: Integrating Crystal Graph Convolutional Neural Network with Multitask Learning for Material Property Prediction",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1811.05660",
+        "summary": "Developing accurate, transferable and computationally inexpensive machine learning models can rapidly accelerate the discovery and development of new materials. Some of the major challenges involved in developing such models are, (i) limited availability of materials data as compared to other fields, (ii) lack of universal descriptor of materials to predict its various properties. The limited availability of materials data can be addressed through transfer learning, while the generic representation was recently addressed by Xie and Grossman [1], where they developed a crystal graph convolutional neural network (CGCNN) that provides a unified representation of crystals. In this work, we develop a new model (MT-CGCNN) by integrating CGCNN with transfer learning based on multi-task (MT) learning. We demonstrate the effectiveness of MT-CGCNN by simultaneous prediction of various material properties such as Formation Energy, Band Gap and Fermi Energy for a wide range of inorganic crystals (46774 materials). MT-CGCNN is able to reduce the test error when employed on correlated properties by upto 8%. The model prediction has lower test error compared to CGCNN, even when the training data is reduced by 10%. We also demonstrate our model's better performance through prediction of end user scenario related to metal/non-metal classification. These results encourage further development of machine learning approaches which leverage multi-task learning to address the aforementioned challenges in the discovery of new materials. We make MT-CGCNN's source code available to encourage reproducible research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1811.05660",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T17:35:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ben Blaiszik",
+            "Logan Ward",
+            "Marcus Schwarting",
+            "Jonathon Gaff",
+            "Ryan Chard",
+            "Daniel Pike",
+            "Kyle Chard",
+            "Ian Foster"
+          ],
+          "title": "A Data Ecosystem to Support Machine Learning in Materials Science",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1904.10423",
+        "summary": "Facilitating the application of machine learning to materials science problems will require enhancing the data ecosystem to enable discovery and collection of data from many sources, automated dissemination of new data across the ecosystem, and the connecting of data with materials-specific machine learning models. Here, we present two projects, the Materials Data Facility (MDF) and the Data and Learning Hub for Science (DLHub), that address these needs. We use examples to show how MDF and DLHub capabilities can be leveraged to link data with machine learning models and how users can access those capabilities through web and programmatic interfaces.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1904.10423",
+          "http_status": 200,
+          "pdf_sample_score": 0.1411,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T17:35:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daniel Cunnington",
+            "Flaviu Cipcigan",
+            "Rodrigo Neumann Barros Ferreira",
+            "Jonathan Booth"
+          ],
+          "title": "Symbolic Learning for Material Discovery",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2312.11487",
+        "summary": "Discovering new materials is essential to solve challenges in climate change, sustainability and healthcare. A typical task in materials discovery is to search for a material in a database which maximises the value of a function. That function is often expensive to evaluate, and can rely upon a simulation or an experiment. Here, we introduce SyMDis, a sample efficient optimisation method based on symbolic learning, that discovers near-optimal materials in a large database. SyMDis performs comparably to a state-of-the-art optimiser, whilst learning interpretable rules to aid physical and chemical verification. Furthermore, the rules learned by SyMDis generalise to unseen datasets and return high performing candidates in a zero-shot evaluation, which is difficult to achieve with other approaches.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2312.11487",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T17:35:48Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "investigating the predictive power of machine learning for identifying novel phase-change materials materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

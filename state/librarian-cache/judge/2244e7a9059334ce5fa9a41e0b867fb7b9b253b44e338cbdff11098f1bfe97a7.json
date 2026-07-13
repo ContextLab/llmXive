@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.11487",
+  "judged_at": "2026-07-13T17:36:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the predictive power of machine learning for identifying novel phase-change materials materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the application of machine learning (specifically symbolic learning) to the discovery of new materials, directly addressing the mechanism of using ML for material identification within the materials science domain, even though it focuses on general material discovery rather than phase-change materials specifically.",
+  "relevant": true
+}

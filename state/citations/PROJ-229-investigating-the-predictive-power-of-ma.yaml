@@ -1,0 +1,44 @@
+- artifact_hash: 28db09b114736e3dc99d954d6cf240a0f781eeee08ffe3d8771445d3d8c8a94b
+  artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: The curiosity-creativity element in HI-AI materials discovery
+  kind: doi
+  value: 10.1016/j.matt.2024.01.001
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1016/j.matt.2024.01.001
+  verified_at: '2026-07-13T17:58:01.559226Z'
+- artifact_hash: ae6e9808ee1175a45293beb7eedaedcfd2d9c9ec03b9e2b141e1427040a9fab8
+  artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Redirecting
+  kind: url
+  value: https://doi.org/10.1016/j.matt.2024.01.001
+  verification_status: pending
+  verified_against_url: https://linkinghub.elsevier.com/retrieve/pii/S2590238524000018
+  verified_at: '2026-07-13T17:58:14.348731Z'
+- artifact_hash: ae6e9808ee1175a45293beb7eedaedcfd2d9c9ec03b9e2b141e1427040a9fab8
+  artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: The curiosity-creativity element in HI-AI materials discovery
+  kind: doi
+  value: 10.1016/j.matt.2024.01.001
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1016/j.matt.2024.01.001
+  verified_at: '2026-07-13T17:58:14.348731Z'
+- artifact_hash: 4968d2d33069ae2df0647373b92e4bb2c44be2fb036a74cab3f61e221fa5a5e8
+  artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: The curiosity-creativity element in HI-AI materials discovery
+  kind: doi
+  value: 10.1016/j.matt.2024.01.001
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1016/j.matt.2024.01.001
+  verified_at: '2026-07-13T18:20:50.328874Z'

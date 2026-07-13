@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1904.10423",
+  "judged_at": "2026-07-13T17:36:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the predictive power of machine learning for identifying novel phase-change materials materials science",
+  "rationale": "This paper qualifies under category (d) as a foundational methodology and infrastructure reference for applying machine learning in materials science, which is a canonical prerequisite for any study investigating the predictive power of ML in this domain. Additionally, it satisfies category (b) by addressing the data ecosystem and model integration necessary to measure the dependent variable (predictive power) on the user's specific domain (materials science).",
+  "relevant": true
+}

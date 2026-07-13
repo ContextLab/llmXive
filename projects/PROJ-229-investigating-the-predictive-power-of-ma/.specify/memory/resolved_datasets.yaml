@@ -1,0 +1,205 @@
+resolved_at: '2026-07-13T17:44:31.842561+00:00'
+datasets:
+- intent: NIST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__BigCodeLlama-92b/resolve/main/2024-02-02T12-17-18.661697/details_harness|arc:challenge|25_2024-02-02T12-17-18.661697.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-15b-v1/resolve/main/2024-02-09T14-57-48.901535/details_harness|arc:challenge|25_2024-02-09T14-57-48.901535.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_MLE_cline_parameters_for_best_fitting_model_of_KASP_SNP_genotypes_p_/32977579
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Overview_of_dataset_construction_for_the_CPP-Classification_task_p_/32977580
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Workflow_of_CPP2Vec_construction_p_/32977577
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Selected_results_of_parameter_optimization_experiments_for_Word2Vec_embeddings_and_machine_learning_classifiers_p_/32977574
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_KASP_SNP_genotype_marker_details_p_/32977576
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189804
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6384789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7254581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3382347
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12807749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ulri.figshare.com/articles/report/Research_Data_on_Upholstered_Furniture_Fire_Barriers/32957003/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ulri.figshare.com/articles/report/Research_Data_on_Upholstered_Furniture_Fire_Barriers/32957003
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ulri.figshare.com/articles/report/Specifying_Upholstered_Furniture_Fire_Barriers/32956658/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ulri.figshare.com/articles/report/Specifying_Upholstered_Furniture_Fire_Barriers/32956658
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/pk56t/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PCM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/stefania-radu/rendered_wikipedia_pcm/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pcmoraesmenezes/incorrect_records.jsonl/resolve/main/incorrect_records.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 203062
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/stefania-radu/rendered_wikipedia_pcm/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/yuchen0187/pcmask/resolve/main/data/fusion360-00000-of-00017.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/api/resolve-cache/datasets/ABHISHEKSINGH0204/PCM_dataset/b69c75202220f0f192892cd63229853d793b254b/train.json?%2Fdatasets%2FABHISHEKSINGH0204%2FPCM_dataset%2Fresolve%2Fmain%2Ftrain.json=&etag=%222a0d7ec2422ed0112999c702b8648ae7a51cc5e0%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/pcmoraesmenezes/incorrect_records.jsonl/resolve/main/incorrect_records.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/DataDump1/pcmasterrace_reddit/resolve/main/pcmasterrace_comments.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://plos.figshare.com/articles/figure/_p_Allele_frequencies_for_clinal_loci_around_the_i_CRE_i_gene_on_Chromosome_1_p_/32977627
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Proposed_ML_models_per_task_of_CPP2Vec_p_/32977628
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Allele_frequencies_for_clinal_loci_downstream_of_i_FLA_i_gene_300kb_on_Chromosome_2_p_/32977621
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Overview_of_the_proposed_W2V_model_parameters_per_task_p_/32977625
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Performance_metrics_of_ML_Models_across_validation_and_test_datasets_p_/32977622
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/830598
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7529801
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4965189
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13863440
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6602520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/140213-partialnet-compute-less-perform-better
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Influence_mechanisms_of_inert_particle-assisted_spray_freeze-drying_on_primary_and_secondary_drying_processes/32975051
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Influence_mechanisms_of_inert_particle-assisted_spray_freeze-drying_on_primary_and_secondary_drying_processes/32975051/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://depositonce.tu-berlin.de/handle/11303/27441
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21336860
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

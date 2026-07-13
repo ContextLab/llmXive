@@ -9,40 +9,76 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can machine learning models trained on publicly available material property datasets accurately predict the phase-change suitability (melting point, latent heat, specific heat capacity) of novel chemical compositions? How does model performance vary across different feature representations (elemental descriptors vs. crystal structure graphs)?
+Which compositional and structural features (elemental properties, bonding patterns, crystal symmetry) most strongly determine phase-change material suitability, and how can interpretable ML models identify these governing factors beyond black-box prediction accuracy?
 
 ## Motivation
 
-Phase-change materials (PCMs) are critical for thermal energy storage applications, yet traditional discovery relies on expensive trial-and-error experimentation. A validated ML screening approach could prioritize promising candidates for synthesis, accelerating the discovery pipeline. However, existing ML applications in materials science have focused primarily on electronic or magnetic properties, leaving PCM property prediction underexplored.
+Phase-change materials (PCMs) are critical for thermal energy storage, yet the specific structural descriptors that govern high latent heat and optimal melting points remain poorly understood compared to electronic properties. Current discovery pipelines rely on trial-and-error or black-box models that predict performance without revealing the underlying physical mechanisms. Identifying these governing factors would enable rational design of new PCMs rather than just statistical screening, addressing a fundamental gap in materials thermodynamics.
 
 ## Related work
 
-- [Interpretable and Explainable Machine Learning for Materials Science and Chemistry (2021)](http://arxiv.org/abs/2111.01037v2) — Establishes the importance of interpretability when applying ML models to materials discovery problems.
-- [Orbital Graph Convolutional Neural Network for Material Property Prediction (2020)](http://arxiv.org/abs/2008.06415v1) — Demonstrates crystal graph representations improve property prediction accuracy for material systems.
-- [A Data Ecosystem to Support Machine Learning in Materials Science (2019)](http://arxiv.org/abs/1904.10423v2) — Highlights challenges in data collection and standardization for materials science ML applications.
-- [MT-CGCNN: Integrating Crystal Graph Convolutional Neural Network with Multitask Learning for Material Property Prediction (2018)](http://arxiv.org/abs/1811.05660v1) — Shows multitask learning can simultaneously predict multiple material properties with shared representations.
-- [Machine Learning-Assisted High-Throughput Semi-empirical Search of OFET Molecular Materials (2021)](http://arxiv.org/abs/2107.02613v1) — Provides precedent for ML-guided screening of functional material candidates.
-- [Accelerating Materials Development via Automation, Machine Learning, and High-Performance Computing (2018)](https://doi.org/10.1016/j.joule.2018.05.009) — Discusses integration of ML with automation for accelerated materials discovery workflows.
+- [MT-CGCNN: Integrating Crystal Graph Convolutional Neural Network with Multitask Learning for Material Property Prediction (2018)](https://arxiv.org/abs/1811.05660) — Demonstrates that graph-based representations can effectively predict multiple material properties simultaneously, establishing a baseline for using structural graphs in property prediction.
+- [A Data Ecosystem to Support Machine Learning in Materials Science (2019)](https://arxiv.org/abs/1904.10423) — Highlights the fragmentation of materials data and the necessity of standardized data collection to support robust ML training across diverse property domains.
+- [Symbolic Learning for Material Discovery (2023)](https://arxiv.org/abs/2312.11487) — Proposes methods for deriving interpretable mathematical expressions from data, offering a pathway to move beyond black-box predictions to discover explicit structure-property relationships.
 
 ## Expected results
 
-We expect ML models to achieve R² ≥ 0.7 for latent heat prediction and classification accuracy ≥ 80% for PCM suitability (binary: suitable/not suitable). Performance should be measurable via cross-validation on held-out test sets, with statistical significance assessed against baseline random forest models using paired t-tests (p < 0.05). Graph-based representations are hypothesized to outperform elemental descriptor baselines by ≥5% on average.
+We expect to identify a specific subset of structural features (e.g., specific bonding symmetries or atomic packing densities) that correlate strongly (>0.6 Pearson) with high latent heat and suitable melting ranges. The interpretable models (symbolic regression or SHAP-analyzed tree ensembles) will yield explicit mathematical rules or feature rankings that differ significantly from the opaque weights of deep learning baselines. These findings will be validated by their ability to correctly rank known high-performance PCMs in a held-out test set without overfitting to the training distribution.
 
 ## Methodology sketch
 
-- Download Materials Project dataset (https://materialsproject.org/) via API key; filter for compounds with documented melting point and heat capacity data (~10,000 entries).
-- Supplement with NIST PCM database (https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=907517) for latent heat measurements.
-- Compute elemental feature vectors: atomic number, electronegativity, atomic radius, valence electron count per constituent element.
-- Generate crystal graph representations using pymatgen's StructureGraph module (open-source, CPU-compatible).
-- Split data into 70% training, 15% validation, 15% test stratified by material class (oxides, chalcogenides, organics).
-- Train baseline models: Random Forest and Gradient Boosting Regressors (scikit-learn, memory-efficient).
-- Train graph neural network model: simplified CGCNN architecture (PyTorch, single GPU emulation on CPU with batch_size=32).
-- Perform 5-fold cross-validation; record MAE, RMSE, R² for regression; accuracy, precision, recall for classification.
-- Apply statistical significance testing: paired t-test comparing model predictions on same test set (α = 0.05).
-- Generate feature importance plots (SHAP values) to interpret which elemental properties drive PCM suitability predictions.
+- Download the Materials Project dataset (https://materialsproject.org/) via API, filtering for compounds with documented melting points and heat capacity data; supplement with NIST PCM data for latent heat values.
+- Compute two feature sets: (1) elemental descriptors (atomic number, electronegativity, radius) and (2) crystal graph representations using pymatgen's StructureGraph module.
+- Train baseline "black-box" models (Random Forest, Gradient Boosting) to establish predictive performance ceilings for PCM suitability.
+- Apply interpretable modeling techniques: (a) SHAP analysis on tree models to rank feature importance, and (b) Symbolic Regression (using PySR or similar CPU-efficient libraries) to derive explicit mathematical formulas linking structure to latent heat.
+- Split data into 70% training, 15% validation, 15% test, stratified by chemical family to ensure generalization.
+- Evaluate models using R² for regression and accuracy for classification; assess interpretability by comparing derived rules against known thermodynamic principles.
+- Perform an independent validation check: test the derived symbolic rules on a completely separate set of 50 known PCMs from literature not included in the training or test splits to ensure the rules capture physical mechanisms rather than dataset artifacts.
+- Conduct statistical significance testing (paired t-tests) comparing the predictive power of the interpretable models against the black-box baselines.
+- Generate feature importance plots and symbolic equations to visualize the governing factors of phase-change suitability.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: [N/A — no existing fleshed-out ideas in corpus provided].
 - Closest match: None identified.
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-13T17:36:18Z
+**Outcome**: exhausted
+**Original term**: Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials materials science
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials materials science | 0 |
+| 1 | machine learning for phase change material discovery | 5 |
+| 2 | data-driven discovery of phase change materials | 0 |
+| 3 | predicting phase transition temperatures with machine learning | 0 |
+| 4 | high-throughput screening of phase change materials using ML | 0 |
+| 5 | machine learning models for thermophysical property prediction | 0 |
+| 6 | computational discovery of novel phase change materials | 0 |
+| 7 | artificial intelligence in phase change material design | 0 |
+| 8 | crystal structure prediction for phase change materials | 0 |
+| 9 | melting point prediction using deep learning | 0 |
+| 10 | latent heat prediction via machine learning algorithms | 0 |
+| 11 | materials informatics for phase change applications | 0 |
+| 12 | supervised learning for phase change material classification | 0 |
+| 13 | generative models for novel phase change material synthesis | 0 |
+| 14 | descriptor-based machine learning for phase transitions | 0 |
+| 15 | graph neural networks for phase change material property estimation | 0 |
+| 16 | machine learning guided search for chalcogenide phase change materials | 0 |
+| 17 | thermal conductivity prediction of phase change materials using AI | 0 |
+| 18 | phase diagram prediction with machine learning | 0 |
+| 19 | accelerated materials discovery for thermal energy storage | 0 |
+| 20 | regression models for phase change material performance metrics | 0 |
+
+### Verified citations
+
+1. **MT-CGCNN: Integrating Crystal Graph Convolutional Neural Network with Multitask Learning for Material Property Prediction** (2018). Soumya Sanyal, Janakiraman Balachandran, Naganand Yadati, Abhishek Kumar, Padmini Rajagopalan, et al.. arXiv. [1811.05660](https://arxiv.org/abs/1811.05660). PDF-sampled: No.
+2. **A Data Ecosystem to Support Machine Learning in Materials Science** (2019). Ben Blaiszik, Logan Ward, Marcus Schwarting, Jonathon Gaff, Ryan Chard, et al.. arXiv. [1904.10423](https://arxiv.org/abs/1904.10423). PDF-sampled: No.
+3. **Symbolic Learning for Material Discovery** (2023). Daniel Cunnington, Flaviu Cipcigan, Rodrigo Neumann Barros Ferreira, Jonathan Booth. arXiv. [2312.11487](https://arxiv.org/abs/2312.11487). PDF-sampled: No.

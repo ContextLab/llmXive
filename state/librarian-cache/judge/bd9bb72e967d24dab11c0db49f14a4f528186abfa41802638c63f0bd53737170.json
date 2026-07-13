@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-07-13T17:36:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the predictive power of machine learning for identifying novel phase-change materials materials science",
+  "rationale": "The paper is a general survey on active learning for data streams and does not address the specific domain of materials science, phase-change materials, or the predictive modeling of material properties. It fails to meet any inclusion criteria (a-f) as it lacks the necessary domain connection (off-domain entirely) and does not provide empirical baselines, mechanisms, or canonical references specific to the user's question about identifying novel materials.",
+  "relevant": false
+}

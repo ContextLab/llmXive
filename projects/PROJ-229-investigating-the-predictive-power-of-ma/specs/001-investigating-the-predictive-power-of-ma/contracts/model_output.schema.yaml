@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique model identifier"
+  model_type:
+    type: "string"
+    enum:
+      - "random_forest"
+      - "gradient_boosting"
+      - "symbolic_regression"
+    description: "Type of model"
+  r2_score:
+    type: "number"
+    description: "R² score on validation set"
+  feature_importance:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Dictionary of feature importance"
+  symbolic_formula:
+    type: ["string", "null"]
+    description: "Explicit mathematical formula (nullable)"
+  shap_values:
+    type: ["array", "null"]
+    items:
+      type: "number"
+    description: "SHAP values for interpretation (nullable)"
+required:
+  - model_id
+  - model_type
+  - r2_score
+  - feature_importance
+additionalProperties: false

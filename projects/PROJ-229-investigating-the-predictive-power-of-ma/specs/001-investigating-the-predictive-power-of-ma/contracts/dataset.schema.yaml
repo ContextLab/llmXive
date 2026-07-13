@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PCM Dataset Schema"
+type: "object"
+properties:
+  mp_id:
+    type: "string"
+    description: "Unique Materials Project ID"
+  formula:
+    type: "string"
+    description: "Chemical formula"
+  melting_point:
+    type: "number"
+    description: "Melting point in Kelvin"
+  heat_capacity:
+    type: "number"
+    description: "Heat capacity in J/(mol·K)"
+  latent_heat:
+    type: "number"
+    description: "Latent heat of fusion in J/mol (nullable)"
+  atomic_number_mean:
+    type: "number"
+    description: "Mean atomic number of constituent elements"
+  electronegativity_mean:
+    type: "number"
+    description: "Mean electronegativity"
+  atomic_radius_mean:
+    type: "number"
+    description: "Mean atomic radius"
+  graph_features:
+    type: "array"
+    items:
+      type: "number"
+    description: "Vector of graph-based descriptors"
+  symmetry_features:
+    type: "array"
+    items:
+      type: "number"
+    description: "Vector of symmetry-based descriptors"
+  structure_hash:
+    type: "string"
+    description: "SHA-256 hash of the raw crystal structure for integrity verification"
+  structure_url:
+    type: "string"
+    description: "URL or path to the raw structure file (CIF/POSCAR) referenced by this record"
+required:
+  - mp_id
+  - formula
+  - melting_point
+  - atomic_number_mean
+  - electronegativity_mean
+  - atomic_radius_mean
+  - graph_features
+  - symmetry_features
+  - structure_hash
+additionalProperties: false
+

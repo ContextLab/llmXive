@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1811.05660",
+  "judged_at": "2026-07-13T17:35:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the predictive power of machine learning for identifying novel phase-change materials materials science",
+  "rationale": "This paper satisfies criteria (d) as a foundational methodology reference for applying graph neural networks (specifically CGCNN) to materials property prediction, and (b) as it measures the predictive power of machine learning models on material properties (formation energy, band gap) within the materials science domain, which is the core mechanism the user is investigating.",
+  "relevant": true
+}
