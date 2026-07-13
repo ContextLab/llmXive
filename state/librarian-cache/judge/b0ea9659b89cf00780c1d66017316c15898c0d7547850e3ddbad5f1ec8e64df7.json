@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.22904",
+  "judged_at": "2026-07-13T19:18:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dreamx-world 1.0: a general-purpose interactive world model\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it directly extends the \"Dreamer\" world model family (specifically DreamerV3) to incorporate language conditioning for policy generalization, which is the core mechanism and foundational framework implied by the user's query about extending \"DreamX-World 1.0\" (a Dreamer-based world model). It provides the canonical prior work on language-conditioned world models that a literature review on this specific topic would require.",
+  "relevant": true
+}

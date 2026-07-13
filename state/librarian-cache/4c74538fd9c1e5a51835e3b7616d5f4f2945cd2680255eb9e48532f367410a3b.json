@@ -1,0 +1,590 @@
+{
+  "fetched_at": "2026-07-13T19:18:55Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive World Model\"",
+      "target_n": 5
+    },
+    "duration_seconds": 62.94,
+    "ended_at": "2026-07-13T19:18:55Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "interactive world models for large language models"
+        ],
+        [
+          2,
+          "general-purpose world models in generative AI"
+        ],
+        [
+          3,
+          "extending interactive world models with LLMs"
+        ],
+        [
+          4,
+          "LLM-driven simulation environments"
+        ],
+        [
+          5,
+          "embodied AI world models"
+        ],
+        [
+          6,
+          "generative world models for planning"
+        ],
+        [
+          7,
+          "video-based world models with language understanding"
+        ],
+        [
+          8,
+          "interactive simulation for autonomous agents"
+        ],
+        [
+          9,
+          "Dreamer architecture extensions for world models"
+        ],
+        [
+          10,
+          "LLM-guided environment dynamics prediction"
+        ],
+        [
+          11,
+          "multimodal world models for interactive tasks"
+        ],
+        [
+          12,
+          "scalable interactive world modeling frameworks"
+        ],
+        [
+          13,
+          "language-conditioned world model generation"
+        ],
+        [
+          14,
+          "agent-environment interaction via world models"
+        ],
+        [
+          15,
+          "next-token prediction for world simulation"
+        ],
+        [
+          16,
+          "foundation models for interactive physics simulation"
+        ],
+        [
+          17,
+          "neural world models with language interfaces"
+        ],
+        [
+          18,
+          "iterative refinement of world model predictions"
+        ],
+        [
+          19,
+          "generalizable world models for robotics"
+        ],
+        [
+          20,
+          "hybrid symbolic-neural world models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "interactive world models for large language models": 5,
+        "llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive World Model\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "generative world models latent dynamics",
+      "DreamerV3 model-based reinforcement learning",
+      "video prediction policy gradient",
+      "sample efficiency visual representation learning",
+      "sim-to-real transfer generalization error"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2511.22904"
+      ]
+    },
+    "per_query_hit_count": {
+      "DreamerV3 model-based reinforcement learning": 3,
+      "generative world models latent dynamics": 3,
+      "llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive World Model\" computer science": 3,
+      "sample efficiency visual representation learning": 3,
+      "sim-to-real transfer generalization error": 3,
+      "video prediction policy gradient": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on general techniques for improving conversational coherence and emotional intelligence in LLMs, which is a distinct construct from the user's specific question about extending a \"General-Purpose Interactive World Model\" (a system for simulating dynamic environments and physical interactions). It fails the \"off-domain entirely\" rejection rule because it addresses human-like dialogue rather than the mechanics of world modeling, planning, or interactive simulation required by the",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from the user's question regarding \"World Models\" (interactive environment simulators) and the specific \"DreamX-World 1.0\" architecture. While both involve LLMs, the candidate paper does not measure the same mechanism (world simulation vs. personality traits), share the same variables, or provide a foundational methodology for the specific domain of interactive world models.",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper investigates a specific limitation of LLMs regarding character-level understanding, which is a distinct construct from the user's question about extending a specific interactive world model (\"DreamX-World 1.0\"). While both involve LLMs, the candidate paper does not address the mechanism, variables, or empirical setting of interactive world models, nor does it provide a foundational method or baseline for that specific domain, failing to meet any of the inclusion criteria (a-f).",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        },
+        {
+          "primary_pointer": "2403.09676",
+          "rationale": "The paper focuses on AI deception, safety governance, and behavioral categorization, which is a distinct construct from the user's question regarding \"DreamX-World 1.0,\" a specific interactive world model architecture. There is no overlap in the mechanism (world modeling vs. deception), variables, or empirical domain, and the paper does not serve as a foundational reference for the specific world model system mentioned.",
+          "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T19:17:52Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"dreamx-world 1.0: a general-purpose interactive world model\" computer science",
+      "raw": "llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive World Model\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery relies on iterative expert workflows that are slow to parallelize and difficult to scale. Here we introduce Latent-Y, an AI agent that autonomously executes complete antibody design campaigns from text prompts, covering literature review, target analysis, epitope identification, candidate design, computational validation, and selection of lab-ready sequences. Latent-Y is integrated into the Latent Labs Platform, where it operates in the same environment as drug-discovery experts with access to bioinformatics tools, biological databases, and scientific literature. The agent can run fully autonomously end-to-end, or collaboratively, where researchers review progress, provide feedback, and direct subsequent steps. Candidate antibodies are generated using Latent-X2, our frontier generative model for drug-like antibody design. We demonstrate the agent's capability across three distinct campaign types: epitope discovery guided by therapeutic specifications, cross-species binder design, and autonomous design from a scientific publication targeting human transferrin receptor for blood-brain barrier crossing. Across nine targets, Latent-Y produced lab-confirmed nanobody binders against six, achieving a 67% target-level success rate with binding affinities reaching the single-digit nanomolar range, without human filtering or intervention. In user studies, experts working with Latent-Y completed design campaigns 56 times faster than independent expert time estimates, compressing weeks of work into hours. Because Latent-X2 is a general-purpose atomic-level model for biologics design, the same agent architecture naturally extends to macrocyclic peptide and mini-binder design campaigns, broadening autonomous discovery across therapeutic modalities. Latent-Y is available to selected partners at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Sebastian M. Schmon",
+            "Daniella Pretorius",
+            "Simon Mathis",
+            "Rebecca Bartke-Croughan",
+            "Aishaini Puvanendran",
+            "James Vuckovic",
+            "Henry Kenlay",
+            "Mária Vlachynská",
+            "Alex Bridgland",
+            "Ivan Grishin",
+            "Sven Over",
+            "David Li",
+            "Bridget Li",
+            "Jonathan Crabbé",
+            "Agrin Hilmkil",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29727"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional drug discovery relies on rounds of screening millions of candidate molecules with low success rates, making drug discovery time and resource intensive. To overcome this screening bottleneck, we introduce Latent-X, an all-atom protein design model that enables a new paradigm of precision AI design. Given a target protein epitope, Latent-X jointly generates the all atom structure and sequence of the protein binder and target, directly modelling the non-covalent interactions essential for specific binding. We demonstrate its efficacy across two therapeutically relevant modalities through extensive wet lab experiments, testing as few as 30-100 designs per target. For macrocyclic peptides, Latent-X achieves experimental hit rates exceeding 90% on all evaluated benchmark targets. For mini-binders, it consistently produces potent candidates against all evaluated benchmark targets, with binding affinities reaching the low nanomolar and picomolar range - comparable to those of approved therapeutics - whilst also being highly specific in mammalian display. In direct comparisons with the state-of-the-art models AlphaProteo, RFdiffusion and RFpeptides under identical conditions demonstrates, Latent-X generates binders with higher hit rates and better binding affinities, and uniquely creates structurally diverse binders, including complex beta-sheet folds. Its end-to-end process is an order of magnitude faster than existing multi-step computational pipelines. By drastically improving the efficiency and success rate of de novo design, Latent-X represents a significant advance towards push-button biologics discovery and a valuable tool for protein engineers. Latent-X is available at https://platform.latentlabs.com, enabling users to reliably generate de novo binders without AI infrastructure or coding.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Alex Bridgland",
+            "Jonathan Crabbé",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "Rebecca Bartke-Croughan",
+            "Robin Rombach",
+            "Michael Flashman",
+            "Tomas Matteson",
+            "Simon Mathis",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19375"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery has long sought computational systems capable of designing drug-like molecules directly: developable and non-immunogenic from the start. Here we introduce Latent-X2, a frontier generative model that achieves this goal through zero-shot design of antibodies with strong binding affinities, drug-like properties, and, for the first time for any de novo generated antibody, confirmed low immunogenicity in human donor panels. Latent-X2 is an all-atom model conditioned on target structure, epitope specification, and optional antibody framework, jointly generating sequences and structures while modelling the bound complex. Testing only 4 to 24 designs per target in each modality, we successfully generated VHH and scFv antibodies against 9 of 18 evaluated targets, achieving a 50% target-level success rate with picomolar to nanomolar binding affinities. Designed molecules exhibit developability profiles that match or exceed those of approved antibody therapeutics, including expression yield, aggregation propensity, polyreactivity, hydrophobicity, and thermal stability, without optimization, filtering, or selection. In the first immunogenicity assessment of any AI-generated antibody, representative de novo VHH binders targeting TNFL9 exhibit both potent target engagement and low immunogenicity across T-cell proliferation and cytokine release assays. The model generalizes beyond antibodies: against K-Ras, long considered undruggable, we generated macrocyclic peptide binders competitive with trillion-scale mRNA display screens. These properties emerge directly from the model, demonstrating the therapeutic viability of zero-shot molecular design, now available without AI infrastructure or coding expertise at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Jonathan Crabbé",
+            "Alex Bridgland",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "James Vuckovic",
+            "Simon Mathis",
+            "Tomas Matteson",
+            "Rebecca Bartke-Croughan",
+            "Amir Motmaen",
+            "Robin Rombach",
+            "Mária Vlachynská",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.20263"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we study how to learn stochastic, multimodal transition dynamics in reinforcement learning (RL) tasks. We focus on evaluating transition function estimation, while we defer planning over this model to future work. Stochasticity is a fundamental property of many task environments. However, discriminative function approximators have difficulty estimating multimodal stochasticity. In contrast, deep generative models do capture complex high-dimensional outcome distributions. First we discuss why, amongst such models, conditional variational inference (VI) is theoretically most appealing for model-based RL. Subsequently, we compare different VI models on their ability to learn complex stochasticity on simulated functions, as well as on a typical RL gridworld with multimodal dynamics. Results show VI successfully predicts multimodal outcomes, but also robustly ignores these for deterministic parts of the transition dynamics. In summary, we show a robust method to learn multimodal transitions using function approximation, which is a key preliminary for model-based RL in stochastic domains.",
+          "claimed_authors": [
+            "Thomas M. Moerland",
+            "Joost Broekens",
+            "Catholijn M. Jonker"
+          ],
+          "claimed_title": "Learning Multimodal Transition Dynamics for Model-Based Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.00470"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Learning Multimodal Transition Dynamics for Model-Based Reinforcement Learning')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning (RL) is a method for learning decision-making tasks that could enable robots to learn and adapt to their situation on-line. For an RL algorithm to be practical for robotic control tasks, it must learn in very few actions, while continually taking those actions in real-time. Existing model-based RL methods learn in relatively few actions, but typically take too much time between each action for practical on-line learning. In this paper, we present a novel parallel architecture for model-based RL that runs in real-time by 1) taking advantage of sample-based approximate planning methods and 2) parallelizing the acting, model learning, and planning processes such that the acting process is sufficiently fast for typical robot control cycles. We demonstrate that algorithms using this architecture perform nearly as well as methods using the typical sequential architecture when both are given unlimited time, and greatly out-perform these methods on tasks that require real-time actions such as controlling an autonomous vehicle.",
+          "claimed_authors": [
+            "Todd Hester",
+            "Michael Quinlan",
+            "Peter Stone"
+          ],
+          "claimed_title": "A Real-Time Model-Based Reinforcement Learning Architecture for Robot Control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1105.1749"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='A Real-Time Model-Based Reinforcement Learning Architecture for Robot Control')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In contrast with traditional video, omnidirectional video enables spherical viewing direction with support for head-mounted displays, providing an interactive and immersive experience. Unfortunately, to the best of our knowledge, there are few visual quality assessment (VQA) methods, either subjective or objective, for omnidirectional video coding. This paper proposes both subjective and objective methods for assessing quality loss in encoding omnidirectional video. Specifically, we first present a new database, which includes the viewing direction data from several subjects watching omnidirectional video sequences. Then, from our database, we find a high consistency in viewing directions across different subjects. The viewing directions are normally distributed in the center of the front regions, but they sometimes fall into other regions, related to video content. Given this finding, we present a subjective VQA method for measuring difference mean opinion score (DMOS) of the whole and regional omnidirectional video, in terms of overall DMOS (O-DMOS) and vectorized DMOS (V-DMOS), respectively. Moreover, we propose two objective VQA methods for encoded omnidirectional video, in light of human perception characteristics of omnidirectional video. One method weighs the distortion of pixels with regard to their distances to the center of front regions, which considers human preference in a panorama. The other method predicts viewing directions according to video content, and then the predicted viewing directions are leveraged to allocate weights to the distortion of each pixel in our objective VQA method. Finally, our experimental results verify that both the subjective and objective methods proposed in this paper advance state-of-the-art VQA for omnidirectional video.",
+          "claimed_authors": [
+            "Mai Xu",
+            "Chen Li",
+            "Zulin Wang",
+            "Zhenzhong Chen",
+            "Zhenyu Guan"
+          ],
+          "claimed_title": "Assessing Visual Quality of Omnidirectional Videos",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.06342"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Assessing Visual Quality of Omnidirectional Videos')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
+          "claimed_authors": [
+            "Kasun Amarasinghe",
+            "Kit Rodolfa",
+            "Hemank Lamba",
+            "Rayid Ghani"
+          ],
+          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14374"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A fascinating aspect of nature lies in its ability to produce a large and diverse collection of organisms that are all high-performing in their niche. By contrast, most AI algorithms focus on finding a single efficient solution to a given problem. Aiming for diversity in addition to performance is a convenient way to deal with the exploration-exploitation trade-off that plays a central role in learning. It also allows for increased robustness when the returned collection contains several working solutions to the considered problem, making it well-suited for real applications such as robotics. Quality-Diversity (QD) methods are evolutionary algorithms designed for this purpose. This paper proposes a novel algorithm, QDPG, which combines the strength of Policy Gradient algorithms and Quality Diversity approaches to produce a collection of diverse and high-performing neural policies in continuous control environments. The main contribution of this work is the introduction of a Diversity Policy Gradient (DPG) that exploits information at the time-step level to drive policies towards more diversity in a sample-efficient manner. Specifically, QDPG selects neural controllers from a MAP-Elites grid and uses two gradient-based mutation operators to improve both quality and diversity. Our results demonstrate that QDPG is significantly more sample-efficient than its evolutionary competitors.",
+          "claimed_authors": [
+            "Thomas Pierrot",
+            "Valentin Macé",
+            "Félix Chalumeau",
+            "Arthur Flajolet",
+            "Geoffrey Cideron",
+            "Karim Beguir",
+            "Antoine Cully",
+            "Olivier Sigaud",
+            "Nicolas Perrin-Gilbert"
+          ],
+          "claimed_title": "Diversity Policy Gradient for Sample Efficient Quality-Diversity Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.08505"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Diversity Policy Gradient for Sample Efficient Quality-Diversity Optimization')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When a three-dimensional object moves relative to an observer, a change occurs on the observer's image plane and in the visual representation computed by a learned model. Starting with the idea that a good visual representation is one that transforms linearly under scene motions, we show, using the theory of group representations, that any such representation is equivalent to a combination of the elementary irreducible representations. We derive a striking relationship between irreducibility and the statistical dependency structure of the representation, by showing that under restricted conditions, irreducible representations are decorrelated. Under partial observability, as induced by the perspective projection of a scene onto the image plane, the motion group does not have a linear action on the space of images, so that it becomes necessary to perform inference over a latent representation that does transform linearly. This idea is demonstrated in a model of rotating NORB objects that employs a latent representation of the non-commutative 3D rotation group SO(3).",
+          "claimed_authors": [
+            "Taco S. Cohen",
+            "Max Welling"
+          ],
+          "claimed_title": "Transformation Properties of Learned Visual Representations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1412.7659"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Transformation Properties of Learned Visual Representations')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A significant roadblock in multilingual neural language modeling is the lack of labeled non-English data. One potential method for overcoming this issue is learning cross-lingual text representations that can be used to transfer the performance from training on English tasks to non-English tasks, despite little to no task-specific non-English data. In this paper, we explore a natural setup for learning cross-lingual sentence representations: the dual-encoder. We provide a comprehensive evaluation of our cross-lingual representations on a number of monolingual, cross-lingual, and zero-shot/few-shot learning tasks, and also give an analysis of different learned cross-lingual embedding spaces.",
+          "claimed_authors": [
+            "Muthuraman Chidambaram",
+            "Yinfei Yang",
+            "Daniel Cer",
+            "Steve Yuan",
+            "Yun-Hsuan Sung",
+            "Brian Strope",
+            "Ray Kurzweil"
+          ],
+          "claimed_title": "Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.12836"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present Contextualized Local Visual Embeddings (CLoVE), a self-supervised convolutional-based method that learns representations suited for dense prediction tasks. CLoVE deviates from current methods and optimizes a single loss function that operates at the level of contextualized local embeddings learned from output feature maps of convolution neural network (CNN) encoders. To learn contextualized embeddings, CLoVE proposes a normalized mult-head self-attention layer that combines local features from different parts of an image based on similarity. We extensively benchmark CLoVE's pre-trained representations on multiple datasets. CLoVE reaches state-of-the-art performance for CNN-based architectures in 4 dense prediction downstream tasks, including object detection, instance segmentation, keypoint detection, and dense pose estimation.",
+          "claimed_authors": [
+            "Thalles Santos Silva",
+            "Helio Pedrini",
+            "Adín Ramírez Rivera"
+          ],
+          "claimed_title": "Self-supervised Learning of Contextualized Local Visual Embeddings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.00527"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Self-supervised Learning of Contextualized Local Visual Embeddings')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bridging the sim-to-real gap is a core challenge in deploying learned manipulation policies. Sim-to-real learning is attractive because it can replace expensive real robot demonstrations with scalable synthetic data, yet world-action models have not previously been shown to transfer from simulation to real robotic manipulation. We study whether a world-action model can be trained from synthetic priors and deployed zero-shot in the real world. To this end, we build upon Cosmos Policy, a video diffusion model adapted for visuomotor control. We construct simulation environments with extensive domain randomization and generate demonstrations using the AnyTask motion planning pipeline. We evaluate our approach across object lifting, drawer opening, and pick-and-place tasks using ${\\sim}800$ synthetic demonstrations per task and no real demonstrations. When deployed zero-shot on a Franka Robot, our policy attains a 35\\% average success rate. To our knowledge, this represents the first successful sim-to-real transfer of a world-action model for robotic manipulation.",
+          "claimed_authors": [
+            "Zixing Wang",
+            "Kausik Sivakumar",
+            "Jinghuan Shang",
+            "Yafei Hu",
+            "Zhaoming Xie",
+            "Ran Gong",
+            "Xiaohan Zhang",
+            "Karl Schmeckpeper"
+          ],
+          "claimed_title": "Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.31101"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter addresses the critical challenge of simulation-to-reality (sim-to-real) transfer for deep reinforcement learning (DRL) in bipedal locomotion. After contextualizing the problem within various control architectures, we dissect the ``curse of simulation'' by analyzing the primary sources of sim-to-real gap: robot dynamics, contact modeling, state estimation, and numerical solvers. Building on this diagnosis, we structure the solutions around two complementary philosophies. The first is to shrink the gap through model-centric strategies that systematically improve the simulator's physical fidelity. The second is to harden the policy, a complementary approach that uses in-simulation robustness training and post-deployment adaptation to make the policy inherently resilient to model inaccuracies. The chapter concludes by synthesizing these philosophies into a strategic framework, providing a clear roadmap for developing and evaluating robust sim-to-real solutions.",
+          "claimed_authors": [
+            "Lingfan Bao",
+            "Tianhu Peng",
+            "Chengxu Zhou"
+          ],
+          "claimed_title": "Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.06465"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep learning and reinforcement learning methods have been shown to enable learning of flexible and complex robot controllers. However, the reliance on large amounts of training data often requires data collection to be carried out in simulation, with a number of sim-to-real transfer methods being developed in recent years. In this paper, we study these techniques for tactile sensing using the TacTip optical tactile sensor, which consists of a deformable tip with a camera observing the positions of pins inside this tip. We designed a model for soft body simulation which was implemented using the Unity physics engine, and trained a neural network to predict the locations and angles of edges when in contact with the sensor. Using domain randomisation techniques for sim-to-real transfer, we show how this framework can be used to accurately predict edges with less than 1 mm prediction error in real-world testing, without any real-world data at all.",
+          "claimed_authors": [
+            "Zihan Ding",
+            "Nathan F. Lepora",
+            "Edward Johns"
+          ],
+          "claimed_title": "Sim-to-Real Transfer for Optical Tactile Sensing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.00136"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Sim-to-Real Transfer for Optical Tactile Sensing')",
+        "failed_at": "2026-07-13T19:18:23Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Anh Nguyen",
+            "Stefan Lee"
+          ],
+          "title": "Language-conditioned world model improves policy generalization by reading environmental descriptions",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.22904",
+        "summary": "To interact effectively with humans in the real world, it is important for agents to understand language that describes the dynamics of the environment--that is, how the environment behaves--rather than just task instructions specifying \"what to do\". Understanding this dynamics-descriptive language is important for human-agent interaction and agent behavior. Recent work address this problem using a model-based approach: language is incorporated into a world model, which is then used to learn a behavior policy. However, these existing methods either do not demonstrate policy generalization to unseen games or rely on limiting assumptions. For instance, assuming that the latency induced by inference-time planning is tolerable for the target task or expert demonstrations are available. Expanding on this line of research, we focus on improving policy generalization from a language-conditioned world model while dropping these assumptions. We propose a model-based reinforcement learning approach, where a language-conditioned world model is trained through interaction with the environment, and a policy is learned from this model--without planning or expert demonstrations. Our method proposes Language-aware Encoder for Dreamer World Model (LED-WM) built on top of DreamerV3. LED-WM features an observation encoder that uses an attention mechanism to explicitly ground language descriptions to entities in the observation. We show that policies trained with LED-WM generalize more effectively to unseen games described by novel dynamics and language compared to other baselines in several settings in two environments: MESSENGER and MESSENGER-WM.To highlight how the policy can leverage the trained world model before real-world deployment, we demonstrate the policy can be improved through fine-tuning on synthetic test trajectories generated by the world model.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.22904",
+          "http_status": 200,
+          "pdf_sample_score": 0.3662,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T19:18:31Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"dreamx-world 1.0: a general-purpose interactive world model\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.09676",
+  "judged_at": "2026-07-13T19:18:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dreamx-world 1.0: a general-purpose interactive world model\" computer science",
+  "rationale": "The paper focuses on AI deception, safety governance, and behavioral categorization, which is a distinct construct from the user's question regarding \"DreamX-World 1.0,\" a specific interactive world model architecture. There is no overlap in the mechanism (world modeling vs. deception), variables, or empirical domain, and the paper does not serve as a foundational reference for the specific world model system mentioned.",
+  "relevant": false
+}
