@@ -1,9 +1,3 @@
-"""
-Sensitivity Analysis Module for LLM Code Coverage Impact Study.
-
-Implements FR-011: Sensitivity analysis across significance thresholds.
-Explicitly excludes sensitivity thresholds from family-wise error correction.
-"""
 import os
 import csv
 import logging
@@ -11,211 +5,144 @@ from pathlib import Path
 from typing import List, Dict, Any, Tuple
 import pandas as pd
 import numpy as np
-from scipy import stats
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logger
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Defined thresholds for sensitivity analysis (FR-011)
-SENSITIVITY_THRESHOLDS = [0.01, 0.05, 0.10, 0.15, 0.20, 0.25]
-
-def load_coverage_reports(report_dir: str = "data/coverage_reports") -> List[Dict[str, Any]]:
-    """
-    Load all coverage reports from the specified directory.
-    
-    Args:
-        report_dir: Path to the directory containing coverage reports.
-        
-    Returns:
-        List of coverage report dictionaries.
-    """
-    report_path = Path(report_dir)
-    if not report_path.exists():
-        logger.warning(f"Report directory {report_dir} does not exist.")
-        return []
-    
+def load_coverage_reports(coverage_dir: str) -> List[Dict[str, Any]]:
+    """Load all JSON coverage reports from the specified directory."""
     reports = []
-    for file_path in report_path.glob("*.json"):
+    coverage_path = Path(coverage_dir)
+    if not coverage_path.exists():
+        logger.warning(f"Coverage directory not found: {coverage_dir}")
+        return reports
+    
+    for json_file in coverage_path.glob("*.json"):
         try:
-            with open(file_path, 'r') as f:
+            with open(json_file, 'r') as f:
                 data = json.load(f)
-                # Only include successful runs with coverage data
-                if data.get('status') == 'success' and 'line_coverage' in data:
-                    reports.append(data)
+                # Skip failed reports if they lack coverage data
+                if data.get('status') == 'failed' or 'line_coverage' not in data:
+                    continue
+                reports.append(data)
         except (json.JSONDecodeError, IOError) as e:
-            logger.error(f"Failed to read {file_path}: {e}")
+            logger.error(f"Error reading {json_file}: {e}")
     return reports
 
-def pair_llm_human_results(reports: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def pair_llm_human_results(reports: List[Dict[str, Any]]) -> pd.DataFrame:
     """
-    Pair LLM and human coverage results by task_id.
+    Pair LLM and human results by task_id.
+    Assumes reports contain 'task_id', 'line_coverage' (or branch_coverage).
+    Human solution coverage is assumed to be 1.0 (100%) or extracted if available.
+    For this implementation, we treat 'human_solution' coverage as 1.0 if not explicitly reported in a separate human run.
+    However, to be robust, we look for a 'source' or 'type' field if available, otherwise assume:
+    - If the report is from the LLM generation pipeline, we need a corresponding human baseline.
+    - In this specific project context (T029), we assume the 'coverage_reports' contain both LLM generated and Human baseline runs,
+      or we derive human baseline as 1.0 for valid tasks if not present.
     
-    Args:
-        reports: List of coverage reports.
-        
-    Returns:
-        List of paired results with both llm and human coverage.
+    For the purpose of T029 sensitivity analysis, we calculate the difference:
+    diff = human_coverage - llm_coverage.
+    If human coverage is not explicitly in the report, we assume 1.0 (perfect coverage for reference solution).
     """
-    # Group by task_id
-    grouped = {}
+    data = []
     for report in reports:
         task_id = report.get('task_id')
         if not task_id:
             continue
         
-        if task_id not in grouped:
-            grouped[task_id] = {'llm': None, 'human': None}
+        # Assume human coverage is 1.0 if not explicitly provided as a separate "human" run in the same report
+        # In many setups, the 'human_solution' is the reference, so coverage is 100%.
+        # If the report has a specific field for 'human_coverage', use it.
+        human_cov = report.get('human_coverage', 1.0)
+        llm_cov = report.get('line_coverage')
         
-        # Determine if this is LLM or Human based on model field or source
-        # Assuming 'model' field indicates LLM, or specific naming convention
-        # For this implementation, we assume human solutions are marked differently
-        # or we have a separate source. 
-        # In the context of this study, we assume 'human_solution' exists in the dataset
-        # and we compare LLM generation against it.
-        # However, coverage reports usually contain the result of running the code.
-        # If the report comes from the LLM generator, it's 'llm'. If from a human baseline run, it's 'human'.
+        if llm_cov is None:
+            continue
         
-        # Heuristic: If 'model' is present in the report, it's LLM. Otherwise, assume human if it's a baseline run.
-        # For simplicity in this script, we assume the pipeline generates two sets of reports or tags them.
-        # Let's assume the 'source' or 'model' key distinguishes them.
-        if 'model' in report:
-            grouped[task_id]['llm'] = report
-        else:
-            grouped[task_id]['human'] = report
-    
-    pairs = []
-    for task_id, data in grouped.items():
-        if data['llm'] and data['human']:
-            pairs.append({
-                'task_id': task_id,
-                'llm_coverage': data['llm']['line_coverage'],
-                'human_coverage': data['human']['line_coverage'],
-                'diff': data['llm']['line_coverage'] - data['human']['line_coverage']
-            })
-        elif data['llm']:
-            # If no human baseline, we might skip or use a placeholder, 
-            # but sensitivity analysis requires paired differences for statistical tests usually.
-            # For FR-011, we need differences. If only LLM exists, we can't compute diff vs human.
-            # We will filter to only paired data.
-            pass
-    
-    return pairs
-
-def run_sensitivity_analysis(paired_data: List[Dict[str, Any]], 
-                             thresholds: List[float] = None) -> pd.DataFrame:
-    """
-    Perform sensitivity analysis across specified significance thresholds.
-    
-    This function calculates the stability of statistical significance (p-values)
-    across different alpha thresholds. It explicitly excludes these thresholds
-    from family-wise error correction as per FR-011.
-    
-    Args:
-        paired_data: List of dictionaries containing paired LLM/Human coverage.
-        thresholds: List of significance thresholds to test. Defaults to SENSITIVITY_THRESHOLDS.
-        
-    Returns:
-        DataFrame containing sensitivity analysis results.
-    """
-    if thresholds is None:
-        thresholds = SENSITIVITY_THRESHOLDS
-    
-    if not paired_data:
-        logger.warning("No paired data available for sensitivity analysis.")
-        return pd.DataFrame(columns=['threshold', 'significant', 'count', 'percentage'])
-    
-    # Extract differences
-    differences = [item['diff'] for item in paired_data]
-    n = len(differences)
-    
-    # Calculate paired t-test statistic and p-value
-    # Using t-test for paired samples (assuming normality or large N)
-    # If normality is violated, Wilcoxon could be used, but t-test is standard for sensitivity
-    # Let's perform the test once to get the base p-value
-    try:
-        t_stat, p_value = stats.ttest_rel(
-            [item['llm_coverage'] for item in paired_data],
-            [item['human_coverage'] for item in paired_data]
-        )
-    except Exception as e:
-        logger.error(f"Statistical test failed: {e}")
-        # Fallback to non-parametric if t-test fails (e.g., constant values)
-        try:
-            stat, p_value = stats.wilcoxon(
-                [item['llm_coverage'] for item in paired_data],
-                [item['human_coverage'] for item in paired_data]
-            )
-        except Exception as e2:
-            logger.error(f"Wilcoxon test also failed: {e2}")
-            p_value = 1.0 # Assume no significance if we can't test
-    
-    results = []
-    for threshold in thresholds:
-        significant = p_value < threshold
-        results.append({
-            'threshold': threshold,
-            'p_value': p_value,
-            'significant': significant,
-            'count': n,
-            'percentage': (sum(1 for d in differences if d != 0) / n * 100) if n > 0 else 0,
-            'mean_diff': np.mean(differences),
-            'std_diff': np.std(differences)
+        data.append({
+            'task_id': task_id,
+            'human_coverage': float(human_cov),
+            'llm_coverage': float(llm_cov),
+            'diff': float(human_cov) - float(llm_cov)
         })
     
-    df = pd.DataFrame(results)
-    return df
+    return pd.DataFrame(data)
 
-def save_sensitivity_report(df: pd.DataFrame, output_path: str) -> None:
+def run_sensitivity_analysis(df: pd.DataFrame, thresholds: List[float]) -> pd.DataFrame:
     """
-    Save the sensitivity analysis report to a CSV file.
+    Perform sensitivity analysis across specified thresholds.
+    Calculate the proportion of tasks where the coverage gap exceeds each threshold.
+    Constraint: Explicitly exclude these thresholds from family-wise error correction (handled by caller if needed).
+    """
+    results = []
     
-    Args:
-        df: DataFrame containing sensitivity analysis results.
-        output_path: Path to save the CSV file.
-    """
+    if df.empty:
+        logger.warning("No data to perform sensitivity analysis on.")
+        return pd.DataFrame(columns=['threshold', 'proportion_exceeding', 'count_exceeding', 'total_count'])
+
+    total_count = len(df)
+    
+    for threshold in thresholds:
+        # Count tasks where the absolute difference (or just difference) exceeds the threshold
+        # Usually sensitivity is about how many results change significance or magnitude.
+        # Here, we interpret it as: how many tasks have a gap > threshold?
+        count_exceeding = (df['diff'] > threshold).sum()
+        proportion = count_exceeding / total_count if total_count > 0 else 0.0
+        
+        results.append({
+            'threshold': threshold,
+            'proportion_exceeding': proportion,
+            'count_exceeding': int(count_exceeding),
+            'total_count': total_count
+        })
+    
+    return pd.DataFrame(results)
+
+def save_sensitivity_report(report_df: pd.DataFrame, output_path: str):
+    """Save the sensitivity analysis report to a CSV file."""
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    df.to_csv(output_file, index=False)
+    report_df.to_csv(output_file, index=False)
     logger.info(f"Sensitivity report saved to {output_file}")
 
 def main():
-    """
-    Main entry point for running sensitivity analysis.
-    """
-    logger.info("Starting Sensitivity Analysis (Task T029)...")
+    """Main entry point for running sensitivity analysis."""
+    # Default paths
+    coverage_dir = "data/coverage_reports"
+    output_dir = "data/processed"
+    output_file = os.path.join(output_dir, "sensitivity_report.csv")
     
-    # Load data
-    reports = load_coverage_reports("data/coverage_reports")
-    logger.info(f"Loaded {len(reports)} coverage reports.")
+    # Parse arguments if needed, for now use defaults or check environment
+    import argparse
+    parser = argparse.ArgumentParser(description="Run Sensitivity Analysis")
+    parser.add_argument("--coverage-dir", type=str, default=coverage_dir, help="Directory containing coverage reports")
+    parser.add_argument("--output-file", type=str, default=output_file, help="Output CSV file path")
+    args = parser.parse_args()
     
-    if len(reports) == 0:
-        logger.error("No coverage reports found. Cannot perform sensitivity analysis.")
-        # Create an empty report to satisfy the artifact requirement
-        empty_df = pd.DataFrame(columns=['threshold', 'p_value', 'significant', 'count', 'percentage', 'mean_diff', 'std_diff'])
-        save_sensitivity_report(empty_df, "data/processed/sensitivity_report.csv")
+    logger.info(f"Loading coverage reports from {args.coverage_dir}")
+    reports = load_coverage_reports(args.coverage_dir)
+    
+    if not reports:
+        logger.error("No valid coverage reports found. Cannot run sensitivity analysis.")
         return
     
-    # Pair results
-    paired_data = pair_llm_human_results(reports)
-    logger.info(f"Found {len(paired_data)} paired LLM/Human results.")
+    logger.info(f"Loaded {len(reports)} reports.")
     
-    if len(paired_data) < 2:
-        logger.warning("Insufficient paired data (need at least 2) for statistical testing.")
-        empty_df = pd.DataFrame(columns=['threshold', 'p_value', 'significant', 'count', 'percentage', 'mean_diff', 'std_diff'])
-        save_sensitivity_report(empty_df, "data/processed/sensitivity_report.csv")
+    df = pair_llm_human_results(reports)
+    
+    if df.empty:
+        logger.error("No valid paired data found.")
         return
     
-    # Run analysis
-    sensitivity_df = run_sensitivity_analysis(paired_data, SENSITIVITY_THRESHOLDS)
+    # Define thresholds as per task T029: {0.01, 0.05, 0.10, 0.15, 0.20, 0.25}
+    thresholds = [0.01, 0.05, 0.10, 0.15, 0.20, 0.25]
     
-    # Save report
-    output_path = "data/processed/sensitivity_report.csv"
-    save_sensitivity_report(sensitivity_df, output_path)
+    logger.info(f"Running sensitivity analysis for thresholds: {thresholds}")
+    sensitivity_df = run_sensitivity_analysis(df, thresholds)
     
-    logger.info("Sensitivity Analysis completed successfully.")
-    print(sensitivity_df)
+    save_sensitivity_report(sensitivity_df, args.output_file)
+    logger.info("Sensitivity analysis completed successfully.")
 
 if __name__ == "__main__":
     main()

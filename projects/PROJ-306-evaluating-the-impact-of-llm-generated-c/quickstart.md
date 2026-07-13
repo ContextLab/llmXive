@@ -1,46 +1,81 @@
-# Quickstart Guide: Evaluating the Impact of LLM-Generated Code on Code Coverage
+# Quickstart Guide
+
+This guide provides the commands to run the full pipeline and generate all required artifacts.
 
 ## Prerequisites
 
-- Python 3.9+
-- `datasets` library (installed via requirements.txt)
-- API Key for LLM (optional, falls back to local models if `LLM_API_KEY` is not set)
-
-## Setup
-
-1. **Clone and Install**
+1. Ensure you have Python 3.8+ installed.
+2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
-
-2. **Environment Variables** (Optional)
+3. Set your API key if using external models:
  ```bash
- export LLM_API_KEY="your_api_key_here"
+ export LLM_API_KEY="your-api-key-here"
  ```
 
-## Execution
+## Step 1: Load and Prepare Datasets
 
-Run the full pipeline (Generation -> Coverage -> Analysis -> Sensitivity):
+Download and process the MBPP and HumanEval datasets.
 
 ```bash
-python code/main.py --dataset all --model bigcode/starcoderbase-3b --batch-size 100 --output-dir data
+python code/dataset_loader.py
 ```
 
-**Note**: The `--num-tasks` argument has been removed. Use `--batch-size` to control the number of tasks processed.
+This will create:
+- `data/benchmarks/raw/mbpp/`
+- `data/benchmarks/raw/humaneval/`
+- `data/benchmarks/processed/catalog.json`
 
-## Output Artifacts
+## Step 2: Run Generation and Coverage Pipeline
 
-Upon successful completion, the following files will be generated in `data/processed/`:
+Generate code using the LLM and run coverage tests.
 
-- `stats_summary.csv`: Statistical summary of LLM vs Human coverage.
-- `corrected_pvalues.csv`: Family-wise error corrected p-values.
-- `sensitivity_report.csv`: Sensitivity analysis across thresholds (Task T029).
-- `stratified_*.csv`: Stratified reports by difficulty and code patterns.
+```bash
+python code/main.py --mode generate --dataset all --model gpt-4 --output-dir data/coverage_reports
+```
 
-Visualizations will be saved in `outputs/`.
+*Note: Use `--limit N` to process only the first N tasks for testing.*
 
-## Troubleshooting
+This will produce:
+- `data/coverage_reports/{task_id}.json`
 
-- **Missing Data**: Ensure `data/benchmarks/processed/catalog.json` exists. If not, run the dataset loader first.
-- **API Errors**: If using cloud models, check your API key and rate limits. The system will retry with backoff.
-- **Memory Errors**: If using local models, ensure you have sufficient RAM. The fallback model uses 4-bit quantization.
+## Step 3: Run Statistical Analysis (User Story 2)
+
+Perform statistical comparisons and sensitivity analysis.
+
+```bash
+python code/main.py --mode sensitivity
+```
+
+This will produce:
+- `data/processed/stats_summary.csv`
+- `data/processed/sensitivity_report.csv`
+- `data/processed/corrected_pvalues.csv`
+
+## Step 4: Run Stratification and Visualization (User Story 3)
+
+Generate stratified reports and visualizations.
+
+```bash
+python code/visualizer.py
+```
+
+This will produce:
+- `outputs/stratified_*.csv`
+- `outputs/*.png`
+
+## Verification
+
+To verify all artifacts are present:
+
+```bash
+python code/task_t050_validate_quickstart.py
+```
+
+Expected outputs:
+- `data/coverage_reports/*.json`
+- `data/processed/stats_summary.csv`
+- `data/processed/sensitivity_report.csv`
+- `outputs/*.csv`
+- `outputs/*.png`
