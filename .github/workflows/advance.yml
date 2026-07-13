@@ -5,13 +5,21 @@ name: Pipeline — Advance (deterministic matrix workers)
 # review/paper-speckit, which all just ran the SAME load-balanced
 # `python -m llmxive run` and thus competed as undifferentiated workers).
 #
-# A 6-job matrix where each worker `i` calls
-#   python -m llmxive run --worker i --workers 6
+# A 12-job matrix where each worker `i` calls
+#   python -m llmxive run --worker i --workers 12
 # which DETERMINISTICALLY picks a DISTINCT project via
-# scheduler.pick_for_worker: the 6 jobs fan out across the top-weighted stages
-# (round-robin), each taking a distinct project at the same HEAD — so the 6
-# never double-work. Each worker commits its OWN project's changes; the
-# commit-and-push.sh rebase-retry handles the concurrent pushes.
+# scheduler.pick_for_worker: the jobs are APPORTIONED across stages in proportion
+# to load (the fullest stage gets the most workers, capped at
+# MAX_STAGE_WORKER_SHARE so nothing starves), each taking a distinct project at
+# the same HEAD — so they never double-work. Each worker commits its OWN
+# project's changes; the commit-and-push.sh rebase-retry handles the concurrent
+# pushes.
+#
+# Width 12 (was 6): implementation is the pipeline's bottleneck — 433 projects sat
+# at in_progress and none had ever crossed it. A public repo gets 20 free
+# concurrent jobs, so 12 leaves headroom for the other lanes (compile/pages/
+# intake/signoff). With load-apportionment that puts ~8 workers on in_progress
+# per tick, versus 1 under the old flat round-robin.
 
 on:
   schedule:
@@ -21,7 +29,7 @@ on:
       workers:
         description: "Total matrix workers (must match the matrix size below)."
         required: false
-        default: "6"
+        default: "12"
       max_tasks:
         description: "Scheduler ticks per worker (each in_progress tick batches many tasks)."
         required: false
@@ -48,9 +56,9 @@ jobs:
     timeout-minutes: 150
     strategy:
       fail-fast: false
-      max-parallel: 6
+      max-parallel: 12
       matrix:
-        worker: [0, 1, 2, 3, 4, 5]
+        worker: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
       LLMXIVE_RUN_WALL_BUDGET_S: "2400"
@@ -80,12 +88,12 @@ jobs:
         run: |
           python -m llmxive run \
             --worker "${{ matrix.worker }}" \
-            --workers "${WORKERS:-6}" \
+            --workers "${WORKERS:-12}" \
             --max-tasks "${MAX_TASKS:-10}"
         env:
           WORKERS: ${{ github.event.inputs.workers }}
           MAX_TASKS: ${{ github.event.inputs.max_tasks }}
-      # Only worker 0 regenerates web data + triggers Pages — otherwise all 6
+      # Only worker 0 regenerates web data + triggers Pages — otherwise all 12
       # workers commit web/data/ and fire pages.yml, and the rapid Pages builds
       # cancel each other (the deploy thrash that leaves the live site stale).
       - name: Regenerate web data (worker 0 only)
