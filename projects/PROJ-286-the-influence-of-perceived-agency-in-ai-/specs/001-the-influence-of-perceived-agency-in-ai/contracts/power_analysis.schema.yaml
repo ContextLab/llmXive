@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Power Analysis Schema"
+description: "Schema for pre-study power calculation report."
+type: "object"
+properties:
+  design_parameters:
+    type: "object"
+    description: "Parameters used for power calculation."
+    properties:
+      effect_size:
+        type: "number"
+        description: "Assumed effect size (f=0.25 for ANOVA)."
+        minimum: 0.0
+      power_target:
+        type: "number"
+        description: "Target power (≥ 0.80)."
+        minimum: 0.0
+        maximum: 1.0
+      alpha:
+        type: "number"
+        description: "Significance level (α = 0.05)."
+        minimum: 0.0
+        maximum: 1.0
+      groups:
+        type: "integer"
+        description: "Number of experimental groups (3: High, Low, Control)."
+        minimum: 2
+    required:
+      - effect_size
+      - power_target
+      - alpha
+      - groups
+  required_sample_size:
+    type: "integer"
+    description: "Total sample size required to achieve target power."
+    minimum: 1
+  sample_size_per_group:
+    type: "integer"
+    description: "Sample size per group (assuming equal allocation)."
+    minimum: 1
+  achieved_power:
+    type: "number"
+    description: "Post-hoc power given actual sample size (if applicable)."
+    minimum: 0.0
+    maximum: 1.0
+  notes:
+    type: "string"
+    description: "Additional notes or limitations (e.g., 'Post-hoc power < 0.80')."
+required:
+  - design_parameters
+  - required_sample_size
+  - sample_size_per_group
+additionalProperties: false

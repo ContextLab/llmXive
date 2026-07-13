@@ -1,0 +1,196 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for statistical analysis results (ANOVA, contrasts, pairwise, effect sizes, power, sensitivity, manipulation check)."
+type: "object"
+properties:
+  anova_results:
+    type: "object"
+    description: "Results of One-Way ANOVA."
+    properties:
+      f_statistic:
+        type: "number"
+        description: "F-statistic."
+      p_value:
+        type: "number"
+        description: "p-value."
+        minimum: 0.0
+        maximum: 1.0
+      degrees_of_freedom:
+        type: "object"
+        properties:
+          between:
+            type: "integer"
+          within:
+            type: "integer"
+        required:
+          - between
+          - within
+      significant:
+        type: "boolean"
+        description: "Whether p < 0.05."
+    required:
+      - f_statistic
+      - p_value
+      - degrees_of_freedom
+      - significant
+  planned_contrasts:
+    type: "object"
+    description: "Results of planned directional contrasts."
+    properties:
+      high_vs_low:
+        $ref: "#/$defs/contrast_result"
+      combined_vs_control:
+        $ref: "#/$defs/contrast_result"
+    required:
+      - high_vs_low
+      - combined_vs_control
+  pairwise_comparisons:
+    type: "array"
+    description: "Results of Tukey HSD post-hoc tests."
+    items:
+      $ref: "#/$defs/pairwise_result"
+  effect_sizes:
+    type: "array"
+    description: "Cohen's d for all pairwise comparisons."
+    items:
+      $ref: "#/$defs/effect_size_result"
+  power_analysis:
+    type: "object"
+    description: "Pre-study and post-hoc power metrics."
+    properties:
+      pre_study_sample_size:
+        type: "integer"
+        description: "Required sample size for power ≥ 0.80."
+        minimum: 1
+      achieved_power:
+        type: "number"
+        description: "Post-hoc power given actual sample size."
+        minimum: 0.0
+        maximum: 1.0
+      effect_size_assumed:
+        type: "number"
+        description: "Assumed effect size (f=0.25)."
+        minimum: 0.0
+    required:
+      - pre_study_sample_size
+      - achieved_power
+      - effect_size_assumed
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of threshold sensitivity sweep."
+    properties:
+      threshold_range:
+        type: "array"
+        description: "List of thresholds tested."
+        items:
+          type: "number"
+      p_values:
+        type: "array"
+        description: "p-values for primary contrast at each threshold."
+        items:
+          type: "number"
+      effect_sizes:
+        type: "array"
+        description: "Cohen's d at each threshold."
+        items:
+          type: "number"
+      stability_metric:
+        type: "number"
+        description: "Standard deviation of p-values across thresholds."
+    required:
+      - threshold_range
+      - p_values
+      - effect_sizes
+      - stability_metric
+  manipulation_check:
+    type: "object"
+    description: "Results of perceived agency comparison."
+    properties:
+      high_vs_low:
+        $ref: "#/$defs/contrast_result"
+      high_vs_control:
+        $ref: "#/$defs/contrast_result"
+      low_vs_control:
+        $ref: "#/$defs/contrast_result"
+    required:
+      - high_vs_low
+      - high_vs_control
+      - low_vs_control
+required:
+  - anova_results
+  - planned_contrasts
+  - pairwise_comparisons
+  - effect_sizes
+  - power_analysis
+  - sensitivity_analysis
+  - manipulation_check
+additionalProperties: false
+$defs:
+  contrast_result:
+    type: "object"
+    description: "Result of a planned directional contrast."
+    properties:
+      t_statistic:
+        type: "number"
+        description: "t-statistic for the contrast."
+      p_value:
+        type: "number"
+        description: "p-value (two-tailed, adjusted for planned contrast)."
+        minimum: 0.0
+        maximum: 1.0
+      degrees_of_freedom:
+        type: "integer"
+        description: "Degrees of freedom."
+        minimum: 1
+      significant:
+        type: "boolean"
+        description: "Whether p < 0.05."
+    required:
+      - t_statistic
+      - p_value
+      - degrees_of_freedom
+      - significant
+  pairwise_result:
+    type: "object"
+    description: "Result of a pairwise comparison."
+    properties:
+      comparison:
+        type: "string"
+        description: "Pairwise comparison label (e.g., 'High vs. Low')."
+      mean_diff:
+        type: "number"
+        description: "Mean difference in trust scores."
+      p_value_adj:
+        type: "number"
+        description: "Adjusted p-value (Tukey HSD)."
+        minimum: 0.0
+        maximum: 1.0
+      significant:
+        type: "boolean"
+        description: "Whether p_adj < 0.05."
+    required:
+      - comparison
+      - mean_diff
+      - p_value_adj
+      - significant
+  effect_size_result:
+    type: "object"
+    description: "Cohen's d effect size for a pairwise comparison."
+    properties:
+      comparison:
+        type: "string"
+        description: "Pairwise comparison label."
+      cohen_d:
+        type: "number"
+        description: "Cohen's d effect size."
+      interpretation:
+        type: "string"
+        description: "Small/Medium/Large based on Cohen's thresholds."
+        enum:
+          - "Small"
+          - "Medium"
+          - "Large"
+    required:
+      - comparison
+      - cohen_d
+      - interpretation

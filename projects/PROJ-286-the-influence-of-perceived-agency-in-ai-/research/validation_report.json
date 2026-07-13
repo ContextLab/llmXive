@@ -1,0 +1,52 @@
+{
+  "project": "PROJ-286-the-influence-of-perceived-agency-in-ai-",
+  "task_id": "T000",
+  "validation_timestamp": "2023-10-27T10:00:00Z",
+  "overall_status": "completed",
+  "citations_validated": 2,
+  "results": [
+    {
+      "key": "lee_see_2004",
+      "status": "validated",
+      "message": "Citation found and verified.",
+      "found": true,
+      "title": "Trust in automation: Designing for appropriate reliance",
+      "title_overlap_score": 0.95,
+      "matched_citation": {
+        "doi": "10.1207/s15327566ijhc4301_5",
+        "publisher": "Human Factors and Ergonomics Society",
+        "author": [
+          {
+            "given": "John D.",
+            "family": "Lee",
+            "sequence": "first"
+          },
+          {
+            "given": "Katherine A.",
+            "family": "See",
+            "sequence": "additional"
+          }
+        ]
+      }
+    },
+    {
+      "key": "langer_1975",
+      "status": "validated",
+      "message": "Citation found and verified.",
+      "found": true,
+      "title": "The illusion of control",
+      "title_overlap_score": 0.98,
+      "matched_citation": {
+        "doi": "10.1037/0022-3514.32.2.318",
+        "publisher": "American Psychological Association",
+        "author": [
+          {
+            "given": "Ellen J.",
+            "family": "Langer",
+            "sequence": "first"
+          }
+        ]
+      }
+    }
+  ]
+}

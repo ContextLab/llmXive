@@ -1,0 +1,277 @@
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/code/research/research.md
+  attempts: 1
+  canonical: Lee and See (2004) establish trust in automation is a function of reliability,
+    competence, and predictability
+  claim_id: c_2a30fb49
+  context: 'Lee & See (2004): In their seminal work ''Trust in Automation: Designing
+    for Appropriate Reliance,'' Lee and See establish that trust in automation is
+    a function of the system''s reliability, competence, and predictability.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lee_and_See_(2004)_establish_trust_in_automation_is_a_functi
+  kind: entity_fact
+  raw_text: Lee and See establish that trust in automation is a function of the system's
+    reliability, competence, and predictability.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:36:22Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/code/research/research.md
+  attempts: 1
+  canonical: Langer (1975) demonstrates humans respond to cues of agency rather than
+    actual agency
+  claim_id: c_ea6625e8
+  context: 'Langer (1975): Langer''s ''The Mindlessness of Ostensibly Thoughtful Action''
+    demonstrates that humans often respond to cues of agency rather than actual agency.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Langer's 'The Mindlessness of Ostensibly Thoughtful Action' demonstrates
+    that humans often respond to cues of agency rather than actual agency.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:36:23Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/code/research/research.md
+  attempts: 1
+  canonical: Illusion of control paradigm suggests non-functional control mechanisms
+    alter behavior and trust
+  claim_id: c_477d3a03
+  context: The 'illusion of control' paradigm suggests that providing individuals
+    with control mechanisms, even if non-functional, can significantly alter their
+    behavior and trust levels.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Illusion_of_control_paradigm_suggests_non-functional_control
+  kind: entity_fact
+  raw_text: The illusion of control paradigm suggests that providing individuals with
+    control mechanisms, even if non-functional, can significantly alter their behavior
+    and trust levels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:36:46Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/code/research/research.md
+  attempts: 1
+  canonical: Required sample size is 52 per group and 156 total for medium effect
+    size
+  claim_id: c_1598cfa0
+  context: Using the parameters above, the required sample size per group is 52 participants,
+    resulting in a total required sample size of 156 participants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required sample size per group is 52 participants, resulting in a
+    total required sample size of 156 participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:37:17Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/code/research/research.md
+  attempts: 1
+  canonical: With N=120, minimum detectable effect size f is 0.29
+  claim_id: c_83a55c59
+  context: "With N=120 (40 per group): Minimum detectable f \u2248 0.29"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: With N=120 (40 per group), the minimum detectable effect size f is approximately
+    0.29.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:38:06Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/code/research/research.md
+  attempts: 1
+  canonical: With N=90, minimum detectable effect size f is 0.35
+  claim_id: c_be7a5875
+  context: "With N=90 (30 per group): Minimum detectable f \u2248 0.35"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: With N=90 (30 per group), the minimum detectable effect size f is approximately
+    0.35.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:38:50Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/code/research/research.md
+  attempts: 1
+  canonical: Study uses 12-item trust scale from Lee & See (2004)
+  claim_id: c_942881e4
+  context: '1. Trust Scale: Lee & See (2004) 12-item trust scale (7-point Likert).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study uses a 12-item trust scale based on Lee & See (2004).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:39:11Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Research artifact table columns: Effect Size, Alpha, Target Power, Required
+    N, Calculated N'
+  claim_id: c_9fb912ce
+  context: "Generate research.md artifact documenting power analysis targets (\u2265\
+    0.80 power, f=0.25) and literature review findings. Schema: Must include a table\
+    \ with columns: Effect Size (f), Alpha, Target Power, Required N, and Calculated\
+    \ N."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_artifact_table_columns:_Effect_Size,_Alpha,_Target
+  kind: entity_fact
+  raw_text: 'Must include a table with columns: Effect Size (f), Alpha, Target Power,
+    Required N, and Calculated N.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:40:46Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Likert scale range: 1 to 7'
+  claim_id: c_3dcce375
+  context: 'Implement Lee & See (2004) Trust Scale items in code/experiment/app.py
+    survey section. Requirement: Must include the full 12-item scale covering dimensions
+    of reliability, competence, and predictability (verbatim from source), not a subset.
+    Use a 7-point Likert scale (1=Strongly Disagree, 7=Strongly Agree).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a 7-point Likert scale (1=Strongly Disagree, 7=Strongly Agree).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:41:02Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See Trust Scale items: 12 items covering reliability, competence,
+    and predictability'
+  claim_id: c_7b8e0c1a
+  context: 'Implement Lee & See (2004) Trust Scale items in code/experiment/app.py
+    survey section. Requirement: Must include the full 12-item scale covering dimensions
+    of reliability, competence, and predictability (verbatim from source), not a subset.
+    Use a 7-point Likert scale (1=Strongly Disagree, 7=Strongly Agree).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must include the full 12-item scale covering dimensions of reliability,
+    competence, and predictability (verbatim from source), not a subset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:41:19Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Manipulation check mean perceived agency score threshold: 4.0'
+  claim_id: c_94b02630
+  context: 'Analyze manipulation check data from T018 to verify the ''illusory control''
+    assumption (mean perceived agency score > 4.0 for High Agency condition). **Action**:
+    Log a warning and flag the dataset in the report if the check fails; DO NOT halt
+    the analysis pipeline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mean perceived agency score > 4.0 for High Agency condition.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:41:19Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis exclusion threshold sweep range: 0.75 to 0.90'
+  claim_id: c_0508dbd7
+  context: 'Implement sensitivity analysis in code/analysis/sensitivity.py (sweep
+    participant exclusion threshold defined by attention check pass rate from 0.75
+    to 0.90 and re-run primary analysis to report stability of findings). **Include**:
+    Post-hoc power calculation logic here to explicitly state limitations if N < target.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep participant exclusion threshold defined by attention check pass
+    rate from 0.75 to 0.90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:41:38Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Power analysis targets: Power 0.80, Effect Size f 0.25'
+  claim_id: c_74d2e44b
+  context: "Generate research.md artifact documenting power analysis targets (\u2265\
+    0.80 power, f=0.25) and literature review findings. Schema: Must include a table\
+    \ with columns: Effect Size (f), Alpha, Target Power, Required N, and Calculated\
+    \ N."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "power analysis targets (\u22650.80 power, f=0.25)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:41:59Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Pre-study power analysis parameters: f 0.25, alpha 0.05, power 0.80'
+  claim_id: c_a73170cd
+  context: Execute pre-study power analysis calculation using pwr (R) or statsmodels
+    (Python) with parameters f=0.25, alpha=0.05, power=0.80. Output the calculated
+    N to research/power_calculation.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute pre-study power analysis calculation using pwr (R) or statsmodels
+    (Python) with parameters f=0.25, alpha=0.05, power=0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:42:39Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Citations to validate: Lee & See (2004) and Langer (1975)'
+  claim_id: c_45544998
+  context: 'Execute Reference-Validator Agent on Lee & See (2004) and Langer (1975)
+    citations. Input: BibTeX or inline citations from spec/plan. Output: research/validation_report.json
+    with validation status and title overlap scores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute Reference-Validator Agent on Lee & See (2004) and Langer (1975)
+    citations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:43:02Z'

@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T01:43:46.819493Z'
-current_stage: validated
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-286-the-influence-of-perceived-agency-in-ai-
-last_run_id: da136c56-420d-49d7-ab3a-f84e41a27dca
+last_run_id: 56a48c94-a199-4a7e-96cc-b20c43017175
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai
 title: The Influence of Perceived Agency in AI Interactions on Trust
-updated_at: '2026-06-12T06:19:38.290133Z'
+updated_at: '2026-07-13T22:43:38.309368Z'

@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Participant Session Schema"
+description: "Schema for raw participant data exported from the experiment interface."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for each session (UUID v4)."
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  condition:
+    type: "string"
+    description: "Experimental condition assigned to the participant."
+    enum:
+      - "High Agency"
+      - "Low Agency"
+      - "Control"
+  adherence_rate:
+    type: "number"
+    description: "Percentage of AI recommendations followed (0-100)."
+    minimum: 0.0
+    maximum: 100.0
+    multipleOf: 0.01
+  trust_score:
+    type: "number"
+    description: "Mean score from Lee & See (2004) trust scale (1-5)."
+    minimum: 1.0
+    maximum: 5.0
+    multipleOf: 0.01
+  perceived_agency_score:
+    type: "number"
+    description: "Mean score from Langer-style manipulation check (1-5)."
+    minimum: 1.0
+    maximum: 5.0
+    multipleOf: 0.01
+  illusion_belief:
+    type: "boolean"
+    description: "Debriefing: Did you believe the sliders changed the recommendation?"
+  attention_check_pass:
+    type: "boolean"
+    description: "Whether the participant passed the attention check."
+  completion_time:
+    type: "number"
+    description: "Time taken to complete the task (seconds)."
+    minimum: 0.0
+    multipleOf: 0.01
+  timestamp:
+    type: "string"
+    description: "Session completion timestamp (UTC, ISO 8601)."
+    format: "date-time"
+  raw_trust_items:
+    type: "string"
+    description: "JSON-encoded list of raw Lee & See (2004) item scores (integers 1-5)."
+    pattern: "^\\[\\d+(,\\d+)*\\]$"
+  raw_agency_items:
+    type: "string"
+    description: "JSON-encoded list of raw manipulation check item scores (integers 1-5)."
+    pattern: "^\\[\\d+(,\\d+)*\\]$"
+required:
+  - participant_id
+  - condition
+  - adherence_rate
+  - trust_score
+  - perceived_agency_score
+  - illusion_belief
+  - attention_check_pass
+  - completion_time
+  - timestamp
+  - raw_trust_items
+  - raw_agency_items
+additionalProperties: false
