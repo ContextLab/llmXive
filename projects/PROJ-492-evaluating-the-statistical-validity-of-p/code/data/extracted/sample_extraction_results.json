@@ -1,0 +1,38 @@
+[
+  {
+    "url": "http://example.com/ab-test-1",
+    "domain": "example.com",
+    "title": "A/B Test Results - Experiment 1",
+    "p_value": 0.0342,
+    "effect_size": 0.12,
+    "n_control": 2500,
+    "n_treatment": 2600,
+    "conversion_rate": 0.045,
+    "extraction_timestamp": null,
+    "raw_html_hash": null
+  },
+  {
+    "url": "http://testsite.org/experiment",
+    "domain": "testsite.org",
+    "title": "Conversion Rate Experiment",
+    "p_value": 0.0089,
+    "effect_size": 0.08,
+    "n_control": 1800,
+    "n_treatment": 1900,
+    "conversion_rate": 0.032,
+    "extraction_timestamp": null,
+    "raw_html_hash": null
+  },
+  {
+    "url": "http://datacompany.net/test",
+    "domain": "datacompany.net",
+    "title": "Incomplete Test Data",
+    "p_value": null,
+    "effect_size": 0.05,
+    "n_control": 1500,
+    "n_treatment": null,
+    "conversion_rate": 0.028,
+    "extraction_timestamp": null,
+    "raw_html_hash": null
+  }
+]

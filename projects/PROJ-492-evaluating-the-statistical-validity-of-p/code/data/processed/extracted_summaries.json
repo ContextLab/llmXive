@@ -1,0 +1,47 @@
+[
+  {
+    "url": "https://example.com/ab-test-1",
+    "title": "Homepage Button Color Test",
+    "p_value": 0.03,
+    "n_control": 1500,
+    "n_variant": 1500,
+    "baseline_rate": 0.12,
+    "variant_rate": 0.18,
+    "effect_size": 0.06,
+    "test_type": "binary",
+    "inequality_pvalue": null,
+    "has_data_quality_warning": false,
+    "extraction_timestamp": "2024-01-15T10:30:00",
+    "domain": "example.com"
+  },
+  {
+    "url": "https://testsite.org/experiment-2",
+    "title": "Email Subject Line A/B Test",
+    "p_value": 0.001,
+    "n_control": 2000,
+    "n_variant": 2000,
+    "baseline_rate": 0.05,
+    "variant_rate": 0.09,
+    "effect_size": 0.04,
+    "test_type": "binary",
+    "inequality_pvalue": "<",
+    "has_data_quality_warning": false,
+    "extraction_timestamp": "2024-01-16T14:20:00",
+    "domain": "testsite.org"
+  },
+  {
+    "url": "https://analytics.demo/checkout-flow",
+    "title": "Checkout Flow Optimization",
+    "p_value": null,
+    "n_control": null,
+    "n_variant": null,
+    "baseline_rate": 0.25,
+    "variant_rate": 0.28,
+    "effect_size": null,
+    "test_type": "binary",
+    "inequality_pvalue": null,
+    "has_data_quality_warning": true,
+    "extraction_timestamp": "2024-01-17T09:15:00",
+    "domain": "analytics.demo"
+  }
+]
