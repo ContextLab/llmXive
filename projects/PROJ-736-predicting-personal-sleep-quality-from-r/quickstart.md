@@ -1,8 +1,9 @@
-# Quickstart Guide: Predicting Sleep Quality from fMRI
+# Quickstart Guide: Predicting Personal Sleep Quality from Resting-State fMRI
 
 ## Prerequisites
-- Python 3.9+
+- Python 3.8+
 - pip
+- Access to HCP data (or pre-downloaded files)
 
 ## Setup
 1. Install dependencies:
@@ -10,41 +11,21 @@
  pip install -r requirements.txt
  ```
 
-## Execution Steps
-The pipeline consists of several stages. Run them in order:
+2. Run the data pipeline (T005 + T007b + T008 + T009 + T014):
+ ```bash
+ # Step 1: Download raw behavioral data (if not present)
+ python code/data/download_hcp.py
 
-### Step 1: Download and Filter Data (Task T007b)
-This step downloads the HCP behavioral data and filters subjects based on Sleep Score and Framewise Displacement.
-```bash
-python code/data/download_hcp.py
-```
-*Output*: `data/raw/behavioral/hcp1200_behavioral_data.csv` and `data/processed/valid_subjects.json`
+ # Step 2: Run the full pipeline orchestration
+ python code/main.py
+ ```
 
-### Step 2: Preprocess Data (Task T008)
-Preprocess the fMRI time series for the filtered subjects.
-```bash
-python code/data/preprocess.py
-```
+## Expected Outputs
+- `data/raw/behavioral/hcp1200_behavioral_data.csv`: Raw behavioral data
+- `data/processed/valid_subject_ids.json`: List of subjects passing filters
+- `data/processed/predictions.npy`: Model predictions
+- `data/results/ResultReport.json`: Final results report
 
-### Step 3: Feature Engineering (Task T009)
-Compute connectivity matrices and vectorize them.
-```bash
-python code/data/feature_engineering.py
-```
-
-### Step 4: Train Model (Task T020)
-Run the nested cross-validation training pipeline.
-```bash
-python code/modeling/train.py
-```
-
-### Step 5: Evaluate and Report (Task T022, T024, T026)
-Run permutation tests, sensitivity analysis, and generate the final report.
-```bash
-python code/modeling/evaluate.py
-python code/modeling/report_generator.py
-```
-
-## Verification
-After running the full pipeline, check `data/results/ResultReport.json` for metrics.
-Ensure `data/processed/predictions.npy` exists.
+## Troubleshooting
+- If `ModuleNotFoundError: No module named 'requests'`, run `pip install requests`.
+- If behavioral file is missing, ensure you have credentials for HCP or place the file manually at `data/raw/behavioral/hcp1200_behavioral_data.csv`.
