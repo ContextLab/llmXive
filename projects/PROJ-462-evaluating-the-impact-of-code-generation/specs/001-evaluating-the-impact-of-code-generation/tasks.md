@@ -85,27 +85,27 @@
 - [X] T017 [P] [US1] Create sample dataset for testing at `data/raw/sample_developer_productivity.csv` with all required variables (tool_usage, task_time, defect_rate, experience_years, task_complexity, project_type, team_size)
 - [X] T017a [P] [US1] Validate that actual public datasets (OpenDev, GitHub Copilot studies) match spec assumptions at `code/ingest/validate.py` (FR-002, Assumptions) - verify real datasets contain required variables before ingestion
 - [X] T011a [US1] Write function to download dataset from URL at `code/ingest/download.py` (FR-001) - supports URLs from verified-datasets block
-- [ ] T011b [US1] Write function to calculate SHA-256 checksum at `code/ingest/download.py` (FR-001) - validates file integrity
-- [ ] T011c [US1] Implement checksum validation integration at `code/ingest/download.py` (FR-001) - compares calculated vs recorded checksum
+- [X] T011b [US1] Write function to calculate SHA-256 checksum at `code/ingest/download.py` (FR-001) - validates file integrity
+- [X] T011c [US1] Implement checksum validation integration at `code/ingest/download.py` (FR-001) - compares calculated vs recorded checksum
 - [ ] T012a [US1] Write function to check for tool_usage variable at `code/ingest/validate.py` (FR-002)
 - [ ] T012b [US1] Write function to check for task_time variable at `code/ingest/validate.py` (FR-002)
 - [ ] T012c [US1] Write function to check for defect_rate variable at `code/ingest/validate.py` (FR-002)
 - [ ] T012d [US1] Write function to check for experience_years variable at `code/ingest/validate.py` (FR-002)
-- [ ] T013a [US1] Write function to identify missing experience data values at `code/ingest/validate.py` (FR-010)
-- [ ] T013b [US1] Write function to calculate percentage of missing entries at `code/ingest/validate.py` (FR-010)
-- [ ] T013c [US1] Implement missing data filtering with percentage reporting at `code/ingest/validate.py` (FR-010) - flag if >20% entries removed
-- [ ] T014 [US1] Add error handling for missing required variables at `code/ingest/validate.py` - halt with clear error identifying missing variable
-- [ ] T016 [US1] Implement SHA-256 checksum verification in download pipeline at `code/ingest/download.py` (FR-001)
+- [~] T013a [US1] Write function to identify missing experience data values at `code/ingest/validate.py` (FR-010)
+- [~] T013b [US1] Write function to calculate percentage of missing entries at `code/ingest/validate.py` (FR-010)
+- [~] T013c [US1] Implement missing data filtering with percentage reporting at `code/ingest/validate.py` (FR-010) - flag if >20% entries removed
+- [~] T014 [US1] Add error handling for missing required variables at `code/ingest/validate.py` - halt with clear error identifying missing variable
+- [~] T016 [US1] Implement SHA-256 checksum verification in download pipeline at `code/ingest/download.py` (FR-001)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T010 [P] [US1] Create integration test for data ingestion pipeline at `tests/integration/test_pipeline.py` - validates against sample dataset from T017
+- [~] T010 [P] [US1] Create integration test for data ingestion pipeline at `tests/integration/test_pipeline.py` - validates against sample dataset from T017
 
 ### Edge Case Tests for User Story 1
 
-- [ ] T046a [P] [US1] Add unit tests for missing data edge cases at `tests/unit/test_data_validation.py` - tests filtering logic and >20% flagging
+- [~] T046a [P] [US1] Add unit tests for missing data edge cases at `tests/unit/test_data_validation.py` - tests filtering logic and >20% flagging
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

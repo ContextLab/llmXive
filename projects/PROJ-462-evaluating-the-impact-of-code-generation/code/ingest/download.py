@@ -83,18 +83,20 @@ def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
         log_operation_end(logger, "Checksum verification failed")
         return False
 
-def download_dataset(url: str, local_path: Path = None) -> Tuple[bool, Optional[Path]]:
+def download_dataset(url: str, local_path: Path = None, expected_checksum: str = None) -> Tuple[bool, Optional[Path], Optional[str]]:
     """
-    Download dataset from URL to local path.
+    Download dataset from URL to local path with optional checksum verification.
     
     Supports URLs from verified-datasets block (T000 verified datasets).
+    Implements FR-001: Dataset integrity must be verified via checksums.
     
     Args:
         url: URL to download from (from verified-datasets block)
         local_path: Local path to save file (optional, defaults to data/raw/)
+        expected_checksum: Expected SHA-256 checksum (optional, if provided will verify)
     
     Returns:
-        Tuple of (success: bool, path: Path or None)
+        Tuple of (success: bool, path: Path or None, checksum: str or None)
     
     FR-001: Dataset integrity must be verified via checksums
     """
@@ -117,52 +119,73 @@ def download_dataset(url: str, local_path: Path = None) -> Tuple[bool, Optional[
         # Verify file was created
         if local_path.exists() and local_path.stat().st_size > 0:
             log_validation_result(logger, 'success', f"Downloaded {local_path.stat().st_size} bytes")
-            log_operation_end(logger, "Download complete")
-            return True, local_path
+            
+            # Calculate checksum
+            calculated_checksum = calculate_sha256(local_path)
+            
+            # Verify checksum if expected was provided
+            if expected_checksum:
+                if verify_checksum(local_path, expected_checksum):
+                    log_validation_result(logger, 'success', "Checksum verification passed")
+                    log_operation_end(logger, "Download and verification complete")
+                    return True, local_path, calculated_checksum
+                else:
+                    log_validation_result(logger, 'error', "Checksum verification failed")
+                    log_operation_end(logger, "Download failed - checksum mismatch")
+                    return False, None, calculated_checksum
+            else:
+                log_operation_end(logger, "Download complete (no checksum provided)")
+                return True, local_path, calculated_checksum
         else:
             log_validation_result(logger, 'error', "Downloaded file is empty")
             log_operation_end(logger, "Download failed - empty file")
-            return False, None
+            return False, None, None
             
     except urllib.error.URLError as e:
         log_validation_result(logger, 'error', f"Download failed: {e}")
         log_operation_end(logger, "Download failed")
-        return False, None
+        return False, None, None
     except Exception as e:
         log_validation_result(logger, 'error', f"Download failed: {e}")
         log_operation_end(logger, "Download failed")
-        return False, None
+        return False, None, None
 
 def main():
     """
-    Main entry point for dataset download.
+    Main entry point for dataset download with checksum verification.
     
-    Usage: python code/ingest/download.py <url> [output_path]
+    Usage: python code/ingest/download.py <url> [output_path] [expected_checksum]
     
     Supports downloading from URLs in the verified-datasets block.
+    Performs SHA-256 checksum verification if expected_checksum is provided.
     """
     logger = get_ingest_logger()
     log_operation_start(logger, "Dataset download script")
     
     if len(sys.argv) < 2:
-        print("Usage: python code/ingest/download.py <url> [output_path]")
-        print("Example: python code/ingest/download.py https://example.com/dataset.csv data/raw/dataset.csv")
+        print("Usage: python code/ingest/download.py <url> [output_path] [expected_checksum]")
+        print("Example: python code/ingest/download.py https://example.com/dataset.csv data/raw/dataset.csv abc123...")
         print("Supports URLs from verified-datasets block (T000)")
         sys.exit(1)
     
     url = sys.argv[1]
     local_path = Path(sys.argv[2]) if len(sys.argv) > 2 else None
+    expected_checksum = sys.argv[3] if len(sys.argv) > 3 else None
     
-    success, path = download_dataset(url, local_path)
+    success, path, checksum = download_dataset(url, local_path, expected_checksum)
     
     if success:
-        checksum = calculate_sha256(path)
         print(f"\nDownload successful!")
         print(f"File: {path}")
         print(f"SHA-256: {checksum}")
+        if expected_checksum:
+            print("Checksum verification: PASSED")
         sys.exit(0)
     else:
         print("\nDownload failed!")
+        if checksum and expected_checksum:
+            print(f"Calculated: {checksum}")
+            print(f"Expected: {expected_checksum}")
         sys.exit(1)
 
 if __name__ == '__main__':

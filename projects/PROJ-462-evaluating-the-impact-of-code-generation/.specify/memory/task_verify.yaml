@@ -1,0 +1,4 @@
+T012a [US1] Write function to check for tool_usage variable at `code/ingest/validate.py` (FR-002): 1
+T012b [US1] Write function to check for task_time variable at `code/ingest/validate.py` (FR-002): 1
+T012c [US1] Write function to check for defect_rate variable at `code/ingest/validate.py` (FR-002): 1
+T012d [US1] Write function to check for experience_years variable at `code/ingest/validate.py` (FR-002): 1
