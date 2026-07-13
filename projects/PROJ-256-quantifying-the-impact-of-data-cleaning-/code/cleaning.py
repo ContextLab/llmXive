@@ -9,106 +9,84 @@ logger = logging.getLogger(__name__)
 def apply_iqr_outlier_removal(df: pd.DataFrame, k: float = 1.5) -> pd.DataFrame:
     """
     Remove outliers based on IQR method.
+    Outliers are values < Q1 - k*IQR or > Q3 + k*IQR.
     """
-    logger.info(f"Applying IQR outlier removal with k={k}")
-    numeric_cols = df.select_dtypes(include=[np.number]).columns
-    cleaned_df = df.copy()
-
-    removed_count = 0
+    df_clean = df.copy()
+    numeric_cols = df_clean.select_dtypes(include=[np.number]).columns
+    
+    removed_rows = 0
+    mask = pd.Series([True] * len(df_clean), index=df_clean.index)
+    
     for col in numeric_cols:
-        Q1 = cleaned_df[col].quantile(0.25)
-        Q3 = cleaned_df[col].quantile(0.75)
+        Q1 = df_clean[col].quantile(0.25)
+        Q3 = df_clean[col].quantile(0.75)
         IQR = Q3 - Q1
+        
         lower_bound = Q1 - k * IQR
         upper_bound = Q3 + k * IQR
-        mask = (cleaned_df[col] >= lower_bound) & (cleaned_df[col] <= upper_bound)
-        cleaned_df = cleaned_df[mask]
+        
+        col_mask = (df_clean[col] >= lower_bound) & (df_clean[col] <= upper_bound)
+        mask &= col_mask
     
-    removed_count = len(df) - len(cleaned_df)
-    logger.info(f"Removed {removed_count} rows due to outliers.")
-
-    if removed_count >= len(df) * 0.5:
-        logger.warning(f"Removed >= 50% of rows ({removed_count}/{len(df)}). Potential bias introduced.")
-
-    return cleaned_df
+    removed_rows = len(df_clean) - mask.sum()
+    df_clean = df_clean[mask]
+    
+    if removed_rows > 0:
+        logger.info(f"Removed {removed_rows} rows ({removed_rows/len(df)*100:.1f}%) using IQR k={k}")
+        if removed_rows / len(df) >= 0.5:
+            logger.warning(f"High row removal ({removed_rows/len(df)*100:.1f}%) for k={k}. Potential bias.")
+    
+    return df_clean
 
 def apply_mean_imputation(df: pd.DataFrame, columns: Optional[List[str]] = None) -> pd.DataFrame:
-    """
-    Apply mean imputation for missing values.
-    """
-    logger.info("Applying mean imputation")
-    cleaned_df = df.copy()
+    df_imp = df.copy()
     if columns is None:
-        columns = cleaned_df.select_dtypes(include=[np.number]).columns
-
+        columns = df_imp.select_dtypes(include=[np.number]).columns.tolist()
+    
     for col in columns:
-        if cleaned_df[col].isnull().any():
-            mean_val = cleaned_df[col].mean()
-            cleaned_df[col] = cleaned_df[col].fillna(mean_val)
-            logger.info(f"Imputed {col} with mean: {mean_val}")
-
-    if cleaned_df.isnull().any().any():
-        logger.warning("Mean imputation did not resolve all missing values.")
-    else:
-        logger.info("Mean imputation complete: zero missing values in target columns.")
-
-    return cleaned_df
+        if col in df_imp.columns:
+            mean_val = df_imp[col].mean()
+            df_imp[col].fillna(mean_val, inplace=True)
+    
+    logger.info(f"Applied mean imputation to {len(columns)} columns")
+    return df_imp
 
 def apply_median_imputation(df: pd.DataFrame, columns: Optional[List[str]] = None) -> pd.DataFrame:
-    """
-    Apply median imputation for missing values.
-    """
-    logger.info("Applying median imputation")
-    cleaned_df = df.copy()
+    df_imp = df.copy()
     if columns is None:
-        columns = cleaned_df.select_dtypes(include=[np.number]).columns
-
+        columns = df_imp.select_dtypes(include=[np.number]).columns.tolist()
+    
     for col in columns:
-        if cleaned_df[col].isnull().any():
-            median_val = cleaned_df[col].median()
-            cleaned_df[col] = cleaned_df[col].fillna(median_val)
-            logger.info(f"Imputed {col} with median: {median_val}")
-
-    if cleaned_df.isnull().any().any():
-        logger.warning("Median imputation did not resolve all missing values.")
-    else:
-        logger.info("Median imputation complete: zero missing values in target columns.")
-
-    return cleaned_df
+        if col in df_imp.columns:
+            median_val = df_imp[col].median()
+            df_imp[col].fillna(median_val, inplace=True)
+    
+    logger.info(f"Applied median imputation to {len(columns)} columns")
+    return df_imp
 
 def apply_knn_imputation(df: pd.DataFrame, columns: Optional[List[str]] = None, k: int = 5) -> pd.DataFrame:
-    """
-    Apply KNN imputation for missing values.
-    """
-    logger.info(f"Applying KNN imputation with k={k}")
-    cleaned_df = df.copy()
+    df_imp = df.copy()
     if columns is None:
-        columns = cleaned_df.select_dtypes(include=[np.number]).columns
-
+        columns = df_imp.select_dtypes(include=[np.number]).columns.tolist()
+    
     if len(columns) == 0:
-        logger.warning("No numeric columns found for KNN imputation.")
-        return cleaned_df
-
+        return df_imp
+    
     imputer = KNNImputer(n_neighbors=k)
-    cleaned_df[columns] = imputer.fit_transform(cleaned_df[columns])
-
-    if cleaned_df.isnull().any().any():
-        logger.warning("KNN imputation did not resolve all missing values.")
-    else:
-        logger.info("KNN imputation complete: zero missing values in target columns.")
-
-    return cleaned_df
+    df_imp[columns] = imputer.fit_transform(df_imp[columns])
+    
+    logger.info(f"Applied KNN imputation (k={k}) to {len(columns)} columns")
+    return df_imp
 
 def apply_categorical_recoding(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Recode categorical variables using factor encoding.
-    """
-    logger.info("Applying categorical recoding")
-    cleaned_df = df.copy()
-    cat_cols = cleaned_df.select_dtypes(include=['object', 'category']).columns
-
+    df_rec = df.copy()
+    cat_cols = df_rec.select_dtypes(include=['object']).columns
+    
     for col in cat_cols:
-        cleaned_df[col] = cleaned_df[col].astype('category').cat.codes
-        logger.info(f"Factor encoded {col}")
+        le = LabelEncoder()
+        df_rec[col] = le.fit_transform(df_rec[col].astype(str))
+    
+    logger.info(f"Recoded {len(cat_cols)} categorical columns")
+    return df_rec
 
-    return cleaned_df
+from sklearn.preprocessing import LabelEncoder
