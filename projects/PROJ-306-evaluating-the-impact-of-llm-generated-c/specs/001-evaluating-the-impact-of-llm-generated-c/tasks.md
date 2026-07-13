@@ -82,7 +82,7 @@
 - [X] T026 [US2] Implement statistical summary generation (FR-005) to output `data/processed/stats_summary.csv` with mean difference, p-value, Cohen's d, and test type.
 - [X] T027 [US2] Implement family-wise error correction (Bonferroni or Holm-Bonferroni) for subgroup hypothesis tests (FR-006). **Exclusion**: Explicitly exclude sensitivity analysis (FR-011) from this correction. **Output**: Write corrected p-values to `data/processed/corrected_pvalues.csv` (single source of truth).
 - [X] T028 [US2] Implement exclusion rate calculation (FR-014) and add to final summary.
-- [ ] T029 [US2] Implement sensitivity analysis (FR-011) across thresholds {0.01, 0.05, 0.10, 0.15, 0.20, 0.25} and output `data/processed/sensitivity_report.csv`. **Constraint**: Explicitly exclude these thresholds from family-wise error correction as per FR-011.
+- [X] T029 [US2] Implement sensitivity analysis (FR-011) across thresholds {0.01, 0.05, 0.10, 0.15, 0.20, 0.25} and output `data/processed/sensitivity_report.csv`. **Constraint**: Explicitly exclude these thresholds from family-wise error correction as per FR-011.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
