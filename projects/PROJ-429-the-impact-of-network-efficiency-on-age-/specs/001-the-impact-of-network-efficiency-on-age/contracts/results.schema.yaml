@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Results Schema"
+description: "Schema for correlation and regression results."
+type: "object"
+properties:
+  correlation_results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        metric_name:
+          type: "string"
+          description: "Name of the network metric (e.g., global_efficiency)."
+        variable_name:
+          type: "string"
+          description: "Name of the variable (e.g., age, cognitive_score)."
+        correlation_coefficient:
+          type: "number"
+          description: "Spearman correlation coefficient."
+        p_value:
+          type: "number"
+          description: "Raw p-value."
+        corrected_p_value:
+          type: "number"
+          description: "Bonferroni-corrected p-value."
+      required:
+        - metric_name
+        - variable_name
+        - correlation_coefficient
+        - p_value
+        - corrected_p_value
+  regression_summary:
+    type: "object"
+    properties:
+      coefficients:
+        type: "object"
+        description: "Regression coefficients for Age, Sex, Education, and Metric."
+      warnings:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of warnings (e.g., 'Low Power for Older Group')."
+      vif_scores:
+        type: "object"
+        description: "Variance Inflation Factor scores for predictors."
+    required:
+      - coefficients
+      - warnings
+      - vif_scores
+required:
+  - correlation_results
+  - regression_summary
+additionalProperties: false

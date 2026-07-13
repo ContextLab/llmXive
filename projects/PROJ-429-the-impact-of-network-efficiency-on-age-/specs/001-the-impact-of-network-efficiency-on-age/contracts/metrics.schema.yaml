@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Network Metrics Schema"
+description: "Schema for computed graph-theoretical metrics per participant."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  threshold_density:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Density threshold used for graph construction."
+  path_length:
+    type: ["number", "null"]
+    description: "Characteristic path length. Null if signal quality is insufficient."
+  clustering_coeff:
+    type: ["number", "null"]
+    description: "Clustering coefficient."
+  global_efficiency:
+    type: ["number", "null"]
+    description: "Global efficiency (inverse of path length)."
+  modularity:
+    type: ["number", "null"]
+    description: "Modularity score from Louvain algorithm."
+required:
+  - participant_id
+  - threshold_density
+additionalProperties: false

@@ -84,7 +84,7 @@ As a stakeholder, I need to visualize the network changes across age groups (you
 - **SC-001**: The proportion of participants with valid, non-NaN network metrics is measured against the total number of downloaded participants to assess data quality and preprocessing efficacy. (See US-1)
 - **SC-002**: The statistical power for detecting a correlation of r=0.3, adjusted for the family of tests (Bonferroni-corrected alpha), is measured against a simulation-based power analysis to ensure the study is not underpowered (minimum acceptable power ≥ 0.80). (See US-2)
 - **SC-003**: The consistency of correlation coefficients across different sensitivity thresholds for artifact rejection (e.g., [deferred] vs [deferred] epoch rejection) is measured to verify the robustness of the findings (coefficients must vary by < 0.05 across thresholds). (See US-2)
-- **SC-004**: The family-wise error rate (FWER) is measured against the nominal alpha level (0.05) after applying the specified multiple-comparison correction method. (See US-2)
+- **SC-004**: The family-wise error rate (FWER) is measured against the nominal alpha level after applying the specified multiple-comparison correction method. (See US-2)
 
 ## Assumptions
 

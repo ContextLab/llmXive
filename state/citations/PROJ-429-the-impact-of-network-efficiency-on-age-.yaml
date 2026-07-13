@@ -1,11 +1,22 @@
-- artifact_hash: 53787e3f7c9ffdf65d137d83a5a7eac94b1afe6aeec882e47f40791409880db9
+- artifact_hash: 218b120e1a342b0b062de13519c480c930e0ec894790b0ff8b8c27bd448a6db5
   artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://physionet.org/content/tuh_eeg/
+  value: https://physionet.org/content/tuh_eeg/`
   verification_status: mismatch
   verified_against_url: https://physionet.org/content/tuh_eeg/
-  verified_at: '2026-07-12T22:32:37.813167Z'
+  verified_at: '2026-07-13T11:59:47.580597Z'
+- artifact_hash: afd37cfed40f3250ad65667cdf0f6e384b3d3d38e595b95d406db488cca5d7d1
+  artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://physionet.org/content/tuh_eeg/`
+  verification_status: mismatch
+  verified_against_url: https://physionet.org/content/tuh_eeg/
+  verified_at: '2026-07-13T11:59:50.676672Z'

@@ -1,103 +1,68 @@
 # Quickstart: The Impact of Network Efficiency on Age-Related Changes in Resting-State EEG
 
 ## Prerequisites
-
 - Python 3.11+
 - Git
-- Access to GitHub Actions (for CI) or local environment with same constraints (CPU-only, <7GB RAM)
-- Access to PhysioNet (for TUH EEG Corpus download)
+- Substantial RAM (recommended for full dataset)
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-429-the-impact-of-network-efficiency-on-age-
-   ```
+1. **Clone and Setup**:
+ ```bash
+ git clone <repo-url>
+ cd projects/PROJ-429-the-impact-of-network-efficiency-on-age-/
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ pip install -r code/requirements.txt
+ ```
 
-2. **Create virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+2. **Verify Data Sources**:
+ Ensure you have internet access to fetch the verified datasets. The script will attempt to download from:
+ - ` (TUH EEG Corpus)
+ - *Note*: If the TUH EEG Corpus does not contain linked cognitive scores, the pipeline will run in "EEG-Only" mode.
 
 ## Running the Pipeline
 
-### Step 1: Download Data
-```bash
-python code/data/download.py
-```
-- Downloads TUH EEG Corpus (tuh_eeg) from PhysioNet.
-- Validates checksums; stores in `data/raw/`.
-- Generates `trace_id` and updates `state/version_map.yaml`.
+Execute the full pipeline sequentially. Parameters (thresholds, bands) are loaded from `code/config.yaml`.
 
-### Step 2: Preprocess EEG
 ```bash
-python code/data/preprocess.py
-```
-- Applies bandpass filter (1-40 Hz), ICA artifact removal, epoching (10s for connectivity).
-- Outputs preprocessed epochs to `data/processed/`.
-- Generates `trace_id` and updates `state/version_map.yaml`.
+# 1. Download Data (or skip if already present)
+# This step converts raw TUH data (EDF/JSON) to Parquet for batch processing
+python code/01_download_data.py
 
-### Step 3: Compute Network Metrics
-```bash
-python code/network/metrics.py --density-range 0.05,0.20,0.01
-```
-- Computes coherence (10s epochs), constructs graphs across density range, derives AUC metrics.
-- Outputs `data/results/metrics.csv`.
-- Generates `trace_id` and updates `state/version_map.yaml`.
+# 2. Preprocess EEG (Filter, ICA, Epoch)
+python code/02_preprocess_eeeg.py
 
-### Step 4: Statistical Analysis
-```bash
-python code/stats/correlation.py
-python code/stats/regression.py
-```
-- Performs Spearman correlation, multiple regression (Cognition ~ Efficiency), correction.
-- Outputs `data/results/stats.csv` and `power_analysis_report.json`.
-- Generates `trace_id` and updates `state/version_map.yaml`.
+# 3. Compute Graph Metrics (using Imaginary Coherence)
+python code/03_compute_graph_metrics.py
 
-### Step 5: Visualization
-```bash
-python code/viz/plots.py
+# 4. Run Power Analysis & Correlation Analysis
+python code/04_correlation_analysis.py
+
+# 5. Run Regression & Stratification
+python code/05_regression_analysis.py
+
+# 6. Generate Visualizations
+python code/06_visualization.py
 ```
-- Generates age-stratified plots, regression tables.
-- Outputs to `data/results/plots/`.
+
+## Expected Outputs
+
+- `data/processed/metrics.csv`: Network metrics per participant.
+- `results/correlations.json`: Spearman correlations and p-values (Age only if Cognition missing).
+- `results/power_analysis.json`: Simulation-based power analysis results.
+- `results/fwer_check.json`: Family-Wise Error Rate measurement.
+- `results/regression_summary.json`: Regression coefficients and warnings (e.g., "Missing Cognitive Data").
+- `results/plots/`: Age-stratified network efficiency plots.
 
 ## Testing
 
-### Unit Tests
+Run unit tests to verify graph metric calculations:
 ```bash
-pytest tests/unit/
+pytest tests/test_graph_metrics.py -v
 ```
 
-### Integration Tests
+Run integration test on a small subset:
 ```bash
-pytest tests/integration/
+python tests/test_pipeline.py --subset 5
 ```
-
-## Configuration
-
-- **Density Threshold**: Set via `--density-range` flag (default: 0.05 to 0.20).
-- **Frequency Band**: Alpha (8-12 Hz) by default; configurable in `config.py`.
-- **Correction Method**: Bonferroni by default; switch to FDR in `config.py`.
-- **Cognitive Registry**: Defined in `code/config/cognitive_registry.json`.
-
-## Troubleshooting
-
-- **Memory Error**: Reduce dataset size or process in batches; ensure subset fits <7GB RAM.
-- **Missing Data**: Check dataset-variable fit; if cognitive scores missing, analysis restricts to age.
-- **Low Power**: If N < 100 (or effective N < 85), expect warnings; interpret results cautiously.
-- **Traceability**: Verify `trace_id` in output CSVs matches entries in `state/version_map.yaml`.
-
-## Output
-
-- `data/results/metrics.csv`: Network metrics per participant (AUC values).
-- `data/results/stats.csv`: Correlation and regression results.
-- `power_analysis_report.json`: Power analysis results.
-- `state/version_map.yaml`: Artifact hashes and timestamps.
-- `data/results/plots/`: Visualizations for paper.

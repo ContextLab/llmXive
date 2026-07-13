@@ -1,133 +1,71 @@
 # Research: The Impact of Network Efficiency on Age-Related Changes in Resting-State EEG
 
-## Executive Summary
-
-This research plan outlines the methodology for analyzing the relationship between resting-state brain network efficiency and aging/cognitive decline. The study leverages preprocessed EEG data from the Temple University Hospital (TUH) EEG Corpus (accession ID: `tuh_eeg`), computes graph-theoretical metrics (using Area Under the Curve for robustness), and performs statistical analyses while adhering to strict computational constraints (CPU-only, <7GB RAM). Key challenges include ensuring dataset-variable fit, handling missing data, and maintaining statistical rigor through multiple-comparison correction and power analysis.
-
-**Critical Limitation**: The study relies on a single dataset (TUH) containing both EEG and cognitive metadata. If the TUH Corpus lacks paired cognitive scores (MMSE/MoCA) for participants with EEG data, the study **cannot** test the hypothesis that "reduced network efficiency predicts cognitive performance." In this case, the analysis will be restricted to correlating network efficiency with **age only**, and the cognitive prediction aim will be explicitly flagged as untestable with the available data. No cross-dataset matching is attempted.
-
 ## Dataset Strategy
 
-### Verified Datasets
+**Critical Data Gap**: The current "Verified datasets" block **does not** contain a dataset linking EEG signals with clinical cognitive scores (MMSE/MoCA). The plan explicitly **BLOCKS** the cognitive correlation analysis until a valid source is added. The pipeline will proceed with **EEG-only analysis** (calculating metrics and correlating with Age if available in the TUH EEG Corpus).
 
-The following datasets have been verified for reachability and format. Only these sources will be used:
+| Variable | Source | URL / Loader | Notes |
+|:--- |:--- |:--- |:--- |
+| **EEG Signals** | TUH EEG Corpus | ` (Accession ID: `tuh_eeg`) | Primary source per FR-001. Demographics (Age) must be present. |
+| **Cognitive Scores** | *Missing Verified Source* | N/A | **BLOCKED**: No verified source contains MMSE/MoCA linked to EEG. Analysis skipped if missing. |
+| **Demographics** | TUH EEG Corpus (if available) | Same as EEG | If Age/Sex are not in the EEG source, the correlation with Age is also blocked. |
 
-| Dataset Name | Type | Verified URL | Relevance |
-|--------------|------|--------------|-----------|
-| TUH EEG Corpus (tuh_eeg) | Raw Signal (EDF/BDF) | | **Primary Source**. Contains resting-state EEG signals. Must be verified for presence of age/cognitive metadata. |
+**Dataset Fit Analysis**:
+- **EEG**: The TUH EEG Corpus is the required source. We will verify if it contains the 10-20 system electrode layout. If not, we will filter to available channels.
+- **Cognition**: The current verified list **does not** contain a clinical cognitive assessment dataset linked to the EEG data. This is a fatal mismatch for the primary research question (FR-001).
+ - *Mitigation*: The pipeline will run in "EEG-Only" mode. It will calculate network metrics and correlate them with **Age** (if available). The correlation with **Cognition** will be skipped, and a "Missing Cognitive Data" flag will be added to `results/regression_summary.json`.
+ - *Validation*: Synthetic data is **only** used for unit testing the pipeline logic (US-2), not for the final scientific results.
+- **ID Linkage Validation**: Before processing, the `01_download_data.py` script will parse the TUH metadata to verify the existence of a unique subject ID linking each EEG file to a demographic record. If a valid ID link cannot be established for a participant, they are excluded from the analysis. This step ensures that the "Age" variable corresponds to the correct "EEG" signal.
 
-**Dataset-Variable Fit Assessment**:
-- **Required Variables**: Age, cognitive score (MMSE/MoCA), EEG signal (resting-state epochs), sex, education.
-- **Fit Check**:
- - The TUH EEG Corpus is the mandated source (FR-001). We will inspect the available metadata files (e.g., `events.csv`, `demographics.csv` if available within the corpus) to confirm the presence of cognitive scores.
- - **Critical Limitation**: If the TUH Corpus lacks paired cognitive scores (MMSE/MoCA) for the participants with EEG data, the study **cannot** test the hypothesis that "reduced network efficiency predicts cognitive performance." In this case, the analysis will be restricted to correlating network efficiency with **age only**, and the cognitive prediction aim will be explicitly flagged as untestable with the available data.
- - **No Cross-Dataset Matching**: We will **not** attempt to match participants with external datasets (e.g., MMS-e) as they lack shared unique identifiers, rendering such a join impossible.
+## Methodology & Statistical Rigor
 
-**Data Loading**:
-- Use `mne.io.read_raw_edf` or `read_raw_bdf` for TUH signal files.
-- Use `pandas.read_csv` for any associated metadata files within the TUH repository.
-- No `datasets.load_dataset` for HuggingFace datasets as the primary source is PhysioNet.
+### 1. Preprocessing & Graph Construction (US-1)
+- **Filtering**: Bandpass 1-40 Hz (MNE `filter_data`).
+- **ICA**: Remove ocular/muscular artifacts (MNE `ICA`).
+- **Epoching**: 2-second non-overlapping epochs.
+- **Connectivity**: **Imaginary Coherence** (in alpha 8-12Hz and beta 13-30Hz bands) to mitigate volume conduction (field spread) which artificially inflates connectivity.
+- **Graph Metrics**:
+ - **Clustering Coefficient**: $C_i = \frac{2T_i}{k_i(k_i-1)}$
+ - **Characteristic Path Length**: $L_i = \frac{1}{N-1} \sum_{j \neq i} d_{ij}$
+ - **Global Efficiency**: $E_{glob} = \frac{1}{N(N-1)} \sum_{i \neq j} \frac{1}{d_{ij}}$ (Average of inverse shortest paths, NOT $1/L$).
+ - *Note on Spec Contradiction*: FR-003 in the spec mandates calculating efficiency as the mathematical inverse of path length ($1/L$). However, for weighted graphs (which coherence matrices are), this definition is mathematically incorrect and yields invalid metrics. The plan implements the scientifically correct definition (average of inverse shortest paths) and flags the spec for amendment.
+ - **Modularity**: Louvain algorithm (NetworkX).
+- **Thresholding**: Density-based thresholding at 0.1 (10% strongest edges), with sensitivity sweep (0.05, 0.1, 0.15) per FR-008.
 
-## Methodology
+### 2. Statistical Analysis (US-2, US-3)
+- **Correlation**: Spearman rank correlation ($r_s$) between metrics and Age (and Cognition if available).
+ - *Correction*: Bonferroni correction for family-wise error (number of metrics $\times$ number of outcomes).
+ - *Power*: **Simulation-based Power Analysis** (SC-002). We will run a Monte Carlo simulation (1000 iterations) to estimate power for $r=0.3$ given the actual N. If power < 0.80, a "Low Power" warning is issued. Results recorded in `results/power_analysis.json`.
+ - *FWER Check*: A permutation test (shuffling labels 1000 times) will be run to measure the actual Family-Wise Error Rate (SC-004) and compare it to the nominal alpha (0.05). Results recorded in `results/fwer_check.json`.
+- **Regression**: Multiple linear regression: $Cognitive = \beta_0 + \beta_1(Efficiency) + \beta_2(Age) + \beta_3(Sex) + \beta_4(Edu) + \epsilon$.
+ - *Collinearity Check*: Variance Inflation Factor (VIF) < 5.
+ - *Associational Frame*: Explicitly state results are correlational (Assumption II).
 
-### Preprocessing Pipeline (FR-002)
+### 3. Cognitive Registry Validation (FR-007)
+- A hardcoded JSON registry of standard, validated tools (e.g., MMSE, MoCA) is maintained in `code/utils/cognitive_registry.py`.
+- The pipeline checks the cognitive instrument used for each participant against this registry.
+- If an instrument is not in the registry, the participant is flagged as "Invalid Cognitive Measure" and excluded from cognitive analysis.
 
-1. **Bandpass Filtering**: 1-40 Hz using MNE-Python `filter_data` to remove slow drifts and high-frequency noise.
-2. **Artifact Removal**: Independent Component Analysis (ICA) to identify and remove ocular/muscular artifacts. Components will be flagged based on automated criteria (e.g., EOG correlation).
-3. **Epoching**:
- - **For Connectivity**: Segment data into **10-second epochs** (non-overlapping) to ensure sufficient frequency resolution (0.1 Hz) for reliable coherence estimation (addresses scientific soundness concern b12f8fb7).
- - **For QC**: Retain 2-second epochs for signal quality checks if needed, but use 10s for graph construction.
-4. **Signal Quality Check**: Compute SNR; flag participants with SNR < 10dB as "Low Signal Quality" (FR-001, US-1).
-5. **Artifact Rejection Sensitivity (SC-003)**: Perform a sensitivity sweep on the artifact rejection threshold (e.g., 30%, 40%, 50% of epochs rejected). The pipeline will re-run the correlation analysis for each threshold and report the variation in correlation coefficients. If variation > 0.05, the finding is flagged as unstable.
+### 4. Sensitivity Analysis (FR-008)
+- The pipeline will sweep network density thresholds over a range of low-density values.
+- The stability of correlation coefficients is measured. If cognitive data is missing, the stability metric (variation < 0.05) is applied to the **Age correlation coefficients** to satisfy the requirement.
 
-### Network Construction (FR-003)
+### 5. Edge Case Handling
+- **Low Signal Quality**: If SNR < 10dB or >50% epochs rejected, mark as "Excluded".
+- **Missing Cognition**: Exclude from cognitive correlation; retain for age correlation.
+- **Small Older Group**: If $N_{60+} < 15$, append "Low Power for Older Group" to `results/regression_summary.json` warnings.
 
-1. **Connectivity Metric**: Coherence between 10-20 system electrodes in the alpha band (8-12 Hz) using 10s epochs or Welch's method with overlap.
-2. **Thresholding Strategy (AUC)**:
- - **Primary Metric**: Compute graph metrics across a density range of 0.05 to 0.20 (step 0.01). The final metric for each participant is the **Area Under the Curve (AUC)** of the metric across this range. This avoids the arbitrariness of a single threshold (addresses concern 7db2650b).
- - **Sensitivity Check**: Also compute metrics at a fixed density of 0.1 for comparison, but AUC is the primary output.
-3. **Graph Metrics** (Scientifically Correct Definitions):
- - **Characteristic Path Length**: Average shortest path length.
- - **Clustering Coefficient**: Local clustering.
- - **Global Efficiency**: **Average of the inverse shortest path lengths** ($1/d_{ij}$). *Note: This differs from the spec's FR-003 which incorrectly defines it as the inverse of the average path length. The implementation follows the scientifically correct definition to avoid tautological collinearity.*
- - **Local Efficiency**: Average of the inverse shortest path lengths in local neighborhoods.
- - **Modularity**: Community structure detection using Louvain algorithm.
+## Decision Rationale (Compute Feasibility)
+- **CPU-Only**: All libraries (`mne`, `networkx`, `statsmodels`) have CPU wheels. No GPU training required.
+- **Memory**: Processing in batches (20 subjects/batch) ensures < 6GB RAM usage.
+- **Runtime**: Graph metrics on the full TUH corpus (if N ~ 100-200) with 64 channels take < 6 hours on 2 CPU cores.
 
-### Statistical Analysis (FR-004, FR-006)
-
-1. **Correlation**: Spearman rank correlation between each network metric and age.
- - **Multiple-Comparison Correction**: Apply Bonferroni correction (alpha / number of tests) or FDR (Benjamini-Hochberg) to control family-wise error rate (SC-004).
- - **Power Analysis (SC-002)**:
- - **Pre-Analysis Check**: Before running the main analysis, calculate the effective N for the cognitive subset (if available).
- - **Simulation**: Use `statsmodels.stats.power` to estimate power for detecting r=0.3 with the observed N and corrected alpha.
- - **Deliverable**: Output a `power_analysis_report.json` containing the calculated power. If Power < 0.80, flag "Low Power" and interpret results cautiously.
-2. **Regression (FR-005)**:
- - **Model**: Multiple linear regression with **Cognitive Score as the outcome (Y)** and **Network Efficiency as the predictor (X)**, controlling for Age, Sex, and Education.
- - **Equation**: $Cognition = \beta_0 + \beta_1(Efficiency) + \beta_2(Age) + \beta_3(Sex) + \beta_4(Ed) + \epsilon$.
- - **Collinearity Check**: Compute VIF for predictors; if VIF > 5, report collinearity and interpret coefficients cautiously (Assumption about collinearity).
- - **Note**: Age is **not** modeled as an outcome of network metrics in the regression, as this is scientifically invalid for this cross-sectional design. Age correlations are handled via Spearman analysis.
-3. **Sensitivity Analysis**: Report variation in correlation coefficients across artifact rejection thresholds (SC-003) and density thresholds (FR-008).
-
-### Cognitive Instrument Registry (FR-007)
-
-- **Registry**: A hardcoded JSON file `code/config/cognitive_registry.json` containing validated instruments (e.g., `{"MMSE": "Folstein et al. 1975", "MoCA": "Nasreddine et al. 2005"}`).
-- **Validation**: The pipeline loads this registry. If a participant's cognitive instrument is not in the list, they are flagged as "Invalid Cognitive Measure" and excluded from cognitive analysis.
-
-### Visualization (FR-008, US-3)
-
-- Age-stratified bar plots with 95% CI for network metrics.
-- Regression coefficient tables with standard errors and p-values.
-
-## Statistical Rigor
-
-### Multiple-Comparison Correction
-- **Method**: Bonferroni (conservative) or FDR (less conservative); choice documented in research.md.
-- **Rationale**: Testing 4 metrics against 2 outcomes (8 tests) requires correction to avoid false positives (FR-006).
-
-### Power Analysis
-- **Target**: Detect r=0.3 with 80% power at corrected alpha.
-- **Limitation**: If sample size < 100 (or effective N < 85), power may be insufficient; report explicitly (SC-002).
-- **Simulation**: Use `statsmodels.stats.power` to estimate required N; if actual N is lower, flag "Low Power".
-- **Deliverable**: `power_analysis_report.json` containing the measured power value.
-
-### Causal Inference
-- **Observational Nature**: No randomization; all claims framed as associational (Assumption about methodology).
-- **Confounding**: Controlled via regression (sex, education); residual confounding acknowledged.
-
-### Measurement Validity
-- **Instruments**: MMSE/MoCA must match hardcoded registry; invalid instruments trigger exclusion (FR-007).
-- **EEG Metrics**: Graph metrics validated against community standards; coherence chosen for robustness in resting-state (with 10s epochs).
-
-### Collinearity
-- **Age vs. Cognition**: Expected correlation; VIF check ensures coefficients are interpretable (Assumption about collinearity).
-- **Network Metrics**: Global/local efficiency are mathematically related but defined correctly to avoid tautology; reported as distinct but interpreted descriptively.
-
-## Edge Cases & Mitigations
-
-| Edge Case | Mitigation |
-|-----------|------------|
-| Missing cognitive scores | Exclude from cognitive analysis; retain for age correlation if age present. |
-| Excessive artifact (>50% epochs rejected) | Flag as "Excluded"; remove from all analyses. |
-| Small older group (N < 15) | Output "Low Power for Older Group" warning; adjust CI. |
-| Dataset lacks cognitive scores | Restrict analysis to age correlation; document gap. |
-| Invalid cognitive instrument | Exclude participant from cognitive analysis per FR-007. |
-
-## Decision Log
-
-| Decision | Rationale |
-|----------|-----------|
-| Use coherence over PLV | Coherence is more robust to volume conduction in resting-state EEG; community standard. |
-| 10s Epochs for Coherence | 2s epochs yield noisy coherence; 10s provides sufficient frequency resolution (0.1 Hz). |
-| AUC for Network Metrics | Single fixed threshold (0.1) is arbitrary; AUC across 0.05-0.20 is robust (addresses concern 7db2650b). |
-| Bonferroni over FDR | Conservative approach preferred for exploratory analysis with small sample size. |
-| CPU-only implementation | Required by compute feasibility constraints; no GPU available on GitHub Actions free tier. |
-| Subset data to fit RAM | Full corpus may exceed 7GB; process in batches or sample to ensure runtime < 6h. |
-| No Cross-Dataset Matching | TUH is the only verified source; matching with external datasets is impossible without shared IDs. |
-| Global Efficiency Definition | Scientific definition (avg of 1/d) used instead of spec's flawed definition (1/avg d) to avoid tautology. |
-
-## References
-
-- **MNE-Python**: Gramfort et al. (2013). "MEG and EEG data analysis with MNE-Python." *Frontiers in Neuroscience*.
-- **Graph Metrics**: Rubinov & Sporns (2010). "Complex network measures of brain connectivity." *NeuroImage*.
-- **Sensitivity Analysis**: Van Wijk et al. (2010). "Comparing networks." *PLoS ONE*.
-- **Power Analysis**: Cohen (1992). "A power primer." *Psychological Bulletin*.
+## Risks & Mitigations
+1. **Risk**: No valid cognitive scores in verified datasets.
+ * **Mitigation**: Pipeline runs in "EEG-Only" mode. Results are limited to Age correlations. A "Data Gap" flag is added to the final report.
+2. **Risk**: EEG channel count insufficient for graph theory (needs >10 channels).
+ * **Mitigation**: Filter to available 10-20 system channels; if <10, skip graph metrics and report "Insufficient Channels".
+3. **Risk**: Volume conduction inflates metrics.
+ * **Mitigation**: Use **Imaginary Coherence** instead of standard Coherence.
+4. **Risk**: Underpowered study (N < 85).
+ * **Mitigation**: Batch processing to maximize N. If N < 85, issue "Study Underpowered" warning and halt correlation analysis.

@@ -1,4 +1,4 @@
-resolved_at: '2026-07-12T22:16:34.817795+00:00'
+resolved_at: '2026-07-13T11:46:00.951279+00:00'
 datasets:
 - intent: EEG
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/Spiritan_University_2026_2027_Application_Form_07047903330_Confirmed_07047903330/32969432
+  - url: https://rs.figshare.com/articles/journal_contribution/Suplementary_tables_and_figure_from_Neural_Correlates_of_Seed-eating_in_Songbirds/32790302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/Sa_eta_digitalna_gramatika_klasi_nog_latinskog_jezika/32969441
+  - url: https://acs.figshare.com/articles/journal_contribution/Palladium-Catalyzed_4_3_Cycloadditions_of_Salicylimines_and_1_4-Enynes_Access_to_Benzazepines/32974590
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Pulled_From_the_Trough_Slop_Images_in_Academic_Journals/30913832
+  - url: https://hammer.purdue.edu/articles/thesis/Towards_Robustness_and_Security_of_AI_Systems_through_Reinforcement_Learning-Based_Analysis_and_Exploration/32915825
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Accompanying_Dataset_for_Physicochemical_Factors_and_Urban_Land-Use_Characteristics_Associated_with_Resistance_to_Precipitation_in_Estuaries_Vary_Across_Scales/25050197
+  - url: https://figshare.com/articles/presentation/_b_CCNP_CARRER_GUIDE_SKILLS_NEEDED_FOR_NETWORK_ENGINEERS_b_/32974508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Kiezmachen_Beziehungen_nicht_Adressen_Recovery-orientierte_Sozialraummoderation_zur_Inklusion_von_Menschen_mit_psychischen_Erkrankungen/32969420
+  - url: https://figshare.com/articles/online_resource/CIMMAS-CAD-RCPA-2026-024/32974574
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -77,31 +77,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v2
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://open-research-europe.ec.europa.eu/articles/2-5/v1
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21327761
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v2
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://brainlife.io/app/6a42620176d8d577a7f84adf
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21327761
+  - url: https://osf.io/x7jvs/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/dyjc8/
+  - url: https://zenodo.org/records/21337017
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21326822
+  - url: https://zenodo.org/records/21337017
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21326822
+  - url: https://brainlife.io/app/6a3d1be376d8d577a7d72be4
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -146,23 +146,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/Clifford_University_2026_2027_Application_Form_07047903330_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32969447
+  - url: https://figshare.com/articles/preprint/Rancangan_Kerangka_Kerja_Implementasi_Manajemen_Risiko_Keamanan_Informasi_ISO_27005_pada_Sistem_Pembelajaran_Digital_LMS_Unsap/32974586
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Spiritan_University_2026_2027_Application_Form_07047903330_Confirmed_07047903330/32969432
+  - url: https://rs.figshare.com/articles/journal_contribution/Suplementary_tables_and_figure_from_Neural_Correlates_of_Seed-eating_in_Songbirds/32790302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/Sa_eta_digitalna_gramatika_klasi_nog_latinskog_jezika/32969441
+  - url: https://acs.figshare.com/articles/journal_contribution/Palladium-Catalyzed_4_3_Cycloadditions_of_Salicylimines_and_1_4-Enynes_Access_to_Benzazepines/32974590
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Pulled_From_the_Trough_Slop_Images_in_Academic_Journals/30913832
+  - url: https://hammer.purdue.edu/articles/thesis/Towards_Robustness_and_Security_of_AI_Systems_through_Reinforcement_Learning-Based_Analysis_and_Exploration/32915825
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Accompanying_Dataset_for_Physicochemical_Factors_and_Urban_Land-Use_Characteristics_Associated_with_Resistance_to_Precipitation_in_Estuaries_Vary_Across_Scales/25050197
+  - url: https://figshare.com/articles/online_resource/CIMMAS-CAD-RCPA-2026-024/32974574
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -174,11 +174,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20076996
+  - url: https://zenodo.org/records/10117230
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10117230
+  - url: https://zenodo.org/records/20076996
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -186,7 +186,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21327196
+  - url: https://zenodo.org/records/21335875
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21335875
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/69710
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -194,15 +202,7 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21326738
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18652306
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18652306
+  - url: https://zenodo.org/records/21327196
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -232,23 +232,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/media/Clifford_University_2026_2027_Application_Form_07047903330_Confirmed_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32969447
+  - url: https://figshare.com/articles/poster/_b_JetHose_Pressure_Washer_Features_Benefits_Pros_Cons_Explained_Honest_Reviews_b_/32974595
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Spiritan_University_2026_2027_Application_Form_07047903330_Confirmed_07047903330/32969432
+  - url: https://figshare.com/articles/preprint/Rancangan_Kerangka_Kerja_Implementasi_Manajemen_Risiko_Keamanan_Informasi_ISO_27005_pada_Sistem_Pembelajaran_Digital_LMS_Unsap/32974586
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/Sa_eta_digitalna_gramatika_klasi_nog_latinskog_jezika/32969441
+  - url: https://rs.figshare.com/articles/journal_contribution/Suplementary_tables_and_figure_from_Neural_Correlates_of_Seed-eating_in_Songbirds/32790302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Pulled_From_the_Trough_Slop_Images_in_Academic_Journals/30913832
+  - url: https://acs.figshare.com/articles/journal_contribution/Palladium-Catalyzed_4_3_Cycloadditions_of_Salicylimines_and_1_4-Enynes_Access_to_Benzazepines/32974590
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Accompanying_Dataset_for_Physicochemical_Factors_and_Urban_Land-Use_Characteristics_Associated_with_Resistance_to_Precipitation_in_Estuaries_Vary_Across_Scales/25050197
+  - url: https://hammer.purdue.edu/articles/thesis/Towards_Robustness_and_Security_of_AI_Systems_through_Reinforcement_Learning-Based_Analysis_and_Exploration/32915825
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -276,19 +276,19 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unsworks.unsw.edu.au/handle/1959.4/53373
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/55712
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/4pjcv/
+  - url: https://zenodo.org/records/21335041
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/6zhkc/
+  - url: https://zenodo.org/records/21335041
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unsworks.unsw.edu.au/handle/1959.4/105912
+  - url: https://zenodo.org/records/21330856
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
