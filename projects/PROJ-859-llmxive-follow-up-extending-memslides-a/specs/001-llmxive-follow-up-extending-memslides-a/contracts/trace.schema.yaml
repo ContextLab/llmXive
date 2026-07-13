@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Execution Trace Schema"
+description: "Schema for synthetic multi-turn revision sessions. Includes verification fields for Constitution Principle VI."
+type: "object"
+properties:
+  trace_id:
+    type: "string"
+    description: "Unique identifier for the trace"
+  tool_sequence:
+    type: "array"
+    items:
+      type: "string"
+    description: "Sequence of tool calls (e.g., insert_chart, format_text)"
+  arguments:
+    type: "array"
+    items:
+      type: "object"
+    description: "Semantic content of tool arguments"
+  final_state:
+    type: "object"
+    description: "Ground-truth slide state representation"
+  session_length:
+    type: "integer"
+    description: "Number of turns in the session"
+  generation_seed:
+    type: "integer"
+    description: "Random seed used for generation"
+  exact_tool_sequence:
+    type: "array"
+    items:
+      type: "string"
+    description: "Raw, unmodified tool sequence logged for mathematical derivation checks (Constitution Principle VI)"
+  raw_arg_variance:
+    type: "number"
+    description: "Pre-calculated argument semantic variance stored for verification (Constitution Principle VI)"
+required:
+  - trace_id
+  - tool_sequence
+  - arguments
+  - final_state
+  - session_length
+  - generation_seed
+  - exact_tool_sequence
+  - raw_arg_variance
+additionalProperties: false

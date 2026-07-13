@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Schema"
+description: "Schema for regression/correlation analysis results"
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    description: "Name of the structural metric"
+  coefficient:
+    type: "number"
+    description: "Regression coefficient or correlation value"
+  p_value:
+    type: "number"
+    description: "P-value of the test"
+  is_significant:
+    type: "boolean"
+    description: "Whether the result is statistically significant"
+  correction_method:
+    type: "string"
+    enum: ["Bonferroni", "Holm-Bonferroni", "None"]
+    description: "Method used for multiple comparison correction"
+  model_type:
+    type: "string"
+    enum: ["Beta Regression", "Multiple Linear Regression", "Spearman Correlation"]
+    description: "Type of statistical model used"
+required:
+  - metric_name
+  - coefficient
+  - p_value
+  - is_significant
+  - correction_method
+  - model_type
+additionalProperties: false

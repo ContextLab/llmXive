@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Benchmark Results Schema"
+description: "Schema for agent benchmark results (Global)"
+type: "object"
+properties:
+  request_id:
+    type: "string"
+    description: "Unique identifier for the request"
+  agent_type:
+    type: "string"
+    enum: ["baseline", "compressed"]
+    description: "Type of agent used"
+  edit_accuracy:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Fraction of edits matching ground truth"
+  retrieval_latency_ms:
+    type: "number"
+    description: "Time to context-ready in milliseconds"
+  compression_ratio:
+    type: "number"
+    description: "Ratio of compressed size to original size"
+required:
+  - request_id
+  - agent_type
+  - edit_accuracy
+  - retrieval_latency_ms
+  - compression_ratio
+additionalProperties: false

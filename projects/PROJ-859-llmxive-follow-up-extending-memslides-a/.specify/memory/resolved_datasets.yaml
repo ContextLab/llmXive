@@ -1,0 +1,151 @@
+resolved_at: '2026-07-13T00:29:15.384401+00:00'
+datasets:
+- intent: MemSlides
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/Teor_a_Contra-Geopol_tica_Anticolonialista_de_Al-Quds/32658387
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/TCGAQ_Teor_a_Contra-Geopol_tica_Anticolonialista_de_Al-Quds/32811182
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_R_scripts_for_tissue-specific_lead_concentrations_in_Bayou_Belle_and_Beauregard_sweetpotato_under_controlled_greenhouse_Pb_exposure/32969750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Banco_de_dados_N_cleos_de_Gest_o_do_Cuidado_Oncol_gico_Navega_o_de_Pacientes_e_Implica_es_para_a_Enfermagem/32969687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/40Hz_sensory_entrainment_as_a_novel_therapeutic_intervention_for_epilepsy/32969747
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/40Hz_sensory_entrainment_as_a_novel_therapeutic_intervention_for_epilepsy/32969747
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://arxiv.org/abs/2606.17162
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RuleFit
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/Teor_a_Contra-Geopol_tica_Anticolonialista_de_Al-Quds/32658387
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/TCGAQ_Teor_a_Contra-Geopol_tica_Anticolonialista_de_Al-Quds/32811182
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_R_scripts_for_tissue-specific_lead_concentrations_in_Bayou_Belle_and_Beauregard_sweetpotato_under_controlled_greenhouse_Pb_exposure/32969750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Banco_de_dados_N_cleos_de_Gest_o_do_Cuidado_Oncol_gico_Navega_o_de_Pacientes_e_Implica_es_para_a_Enfermagem/32969687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/40Hz_sensory_entrainment_as_a_novel_therapeutic_intervention_for_epilepsy/32969747
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/40Hz_sensory_entrainment_as_a_novel_therapeutic_intervention_for_epilepsy/32969747
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/4311383
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07060
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2505.11189
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Replication_Package_of_Synthesizing_Static_Rules_for_Code_Smell_Detection_in_Practice/32054289/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Replication_Package_of_Synthesizing_Static_Rules_for_Code_Smell_Detection_in_Practice/32054289
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Replication_Package_of_Synthesizing_Static_Rules_for_Code_Smell_Detection_in_Practice/32054289/3
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-tractable
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/Teor_a_Contra-Geopol_tica_Anticolonialista_de_Al-Quds/32658387
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/TCGAQ_Teor_a_Contra-Geopol_tica_Anticolonialista_de_Al-Quds/32811182
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_R_scripts_for_tissue-specific_lead_concentrations_in_Bayou_Belle_and_Beauregard_sweetpotato_under_controlled_greenhouse_Pb_exposure/32969750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Banco_de_dados_N_cleos_de_Gest_o_do_Cuidado_Oncol_gico_Navega_o_de_Pacientes_e_Implica_es_para_a_Enfermagem/32969687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/40Hz_sensory_entrainment_as_a_novel_therapeutic_intervention_for_epilepsy/32969747
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/40Hz_sensory_entrainment_as_a_novel_therapeutic_intervention_for_epilepsy/32969747
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/5524642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2510.01764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05104
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

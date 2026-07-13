@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Structural Metrics Schema"
+description: "Schema for extracted structural metrics"
+type: "object"
+properties:
+  trace_id:
+    type: "string"
+    description: "Foreign key to Execution Trace"
+  sequence_entropy:
+    type: "number"
+    description: "Entropy of the tool sequence"
+  tool_repetition_freq:
+    type: "number"
+    description: "Frequency of tool repetitions (0.0 to 1.0)"
+  arg_semantic_variance:
+    type: "number"
+    description: "Variance in argument semantic content (mean pairwise cosine distance)"
+  complexity_class:
+    type: "string"
+    enum: ["Low", "Medium", "High"]
+    description: "Categorized complexity level"
+required:
+  - trace_id
+  - sequence_entropy
+  - tool_repetition_freq
+  - arg_semantic_variance
+  - complexity_class
+additionalProperties: false

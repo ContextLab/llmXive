@@ -1,0 +1,576 @@
+{
+  "fetched_at": "2026-07-13T00:22:43Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Framework for Personaliz\"",
+      "target_n": 5
+    },
+    "duration_seconds": 70.057,
+    "ended_at": "2026-07-13T00:22:43Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "hierarchical memory architectures for personalized language models"
+        ],
+        [
+          2,
+          "agent-based frameworks for dynamic memory retrieval in NLP"
+        ],
+        [
+          3,
+          "long-term memory mechanisms in large language model agents"
+        ],
+        [
+          4,
+          "personalization strategies for conversational AI via memory augmentation"
+        ],
+        [
+          5,
+          "hierarchical memory networks for context-aware dialogue systems"
+        ],
+        [
+          6,
+          "retrieval-augmented generation with structured memory hierarchies"
+        ],
+        [
+          7,
+          "cognitive architectures for personalized language agent interaction"
+        ],
+        [
+          8,
+          "memory-driven personalization in generative language models"
+        ],
+        [
+          9,
+          "hierarchical context management for adaptive language agents"
+        ],
+        [
+          10,
+          "structured memory systems for individualized language model behavior"
+        ],
+        [
+          11,
+          "personalized dialogue state tracking using hierarchical memory"
+        ],
+        [
+          12,
+          "memory-augmented neural networks for user-specific language generation"
+        ],
+        [
+          13,
+          "agent frameworks integrating hierarchical memory for personalization"
+        ],
+        [
+          14,
+          "dynamic memory allocation in personalized language model agents"
+        ],
+        [
+          15,
+          "long-context personalization via hierarchical memory structures"
+        ],
+        [
+          16,
+          "adaptive language models with hierarchical user memory profiles"
+        ],
+        [
+          17,
+          "memory-centric approaches to personalized natural language generation"
+        ],
+        [
+          18,
+          "hierarchical memory retrieval for individualized agent responses"
+        ],
+        [
+          19,
+          "context-aware personalization in language agents using memory hierarchies"
+        ],
+        [
+          20,
+          "scalable memory architectures for personalized conversational AI"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "hierarchical memory architectures for personalized language models": 5,
+        "llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Framework for Personaliz\" linguistics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "data contamination memorization LLM evaluation",
+      "long-context retrieval augmented generation agent",
+      "in-context learning prompt engineering personalization",
+      "perplexity held-out evaluation language model adaptation",
+      "catastrophic forgetting continual learning language models"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2310.20081"
+      ]
+    },
+    "per_query_hit_count": {
+      "catastrophic forgetting continual learning language models": 3,
+      "data contamination memorization LLM evaluation": 3,
+      "in-context learning prompt engineering personalization": 3,
+      "llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Framework for Personaliz\" linguistics": 3,
+      "long-context retrieval augmented generation agent": 3,
+      "perplexity held-out evaluation language model adaptation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates the consistency between LLM self-reported personality and behavioral actions, which is a distinct construct from the user's specific focus on \"linguistics\" and \"hierarchical memory\" mechanisms for personalization. While both touch on LLM personalization, the candidate paper does not measure the same biological/algorithmic mechanism (hierarchical memory), nor does it establish a baseline for the specific variables (linguistic adaptation via memory) the user is studying, fai",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "2110.13179",
+          "rationale": "The paper focuses on probabilistic time-series forecasting with hierarchical aggregation constraints in domains like tourism and sales, which is distinct from the user's question regarding a hierarchical memory framework for LLM agents in linguistics. It fails to address the specific mechanism (memory-driven agents), domain (linguistics/LLMs), or variables (personalization) required by the user's query, falling under the \"off-domain entirely\" rejection rule.",
+          "title": "Probabilistic Hierarchical Forecasting with Deep Poisson Mixtures"
+        },
+        {
+          "primary_pointer": "2503.19979",
+          "rationale": "The paper focuses on cross-lingual transfer learning for POS tagging and the influence of linguistic typology on model performance, which does not address the user's specific question about extending a hierarchical memory-driven agent framework (MemSlides) for personalization. While both involve NLP and linguistics, the candidate paper lacks the specific mechanism (hierarchical memory agents), the specific task (personalization), and the specific architectural context (MemSlides follow-up) requi",
+          "title": "Untangling the Influence of Typology, Data and Model Architecture on Ranking Transfer Languages for Cross-Lingual POS Tagging"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T00:21:33Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"memslides: a hierarchical memory driven agent framework for personaliz\" linguistics",
+      "raw": "llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Framework for Personaliz\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) trained on web-scale datasets raise substantial concerns regarding permissible data usage. One major question is whether these models \"memorize\" all their training data or they integrate many data sources in some way more akin to how a human would learn and synthesize information. The answer hinges, to a large degree, on how we define memorization. In this work, we propose the Adversarial Compression Ratio (ACR) as a metric for assessing memorization in LLMs. A given string from the training data is considered memorized if it can be elicited by a prompt (much) shorter than the string itself -- in other words, if these strings can be \"compressed\" with the model by computing adversarial prompts of fewer tokens. The ACR overcomes the limitations of existing notions of memorization by (i) offering an adversarial view of measuring memorization, especially for monitoring unlearning and compliance; and (ii) allowing for the flexibility to measure memorization for arbitrary strings at a reasonably low compute. Our definition serves as a practical tool for determining when model owners may be violating terms around data usage, providing a potential legal tool and a critical lens through which to address such scenarios.",
+          "claimed_authors": [
+            "Avi Schwarzschild",
+            "Zhili Feng",
+            "Pratyush Maini",
+            "Zachary C. Lipton",
+            "J. Zico Kolter"
+          ],
+          "claimed_title": "Rethinking LLM Memorization through the Lens of Adversarial Compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.15146"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='Rethinking LLM Memorization through the Lens of Adversarial Compression')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce Autoregressive Retrieval Augmentation (AR-RAG), a novel paradigm that enhances image generation by autoregressively incorporating knearest neighbor retrievals at the patch level. Unlike prior methods that perform a single, static retrieval before generation and condition the entire generation on fixed reference images, AR-RAG performs context-aware retrievals at each generation step, using prior-generated patches as queries to retrieve and incorporate the most relevant patch-level visual references, enabling the model to respond to evolving generation needs while avoiding limitations (e.g., over-copying, stylistic bias, etc.) prevalent in existing methods. To realize AR-RAG, we propose two parallel frameworks: (1) Distribution-Augmentation in Decoding (DAiD), a training-free plug-and-use decoding strategy that directly merges the distribution of model-predicted patches with the distribution of retrieved patches, and (2) Feature-Augmentation in Decoding (FAiD), a parameter-efficient fine-tuning method that progressively smooths the features of retrieved patches via multi-scale convolution operations and leverages them to augment the image generation process. We validate the effectiveness of AR-RAG on widely adopted benchmarks, including Midjourney-30K, GenEval and DPG-Bench, demonstrating significant performance gains over state-of-the-art image generation models.",
+          "claimed_authors": [
+            "Jingyuan Qi",
+            "Zhiyang Xu",
+            "Qifan Wang",
+            "Lifu Huang"
+          ],
+          "claimed_title": "AR-RAG: Autoregressive Retrieval Augmentation for Image Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.06962"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='AR-RAG: Autoregressive Retrieval Augmentation for Image Generation')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human cognition is constrained by processing limitations, leading to cognitive overload and inefficiencies in knowledge synthesis and decision-making. Large Language Models (LLMs) present an opportunity for cognitive augmentation, but their current reactive nature limits their real-world applicability. This position paper explores the potential of context-aware cognitive augmentation, where LLMs dynamically adapt to users' cognitive states and task environments to provide appropriate support. Through a think-aloud study in an exhibition setting, we examine how individuals interact with multi-modal information and identify key cognitive challenges in structuring, retrieving, and applying knowledge. Our findings highlight the need for AI-driven cognitive support systems that integrate real-time contextual awareness, personalized reasoning assistance, and socially adaptive interactions. We propose a framework for AI augmentation that seamlessly transitions between real-time cognitive support and post-experience knowledge organization, contributing to the design of more effective human-centered AI systems.",
+          "claimed_authors": [
+            " Xiangrong",
+            " Zhu",
+            "Yuan Xu",
+            "Tianjian Liu",
+            "Jingwei Sun",
+            "Yu Zhang",
+            "Xin Tong"
+          ],
+          "claimed_title": "Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.13684"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Electronic Health Records (EHR) contain rich longitudinal patient information and are widely used in predictive modeling applications. However, effectively leveraging historical data remains challenging due to long trajectories, heterogeneous events, temporal irregularity, and the varying relevance of past clinical context. Existing approaches often rely on fixed windows or uniform aggregation, which can obscure clinically important signals. In this work, we introduce EHR-RAGp, a retrieval-augmented foundation model that dynamically integrates the most relevant patient history across diverse clinical event types. We propose a prototype-guided retrieval module that acts as an alignment mechanism and estimates the relevance of retrieved historical chunks with respect to a given prediction task, guiding the model towards the most informative context. Across multiple clinical prediction tasks, EHR-RAGp consistently outperforms state-of-the-art EHR foundation models and transformer-based baselines. Furthermore, integrating EHR-RAGp with existing clinical foundation models yields substantial performance gains. Overall, EHR-RAGp provides a scalable and efficient framework for leveraging long-range clinical context to improve downstream performance.",
+          "claimed_authors": [
+            "Saeed Shurrab",
+            "Mariam Al-Omari",
+            "Dana El Samad",
+            "Farah E. Shamout"
+          ],
+          "claimed_title": "EHR-RAGp: Retrieval-Augmented Prototype-Guided Foundation Model for Electronic Health Records",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.12335"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='EHR-RAGp: Retrieval-Augmented Prototype-Guided Foundation Model for Electronic Health Records')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) accelerate software development but often exhibit instability, non-determinism, and weak adherence to development discipline in unconstrained workflows. While test-driven development (TDD) provides a structured Red-Green-Refactor process, existing LLM-based approaches typically use tests as auxiliary inputs rather than enforceable process constraints. We present an AI-native TDD framework that operationalizes classical TDD principles as structured prompt-level and workflow-level governance mechanisms. Extracted principles are formalized in a machine-readable manifesto and distributed across planning, generation, repair, and validation stages within a layered architecture that separates model proposal from deterministic engine authority. The system enforces phase ordering, bounded repair loops, validation gates, and atomic mutation control to improve stability and reproducibility. We describe architecture and discuss encoding software engineering discipline directly into prompt orchestration, which we think offers a promising direction for reliable LLM-assisted development.",
+          "claimed_authors": [
+            "Tarlan Hasanli",
+            "Shahbaz Siddeeq",
+            "Bishwash Khanal",
+            "Pyry Kotilainen",
+            "Tommi Mikkonen",
+            "Pekka Abrahamsson"
+          ],
+          "claimed_title": "TDD Governance for Multi-Agent Code Generation via Prompt Engineering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.26615"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='TDD Governance for Multi-Agent Code Generation via Prompt Engineering')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Qualitative analysis plays a pivotal role in understanding the human and social aspects of software engineering. However, it remains a demanding process shaped by the subjective interpretation of individual researchers and sensitive to methodological choices such as prompt design. Recent advancements in Large Language Models (LLMs) offer promising opportunities to support this type of analysis, although their reliability in reproducing human qualitative reasoning under varying prompting conditions remains largely untested. This study presents a controlled empirical evaluation of three LLMs -- Claude Haiku, DeepSeek-Chat, and Gemini 2.5 Flash -- across two prompt engineering strategies (zero-shot and multi-shot closed coding), using Cohen's kappa as the primary agreement metric over ten independent runs per configuration. Results suggest that multi-shot prompting significantly improves agreement for Claude Haiku (Delta kappa = +0.034, Wilcoxon p = 0.004) but not for DeepSeek-Chat or Gemini 2.5 Flash. Intra-model stability varies substantially -- DeepSeek-Chat and Claude Haiku exhibit the lowest variance (SD approx. 0.017), while Gemini 2.5 Flash is the least stable (SD = 0.038). A systematic over-prediction of \"Sharing Negative Feedback\" is identified across all models (bias ratios up to 5.25x), alongside consistent under-prediction of \"Expressing Concerns.\" Collectively, these findings provide empirical evidence for prompt engineering guidelines in LLM-assisted qualitative coding for software engineering research.",
+          "claimed_authors": [
+            "Moaath Alshaikh",
+            "Tasneem Alshaher",
+            "Ricardo Vieira",
+            "Beatriz Santana",
+            "Clelio Xavier",
+            "Jose Amancio",
+            "Glauco Carneiro",
+            "Julio Leite",
+            "Savio Freire",
+            "Manoel Mendonca"
+          ],
+          "claimed_title": "Prompt Engineering Strategies for LLM-based Qualitative Coding of Psychological Safety in Software Engineering Communities: A Controlled Empirical Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.07422"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='Prompt Engineering Strategies for LLM-based Qualitative Coding of Psychological Safety in Software Engineering Communities: A Controlled Empirical Study')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Online service platforms (OSPs), such as search engines, news-websites, ad-providers, etc., serve highly pe rsonalized content to the user, based on the profile extracted from his history with the OSP. Although personalization (generally) leads to a better user experience, it also raises privacy concerns for the user---he does not know what is present in his profile and more importantly, what is being used to per sonalize content for him. In this paper, we capture OSP's personalization for an user in a new data structure called the person alization vector ($η$), which is a weighted vector over a set of topics, and present techniques to compute it for users of an OSP. Our approach treats OSPs as black-boxes, and extracts $η$ by mining only their output, specifical ly, the personalized (for an user) and vanilla (without any user information) contents served, and the differences in these content. We formulate a new model called Latent Topic Personalization (LTP) that captures the personalization vector into a learning framework and present efficient inference algorithms for it. We do extensive experiments for search result personalization using both data from real Google users and synthetic datasets. Our results show high accuracy (R-pre = 84%) of LTP in finding personalized topics. For Google data, our qualitative results show how LTP can also identifies evidences---queries for results on a topic with high $η$ value were re-ranked. Finally, we show how our approach can be used to build a new Privacy evaluation framework focused at end-user privacy on commercial OSPs.",
+          "claimed_authors": [
+            "Anirban Majumder",
+            "Nisheeth Shrivastava"
+          ],
+          "claimed_title": "Know Your Personalization: Learning Topic level Personalization in Online Services",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1212.3390"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='Know Your Personalization: Learning Topic level Personalization in Online Services')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an analysis of the performance of machine learning classifiers on discriminating between similar languages and language varieties. We carried out a number of experiments using the results of the two editions of the Discriminating between Similar Languages (DSL) shared task. We investigate the progress made between the two tasks, estimate an upper bound on possible performance using ensemble and oracle combination, and provide learning curves to help us understand which languages are more challenging. A number of difficult sentences are identified and investigated further with human annotation.",
+          "claimed_authors": [
+            "Cyril Goutte",
+            "Serge Léger",
+            "Shervin Malmasi",
+            "Marcos Zampieri"
+          ],
+          "claimed_title": "Discriminating Similar Languages: Evaluations and Explorations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.00031"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='Discriminating Similar Languages: Evaluations and Explorations')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We evaluate four state-of-the-art instruction-tuned large language models (LLMs) -- ChatGPT, Flan-T5 UL2, Tk-Instruct, and Alpaca -- on a set of 13 real-world clinical and biomedical natural language processing (NLP) tasks in English, such as named-entity recognition (NER), question-answering (QA), relation extraction (RE), etc. Our overall results demonstrate that the evaluated LLMs begin to approach performance of state-of-the-art models in zero- and few-shot scenarios for most tasks, and particularly well for the QA task, even though they have never seen examples from these tasks before. However, we observed that the classification and RE tasks perform below what can be achieved with a specifically trained model for the medical field, such as PubMedBERT. Finally, we noted that no LLM outperforms all the others on all the studied tasks, with some models being better suited for certain tasks than others.",
+          "claimed_authors": [
+            "Yanis Labrak",
+            "Mickael Rouvier",
+            "Richard Dufour"
+          ],
+          "claimed_title": "A Zero-shot and Few-shot Study of Instruction-Finetuned Large Language Models Applied to Clinical and Biomedical Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.12114"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='A Zero-shot and Few-shot Study of Instruction-Finetuned Large Language Models Applied to Clinical and Biomedical Tasks')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a number of experiments to model changes in a historical Portuguese corpus composed of literary texts for the purpose of temporal text classification. Algorithms were trained to classify texts with respect to their publication date taking into account lexical variation represented as word n-grams, and morphosyntactic variation represented by part-of-speech (POS) distribution. We report results of 99.8% accuracy using word unigram features with a Support Vector Machines classifier to predict the publication date of documents in time intervals of both one century and half a century. A feature analysis is performed to investigate the most informative features for this task and how they are linked to language change.",
+          "claimed_authors": [
+            "Marcos Zampieri",
+            "Shervin Malmasi",
+            "Mark Dras"
+          ],
+          "claimed_title": "Modeling Language Change in Historical Corpora: The Case of Portuguese",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.00030"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='Modeling Language Change in Historical Corpora: The Case of Portuguese')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explaining the behaviors of deep neural networks, usually considered as black boxes, is critical especially when they are now being adopted over diverse aspects of human life. Taking the advantages of interpretable machine learning (interpretable ML), this work proposes a novel tool called Catastrophic Forgetting Dissector (or CFD) to explain catastrophic forgetting in continual learning settings. We also introduce a new method called Critical Freezing based on the observations of our tool. Experiments on ResNet articulate how catastrophic forgetting happens, particularly showing which components of this famous network are forgetting. Our new continual learning algorithm defeats various recent techniques by a significant margin, proving the capability of the investigation. Critical freezing not only attacks catastrophic forgetting but also exposes explainability.",
+          "claimed_authors": [
+            "Giang Nguyen"
+          ],
+          "claimed_title": "Overcoming Catastrophic Forgetting by XAI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.14177"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='Overcoming Catastrophic Forgetting by XAI')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continual learning (CL) is a setting in which an agent has to learn from an incoming stream of data during its entire lifetime. Although major advances have been made in the field, one recurring problem which remains unsolved is that of Catastrophic Forgetting (CF). While the issue has been extensively studied empirically, little attention has been paid from a theoretical angle. In this paper, we show that the impact of CF increases as two tasks increasingly align. We introduce a measure of task similarity called the NTK overlap matrix which is at the core of CF. We analyze common projected gradient algorithms and demonstrate how they mitigate forgetting. Then, we propose a variant of Orthogonal Gradient Descent (OGD) which leverages structure of the data through Principal Component Analysis (PCA). Experiments support our theoretical findings and show how our method can help reduce CF on classical CL datasets.",
+          "claimed_authors": [
+            "Thang Doan",
+            "Mehdi Bennani",
+            "Bogdan Mazoure",
+            "Guillaume Rabusseau",
+            "Pierre Alquier"
+          ],
+          "claimed_title": "A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.04003"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep learning is often criticized by two serious issues which rarely exist in natural nervous systems: overfitting and catastrophic forgetting. It can even memorize randomly labelled data, which has little knowledge behind the instance-label pairs. When a deep network continually learns over time by accommodating new tasks, it usually quickly overwrites the knowledge learned from previous tasks. Referred to as the {\\it neural variability}, it is well-known in neuroscience that human brain reactions exhibit substantial variability even in response to the same stimulus. This mechanism balances accuracy and plasticity/flexibility in the motor learning of natural nervous systems. Thus it motivates us to design a similar mechanism named {\\it artificial neural variability} (ANV), which helps artificial neural networks learn some advantages from ``natural'' neural networks. We rigorously prove that ANV plays as an implicit regularizer of the mutual information between the training data and the learned model. This result theoretically guarantees ANV a strictly improved generalizability, robustness to label noise, and robustness to catastrophic forgetting. We then devise a {\\it neural variable risk minimization} (NVRM) framework and {\\it neural variable optimizers} to achieve ANV for conventional network architectures in practice. The empirical studies demonstrate that NVRM can effectively relieve overfitting, label noise memorization, and catastrophic forgetting at negligible costs. \\footnote{Code: \\url{https://github.com/zeke-xie/artificial-neural-variability-for-deep-learning}.",
+          "claimed_authors": [
+            "Zeke Xie",
+            "Fengxiang He",
+            "Shaopeng Fu",
+            "Issei Sato",
+            "Dacheng Tao",
+            "Masashi Sugiyama"
+          ],
+          "claimed_title": "Artificial Neural Variability for Deep Learning: On Overfitting, Noise Memorization, and Catastrophic Forgetting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.06220"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MemSlides: A Hierarchical Memory Driven Agent Fram', candidate_title='Artificial Neural Variability for Deep Learning: On Overfitting, Noise Memorization, and Catastrophic Forgetting')",
+        "failed_at": "2026-07-13T00:22:07Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nicolas Zucchet",
+            "Jörg Bornschein",
+            "Stephanie Chan",
+            "Andrew Lampinen",
+            "Razvan Pascanu",
+            "Soham De"
+          ],
+          "title": "How do language models learn facts? Dynamics, curricula and hallucinations",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.21676",
+        "summary": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.21676",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T00:22:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chris Richardson",
+            "Yao Zhang",
+            "Kellen Gillespie",
+            "Sudipta Kar",
+            "Arshdeep Singh",
+            "Zeynab Raeesy",
+            "Omar Zia Khan",
+            "Abhinav Sethy"
+          ],
+          "title": "Integrating Summarization and Retrieval for Enhanced Personalization via Large Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2310.20081",
+        "summary": "Personalization, the ability to tailor a system to individual users, is an essential factor in user experience with natural language processing (NLP) systems. With the emergence of Large Language Models (LLMs), a key question is how to leverage these models to better personalize user experiences. To personalize a language model's output, a straightforward approach is to incorporate past user data into the language model prompt, but this approach can result in lengthy inputs exceeding limitations on input length and incurring latency and cost issues. Existing approaches tackle such challenges by selectively extracting relevant user data (i.e. selective retrieval) to construct a prompt for downstream tasks. However, retrieval-based methods are limited by potential information loss, lack of more profound user understanding, and cold-start challenges. To overcome these limitations, we propose a novel summary-augmented approach by extending retrieval-augmented personalization with task-aware user summaries generated by LLMs. The summaries can be generated and stored offline, enabling real-world systems with runtime constraints like voice assistants to leverage the power of LLMs. Experiments show our method with 75% less of retrieved user data is on-par or outperforms retrieval augmentation on most tasks in the LaMP personalization benchmark. We demonstrate that offline summarization via LLMs and runtime retrieval enables better performance for personalization on a range of tasks under practical constraints.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2310.20081",
+          "http_status": 200,
+          "pdf_sample_score": 0.2978,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T00:22:15Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"memslides: a hierarchical memory driven agent framework for personaliz\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
