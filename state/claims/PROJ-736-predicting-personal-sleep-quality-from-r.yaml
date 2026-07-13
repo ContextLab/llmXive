@@ -152,33 +152,67 @@
   updated_at: '2026-07-13T17:02:33Z'
 - artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
   attempts: 1
-  canonical: 1000 label permutations on stratified subset of 100 subjects
-  claim_id: c_5bc94935
-  context: T022 [US2] Implement `code/modeling/evaluate.py` to perform 1,000 label
-    permutations on a **stratified subset of 100 subjects** (based on Sleep Score).
+  canonical: 1,000 label permutations on a stratified subset of 100 subjects
+  claim_id: c_99fcb9f2
+  context: T022 [US2] Implement code/modeling/evaluate.py to perform 1,000 label permutations
+    on a stratified subset of 100 subjects (based on Sleep Score).
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Implement `code/modeling/evaluate.py` to perform 1,000 label permutations
-    on a stratified subset of 100 subjects (based on Sleep Score).
+  raw_text: Implement code/modeling/evaluate.py to perform 1,000 label permutations
+    on a stratified subset of 100 subjects
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T18:03:35Z'
+  updated_at: '2026-07-13T18:02:49Z'
 - artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
   attempts: 1
-  canonical: 1000 bootstrap resamples of outer-fold predictions
-  claim_id: c_e355d9c2
-  context: "T023 [US2] Implement `code/modeling/evaluate.py` to perform 1,000 bootstrap\
-    \ resamples of **outer-fold predictions** (loaded from `data/processed/predictions.npy`)\
-    \ for % CI on R\xB2 (FR-007)."
+  canonical: permutation test on stratified subset of 100 subjects
+  claim_id: c_4e996f9a
+  context: 'Critical: Permutation test runs on a stratified subset of 100 subjects
+    (Plan Override of FR-006) to meet -hour compute constraint.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Implement `code/modeling/evaluate.py` to perform 1,000 bootstrap resamples\
-    \ of outer-fold predictions for % CI on R\xB2."
+  raw_text: Permutation test runs on a stratified subset of 100 subjects
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:03:09Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: monitor RAM usage less than or equal to 6 GB
+  claim_id: c_222087c5
+  context: "T025 [US2] Implement code/modeling/evaluate.py to enforce CPU-only execution,\
+    \ monitor RAM usage (\u22646 GB) using psutil, and abort if wall-clock time exceeds\
+    \ a predefined threshold using signal module (FR-009)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Monitor_RAM_usage_less_than_or_equal_to_6_GB
+  kind: magnitude
+  raw_text: "Monitor RAM usage (\u22646 GB) using psutil"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:03:32Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: PCA retention values 0.95 0.90 0.85
+  claim_id: c_46625a86
+  context: T024 [US2] Implement sensitivity analysis in code/modeling/evaluate.py
+    to iterate variance thresholds including low values and PCA retention {0.95, 0.90,
+    0.85}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PCA retention values {0.95, 0.90, 0.85}
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
@@ -187,139 +221,291 @@
   updated_at: '2026-07-13T18:03:57Z'
 - artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
   attempts: 1
-  canonical: Permutation-test p-value derived from 100-subject subset
-  claim_id: c_8f41f67d
-  context: T026c [US2] Explicitly document in `ResultReport.json` that the permutation-test
-    p-value is an **approximation** derived from a 100-subject subset (Plan Override
-    of FR-006) and not the full dataset.
+  canonical: handle case where less than 50 non-zero coefficients exist
+  claim_id: c_a41dcc8f
+  context: T031 [US3] Generate brain-surface plot using Nilearn plot_connectome highlighting
+    top N (configurable) predictive connections. Must handle case where <50 non-zero
+    coefficients exist by plotting all available and logging a warning (SC-004).
   evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Permutation-test_p-value_derived_from_100-subject_subset
-  kind: entity_fact
-  raw_text: The permutation-test p-value is an approximation derived from a 100-subject
-    subset and not the full dataset.
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Handle_case_where_less_than_50_non-zero_coefficients_exist
+  kind: magnitude
+  raw_text: Handle case where <50 non-zero coefficients exist by plotting all available
   resolved_value: null
-  resolver: resolve_entity_fact
+  resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T18:06:24Z'
+  updated_at: '2026-07-13T18:04:22Z'
 - artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
   attempts: 1
-  canonical: 3-hour time budget for 9 grid points
-  claim_id: c_9e32d2e4
-  context: T024 [US2] Implement sensitivity analysis... **Must enforce a cumulative
-    3-hour time budget** for the 9 grid points...
+  canonical: verify plot file contains 50 or more edges
+  claim_id: c_fad5d91e
+  context: "T033 [P] [US3] Verify plot file exists and contains \u226550 edges: Use\
+    \ Python's built-in xml.etree.ElementTree to parse SVG and count both <line> and\
+    \ <path> elements (to handle different rendering backends)."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The sensitivity analysis enforces a cumulative 3-hour time budget for
-    the 9 grid points.
+  raw_text: "Verify plot file exists and contains \u226550 edges"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T18:06:44Z'
+  updated_at: '2026-07-13T18:04:22Z'
 - artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
   attempts: 1
-  canonical: PCA retention values 0.95, 0.90, 0.85
-  claim_id: c_fd04eee5
-  context: T024 [US2] Implement sensitivity analysis in `code/modeling/evaluate.py`
+  canonical: exclude subjects with framewise displacement greater than 0.3mm
+  claim_id: c_39f54bcc
+  context: T007b [US1] Implement subject filtering logic in code/data/download_hcp.py
+    (or a helper module) to identify subjects with valid Sleep Scores and exclude
+    those with >0.3mm framewise displacement (US1 Acceptance 2).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_framewise_displacement_greater_than_0.
+  kind: magnitude
+  raw_text: Exclude subjects with >0.3mm framewise displacement
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:04:39Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: abort if success rate less than 80 percent
+  claim_id: c_f4317cf2
+  context: T016 [US1] Implement error handling to log excluded subjects and abort
+    if success rate <80% (SC-001).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_success_rate_less_than_80_percent
+  kind: magnitude
+  raw_text: Abort if success rate <80%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:05:06Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: HCP 1200-subject release
+  claim_id: c_8062bd87
+  context: "Independent Test: Run the data\u2011pipeline script on the HCP 1200-subject\
+    \ release (restricted to subjects with Sleep questionnaire data) and verify that\
+    \ the expected .npy files are produced."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HCP 1200-subject release
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:05:28Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: Permutation test runs on stratified subset of 100 subjects
+  claim_id: c_619a9286
+  context: 'Critical: Permutation test runs on a stratified subset of 100 subjects
+    (Plan Override of FR-006) to meet -hour compute constraint. The resulting p-value
+    is an approximation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test runs on a stratified subset of 100 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:20:44Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if wall-clock time exceeds predefined threshold
+  claim_id: c_c2ed308b
+  context: "T025 [US2] Implement code/modeling/evaluate.py to enforce CPU-only execution,\
+    \ monitor RAM usage (\u22646 GB) using psutil, and abort if wall-clock time exceeds\
+    \ a predefined threshold using signal module (FR-009)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_if_wall-clock_time_exceeds_predefined_thresh
+  kind: entity_fact
+  raw_text: The pipeline aborts if wall-clock time exceeds a predefined threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:21:07Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if RAM usage exceeds 6 GB
+  claim_id: c_a3d01b7b
+  context: "T025 [US2] Implement code/modeling/evaluate.py to enforce CPU-only execution,\
+    \ monitor RAM usage (\u22646 GB) using psutil, and abort if wall-clock time exceeds\
+    \ a predefined threshold using signal module (FR-009)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline aborts if RAM usage exceeds 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:21:34Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: System aborts if success rate of subject processing is less than 80%
+  claim_id: c_0cadd5f3
+  context: T016 [US1] Implement error handling to log excluded subjects and abort
+    if success rate <80% (SC-001)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_aborts_if_success_rate_of_subject_processing_is_less
+  kind: magnitude
+  raw_text: The system aborts if the success rate of subject processing is less than
+    80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:22:18Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: Subjects with more than 0.3mm framewise displacement are excluded
+  claim_id: c_fc3fff9f
+  context: T007b [US1] Implement subject filtering logic in code/data/download_hcp.py
+    (or a helper module) to identify subjects with valid Sleep Scores and exclude
+    those with >0.3mm framewise displacement (US1 Acceptance 2).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_more_than_0.3mm_framewise_displacement_are_exc
+  kind: magnitude
+  raw_text: Subjects with more than 0.3mm framewise displacement are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:22:54Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis iterates PCA retention values of 0.95, 0.90, and
+    0.85
+  claim_id: c_1d108f6b
+  context: T024 [US2] Implement sensitivity analysis in code/modeling/evaluate.py
     to iterate variance thresholds including low values and PCA retention {0.95, 0.90,
     0.85}.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The sensitivity analysis iterates over PCA retention values of 0.95, 0.90,
+  raw_text: The sensitivity analysis iterates PCA retention values of 0.95, 0.90,
     and 0.85.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T18:07:05Z'
+  updated_at: '2026-07-13T18:23:14Z'
 - artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
   attempts: 1
-  canonical: RAM usage limit 6 GB
-  claim_id: c_a64b2b92
-  context: "T025 [US2] Implement `code/modeling/evaluate.py` to enforce CPU-only execution,\
-    \ monitor RAM usage (\u22646 GB) using `psutil`, and abort if wall-clock time\
-    \ exceeds a predefined threshold..."
+  canonical: Permutation test performs 1000 label permutations
+  claim_id: c_9977f12d
+  context: T022 [US2] Implement code/modeling/evaluate.py to perform 1,000 label permutations
+    on a stratified subset of 100 subjects (based on Sleep Score).
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The system must monitor RAM usage and abort if it exceeds 6 GB.
+  raw_text: The permutation test performs 1,000 label permutations.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T18:07:29Z'
+  updated_at: '2026-07-13T18:23:41Z'
 - artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
   attempts: 1
-  canonical: Success rate threshold 80%
-  claim_id: c_a2028163
-  context: T016 [US1] Implement error handling to log excluded subjects and abort
-    if success rate <80% (SC-001).
+  canonical: Bootstrap analysis performs 1000 resamples of outer-fold predictions
+  claim_id: c_00b662e0
+  context: "T023 [US2] Implement code/modeling/evaluate.py to perform 1,000 bootstrap\
+    \ resamples of outer-fold predictions (loaded from data/processed/predictions.npy)\
+    \ for % CI on R\xB2 (FR-007)."
   evidence:
-    candidates_found: 1
+    fill:
+      channel: paper
+      conflicts: []
+      quote: was implemented. The number of simulations was n = 1000. The results
+        are
+      source_id: '1612.04126'
+      url: https://arxiv.org/abs/1612.04126
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: The bootstrap analysis performs 1,000 resamples of outer-fold predictions.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T18:24:03Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: Visualization plots all available connections if fewer than 50 non-zero
+    coefficients exist
+  claim_id: c_2a78ed30
+  context: T031 [US3] Generate brain-surface plot using Nilearn plot_connectome highlighting
+    top N (configurable) predictive connections. Must handle case where <50 non-zero
+    coefficients exist by plotting all available and logging a warning (SC-004).
+  evidence:
+    candidates_found: 0
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Success_rate_threshold_80%25
+    source_url: https://en.wikipedia.org/wiki/Visualization_plots_all_available_connections_if_fewer_than
   kind: magnitude
-  raw_text: The system must abort if success rate is less than 80%.
+  raw_text: The visualization plots all available connections if fewer than 50 non-zero
+    coefficients exist.
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T18:08:07Z'
+  updated_at: '2026-07-13T18:24:32Z'
 - artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
   attempts: 1
-  canonical: Plot all connections if fewer than 50 non-zero coefficients
-  claim_id: c_ec44e38e
-  context: T031 [US3] Generate brain-surface plot... **Must handle case where <50
-    non-zero coefficients exist by plotting all available and logging a warning**
-    (SC-004).
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Plot_all_connections_if_fewer_than_50_non-zero_coefficients
-  kind: magnitude
-  raw_text: The system must handle the case where fewer than 50 non-zero coefficients
-    exist by plotting all available connections.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T18:08:34Z'
-- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
-  attempts: 1
-  canonical: Verify plot contains at least 50 edges
-  claim_id: c_d2ed581c
+  canonical: Validation script counts both line and path elements in SVG files
+  claim_id: c_f158acd6
   context: "T033 [P] [US3] Verify plot file exists and contains \u226550 edges: Use\
-    \ Python's built-in `xml.etree.ElementTree` to parse SVG and count both `<line>`\
-    \ and `<path>` elements..."
+    \ Python's built-in xml.etree.ElementTree to parse SVG and count both <line> and\
+    \ <path> elements (to handle different rendering backends)."
   evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Verify_plot_contains_at_least_50_edges
-  kind: magnitude
-  raw_text: The system must verify that the plot file contains at least 50 edges.
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_script_counts_both_line_and_path_elements_in_SVG
+  kind: entity_fact
+  raw_text: The validation script counts both line and path elements in SVG files.
   resolved_value: null
-  resolver: resolve_superlative
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T18:09:28Z'
+  updated_at: '2026-07-13T18:25:00Z'
 - artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
   attempts: 1
-  canonical: Band-pass filtering 0.01-0.1 Hz
-  claim_id: c_bd7b05b7
-  context: T006 [P] Implement `code/data/preprocess.py` for Schaefer parcellation,
-    nuisance regression, and 0.01-0.1 Hz band-pass filtering (FR-001).
+  canonical: Preprocessing includes 0.01-0.1 Hz band-pass filtering
+  claim_id: c_4f27ac78
+  context: T006 [P] Implement code/data/preprocess.py for Schaefer parcellation, nuisance
+    regression, and 0.01-0.1 Hz band-pass filtering (FR-001)
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -329,40 +515,4 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T18:10:06Z'
-- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
-  attempts: 1
-  canonical: Exclude subjects with framewise displacement > 0.3mm
-  claim_id: c_4f4ede84
-  context: T007b [US1] Implement subject filtering logic... to identify subjects with
-    valid Sleep Scores and exclude those with >0.3mm framewise displacement (US1 Acceptance
-    2).
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_framewise_displacement_%3E_0.3mm
-  kind: magnitude
-  raw_text: The subject filtering excludes those with framewise displacement greater
-    than 0.3mm.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T18:10:33Z'
-- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
-  attempts: 1
-  canonical: HCP 1200-subject release
-  claim_id: c_3c7513cf
-  context: "Independent Test: Run the data\u2011pipeline script on the HCP 1200-subject\
-    \ release (restricted to subjects with Sleep questionnaire data)..."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The HCP 1200-subject release is used as the dataset.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T18:10:53Z'
+  updated_at: '2026-07-13T18:25:35Z'
