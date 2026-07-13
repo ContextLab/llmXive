@@ -42,14 +42,3 @@
   verification_status: verified
   verified_against_url: https://github.com/mobilegym/mobilegym.github.io
   verified_at: '2026-07-12T23:06:47.222015Z'
-- artifact_hash: 916c816f825f04aec466e99ae9b28494da4f72a1f48e9fbc1d3ac75512c03277
-  artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/specs/001-llmxive-follow-up-extending-mobilegym-a/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/mobilegym-project/mobilegym`
-  verification_status: mismatch
-  verified_against_url: https://github.com/mobilegym-project/mobilegym
-  verified_at: '2026-07-12T23:20:01.829962Z'

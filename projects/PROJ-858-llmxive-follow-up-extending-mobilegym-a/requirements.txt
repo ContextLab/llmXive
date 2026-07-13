@@ -1,0 +1,20 @@
+# Project dependencies for llmXive State-Guided Curriculum
+# MobileGym is fetched dynamically; no pip package required yet.
+# Add pinned versions as needed.
+
+# Core
+PyYAML>=6.0
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Logging and Utils
+# (No specific third-party logging libs required beyond stdlib)
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Linting/Formatting (dev)
+ruff>=0.1.0
+black>=23.0.0
+pre-commit>=3.0.0

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T08:12:59.287013Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-858-llmxive-follow-up-extending-mobilegym-a
-last_run_id: e09dbebb-a8d9-4607-976d-93ea201b7fe3
+last_run_id: 4ee8899f-9638-4f4d-a113-5885597d1798
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/specs/001-llmxive-follow-up-extending-mobilegym-a
 title: 'llmXive follow-up: extending "MobileGym: A Verifiable and Highly Parallel
   Simulation Platform for Mo"'
-updated_at: '2026-07-12T23:20:43.221344Z'
+updated_at: '2026-07-13T01:13:06.311992Z'

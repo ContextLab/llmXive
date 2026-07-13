@@ -1,0 +1,160 @@
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/specs/001-llmxive-follow-up-extending-mobilegym-a/tasks.md
+  attempts: 1
+  canonical: CPU-optimized config Qwen-VL-4B-Instruct must not exceed 7GB RAM
+  claim_id: c_82d89a6f
+  context: Notes section regarding CPU constraints.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU-optimized_config_Qwen-VL-4B-Instruct_must_not_exceed_7GB
+  kind: entity_fact
+  raw_text: Ensure all model loading and training tasks use CPU-optimized configs
+    (Qwen-VL-4B-Instruct, quantization if needed) and do not exceed 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:28:11Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/specs/001-llmxive-follow-up-extending-mobilegym-a/tasks.md
+  attempts: 1
+  canonical: Invalid Proxy flag triggered if Pearson correlation r is less than 0.3
+  claim_id: c_fa7a36f1
+  context: Phase 6, Task T040 under Implementation for User Story 4.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Invalid_Proxy_flag_triggered_if_Pearson_correlation_r_is_les
+  kind: magnitude
+  raw_text: Implement logic to flag 'Invalid Proxy' if r < 0.3 and recommend expanding
+    variable set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:29:41Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/specs/001-llmxive-follow-up-extending-mobilegym-a/tasks.md
+  attempts: 1
+  canonical: Qwen3-VL-4B-Instruct model configuration used for Static Random and State-Guided
+    runs
+  claim_id: c_92c16f6c
+  context: Phase 5, Task T032 under Implementation for User Story 3.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Qwen3-VL-4B-Instruct_model_configuration_used_for_Static_Ran
+  kind: entity_fact
+  raw_text: Implement `code/training/runner.py` to orchestrate Static Random vs. State-Guided
+    runs using identical Qwen3-VL-4B-Instruct model configuration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:30:27Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/specs/001-llmxive-follow-up-extending-mobilegym-a/tasks.md
+  attempts: 1
+  canonical: Phase 1 logic targets coverage less than 5 percent
+  claim_id: c_06727194
+  context: Phase 3, Task T014 under Implementation for User Story 1.
+  evidence:
+    candidates:
+    - - Phase 1 logic targets coverage less than
+      - 5.0
+    - - Donate Create account Log in Phase
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Phase_1_logic_targets_coverage_less_than_5_percent
+  kind: magnitude
+  raw_text: Implement Phase 1 logic (target coverage < 5%) in `code/scheduler/curriculum_scheduler.py`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-13T01:31:11Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/specs/001-llmxive-follow-up-extending-mobilegym-a/tasks.md
+  attempts: 1
+  canonical: Phase logic targets dynamic range expansion between 10 and 90 percent
+  claim_id: c_a6175f55
+  context: Phase 3, Task T015 under Implementation for User Story 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Phase logic (target moderate success rate) with dynamic range
+    expansion (10-90%) in `code/scheduler/curriculum_scheduler.py`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:32:05Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/specs/001-llmxive-follow-up-extending-mobilegym-a/tasks.md
+  attempts: 1
+  canonical: Unit test verifies 30 to 70 percent sweet spot selection
+  claim_id: c_a857b01c
+  context: Phase 3, Task T022 under Tests for User Story 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test for 30-70% 'sweet spot' selection in `tests/unit/test_scheduler_sweet_spot.py`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:33:03Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/specs/001-llmxive-follow-up-extending-mobilegym-a/tasks.md
+  attempts: 1
+  canonical: Scheduler latency must be less than 10 percent of batch execution time
+  claim_id: c_b1960b7b
+  context: Phase 3, Task T024 under Tests for User Story 1.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Scheduler_latency_must_be_less_than_10_percent_of_batch_exec
+  kind: magnitude
+  raw_text: Implement latency benchmarking harness in `tests/integration/test_scheduler_latency.py`
+    to verify scheduler latency < 10% of batch execution time.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:33:30Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/specs/001-llmxive-follow-up-extending-mobilegym-a/tasks.md
+  attempts: 1
+  canonical: Time limits set to 6 hours in constants.py
+  claim_id: c_4c930189
+  context: Phase 2, Task T005 under Foundational.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/utils/constants.py` with time limits (6h), success thresholds,
+    and coverage vector schema definitions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:33:56Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/specs/001-llmxive-follow-up-extending-mobilegym-a/tasks.md
+  attempts: 1
+  canonical: MobileGym pinned by recording specific git commit hash in data/raw/.checksums.txt
+  claim_id: c_e3e3f359
+  context: Phase 1, Task T002 under Setup.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MobileGym_pinned_by_recording_specific_git_commit_hash_in_da
+  kind: entity_fact
+  raw_text: Pin `mobilegym` by fetching from the official repository URL and immediately
+    recording the specific git commit hash in `data/raw/.checksums.txt` to ensure
+    reproducibility.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T01:34:29Z'

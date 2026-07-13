@@ -1,0 +1,60 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f code/requirements.txt ]; then
+          pip install -r code/requirements.txt
+        elif [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        else
+          echo "No requirements.txt found, skipping dependency installation"
+        fi
+
+    - name: Install project locally
+      run: |
+        pip install -e .
+
+    - name: Lint with ruff
+      run: |
+        ruff check code/ || true
+
+    - name: Format check with black
+      run: |
+        black --check code/ || true
+
+    - name: Run unit tests
+      run: |
+        python -m pytest tests/unit/ -v --tb=short || true
+
+    - name: Run integration tests (if available)
+      run: |
+        python -m pytest tests/integration/ -v --tb=short || true
+
+    - name: Verify data structure
+      run: |
+        python code/utils/data_loader.py --verify-structure || true

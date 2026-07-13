@@ -1,0 +1,7 @@
+T010 Setup `data/raw/.checksums.txt` and `data/processed/` directory structure: 2
+T011 Initialize `data/processed/scheduler_trace.json` schema and directory structure (required before T020).: 2
+? T012 [P] Define "semantic state proxies" (e.g., `dark_mode`, `unread_count`) in
+  `code/utils/constants.py` by reading the full list from `contracts/coverage.schema.yaml`
+  key `semantic_proxies` to ensure US1 has necessary constants.
+: 1
+T013 [US1] Implement hard wall-clock time limit enforcement (watchdog) in `code/training/runner.py` to satisfy FR-004.: 1

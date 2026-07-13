@@ -1,0 +1,4 @@
+# This directory is managed by T010.
+# It stores processed data, scheduler traces, and coverage vectors.
+# Do not commit generated data files here in a real repo (add to .gitignore),
+# but the directory structure itself must exist for the pipeline to run.

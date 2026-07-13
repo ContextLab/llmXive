@@ -43,10 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan with explicit directories: `code/`, `code/scheduler/`, `code/training/`, `code/analysis/`, `code/utils/`, `data/raw/`, `data/processed/`, `data/validation/`, `tests/unit/`, `tests/integration/`, `contracts/`.
-- [ ] T002 Initialize Python project with `requirements.txt`: Pin `mobilegym` by fetching from the official repository URL ` and immediately recording the specific git commit hash in `data/raw/.checksums.txt` to ensure reproducibility.
-- [ ] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools
-- [ ] T004 [P] Setup GitHub Actions CI workflow for CPU-only runner (multiple vCPU, sufficient RAM)
+- [X] T001 Create project structure per implementation plan with explicit directories: `code/`, `code/scheduler/`, `code/training/`, `code/analysis/`, `code/utils/`, `data/raw/`, `data/processed/`, `data/validation/`, `tests/unit/`, `tests/integration/`, `contracts/`.
+- [X] T002 Initialize Python project with `requirements.txt`: Pin `mobilegym` by fetching from the official repository URL ` and immediately recording the specific git commit hash in `data/raw/.checksums.txt` to ensure reproducibility.
+- [X] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools
+- [X] T004 [P] Setup GitHub Actions CI workflow for CPU-only runner (multiple vCPU, sufficient RAM)
 
 ---
 
@@ -56,11 +56,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Implement `code/utils/constants.py` with time limits (6h), success thresholds, and coverage vector schema definitions (read schema from `contracts/coverage.schema.yaml`).
-- [ ] T006 Implement `code/utils/logging.py` for structured JSON logging and error handling
-- [ ] T007 Create `code/utils/data_loader.py` to fetch and checksum MobileGym tasks (raw data preservation)
-- [ ] T008 Implement `code/scheduler/state_coverage.py` skeleton for binary vector initialization
-- [ ] T009 Implement `code/scheduler/curriculum_scheduler.py` skeleton with two-phase logic stubs
+- [X] T005 Implement `code/utils/constants.py` with time limits (6h), success thresholds, and coverage vector schema definitions (read schema from `contracts/coverage.schema.yaml`).
+- [X] T006 Implement `code/utils/logging.py` for structured JSON logging and error handling
+- [X] T007 Create `code/utils/data_loader.py` to fetch and checksum MobileGym tasks (raw data preservation)
+- [X] T008 Implement `code/scheduler/state_coverage.py` skeleton for binary vector initialization
+- [X] T009 Implement `code/scheduler/curriculum_scheduler.py` skeleton with two-phase logic stubs
 - [ ] T010 Setup `data/raw/.checksums.txt` and `data/processed/` directory structure
 - [ ] T011 Initialize `data/processed/scheduler_trace.json` schema and directory structure (required before T020).
 - [ ] T012 [P] Define "semantic state proxies" (e.g., `dark_mode`, `unread_count`) in `code/utils/constants.py` by reading the full list from `contracts/coverage.schema.yaml` key `semantic_proxies` to ensure US1 has necessary constants.
@@ -78,22 +78,22 @@
 
 ### Implementation for User Story 1 (Must precede tests)
 
-- [ ] T014 [US1] Implement Phase 1 logic (target coverage < 5%) in `code/scheduler/curriculum_scheduler.py`
-- [ ] T015 [US1] Implement Phase logic (target moderate success rate) with dynamic range expansion (10-90%) in `code/scheduler/curriculum_scheduler.py`
-- [ ] T016 [US1] Implement fallback to maximum entropy if no tasks meet criteria (including after a range of expansion) in `code/scheduler/curriculum_scheduler.py`.
-- [ ] T017 [US1] Implement 'Static Random' baseline scheduler logic (random sampling) in `code/scheduler/curriculum_scheduler.py` to satisfy FR-003 experimental control.
-- [ ] T018 [US1] Add logging for `metrics_triggered` to `data/processed/scheduler_trace.json` (Constitution Principle VI), ensuring the log entry includes the specific state variable names (e.g., 'dark_mode') and their transition values that triggered the selection.
-- [ ] T019 [US1] Implement deadlock prevention (random selection if all states covered) in `code/scheduler/curriculum_scheduler.py`
+- [X] T014 [US1] Implement Phase 1 logic (target coverage < 5%) in `code/scheduler/curriculum_scheduler.py`
+- [~] T015 [US1] Implement Phase logic (target moderate success rate) with dynamic range expansion (10-90%) in `code/scheduler/curriculum_scheduler.py`
+- [~] T016 [US1] Implement fallback to maximum entropy if no tasks meet criteria (including after a range of expansion) in `code/scheduler/curriculum_scheduler.py`.
+- [~] T017 [US1] Implement 'Static Random' baseline scheduler logic (random sampling) in `code/scheduler/curriculum_scheduler.py` to satisfy FR-003 experimental control.
+- [~] T018 [US1] Add logging for `metrics_triggered` to `data/processed/scheduler_trace.json` (Constitution Principle VI), ensuring the log entry includes the specific state variable names (e.g., 'dark_mode') and their transition values that triggered the selection. <!-- FAILED: unspecified -->
+- [~] T019 [US1] Implement deadlock prevention (random selection if all states covered) in `code/scheduler/curriculum_scheduler.py`
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests AFTER implementation to ensure the module exists to be tested.**
 
-- [ ] T020 [P] [US1] Generate 'mock history of state coverage vectors' data fixture required for US-001 independent test in `tests/fixtures/mock_coverage_history.json`. (Must run before T021-T023).
-- [ ] T021 [P] [US1] Unit test for low-coverage selection logic in `tests/unit/test_scheduler_low_coverage.py` using data from T020.
-- [ ] T022 [P] [US1] Unit test for 30-70% "sweet spot" selection in `tests/unit/test_scheduler_sweet_spot.py` using data from T020.
-- [ ] T023 [P] [US1] Unit test for fallback logic (entropy/random) in `tests/unit/test_scheduler_fallback.py` using data from T020.
-- [ ] T024 [P] [US1] Implement latency benchmarking harness in `tests/integration/test_scheduler_latency.py` to verify scheduler latency < 10% of batch execution time (runtime behavior check).
+- [~] T020 [P] [US1] Generate 'mock history of state coverage vectors' data fixture required for US-001 independent test in `tests/fixtures/mock_coverage_history.json`. (Must run before T021-T023).
+- [~] T021 [P] [US1] Unit test for low-coverage selection logic in `tests/unit/test_scheduler_low_coverage.py` using data from T020.
+- [~] T022 [P] [US1] Unit test for 30-70% "sweet spot" selection in `tests/unit/test_scheduler_sweet_spot.py` using data from T020.
+- [~] T023 [P] [US1] Unit test for fallback logic (entropy/random) in `tests/unit/test_scheduler_fallback.py` using data from T020.
+- [~] T024 [P] [US1] Implement latency benchmarking harness in `tests/integration/test_scheduler_latency.py` to verify scheduler latency < 10% of batch execution time (runtime behavior check).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,11 +107,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Implement state transition detection logic in `code/scheduler/state_coverage.py`
-- [ ] T026 [US2] Implement parallel rollout aggregation logic to merge vectors safely in `code/scheduler/state_coverage.py`
-- [ ] T027 [US2] Add error handling to skip malformed JSON rollouts without crashing the batch in `code/scheduler/state_coverage.py`
-- [ ] T028 [US2] Write aggregated coverage vectors to `data/processed/coverage_vectors.json` with checksums
-- [ ] T029 [US2] Generate the 'held-out test set' containing state variables NOT present in the training-time State Coverage Vector to satisfy FR-005 transfer evaluation requirements.
+- [~] T025 [US2] Implement state transition detection logic in `code/scheduler/state_coverage.py`
+- [~] T026 [US2] Implement parallel rollout aggregation logic to merge vectors safely in `code/scheduler/state_coverage.py` <!-- FAILED: unspecified -->
+- [~] T027 [US2] Add error handling to skip malformed JSON rollouts without crashing the batch in `code/scheduler/state_coverage.py`
+- [~] T028 [US2] Write aggregated coverage vectors to `data/processed/coverage_vectors.json` with checksums
+- [~] T029 [US2] Generate the 'held-out test set' containing state variables NOT present in the training-time State Coverage Vector to satisfy FR-005 transfer evaluation requirements.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 

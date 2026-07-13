@@ -1,0 +1,17 @@
+# Coverage Schema Definition for MobileGym State-Guided Curriculum
+# This file defines the binary State Coverage Vector structure.
+
+dimensions: 5
+semantic_proxies:
+  - dark_mode
+  - unread_count
+  - location_permission
+  - night_mode
+  - high_battery_usage
+
+description: >
+  This schema defines the semantic proxies used to construct the State Coverage Vector.
+  Each proxy represents a binary state (0 or 1) that is tracked across rollouts.
+  The vector length must match the number of semantic proxies.
+
+version: "1.0"
