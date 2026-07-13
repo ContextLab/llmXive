@@ -1,0 +1,49 @@
+# Data artifacts (large files, generated outputs)
+data/
+
+# Python cache and bytecode
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# Logs
+*.log
+data/logs/
+
+# IDE and OS specific
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Testing coverage
+htmlcov/
+.coverage
+.pytest_cache/
+.mypy_cache/

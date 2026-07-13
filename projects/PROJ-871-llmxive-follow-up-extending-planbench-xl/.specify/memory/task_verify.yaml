@@ -1,0 +1,8 @@
+? 'T002 [P] Initialize Python virtual environment and install dependencies from `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt`
+  <!-- FAILED: unspecified -->'
+: 1
+? T003 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/`
+: 1
+? T007 [P] Setup data directory structure (`data/raw`, `data/derived`, `data/logs`,
+  `data/results`) and `.gitignore` for large artifacts
+: 1

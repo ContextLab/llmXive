@@ -1,0 +1,148 @@
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: 'dependencies pinned to specific versions: datasets 2.14.0, transformers
+    4.35.0, torch 2.1.0, scikit-learn 1.3.0, pandas 2.1.0, pytest 7.4.0, requests
+    2.31.0'
+  claim_id: c_08dd76ad
+  context: Create projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt
+    with pinned versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.14.0, transformers==4.35.0, torch==2.1.0, scikit-learn==1.3.0,
+    pandas==2.1.0, pytest==7.4.0, requests==2.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T09:32:19Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: baseline agent uses Llama-3-8B-Quantized model with max_tokens 512 and
+    temperature 0.7
+  claim_id: c_246f94cb
+  context: Implement baseline agent in code/agents/baseline.py using internal LLM
+    reasoning only
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Model: Llama-3-8B-Quantized (4-bit if available on CPU, else 8-bit),
+    Params: max_tokens=512, temperature=0.7'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T09:32:37Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: augmented agent recovery triggers on 100% exact string match or regex
+    pattern
+  claim_id: c_f09fc308
+  context: Implement augmented agent with string-matching check against failure_signatures.json
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'threshold: 100% match required to trigger recovery'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T09:32:37Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: statistical analysis uses Fisher's Exact test for sample sizes under
+    30 and two-proportion z-test otherwise
+  claim_id: c_5811fded
+  context: Implement statistical analysis module with conditional logic for test selection
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If n < 30, use scipy.stats.fisher_exact; otherwise, use scipy.stats.proportions_ztest
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T09:32:37Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: LLM execution must fit within 7GB RAM and complete within 6 hours
+  claim_id: c_ca70e441
+  context: Ensure the LLM used for agents is CPU-tractable to fit within 7GB RAM and
+    6-hour runtime
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fit within 7GB RAM and 6-hour runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T09:32:55Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: quickstart.md validation requires end-to-end reproducibility within 6
+    hours
+  claim_id: c_8be1927f
+  context: Run quickstart.md validation to ensure end-to-end reproducibility within
+    6 hours
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify end-to-end reproducibility within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T09:33:19Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: 'requirements.txt pinned versions: datasets 2.14.0, transformers 4.35.0,
+    torch 2.1.0, scikit-learn 1.3.0, pandas 2.1.0, pytest 7.4.0, requests 2.31.0'
+  claim_id: c_ea1de84c
+  context: 'Phase 1: Setup (Shared Infrastructure) - T001b Create root project directory
+    and requirements.txt with pinned versions.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'T001b Create projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt
+    with pinned versions: datasets==2.14.0, transformers==4.35.0, torch==2.1.0, scikit-learn==1.3.0,
+    pandas==2.1.0, pytest==7.4.0, requests==2.31.0'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T09:34:49Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: 'Synthetic failure injection uses random seed 42 and appends ''ERROR:
+    silent_tool_failure'' to tool outputs'
+  claim_id: c_6d10cc55
+  context: 'Phase 2: Foundational - Synthetic Data Preparation - T009a Implement synthetic
+    failure injection.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T009a [P] Implement synthetic failure injection in projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/injector.py:
+    Load raw data, select a subset of tasks with ''success'' ground truth (using random
+    seed 42, targeting a significant proportion of success tasks), inject deterministic
+    error patterns (append ''ERROR: silent_tool_failure'' to tool outputs) ONLY (do
+    NOT modify the ground_truth field), and save to data/derived/implicit_failure_subset.jsonl.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T09:35:22Z'
