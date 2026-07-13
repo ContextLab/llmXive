@@ -1,0 +1,8 @@
+T001 [P] Create directory `data/raw/` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`: 1
+T002 [P] Create directory `data/processed/` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`: 1
+T003 [P] Create directory `output/plots/` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`: 1
+T004 [P] Create directory `code/` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`: 1
+T005 [P] Create directory `code/utils/` in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`: 1
+? T006 [P] Create directory `tests/unit/`, `tests/integration/`, `tests/contract/`
+  in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`
+: 1

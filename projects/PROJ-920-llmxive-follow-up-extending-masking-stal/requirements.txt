@@ -1,0 +1,8 @@
+# Existing dependencies
+numpy
+scipy
+statsmodels
+matplotlib
+pandas
+scikit-learn
+# Ensure mpl_toolkits is available (part of matplotlib)
