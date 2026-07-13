@@ -897,14 +897,3 @@
   verification_status: unreachable
   verified_against_url: https://katlas.org`
   verified_at: '2026-06-30T17:05:39.658752Z'
-- artifact_hash: 51f67afe33d622bdbc591f959097eeaa2314cfd198e275168461b1e145921cfa
-  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Knot theory - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Knot_theory
-  verification_status: verified
-  verified_against_url: https://en.wikipedia.org/wiki/Knot_theory
-  verified_at: '2026-06-30T04:49:01.081480Z'
