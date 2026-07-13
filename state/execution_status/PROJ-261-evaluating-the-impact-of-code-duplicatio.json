@@ -1,13 +1,16 @@
 {
   "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
   "ok": false,
-  "reason": "2 command(s) failed: python code/main.py (rc=1); python code/quickstart_validation.py (rc=1); 2 declared deliverable(s) absent: data/analysis/correlation_results.csv; data/processed/clone_metrics.csv",
-  "artifacts": [],
+  "reason": "3 command(s) failed: python code/main.py (rc=1); python code/bug_detection.py (rc=1); python code/quickstart_validation.py (rc=1); 1 declared deliverable(s) absent: data/processed/clone_metrics.csv",
+  "artifacts": [
+    "data/analysis/correlation_results.csv"
+  ],
   "failures": [
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/main.py\", line 15, in <module>\n    from .ast_cloner import compute_clone_density_batch\nImportError: attempted relative import with no known parent package",
+    "python code/main.py -> rc=1\n    dataset = load_dataset(\n              ^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/datasets/load.py\", line 1698, in load_dataset\n    builder_instance = load_dataset_builder(\n                       ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/datasets/load.py\", line 1325, in load_dataset_builder\n    dataset_module = dataset_module_factory(",
+    "python code/bug_detection.py -> rc=1\n    2026-07-13 20:19:53 - bug_detection - INFO - Loading HumanEval dataset (first 50 problems)\u2026\n2026-07-13 20:19:53 - bug_detection - ERROR - Failed to load HumanEval dataset: Invalid HF URI 'hf://datasets/openai_humaneval@7dce6050a7d6d172f3cc5c32aa97f52fa1a2e544/.huggingface.yaml'. Repository id must be 'namespace/name', got 'openai_humaneval'.\n\nWarning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.",
     "python code/quickstart_validation.py -> rc=1\n    ERROR:__main__:Missing required output files: [PosixPath('data/processed/clone_metrics.csv'), PosixPath('data/processed/perplexity_scores.csv')]"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "model_tier": 1,
-  "updated_at": "2026-07-13T18:50:42Z"
+  "updated_at": "2026-07-13T20:19:59Z"
 }

@@ -1,175 +1,202 @@
-"""
-ast_cloner.py
----------------
-Provides utilities for parsing Python source files with the ``ast`` module,
-detecting simple Type‑1 (exact) and Type‑2 (renamed identifiers) clones, and
-computing a *clone density* metric.
-
-The public function ``compute_clone_density_batch`` is deliberately tolerant
-to a variety of call signatures (no arguments, positional ``input_path``,
-keyword ``input_path=…``) to satisfy the contract required by many callers.
-"""
-
 from __future__ import annotations
 
 import ast
 import csv
+import hashlib
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable, List, Tuple
+from typing import Optional, Union
 
+from parse_failure_logger import init_logger, log_parse_failure
+
+# ----------------------------------------------------------------------
+# Logger setup
+# ----------------------------------------------------------------------
 logger = logging.getLogger(__name__)
+if not logger.handlers:
+    init_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Helper utilities
 # ----------------------------------------------------------------------
-def _read_raw_csv(csv_path: Path) -> List[Tuple[str, str]]:
-    """
-    Reads ``data/raw/github-code-sample.csv`` which is expected to have two
-    columns: ``file_path`` and ``code``. Returns a list of tuples.
-    """
-    rows = []
-    with csv_path.open(newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            rows.append((row["file_path"], row["code"]))
-    return rows
+def _ensure_processed_dir() -> Path:
+    """Make sure the processed data directory exists and return its Path."""
+    processed_dir = Path("data/processed")
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    return processed_dir
 
-def parse_python_file(source: str) -> ast.AST | None:
+def _hash_source(source: str) -> str:
+    """Return a deterministic SHA‑256 hash for the given source string."""
+    return hashlib.sha256(source.encode("utf-8")).hexdigest()
+
+class _NormalizeNamesTransformer(ast.NodeTransformer):
     """
-    Parse a Python source string into an ``ast.AST``. Returns ``None`` if the
-    source cannot be parsed (syntax error). The caller is expected to log
-    parse failures via ``parse_failure_logger`` if desired.
+    Normalise identifier names in an AST so that structurally identical
+    code with different variable / argument names hashes to the same value.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._counter = 0
+        self._name_map: dict[str, str] = {}
+
+    def _generic_name(self) -> str:
+        """Generate a placeholder name like ``_var0``."""
+        name = f"_var{self._counter}"
+        self._counter += 1
+        return name
+
+    def _map_name(self, original: str) -> str:
+        """Map an original identifier to a deterministic placeholder."""
+        if original not in self._name_map:
+            self._name_map[original] = self._generic_name()
+        return self._name_map[original]
+
+    # Replace variable and attribute names
+    def visit_Name(self, node: ast.Name) -> ast.AST:  # type: ignore[override]
+        node.id = self._map_name(node.id)
+        return node
+
+    # Replace function argument names
+    def visit_arg(self, node: ast.arg) -> ast.AST:  # type: ignore[override]
+        node.arg = self._map_name(node.arg)
+        return node
+
+    # Replace attribute accesses (e.g., ``obj.attr``) – we keep the attribute
+    # name but normalise the base object name.
+    def visit_Attribute(self, node: ast.Attribute) -> ast.AST:  # type: ignore[override]
+        self.generic_visit(node)
+        if isinstance(node.value, ast.Name):
+            node.value.id = self._map_name(node.value.id)  # type: ignore[attr-defined]
+        return node
+
+def _normalized_ast_hash(source: str) -> str:
+    """
+    Parse *source* into an AST, normalise identifier names, and return a
+    deterministic hash of the normalised tree.  This hash is used to detect
+    Type‑2 (parameterised) clones.
     """
     try:
-        return ast.parse(source)
+        tree = ast.parse(source)
     except SyntaxError:
-        logger.debug("Syntax error while parsing source")
-        return None
-
-def _canonicalize_ast(node: ast.AST) -> str:
-    """
-    Produce a simple string representation of an AST node that is
-    *insensitive* to identifier names – this is used for Type‑2 clone
-    detection. The implementation walks the tree and replaces ``Name`` and
-    ``arg`` identifiers with a placeholder token.
-    """
-    class NameReplacer(ast.NodeTransformer):
-        def visit_Name(self, n: ast.Name) -> ast.AST:  # noqa: N802
-            return ast.copy_location(ast.Name(id="_VAR_", ctx=n.ctx), n)
-
-        def visit_arg(self, n: ast.arg) -> ast.AST:  # noqa: N802
-            return ast.copy_location(ast.arg(arg="_ARG_", annotation=n.annotation), n)
-
-    stripped = NameReplacer().visit(node)
-    ast.fix_missing_locations(stripped)
-    return ast.dump(stripped, annotate_fields=False, include_attributes=False)
-
-def _detect_clones(
-    ast_trees: List[Tuple[str, ast.AST]]
-) -> Tuple[int, int]:
-    """
-    Very lightweight clone detector:
-
-    * Type‑1 clones – identical AST dumps.
-    * Type‑2 clones – identical after identifier canonicalisation.
-
-    Returns a tuple ``(type1_count, type2_count)`` where each count is the
-    number of *pairs* of files that are clones of the respective type.
-    """
-    type1_counter = defaultdict(list)
-    type2_counter = defaultdict(list)
-
-    for path, tree in ast_trees:
-        dump = ast.dump(tree, annotate_fields=False, include_attributes=False)
-        type1_counter[dump].append(path)
-
-        canon = _canonicalize_ast(tree)
-        type2_counter[canon].append(path)
-
-    def _pair_count(groups: dict) -> int:
-        total = 0
-        for items in groups.values():
-            n = len(items)
-            if n > 1:
-                total += n * (n - 1) // 2
-        return total
-
-    return _pair_count(type1_counter), _pair_count(type2_counter)
+        # Should never be called on syntactically invalid code – callers guard.
+        return ""
+    transformer = _NormalizeNamesTransformer()
+    normalised_tree = transformer.visit(tree)
+    ast.fix_missing_locations(normalised_tree)
+    dump = ast.dump(normalised_tree, annotate_fields=False, include_attributes=False)
+    return _hash_source(dump)
 
 # ----------------------------------------------------------------------
-# Public API
+# Core implementation
 # ----------------------------------------------------------------------
-def compute_clone_density_batch(*args, **kwargs) -> None:
+def compute_clone_density_batch(
+    input_path: Optional[Union[str, Path]] = None,
+) -> None:
     """
-    Compute clone density for the dataset and write ``clone_metrics.csv``.
+    Compute clone‑density metrics for a batch of Python files.
 
-    The function is deliberately permissive in its signature to satisfy
-    all callers:
+    The function is deliberately tolerant to the various call signatures
+    required by the project (positional argument, keyword argument,
+    default call, etc.).
 
-    * ``compute_clone_density_batch()`` – uses the default
-      ``data/raw/github-code-sample.csv``.
-    * ``compute_clone_density_batch(input_path)`` – positional argument.
-    * ``compute_clone_density_batch(input_path=path)`` – keyword argument.
-
-    The output CSV has the columns:
-
-    ``file_path,clone_density,type1_clones,type2_clones``
+    Output CSV (``data/processed/clone_metrics.csv``) contains three columns:
+    ``file_path``, ``clone_density`` (0.0 for first occurrence, 1.0 for a
+    duplicate), and ``clone_type`` (``type1``, ``type2`` or ``unique``).
     """
-    # Resolve the input path from the flexible signature
-    if args:
-        input_path = Path(args[0])
-    else:
-        input_path = Path(kwargs.get("input_path", "data/raw/github-code-sample.csv"))
+    # Resolve the input directory
+    src_dir = Path(input_path) if input_path is not None else Path("data/raw")
 
-    logger.info("Computing clone density from %s", input_path)
+    if not src_dir.is_dir():
+        logger.error("Input path %s does not exist or is not a directory.", src_dir)
+        return
 
-    if not input_path.is_file():
-        raise FileNotFoundError(f"Input CSV not found: {input_path}")
+    # ------------------------------------------------------------------
+    # First pass – exact (type‑1) clones
+    # ------------------------------------------------------------------
+    exact_hash_to_paths: defaultdict[str, list[Path]] = defaultdict(list)
+    file_to_source: dict[Path, str] = {}
 
-    rows = _read_raw_csv(input_path)
+    for py_file in src_dir.rglob("*.py"):
+        try:
+            source = py_file.read_text(encoding="utf-8")
+            ast.parse(source, filename=str(py_file))
+        except (SyntaxError, UnicodeDecodeError) as exc:
+            logger.warning("Syntax error in %s: %s", py_file, exc)
+            log_parse_failure(str(py_file), str(exc))
+            continue
+        except Exception as exc:  # pragma: no cover – safety net
+            logger.exception("Unexpected error while parsing %s", py_file)
+            log_parse_failure(str(py_file), str(exc))
+            continue
 
-    # Parse each source file; keep track of failures for downstream logging
-    parsed: List[Tuple[str, ast.AST]] = []
-    total_lines = 0
-    for file_path, code in rows:
-        tree = parse_python_file(code)
-        if tree is not None:
-            parsed.append((file_path, tree))
-            total_lines += len(code.splitlines())
-        else:
-            logger.debug("Skipping file with parse error: %s", file_path)
+        file_hash = _hash_source(source)
+        exact_hash_to_paths[file_hash].append(py_file)
+        file_to_source[py_file] = source
 
-    type1_pairs, type2_pairs = _detect_clones(parsed)
+    # ------------------------------------------------------------------
+    # Second pass – parameterised (type‑2) clones for files that are not
+    # exact duplicates.
+    # ------------------------------------------------------------------
+    type2_hash_to_paths: defaultdict[str, list[Path]] = defaultdict(list)
 
-    # Clone density = (number of clone pairs * 2) / total lines
-    # (each pair touches two files). Guard against division by zero.
-    clone_density = (
-        (type1_pairs + type2_pairs) * 2 / total_lines if total_lines > 0 else 0.0
-    )
+    for py_file, source in file_to_source.items():
+        # Skip files already part of a type‑1 clone group with >1 member
+        # (they will be reported as type‑1).
+        exact_hash = _hash_source(source)
+        if len(exact_hash_to_paths[exact_hash]) > 1:
+            continue
 
-    output_path = Path("data/processed/clone_metrics.csv")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+        norm_hash = _normalized_ast_hash(source)
+        if norm_hash:
+            type2_hash_to_paths[norm_hash].append(py_file)
 
-    with output_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=["file_path", "clone_density", "type1_clones", "type2_clones"],
-        )
+    # ------------------------------------------------------------------
+    # Write results
+    # ------------------------------------------------------------------
+    processed_dir = _ensure_processed_dir()
+    csv_path = processed_dir / "clone_metrics.csv"
+    with csv_path.open("w", newline="", encoding="utf-8") as csvfile:
+        fieldnames = ["file_path", "clone_density", "clone_type"]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        for file_path, _ in parsed:
-            writer.writerow(
-                {
-                    "file_path": file_path,
-                    "clone_density": f"{clone_density:.6f}",
-                    "type1_clones": type1_pairs,
-                    "type2_clones": type2_pairs,
-                }
-            )
 
-    logger.info(
-        "Clone density computation finished – %d files processed, output written to %s",
-        len(parsed),
-        output_path,
-    )
+        # Helper to write a group of paths with a given type
+        def _write_group(paths: list[Path], clone_type: str) -> None:
+            for idx, file_path in enumerate(paths):
+                density = 1.0 if idx > 0 else 0.0
+                writer.writerow(
+                    {
+                        "file_path": str(file_path),
+                        "clone_density": f"{density:.6f}",
+                        "clone_type": clone_type,
+                    }
+                )
+
+        # Write Type‑1 groups
+        for paths in exact_hash_to_paths.values():
+            if len(paths) == 1:
+                _write_group(paths, "unique")
+            else:
+                _write_group(paths, "type1")
+
+        # Write Type‑2 groups (exclude files already written)
+        written: set[Path] = {Path(row["file_path"]) for row in []}  # placeholder
+        for paths in type2_hash_to_paths.values():
+            # Keep only files that were not part of a Type‑1 duplicate group
+            unique_paths = [p for p in paths if len(exact_hash_to_paths[_hash_source(file_to_source[p])]) == 1]
+            if len(unique_paths) == 1:
+                _write_group(unique_paths, "unique")
+            else:
+                _write_group(unique_paths, "type2")
+
+    logger.info("Clone density CSV written to %s", csv_path)
+
+# ----------------------------------------------------------------------
+# Script entry‑point – allows ``python code/ast_cloner.py`` to be used
+# directly in the quick‑start run‑book.
+# ----------------------------------------------------------------------
+if __name__ == "__main__":
+    # When invoked without arguments we use the default ``data/raw`` directory.
+    compute_clone_density_batch()

@@ -1,9 +1,15 @@
-datasets>=2.0.0
+# Core dependencies
 transformers>=4.35.0
 bitsandbytes>=0.43.0
-scipy>=1.11.0
-pandas>=2.1.0
-torch>=2.0.0
-psutil>=5.9.0
-pytest>=7.0.0
+torch>=2.1.0
+datasets>=2.18.0
+pandas>=2.2.0
 matplotlib>=3.8.0
+scipy>=1.12.0
+# Testing
+pytest>=7.4.0
+# Misc utilities
+tqdm>=4.66.0
+# The project already includes other dependencies listed in earlier phases.  This
+# file adds the packages required for model loading, 8‑bit quantisation, and the
+# unit tests that exercise the edge‑case handling implemented above.

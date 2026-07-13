@@ -1,65 +1,159 @@
 """
-data_loader.py
-----------------
-Downloads a *sample* of the ``codeparrot/github-code`` dataset using the
-HuggingFace ``datasets`` library in streaming mode. The function is tolerant
-to a missing ``sample_size`` argument – callers may invoke it with no
-arguments, with a positional ``sample_size`` or with a keyword argument.
+Data Loader utilities for the project.
+
+This module provides a robust ``download_and_save_sample`` function that
+streams a subset of the ``codeparrot/github-code`` dataset from the Hugging
+Face Hub, writes the selected rows to a CSV file, and includes retry logic
+to handle rate‑limiting (HTTP 429) and transient network interruptions.
+
+The function is deliberately flexible – it accepts positional arguments,
+keyword arguments, and defaults so that all existing call‑sites in the
+code‑base remain compatible.
 """
 
 from __future__ import annotations
 
 import csv
 import logging
+import time
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from datasets import load_dataset
+from requests.exceptions import HTTPError, ConnectionError
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_SAMPLE_SIZE = 10  # small enough for CI while still realistic
+DEFAULT_SAMPLE_SIZE = 10
+DEFAULT_OUTPUT_PATH = Path("data/raw/github-code-sample.csv")
+MAX_RETRIES = 3
+BACKOFF_FACTOR = 2  # exponential back‑off multiplier
 
-def download_and_save_sample(*args, **kwargs) -> None:
+
+def _stream_dataset() -> Any:
     """
-    Download a subset of the ``codeparrot/github-code`` dataset and write it
-    to ``data/raw/github-code-sample.csv``. The function accepts the
-    following call signatures:
+    Return a streaming iterator over the ``codeparrot/github-code`` dataset.
 
-    * ``download_and_save_sample()`` – uses the default sample size.
-    * ``download_and_save_sample(sample_size)`` – positional integer.
-    * ``download_and_save_sample(sample_size=…)`` – keyword integer.
-
-    The CSV contains two columns: ``file_path`` and ``code``.
+    The ``load_dataset`` call uses ``streaming=True`` so that only the
+    requested number of rows are materialised in memory.
     """
-    # Resolve sample size from flexible signature
-    if args:
-        sample_size = int(args[0])
-    else:
-        sample_size = int(kwargs.get("sample_size", DEFAULT_SAMPLE_SIZE))
-
-    logger.info("Downloading %d rows from codeparrot/github-code", sample_size)
-
-    # Streaming download – we only need a tiny slice.
-    dataset = load_dataset(
+    # ``codeparrot/github-code`` is a public dataset; we request the
+    # ``train`` split which contains the source files.
+    return load_dataset(
         "codeparrot/github-code",
         split="train",
         streaming=True,
     )
 
-    output_path = Path("data/raw/github-code-sample.csv")
+
+def _write_rows_to_csv(
+    rows: list[dict[str, Any]],
+    output_path: Path = DEFAULT_OUTPUT_PATH,
+) -> None:
+    """
+    Write a list of dictionaries to ``output_path`` as a CSV file.
+
+    The CSV must contain the columns ``file_path`` and ``code`` as required
+    by downstream consumers and the integration test.
+    """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with output_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["file_path", "code"])
+    with output_path.open(mode="w", newline="", encoding="utf-8") as csvfile:
+        fieldnames = ["file_path", "code"]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        for i, item in enumerate(dataset):
-            if i >= sample_size:
-                break
-            # The dataset provides a ``content`` field with the raw source.
-            code = item.get("content", "")
-            # Generate a deterministic pseudo‑path for reproducibility.
-            file_path = f"sample_{i}.py"
-            writer.writerow({"file_path": file_path, "code": code})
+        for row in rows:
+            writer.writerow(
+                {
+                    "file_path": row.get("path", row.get("file_path", "")),
+                    "code": row.get("content", row.get("code", "")),
+                }
+            )
+    logger.info("Wrote %d rows to %s", len(rows), output_path)
 
-    logger.info("Sample saved to %s", output_path)
+
+def download_and_save_sample(
+    *args,
+    sample_size: Optional[int] = None,
+    output_path: Optional[Path] = None,
+    **kwargs,
+) -> Path:
+    """
+    Download a small sample of the GitHub code corpus and save it as CSV.
+
+    Parameters
+    ----------
+    sample_size : int, optional
+        Number of rows to download. If omitted the default
+        ``DEFAULT_SAMPLE_SIZE`` is used.
+    output_path : pathlib.Path, optional
+        Destination CSV file. Defaults to
+        ``data/raw/github-code-sample.csv``.
+    *args, **kwargs
+        Accepted for backward compatibility – they are ignored unless they
+        contain ``sample_size`` or ``output_path`` as positional arguments.
+
+    Returns
+    -------
+    pathlib.Path
+        Path to the written CSV file.
+
+    The function retries the download on HTTP 429 (rate‑limit) and generic
+    connection errors, using exponential back‑off.
+    """
+    # Resolve positional arguments for legacy callers.
+    # Historical signatures were:
+    #   download_and_save_sample()
+    #   download_and_save_sample(sample_size)
+    #   download_and_save_sample(sample_size, output_path)
+    if args:
+        # first positional argument may be sample_size
+        if sample_size is None:
+            sample_size = args[0]
+        if len(args) > 1 and output_path is None:
+            output_path = Path(args[1])
+
+    # Keyword arguments may also be supplied via **kwargs
+    sample_size = sample_size or kwargs.get("sample_size", DEFAULT_SAMPLE_SIZE)
+    output_path = (
+        Path(output_path)
+        if output_path
+        else Path(kwargs.get("output_path", DEFAULT_OUTPUT_PATH))
+    )
+
+    logger.info(
+        "Downloading %d rows from codeparrot/github-code to %s",
+        sample_size,
+        output_path,
+    )
+
+    attempt = 0
+    while attempt < MAX_RETRIES:
+        try:
+            dataset_iter = _stream_dataset()
+            rows: list[dict[str, Any]] = []
+            for idx, item in enumerate(dataset_iter):
+                if idx >= sample_size:
+                    break
+                rows.append(item)
+            if not rows:
+                raise RuntimeError("No rows were retrieved from the dataset.")
+            _write_rows_to_csv(rows, output_path)
+            return output_path
+        except (HTTPError, ConnectionError) as exc:
+            # Detect rate‑limit (HTTP 429) or generic connectivity issues.
+            if isinstance(exc, HTTPError) and exc.response.status_code != 429:
+                logger.error("Non‑rate‑limit HTTP error: %s", exc)
+                raise
+            attempt += 1
+            sleep_time = BACKOFF_FACTOR ** attempt
+            logger.warning(
+                "Download failed (attempt %d/%d). Retrying in %s seconds...",
+                attempt,
+                MAX_RETRIES,
+                sleep_time,
+            )
+            time.sleep(sleep_time)
+    # If we exit the loop, all retries failed.
+    raise RuntimeError(
+        f"Failed to download sample after {MAX_RETRIES} attempts."
+    )

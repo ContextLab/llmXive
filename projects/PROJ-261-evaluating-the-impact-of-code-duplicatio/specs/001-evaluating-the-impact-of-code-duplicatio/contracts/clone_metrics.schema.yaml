@@ -1,28 +1,21 @@
-# Schema for clone metrics per source file
-$schema: "http://json-schema.org/draft-07/schema#"
-title: CloneMetrics
-description: Metrics describing code clone density for a single source file.
 type: object
+description: Schema for clone metrics produced by the AST cloner.
 properties:
   file_path:
     type: string
-    description: Relative path to the source file within the dataset.
+    description: Relative path to the source file that was analyzed.
   clone_density:
     type: number
-    description: Ratio of cloned AST nodes to total AST nodes (0.0 – 1.0).
-  total_nodes:
+    description: Ratio of cloned lines to total lines in the file (0.0 – 1.0).
+  total_clones:
     type: integer
-    description: Total number of AST nodes examined.
-  clone_nodes:
+    description: Total number of clone instances detected in the file.
+  type1_clones:
     type: integer
-    description: Number of AST nodes that belong to clones.
-  timestamp:
-    type: string
-    format: date-time
-    description: When the metric was computed.
+    description: Number of Type‑1 (exact‑copy) clones.
+  type2_clones:
+    type: integer
+    description: Number of Type‑2 (parameterized) clones.
 required:
   - file_path
   - clone_density
-  - total_nodes
-  - clone_nodes
-additionalProperties: false

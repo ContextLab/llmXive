@@ -1,37 +1,34 @@
-# Quickstart Guide
+# Quickstart Run‑Book
 
-This document describes the commands required to run the full research pipeline
-from raw data acquisition to final analysis artefacts.
+This document lists the commands that must be executed in order to generate all
+research artefacts for the project.
 
-## Prerequisites
+```bash
+# 1️⃣ Download a small sample of the GitHub‑code corpus
+python code/data_loader.py
 
-* Python 3.11
-* All dependencies installed via ``pip install -r requirements.txt``
+# 2️⃣ Run the main US‑1 pipeline (clone density & perplexity)
+python code/main.py
 
-## Execution steps
+# 3️⃣ Run bug‑detection (US‑2) – already implemented in previous tasks
+python code/bug_detection.py
 
-1. **Download a sample of the GitHub‑code corpus**
- ```bash
- python code/data_loader.py
- ```
- (The script is also invoked automatically by the main pipeline.)
+# 4️⃣ Generate correlation results (US‑2)
+python code/generate_correlation_results.py
 
-2. **Run the complete pipeline** – this will generate the processed metrics
- and the correlation results required by the validation step.
- ```bash
- python code/main.py
- ```
+# 5️⃣ Produce visualisations (US‑3)
+python code/visualization/plotting.py
 
-3. **Validate the produced artefacts** – ensures that all expected files are
- present and non‑empty.
- ```bash
- python code/quickstart_validation.py
- ```
+# 6️⃣ Validate that all expected artefacts exist
+python code/quickstart_validation.py
+```
 
-After step 2 finishes, you should find the following files on disk:
+After the above commands complete without error, the following files should be present:
 
-* `data/processed/clone_metrics.csv`
-* `data/processed/perplexity_scores.csv`
-* `data/analysis/correlation_results.csv`
+- `data/processed/clone_metrics.csv`
+- `data/processed/perplexity_scores.csv`
+- `data/processed/bug_detection_results.csv`
+- `data/analysis/correlation_results.csv`
+- `data/analysis/figures/` (PNG/PDF plots)
 
-These artefacts are used by downstream tasks and the integration tests.
+The validation step will raise an error if any of these are missing.

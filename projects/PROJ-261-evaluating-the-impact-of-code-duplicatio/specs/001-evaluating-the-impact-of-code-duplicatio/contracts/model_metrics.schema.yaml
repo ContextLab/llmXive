@@ -1,24 +1,15 @@
-# Schema for model perplexity metrics per source file
-$schema: "http://json-schema.org/draft-07/schema#"
-title: ModelMetrics
-description: Per‑token perplexity scores produced by the language model.
 type: object
+description: Schema for model‑level metrics such as perplexity and semantic distance.
 properties:
   file_path:
     type: string
-    description: Relative path to the source file.
+    description: Relative path to the source file that was evaluated.
   perplexity:
     type: number
-    description: Per‑token perplexity (higher indicates lower likelihood).
-  token_count:
-    type: integer
-    description: Number of tokens evaluated.
-  timestamp:
-    type: string
-    format: date-time
-    description: When the perplexity was computed.
+    description: Token‑level perplexity score computed by the language model.
+  semantic_distance:
+    type: number
+    description: Embedding‑based semantic distance metric (e.g., cosine distance).
 required:
   - file_path
   - perplexity
-  - token_count
-additionalProperties: false

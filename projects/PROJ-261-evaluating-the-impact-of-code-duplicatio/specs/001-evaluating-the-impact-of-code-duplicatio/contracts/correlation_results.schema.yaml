@@ -1,28 +1,20 @@
-# Schema for correlation analysis results
-$schema: "http://json-schema.org/draft-07/schema#"
-title: CorrelationResults
-description: Results of statistical correlation between code‑duplication metrics and model performance.
 type: object
+description: Schema for correlation analysis results linking duplication and model metrics.
 properties:
-  metric_name:
+  metric_x:
     type: string
-    description: Name of the metric pair (e.g., "clone_vs_perplexity").
+    description: Name of the first metric (e.g., clone_density).
+  metric_y:
+    type: string
+    description: Name of the second metric (e.g., perplexity).
   spearman_coefficient:
     type: number
-    description: Spearman rank correlation coefficient (‑1 … 1).
+    description: Spearman rank correlation coefficient between the two metrics.
   p_value:
     type: number
-    description: Two‑tailed p‑value for the correlation.
-  sample_size:
-    type: integer
-    description: Number of observations used in the analysis.
-  timestamp:
-    type: string
-    format: date-time
-    description: When the analysis was performed.
+    description: Two‑tailed p‑value for the Spearman correlation.
 required:
-  - metric_name
+  - metric_x
+  - metric_y
   - spearman_coefficient
   - p_value
-  - sample_size
-additionalProperties: false

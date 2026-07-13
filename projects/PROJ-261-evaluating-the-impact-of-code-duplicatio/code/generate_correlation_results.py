@@ -1,28 +1,20 @@
-"""Convenience script to generate correlation results.
-
-The project’s quick‑start run‑book expects a script that, when executed,
-produces ``data/analysis/correlation_results.csv``.  This file simply
-forwards to the :pyfunc:`code.correlation_analysis.main` function.
-"""
-
 from __future__ import annotations
-
 import logging
 from pathlib import Path
 
-# Import the main entry point from the correlation_analysis module.
 from correlation_analysis import main as correlation_main
 
-def _ensure_output_dir() -> None:
-    """Make sure the output directory exists before the analysis runs."""
-    out_dir = Path("data/analysis")
-    out_dir.mkdir(parents=True, exist_ok=True)
+logger = logging.getLogger(__name__)
 
 def main() -> None:
-    """Run the correlation analysis and guarantee the output directory exists."""
-    logging.basicConfig(level=logging.INFO)
-    _ensure_output_dir()
+    """
+    Wrapper script invoked by the quickstart run‑book.  It simply forwards
+    to ``correlation_analysis.main`` which writes the required CSV file.
+    """
+    logger.info("Generating correlation results...")
     correlation_main()
+    logger.info("Correlation generation complete.")
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()
