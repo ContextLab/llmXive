@@ -1,139 +1,178 @@
 # Phenomenological AI: First-Person Experience Modeling - Quick Start
 
-This guide provides instructions for setting up the environment and running the automated science pipeline for modeling first-person experience in language models.
-
-## Prerequisites
-
-- Python 3.9+
-- pip (Python package manager)
-- Git
+This guide provides instructions for setting up the environment and running the pipeline.
 
 ## Environment Setup
 
-1. **Clone the repository** (if not already done):
+### Prerequisites
+
+- Python 3.9+
+- pip (package manager)
+- Access to a CPU-only environment (GPU is not required for the primary CI pipeline)
+
+### Installation
+
+1. Clone the repository and navigate to the project root:
  ```bash
  git clone <repository-url>
- cd projects/PROJ-592-phenomenological-ai-first-person-experie
+ cd PROJ-592-phenomenological-ai-first-person-experie
  ```
 
-2. **Create a virtual environment** (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
+2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
- *Note: Ensure you have sufficient disk space for model downloads (TinyLlama ~2GB).*
+ **Note**: The primary CI pipeline uses `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF` (4-bit quantized) via `llama-cpp-python`. This model is optimized for CPU execution.
 
-4. **Verify installation**:
+3. Verify the installation:
  ```bash
- python -c "import llama_cpp; print('llama-cpp-python installed')"
- python -c "import datasets; print('datasets installed')"
+ python -c "import llama_cpp; print(llama_cpp.__version__)"
  ```
 
-## Project Structure
+## CLI Usage
 
-- `code/`: Source code for generation, analysis, and validation
-- `data/raw/`: Generated phenomenological reports and control corpus
-- `data/processed/`: Computed metrics and statistical analysis results
-- `data/qualitative/`: Human rater inputs and outputs
-- `specs/`: Feature specifications and contracts
-- `tests/`: Unit and integration tests
+The main entry point for the pipeline is `code/main.py`. It supports several modes of operation via the `--task` argument.
 
-## Running the Pipeline
+### Available Tasks
 
-The main entry point is `code/main.py`. It supports three primary modes of operation corresponding to the user stories.
+- `generate`: Generate phenomenological reports using TinyLlama and four prompting strategies.
+- `generate_control`: Generate control samples from the arxiv_nlp dataset.
+- `analyze`: Compute consistency, stability, and marker metrics on generated reports.
+- `stats`: Perform statistical analysis (ANOVA/Kruskal-Wallis) on validity scores.
+- `validate_human`: Prepare data for human validation (requires `code/validation/rubric.md`).
+- `sensitivity-kappa`: Analyze robustness of conclusions across kappa thresholds.
+- `archive`: Package all artifacts for reproducibility.
+- `full`: Run the entire pipeline from generation to archiving.
 
-### Mode 1: Generation (User Story 1)
+### Basic Commands
 
-Generates the corpus of phenomenological reports using CPU-tractable models and four prompting strategies.
+#### 1. Generation Mode
+
+Generate the corpus of phenomenological reports:
 
 ```bash
 python code/main.py --task generate --config code/config.py
 ```
 
-**Output**: `data/raw/generation_output.jsonl` (and related files per strategy)
+This will:
+- Load 20 base prompts from `data/prompts/base_prompts.json`.
+- Apply 4 prompting strategies (Direct, Hypothetical, Comparative, Role-play).
+- Generate ~80 samples per strategy per prompt (totaling a substantial dataset).
+- Save outputs to `data/raw/`.
 
-**Options**:
-- `--task generate`: Run the full generation pipeline
-- `--task generate_control`: Run the control corpus generation
-- `--config`: Path to configuration file (default: `code/config.py`)
+#### 2. Control Corpus Mode
 
-### Mode 2: Analysis (User Story 2)
+Generate control samples for discriminant validity:
 
-Computes Internal Consistency, Semantic Stability, and Marker Presence metrics, then performs statistical analysis.
+```bash
+python code/main.py --task generate_control --config code/config.py
+```
+
+This will:
+- Load samples from `datasets.load_dataset("arxiv_nlp")`.
+- Save control samples to `data/raw/control_corpus.json`.
+
+#### 3. Analysis Mode
+
+Compute validity metrics (Consistency, Stability, Markers):
 
 ```bash
 python code/main.py --task analyze --config code/config.py
 ```
 
-**Output**: `data/processed/validity_scores.csv`, `data/processed/statistical_results.json`
+This will:
+- Load generated reports from `data/raw/`.
+- Compute metrics using `code/analysis/consistency.py`, `code/analysis/stability.py`, and `code/analysis/markers.py`.
+- Save results to `data/processed/validity_scores.csv`.
 
-**Options**:
-- `--task analyze`: Run the full analysis pipeline (metrics + stats)
-- `--task stats`: Run only the statistical analysis on existing scores
-- `--task sensitivity-kappa`: Run sensitivity analysis for Cohen's κ thresholds
+#### 4. Statistical Analysis Mode
 
-### Mode 3: Validation (User Story 3)
+Run statistical tests on validity scores:
 
-Facilitates human evaluation, computes inter-rater reliability, and archives artifacts.
+```bash
+python code/main.py --task stats --config code/config.py
+```
+
+This will:
+- Load `data/processed/validity_scores.csv`.
+- Perform Shapiro-Wilk and Levene tests.
+- Run ANOVA + FDR + Tukey (if assumptions hold) or Kruskal-Wallis (if violated).
+- Save statistical results to `data/processed/statistical_results.json`.
+
+#### 5. Human Validation Mode
+
+Prepare data for human rating:
 
 ```bash
 python code/main.py --task validate_human --config code/config.py
 ```
 
-**Output**: `data/qualitative/ratings.csv`, `data/qualitative/anonymized_ratings.csv`
+This will:
+- Load generated reports.
+- Apply the validation rubric from `code/validation/rubric.md`.
+- Save anonymized ratings to `data/qualitative/`.
 
-**Options**:
-- `--task validate_human`: Run the human rating pipeline
-- `--task select_validation_sample`: Select a stratified sample for human rating
+#### 6. Sensitivity Analysis (Kappa)
 
-### Full Pipeline
+Analyze robustness of conclusions:
 
-To run the entire pipeline end-to-end (Generation → Analysis → Validation):
+```bash
+python code/main.py --task sensitivity-kappa --config code/config.py
+```
+
+#### 7. Archiving
+
+Package all artifacts for reproducibility:
+
+```bash
+python code/main.py --task archive --config code/config.py
+```
+
+This will:
+- Collect prompts, seeds, scripts, and anonymized ratings.
+- Create a reproducible archive in `data/archive/`.
+
+#### 8. Full Pipeline
+
+Run the entire pipeline end-to-end:
 
 ```bash
 python code/main.py --task full_pipeline --config code/config.py
 ```
 
-**Expected Runtime**: ≤ 6 hours on free-tier CPU environments (as per T033).
+This executes: Generation → Control → Analysis → Stats → Validation → Archive.
+
+## Output Artifacts
+
+After a successful run, the following artifacts will be generated:
+
+- `data/raw/*.json`: Generated phenomenological reports and control samples.
+- `data/processed/validity_scores.csv`: Aggregated validity metrics (Consistency, Stability, Markers).
+- `data/processed/statistical_results.json`: Statistical test outputs (ANOVA, Kruskal-Wallis, etc.).
+- `data/qualitative/*.csv`: Anonymized human rating sheets.
+- `data/archive/*.tar.gz`: Reproducibility archive containing all artifacts.
 
 ## Troubleshooting
 
-- **CUDA Errors**: Ensure you are running in a CPU-only environment. The primary CI path uses `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF` which runs on CPU.
-- **Import Errors**: Verify that `requirements.txt` dependencies are installed and that `code/` is in your `PYTHONPATH`.
-- **Missing Data**: If output files are missing, check the logs in `logs/` for specific error messages during execution.
+### CUDA Errors
 
-## Testing
+If you encounter CUDA errors, ensure you are using the CPU-only version of `llama-cpp-python` and that no GPU drivers are interfering. The primary CI pipeline is designed to run on CPU only.
 
-Run unit tests to verify the implementation:
+### Missing Dependencies
 
-```bash
-python -m pytest tests/unit/ -v
-```
-
-Run integration tests:
+If you encounter import errors, verify that all dependencies in `requirements.txt` are installed:
 
 ```bash
-python -m pytest tests/integration/ -v
+pip install -r requirements.txt --upgrade
 ```
 
-## Configuration
+### Timeout Errors
 
-Edit `code/config.py` to adjust:
-- Model paths and IDs
-- Seed values for reproducibility
-- Phenomenological marker dictionaries (sensory, temporal, intentional)
-- Output paths and file names
+If generation tasks timeout, you can increase the timeout limit in `code/config.py` (look for `TIMEOUT_SECONDS`).
 
-## Reproducibility
+## Next Steps
 
-All generated artifacts, seeds, and configurations are archived for reproducibility. Run the archiver script to create a reproducible package:
-
-```bash
-python code/utils/archiver.py
-```
+- Review the `specs/` directory for detailed feature requirements.
+- Read `research.md` for the theoretical background.
+- Examine `data-model.md` for schema definitions.

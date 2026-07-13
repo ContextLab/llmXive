@@ -1487,22 +1487,6 @@
   updated_at: '2026-07-13T18:39:04Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: Target volume is 80 samples per prompt per strategy
-  claim_id: c_5e20455e
-  context: 'Target volume: approximately 80 samples per prompt per strategy, yielding
-    a substantial total dataset for analysis.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Target volume is approximately 80 samples per prompt per strategy.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T18:40:00Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
   canonical: Dataset size is 80 samples times 20 prompts times 4 strategies
   claim_id: c_f59e8776
   context: "verify data/raw/ contains \u226580 samples per strategy (totaling a substantial\
@@ -1988,23 +1972,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T19:01:17Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: 20 base prompts loaded from data/prompts/base_prompts.json
-  claim_id: c_62a65aae
-  context: Implement code/generation/prompt_engineering.py with the defined strategies
-    (Direct, Hypothetical, Comparative, Role-play) and 20 base prompts loaded from
-    data/prompts/base_prompts.json.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 20 base prompts loaded from data/prompts/base_prompts.json
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T19:01:46Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
   canonical: at least 80 control samples generated from arxiv_nlp dataset
@@ -2714,107 +2681,104 @@
   updated_at: '2026-07-13T20:12:45Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: 80 samples per prompt per strategy across 20 prompts and 4 strategies
-  claim_id: c_062c5c0c
-  context: "Independent Test: Execute `code/generation/runner.py` and verify `data/raw/`\
-    \ contains \u226580 samples per strategy (totaling a substantial set of samples:\
-    \ 80 samples \xD7 20 prompts \xD7 4 strategies) with valid JSON metadata."
+  canonical: CLI modes for generation, analysis, and validate
+  claim_id: c_71647120
+  context: 'Add CLI usage examples and environment setup instructions to quickstart.md.
+    Examples: Document python main.py --mode generation, python main.py --mode analysis,
+    python main.py --mode validate.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CLI_modes_for_generation,_analysis,_and_validate
+  kind: entity_fact
+  raw_text: Run `python main.py --mode generation`, `python main.py --mode analysis`,
+    `python main.py --mode validate`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:05:21Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Primary CI model is TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+  claim_id: c_956b5548
+  context: 'Implement code/config.py with: Seeds, paths, and model IDs (Primary: TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+    for CI; Optional: 7B models for local only).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "80 samples \xD7 20 prompts \xD7 4 strategies"
+  raw_text: TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:06:11Z'
+  updated_at: '2026-07-13T22:17:11Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: Target volume of approximately 80 samples per prompt per strategy
-  claim_id: c_da7fc62b
-  context: 'Target volume: approximately 80 samples per prompt per strategy, yielding
-    a substantial total dataset for analysis.'
+  canonical: NLI model for consistency analysis is cross-encoder/stsb-distilroberta-base
+  claim_id: c_d485d7ed
+  context: 'Implement code/analysis/consistency.py: Load NLI model cross-encoder/stsb-distilroberta-base
+    (CPU-safe), compute pairwise contradiction counts...'
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: approximately 80 samples per prompt per strategy
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NLI_model_for_consistency_analysis_is_cross-encoder/stsb-dis
+  kind: entity_fact
+  raw_text: cross-encoder/stsb-distilroberta-base
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:06:31Z'
+  updated_at: '2026-07-13T22:17:26Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: Generate at least 80 control samples
-  claim_id: c_44266177
-  context: "Create `code/generation/control_corpus.py` to generate \u226580 control\
-    \ samples using `datasets.load_dataset(\"arxiv_nlp\")`."
+  canonical: Baseline for stylistic comparison includes common_crawl dataset
+  claim_id: c_f16d7feb
+  context: Add a comparative analysis module that explicitly tests the 'phenomenological
+    style' hypothesis by comparing the generated reports against a baseline of 'ordinary
+    conversation' (e.g., from datasets.load_dataset('imdb') or common_crawl subset)...
   evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Generate_at_least_80_control_samples
-  kind: magnitude
-  raw_text: "\u226580 control samples"
-  resolved_value: null
-  resolver: resolve_superlative
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Sixty percent of the weighted pre-training dataset for GPT-3 comes from
+        a filtered version of Common Crawl consisting of 410 billion byte-pair-encoded
+        tokens. Fuzzy deduplication used Apache Spark's MinHashLSH. Other sources
+        are 19 billion tokens from WebText2 representing 22% of the weighted total,
+        12 billion tokens from Books1 representing 8%, 55 billion tokens from Books2
+        representing 8%, and 3 billion tokens from Wikipedia representing 3%. GPT-3
+        was trained on hundreds of billions of words and is also capable of coding
+        in CSS, JSX, and Python, among others.
+      source_id: GPT-3
+      url: https://en.wikipedia.org/wiki/GPT-3
+      value: 410 billion byte-pair-encoded tokens
+    filled: true
+  kind: entity_fact
+  raw_text: common_crawl
+  resolved_value: 410 billion byte-pair-encoded tokens
+  resolver: fill:wikipedia
   source_hash: null
   source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:06:54Z'
+  status: verified
+  updated_at: '2026-07-13T22:17:36Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: Sample size gap between CI and Research is 1024
-  claim_id: c_a6535f75
-  context: Implement `code/analysis/sensitivity_analysis.py` to test validity score
-    weights (FR-006) and address the sample size gap (CI vs Research 1024) by analyzing
-    robustness across sample subsets.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: sample size gap (CI vs Research 1024)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:07:35Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: Full pipeline execution time is 6 hours or less on free-tier
-  claim_id: c_42d479e5
-  context: "Run `quickstart.md` validation to ensure full pipeline execution \u2264\
-    6 hours on free-tier."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "full pipeline execution \u22646 hours on free-tier"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:07:35Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: Reference to Huawei Mate XT
-  claim_id: c_abc987f8
-  context: 'This script is for local execution only ({{claim:c_b8cf8299}} (Wikipedia:
+  canonical: Reference to Huawei Mate XT in local execution note
+  claim_id: c_b257746a
+  context: 'Note: This script is for local execution only ({{claim:c_b8cf8299}} (Wikipedia:
     Huawei Mate XT, https://en.wikipedia.org/wiki/Huawei_Mate_XT)) and satisfies the
-    "two checkpoints" requirement.'
+    ''two checkpoints'' requirement of FR-001/US-1.'
   evidence:
     fill:
       channel: wikidata
       conflicts:
       - channel: wikipedia
-        source_id: Huawei Mate
-        url: https://en.wikipedia.org/wiki/Huawei_Mate
-        value: world's first double-folding, or tri-fold, foldable smartphone
-      - channel: wikipedia
-        source_id: Huawei Mate XT
-        url: https://en.wikipedia.org/wiki/Huawei_Mate_XT
-        value: Huawei Mate XT
+        source_id: List of Huawei products
+        url: https://en.wikipedia.org/wiki/List_of_Huawei_products
+        value: Huawei Mate XT Ultimate Design (2024)
       quote: Huawei Mate XT Ultimate Design
       source_id: Q130272078
       url: https://www.wikidata.org/wiki/Q130272078
@@ -2827,324 +2791,309 @@
   source_hash: null
   source_type: external
   status: verified
-  updated_at: '2026-07-13T21:07:46Z'
+  updated_at: '2026-07-13T22:17:55Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Primary CI model is TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+  claim_id: c_7ca59ffe
+  context: 'T004 Implement code/config.py with: Seeds, paths, and model IDs (Primary:
+    TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF for CI; Optional: 7B models for local only).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF is the primary model for CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:21:24Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Control samples generated from arxiv_nlp dataset
+  claim_id: c_2944a385
+  context: "T011 Create code/generation/control_corpus.py to generate \u226580 control\
+    \ samples using datasets.load_dataset('arxiv_nlp') with filter='arxiv_nlp' and\
+    \ random sampling."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_samples_generated_from_arxiv_nlp_dataset
+  kind: entity_fact
+  raw_text: arxiv_nlp dataset is used for control samples
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:21:51Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: NLI model cross-encoder/stsb-distilroberta-base used for consistency
+    computation
+  claim_id: c_6a30d776
+  context: 'T014 Implement code/analysis/consistency.py: Load NLI model cross-encoder/stsb-distilroberta-base
+    (CPU-safe), compute pairwise contradiction counts...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NLI_model_cross-encoder/stsb-distilroberta-base_used_for_con
+  kind: entity_fact
+  raw_text: cross-encoder/stsb-distilroberta-base is the NLI model used for consistency
+    computation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:22:15Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: imdb dataset used as baseline for ordinary conversation
+  claim_id: c_9b37fdee
+  context: 'T035 ...comparing the generated reports against a baseline of ''ordinary
+    conversation'' (e.g., from datasets.load_dataset(''imdb'') or Wikipedia: GPT-3...)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Imdb_dataset_used_as_baseline_for_ordinary_conversation
+  kind: entity_fact
+  raw_text: imdb dataset is used as a baseline for ordinary conversation in stylistic
+    comparison
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:22:38Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: GPT-3 Wikipedia reference
+  claim_id: c_ebf42594
+  context: 'T035 ...baseline of ''ordinary conversation'' (e.g., from datasets.load_dataset(''imdb'')
+    or Wikipedia: GPT-3, https://en.wikipedia.org/wiki/GPT-3)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPT-3 is associated with Wikipedia
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:22:58Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR and Tukey HSD post-hoc tests implemented
+  claim_id: c_a9f81616
+  context: T017 Implement code/analysis/fdr_correction.py and code/analysis/tukey_hsd.py
+    for Benjamini-Hochberg FDR and Tukey HSD post-hoc tests (FR-005).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_and_Tukey_HSD_post-hoc_tests_implemen
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg FDR and Tukey HSD post-hoc tests are implemented
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:23:17Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk and Levene tests used for assumption checking
+  claim_id: c_1a7b5b6e
+  context: T018 Implement code/analysis/stats.py ... Run Shapiro-Wilk and Levene tests
+    (FR-012).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shapiro-Wilk_and_Levene_tests_used_for_assumption_checking
+  kind: entity_fact
+  raw_text: Shapiro-Wilk and Levene tests are used to check statistical assumptions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:23:44Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Experience Trace extracts top-k token attention heads
+  claim_id: c_9537a746
+  context: T034 Create a lightweight attention-mapping script that extracts and logs
+    the top-k token attention heads for specific phenomenological keywords...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Experience_Trace_extracts_top-k_token_attention_heads
+  kind: entity_fact
+  raw_text: Experience Trace script extracts top-k token attention heads
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:24:32Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Turing simulation measures contradiction rate
+  claim_id: c_4e941958
+  context: T036 Implement a 'distinction metric' that measures the rate of detected
+    contradictions or breaks in persona over a long horizon...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Turing_simulation_measures_contradiction_rate
+  kind: entity_fact
+  raw_text: Turing simulation script measures rate of detected contradictions or breaks
+    in persona
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:24:57Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Primary model for CI is TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+  claim_id: c_b30d38f4
+  context: 'Implement code/config.py with: 1. Seeds, paths, and model IDs (Primary:
+    TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF for CI; Optional: 7B models for local only).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:26:06Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Target volume of 80 samples per prompt per strategy
+  claim_id: c_180a4b3c
+  context: 'Target volume: approximately 80 samples per prompt per strategy, yielding
+    a substantial total dataset for analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 80 samples per prompt per strategy
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:26:23Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 2
-  canonical: 80 samples per prompt per strategy
-  claim_id: c_e458f9b0
-  context: 'T009 [P] [US1] Implement `code/generation/runner.py` using `llama-cpp-python`
-    for `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF ` (specifically `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`)
-    on CPU-only environment (FR-002). **Constraint**: Do not use 7B models in this
-    script; they are excluded from CI. Target volume: approximately 80 samples per
-    prompt per strategy, yielding a substantial total dataset for analysis..'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Target volume: approximately 80 samples per prompt per strategy.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:09:42Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: 80 samples per strategy totaling 6400 samples (80 samples x 20 prompts
-    x 4 strategies)
-  claim_id: c_033d94b6
-  context: "Independent Test: Execute `code/generation/runner.py` and verify `data/raw/`\
-    \ contains \u226580 samples per strategy (totaling a substantial set of samples:\
-    \ 80 samples \xD7 20 prompts \xD7 4 strategies) with valid JSON metadata (seed,\
-    \ prompt, strategy) and no CUDA errors."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Execute `code/generation/runner.py` and verify `data/raw/` contains \u2265\
-    80 samples per strategy (totaling a substantial set of samples: 80 samples \xD7\
-    \ 20 prompts \xD7 4 strategies)"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:10:11Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: 80 control samples generated from arxiv_nlp dataset
-  claim_id: c_46dc2d8a
-  context: "T011 [P] [US1] Create `code/generation/control_corpus.py` to generate\
-    \ \u226580 control samples using `datasets.load_dataset(\"arxiv_nlp\")` with `filter='arxiv_nlp'`\
-    \ and random sampling."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Create `code/generation/control_corpus.py` to generate \u226580 control\
-    \ samples using `datasets.load_dataset(\"arxiv_nlp\")` with `filter='arxiv_nlp'`\
-    \ and random sampling."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:10:12Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: 20 base prompts loaded for 4 strategies
-  claim_id: c_97fc061b
-  context: T008 [P] Implement `code/generation/prompt_engineering.py` with the defined
-    strategies (Direct, Hypothetical, Comparative, Role-play) and 20 base prompts
-    loaded from `data/prompts/base_prompts.json`.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement `code/generation/prompt_engineering.py` with the defined strategies
+  canonical: 20 base prompts loaded from data/prompts/base_prompts.json
+  claim_id: c_62a65aae
+  context: Implement code/generation/prompt_engineering.py with the defined strategies
     (Direct, Hypothetical, Comparative, Role-play) and 20 base prompts loaded from
-    `data/prompts/base_prompts.json`.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:10:28Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF model used
-  claim_id: c_bd31b0e7
-  context: T009 [P] [US1] Implement `code/generation/runner.py` using `llama-cpp-python`
-    for `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF ` (specifically `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`)
-    on CPU-only environment (FR-002).
+    data/prompts/base_prompts.json.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Implement `code/generation/runner.py` using `llama-cpp-python` for `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
-    ` (specifically `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`)
+  raw_text: 20 base prompts loaded from data/prompts/base_prompts.json
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:12:12Z'
+  updated_at: '2026-07-13T22:26:40Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: cross-encoder/stsb-distilroberta-base model used for consistency
-  claim_id: c_467e8983
-  context: 'T014 [P] [US2] Implement `code/analysis/consistency.py`: Load NLI model
-    `cross-encoder/stsb-distilroberta-base ` (CPU-safe), compute pairwise contradiction
-    counts, handle length limits by skipping pairs with warnings (US-2 Edge Case).'
+  canonical: 4 prompting strategies used in generation
+  claim_id: c_c6841047
+  context: Generate the corpus of phenomenological reports using CPU-tractable models
+    and four prompting strategies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4 prompting strategies
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:26:55Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: NLI model used is cross-encoder/stsb-distilroberta-base
+  claim_id: c_1b53c840
+  context: 'Implement code/analysis/consistency.py: Load NLI model cross-encoder/stsb-distilroberta-base
+    (CPU-safe), compute pairwise contradiction counts.'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Cross-encoder/stsb-distilroberta-base_model_used_for_consist
+    source_url: https://en.wikipedia.org/wiki/NLI_model_used_is_cross-encoder/stsb-distilroberta-base
   kind: entity_fact
-  raw_text: Load NLI model `cross-encoder/stsb-distilroberta-base ` (CPU-safe), compute
-    pairwise contradiction counts
+  raw_text: cross-encoder/stsb-distilroberta-base
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:12:34Z'
+  updated_at: '2026-07-13T22:26:57Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: full pipeline execution 6 hours on free-tier
-  claim_id: c_8cad3a68
-  context: "T033 [P] Run `quickstart.md` validation to ensure full pipeline execution\
-    \ \u22646 hours on free-tier"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Run `quickstart.md` validation to ensure full pipeline execution \u2264\
-    6 hours on free-tier"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:12:35Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: sample size gap CI vs Research 1024
-  claim_id: c_8305e4c9
-  context: T019 [US2] Implement `code/analysis/sensitivity_analysis.py` to test validity
-    score weights (FR-006) and address the sample size gap (CI vs Research 1024) by
-    analyzing robustness across sample subsets.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: address the sample size gap (CI vs Research 1024) by analyzing robustness
-    across sample subsets
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:13:08Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: 80 samples per strategy for 20 prompts and 4 strategies
-  claim_id: c_c2e9a7ff
-  context: "Independent Test: Execute `code/generation/runner.py` and verify `data/raw/`\
-    \ contains \u226580 samples per strategy (totaling a substantial set of samples:\
-    \ 80 samples \xD7 20 prompts \xD7 4 strategies) with valid JSON metadata."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Verify `data/raw/` contains \u226580 samples per strategy (totaling a\
-    \ substantial set of samples: 80 samples \xD7 20 prompts \xD7 4 strategies)"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:32:40Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: Use TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
-    for CPU-only generation
-  claim_id: c_515a1c25
-  context: Implement `code/generation/runner.py` using `llama-cpp-python` for `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
-    ` (specifically `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`) on CPU-only environment
-    (FR-002).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement `code/generation/runner.py` using `llama-cpp-python` for `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF`
-    (specifically `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`) on CPU-only environment
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:34:24Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: Generate 80 control samples using arxiv_nlp dataset
-  claim_id: c_8d7110c8
-  context: "Create `code/generation/control_corpus.py` to generate \u226580 control\
-    \ samples using `datasets.load_dataset(\"arxiv_nlp\")` with `filter='arxiv_nlp'`\
-    \ and random sampling."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Create `code/generation/control_corpus.py` to generate \u226580 control\
-    \ samples using `datasets.load_dataset(\"arxiv_nlp\")`"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:34:24Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: Use cross-encoder/stsb-distilroberta-base model for contradiction counts
-  claim_id: c_576b91bc
-  context: 'Implement `code/analysis/consistency.py`: Load NLI model `cross-encoder/stsb-distilroberta-base
-    ` (CPU-safe), compute pairwise contradiction counts, handle length limits by skipping
-    pairs with warnings.'
+  canonical: Control samples generated from arxiv_nlp dataset
+  claim_id: c_3c823b86
+  context: "Create code/generation/control_corpus.py to generate \u226580 control\
+    \ samples using datasets.load_dataset(arxiv_nlp) with filter='arxiv_nlp' and random\
+    \ sampling."
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Use_cross-encoder/stsb-distilroberta-base_model_for_contradi
+    source_url: https://en.wikipedia.org/wiki/Control_samples_generated_from_arxiv_nlp_dataset
   kind: entity_fact
-  raw_text: Load NLI model `cross-encoder/stsb-distilroberta-base` (CPU-safe) to compute
-    pairwise contradiction counts
+  raw_text: arxiv_nlp dataset
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:34:26Z'
+  updated_at: '2026-07-13T22:27:14Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: Use imdb or common_crawl dataset for ordinary conversation baseline
-  claim_id: c_7c18b3b9
+  canonical: Baseline conversation data from imdb dataset
+  claim_id: c_953bb0c1
   context: Add a comparative analysis module that explicitly tests the 'phenomenological
     style' hypothesis by comparing the generated reports against a baseline of 'ordinary
-    conversation' (e.g., from `datasets.load_dataset("imdb")` or `common_crawl` subset).
+    conversation' (e.g., from datasets.load_dataset(imdb).
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Use_imdb_or_common_crawl_dataset_for_ordinary_conversation_b
+    source_url: https://en.wikipedia.org/wiki/Baseline_conversation_data_from_imdb_dataset
   kind: entity_fact
-  raw_text: Use `datasets.load_dataset("imdb")` or `common_crawl` subset as a baseline
-    of ordinary conversation for stylistic comparison
+  raw_text: imdb dataset
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:34:44Z'
+  updated_at: '2026-07-13T22:27:36Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: Full pipeline execution within 6 hours on free-tier
-  claim_id: c_b22a0879
-  context: "Run `quickstart.md` validation to ensure full pipeline execution \u2264\
-    6 hours on free-tier"
+  canonical: Baseline conversation data from Wikipedia GPT-3 page
+  claim_id: c_e06a2959
+  context: 'Add a comparative analysis module that explicitly tests the ''phenomenological
+    style'' hypothesis by comparing the generated reports against a baseline of ''ordinary
+    conversation'' (e.g., from ... Wikipedia: GPT-3, https://en.wikipedia.org/wiki/GPT-3)
+    subset).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Verify full pipeline execution \u22646 hours on free-tier"
+  raw_text: GPT-3 Wikipedia page
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:34:44Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 0
-  canonical: Use cross-encoder/stsb-distilroberta-base NLI model
-  claim_id: c_3057619d
-  context: 'Implement code/analysis/consistency.py: Load NLI model cross-encoder/stsb-distilroberta-base
-    (CPU-safe), compute pairwise contradiction counts, handle length limits by skipping
-    pairs with warnings (US-2 Edge Case).'
-  evidence:
-    entailment_evidence: Use cross-encoder/stsb-distilroberta-base NLI model.
-    entailment_status: grounded
-    source_url: https://en.wikipedia.org/wiki/Use_cross-encoder/stsb-distilroberta-base_NLI_model.
-  kind: entity_fact
-  raw_text: Load NLI model cross-encoder/stsb-distilroberta-base
-  resolved_value: Use cross-encoder/stsb-distilroberta-base NLI model.
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-07-13T21:36:42Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: Generate 80 samples per strategy across 20 prompts and 4 strategies
-  claim_id: c_8448fc49
-  context: "Independent Test: Execute code/generation/runner.py and verify data/raw/\
-    \ contains \u226580 samples per strategy (totaling a substantial set of samples:\
-    \ 80 samples \xD7 20 prompts \xD7 4 strategies) with valid JSON metadata (seed,\
-    \ prompt, strategy) and no CUDA errors."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Verify data/raw/ contains \u226580 samples per strategy (totaling a substantial\
-    \ set of samples: 80 samples \xD7 20 prompts \xD7 4 strategies)"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:36:46Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: Use TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
-    model
-  claim_id: c_3afd9d9a
-  context: Implement code/generation/runner.py using llama-cpp-python for TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
-    (specifically tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf) on CPU-only environment (FR-002).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Use TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF specifically tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:36:59Z'
+  updated_at: '2026-07-13T22:27:52Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
   canonical: Full pipeline execution time is 6 hours or less on free-tier
@@ -3154,112 +3103,176 @@
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Run full pipeline execution in \u22646 hours on free-tier"
+  raw_text: "\u22646 hours on free-tier"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:37:00Z'
+  updated_at: '2026-07-13T22:27:52Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: Load 20 base prompts from data/prompts/base_prompts.json
-  claim_id: c_34dfac06
-  context: Implement code/generation/prompt_engineering.py with the defined strategies
-    (Direct, Hypothetical, Comparative, Role-play) and 20 base prompts loaded from
-    data/prompts/base_prompts.json.
+  canonical: Research sample size is 1024
+  claim_id: c_35d8ceee
+  context: Implement code/analysis/sensitivity_analysis.py to test validity score
+    weights (FR-006) and address the sample size gap (CI vs Research 1024) by analyzing
+    robustness across sample subsets.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Load 20 base prompts from data/prompts/base_prompts.json
+  raw_text: 1024 samples
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:37:16Z'
+  updated_at: '2026-07-13T22:28:09Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: Generate 80 or more control samples from arxiv_nlp dataset
-  claim_id: c_3d00dc73
-  context: "Create code/generation/control_corpus.py to generate \u226580 control\
-    \ samples using datasets.load_dataset('arxiv_nlp') with filter='arxiv_nlp' and\
-    \ random sampling."
+  canonical: Primary CI model is TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+  claim_id: c_cb3f6b25
+  context: 'Configure linting (ruff) and formatting (black) tools - Implement code/config.py
+    with: Seeds, paths, and model IDs (Primary: TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+    for CI; Optional: 7B models for local only).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Generate \u226580 control samples using datasets.load_dataset(arxiv_nlp)"
+  raw_text: TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF is the primary model for CI.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:37:16Z'
+  updated_at: '2026-07-13T22:30:53Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: Target 80 samples per prompt per strategy
-  claim_id: c_1e54fec1
-  context: 'Implement code/generation/runner.py... Target volume: approximately 80
-    samples per prompt per strategy.'
+  attempts: 2
+  canonical: Target volume is 80 samples per prompt per strategy
+  claim_id: c_5e20455e
+  context: 'Target volume: approximately 80 samples per prompt per strategy, yielding
+    a substantial total dataset for analysis.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 'Target volume: approximately 80 samples per prompt per strategy'
+  raw_text: Target volume is approximately 80 samples per prompt per strategy.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:37:17Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 0
-  canonical: TinyLlama-1.1B is the only model for primary CI pipeline
-  claim_id: c_58e9655c
-  context: 'CPU Constraint: All tasks must be executable on a minimal CPU configuration.
-    No CUDA, no 8-bit/4-bit quantization requiring GPU drivers. Use llama-cpp-python
-    with GGUF for TinyLlama. Model Constraint: TinyLlama-1.1B is the only model for
-    the primary CI pipeline.'
-  evidence:
-    asserted: '-1.1'
-    authority: math.pi (IEEE-754 double, Python stdlib)
-    constant: pi
-    corrected: true
-    mode: approximate
-    true_value: 3.141592653589793
-    url: https://en.wikipedia.org/wiki/Pi
-  kind: numeric
-  raw_text: TinyLlama-1.1B is the only model for the primary CI pipeline.
-  resolved_value: '3.1'
-  resolver: approximate
-  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
-  source_type: external
-  status: verified
-  updated_at: '2026-07-13T21:44:26Z'
+  updated_at: '2026-07-13T22:31:20Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: corpus generation using CPU-tractable models and four prompting strategies
-  claim_id: c_bbe65856
-  context: 'Phase 3: User Story 1 - Automated Report Generation Pipeline (Priority:
-    P1) Goal: Generate the corpus of phenomenological reports using CPU-tractable
-    models and four prompting strategies.'
+  canonical: Total dataset is 80 samples times 20 prompts times 4 strategies
+  claim_id: c_00712181
+  context: "Verify data/raw/ contains \u226580 samples per strategy (totaling a substantial\
+    \ set of samples: 80 samples \xD7 20 prompts \xD7 4 strategies) with valid JSON\
+    \ metadata."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The total dataset size is calculated as 80 samples \xD7 20 prompts \xD7\
+    \ 4 strategies."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:31:55Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Cross-encoder model is cross-encoder/stsb-distilroberta-base
+  claim_id: c_0978e753
+  context: 'Implement code/analysis/consistency.py: Load NLI model cross-encoder/stsb-distilroberta-base
+    (CPU-safe), compute pairwise contradiction counts.'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Corpus_generation_using_CPU-tractable_models_and_four_prompt
+    source_url: https://en.wikipedia.org/wiki/Cross-encoder_model_is_cross-encoder/stsb-distilroberta-base
   kind: entity_fact
-  raw_text: Generate the corpus of phenomenological reports using CPU-tractable models
-    and four prompting strategies.
+  raw_text: The cross-encoder/stsb-distilroberta-base model is used for consistency
+    analysis.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:44:45Z'
+  updated_at: '2026-07-13T22:32:13Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: "80 samples per strategy totaling 6400 samples (80 samples \xD7 20 prompts\
-    \ \xD7 4 strategies)"
-  claim_id: c_566e3d1b
+  canonical: Control corpus uses arxiv_nlp dataset
+  claim_id: c_33f7bee0
+  context: "Create code/generation/control_corpus.py to generate \u226580 control\
+    \ samples using datasets.load_dataset(\"arxiv_nlp\") with filter='arxiv_nlp' and\
+    \ random sampling."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_corpus_uses_arxiv_nlp_dataset
+  kind: entity_fact
+  raw_text: The control corpus samples are generated from the arxiv_nlp dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:32:31Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Stylistic comparison baseline includes IMDb dataset
+  claim_id: c_70704629
+  context: Add a comparative analysis module that explicitly tests the "phenomenological
+    style" hypothesis by comparing the generated reports against a baseline of "ordinary
+    conversation" (e.g., from datasets.load_dataset("imdb") or ...).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stylistic_comparison_baseline_includes_IMDb_dataset
+  kind: entity_fact
+  raw_text: The stylistic comparison baseline includes the IMDb dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:32:46Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Stylistic comparison baseline includes GPT-3 Wikipedia subset
+  claim_id: c_7c191cd4
+  context: 'comparing the generated reports against a baseline of "ordinary conversation"
+    (e.g., from datasets.load_dataset("imdb") or {{claim:c_f16d7feb}} (Wikipedia:
+    GPT-3, https://en.wikipedia.org/wiki/GPT-3) subset).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stylistic comparison baseline includes a GPT-3 subset from Wikipedia.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:32:59Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time is 6 hours on free-tier
+  claim_id: c_8bd6b804
+  context: "Run quickstart.md validation to ensure full pipeline execution \u2264\
+    6 hours on free-tier."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline execution must complete in 6 hours or less on a free-tier.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:33:19Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: total dataset size of 6400 samples generated from 80 samples per prompt
+    per strategy
+  claim_id: c_94e13fc8
   context: "Independent Test: Execute code/generation/runner.py and verify data/raw/\
     \ contains \u226580 samples per strategy (totaling a substantial set of samples:\
     \ 80 samples \xD7 20 prompts \xD7 4 strategies) with valid JSON metadata (seed,\
@@ -3267,163 +3280,274 @@
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Verify data/raw/ contains \u226580 samples per strategy (totaling a substantial\
-    \ set of samples: 80 samples \xD7 20 prompts \xD7 4 strategies) with valid JSON\
-    \ metadata (seed, prompt, strategy) and no CUDA errors."
+  raw_text: "80 samples \xD7 20 prompts \xD7 4 strategies"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:45:06Z'
+  updated_at: '2026-07-13T22:35:59Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: 4 prompting strategies and 20 base prompts
-  claim_id: c_2dd36275
-  context: T008 [P] Implement code/generation/prompt_engineering.py with the defined
-    strategies (Direct, Hypothetical, Comparative, Role-play) and 20 base prompts
-    loaded from data/prompts/base_prompts.json.
+  canonical: target volume of 80 samples per prompt per strategy
+  claim_id: c_990eadbe
+  context: 'Target volume: approximately 80 samples per prompt per strategy, yielding
+    a substantial total dataset for analysis.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Implement code/generation/prompt_engineering.py with the defined strategies
-    (Direct, Hypothetical, Comparative, Role-play) and 20 base prompts loaded from
-    data/prompts/base_prompts.json.
+  raw_text: 80 samples per prompt per strategy
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:45:07Z'
+  updated_at: '2026-07-13T22:35:59Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: Use TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF model on CPU-only environment
-  claim_id: c_e3d01b77
-  context: T009 [P] [US1] Implement code/generation/runner.py using llama-cpp-python
-    for TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF (specifically tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf)
-    on CPU-only environment (FR-002).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement code/generation/runner.py using llama-cpp-python for TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
-    (specifically tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf) on CPU-only environment.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:45:08Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: 80 samples per prompt per strategy
-  claim_id: c_01258c47
-  context: 'T009 [P] [US1] Implement code/generation/runner.py using llama-cpp-python
-    for TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF (specifically tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf)
-    on CPU-only environment (FR-002). Constraint: Do not use 7B models in this script;
-    they are excluded from CI. Target volume: approximately 80 samples per prompt
-    per strategy..'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Target volume: approximately 80 samples per prompt per strategy.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:45:08Z'
-- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
-  attempts: 1
-  canonical: 80 control samples generated from arxiv_nlp dataset
-  claim_id: c_aeff1e85
-  context: "T011 [P] [US1] Create code/generation/control_corpus.py to generate \u2265\
-    80 control samples using datasets.load_dataset(\"arxiv_nlp\") with filter='arxiv_nlp'\
-    \ and random sampling."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Create code/generation/control_corpus.py to generate \u226580 control\
+  canonical: generation of at least 80 control samples
+  claim_id: c_86597463
+  context: "Create code/generation/control_corpus.py to generate \u226580 control\
     \ samples using datasets.load_dataset(\"arxiv_nlp\") with filter='arxiv_nlp' and\
     \ random sampling."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generation_of_at_least_80_control_samples
+  kind: magnitude
+  raw_text: "\u226580 control samples"
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:45:09Z'
+  updated_at: '2026-07-13T22:36:24Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: Load cross-encoder/stsb-distilroberta-base model for consistency analysis
-  claim_id: c_610ed141
-  context: 'T014 [P] [US2] Implement code/analysis/consistency.py: Load NLI model
-    cross-encoder/stsb-distilroberta-base (CPU-safe), compute pairwise contradiction
-    counts, handle length limits by skipping pairs with warnings (US-2 Edge Case).'
+  canonical: use of cross-encoder/stsb-distilroberta-base NLI model
+  claim_id: c_cdbf97e8
+  context: 'Implement code/analysis/consistency.py: Load NLI model cross-encoder/stsb-distilroberta-base
+    (CPU-safe), compute pairwise contradiction counts, handle length limits by skipping
+    pairs with warnings (US-2 Edge Case).'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Load_cross-encoder/stsb-distilroberta-base_model_for_consist
+    source_url: https://en.wikipedia.org/wiki/Use_of_cross-encoder/stsb-distilroberta-base_NLI_model
   kind: entity_fact
-  raw_text: 'Implement code/analysis/consistency.py: Load NLI model cross-encoder/stsb-distilroberta-base
-    (CPU-safe), compute pairwise contradiction counts, handle length limits by skipping
-    pairs with warnings.'
+  raw_text: cross-encoder/stsb-distilroberta-base
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:45:27Z'
+  updated_at: '2026-07-13T22:36:26Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: Sample size gap between CI and Research is 1024
-  claim_id: c_61147c89
-  context: T019 [US2] Implement code/analysis/sensitivity_analysis.py to test validity
-    score weights (FR-006) and address the sample size gap (CI vs Research 1024) by
-    analyzing robustness across sample subsets.
+  canonical: use of TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF model for CI
+  claim_id: c_09106a49
+  context: 'Seeds, paths, and model IDs (Primary: TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+    for CI; Optional: 7B models for local only).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Analyze robustness across sample subsets to address the sample size gap
-    (CI vs Research 1024).
+  raw_text: TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:45:59Z'
+  updated_at: '2026-07-13T22:36:26Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: use of tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf file
+  claim_id: c_01c4b60f
+  context: Implement code/generation/runner.py using llama-cpp-python for TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+    (specifically tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf) on CPU-only environment (FR-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:36:38Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: use of arxiv_nlp dataset for control samples
+  claim_id: c_1e6fc522
+  context: "Create code/generation/control_corpus.py to generate \u226580 control\
+    \ samples using datasets.load_dataset(\"arxiv_nlp\") with filter='arxiv_nlp' and\
+    \ random sampling."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_arxiv_nlp_dataset_for_control_samples
+  kind: entity_fact
+  raw_text: datasets.load_dataset("arxiv_nlp")
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:37:03Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: use of imdb dataset for baseline comparison
+  claim_id: c_735ba5e9
+  context: 'Add a comparative analysis module that explicitly tests the "phenomenological
+    style" hypothesis by comparing the generated reports against a baseline of "ordinary
+    conversation" (e.g., from datasets.load_dataset("imdb") or {{claim:c_f16d7feb}}
+    (Wikipedia: GPT-3, https://en.wikipedia.org/wiki/GPT-3) subset) to measure the
+    operational difference in marker density and structural coherence.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_imdb_dataset_for_baseline_comparison
+  kind: entity_fact
+  raw_text: datasets.load_dataset("imdb")
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:37:05Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Primary CI model is TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+  claim_id: c_a6a9c0b7
+  context: 'Configure `code/config.py` with: 1. Seeds, paths, and model IDs (Primary:
+    `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF ` for CI; Optional: 7B models for local
+    only).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF is the primary model for CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:39:04Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Target volume is 80 samples per prompt per strategy
+  claim_id: c_0e98a770
+  context: 'Target volume: approximately 80 samples per prompt per strategy, yielding
+    a substantial total dataset for analysis..'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The corpus generation targets approximately 80 samples per prompt per
+    strategy
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:39:24Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Total dataset is 80 samples times 20 prompts times 4 strategies
+  claim_id: c_c2079aa7
+  context: "verify `data/raw/` contains \u226580 samples per strategy (totaling a\
+    \ substantial set of samples: 80 samples \xD7 20 prompts \xD7 4 strategies) with\
+    \ valid JSON metadata"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The total dataset consists of 80 samples \xD7 20 prompts \xD7 4 strategies"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:39:40Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Control samples generated from arxiv_nlp dataset
+  claim_id: c_8b10433e
+  context: "Create `code/generation/control_corpus.py` to generate \u226580 control\
+    \ samples using `datasets.load_dataset(\"arxiv_nlp\") `"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_samples_generated_from_arxiv_nlp_dataset
+  kind: entity_fact
+  raw_text: Control samples are generated using the arxiv_nlp dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:40:04Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: NLI model for consistency is cross-encoder/stsb-distilroberta-base
+  claim_id: c_d0166947
+  context: 'Implement `code/analysis/consistency.py`: Load NLI model `cross-encoder/stsb-distilroberta-base
+    ` (CPU-safe), compute pairwise contradiction counts'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NLI_model_for_consistency_is_cross-encoder/stsb-distilrobert
+  kind: entity_fact
+  raw_text: The NLI model used for consistency analysis is cross-encoder/stsb-distilroberta-base
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:40:22Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Stylistic comparison baseline includes IMDb dataset
+  claim_id: c_758dbd38
+  context: 'comparing the generated reports against a baseline of "ordinary conversation"
+    (e.g., from `datasets.load_dataset("imdb") ` or `{{claim:c_f16d7feb}} (Wikipedia:
+    GPT-3, https://en.wikipedia.org/wiki/GPT-3)` subset)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stylistic_comparison_baseline_includes_IMDb_dataset
+  kind: entity_fact
+  raw_text: The stylistic comparison baseline includes the IMDb dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:40:24Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
   canonical: Full pipeline execution time is 6 hours on free-tier
-  claim_id: c_148724c3
-  context: "T033 [P] Run quickstart.md validation to ensure full pipeline execution\
-    \ \u22646 hours on free-tier <!-- FAILED: unspecified -->"
+  claim_id: c_0a8dcd64
+  context: "Run `quickstart.md` validation to ensure full pipeline execution \u2264\
+    6 hours on free-tier"
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Run `quickstart.md` validation to ensure full pipeline execution \u2264\
-    6 hours on free-tier."
+  raw_text: The full pipeline execution must take 6 hours or less on free-tier hardware
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:45:59Z'
+  updated_at: '2026-07-13T22:40:51Z'
 - artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
   attempts: 1
-  canonical: 7B models excluded from primary CI path due to RAM constraints
-  claim_id: c_6921e518
-  context: 'T012 [P] [Optional] Implement code/generation/runner_local.py for local
-    7B model execution (Mistral-7B/Llama-7B) with explicit hardware warnings. Note:
-    This is NOT required for primary research validity or CI execution (Plan.md).
-    7B models are excluded from the primary CI path due to RAM constraints.'
+  canonical: Sample size gap is between CI and Research 1024
+  claim_id: c_210a209a
+  context: address the sample size gap (CI vs Research 1024) by analyzing robustness
+    across sample subsets.
   evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/7B_models_excluded_from_primary_CI_path_due_to_RAM_constrain
-  kind: entity_fact
-  raw_text: 7B models are excluded from the primary CI path due to RAM constraints.
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The research sample size gap is between CI and Research 1024
   resolved_value: null
-  resolver: resolve_entity_fact
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:46:21Z'
+  updated_at: '2026-07-13T22:41:17Z'

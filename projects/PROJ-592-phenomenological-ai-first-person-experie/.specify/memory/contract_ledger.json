@@ -4,7 +4,23 @@
     "owner": null
   },
   {
+    "symbol": "orchestrate_analysis",
+    "owner": null
+  },
+  {
     "symbol": "retry_on_failure",
+    "owner": null
+  },
+  {
+    "symbol": "run_consistency_analysis",
+    "owner": null
+  },
+  {
+    "symbol": "run_sensitivity_kappa_analysis",
+    "owner": null
+  },
+  {
+    "symbol": "run_stratified_sampling",
     "owner": null
   }
 ]

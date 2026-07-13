@@ -1,11 +1,4 @@
-"""
-Main orchestration script for the Phenomenological AI pipeline.
-Coordinates Generation, Analysis, Stats, and Validation phases.
-
-This script orchestrates the full pipeline to enable US1+US2 integration testing.
-It ensures that data flows correctly from generation through analysis to stats,
-producing real outputs to disk as specified in tasks.md.
-"""
+"""Main entry point for the Phenomenological AI pipeline."""
 import os
 import sys
 import argparse
@@ -13,116 +6,81 @@ import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Add project root to path
-project_root = Path(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent))
 
 from config import get_config
-from utils.logging import get_logger, log_operation
-from utils.io import ensure_dir
+from utils.logging import log_operation, get_logger, setup_logging
+from generation.runner import run_generation_pipeline
+from generation.control_corpus import generate_control_corpus
+from analysis.consistency import run_consistency_analysis
+from analysis.stability import run_stability_analysis
+from analysis.markers import run_marker_analysis
+from analysis.stats import orchestrate_analysis
+from validation.stratified_sampler import run_stratified_sampling
+from validation.human_rater import run_rating_pipeline
+from utils.archiver import run_archiver
 
-# Import phase modules
-# Note: These imports must match the public API surface defined in the task descriptions.
-from generation.runner import main as generation_main
-from generation.control_corpus import main as control_main
-from analysis.consistency import main as consistency_main
-from analysis.stability import main as stability_main
-from analysis.markers import main as markers_main
-from analysis.stats import main as stats_main
-from analysis.sensitivity_analysis import main as sensitivity_main
-from analysis.validity_justification import main as justification_main
-from validation.human_rater import main as human_rater_main
-from validation.stratified_sampler import main as sampler_main
-from utils.archiver import main as archiver_main
 
 def setup_environment(config_path: Optional[str] = None) -> Dict[str, Any]:
-    """Setup environment and load configuration."""
-    logger = get_logger("main")
-    # Fixed: log_operation now accepts operation as first arg, kwargs as params
+    """Initialize environment and load configuration."""
+    logger = get_logger()
     log_operation("setup_environment", config_path=config_path)
     
     config = get_config(config_path)
-    
-    # Ensure output directories exist
-    output_dir = Path(config.get("output_dir", "data"))
-    for dir_name in ["data/raw", "data/processed", "data/qualitative", "figures"]:
-        ensure_dir(output_dir / dir_name)
-    
+    logger.info("Environment setup complete")
     return config
 
+
 def run_generation_phase(config: Dict[str, Any]) -> None:
-    """Run the generation phase (US1)."""
-    logger = get_logger("main")
+    """Run the generation phase for phenomenological reports."""
     log_operation("run_generation_phase")
-    generation_main()
+    run_generation_pipeline(config)
+
 
 def run_control_phase(config: Dict[str, Any]) -> None:
-    """Run the control corpus generation (US1)."""
-    logger = get_logger("main")
+    """Run the control corpus generation phase."""
     log_operation("run_control_phase")
-    control_main()
+    generate_control_corpus(config)
+
 
 def run_analysis_phase(config: Dict[str, Any]) -> None:
-    """Run the analysis phase (US2)."""
-    logger = get_logger("main")
+    """Run the analysis phase (consistency, stability, markers)."""
     log_operation("run_analysis_phase")
-    
-    # Run consistency analysis
-    consistency_main()
-    
-    # Run stability analysis
-    stability_main()
-    
-    # Run marker analysis
-    markers_main()
+    run_consistency_analysis(config)
+    run_stability_analysis(config)
+    run_marker_analysis(config)
+
 
 def run_stats_phase(config: Dict[str, Any]) -> None:
-    """Run the statistics phase (US2)."""
-    logger = get_logger("main")
+    """Run the statistical analysis phase."""
     log_operation("run_stats_phase")
-    
-    # Run main stats orchestration (produces validity_scores.csv)
-    stats_main()
-    
-    # Run sensitivity analysis
-    sensitivity_main()
-    
-    # Run validity justification
-    justification_main()
+    orchestrate_analysis(config)
+
 
 def run_validation_phase(config: Dict[str, Any]) -> None:
-    """Run the validation phase (US3)."""
-    logger = get_logger("main")
+    """Run the validation phase (sample selection and human rating)."""
     log_operation("run_validation_phase")
-    
-    # Run stratified sampling
-    sampler_main()
-    
-    # Run human rating
-    human_rater_main()
+    run_stratified_sampling(config)
+    run_rating_pipeline(config)
+
 
 def run_full_pipeline(config: Dict[str, Any]) -> None:
-    """Run the complete pipeline: Generation -> Metrics -> Stats -> Validation."""
-    logger = get_logger("main")
+    """Run the complete pipeline."""
     log_operation("run_full_pipeline")
-    
     run_generation_phase(config)
     run_control_phase(config)
     run_analysis_phase(config)
     run_stats_phase(config)
     run_validation_phase(config)
-    
     log_operation("full_pipeline_complete")
 
-def main():
+
+def main() -> None:
     """Main entry point with CLI argument parsing."""
-    parser = argparse.ArgumentParser(
-        description="Phenomenological AI Pipeline Orchestrator"
-    )
+    parser = argparse.ArgumentParser(description="Phenomenological AI Pipeline")
     parser.add_argument(
         "--task",
-        type=str,
         choices=[
             "generate",
             "generate_control",
@@ -133,7 +91,7 @@ def main():
             "archive",
             "full"
         ],
-        default="full",
+        required=True,
         help="Task to execute"
     )
     parser.add_argument(
@@ -142,14 +100,15 @@ def main():
         default="code/config.py",
         help="Path to configuration file"
     )
-    
+
     args = parser.parse_args()
-    logger = get_logger("main")
-    
-    # Fixed: log_operation expects operation as first arg
-    log_operation("main_start", task=args.task, config=args.config)
+
+    # Setup logging
+    logger = setup_logging("data/logs/pipeline.log")
     
     try:
+        log_operation("main_start", task=args.task, config=args.config)
+        
         config = setup_environment(args.config)
         
         if args.task == "generate":
@@ -163,10 +122,10 @@ def main():
         elif args.task == "validate_human":
             run_validation_phase(config)
         elif args.task == "sensitivity-kappa":
-            from analysis.sensitivity_kappa import main as kappa_main
-            kappa_main()
+            from analysis.sensitivity_kappa import run_sensitivity_kappa_analysis
+            run_sensitivity_kappa_analysis(config)
         elif args.task == "archive":
-            archiver_main()
+            run_archiver(config)
         elif args.task == "full":
             run_full_pipeline(config)
         
@@ -174,7 +133,9 @@ def main():
         
     except Exception as e:
         log_operation("task_failed", task=args.task, error=str(e))
+        logger.error(f"Pipeline failed: {e}")
         raise
+
 
 if __name__ == "__main__":
     main()

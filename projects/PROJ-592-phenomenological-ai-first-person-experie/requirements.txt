@@ -1,25 +1,24 @@
-# Phenomenological AI Pipeline Dependencies
-# Core NLP and ML libraries
-numpy>=1.24.0
+# Phenomenological AI: First-Person Experience Modeling - Dependencies
+# Core LLM inference (CPU-optimized)
+llama-cpp-python>=0.2.0
+
+# Data handling
 pandas>=2.0.0
+numpy>=1.24.0
+datasets>=2.14.0
+
+# NLP & Metrics
+transformers>=4.35.0
+sentence-transformers>=2.2.0
 scikit-learn>=1.3.0
 scipy>=1.11.0
 
-# Model loading and inference (CPU-optimized)
-llama-cpp-python>=0.2.0
-transformers>=4.35.0
-sentence-transformers>=2.2.0
-
-# Data handling
-datasets>=2.14.0
+# Logging & Utilities
+pyyaml>=6.0.0
 jsonschema>=4.19.0
 
-# Utilities
-tqdm>=4.65.0
-pyyaml>=6.0
-ruff>=0.1.0
-black>=23.0.0
+# Testing
+pytest>=7.4.0
 
-# Optional: for local 7B models (not used in CI)
-# accelerate>=0.24.0
-# bitsandbytes>=0.41.0
+# Archiving
+tqdm>=4.66.0

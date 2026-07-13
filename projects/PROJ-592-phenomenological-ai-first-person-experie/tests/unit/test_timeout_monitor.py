@@ -1,10 +1,8 @@
-"""
-Unit tests for timeout_monitor.py
-"""
+"""Unit tests for timeout handling and sample-size logging."""
 import json
 import time
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import pytest
 
@@ -13,137 +11,134 @@ from generation.timeout_monitor import (
     SampleCountError,
     SampleCounter,
     TimeoutContext,
-    run_with_timeout_and_retry,
-    main
+    run_with_timeout,
+    log_sample_status,
+    save_summary,
+    enforce_minimum_samples,
 )
+from utils.logging import get_logger, clear_warnings
 
 
 class TestSampleCounter:
     def test_record_success(self):
-        counter = SampleCounter(condition="test")
-        assert counter.successful == 0
+        counter = SampleCounter("test_condition")
         counter.record_success()
         assert counter.successful == 1
+        assert counter.total_attempts == 1
 
     def test_record_failure(self):
-        counter = SampleCounter(condition="test")
+        counter = SampleCounter("test_condition")
         counter.record_failure()
         assert counter.failed == 1
+        assert counter.total_attempts == 1
 
-    def test_is_complete(self):
-        counter = SampleCounter(condition="test", target_count=5)
-        assert not counter.is_complete()
-        for _ in range(5):
-            counter.record_success()
-        assert counter.is_complete()
+    def test_record_timeout_failure(self):
+        counter = SampleCounter("test_condition")
+        counter.record_failure(is_timeout=True)
+        assert counter.failed == 1
+        assert counter.timeout_count == 1
 
-    def test_get_stats(self):
-        counter = SampleCounter(condition="test", target_count=10)
+    def test_success_rate(self):
+        counter = SampleCounter("test_condition")
+        counter.record_success()
         counter.record_success()
         counter.record_failure()
-        stats = counter.get_stats()
-        assert stats["successful"] == 1
-        assert stats["failed"] == 1
-        assert stats["total_attempts"] == 2
-        assert stats["success_rate"] == 0.5
+        assert counter.success_rate == pytest.approx(2/3)
+
+    def test_to_dict(self):
+        counter = SampleCounter("test_condition")
+        counter.record_success()
+        counter.record_failure()
+        data = counter.to_dict()
+        assert data["condition"] == "test_condition"
+        assert data["successful"] == 1
+        assert data["failed"] == 1
+        assert "success_rate" in data
+        assert "elapsed_seconds" in data
 
 
 class TestTimeoutContext:
-    def test_get_counter(self):
-        context = TimeoutContext()
-        c1 = context.get_counter("cond1")
-        c2 = context.get_counter("cond1")
-        assert c1 is c2
-        c3 = context.get_counter("cond2")
-        assert c1 is not c3
+    def test_timeout_raises_error(self):
+        counter = SampleCounter("test")
+        with pytest.raises(GenerationTimeoutError):
+            with TimeoutContext(1, "test", counter):
+                time.sleep(2)  # Should timeout
 
-    def test_log_sample_status(self, tmp_path):
-        log_file = tmp_path / "test.log"
-        context = TimeoutContext(log_file=log_file)
-        context.log_sample_status("cond", "success", 1, 1.5)
-        assert log_file.exists()
-        with open(log_file, "r") as f:
-            line = f.readline()
-            entry = json.loads(line)
-            assert entry["status"] == "success"
-            assert entry["condition"] == "cond"
+        assert counter.timeout_count == 1
 
-    def test_enforce_minimum_samples_pass(self):
-        context = TimeoutContext()
-        counter = context.get_counter("cond")
-        counter.record_success()
-        counter.record_success() # target default 80, but we set target to 2 for test? No, default is 80.
-        # We need to set target to 2 for this test to pass easily
-        counter.target_count = 2
-        context.enforce_minimum_samples() # Should not raise
-
-    def test_enforce_minimum_samples_fail(self):
-        context = TimeoutContext()
-        counter = context.get_counter("cond")
-        counter.target_count = 5
-        counter.record_success()
-        with pytest.raises(SampleCountError):
-            context.enforce_minimum_samples()
-
-    def test_summary(self):
-        context = TimeoutContext()
-        c = context.get_counter("cond")
-        c.record_success()
-        summary = context.summary()
-        assert "cond" in summary
-        assert summary["cond"]["successful"] == 1
+    def test_no_timeout_on_fast_operation(self):
+        counter = SampleCounter("test")
+        with TimeoutContext(5, "test", counter):
+            time.sleep(0.1)  # Should complete
+        
+        assert counter.timeout_count == 0
 
 
-class TestRunWithTimeoutAndRetry:
-    def test_success_immediate(self):
-        def quick_func():
-            return "success"
-        result, attempts = run_with_timeout_and_retry(quick_func, timeout_seconds=5, max_retries=3)
-        assert result == "success"
-        assert attempts == 1
+class TestRunWithTimeout:
+    def test_successful_execution(self):
+        counter = SampleCounter("test")
+        
+        def fast_func():
+            return "result"
+        
+        result = run_with_timeout(fast_func, 5, "test", counter)
+        assert result == "result"
+        assert counter.successful == 0  # No tracking in this path, just execution
 
-    def test_failure_then_success(self):
-        call_count = 0
-        def flaky_func():
-            nonlocal call_count
-            call_count += 1
-            if call_count < 2:
-                raise ValueError("Fail")
-            return "success"
-
-        result, attempts = run_with_timeout_and_retry(flaky_func, timeout_seconds=5, max_retries=3)
-        assert result == "success"
-        assert attempts == 2
-
-    def test_timeout(self):
+    def test_timeout_execution(self):
+        counter = SampleCounter("test")
+        
         def slow_func():
-            time.sleep(10)
-            return "slow"
-
+            time.sleep(2)
+            return "result"
+        
         with pytest.raises(GenerationTimeoutError):
-            run_with_timeout_and_retry(slow_func, timeout_seconds=1, max_retries=1)
-
-    def test_max_retries_exceeded(self):
-        def always_fail():
-            raise ValueError("Always fail")
-
-        with pytest.raises(GenerationTimeoutError):
-            run_with_timeout_and_retry(always_fail, timeout_seconds=5, max_retries=2)
+            run_with_timeout(slow_func, 1, "test", counter)
+        
+        assert counter.timeout_count == 1
 
 
-class TestMain:
-    @patch("generation.timeout_monitor.logger")
-    def test_main_creates_output(self, mock_logger, tmp_path):
-        # Patch the output path to use tmp_path
-        with patch("generation.timeout_monitor.Path") as mock_path:
-            # We need to be careful here as Path is used multiple times
-            # Instead, we just run main and check if it doesn't crash in a mocked environment
-            # For a full integration test, we would need to mock the random and loop logic
-            pass
+class TestSaveSummary:
+    def test_save_creates_file(self, tmp_path):
+        counters = {
+            "cond1": SampleCounter("cond1"),
+            "cond2": SampleCounter("cond2")
+        }
+        counters["cond1"].record_success()
+        counters["cond1"].record_failure()
+        
+        output_path = str(tmp_path / "summary.json")
+        save_summary(counters, output_path)
+        
+        assert Path(output_path).exists()
+        
+        with open(output_path) as f:
+            data = json.load(f)
+        
+        assert "conditions" in data
+        assert "total_successful" in data
+        assert data["total_successful"] == 1
 
-        # A simpler check: ensure the function signature and basic flow works
-        # The actual loop in main() has a safety break, so it should finish quickly
-        # We can't easily test the file write without mocking Path extensively
-        # So we just ensure it doesn't raise an unexpected exception
-        # In a real CI, this would be tested with a more robust mock or integration test
-        pass
+
+class TestEnforceMinimumSamples:
+    def test_all_meet_minimum(self):
+        counters = {
+            "cond1": SampleCounter("cond1"),
+            "cond2": SampleCounter("cond2")
+        }
+        counters["cond1"].successful = 100
+        counters["cond2"].successful = 90
+        
+        result = enforce_minimum_samples(counters, minimum_per_condition=80)
+        assert result is True
+
+    def test_some_fail_minimum(self):
+        counters = {
+            "cond1": SampleCounter("cond1"),
+            "cond2": SampleCounter("cond2")
+        }
+        counters["cond1"].successful = 100
+        counters["cond2"].successful = 50
+        
+        result = enforce_minimum_samples(counters, minimum_per_condition=80)
+        assert result is False

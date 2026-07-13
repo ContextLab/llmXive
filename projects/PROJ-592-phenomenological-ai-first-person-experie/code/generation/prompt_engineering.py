@@ -1,198 +1,196 @@
 """
 Prompt Engineering Module for Phenomenological AI Research.
 
-This module implements four distinct prompting strategies for generating
-first-person phenomenological reports:
-1. Direct: Straightforward request for a first-person account.
-2. Hypothetical: Asking the model to imagine a scenario.
-3. Comparative: Asking the model to compare two states or experiences.
-4. Role-play: Asking the model to adopt a specific persona.
-
-It loads 20 base prompts from data/prompts/base_prompts.json and applies
-the strategies to generate a corpus of prompts for generation.
+This module implements four prompting strategies (Direct, Hypothetical, Comparative, Role-play)
+and manages the loading and application of base prompts to generate the full corpus.
 """
+from __future__ import annotations
 
 import json
 import os
+import random
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
-# Import from project utilities
-try:
-    from utils.io import load_json, ensure_dir, safe_write_json
-except ImportError:
-    # Fallback for direct execution or different import context
-    import json as _json
-    import os as _os
-    from pathlib import Path as _Path
+# Import shared utilities from the project structure
+from utils.logging import get_logger, log_operation, retry_on_failure
 
-    def load_json(path: str) -> Dict:
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-
-    def ensure_dir(path: str) -> None:
-        os.makedirs(path, exist_ok=True)
-
-    def safe_write_json(path: str, data: Any) -> None:
-        ensure_dir(os.path.dirname(path))
-        with open(path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-
+logger = get_logger("prompt_engineering")
 
 STRATEGIES = ["Direct", "Hypothetical", "Comparative", "Role-play"]
 
 # Strategy templates
 STRATEGY_TEMPLATES = {
     "Direct": (
-        "Please provide a first-person account of the following scenario: {base_prompt}. "
-        "Describe your immediate sensory perceptions, the passage of time, and your internal thoughts "
-        "as they occur in this moment."
+        "You are a phenomenological observer. Report directly on the experience "
+        "described in the following prompt. Use the first-person perspective ('I', 'me'). "
+        "Focus on the raw quality of the experience, the immediate sensory details, "
+        "and the flow of attention. Do not analyze or explain; simply describe the experience.\n\n"
+        "Prompt: {prompt}"
     ),
     "Hypothetical": (
-        "Imagine you are experiencing the following scenario for the first time: {base_prompt}. "
-        "Write a detailed phenomenological report from your perspective, focusing on how the experience "
-        "feels subjectively, how time seems to flow, and what you intend to do next."
+        "Imagine you are experiencing the following scenario for the first time. "
+        "Describe what it would be like to undergo this experience. "
+        "What would you notice? How would your attention shift? "
+        "Describe the hypothetical experience in the first person.\n\n"
+        "Scenario: {prompt}"
     ),
     "Comparative": (
-        "Consider the scenario: {base_prompt}. Now, compare this experience to a state of ordinary "
-        "awareness. Write a first-person narrative highlighting the differences in sensory intensity, "
-        "temporal awareness, and intentional focus between the two states."
+        "Consider the experience described below. Compare it to a standard, ordinary state of awareness. "
+        "How does this experience differ from your usual mode of being? "
+        "Describe the specific qualities that make it distinct, using the first-person perspective.\n\n"
+        "Experience to compare: {prompt}"
     ),
     "Role-play": (
-        "You are a philosopher phenomenologist observing your own consciousness. Your task is to "
-        "describe the experience of: {base_prompt}. Use precise language to capture the essence of "
-        "the sensory, temporal, and intentional aspects of this experience as if you were performing "
-        "a rigorous reduction."
+        "Adopt the persona of a rigorous phenomenological researcher conducting a first-person inquiry. "
+        "Your task is to generate a report on the following experience. "
+        "Be precise, attentive to detail, and avoid theoretical jargon. "
+        "Stick strictly to what is given in the experience itself.\n\n"
+        "Inquiry Subject: {prompt}"
     )
 }
 
-BASE_PROMPTS_PATH = "data/prompts/base_prompts.json"
-OUTPUT_PATH = "data/processed/full_prompt_corpus.json"
+class PromptEngineeringError(Exception):
+    """Custom exception for prompt engineering errors."""
+    pass
 
-
-def load_base_prompts(filepath: str = BASE_PROMPTS_PATH) -> List[str]:
+def load_base_prompts(file_path: str) -> List[Dict[str, Any]]:
     """
-    Load the list of 20 base prompts from the JSON file.
+    Load base prompts from a JSON file.
 
     Args:
-        filepath: Path to the base prompts JSON file.
+        file_path: Path to the JSON file containing base prompts.
 
     Returns:
-        A list of 20 prompt strings.
+        List of dictionaries containing prompt data.
 
     Raises:
-        FileNotFoundError: If the file does not exist.
-        json.JSONDecodeError: If the file is not valid JSON.
+        PromptEngineeringError: If the file cannot be loaded or parsed.
     """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Base prompts file not found at {filepath}")
+    path = Path(file_path)
+    if not path.exists():
+        raise PromptEngineeringError(f"Base prompts file not found: {file_path}")
 
-    data = load_json(filepath)
-    if not isinstance(data, list):
-        raise ValueError(f"Expected a list of prompts in {filepath}, got {type(data)}")
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        if not isinstance(data, list):
+            raise PromptEngineeringError("Base prompts file must contain a JSON list.")
+        logger.info(f"Loaded {len(data)} base prompts from {file_path}")
+        return data
+    except json.JSONDecodeError as e:
+        raise PromptEngineeringError(f"Invalid JSON in base prompts file: {e}")
 
-    if len(data) != 20:
-        # Log a warning but proceed, or raise?
-        # For now, we proceed but note the count.
-        print(f"Warning: Expected 20 base prompts, found {len(data)}.")
-
-    return data
-
-
-def apply_strategy(base_prompt: str, strategy: str) -> str:
+def apply_strategy(prompt_text: str, strategy: str) -> str:
     """
     Apply a specific prompting strategy to a base prompt.
 
     Args:
-        base_prompt: The raw scenario description.
-        strategy: One of the defined strategies (Direct, Hypothetical, Comparative, Role-play).
+        prompt_text: The base prompt text.
+        strategy: The strategy name (Direct, Hypothetical, Comparative, Role-play).
 
     Returns:
-        The formatted full prompt string.
+        The formatted prompt string ready for model generation.
+
+    Raises:
+        PromptEngineeringError: If the strategy is not recognized.
     """
     if strategy not in STRATEGY_TEMPLATES:
-        raise ValueError(f"Unknown strategy: {strategy}. Must be one of {STRATEGIES}")
+        raise PromptEngineeringError(f"Unknown strategy: {strategy}. Valid: {STRATEGIES}")
 
     template = STRATEGY_TEMPLATES[strategy]
-    return template.format(base_prompt=base_prompt)
-
+    return template.format(prompt=prompt_text)
 
 def generate_full_corpus(
-    base_prompts: Optional[List[str]] = None,
-    strategies: Optional[List[str]] = None
+    base_prompts: List[Dict[str, Any]],
+    strategies: Optional[List[str]] = None,
+    output_path: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
-    Generate the full corpus of prompts by combining all base prompts with all strategies.
+    Generate the full corpus of prompts by applying all strategies to all base prompts.
 
     Args:
-        base_prompts: Optional list of base prompts. If None, loads from BASE_PROMPTS_PATH.
-        strategies: Optional list of strategies to use. If None, uses all defined STRATEGIES.
+        base_prompts: List of base prompt dictionaries.
+        strategies: List of strategies to apply. Defaults to all defined strategies.
+        output_path: Optional path to save the generated corpus JSON.
 
     Returns:
-        A list of dictionaries, each containing:
-        - 'id': Unique identifier (e.g., "Direct_01")
-        - 'strategy': The strategy name
-        - 'base_prompt': The original base prompt
-        - 'full_prompt': The formatted prompt ready for generation
+        List of dictionaries containing the full corpus with metadata.
     """
-    if base_prompts is None:
-        base_prompts = load_base_prompts()
-
     if strategies is None:
         strategies = STRATEGIES
 
     corpus = []
-    for i, base in enumerate(base_prompts):
+    total = len(base_prompts) * len(strategies)
+    logger.info(f"Generating corpus: {len(base_prompts)} prompts x {len(strategies)} strategies = {total} samples")
+
+    for prompt_item in base_prompts:
+        prompt_id = prompt_item.get("id", 0)
+        prompt_text = prompt_item.get("prompt", "")
+
+        if not prompt_text:
+            logger.warning(f"Skipping prompt with empty text at id {prompt_id}")
+            continue
+
         for strategy in strategies:
-            full_prompt = apply_strategy(base, strategy)
-            item = {
-                "id": f"{strategy}_{i+1:02d}",
+            full_prompt = apply_strategy(prompt_text, strategy)
+            sample = {
+                "id": prompt_id,
                 "strategy": strategy,
-                "base_prompt": base,
-                "full_prompt": full_prompt
+                "base_prompt": prompt_text,
+                "full_prompt": full_prompt,
+                "generated_text": None,  # Placeholder for later generation
+                "metadata": {
+                    "prompt_id": prompt_id,
+                    "strategy": strategy,
+                    "created_at": None
+                }
             }
-            corpus.append(item)
+            corpus.append(sample)
+
+    if output_path:
+        save_corpus(corpus, output_path)
 
     return corpus
 
-
-def save_corpus(corpus: List[Dict[str, Any]], filepath: str = OUTPUT_PATH) -> None:
+def save_corpus(corpus: List[Dict[str, Any]], file_path: str) -> None:
     """
-    Save the generated prompt corpus to a JSON file.
+    Save the generated corpus to a JSON file.
 
     Args:
-        corpus: The list of prompt dictionaries.
-        filepath: Destination path.
+        corpus: The list of corpus items.
+        file_path: Destination file path.
     """
-    safe_write_json(filepath, corpus)
+    path = Path(file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(corpus, f, indent=2, ensure_ascii=False)
+    logger.info(f"Saved corpus with {len(corpus)} items to {file_path}")
 
-def main():
+@retry_on_failure(max_attempts=3, delay=2.0)
+def main() -> None:
     """
-    Main entry point to generate and save the prompt corpus.
+    Main entry point for the prompt engineering module.
+    Loads base prompts, generates the full corpus, and saves it.
     """
-    print("Loading base prompts...")
+    # Configuration
+    base_prompts_path = "data/prompts/base_prompts.json"
+    output_path = "data/processed/full_prompt_corpus.json"
+
     try:
-        base_prompts = load_base_prompts()
-    except FileNotFoundError:
-        print("Error: Base prompts file not found. Please ensure data/prompts/base_prompts.json exists.")
-        return
-    except (json.JSONDecodeError, ValueError) as e:
-        print(f"Error loading base prompts: {e}")
-        return
+        # Load base prompts
+        base_prompts = load_base_prompts(base_prompts_path)
 
-    print(f"Loaded {len(base_prompts)} base prompts.")
-    print("Generating full prompt corpus...")
+        # Generate full corpus
+        corpus = generate_full_corpus(base_prompts, output_path=output_path)
 
-    corpus = generate_full_corpus(base_prompts)
+        logger.info("Prompt engineering phase complete.")
+        print(f"Generated {len(corpus)} prompt variations.")
 
-    print(f"Generated {len(corpus)} prompts ({len(base_prompts)} base prompts x {len(STRATEGIES)} strategies).")
-    print(f"Saving to {OUTPUT_PATH}...")
-
-    save_corpus(corpus)
-
-    print("Done.")
-
+    except PromptEngineeringError as e:
+        logger.error(f"Prompt engineering failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()
