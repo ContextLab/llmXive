@@ -1175,6 +1175,10 @@
     "classified_at": "2026-07-04T05:12:37Z",
     "verdict": false
   },
+  "PROJ-877-llmxive-follow-up-extending-mellum2-tech::1.6.0": {
+    "classified_at": "2026-07-13T13:49:05Z",
+    "verdict": false
+  },
   "PROJ-878-llmxive-follow-up-extending-multi-turn-r::1.6.0": {
     "classified_at": "2026-07-05T10:37:23Z",
     "verdict": false

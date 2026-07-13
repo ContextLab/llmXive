@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1906.06643",
+  "judged_at": "2026-07-13T13:49:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mellum2 technical report\" linguistics",
+  "rationale": "The paper focuses on network throughput and CSMA protocols in wireless communications, which is an entirely different domain from the user's question regarding Large Language Models (LLMs) and linguistics. This falls under the rejection rule for \"Off-domain entirely\" as there is no measurable connection to the user's mechanism, variables, or empirical setting.",
+  "relevant": false
+}

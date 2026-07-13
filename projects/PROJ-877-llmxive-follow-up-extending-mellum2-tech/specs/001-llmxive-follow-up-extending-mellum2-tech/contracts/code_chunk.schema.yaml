@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CodeChunk"
+description: "Schema for a code chunk with static analysis and LLM inference metrics."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the chunk (hash + repo ID)."
+  repository_id:
+    type: "string"
+    description: "Identifier of the source repository."
+  language:
+    type: "string"
+    enum:
+      - "python"
+      - "java"
+      - "other"
+    description: "Programming language of the chunk."
+  static_labels:
+    type: "object"
+    properties:
+      cyclomatic_complexity:
+        type: "integer"
+        minimum: 0
+        description: "Cyclomatic complexity score."
+      nesting_depth:
+        type: "integer"
+        minimum: 0
+        description: "Maximum nesting depth."
+      repetition_ratio:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Ratio of repeated tokens."
+    required:
+      - cyclomatic_complexity
+      - nesting_depth
+      - repetition_ratio
+  inference_metrics:
+    type: "object"
+    properties:
+      per_token_loss:
+        type: "number"
+        description: "Average per-token log loss from LLM."
+      prediction_entropy:
+        type: "number"
+        description: "Average prediction entropy."
+      normalized_loss:
+        type: "number"
+        description: "Per-token loss normalized by 5-gram baseline."
+    required:
+      - per_token_loss
+      - prediction_entropy
+      - normalized_loss
+  metadata:
+    type: "object"
+    properties:
+      token_count:
+        type: "integer"
+        minimum: 1
+      parse_success:
+        type: "boolean"
+        description: "Whether static analysis succeeded."
+      baseline_model:
+        type: "string"
+        description: "Identifier of the baseline model used (e.g., '5gram_kneser_ney')."
+    required:
+      - token_count
+      - parse_success
+      - baseline_model
+required:
+  - id
+  - repository_id
+  - language
+  - static_labels
+  - inference_metrics
+  - metadata
+additionalProperties: false

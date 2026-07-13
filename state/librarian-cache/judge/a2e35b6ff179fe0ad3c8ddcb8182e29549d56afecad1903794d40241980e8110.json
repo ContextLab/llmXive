@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2112.02448",
+  "judged_at": "2026-07-13T13:49:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mellum2 technical report\" linguistics",
+  "rationale": "The paper focuses on a specific engineering implementation of a text-to-image model for emoji generation in Russian, which does not measure the same biological, algorithmic, or linguistic mechanisms as the user's question regarding the \"Mellum2 Technical Report\" linguistics. It fails to satisfy any inclusion criteria (a-f) as it addresses a different modality (image generation vs. linguistic analysis) and lacks a connection to the specific linguistic properties or mechanisms the user is investig",
+  "relevant": false
+}

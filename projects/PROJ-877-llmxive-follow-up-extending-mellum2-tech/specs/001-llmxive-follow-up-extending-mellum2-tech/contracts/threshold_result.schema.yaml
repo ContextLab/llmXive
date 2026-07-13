@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ThresholdResult"
+description: "Schema for piecewise regression and change-point detection results."
+type: "object"
+properties:
+  metric:
+    type: "string"
+    description: "Complexity metric analyzed."
+  language:
+    type: "string"
+    description: "Language subset analyzed."
+  threshold_value:
+    type: "number"
+    description: "Identified structural threshold value."
+  slope_before:
+    type: "number"
+    description: "Slope of the relationship below the threshold."
+  slope_after:
+    type: "number"
+    description: "Slope of the relationship above the threshold."
+  model_fit:
+    type: "string"
+    enum:
+      - "piecewise"
+      - "linear"
+    description: "Preferred model based on AIC/BIC."
+  aic_difference:
+    type: "number"
+    description: "Difference in AIC between piecewise and linear models."
+  sensitivity_range:
+    type: "array"
+    items:
+      type: "number"
+    description: "List of threshold values swept during sensitivity analysis."
+  bootstrap_stability:
+    type: "number"
+    description: "Maximum shift in threshold value across bootstrap samples (SC-002)."
+required:
+  - metric
+  - language
+  - threshold_value
+  - slope_before
+  - slope_after
+  - model_fit
+  - aic_difference
+  - sensitivity_range
+  - bootstrap_stability
+additionalProperties: false
