@@ -4,71 +4,110 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 from dataclasses import dataclass, field
 
+class TolerantDict(dict):
+    """A dictionary that allows access via .get() and attribute-style access."""
+    def __getattr__(self, name):
+        if name in self:
+            return self[name]
+        # Return a no-op callable for unknown attributes to prevent AttributeError
+        def _noop(*args, **kwargs):
+            return None
+        return _noop
+
+    def __setattr__(self, name, value):
+        self[name] = value
+
 @dataclass
 class AppConfig:
-    """Configuration container for the application."""
+    """Configuration wrapper that supports dict-like .get() access for compatibility."""
     config: Dict[str, Any] = field(default_factory=dict)
-    seed: int = 42
-    log_level: str = "INFO"
-    
-    def get(self, key: str, default: Any = None) -> Any:
-        """
-        Tolerant get method to mimic dict-like access.
-        Handles nested access like config.get('paths', {}).get('derived_data')
-        by returning a nested dict or a tolerant object if key missing.
-        """
-        if key in self.config:
-            val = self.config[key]
-            if isinstance(val, dict):
-                return TolerantDict(val)
-            return val
-        return default
-
-class TolerantDict:
-    """A dict-like wrapper that returns a TolerantDict or None for missing keys."""
-    def __init__(self, data: Dict[str, Any]):
-        self.data = data
 
     def get(self, key: str, default: Any = None) -> Any:
-        val = self.data.get(key, default)
-        if isinstance(val, dict):
-            return TolerantDict(val)
-        return val
+        """Retrieve a value from the config dict, supporting nested access."""
+        if not isinstance(key, str):
+            return default
+        keys = key.split('.')
+        current = self.config
+        for k in keys:
+            if isinstance(current, dict) and k in current:
+                current = current[k]
+            else:
+                return default
+        return current
+
+    def __getitem__(self, key: str) -> Any:
+        return self.config[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.config
+
+    # Tolerant fallback for any other attribute access (e.g., logger methods)
+    def __getattr__(self, name: str) -> Any:
+        # If it looks like a logger call, return a no-op
+        if name in ('info', 'debug', 'warning', 'error', 'critical', 'exception', 'get'):
+            def _noop(*args, **kwargs):
+                return None
+            return _noop
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
 def load_config(config_path: Optional[str] = None) -> AppConfig:
-    """Load configuration from a YAML file or return defaults."""
-    from pyyaml import load as yaml_load, Loader
-    import os
-    
+    """Load configuration from a YAML or JSON file, or return defaults."""
     if config_path is None:
-        config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config.yaml')
-    
-    if os.path.exists(config_path):
+        config_path = os.getenv('CONFIG_PATH', 'projects/PROJ-179-the-influence-of-metacognitive-awareness/config/config.yaml')
+
+    if not os.path.exists(config_path):
+        # Return a default config if file doesn't exist
+        return AppConfig(config={
+            "paths": {
+                "base": "projects/PROJ-179-the-influence-of-metacognitive-awareness",
+                "data": "data",
+                "derived_data": "data/derived",
+                "results": "data/results"
+            },
+            "analysis": {
+                "bootstrap_count": 1000,
+                "test_split_ratio": 0.3
+            },
+            "logging": {
+                "level": "INFO"
+            }
+        })
+
+    try:
+        import yaml
         with open(config_path, 'r') as f:
-            config_data = yaml_load(f, Loader=Loader)
+            config_data = yaml.safe_load(f) or {}
         return AppConfig(config=config_data)
-    return AppConfig()
+    except ImportError:
+        # Fallback if yaml not installed
+        import json
+        with open(config_path, 'r') as f:
+            config_data = json.load(f) or {}
+        return AppConfig(config=config_data)
+    except Exception as e:
+        logging.error(f"Failed to load config: {e}")
+        return AppConfig(config={})
 
 def setup_logging(level: str = "INFO") -> logging.Logger:
-    """Setup basic logging configuration."""
+    """Configure logging and return a logger instance."""
+    log_level = getattr(logging, level.upper(), logging.INFO)
     logging.basicConfig(
-        level=getattr(logging, level.upper(), logging.INFO),
-        format='%(asctime)s - %(levelname)s - %(message)s'
+        level=log_level,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
     return logging.getLogger(__name__)
 
-def get_seed(config: Optional[AppConfig] = None) -> int:
-    """Get the random seed from config or default."""
-    if config:
-        return config.seed
-    return 42
+def get_seed() -> int:
+    """Get a random seed from environment or use a default."""
+    return int(os.getenv('RANDOM_SEED', '42'))
 
 def main():
-    """Main entry point for config module (for testing)."""
+    """Main entry point for config module (testing/debugging)."""
     config = load_config()
-    print(f"Loaded config: {config.config}")
-    print(f"Seed: {config.seed}")
-    print(f"Log level: {config.log_level}")
+    logger = setup_logging(config.get("logging.level", "INFO"))
+    logger.info("Config loaded successfully")
+    logger.info(f"Base path: {config.get('paths.base', 'N/A')}")
 
 if __name__ == "__main__":
     main()

@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-179-the-influence-of-metacognitive-awareness",
   "ok": false,
-  "reason": "2 run-book script(s) missing (plan/impl path mismatch): python code/download.py; python code/analysis.py; 2 command(s) failed: python code/data/validate_data.py (rc=1); python code/data/preprocess.py (rc=1); 5 declared deliverable(s) absent: data/derived/trial_data.csv; data/results/bootstrap_config.json; data/results/primary_analysis.json",
+  "reason": "4 command(s) failed: python code/data/download.py (rc=1); python code/data/validate_data.py (rc=1); python code/data/preprocess.py (rc=1); 6 declared deliverable(s) absent: data/derived/trial_data.csv; data/derived/visual_trials.csv; data/results/bootstrap_config.json",
   "artifacts": [
     "data/validation_report.json"
   ],
   "failures": [
-    "python code/download.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/download.py': [Errno 2] No such file or directory",
-    "python code/data/validate_data.py -> rc=1\n    2026-06-30 13:03:18,853 - INFO - Starting data validation (T006)...\n2026-06-30 13:03:18,854 - INFO - Loading dataset from data/ds003386_behavioral.csv...\n2026-06-30 13:03:18,854 - ERROR - Dataset not found at data/ds003386_behavioral.csv. Ensure T005 (download.py) has successfully executed.\n2026-06-30 13:03:18,854 - INFO - Validation report written to data/validation_report.json",
-    "python code/data/preprocess.py -> rc=1\n    ognitive-awareness/code/data/preprocess.py\", line 196, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/data/preprocess.py\", line 147, in main\n    log_level = config.get('logging', {}).get('level', 'INFO')\n                ^^^^^^^^^^\nAttributeError: 'AppConfig' object has no attribute 'get'",
-    "python code/analysis.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/analysis.py': [Errno 2] No such file or directory"
+    "python code/data/download.py -> rc=1\n    -13 16:08:02,260 - INFO - Attempting to download dataset from: https://raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv\n2026-07-13 16:08:02,393 - ERROR - Failed to download from https://raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv\n2026-07-13 16:08:02,393 - INFO - Primary URL failed. Attempting fallback: https://raw.githubusercontent.com/psychopy/data",
+    "python code/data/validate_data.py -> rc=1\n    2026-07-13 16:08:02,792 - INFO - Starting data validation (T006)...\n2026-07-13 16:08:02,792 - ERROR - Could not find downloaded dataset. Expected one of: ['data/ds003386_behavioral.csv', 'data/downloaded/ds003386_behavioral.csv', 'data/behavioral_data.csv']\n2026-07-13 16:08:02,792 - INFO - Validation report written to /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/data/validation_report.json",
+    "python code/data/preprocess.py -> rc=1\n    2026-07-13 16:08:03,169 - INFO - Starting data preprocessing (T012)...\n2026-07-13 16:08:03,169 - INFO - Output directory ready: /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/data/derived\n2026-07-13 16:08:03,169 - ERROR - No input CSV found in data/ directory. Run T005 first.\n2026-07-13 16:08:03,169 - ERROR - Data loading failed. Aborting.",
+    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/analysis.py\", line 118, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/analysis.py\", line 29, in main\n    logger = setup_logging(\"info\")\n             ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/config/env_config.py\", line 95, in setup_logging\n    level_str "
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "updated_at": "2026-06-30T13:03:20Z"
+  "updated_at": "2026-07-13T16:08:06Z"
 }

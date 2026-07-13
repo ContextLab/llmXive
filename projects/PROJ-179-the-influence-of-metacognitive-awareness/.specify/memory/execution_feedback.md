@@ -1,32 +1,55 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python code/data/download.py`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python code/download.py; python code/analysis.py; 2 command(s) failed: python code/data/validate_data.py (rc=1); python code/data/preprocess.py (rc=1); 5 declared deliverable(s) absent: data/derived/trial_data.csv; data/results/bootstrap_config.json; data/results/primary_analysis.json
+**Summary**: 4 command(s) failed: python code/data/download.py (rc=1); python code/data/validate_data.py (rc=1); python code/data/preprocess.py (rc=1); 6 declared deliverable(s) absent: data/derived/trial_data.csv; data/derived/visual_trials.csv; data/results/bootstrap_config.json
 
 ## Failing / missing run-book commands
 
-- python code/download.py -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/download.py': [Errno 2] No such file or directory
+- python code/data/download.py -> rc=1
+    -13 16:08:02,260 - INFO - Attempting to download dataset from: https://raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv
+2026-07-13 16:08:02,393 - ERROR - Failed to download from https://raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv
+2026-07-13 16:08:02,393 - INFO - Primary URL failed. Attempting fallback: https://raw.githubusercontent.com/psychopy/datasets/main/sample_behavioral_data.csv
+2026-07-13 16:08:02,393 - INFO - Attempting to download dataset from: https://raw.githubusercontent.com/psychopy/datasets/main/sample_behavioral_data.csv
+2026-07-13 16:08:02,479 - ERROR - Failed to download from https://raw.githubusercontent.com/psychopy/datasets/main/sample_behavioral_data.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/psychopy/datasets/main/sample_behavioral_data.csv
+2026-07-13 16:08:02,479 - ERROR - ERROR: Could not download a valid behavioral dataset from any source.
+2026-07-13 16:08:02,479 - ERROR - Project blocked. No real data source available.
 - python code/data/validate_data.py -> rc=1
-    2026-06-30 13:03:18,853 - INFO - Starting data validation (T006)...
-2026-06-30 13:03:18,854 - INFO - Loading dataset from data/ds003386_behavioral.csv...
-2026-06-30 13:03:18,854 - ERROR - Dataset not found at data/ds003386_behavioral.csv. Ensure T005 (download.py) has successfully executed.
-2026-06-30 13:03:18,854 - INFO - Validation report written to data/validation_report.json
+    2026-07-13 16:08:02,792 - INFO - Starting data validation (T006)...
+2026-07-13 16:08:02,792 - ERROR - Could not find downloaded dataset. Expected one of: ['data/ds003386_behavioral.csv', 'data/downloaded/ds003386_behavioral.csv', 'data/behavioral_data.csv']
+2026-07-13 16:08:02,792 - INFO - Validation report written to /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/data/validation_report.json
 - python code/data/preprocess.py -> rc=1
-    ognitive-awareness/code/data/preprocess.py", line 196, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/data/preprocess.py", line 147, in main
-    log_level = config.get('logging', {}).get('level', 'INFO')
+    2026-07-13 16:08:03,169 - INFO - Starting data preprocessing (T012)...
+2026-07-13 16:08:03,169 - INFO - Output directory ready: /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/data/derived
+2026-07-13 16:08:03,169 - ERROR - No input CSV found in data/ directory. Run T005 first.
+2026-07-13 16:08:03,169 - ERROR - Data loading failed. Aborting.
+- python code/analysis.py -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/analysis.py", line 118, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/analysis.py", line 29, in main
+    logger = setup_logging("info")
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/config/env_config.py", line 95, in setup_logging
+    level_str = config.get("logging", {}).get("level", "INFO")
                 ^^^^^^^^^^
-AttributeError: 'AppConfig' object has no attribute 'get'
-- python code/analysis.py -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/analysis.py': [Errno 2] No such file or directory
+AttributeError: 'str' object has no attribute 'get'
 
 ## Declared deliverables still missing
 
 - data/derived/trial_data.csv
+- data/derived/visual_trials.csv
 - data/results/bootstrap_config.json
 - data/results/primary_analysis.json
 - data/results/regression_analysis.json
@@ -56,25 +79,32 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Whichever you choose, every call site of `AppConfig` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`AppConfig.get` call sites (18):
-- code/src/analysis/robustness.py: base_dir = Path(CONFIG.get("paths", {}).get("derived_data", "data/derived"))
-- code/src/analysis/robustness.py: output_dir = Path(CONFIG.get("paths", {}).get("results", "data/results"))
-- code/src/analysis/robustness.py: n_resamples = CONFIG.get("analysis", {}).get("bootstrap_count", 1000)
-- code/models/data_models.py: modality_str = str(row.get('stimulus_modality', 'unknown')).lower()
-- code/models/data_models.py: source_str = str(row.get('source_label', 'unknown')).lower()
-- code/models/data_models.py: trial_id=str(row.get('trial_id', str(uuid.uuid4()))),
-- code/models/data_models.py: participant_id=str(row.get('participant_id')),
-- code/models/data_models.py: participant_response=str(row.get('participant_response', '')),
-- code/models/data_models.py: confidence_rating=float(row.get('confidence_rating', 0.0)),
-- code/models/data_models.py: reaction_time=float(row.get('reaction_time')) if row.get('reaction_time') is not None else None
-- code/data/preprocess.py: 'participant_id': config.get('columns', {}).get('participant_id', 'participant_id'),
-- code/data/preprocess.py: 'trial_id': config.get('columns', {}).get('trial_id', 'trial_id'),
-- code/data/preprocess.py: 'stimulus_modality': config.get('columns', {}).get('stimulus_modality', 'stimulus_modality'),
-- code/data/preprocess.py: 'source_label': config.get('columns', {}).get('source_label', 'source_label'),
-- code/data/preprocess.py: 'participant_response': config.get('columns', {}).get('participant_response', 'participant_response'),
-- code/data/preprocess.py: 'confidence_rating': config.get('columns', {}).get('confidence_rating', 'confidence_rating')
-- code/data/preprocess.py: log_level = config.get('logging', {}).get('level', 'INFO')
-- code/code/performance_optimizer.py: logger.info(f"Regression result: R2={reg_res.get('rsquared', 'N/A')}")
+`AppConfig.get` call sites (25):
+- code/src/analysis/bootstrap.py: n_resamples = config.get("analysis", {}).get("bootstrap_count", DEFAULT_BOOTSTRAP_COUNT)
+- code/src/analysis/robustness.py: m.get('status') == 'success'
+- code/src/analysis/diagnostics.py: base_dir = Path(config.get("paths", {}).get("base", "projects/PROJ-179-the-influence-of-metacognitive-awareness"))
+- code/src/analysis/diagnostics.py: results_dir = Path(base_dir) / config.get("paths", {}).get("results", "data/results")
+- code/src/analysis/diagnostics.py: derived_dir = Path(base_dir) / config.get("paths", {}).get("derived_data", "data/derived")
+- code/src/analysis/diagnostics.py: residuals = regression_results.get("residuals", [])
+- code/src/analysis/diagnostics.py: y_values = regression_results.get("y_values", [])
+- code/src/analysis/diagnostics.py: "normality_passed": normality_result.get("is_normal", False),
+- code/src/analysis/diagnostics.py: "homoscedasticity_passed": homoscedasticity_result.get("is_homoscedastic", False),
+- code/src/analysis/diagnostics.py: "collinearity_flagged": vif_result.get("collinearity_flag", False),
+- code/src/analysis/diagnostics.py: normality_result.get("is_normal", False) and
+- code/src/analysis/diagnostics.py: homoscedasticity_result.get("is_homoscedastic", False) and
+- code/src/analysis/diagnostics.py: not vif_result.get("collinearity_flag", False)
+- code/src/analysis/diagnostics.py: logger.error(f"Diagnostics failed: {results.get('reason', 'Unknown error')}")
+- code/src/report/generate.py: "pearson_r": correlation_results.get("correlation", np.nan),
+- code/src/report/generate.py: "p_value": correlation_results.get("p_value", np.nan),
+- code/src/report/generate.py: "ci_95_lower": correlation_results.get("ci_lower", np.nan),
+- code/src/report/generate.py: "ci_95_upper": correlation_results.get("ci_upper", np.nan),
+- code/src/report/generate.py: "n_resamples": correlation_results.get("n_resamples", 0),
+- code/src/report/generate.py: "direction": determine_correlation_direction(correlation_results.get("correlation", 0)),
+- code/src/report/generate.py: "effect_size_magnitude": calculate_effect_size_magnitude(correlation_results.get("correlation", 0))
+- code/src/report/generate.py: "model_1": regression_results.get("model_1", {}),
+- code/src/report/generate.py: "model_2": regression_results.get("model_2", {}),
+- code/src/report/generate.py: "delta_r_squared": regression_results.get("delta_r_squared", np.nan),
+- code/src/report/generate.py: "f_change": regression_results.get("f_change", np.nan),
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -82,32 +112,59 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/derived/trial_data.csv` is declared but was NOT written. Scripts referencing it:
     - `code/quickstart_validator.py` — NOT invoked by the run-book
+    - `code/analysis.py` — IS a run-book command
     - `code/src/utils/security.py` — NOT invoked by the run-book
     - `code/src/utils/stats.py` — NOT invoked by the run-book
     - `code/src/analysis/bootstrap.py` — NOT invoked by the run-book
     - `code/src/analysis/filter.py` — NOT invoked by the run-book
-    - `code/src/analysis/regression.py` — NOT invoked by the run-book
-    - `code/tests/unit/test_filter.py` — NOT invoked by the run-book
-    - `code/data/preprocess.py` — IS a run-book command
+    - `code/src/analysis/robustness.py` — NOT invoked by the run-book
+    - `code/src/analysis/diagnostics.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/derived/trial_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/derived/visual_trials.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis.py` — IS a run-book command
+  Make ONE of these WRITE `data/derived/visual_trials.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/results/bootstrap_config.json` is declared but was NOT written. Scripts referencing it:
     - `code/quickstart_validator.py` — NOT invoked by the run-book
+    - `code/analysis.py` — IS a run-book command
     - `code/src/analysis/bootstrap.py` — NOT invoked by the run-book
+    - `code/src/report/generate.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/bootstrap_config.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/results/primary_analysis.json` is declared but was NOT written. Scripts referencing it:
     - `code/quickstart_validator.py` — NOT invoked by the run-book
+    - `code/analysis.py` — IS a run-book command
     - `code/src/analysis/bootstrap.py` — NOT invoked by the run-book
-    - `code/src/analysis/regression.py` — NOT invoked by the run-book
+    - `code/src/analysis/correlation.py` — NOT invoked by the run-book
+    - `code/src/report/generate.py` — NOT invoked by the run-book
     - `code/tests/unit/test_generate_report.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/primary_analysis.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/results/regression_analysis.json` is declared but was NOT written. Scripts referencing it:
     - `code/quickstart_validator.py` — NOT invoked by the run-book
+    - `code/analysis.py` — IS a run-book command
+    - `code/src/analysis/diagnostics.py` — NOT invoked by the run-book
     - `code/src/analysis/regression.py` — NOT invoked by the run-book
+    - `code/src/report/generate.py` — NOT invoked by the run-book
     - `code/tests/unit/test_regression.py` — NOT invoked by the run-book
     - `code/code/performance_optimizer.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/regression_analysis.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/results/robustness_analysis.json` is declared but was NOT written. Scripts referencing it:
     - `code/quickstart_validator.py` — NOT invoked by the run-book
+    - `code/analysis.py` — IS a run-book command
     - `code/src/analysis/robustness.py` — NOT invoked by the run-book
     - `code/src/report/generate.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/robustness_analysis.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+
+## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
+
+One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
+
+**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
+
+### `raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv`
+
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/data/download.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/data/download.py`.
+
+### `raw.githubusercontent.com/psychopy/datasets/main/sample_behavioral_data.csv`
+
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/data/download.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `raw.githubusercontent.com/psychopy/datasets/main/sample_behavioral_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/data/download.py`.

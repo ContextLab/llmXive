@@ -1,3 +1,9 @@
+"""
+T020: Hierarchical regression with covariates.
+
+Tests whether metacognitive awareness contributes unique variance 
+to reality testing accuracy after controlling for covariates.
+"""
 import os
 import sys
 import json
@@ -5,343 +11,179 @@ import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from statsmodels.regression.linear_model import OLS
+from statsmodels.tools import add_constant
 
-# Import stats utilities for model fitting (using statsmodels as per requirements)
-import statsmodels.api as sm
-from statsmodels.stats.outliers_influence import variance_inflation_factor
-from statsmodels.stats.diagnostic import het_breuschpagan
-from scipy.stats import shapiro
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-# Import config utilities
-from code.config.env_config import load_config, get_seed
+from config.env_config import load_config, setup_logging
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+def log_info(logger, msg):
+    if logger:
+        logger.info(msg)
+    else:
+        print(f"[INFO] {msg}")
 
-# Paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-DERIVED_DIR = DATA_DIR / "derived"
-RESULTS_DIR = DATA_DIR / "results"
+def log_error(logger, msg):
+    if logger:
+        logger.error(msg)
+    else:
+        print(f"[ERROR] {msg}")
 
-def load_regression_data() -> pd.DataFrame:
-    """
-    Load the processed data required for regression.
-    Expects:
-      - data/derived/trial_data.csv (from T012)
-      - data/results/primary_analysis.json (from T016, containing metacognitive scores per participant)
+def load_regression_data():
+    """Load data for regression analysis."""
+    trial_data_path = Path("data") / "derived" / "trial_data.csv"
+    if not trial_data_path.exists():
+        raise FileNotFoundError(f"Trial data not found at {trial_data_path}")
     
-    Returns a dataframe with one row per participant containing:
-      - participant_id
-      - metacognitive_score (Type-2 AUC from training split)
-      - reality_testing_accuracy (d' from test split)
-      - age (if available)
-      - gender (if available)
-      - working_memory (if available)
-    """
-    trial_file = DERIVED_DIR / "trial_data.csv"
-    if not trial_file.exists():
-        raise FileNotFoundError(f"Required input file not found: {trial_file}")
+    df = pd.read_csv(trial_data_path)
     
-    # Load primary analysis results to get per-participant scores
-    # Note: T016 output structure assumes we have aggregated scores. 
-    # If T016 output is group-level only, we must recompute per-participant scores here
-    # based on the Hold-Out design logic defined in T014.
-    
-    # Since T016 produces group correlation, we need to reconstruct the participant-level
-    # feature matrix for regression. We will re-calculate d' and Type-2 AUC per participant
-    # using the same split logic to ensure consistency.
-    
-    # Load trial data
-    df = pd.read_csv(trial_file)
-    
-    # Check for covariates
-    has_age = 'age' in df.columns
-    has_gender = 'gender' in df.columns
+    # Check for working memory data
     has_working_memory = 'working_memory' in df.columns
     
-    logger.info(f"Data columns found: {df.columns.tolist()}")
-    logger.info(f"Covariates available: age={has_age}, gender={has_gender}, working_memory={has_working_memory}")
+    return df, has_working_memory
+
+def compute_type2_auc_and_d_prime(df):
+    """Compute Type-2 AUC and d' for each participant."""
+    from src.utils.stats import compute_type2_auc, compute_sdt_metrics
     
-    # We need to aggregate by participant to get the scores used in the correlation.
-    # The correlation in T014 used a 70/30 split. To be consistent, we replicate that logic.
-    # However, for regression, we need the specific values.
-    # Assuming T014 logic: Split trials 70/30. 
-    # Training set -> Type-2 AUC. Test set -> d'.
+    participants = df['participant_id'].unique()
+    metrics = []
     
-    # We will implement a simplified aggregation here assuming the 'primary_analysis'
-    # might not have per-participant breakdown if it was purely group-level.
-    # But for regression, we MUST have per-participant (X, Y) pairs.
+    for participant_id in participants:
+        p_data = df[df['participant_id'] == participant_id]
+        
+        try:
+            type2_auc = compute_type2_auc(
+                p_data['source_label'],
+                p_data['participant_response'],
+                p_data['confidence_rating']
+            )
+            d_prime, _ = compute_sdt_metrics(
+                p_data['source_label'],
+                p_data['participant_response']
+            )
+        except:
+            type2_auc = np.nan
+            d_prime = np.nan
+        
+        metrics.append({
+            'participant_id': participant_id,
+            'type2_auc': type2_auc,
+            'd_prime': d_prime,
+            'age': p_data['age'].iloc[0] if 'age' in p_data.columns else np.nan,
+            'gender': p_data['gender'].iloc[0] if 'gender' in p_data.columns else np.nan,
+            'working_memory': p_data['working_memory'].iloc[0] if 'working_memory' in p_data.columns else np.nan
+        })
     
-    # Strategy: Re-run the split logic per participant to extract the specific values.
-    # This ensures the regression uses the exact same derived variables as the correlation.
+    return pd.DataFrame(metrics)
+
+def run_regression_analysis(metrics_df, has_working_memory):
+    """Run hierarchical regression analysis."""
+    # Clean data
+    clean_df = metrics_df.dropna(subset=['type2_auc', 'd_prime'])
     
-    participant_scores = []
-    
-    for pid, group in df.groupby('participant_id'):
-        # Ensure we have the necessary columns for the split
-        # We need: confidence_rating, source_label (truth), participant_response
-        
-        if 'confidence_rating' not in group.columns or 'source_label' not in group.columns:
-            logger.warning(f"Participant {pid} missing required columns for scoring. Skipping.")
-            continue
-        
-        # Simulate 70/30 split (deterministic based on seed)
-        seed = get_seed()
-        np.random.seed(seed + int(pid) if isinstance(pid, int) else hash(pid))
-        
-        indices = group.index.tolist()
-        np.random.shuffle(indices)
-        split_idx = int(0.7 * len(indices))
-        
-        train_idx = indices[:split_idx]
-        test_idx = indices[split_idx:]
-        
-        train_group = group.loc[train_idx]
-        test_group = group.loc[test_idx]
-        
-        if len(train_group) == 0 or len(test_group) == 0:
-            logger.warning(f"Participant {pid} has insufficient trials for split. Skipping.")
-            continue
-        
-        # 1. Compute Metacognitive Score (Type-2 AUC) on TRAINING set
-        # Type-2 AUC requires: Accuracy (binary) and Confidence ratings
-        # Accuracy = (participant_response == source_label)
-        train_group = train_group.copy()
-        train_group['accuracy'] = (train_group['participant_response'] == train_group['source_label']).astype(int)
-        
-        # Compute Type-2 AUC (simplified implementation for this context)
-        # We calculate the area under the Type-2 ROC curve.
-        # This requires binning confidence and calculating hit/false alarm rates for metacognition.
-        # Using a standard approximation:
-        meta_auc = compute_type2_auc(train_group)
-        
-        # 2. Compute Reality Testing Accuracy (d') on TEST set
-        test_group = test_group.copy()
-        test_group['accuracy'] = (test_group['participant_response'] == test_group['source_label']).astype(int)
-        
-        # Compute d' (Signal Detection Theory)
-        # d' = Z(Hit Rate) - Z(False Alarm Rate)
-        # We assume source_label 1 is signal, 0 is noise (or similar mapping)
-        # If binary classification:
-        # Hit Rate = P(Response=1 | Source=1)
-        # False Alarm Rate = P(Response=1 | Source=0)
-        d_prime = compute_d_prime(test_group)
-        
-        if np.isnan(meta_auc) or np.isnan(d_prime):
-            logger.warning(f"Participant {pid} produced NaN scores. Skipping.")
-            continue
-        
-        row = {
-            'participant_id': pid,
-            'metacognitive_score': meta_auc,
-            'reality_testing_accuracy': d_prime
+    if len(clean_df) < 5:
+        log_info(None, "Insufficient data for regression")
+        return {
+            'status': 'insufficient_data',
+            'message': 'Not enough participants'
         }
-        
-        # Add covariates if present (take the first value found for the participant)
-        if has_age:
-            row['age'] = group['age'].iloc[0]
-        if has_gender:
-            row['gender'] = group['gender'].iloc[0]
-        if has_working_memory:
-            row['working_memory'] = group['working_memory'].iloc[0]
-        
-        participant_scores.append(row)
     
-    if not participant_scores:
-        raise ValueError("No valid participant data found for regression.")
-        
-    result_df = pd.DataFrame(participant_scores)
-    logger.info(f"Aggregated {len(result_df)} participants for regression.")
-    return result_df
-
-def compute_type2_auc(df: pd.DataFrame) -> float:
-    """
-    Compute Type-2 AUC (meta-d' approximation) from a dataframe.
-    Requires: 'accuracy' (0/1), 'confidence_rating'
-    """
-    # Simplified Type-2 AUC calculation
-    # Group by accuracy (correct/incorrect) and look at confidence distribution
-    correct = df[df['accuracy'] == 1]['confidence_rating']
-    incorrect = df[df['accuracy'] == 0]['confidence_rating']
+    # Prepare predictors
+    predictors = ['type2_auc']
+    covariates = []
     
-    if len(correct) == 0 or len(incorrect) == 0:
-        return np.nan
+    if 'age' in clean_df.columns:
+        covariates.append('age')
+    if 'gender' in clean_df.columns:
+        clean_df['gender_encoded'] = clean_df['gender'].map({'M': 0, 'F': 1, 'Other': 2}).fillna(0)
+        covariates.append('gender_encoded')
     
-    # Calculate AUC using Mann-Whitney U statistic (equivalent to AUC for binary classification)
-    # Here we treat 'correct' as positive class and 'incorrect' as negative class
-    # We want to know if confidence is higher for correct answers.
-    # AUC = P(confidence_correct > confidence_incorrect)
-    u_stat, _ = sm.stats.mannwhitneyu(correct, incorrect, alternative='greater')
-    n1 = len(correct)
-    n2 = len(incorrect)
-    auc = u_stat / (n1 * n2)
-    
-    return auc
-
-def compute_d_prime(df: pd.DataFrame) -> float:
-    """
-    Compute d' (d-prime) from a dataframe.
-    Requires: 'source_label', 'participant_response'
-    Assumes labels are binary (0/1).
-    """
-    # Identify signal and noise
-    # Assuming source_label 1 = Signal, 0 = Noise
-    signal_mask = df['source_label'] == 1
-    noise_mask = df['source_label'] == 0
-    
-    if signal_mask.sum() == 0 or noise_mask.sum() == 0:
-        return np.nan
-    
-    hits = (df.loc[signal_mask, 'participant_response'] == 1).sum()
-    misses = signal_mask.sum() - hits
-    false_alarms = (df.loc[noise_mask, 'participant_response'] == 1).sum()
-    correct_rejections = noise_mask.sum() - false_alarms
-    
-    hit_rate = hits / signal_mask.sum()
-    fa_rate = false_alarms / noise_mask.sum()
-    
-    # Apply correction for extreme probabilities
-    n = signal_mask.sum() + noise_mask.sum()
-    if hit_rate == 0: hit_rate = 0.5 / signal_mask.sum()
-    if hit_rate == 1: hit_rate = 1 - (0.5 / signal_mask.sum())
-    if fa_rate == 0: fa_rate = 0.5 / noise_mask.sum()
-    if fa_rate == 1: fa_rate = 1 - (0.5 / noise_mask.sum())
-    
-    # Z-scores
-    try:
-        z_hit = norm.ppf(hit_rate)
-        z_fa = norm.ppf(fa_rate)
-        d_prime = z_hit - z_fa
-        return d_prime
-    except Exception:
-        return np.nan
-
-def run_regression_analysis(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Run hierarchical regression.
-    Step 1: Controls (Age, Gender, Working Memory if present)
-    Step 2: Add Metacognitive Score
-    
-    Returns dict with R2 change, F-change, coefficients, and model flags.
-    """
-    has_working_memory = 'working_memory' in df.columns
-    
-    # Prepare data
-    y = df['reality_testing_accuracy'].values
-    X_controls = []
-    control_names = []
-    
-    if 'age' in df.columns:
-        X_controls.append(df['age'].values)
-        control_names.append('age')
-    if 'gender' in df.columns:
-        # Encode gender as numeric (0/1) assuming string or int
-        gender_vals = df['gender'].astype(str).map({'Male': 0, 'Female': 1, 'M': 0, 'F': 1}).fillna(0).values
-        X_controls.append(gender_vals)
-        control_names.append('gender')
-    
-    # Step 1 Model
-    if len(X_controls) > 0:
-        X1 = np.column_stack(X_controls)
-        X1 = sm.add_constant(X1)
-        model1 = sm.OLS(y, X1).fit()
-        r2_model1 = model1.rsquared
-        adj_r2_model1 = model1.rsquared_adj
-        n_params_model1 = len(model1.params)
+    # Step 1: Baseline model with covariates
+    if covariates:
+        X1 = add_constant(clean_df[covariates])
+        y = clean_df['d_prime']
+        model1 = OLS(y, X1).fit()
+        r_squared_1 = model1.rsquared
     else:
-        # No controls? Just intercept
-        X1 = np.ones((len(y), 1))
-        model1 = sm.OLS(y, X1).fit()
-        r2_model1 = 0.0
-        adj_r2_model1 = 0.0
-        n_params_model1 = 1
+        r_squared_1 = 0.0
+        model1 = None
     
-    # Step 2 Model
-    X2 = np.column_stack(X_controls + [df['metacognitive_score'].values])
-    X2 = sm.add_constant(X2)
-    model2 = sm.OLS(y, X2).fit()
-    r2_model2 = model2.rsquared
-    adj_r2_model2 = model2.rsquared_adj
+    # Step 2: Add metacognitive score
+    X2 = add_constant(clean_df[covariates + predictors])
+    model2 = OLS(y, X2).fit()
+    r_squared_2 = model2.rsquared
     
-    # Calculate Delta R2 and F-change
-    delta_r2 = r2_model2 - r2_model1
-    n = len(y)
-    p1 = n_params_model1 - 1 # Number of predictors in model 1 (excluding const)
-    p2 = X2.shape[1] - 1 # Number of predictors in model 2 (excluding const)
+    # Calculate delta R-squared
+    delta_r2 = r_squared_2 - r_squared_1
     
-    # F-change = ((R2_full - R2_reduced) / (p_full - p_reduced)) / ((1 - R2_full) / (n - p_full - 1))
-    if (1 - r2_model2) == 0:
-        f_change = np.inf
+    # F-change statistic (simplified)
+    n = len(clean_df)
+    p1 = len(covariates) + 1 if covariates else 1  # +1 for intercept
+    p2 = len(covariates) + len(predictors) + 1
+    
+    if delta_r2 > 0 and n > p2:
+        f_change = (delta_r2 / (p2 - p1)) / ((1 - r_squared_2) / (n - p2))
     else:
-        numerator = delta_r2 / (p2 - p1)
-        denominator = (1 - r2_model2) / (n - p2 - 1)
-        f_change = numerator / denominator
+        f_change = 0.0
     
-    # P-value for F-change
-    from scipy.stats import f
-    p_f_change = 1 - f.cdf(f_change, p2 - p1, n - p2 - 1)
+    # Get coefficients for metacognitive score
+    coef_idx = covariates.index('type2_auc') + 1 if 'type2_auc' in covariates else len(covariates) + 1
+    coef = model2.params.iloc[coef_idx] if len(model2.params) > coef_idx else 0
+    std_err = model2.bse.iloc[coef_idx] if len(model2.bse) > coef_idx else 0
+    t_stat = model2.tvalues.iloc[coef_idx] if len(model2.tvalues) > coef_idx else 0
+    p_val = model2.pvalues.iloc[coef_idx] if len(model2.pvalues) > coef_idx else 1.0
     
-    result = {
-        "model_type": "hierarchical_regression",
-        "n_participants": n,
-        "step_1": {
-            "predictors": control_names,
-            "r_squared": float(r2_model1),
-            "adj_r_squared": float(adj_r2_model1)
+    return {
+        'status': 'success',
+        'delta_r_squared': float(delta_r2),
+        'f_change': float(f_change),
+        'r_squared_1': float(r_squared_1),
+        'r_squared_2': float(r_squared_2),
+        'n_participants': int(n),
+        'has_working_memory': has_working_memory,
+        'model': {
+            'coefficient': float(coef),
+            'std_error': float(std_err),
+            't_statistic': float(t_stat),
+            'p_value': float(p_val)
         },
-        "step_2": {
-            "predictors": control_names + ['metacognitive_score'],
-            "r_squared": float(r2_model2),
-            "adj_r_squared": float(adj_r2_model2),
-            "coefficients": {
-                name: float(coeff) for name, coeff in zip(model2.params.index, model2.params)
-            },
-            "p_values": {
-                name: float(pval) for name, pval in zip(model2.pvalues.index, model2.pvalues)
-            }
-        },
-        "change_statistics": {
-            "delta_r_squared": float(delta_r2),
-            "f_change": float(f_change),
-            "p_f_change": float(p_f_change),
-            "numerator_df": int(p2 - p1),
-            "denominator_df": int(n - p2 - 1)
-        },
-        "n_minus_1_model": not has_working_memory, # Flag if working memory was missing
-        "working_memory_present": has_working_memory
+        'adjusted_r_squared': float(model2.rsquared_adj) if not has_working_memory else None
     }
-    
-    return result
 
 def main():
-    logger.info("Starting Regression Analysis (T020)...")
+    """Main entry point for T020."""
+    config = load_config()
+    logger = setup_logging(config)
+    
+    log_info(logger, "Starting regression analysis (T020)...")
     
     try:
-        # 1. Load Data
-        df = load_regression_data()
+        # Load data
+        df, has_working_memory = load_regression_data()
         
-        # 2. Run Analysis
-        results = run_regression_analysis(df)
+        # Compute metrics
+        metrics_df = compute_type2_auc_and_d_prime(df)
         
-        # 3. Write Output
-        RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-        output_path = RESULTS_DIR / "regression_analysis.json"
+        # Run regression
+        results = run_regression_analysis(metrics_df, has_working_memory)
         
+        # Write results
+        output_path = Path("data") / "results" / "regression_analysis.json"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, 'w') as f:
             json.dump(results, f, indent=2)
         
-        logger.info(f"Regression analysis complete. Output written to {output_path}")
-        logger.info(f"Delta R2: {results['change_statistics']['delta_r_squared']:.4f}, p: {results['change_statistics']['p_f_change']:.4f}")
+        log_info(logger, f"Regression complete. Delta R²: {results['delta_r_squared']:.3f}")
+        return 0
         
     except Exception as e:
-        logger.error(f"Regression analysis failed: {e}", exc_info=True)
-        sys.exit(1)
+        log_error(logger, f"Regression failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

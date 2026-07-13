@@ -1,8 +1,9 @@
 {
+  "task_id": "T006",
   "status": "FAIL",
-  "message": "Dataset not found at data/ds003386_behavioral.csv. Ensure T005 (download.py) has successfully executed.",
-  "timestamp": "2026-06-30T13:03:18.854218",
-  "details": {
-    "error_type": "FileNotFoundError"
-  }
+  "message": "Could not find downloaded dataset. Expected one of: ['data/ds003386_behavioral.csv', 'data/downloaded/ds003386_behavioral.csv', 'data/behavioral_data.csv']",
+  "required_fields": [
+    "confidence_rating",
+    "source_label"
+  ]
 }

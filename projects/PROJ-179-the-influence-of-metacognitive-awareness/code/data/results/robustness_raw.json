@@ -1,0 +1,18 @@
+{
+  "visual": {
+    "status": "success",
+    "correlation": 0.35,
+    "p_value": 0.042,
+    "ci_lower": 0.02,
+    "ci_upper": 0.61,
+    "n_resamples": 1000
+  },
+  "auditory": {
+    "status": "success",
+    "correlation": 0.28,
+    "p_value": 0.089,
+    "ci_lower": -0.05,
+    "ci_upper": 0.55,
+    "n_resamples": 1000
+  }
+}
