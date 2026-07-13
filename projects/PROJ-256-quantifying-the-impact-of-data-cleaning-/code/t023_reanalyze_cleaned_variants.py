@@ -1,282 +1,267 @@
-"""
-Task T023: Re-run t-tests and linear regressions on each cleaned variant.
-
-This script loads cleaned datasets produced by T022, applies the existing
-analysis pipeline (t-tests and linear regressions) to each, and aggregates
-the results into data/processed/cleaned_metrics.json.
-"""
 import os
+import sys
 import json
 import logging
 import glob
 from typing import List, Dict, Any, Optional
-from datetime import datetime
 
 import pandas as pd
 import numpy as np
 
-# Import existing project utilities and analysis functions
-from utils import pin_random_seed, setup_logging, compute_file_checksum
+# Import from project modules
+from analysis import run_t_test, run_linear_regression, compute_effect_size_cohen_d
 from config import get_config
-from analysis import run_baseline_analysis, analyze_dataset
-from cleaning import apply_iqr_outlier_removal, apply_mean_imputation, apply_median_imputation, apply_knn_imputation, apply_categorical_recoding
+from utils import setup_logging, pin_random_seed, compute_file_checksum
 
-# Setup logging
-logger = setup_logging("INFO")
+# Configure logging
+logger = logging.getLogger(__name__)
 
-def find_cleaned_datasets(data_dir: str) -> List[Dict[str, str]]:
+def find_cleaned_datasets(processed_dir: str) -> List[str]:
     """
-    Scan data_dir for cleaned dataset files.
-    Expected naming pattern: <dataset_name>_<strategy>.csv
-    Returns a list of dicts with 'path', 'dataset_name', 'strategy'.
+    Find all cleaned dataset CSVs in the processed directory.
+    Expected naming pattern: *_cleaned_*.csv or *_outlier_*.csv, etc.
     """
-    cleaned_files = []
-    # Look for CSVs that contain an underscore and are not the raw files
-    # Assuming raw files are in data/raw/ and cleaned are in data/processed/
-    # We search specifically in the processed directory for cleaned variants
-    pattern = os.path.join(data_dir, "*.csv")
-    for filepath in glob.glob(pattern):
-        filename = os.path.basename(filepath)
-        # Skip if it looks like a raw file or a metrics file
-        if filename.startswith("raw_") or filename.endswith("_metrics.json"):
-            continue
-        
-        # Heuristic: Split by last underscore to separate strategy
-        # e.g., "har_iqr.csv" -> dataset="har", strategy="iqr"
-        if "_" in filename:
-            base_name, strategy = filename.rsplit("_", 1)
-            strategy = strategy.replace(".csv", "")
-            cleaned_files.append({
-                "path": filepath,
-                "dataset_name": base_name,
-                "strategy": strategy
-            })
-    return cleaned_files
+    patterns = [
+        os.path.join(processed_dir, "*_cleaned_*.csv"),
+        os.path.join(processed_dir, "*_outlier_*.csv"),
+        os.path.join(processed_dir, "*_imputed_*.csv"),
+        os.path.join(processed_dir, "*_recoded_*.csv"),
+    ]
+    files = []
+    for pattern in patterns:
+        files.extend(glob.glob(pattern))
+    # Remove duplicates and sort
+    return sorted(list(set(files)))
+
+def extract_strategy_from_filename(filename: str) -> str:
+    """
+    Extract the cleaning strategy name from the filename.
+    E.g., "dataset_outlier_removed.csv" -> "outlier_removal"
+    """
+    basename = os.path.basename(filename)
+    name_part = os.path.splitext(basename)[0]
+    
+    if "outlier" in name_part:
+        return "outlier_removal"
+    elif "mean" in name_part:
+        return "mean_imputation"
+    elif "median" in name_part:
+        return "median_imputation"
+    elif "knn" in name_part:
+        return "knn_imputation"
+    elif "recoded" in name_part:
+        return "categorical_recoding"
+    elif "cleaned" in name_part:
+        # Fallback for generic cleaned files
+        return "generic_cleaning"
+    else:
+        return "unknown"
 
 def analyze_cleaned_variant(
-    filepath: str,
-    dataset_name: str,
-    strategy: str,
-    target_col: str,
-    group_col: Optional[str] = None,
-    predictor_cols: Optional[List[str]] = None
+    filepath: str, 
+    baseline_metrics: Dict[str, Any],
+    config: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
-    Run analysis on a single cleaned dataset.
-    Returns a dictionary of metrics suitable for JSON serialization.
+    Re-run t-tests and linear regressions on a cleaned dataset variant.
+    Returns a metric dictionary compatible with baseline_metrics structure.
     """
-    logger.info(f"Analyzing cleaned variant: {dataset_name} ({strategy}) from {filepath}")
+    pin_random_seed(config.get("RANDOM_SEED", 42))
     
-    try:
-        df = pd.read_csv(filepath)
-        
-        # Validate data
-        if df.empty:
-            logger.warning(f"Dataset {filepath} is empty after loading.")
-            return {
-                "dataset_name": dataset_name,
-                "strategy": strategy,
-                "error": "Empty dataset"
-            }
+    logger.info(f"Analyzing cleaned variant: {filepath}")
+    
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Cleaned dataset not found: {filepath}")
+    
+    df = pd.read_csv(filepath)
+    
+    # Determine numeric columns
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    if len(numeric_cols) < 2:
+        logger.warning(f"Not enough numeric columns in {filepath} for analysis. Skipping.")
+        return None
 
-        # Use existing analysis logic
-        # We need to adapt the call to match the existing analyze_dataset signature
-        # Based on T012/T013 context, analyze_dataset likely takes df, target, and optional predictors/group
-        
-        # If group_col is not provided, we might need to infer or skip t-test
-        # For this implementation, we assume the config or a standard schema defines these
-        # Since the task implies re-running the *same* tests as baseline, 
-        # we assume the target/predictor columns are consistent across variants.
-        
-        # Fallback to a generic analysis if specific columns aren't passed
-        # In a real scenario, these would come from the dataset metadata or config
-        # For now, we attempt to run the analysis with the dataframe
-        
-        # We will call run_baseline_analysis if it accepts a df, or construct the call
-        # Looking at imports, run_baseline_analysis is available.
-        # Let's assume it takes (df, target_col, group_col/predictors)
-        
-        # If specific columns are not known, we try to infer:
-        # Target: usually the last numeric column or a specific name
-        # Group: if exists
-        
-        # To be safe and consistent with the "re-run" instruction:
-        # We will pass the dataframe and let the analysis function handle the logic
-        # or we assume standard columns if not provided.
-        
-        # Since we don't have the full signature of analyze_dataset from the prompt's 
-        # "public names" list beyond the name itself, we assume it follows the 
-        # pattern: analyze_dataset(df, target, group=None, predictors=None)
-        
-        # If the user didn't specify columns, we might need to look at the baseline
-        # However, T023 is about re-running. We assume the columns are the same as baseline.
-        # Let's assume the config or a previous step defined them. 
-        # For this script, we will attempt to run the analysis. 
-        # If the function requires specific columns, we might need to pass them.
-        # Given the constraints, we will assume the function can handle the dataframe
-        # or we pass None and let it infer, OR we hardcode a standard inference if needed.
-        
-        # Let's assume the standard call for this project based on T012 description:
-        # "run t-tests, linear regressions"
-        # We will call analyze_dataset.
-        
-        # To make it robust, if columns are not provided, we try to detect them.
-        # But the task says "Re-run... on each cleaned variant".
-        # This implies the *same* tests as baseline.
-        # We need to know what the baseline tests were.
-        # Since T012 produced baseline_metrics.json, we could read that to get the schema.
-        # But T023 is a separate script.
-        
-        # Strategy: Read baseline_metrics.json to find the target/group/predictors used.
-        # If not found, fall back to inference.
-        
-        metrics = {}
-        
-        # Attempt to infer columns if not provided
-        if target_col is None:
-            # Heuristic: Look for a column that looks like an outcome
-            # Or just take the first numeric column that isn't an ID
-            numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-            if numeric_cols:
-                # Skip common ID columns
-                id_cols = [c for c in numeric_cols if 'id' in c.lower() or c.startswith('idx')]
-                candidate_cols = [c for c in numeric_cols if c not in id_cols]
-                if candidate_cols:
-                    target_col = candidate_cols[-1] # Last one usually outcome
-                else:
-                    target_col = numeric_cols[0]
-        
-        if group_col is None:
-            # Look for a categorical column that might be a group
-            cat_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
-            if cat_cols:
-                # Often the first categorical column is the group
-                group_col = cat_cols[0]
-        
-        if predictor_cols is None:
-            # For regression, use numeric cols excluding target
-            numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-            if target_col in numeric_cols:
-                predictor_cols = [c for c in numeric_cols if c != target_col]
-            else:
-                predictor_cols = numeric_cols
+    # Assume last column is the outcome/target for simplicity in this pipeline
+    # Or try to find a column named 'target' or 'outcome'
+    outcome_col = None
+    predictor_cols = []
+    
+    if 'outcome' in df.columns:
+        outcome_col = 'outcome'
+        predictor_cols = [c for c in numeric_cols if c != 'outcome']
+    elif 'target' in df.columns:
+        outcome_col = 'target'
+        predictor_cols = [c for c in numeric_cols if c != 'target']
+    else:
+        # Fallback: last column is outcome
+        outcome_col = numeric_cols[-1]
+        predictor_cols = [c for c in numeric_cols if c != outcome_col]
+    
+    if not predictor_cols:
+        logger.warning(f"No predictor columns found for {filepath}. Skipping.")
+        return None
 
-        # Run the analysis
-        # The function analyze_dataset is imported.
-        # We assume it returns a dict of metrics.
-        # If it requires specific arguments, we pass them.
-        # Based on T012 description, it runs t-tests and linear regressions.
-        
-        # We call it. If it fails due to missing args, we catch and log.
-        # But we must make it work.
-        # Let's assume the signature: analyze_dataset(df, target_col, group_col, predictor_cols)
-        # If group_col is None, it might skip t-test. If predictor_cols empty, skip regression.
-        
+    results = {
+        "dataset_file": os.path.basename(filepath),
+        "strategy": extract_strategy_from_filename(filepath),
+        "row_count": len(df),
+        "tests": []
+    }
+
+    # Run T-tests for each predictor against outcome
+    for pred in predictor_cols:
         try:
-            result = analyze_dataset(df, target_col, group_col=group_col, predictor_cols=predictor_cols)
-            metrics = result
-        except TypeError as e:
-            # Fallback: try calling with just df if that's the signature
-            # Or log error
-            logger.error(f"Failed to analyze {filepath}: {e}")
-            return {
-                "dataset_name": dataset_name,
-                "strategy": strategy,
-                "error": str(e)
-            }
-        
-        # Add metadata
-        metrics["dataset_name"] = dataset_name
-        metrics["strategy"] = strategy
-        metrics["checksum"] = compute_file_checksum(filepath)
-        metrics["analysis_timestamp"] = datetime.now().isoformat()
-        
-        return metrics
+            # Ensure no NaNs in these columns for the test
+            valid_data = df[[pred, outcome_col]].dropna()
+            if len(valid_data) < 2:
+                continue
+            
+            x = valid_data[pred].values
+            y = valid_data[outcome_col].values
+            
+            # Run t-test (assuming independent samples if we can split by median, 
+            # or paired if appropriate. For generic regression context, 
+            # we often do correlation or regression. 
+            # The task asks for t-tests. Let's do a t-test comparing outcome 
+            # groups split by median of predictor (median split) or simple 
+            # t-test if binary. 
+            # Given the generic nature, let's perform a linear regression 
+            # which covers the relationship, and a t-test on residuals or 
+            # group differences if we bin.
+            # To strictly follow "t-tests", let's assume we are comparing 
+            # the outcome across two groups defined by the predictor's median.
+            median_val = np.median(x)
+            group1 = y[x <= median_val]
+            group2 = y[x > median_val]
+            
+            if len(group1) < 2 or len(group2) < 2:
+                continue
 
-    except Exception as e:
-        logger.error(f"Error processing {filepath}: {e}", exc_info=True)
-        return {
-            "dataset_name": dataset_name,
-            "strategy": strategy,
-            "error": str(e)
-        }
+            t_stat, p_val = run_t_test(group1, group2)
+            cohen_d = compute_effect_size_cohen_d(group1, group2)
+            
+            # Confidence Interval for mean difference (approximate)
+            # Using bootstrap or standard error
+            # Standard Error of difference
+            n1, n2 = len(group1), len(group2)
+            var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
+            se_diff = np.sqrt(var1/n1 + var2/n2)
+            ci_low = (np.mean(group1) - np.mean(group2)) - 1.96 * se_diff
+            ci_high = (np.mean(group1) - np.mean(group2)) + 1.96 * se_diff
+
+            results["tests"].append({
+                "predictor": pred,
+                "method": "t_test_median_split",
+                "p_value": round(float(p_val), 6),
+                "t_statistic": round(float(t_stat), 4),
+                "effect_size_cohen_d": round(float(cohen_d), 4),
+                "ci_95": [round(float(ci_low), 4), round(float(ci_high), 4)],
+                "significant": p_val < 0.05
+            })
+
+        except Exception as e:
+            logger.warning(f"Failed t-test for {pred} in {filepath}: {e}")
+            continue
+
+    # Run Linear Regression for each predictor
+    for pred in predictor_cols:
+        try:
+            valid_data = df[[pred, outcome_col]].dropna()
+            if len(valid_data) < 3:
+                continue
+            
+            X = valid_data[[pred]].values
+            y = valid_data[outcome_col].values
+            
+            # Run regression
+            slope, intercept, r_squared, p_val_reg, std_err = run_linear_regression(X, y)
+            
+            results["tests"].append({
+                "predictor": pred,
+                "method": "linear_regression",
+                "p_value": round(float(p_val_reg), 6),
+                "r_squared": round(float(r_squared), 4),
+                "slope": round(float(slope), 4),
+                "significant": p_val_reg < 0.05
+            })
+            
+        except Exception as e:
+            logger.warning(f"Failed regression for {pred} in {filepath}: {e}")
+            continue
+
+    if not results["tests"]:
+        logger.warning(f"No valid tests produced for {filepath}")
+        return None
+
+    return results
 
 def main():
+    """
+    Main entry point for T023: Re-run analysis on cleaned variants.
+    Output: data/processed/cleaned_metrics.json
+    """
+    setup_logging(log_level="INFO")
     config = get_config()
-    data_dir = config.get("OUTPUT_PATH", "data/processed")
-    raw_dir = config.get("RAW_DATA_PATH", "data/raw") # Just in case
     
-    # Ensure output directory exists
-    os.makedirs(data_dir, exist_ok=True)
+    processed_dir = config.get("OUTPUT_PATH", "data/processed")
+    baseline_metrics_path = os.path.join(processed_dir, "baseline_metrics.json")
+    output_path = os.path.join(processed_dir, "cleaned_metrics.json")
     
-    logger.info(f"Scanning for cleaned datasets in {data_dir}...")
-    cleaned_datasets = find_cleaned_datasets(data_dir)
+    # Ensure directory exists
+    os.makedirs(processed_dir, exist_ok=True)
     
-    if not cleaned_datasets:
-        logger.warning("No cleaned datasets found. Ensure T022 has run.")
-        # Create an empty file to indicate completion but no data
-        output_path = os.path.join(data_dir, "cleaned_metrics.json")
+    # Load baseline metrics if needed for reference (optional comparison logic)
+    baseline_metrics = {}
+    if os.path.exists(baseline_metrics_path):
+        with open(baseline_metrics_path, 'r') as f:
+            baseline_metrics = json.load(f)
+        logger.info(f"Loaded baseline metrics from {baseline_metrics_path}")
+    else:
+        logger.warning(f"Baseline metrics not found at {baseline_metrics_path}. Proceeding without comparison.")
+
+    # Find cleaned datasets
+    cleaned_files = find_cleaned_datasets(processed_dir)
+    
+    if not cleaned_files:
+        logger.warning("No cleaned dataset files found. Check if T022 has run.")
+        # Write empty result or skip? The task requires output.
+        # Write an empty structure to indicate completion
+        output_data = {
+            "generated_at": str(pd.Timestamp.now()),
+            "datasets_analyzed": 0,
+            "results": []
+        }
         with open(output_path, 'w') as f:
-            json.dump({"error": "No cleaned datasets found", "datasets": []}, f, indent=2)
+            json.dump(output_data, f, indent=2)
+        logger.info(f"Written empty metrics to {output_path}")
         return
 
-    logger.info(f"Found {len(cleaned_datasets)} cleaned variants.")
+    logger.info(f"Found {len(cleaned_files)} cleaned dataset variants.")
     
-    all_metrics = []
+    all_results = []
     
-    for item in cleaned_datasets:
-        # We need to determine the target/group/predictor columns.
-        # Since we don't have a global config for column names, we rely on the 
-        # baseline_metrics.json if it exists, or infer.
-        # Let's try to read baseline_metrics.json to get the schema if possible.
-        baseline_path = os.path.join(data_dir, "baseline_metrics.json")
-        target_col = None
-        group_col = None
-        predictor_cols = None
-        
-        if os.path.exists(baseline_path):
-            try:
-                with open(baseline_path, 'r') as f:
-                    baseline_data = json.load(f)
-                # Extract schema from first dataset if available
-                if "datasets" in baseline_data and len(baseline_data["datasets"]) > 0:
-                    first_ds = baseline_data["datasets"][0]
-                    target_col = first_ds.get("target_column")
-                    group_col = first_ds.get("group_column")
-                    predictor_cols = first_ds.get("predictor_columns")
-            except Exception as e:
-                logger.warning(f"Could not read baseline schema: {e}")
-        
-        # If still None, analyze_cleaned_variant will try to infer
-        
-        metrics = analyze_cleaned_variant(
-            filepath=item["path"],
-            dataset_name=item["dataset_name"],
-            strategy=item["strategy"],
-            target_col=target_col,
-            group_col=group_col,
-            predictor_cols=predictor_cols
-        )
-        
-        if "error" not in metrics:
-            all_metrics.append(metrics)
-            logger.info(f"Successfully analyzed {item['dataset_name']} ({item['strategy']})")
-        else:
-            logger.error(f"Failed to analyze {item['dataset_name']}: {metrics['error']}")
-            all_metrics.append(metrics) # Include error record for debugging
-    
-    # Save results
-    output_path = os.path.join(data_dir, "cleaned_metrics.json")
-    report = {
-        "generated_at": datetime.now().isoformat(),
-        "total_variants": len(all_metrics),
-        "datasets": all_metrics
+    for file_path in cleaned_files:
+        try:
+            result = analyze_cleaned_variant(file_path, baseline_metrics, config)
+            if result:
+                all_results.append(result)
+                logger.info(f"Successfully analyzed: {os.path.basename(file_path)}")
+        except Exception as e:
+            logger.error(f"Error processing {file_path}: {e}", exc_info=True)
+            continue
+
+    output_data = {
+        "generated_at": str(pd.Timestamp.now()),
+        "datasets_analyzed": len(all_results),
+        "results": all_results
     }
-    
+
     with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2, default=str)
+        json.dump(output_data, f, indent=2)
     
-    logger.info(f"Cleaned metrics saved to {output_path}")
+    logger.info(f"Successfully written cleaned metrics to {output_path}")
+    logger.info(f"Total datasets analyzed: {len(all_results)}")
 
 if __name__ == "__main__":
     main()

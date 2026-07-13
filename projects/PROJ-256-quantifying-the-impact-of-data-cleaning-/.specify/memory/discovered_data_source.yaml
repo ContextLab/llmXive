@@ -1,0 +1,6 @@
+status: none
+intent: download UCI Machine Learning Repository OpenML Small Datasets HAR Shopper
+  text classification python package dataset
+required_fields:
+- text
+- label
