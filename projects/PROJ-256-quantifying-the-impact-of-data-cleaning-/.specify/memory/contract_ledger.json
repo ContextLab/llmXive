@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "symbol": "get",
+    "owner": "Config"
+  },
+  {
+    "symbol": "run_baseline_analysis",
+    "owner": null
+  }
+]

@@ -1,23 +1,14 @@
-"""
-Task T032: Implement permutation null dataset generation for FPR estimation.
-
-Generates null datasets by shuffling the outcome variable while keeping predictors fixed.
-Runs statistical tests on these null datasets to estimate the False Positive Rate (FPR).
-Outputs metrics to data/processed/null_fpr_metrics.json.
-"""
 import os
 import sys
 import json
 import logging
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime
-
-# Import existing utilities
-from utils import setup_logging, pin_random_seed
-from config import get_config
+from typing import List, Dict, Any, Optional
+from scipy import stats
 from analysis import run_t_test, run_linear_regression
+from utils import pin_random_seed
+from config import Config, get_config
 
 logger = logging.getLogger(__name__)
 
@@ -28,199 +19,228 @@ def load_baseline_metrics(filepath: str = "data/processed/baseline_metrics.json"
     with open(filepath, 'r') as f:
         return json.load(f)
 
-def load_dataset_from_processed(dataset_name: str) -> pd.DataFrame:
-    """Load a cleaned dataset from data/processed/."""
-    # Try common naming patterns
-    paths = [
-        f"data/processed/{dataset_name}.csv",
-        f"data/processed/{dataset_name}_cleaned.csv",
-        f"data/processed/baseline_{dataset_name}.csv"
+def load_dataset_from_processed(dataset_name: str, processed_dir: str = "data/processed") -> pd.DataFrame:
+    """Load a dataset from the processed directory."""
+    # Try common naming conventions
+    possible_paths = [
+        os.path.join(processed_dir, f"{dataset_name}.csv"),
+        os.path.join(processed_dir, dataset_name),
+        os.path.join(processed_dir, f"{dataset_name}_cleaned.csv"),
+        os.path.join(processed_dir, f"{dataset_name}_baseline.csv")
     ]
-    for path in paths:
+    
+    for path in possible_paths:
         if os.path.exists(path):
             return pd.read_csv(path)
-    raise FileNotFoundError(f"Could not find dataset: {dataset_name} in data/processed/")
-
-def generate_null_dataset(df: pd.DataFrame, outcome_col: str, rng: np.random.Generator) -> pd.DataFrame:
-    """
-    Generate a null dataset by shuffling the outcome variable.
     
-    Args:
-        df: Original dataframe
-        outcome_col: Name of the outcome/target column
-        rng: Random number generator for reproducibility
-        
-    Returns:
-        DataFrame with shuffled outcome column
+    # If not found, try to find any CSV that matches the dataset name pattern
+    import glob
+    pattern = os.path.join(processed_dir, f"*{dataset_name}*.csv")
+    matches = glob.glob(pattern)
+    if matches:
+        return pd.read_csv(matches[0])
+    
+    raise FileNotFoundError(f"Could not find dataset: {dataset_name}")
+
+def generate_null_dataset(df: pd.DataFrame, outcome_col: str, seed: int) -> pd.DataFrame:
     """
+    Generate a null dataset by shuffling the outcome variable while keeping predictors fixed.
+    This creates a dataset where there is no true relationship between predictors and outcome.
+    """
+    pin_random_seed(seed)
     null_df = df.copy()
-    null_df[outcome_col] = rng.permutation(null_df[outcome_col].values)
+    
+    # Shuffle the outcome column
+    outcome_values = null_df[outcome_col].values.copy()
+    np.random.shuffle(outcome_values)
+    null_df[outcome_col] = outcome_values
+    
     return null_df
 
 def estimate_fpr_for_dataset(
-    df: pd.DataFrame,
-    outcome_col: str,
+    df: pd.DataFrame, 
+    outcome_col: str, 
     predictor_cols: List[str],
-    n_permutations: int = 100,
+    n_permutations: int = 1000,
     alpha: float = 0.05,
-    rng: np.random.Generator = None
+    seed: int = 42
 ) -> Dict[str, Any]:
     """
-    Estimate False Positive Rate for a dataset using permutation testing.
+    Estimate False Positive Rate (FPR) for a dataset by running permutation tests.
     
-    Runs statistical tests on permuted datasets and calculates the proportion
-    of tests that incorrectly reject the null hypothesis (p <= alpha).
-    
-    Args:
-        df: Original dataframe
-        outcome_col: Name of the outcome column
-        predictor_cols: List of predictor column names
-        n_permutations: Number of permutations to run
-        alpha: Significance threshold
-        rng: Random number generator
-        
-    Returns:
-        Dictionary with FPR metrics
+    The FPR is the proportion of tests where p-value <= alpha when the null hypothesis
+    is true (i.e., when we shuffle the outcome).
     """
-    if rng is None:
-        rng = np.random.default_rng()
+    pin_random_seed(seed)
     
     significant_count = 0
     p_values = []
     
-    logger.info(f"Running {n_permutations} permutations for FPR estimation...")
+    logger.info(f"Running {n_permutations} permutation tests for FPR estimation...")
     
     for i in range(n_permutations):
         # Generate null dataset
-        null_df = generate_null_dataset(df, outcome_col, rng)
+        null_df = generate_null_dataset(df, outcome_col, seed=seed + i)
         
-        # Run t-test for each predictor
-        test_p_values = []
-        for pred_col in predictor_cols:
-            if pred_col not in null_df.columns or null_df[pred_col].dtype not in [np.int64, np.float64]:
-                continue
-            
+        # Run statistical tests on null data
+        test_results = {}
+        
+        # T-test for each predictor vs outcome
+        for col in predictor_cols:
             try:
-                # Run t-test
-                result = run_t_test(null_df, outcome_col, pred_col)
-                if result and 'p_value' in result:
-                    p_val = result['p_value']
-                    test_p_values.append(p_val)
+                t_result = run_t_test(null_df, col, outcome_col)
+                if t_result and 'p_value' in t_result:
+                    p_val = t_result['p_value']
+                    p_values.append(p_val)
                     if p_val <= alpha:
                         significant_count += 1
             except Exception as e:
-                logger.debug(f"T-test failed for {pred_col}: {e}")
-                continue
+                logger.debug(f"Skipping t-test for {col}: {e}")
         
-        p_values.extend(test_p_values)
+        # Linear regression for each predictor
+        for col in predictor_cols:
+            try:
+                reg_result = run_linear_regression(null_df, col, outcome_col)
+                if reg_result and 'p_value' in reg_result:
+                    p_val = reg_result['p_value']
+                    p_values.append(p_val)
+                    if p_val <= alpha:
+                        significant_count += 1
+            except Exception as e:
+                logger.debug(f"Skipping regression for {col}: {e}")
     
-    # Calculate FPR
     total_tests = len(p_values)
     fpr = significant_count / total_tests if total_tests > 0 else 0.0
     
     return {
+        "dataset_name": df.name if hasattr(df, 'name') else "unknown",
         "n_permutations": n_permutations,
         "total_tests": total_tests,
         "significant_tests": significant_count,
-        "fpr": round(fpr, 4),
-        "mean_p_value": round(float(np.mean(p_values)), 4) if p_values else None,
-        "median_p_value": round(float(np.median(p_values)), 4) if p_values else None,
-        "alpha": alpha
+        "fpr": fpr,
+        "alpha": alpha,
+        "p_values_sample": p_values[:10] if len(p_values) > 0 else []
     }
 
+def write_output(results: List[Dict[str, Any]], output_path: str = "data/processed/null_fpr_metrics.json"):
+    """Write FPR metrics to JSON file."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    output = {
+        "generated_at": pd.Timestamp.now().isoformat(),
+        "description": "False Positive Rate estimation via permutation testing",
+        "alpha_threshold": 0.05,
+        "datasets_analyzed": len(results),
+        "results": results
+    }
+    
+    with open(output_path, 'w') as f:
+        json.dump(output, f, indent=2)
+    
+    logger.info(f"Written FPR metrics to {output_path}")
+    return output_path
+
 def main():
-    """Main entry point for T032."""
-    setup_logging("INFO")
+    """Main entry point for T032: Permutation Null FPR estimation."""
+    # Setup logging
+    log_level = os.getenv("LOG_LEVEL", "INFO")
+    logging.basicConfig(
+        level=getattr(logging, log_level),
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    # Load configuration
     config = get_config()
     
-    # Pin random seed for reproducibility
-    seed = config.get("RANDOM_SEED", 42)
-    pin_random_seed(seed)
-    rng = np.random.default_rng(seed)
-    
-    logger.info(f"Starting T032: Permutation Null FPR Estimation (seed={seed})")
-    
-    # Load baseline metrics to get dataset info
+    # Load baseline metrics to identify datasets
     try:
         baseline_metrics = load_baseline_metrics()
+        logger.info(f"Loaded baseline metrics with {len(baseline_metrics.get('datasets', []))} datasets")
     except FileNotFoundError as e:
         logger.error(f"Cannot proceed without baseline metrics: {e}")
+        logger.error("Please run baseline analysis (T012) first.")
         return 1
     
-    if not baseline_metrics or 'datasets' not in baseline_metrics:
-        logger.error("Baseline metrics missing 'datasets' key")
-        return 1
+    # Identify outcome and predictor columns from baseline metrics or config
+    outcome_col = config.get("OUTCOME_COLUMN", "target") if hasattr(config, 'get') else "target"
+    if not hasattr(config, 'get'):
+        outcome_col = "target"
+    
+    # If outcome column not specified in config, try to infer from data
+    if outcome_col == "target" and baseline_metrics.get('datasets'):
+        first_dataset = baseline_metrics['datasets'][0]
+        # Try to find common outcome column names
+        possible_outcomes = ['target', 'outcome', 'y', 'label', 'class']
+        for col in possible_outcomes:
+            if col in first_dataset.get('columns', []):
+                outcome_col = col
+                break
+    
+    logger.info(f"Using outcome column: {outcome_col}")
     
     results = []
-    n_permutations = config.get("BOOTSTRAP_ITERATIONS", 100)  # Reduced for FPR estimation
-    alpha = 0.05
+    processed_dir = config.get("PROCESSED_DATA_PATH", "data/processed") if hasattr(config, 'get') else "data/processed"
     
-    for dataset_info in baseline_metrics.get('datasets', []):
-        dataset_name = dataset_info.get('name')
-        outcome_col = dataset_info.get('outcome_column')
-        predictor_cols = dataset_info.get('predictor_columns', [])
-        
-        if not dataset_name or not outcome_col:
-            logger.warning(f"Skipping dataset {dataset_name}: missing metadata")
+    # Process each dataset from baseline metrics
+    for dataset_entry in baseline_metrics.get('datasets', []):
+        dataset_name = dataset_entry.get('dataset_name') or dataset_entry.get('name')
+        if not dataset_name:
+            logger.warning(f"Skipping dataset entry without name: {dataset_entry}")
             continue
         
+        logger.info(f"Processing dataset: {dataset_name}")
+        
         try:
-            logger.info(f"Processing dataset: {dataset_name}")
-            df = load_dataset_from_processed(dataset_name)
+            # Load the dataset
+            df = load_dataset_from_processed(dataset_name, processed_dir)
+            
+            # Identify predictor columns (exclude outcome and non-numeric)
+            numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+            if outcome_col in numeric_cols:
+                numeric_cols.remove(outcome_col)
+            
+            predictor_cols = numeric_cols
+            
+            if len(predictor_cols) == 0:
+                logger.warning(f"No predictor columns found for {dataset_name}, skipping")
+                continue
             
             # Estimate FPR
-            fpr_metrics = estimate_fpr_for_dataset(
-                df=df,
-                outcome_col=outcome_col,
-                predictor_cols=predictor_cols,
-                n_permutations=n_permutations,
-                alpha=alpha,
-                rng=rng
+            fpr_result = estimate_fpr_for_dataset(
+                df, 
+                outcome_col, 
+                predictor_cols,
+                n_permutations=1000,
+                alpha=0.05,
+                seed=42
             )
             
-            fpr_metrics['dataset_name'] = dataset_name
-            fpr_metrics['outcome_column'] = outcome_col
-            fpr_metrics['n_predictors'] = len(predictor_cols)
-            
-            results.append(fpr_metrics)
-            logger.info(f"FPR for {dataset_name}: {fpr_metrics['fpr']:.4f}")
+            results.append(fpr_result)
+            logger.info(f"FPR for {dataset_name}: {fpr_result['fpr']:.4f}")
             
         except FileNotFoundError as e:
-            logger.warning(f"Dataset {dataset_name} not found: {e}")
+            logger.warning(f"Could not load dataset {dataset_name}: {e}")
             continue
         except Exception as e:
             logger.error(f"Error processing {dataset_name}: {e}")
             continue
     
-    # Compile final output
-    output = {
-        "generated_at": datetime.utcnow().isoformat(),
-        "seed": seed,
-        "n_permutations": n_permutations,
-        "alpha": alpha,
-        "summary": {
-            "total_datasets_processed": len(results),
-            "overall_fpr": round(np.mean([r['fpr'] for r in results]), 4) if results else 0.0,
-            "fpr_std": round(float(np.std([r['fpr'] for r in results])), 4) if results else 0.0
-        },
-        "datasets": results
-    }
-    
     # Write output
-    output_path = "data/processed/null_fpr_metrics.json"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(output, f, indent=2)
-    
-    logger.info(f"Successfully wrote FPR metrics to {output_path}")
-    return 0
-
-def write_output(results: List[Dict[str, Any]], output_path: str = "data/processed/null_fpr_metrics.json"):
-    """Helper function to write results to JSON."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    if results:
+        output_path = write_output(results)
+        logger.info(f"Successfully wrote FPR metrics for {len(results)} datasets")
+        
+        # Print summary
+        avg_fpr = np.mean([r['fpr'] for r in results])
+        logger.info(f"Average FPR across datasets: {avg_fpr:.4f}")
+        
+        if avg_fpr > 0.10:
+            logger.warning(f"High average FPR ({avg_fpr:.4f}) detected. This may indicate issues with the statistical tests or data.")
+        
+        return 0
+    else:
+        logger.error("No datasets were successfully processed. No output written.")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

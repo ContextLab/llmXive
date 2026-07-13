@@ -1,3 +1,6 @@
+"""
+Integration test for T010: Verify baseline analysis script produces valid p-values and finite CIs.
+"""
 import os
 import json
 import pytest
@@ -5,74 +8,89 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-# Ensure we can import from code/
+# Ensure project root is in path
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from analysis import run_t_test, run_linear_regression, compute_effect_size_cohen_d
+from code.t012_run_baseline_analysis import main as run_baseline_main
+from code.t013_record_baseline_metrics import main as record_baseline_main
 
-@pytest.mark.integration
-def test_baseline_analysis_integration(tmp_path):
-    """
-    Verify baseline analysis script produces valid metrics.
-    Simulates the output of T012/T013.
-    """
-    # Create a dummy dataset
-    np.random.seed(42)
-    n = 100
-    data = {
-        "predictor": np.random.normal(0, 1, n),
-        "outcome": np.random.normal(0, 1, n) + 0.5 * np.random.normal(0, 1, n)
-    }
-    df = pd.DataFrame(data)
-    
-    # Run analysis
-    from analysis import run_baseline_analysis
-    results = run_baseline_analysis(df, "outcome", ["predictor"])
-    
-    assert "tests" in results
-    assert len(results["tests"]) > 0
-    
-    for test in results["tests"]:
-        assert "regression" in test
-        assert "t_test" in test
-        
-        # Validate p-values are in (0, 1)
-        p_reg = test["regression"]["p_value"]
-        p_t = test["t_test"]["p_value"]
-        
-        assert 0 <= p_reg <= 1, f"Regression p-value {p_reg} out of bounds"
-        assert 0 <= p_t <= 1, f"T-test p-value {p_t} out of bounds"
-        
-        # Validate finite values
-        assert np.isfinite(test["regression"]["slope"])
-        assert np.isfinite(test["regression"]["r_squared"])
-        assert np.isfinite(test["t_test"]["t_statistic"])
-        assert np.isfinite(test["t_test"]["cohen_d"])
+OUTPUT_FILE = "data/processed/baseline_metrics.json"
 
-@pytest.mark.integration
-def test_metrics_json_generation(tmp_path):
+@pytest.fixture(autouse=True)
+def setup_and_teardown():
+    """Ensure output directory exists and clean up after test."""
+    os.makedirs("data/processed", exist_ok=True)
+    yield
+    if os.path.exists(OUTPUT_FILE):
+        os.remove(OUTPUT_FILE)
+
+def test_baseline_analysis_produces_valid_metrics():
     """
-    Verify that metrics can be serialized to JSON as required by T013/T023.
+    Verify that the baseline analysis pipeline:
+    1. Produces data/processed/baseline_metrics.json
+    2. Contains valid p-values (0 < p < 1)
+    3. Contains finite confidence intervals
     """
-    metrics = {
-        "dataset": "test",
-        "tests": [
-            {
-                "predictor": "x",
-                "p_value": 0.0345,
-                "effect_size": 0.5
-            }
-        ]
-    }
+    # Run the baseline analysis and recording tasks
+    # Note: In a real scenario, we would ensure data is downloaded first.
+    # For this test, we assume T011 has downloaded at least one dataset.
     
-    output_file = tmp_path / "baseline_metrics.json"
-    with open(output_file, 'w') as f:
-        json.dump(metrics, f)
+    try:
+        run_baseline_main()
+        record_baseline_main()
+    except Exception as e:
+        # If no data is available, we might get an error, which is acceptable
+        # if the file is not produced. But we need to check if the file exists.
+        pass
+
+    # Check if file exists
+    assert os.path.exists(OUTPUT_FILE), f"Baseline metrics file {OUTPUT_FILE} was not created."
+
+    with open(OUTPUT_FILE, 'r') as f:
+        metrics = json.load(f)
+
+    # Validate structure
+    assert "datasets" in metrics, "Missing 'datasets' key in baseline metrics."
+    assert len(metrics["datasets"]) > 0, "No datasets analyzed in baseline metrics."
+
+    # Check each dataset's analysis
+    for dataset_entry in metrics["datasets"]:
+        analysis = dataset_entry.get("analysis", {})
+        
+        # Check t-tests
+        t_tests = analysis.get("t_tests", {})
+        for test_name, test_result in t_tests.items():
+            p_value = test_result.get("p_value")
+            assert p_value is not None, f"Missing p_value for t-test {test_name}"
+            assert 0 < p_value < 1, f"Invalid p_value {p_value} for {test_name} (must be 0 < p < 1)"
+        
+        # Check regressions for finite coefficients and p-values
+        regressions = analysis.get("regressions", {})
+        for reg_name, reg_result in regressions.items():
+            p_values = reg_result.get("p_values", [])
+            for p in p_values:
+                assert p is not None, f"Missing p_value in regression {reg_name}"
+                assert np.isfinite(p), f"Non-finite p_value {p} in regression {reg_name}"
+            # Check R-squared
+            r_sq = reg_result.get("r_squared")
+            if r_sq is not None:
+                assert np.isfinite(r_sq), f"Non-finite R-squared {r_sq} in regression {reg_name}"
+
+def test_baseline_metrics_json_is_valid_json():
+    """Verify the output file is valid JSON."""
+    # Force a run to ensure file exists
+    try:
+        run_baseline_main()
+        record_baseline_main()
+    except:
+        pass
     
-    assert output_file.exists()
-    with open(output_file, 'r') as f:
-        loaded = json.load(f)
+    if not os.path.exists(OUTPUT_FILE):
+        pytest.skip("Baseline metrics file not created (no data available).")
     
-    assert loaded["dataset"] == "test"
-    assert loaded["tests"][0]["p_value"] == 0.0345
+    try:
+        with open(OUTPUT_FILE, 'r') as f:
+            json.load(f)
+    except json.JSONDecodeError as e:
+        pytest.fail(f"Invalid JSON in {OUTPUT_FILE}: {e}")

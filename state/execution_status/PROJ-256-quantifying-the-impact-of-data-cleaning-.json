@@ -1,12 +1,12 @@
 {
   "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
   "ok": false,
-  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 3 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json",
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data_loader.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026rom a reliable source or generate a small synthetic one if the task allows \"\u2026\u201d; 1 command(s) failed: python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/main.py': [Errno 2] No such file or directory"
+    "python code/main.py -> rc=1\n    2026-07-13 18:04:50 - utils - INFO - Logging initialized at level INFO\n2026-07-13 18:04:50 - __main__ - INFO - Running t012_run_baseline_analysis.py...\n2026-07-13 18:04:51 - utils - INFO - Logging initialized at level INFO\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py\", line 47, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "updated_at": "2026-07-13T15:53:57Z"
+  "updated_at": "2026-07-13T18:04:53Z"
 }

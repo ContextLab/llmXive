@@ -1,68 +1,49 @@
-"""
-Utility functions for the llmXive research pipeline.
-"""
 import os
 import hashlib
 import logging
 import numpy as np
 import scipy
+from typing import Optional
 
-def pin_random_seed(seed: int) -> None:
+logger = logging.getLogger(__name__)
+
+def pin_random_seed(seed: int = 42):
     """
-    Pin the random seed for numpy and scipy to ensure reproducibility.
-    
-    Args:
-        seed: The integer seed value to use.
+    Pin random seed for numpy and scipy to ensure reproducibility.
     """
-    os.environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
-    # Ensure scipy uses the same seed state for its random operations
-    # scipy.random is a wrapper around numpy, so setting numpy seed is sufficient
-    # for most scipy.stats operations, but we explicitly set it here for clarity.
-    # Note: Some older scipy versions might have separate random state, 
-    # but modern versions rely on numpy's global state or explicit generators.
-    # For robust reproducibility in this context, setting numpy seed is the primary action.
-    
-    # Explicitly set the random state for scipy if using newer versions with Generator
-    # However, standard practice for legacy compatibility in stats is numpy seed.
-    # We ensure numpy is set.
-    
+    # Note: scipy does not have a global seed setting in older versions, 
+    # but random generation in scipy often relies on numpy's RNG.
+    # For newer scipy, one might use scipy.random.seed if available, 
+    # but standard practice is setting numpy seed.
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    logger.info(f"Random seed pinned to {seed}")
 
 def compute_file_checksum(filepath: str) -> str:
     """
-    Compute the SHA256 checksum of a file.
-    
-    Args:
-        filepath: Path to the file to checksum.
-        
-    Returns:
-        The hexadecimal SHA256 checksum string.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If there is an error reading the file.
+    Compute SHA256 checksum of a file.
     """
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(filepath, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found for checksum: {filepath}")
+        return ""
 
-def setup_logging(log_level: str) -> logging.Logger:
+def setup_logging(log_level: str = "INFO"):
     """
-    Setup the logging infrastructure.
-    
-    Args:
-        log_level: The logging level as a string (e.g., 'INFO', 'DEBUG').
-        
-    Returns:
-        The root logger instance configured with the specified level.
+    Initialize logging infrastructure.
     """
     level = getattr(logging, log_level.upper(), logging.INFO)
     logging.basicConfig(
         level=level,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S',
-        force=True
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
-    return logging.getLogger(__name__.split('.')[0])
+    # Silence overly verbose libraries
+    logging.getLogger('urllib3').setLevel(logging.WARNING)
+    logging.getLogger('matplotlib').setLevel(logging.WARNING)
+    logger.info(f"Logging initialized at level {log_level}")
