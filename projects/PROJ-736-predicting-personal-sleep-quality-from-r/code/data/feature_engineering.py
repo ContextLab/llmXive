@@ -1,177 +1,157 @@
-"""
-Feature engineering script for sleep quality prediction.
-Computes pairwise correlations, Fisher-z transforms, and extracts upper triangular vectors.
-"""
 import os
 import sys
 import numpy as np
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict
+import logging
 from scipy.stats import pearsonr
 
-# Add project root to path for imports
-import sys
-from pathlib import Path as PPath
-project_root = PPath(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
 from config import get_paths, ensure_dirs
-from utils.logging import log_stage_start, log_stage_complete, log_stage_error, setup_logging
-from data.download_hcp import filter_subjects
+from utils.logging import log_stage_start, log_stage_complete, log_stage_error
 
-def compute_pairwise_correlation(ts: np.ndarray) -> np.ndarray:
+def compute_pairwise_correlation(time_series):
     """
-    Compute pairwise Pearson correlation matrix for a time series.
-    ts: (n_timepoints, n_regions)
-    Returns: (n_regions, n_regions) correlation matrix.
+    Compute pairwise Pearson correlation matrix from time series.
+    time_series: shape (n_timepoints, n_regions)
+    Returns: correlation matrix shape (n_regions, n_regions)
     """
-    # Center the data
-    ts_centered = ts - np.mean(ts, axis=0)
-    # Correlation = cov(x, y) / (std(x) * std(y))
-    # Using numpy corrcoef
-    try:
-        corr_matrix = np.corrcoef(ts, rowvar=False)
-        # Handle NaNs (constant regions)
-        corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
-        return corr_matrix
-    except Exception as e:
-        log_stage_error("Correlation", str(e))
-        return np.zeros((ts.shape[1], ts.shape[1]))
+    logger = logging.getLogger(__name__)
+    n_timepoints, n_regions = time_series.shape
+    logger.info(f"Computing pairwise correlations for {n_regions} regions")
+    
+    corr_matrix = np.zeros((n_regions, n_regions))
+    
+    for i in range(n_regions):
+        for j in range(i, n_regions):
+            r, _ = pearsonr(time_series[:, i], time_series[:, j])
+            corr_matrix[i, j] = r
+            corr_matrix[j, i] = r
+    
+    return corr_matrix
 
-def fisher_z_transform(r_matrix: np.ndarray) -> np.ndarray:
+def fisher_z_transform(corr_matrix):
     """
     Apply Fisher-z transformation to correlation matrix.
-    z = 0.5 * ln((1+r)/(1-r))
     """
-    # Clip values to avoid log(0) or log(negative)
-    r = np.clip(corr_matrix, -0.9999, 0.9999)
-    z = 0.5 * np.log((1 + r) / (1 - r))
-    return z
+    logger = logging.getLogger(__name__)
+    logger.info("Applying Fisher-z transformation")
+    
+    # Clip values to avoid log(0) or log(inf)
+    corr_clipped = np.clip(corr_matrix, -0.9999, 0.9999)
+    z_matrix = 0.5 * np.log((1 + corr_clipped) / (1 - corr_clipped))
+    
+    return z_matrix
 
-def extract_upper_triangular_vector(z_matrix: np.ndarray) -> np.ndarray:
+def extract_upper_triangular_vector(z_matrix):
     """
-    Extract upper triangular part (excluding diagonal) as a 1D vector.
+    Extract upper triangular vector from correlation matrix (excluding diagonal).
     """
+    logger = logging.getLogger(__name__)
     n = z_matrix.shape[0]
-    # indices of upper triangle
-    iu = np.triu_indices(n, k=1)
-    return z_matrix[iu]
+    
+    # Create mask for upper triangle (excluding diagonal)
+    mask = np.triu(np.ones((n, n)), k=1).astype(bool)
+    vector = z_matrix[mask]
+    
+    logger.info(f"Extracted {len(vector)} edges from {n}x{n} matrix")
+    return vector
 
-def process_subject_features(subject_id: str) -> Optional[np.ndarray]:
+def process_subject_features(subject_id, input_dir, output_dir):
     """
-    Load preprocessed time series, compute connectivity, transform, and vectorize.
+    Process a single subject:
+    1. Load preprocessed time series
+    2. Compute pairwise correlations
+    3. Apply Fisher-z transform
+    4. Extract upper triangular vector
+    5. Save feature vector as .npy
     """
-    paths = get_paths()
-    ts_path = os.path.join(paths['processed_timeseries'], f"sub-{subject_id}_ts.npy")
+    logger = logging.getLogger(__name__)
+    logger.info(f"Processing features for subject: {subject_id}")
     
-    if not os.path.exists(ts_path):
-        log_stage_error("Feature Engineering", f"Time series not found for {subject_id}")
-        return None
+    # Load time series
+    timeseries_path = os.path.join(input_dir, f"{subject_id}_timeseries.npy")
+    if not os.path.exists(timeseries_path):
+        raise FileNotFoundError(f"Time series file not found: {timeseries_path}")
     
-    ts = np.load(ts_path)
+    time_series = np.load(timeseries_path)
     
-    # 1. Correlation
-    corr = compute_pairwise_correlation(ts)
+    # Compute correlations
+    corr_matrix = compute_pairwise_correlation(time_series)
     
     # 2. Fisher Z
     z = fisher_z_transform(corr)
     
-    # 3. Vectorize
-    vec = extract_upper_triangular_vector(z)
+    # Extract upper triangle
+    feature_vector = extract_upper_triangular_vector(z_matrix)
     
-    return vec
+    # Save feature vector
+    output_path = os.path.join(output_dir, f"{subject_id}_features.npy")
+    os.makedirs(output_dir, exist_ok=True)
+    np.save(output_path, feature_vector)
+    logger.info(f"Saved feature vector to {output_path} (shape: {feature_vector.shape})")
+    
+    return feature_vector
 
-def save_feature_vector(subject_id: str, vector: np.ndarray):
-    """Save feature vector to disk."""
+def get_filtered_subject_list():
+    """Load the list of filtered subjects from the CSV."""
     paths = get_paths()
-    out_path = os.path.join(paths['processed_features'], f"sub-{subject_id}_features.npy")
-    np.save(out_path, vector)
+    filtered_subjects_path = paths['filtered_subjects']
+    
+    if not os.path.exists(filtered_subjects_path):
+        raise FileNotFoundError(f"Filtered subjects file not found: {filtered_subjects_path}")
+    
+    import pandas as pd
+    df = pd.read_csv(filtered_subjects_path)
+    return df['Subject'].tolist()
 
-def load_feature_vectors(subject_ids: List[str]) -> Tuple[np.ndarray, List[str]]:
-    """Load all feature vectors for a list of subjects."""
-    paths = get_paths()
+def load_feature_vectors(subject_ids, input_dir):
+    """Load feature vectors for multiple subjects."""
     vectors = []
-    valid_ids = []
-    
-    for sid in subject_ids:
-        path = os.path.join(paths['processed_features'], f"sub-{sid}_features.npy")
+    for subject_id in subject_ids:
+        path = os.path.join(input_dir, f"{subject_id}_features.npy")
         if os.path.exists(path):
-            vectors.append(np.load(path))
-            valid_ids.append(sid)
-    
-    if not vectors:
-        return np.array([]), []
-    
-    return np.vstack(vectors), valid_ids
+          vectors.append(np.load(path))
+    return np.array(vectors)
+
+def save_feature_vector(subject_id, vector, output_dir):
+    """Save a single feature vector."""
+    output_path = os.path.join(output_dir, f"{subject_id}_features.npy")
+    os.makedirs(output_dir, exist_ok=True)
+    np.save(output_path, vector)
+    return output_path
 
 def main():
     """
-    Main entry point for feature engineering.
-    Processes all valid subjects and saves feature vectors.
+    Main function to compute connectivity vectors for all filtered subjects.
+    Loads preprocessed time series, computes correlations, and saves .npy files.
     """
+    logger = logging.getLogger(__name__)
     paths = get_paths()
     ensure_dirs()
     
-    # Get valid subjects
-    behavioral_path = paths['raw_behavioral']
-    valid_subjects = filter_subjects(behavioral_path)
-    
-    if not valid_subjects:
-        log_stage_error("Feature Engineering", "No valid subjects found.")
-        return
-    
-    processed_count = 0
-    for subject_id in valid_subjects:
-        try:
-            vec = process_subject_features(subject_id)
-            if vec is not None:
-                save_feature_vector(subject_id, vec)
-                processed_count += 1
-        except Exception as e:
-            log_stage_error("Feature Engineering", f"Failed for {subject_id}: {e}")
-            continue
-    
-    log_stage_complete("Feature Engineering", f"Processed {processed_count} subjects.")
+    try:
+        # Get filtered subject list
+        subject_ids = get_filtered_subject_list()
+        logger.info(f"Processing features for {len(subject_ids)} subjects")
+        
+        input_dir = paths['preprocessed_data']
+        output_dir = paths['processed_features']
+        
+        # Process each subject
+        for subject_id in subject_ids:
+            process_subject_features(subject_id, input_dir, output_dir)
+        
+        # Also save a combined matrix for modeling
+        combined_vectors = load_feature_vectors(subject_ids, output_dir)
+        combined_path = os.path.join(output_dir, "all_subjects_features.npy")
+        np.save(combined_path, combined_vectors)
+        logger.info(f"Saved combined feature matrix to {combined_path}")
+        
+        log_stage_complete("feature_engineering", f"Generated feature vectors for {len(subject_ids)} subjects")
+        
+    except Exception as e:
+        log_stage_error("feature_engineering", str(e))
+        raise
 
-def load_feature_vectors(subjects: List[str]) -> Tuple[np.ndarray, List[str]]:
-    """
-    Load all feature vectors for the given subjects.
-    """
-    paths = get_paths()
-    features_dir = paths['features_dir']
-    
-    vectors = []
-    valid_subjects = []
-    
-    for subject_id in subjects:
-        fpath = features_dir / f"sub-{subject_id}_features.npy"
-        if fpath.exists():
-            vectors.append(np.load(fpath))
-            valid_subjects.append(subject_id)
-    
-    if len(vectors) == 0:
-        raise ValueError("No feature vectors found.")
-    
-    return np.array(vectors), valid_subjects
-
-def main(subjects: List[str]):
-    """
-    Main function to compute features for all subjects.
-    """
-    logger = setup_logging(paths['log_file'])
-    log_stage_start(logger, "Feature Engineering")
-    
-    paths = get_paths()
-    ensure_dirs()
-    
-    for subject_id in subjects:
-        try:
-            logger.info(f"Computing features for {subject_id}")
-            vector = process_subject_features(subject_id)
-            save_feature_vector(subject_id, vector)
-        except Exception as e:
-            log_stage_error(logger, f"Feature Engineering {subject_id}", str(e))
-            continue
-    
-    log_stage_complete(logger, "Feature Engineering", extra={"count": len(subjects)})
+if __name__ == "__main__":
+    main()

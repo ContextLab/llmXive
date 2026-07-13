@@ -150,3 +150,79 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T17:02:33Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: 1,000 label permutations on a stratified subset of 100 subjects
+  claim_id: c_23e5feed
+  context: T022 [US2] Implement code/modeling/evaluate.py to perform 1,000 label permutations
+    on a stratified subset of 100 subjects (based on Sleep Score). Must invoke T020a
+    with the subset parameter.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/modeling/evaluate.py to perform 1,000 label permutations
+    on a stratified subset of 100 subjects (based on Sleep Score).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:12:25Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: PCA retention values of 0.95, 0.90, and 0.85 in sensitivity analysis
+  claim_id: c_388782b1
+  context: T024 [US2] Implement sensitivity analysis in code/modeling/evaluate.py
+    to iterate variance thresholds including low values and PCA retention {0.95, 0.90,
+    0.85}. Must invoke T020a with full dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sensitivity analysis in code/modeling/evaluate.py to iterate
+    variance thresholds including low values and PCA retention {0.95, 0.90, 0.85}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:12:41Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: 3-hour cumulative time budget for 9 grid points in sensitivity analysis
+  claim_id: c_706b230a
+  context: 'T024 [US2] ... Must enforce a cumulative 3-hour time budget for the 9
+    grid points; if exceeded, log completed rows as a list in ResultReport.json[''sensitivity_analysis'']
+    and set incomplete: true before aborting.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Must enforce a cumulative 3-hour time budget for the 9 grid points; if
+    exceeded, log completed rows as a list in ResultReport.json[''sensitivity_analysis'']
+    and set incomplete: true before aborting.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:13:13Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: Verify plot file contains at least 50 edges
+  claim_id: c_49a5198b
+  context: "T033 [P] [US3] Verify plot file exists and contains \u226550 edges: Use\
+    \ Python's built-in xml.etree.ElementTree to parse SVG and count both <line> and\
+    \ <path> elements (to handle different rendering backends)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_plot_file_contains_at_least_50_edges
+  kind: magnitude
+  raw_text: "Verify plot file exists and contains \u226550 edges: Use Python's built-in\
+    \ xml.etree.ElementTree to parse SVG and count both <line> and <path> elements\
+    \ (to handle different rendering backends)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T18:13:46Z'

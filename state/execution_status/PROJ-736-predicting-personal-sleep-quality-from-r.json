@@ -1,13 +1,13 @@
 {
   "project_id": "PROJ-736-predicting-personal-sleep-quality-from-r",
   "ok": false,
-  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/download_hcp.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# Generate synthetic behavioral data for test\u2026\u201d; code/data/download_hcp.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ger, \"Data Generation\", \"Generated synthetic behavioral data for test\u2026\u201d; 2 command(s) failed: python code/data/download_hcp.py (rc=1); python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/predictions.npy; data/raw/behavioral/hcp1200_behavioral_data.csv",
+  "reason": "2 command(s) failed: python code/data/download_hcp.py (rc=1); python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/predictions.npy; data/raw/behavioral/hcp1200_behavioral_data.csv",
   "artifacts": [],
   "failures": [
-    "python code/data/download_hcp.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py\", line 7, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py\", line 7, in <module>\n    from data.download_hcp import filter_subjects, main as download_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py\", line 7, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'"
+    "python code/data/download_hcp.py -> rc=1\n    Error: log_stage_start() missing 1 required positional argument: 'stage_name'",
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py\", line 20, in <module>\n    from data.preprocess import main as preprocess_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/preprocess.py\", line 13, in <module>\n    from nilearn.input_data import NiftiLabelsMasker\nModuleNotFoundError: No module named 'nilearn.input_data'"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "updated_at": "2026-07-13T16:47:47Z"
+  "updated_at": "2026-07-13T17:41:01Z"
 }

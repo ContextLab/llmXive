@@ -4,7 +4,8 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from config import get_paths
+
+from config import get_paths, ensure_dirs
 
 class JSONFormatter(logging.Formatter):
     def format(self, record):
@@ -21,41 +22,57 @@ class JSONFormatter(logging.Formatter):
         return json.dumps(log_entry)
 
 def setup_logging():
-    """Setup logging to console and file."""
+    """Setup logging to both console and file."""
     paths = get_paths()
-    log_file = paths['logs'] / 'pipeline_run.json'
-    os.makedirs(str(paths['logs']), exist_ok=True)
-
-    logger = logging.getLogger("llmXive")
+    ensure_dirs()
+    
+    log_file = paths['log_file']
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    
+    # Create logger
+    logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     
     # Clear existing handlers
     logger.handlers = []
-
+    
+    # File handler
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(logging.INFO)
+    fh.setFormatter(JSONFormatter())
+    
     # Console handler
     ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
     ch.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    logger.addHandler(ch)
-
-    # File handler
-    fh = logging.FileHandler(str(log_file))
-    fh.setFormatter(JSONFormatter())
+    
     logger.addHandler(fh)
-
+    logger.addHandler(ch)
+    
     return logger
 
-def log_stage_start(stage: str, message: str):
-    logger = logging.getLogger("llmXive")
-    logger.info(f"[{stage}] START: {message}")
+def log_event(event_type, message, **kwargs):
+    """Log a structured event."""
+    logger = logging.getLogger()
+    event_data = {
+        "event_type": event_type,
+        "message": message,
+        "timestamp": datetime.now().isoformat(),
+        **kwargs
+    }
+    logger.info(json.dumps(event_data))
 
-def log_stage_complete(stage: str, message: str):
-    logger = logging.getLogger("llmXive")
-    logger.info(f"[{stage}] COMPLETE: {message}")
+def log_stage_start(stage_name, description):
+    """Log the start of a pipeline stage."""
+    logger = logging.getLogger()
+    logger.info(f"[STAGE_START] {stage_name}: {description}")
 
-def log_stage_error(stage: str, message: str):
-    logger = logging.getLogger("llmXive")
-    logger.error(f"[{stage}] ERROR: {message}")
+def log_stage_complete(stage_name, description):
+    """Log the completion of a pipeline stage."""
+    logger = logging.getLogger()
+    logger.info(f"[STAGE_COMPLETE] {stage_name}: {description}")
 
-def log_event(event: str, details: dict):
-    logger = logging.getLogger("llmXive")
-    logger.info(json.dumps({"event": event, **details}))
+def log_stage_error(stage_name, error_message):
+    """Log an error in a pipeline stage."""
+    logger = logging.getLogger()
+    logger.error(f"[STAGE_ERROR] {stage_name}: {error_message}")
