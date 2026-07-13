@@ -1,0 +1,5 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T025 Implement inconsistency validator in `src/audit/validator.py` applying FR‑004 thresholds (absolute p‑difference > 0.05, relative effect‑size > 5 %) **and verify that sample‑size mismatch entries are excluded from aggregate prevalence estimates ** per FR‑004b (generate `AuditRecord` objects with data_quality_warning messages for sample‑size discrepancies, writing `output/audit_report.json`). **DEPENDS ON:** T023. <!-- SKIPPED: non-mapping output -->** — No `src/audit/validator.py` implementation applying the FR‑004 thresholds and FR‑004b sample‑size checks is present, and the required `output/audit_report.json` is not found. The task’s core artifacts are missing, so the requirement is not satisfied.
