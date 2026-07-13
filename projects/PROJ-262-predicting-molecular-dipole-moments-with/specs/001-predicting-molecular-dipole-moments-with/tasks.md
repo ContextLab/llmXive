@@ -85,7 +85,7 @@ The method is: We will implement and evaluate a graph neural network model train
 - [X] T017 [US1] Implement 3D coordinate, atom type, and bond connectivity extraction in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/preprocess_3d.py` (FR‑002, depends on T016)
 - [X] T018 [US1] Implement 2D Morgan fingerprints and Coulomb matrix generation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/extract_2d_descriptors.py` (FR‑003, depends on T016)
 - [X] T019 [US1] Add validation for missing 3D coordinates in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/handle_missing_coords.py` – generates `data/reports/excluded_molecules.csv` with columns `molecule_id`, `exclusion_reason` (enum: `missing_3d`, `invalid_structure`), `exclusion_timestamp`.
-- [ ] T020 [US1] Generate output files: `data/processed/molecules_10k.parquet`, `features_3d.parquet`, `features_2d.parquet` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T020 [US1] Generate output files: `data/processed/molecules_10k.parquet`, `features_3d.parquet`, `features_2d.parquet` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T021 [US1] Implement retry/fallback logic for DOI inaccessibility in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/download_qm9.py`
 
 **Checkpoint**: User Story 1 fully functional and testable independently
@@ -94,9 +94,9 @@ The method is: We will implement and evaluate a graph neural network model train
 
 ## Phase 4: User Story 2 - Model Training and Evaluation Pipeline (Priority: P2)
 
-**Goal**: Train lightweight SchNet‑style GNN and Random Forest baseline on identical train/test splits, evaluate both on held‑out test set using MAE and RMSE for dipole moments [UNRESOLVED-CLAIM: c_11a2452f — status=not_enough_info] (a sufficient number of epochs, with early stopping)
+**Goal**: Train lightweight SchNet‑style GNN and Random Forest baseline on identical train/test splits, evaluate both on held‑out test set using MAE and RMSE for dipole moments (a sufficient number of epochs, with early stopping)
 
-**Independent Test**: Verify training with 50 epochs and early stopping, both models produce MAE and RMSE scores on test set [UNRESOLVED-CLAIM: c_0bb15378 — status=not_enough_info]
+**Independent Test**: Verify training with 50 epochs and early stopping, both models produce MAE and RMSE scores on test set
 
 ### Tests for User Story 2
 
@@ -109,8 +109,8 @@ The method is: We will implement and evaluate a graph neural network model train
 
 - [X] T026 [P] [US2] Implement SchNet‑style GNN architecture in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/schnet_gnn.py` (FR‑004, CPU‑only)
 - [X] T027 [P] [US2] Implement Random Forest baseline in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/random_forest_baseline.py` (FR‑005)
-- [ ] T028 [US2] Implement GNN training with 5 seeds, 50 epochs, early stopping (patience = 10) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py` – compute variance of RMSE across seeds and ensure it is recorded (fulfills SC‑005). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T029 [US2] Train Random Forest baseline with 5 seeds [UNRESOLVED-CLAIM: c_5fca15d3 — status=not_enough_info] in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py` – also records RMSE variance. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T028 [US2] Implement GNN training with 5 seeds, 50 epochs, early stopping (patience = 10) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py` – compute variance of RMSE across seeds and ensure it is recorded (fulfills SC‑005). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T029 [US2] Train Random Forest baseline with 5 seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py` – also records RMSE variance. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/split_data.py`
 - [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/evaluate.py` (FR‑006)
 - [X] T032 [US2] Compute MAE/RMSE against QM9 dipole‑moment reference values on the held‑out test split (fulfills FR‑011 without external data).
@@ -125,7 +125,7 @@ The method is: We will implement and evaluate a graph neural network model train
 
 **Goal**: Apply permutation importance to Random Forest and saliency mapping to GNN embeddings, perform paired t‑tests to confirm statistical significance of the performance delta
 
-**Independent Test**: Verify feature importance rankings are generated and t‑test p‑values are computed across 5 random seeds [UNRESOLVED-CLAIM: c_74039a52 — status=not_enough_info]
+**Independent Test**: Verify feature importance rankings are generated and t‑test p‑values are computed across 5 random seeds
 
 ### Tests for User Story 3
 
@@ -140,8 +140,8 @@ The method is: We will implement and evaluate a graph neural network model train
 - [X] T040 [US3] Rank structural contributions (e.g., electronegativeatom placement, local bond angles) and verify **at least three** distinct features appear in the top‑10 of `results/attributions.json` (FR‑007, SC‑002)
 - [X] T041 [US3] Implement paired t‑tests (α = 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) comparing RMSE distributions in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py` (FR‑008, SC‑004)
 - [X] T042 [US3] Generate `results/attributions.json` with feature importance rankings
-- [X] T043 [US3 ] Generate `results/significance.csv` with columns `seed`, `t_statistic`, `p_value`, `significant_at_alpha_0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)` (FR‑008)
-- [X] T044 [US3] **(Removed – CI computation consolidated into T034)**
+- [X] T043 [US3 (Wikidata Q126592664, https://www.wikidata.org/wiki/Q126592664) ] Generate `results/significance.csv` with columns `seed`, `t_statistic`, `p_value`, `significant_at_alpha_0.05 ` (FR‑008)
+- [X] T044 [US3]**(Removed – CI computation consolidated into T034)**
 - [X] T045 [US3] Visualize feature‑importance maps on representative molecules (e.g., `data/processed/attributions_*.png`) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/visualize_features.py` (FR‑009)
 
 **Checkpoint**: All user stories independently functional

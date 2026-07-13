@@ -1,34 +1,12 @@
-# Core dependencies
-numpy>=1.24.0
 pandas>=2.0.0
-scipy>=1.10.0
-
-# ML frameworks
-scikit-learn>=1.3.0
+numpy>=1.24.0
 torch>=2.0.0
-
-# Data handling
+scikit-learn>=1.2.0
+scipy>=1.10.0
 pyarrow>=12.0.0
-joblib>=1.3.0
-rdkit>=2023.3.0
-
-# Visualization
-matplotlib>=3.7.0
-
-# Testing
-pytest>=7.4.0
-pytest-cov>=4.1.0
-
-# Code quality
-black>=23.0.0
-flake8>=6.1.0
-isort>=5.12.0
-
-# Configuration
-pyyaml>=6.0.0
-
-# Data download
-requests>=2.31.0
+rdkit>=2023.3.1
+joblib>=1.2.0
+matplotlib  # auto-added: imported by run-book but missing from venv
+matplotlib  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv
 tqdm  # auto-added: imported by run-book but missing from venv
-models  # auto-added: imported by run-book but missing from venv
-torch_geometric  # auto-added: imported by run-book but missing from venv

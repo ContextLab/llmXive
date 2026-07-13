@@ -13,7 +13,7 @@
     "python code/analysis/generate_significance.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py\", line 30, in <module>\n    from analysis.statistical_tests import paired_t_test\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py\", line 12, in <module>\n    from scipy import stats\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with",
     "python code/generate_summary.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py\", line 162, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py\", line 153, in main\n    generate_summary(\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py\", line 66, in generate_summary\n    significance = load_csv_as_dict"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 6,
   "model_tier": 0,
-  "updated_at": "2026-07-13T19:31:52Z"
+  "updated_at": "2026-07-13T20:43:44Z"
 }
