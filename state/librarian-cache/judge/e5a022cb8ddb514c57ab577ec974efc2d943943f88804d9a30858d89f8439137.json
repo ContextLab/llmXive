@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.11266",
+  "judged_at": "2026-07-13T07:58:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"planbench-xl: evaluating long-horizon planning of llm tool-use agents \" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides a canonical benchmark and empirical evaluation for the exact same mechanism (LLM tool-use agents performing multi-step planning) and dependent variables (task completion rates, error handling, sequential reasoning) that the user's question regarding \"Long-Horizon Planning of LLM Tool-Use Agents\" investigates. It serves as a critical related-work reference for establishing the current state-of-the-art and baseline performance in this specif",
+  "relevant": true
+}

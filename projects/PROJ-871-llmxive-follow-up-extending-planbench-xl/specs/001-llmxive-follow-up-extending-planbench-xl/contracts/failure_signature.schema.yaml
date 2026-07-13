@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Failure Signature Index"
+description: "Static JSON index mapping tool identifiers to their failure signatures (derived from synthetic injection logic) and recovery strategies."
+type: object
+additionalProperties:
+  type: object
+  required:
+    - name
+    - failure_signatures
+    - recovery_strategy
+  properties:
+    name:
+      type: string
+      description: "The name of the tool."
+    failure_signatures:
+      type: array
+      description: "List of string patterns indicating a failure (injected by the code)."
+      items:
+        type: string
+    recovery_strategy:
+      type: string
+      description: "The strategy to employ upon detecting a failure signature."
+      enum:
+        - "retry"
+        - "fallback"
+        - "retry_with_backoff"
+        - "fallback_to_alternative"
+        - "report_error"

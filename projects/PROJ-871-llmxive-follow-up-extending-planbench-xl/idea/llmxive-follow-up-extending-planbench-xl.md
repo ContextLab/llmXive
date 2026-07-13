@@ -5,34 +5,79 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "PlanBench-XL: Evaluating Long-Horizon Planning of LLM Tool-Use Agents "
 
-## Summary of the prior work
-PlanBench-XL introduces a large-scale benchmark for evaluating LLM agents' long-horizon planning capabilities within massive tool ecosystems (1,665 tools) where tools must be discovered via retrieval. The study highlights that while agents perform moderately in static settings, their success rates collapse significantly (e.g., from 51.90% to 11.36%) when faced with dynamic blocking mechanisms like missing or failing tools that lack explicit error signals. The core finding is that current agents struggle to adaptively re-plan when the failure mode is implicit or requires navigating long alternative paths in a retrieval-constrained environment.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can a lightweight, rule-based "failure signature" retrieval augmentation (requiring only CPU-based text matching) significantly improve an agent's ability to detect implicit tool failures and recover planning paths in PlanBench-XL compared to relying solely on the LLM's internal reasoning?
+## Research question
 
-This extension matters because the original paper identifies implicit failures as a primary cause of planning collapse, yet assumes the LLM must infer these from raw tool outputs; testing whether explicit, low-cost metadata signals can bridge this gap offers a practical, scalable pathway to robust agentic planning without demanding expensive model retraining or heavy inference resources.
+Does augmenting LLM tool-use agents with lightweight, rule-based "failure signature" retrieval significantly improve recovery rates from implicit tool failures in large-scale, dynamic tool ecosystems compared to agents relying solely on internal reasoning?
+
+## Motivation
+
+PlanBench-XL demonstrates that agent performance collapses when tools fail silently or return counterfactual outputs, a gap where internal LLM reasoning often fails to infer the error. Bridging this gap with explicit, low-compute metadata signals offers a practical, scalable alternative to expensive model retraining, potentially enabling robust agentic planning in resource-constrained enterprise environments.
+
+## Related work
+
+- [Live API-Bench: 2500+ Live APIs for Testing Multi-Step Tool Calling (2025)](https://arxiv.org/abs/2506.11266) — Establishes the necessity of testing tool-calling agents against realistic, dynamic API behaviors, providing the contextual precedent for evaluating failure modes in live tool ecosystems.
+- [Dynamic Intelligence Ceilings: Measuring Long-Horizon Limits of Planning and Creativity in Artificial Systems (2026)](https://arxiv.org/abs/2601.06102) — Highlights the specific degradation of planning capabilities under long-horizon constraints, supporting the premise that static reasoning strategies fail when dynamic obstacles (like implicit failures) arise.
+- [LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning (2026)](https://arxiv.org/abs/2604.14140) — Provides the methodological baseline for evaluating how agents reason over extended sequences, against which the proposed "failure signature" augmentation will be compared to isolate the benefit of external signal processing.
+
+## Expected results
+
+The signature-augmented agent will demonstrate a statistically significant improvement (e.g., +15-20%) in task completion rates on the implicit failure subset of PlanBench-XL compared to the baseline. This would confirm that explicit, low-overhead error detection mechanisms can effectively substitute for the missing internal reasoning capabilities required to handle silent tool failures.
 
 ## Methodology sketch
-**Data:** Utilize the existing 327 tasks from PlanBench-XL, specifically filtering for the "implicit failure" subset where tools return counterfactual outputs or silent errors without raising exceptions.
-**Procedure:** 
-1. Construct a small, static JSON index (CPU-tractable) mapping tool IDs to their "failure signatures" (e.g., expected output patterns for success vs. failure) derived from the benchmark's ground truth.
-2. Modify the agent's retrieval loop to perform a lightweight string-matching check against this index immediately after a tool invocation returns, before passing the result to the LLM for reasoning.
-3. Compare the success rates of a standard agent (baseline) against this "signature-augmented" agent across the implicit failure tasks.
-**Expected Result:** The signature-augmented agent will demonstrate a statistically significant increase in recovery success (e.g., +15-20% accuracy) in implicit failure scenarios, proving that explicit, low-compute failure detection can substitute for the missing internal reasoning capabilities identified in the prior work.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the PlanBench-XL dataset (specifically the 327 tasks) and the associated tool ecosystem definitions from the official repository linked in the original preprint.
+- **Signature Construction**: Parse the benchmark's ground truth to extract "failure signatures" (expected success vs. failure output patterns) for each tool, storing them in a static, CPU-tractable JSON index.
+- **Agent Implementation**: Implement two agent variants: (1) a baseline agent using standard retrieval and LLM reasoning, and (2) an augmented agent that performs a lightweight string-matching check against the JSON index immediately after tool invocation.
+- **Execution**: Run both agents on the "implicit failure" subset of tasks using a standard open-source LLM (e.g., Llama-3-8B) hosted locally or via a free-tier API to ensure CPU-only feasibility within the 6-hour limit.
+- **Statistical Analysis**: Calculate the success rate for each agent on the target subset and apply a two-proportion z-test to determine if the difference in recovery rates is statistically significant (p < 0.05).
+- **Validation Independence**: Ensure the evaluation metric (task success) is measured against the ground-truth task completion status, which is independent of the "failure signature" index used during inference.
 
-- **PlanBench-XL: Evaluating Long-Horizon Planning of LLM Tool-Use Agents in Large-Scale Tool Ecosystems** — Jiayu Liu, Qihan Lin, Cheng Qian, Rui Wang, Emre Can Acikgoz, Xiaocheng Yang, Jiateng Liu, Zhenhailong Wang, Xiusi Chen, Heng Ji, Dilek Hakkani-Tür. https://arxiv.org/abs/2606.22388.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_22388,
-  title = {PlanBench-XL: Evaluating Long-Horizon Planning of LLM Tool-Use Agents in Large-Scale Tool Ecosystems},
-  author = {Jiayu Liu and Qihan Lin and Cheng Qian and Rui Wang and Emre Can Acikgoz and Xiaocheng Yang and Jiateng Liu and Zhenhailong Wang and Xiusi Chen and Heng Ji and Dilek Hakkani-Tür},
-  year = {2026},
-  eprint = {2606.22388},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.22388},
-  url = {https://arxiv.org/abs/2606.22388}
-}
-```
+- Reviewed existing ideas: Live API-Bench evaluation, Dynamic Intelligence Ceilings analysis, LongCoT reasoning benchmarks.
+- Closest match: Dynamic Intelligence Ceilings (similarity sketch: both address long-horizon planning limits, but this proposal specifically targets the *recovery mechanism* for implicit failures via external signatures, whereas the closest match focuses on measuring the ceiling of current capabilities).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-13T07:58:27Z
+**Outcome**: success_after_expansion
+**Original term**: llmXive follow-up: extending "PlanBench-XL: Evaluating Long-Horizon Planning of LLM Tool-Use Agents " computer science
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "PlanBench-XL: Evaluating Long-Horizon Planning of LLM Tool-Use Agents " computer science | 0 |
+| 1 | long-horizon planning evaluation for LLM agents | 5 |
+| 2 | tool-augmented large language model benchmarking | 0 |
+| 3 | multi-step reasoning assessment in LLMs | 0 |
+| 4 | LLM agent planning frameworks and metrics | 0 |
+| 5 | hierarchical task planning with language models | 0 |
+| 6 | automated planning evaluation for AI agents | 0 |
+| 7 | LLM tool use reliability and robustness | 0 |
+| 8 | complex task decomposition by language models | 0 |
+| 9 | benchmarks for autonomous agent planning | 0 |
+| 10 | multi-turn interaction planning in LLMs | 0 |
+| 11 | goal-directed reasoning in large language models | 0 |
+| 12 | evaluation of LLMs in open-ended environments | 0 |
+| 13 | planning failures in tool-using agents | 0 |
+| 14 | iterative refinement strategies for LLM planning | 0 |
+| 15 | semantic planning in generative AI | 0 |
+| 16 | LLM agent benchmarking suites for reasoning | 0 |
+| 17 | cross-domain planning capabilities of LLMs | 0 |
+| 18 | long-context planning in foundation models | 0 |
+| 19 | verification of LLM-generated action sequences | 0 |
+| 20 | cognitive architectures for LLM-based agents | 0 |
+
+### Verified citations
+
+1. **Live API-Bench: 2500+ Live APIs for Testing Multi-Step Tool Calling** (2025). Benjamin Elder, Anupama Murthi, Jungkoo Kang, Ankita Rajaram Naik, Kiran Kate, et al.. arXiv. [2506.11266](https://arxiv.org/abs/2506.11266). PDF-sampled: No.
+2. **Dynamic Intelligence Ceilings: Measuring Long-Horizon Limits of Planning and Creativity in Artificial Systems** (2026). Truong Xuan Khanh, Truong Quynh Hoa. arXiv. [2601.06102](https://arxiv.org/abs/2601.06102). PDF-sampled: No.
+3. **Four-Axis Decision Alignment for Long-Horizon Enterprise AI Agents** (2026). Vasundra Srininvasan. arXiv. [2604.19457](https://arxiv.org/abs/2604.19457). PDF-sampled: No.
+4. **LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning** (2026). Sumeet Ramesh Motwani, Daniel Nichols, Charles London, Peggy Li, Fabio Pizzati, et al.. arXiv. [2604.14140](https://arxiv.org/abs/2604.14140). PDF-sampled: No.
+5. **RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents** (2026). Imad Aouali, Flavian Vasile, Otmane Sakhi, Alexandre Gilotte, Benjamin Heymann. arXiv. [2605.18805](https://arxiv.org/abs/2605.18805). PDF-sampled: No.

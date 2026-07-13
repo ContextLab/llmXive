@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.18805",
+  "judged_at": "2026-07-13T07:58:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"planbench-xl: evaluating long-horizon planning of llm tool-use agents \" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it provides a canonical benchmark and evaluation framework for LLM tool-use agents, specifically measuring the \"long-horizon\" and \"tool-use\" mechanisms central to the user's question about extending planning evaluations. Although the domain is shopping recommendations rather than the specific \"PlanBench-XL\" tasks, it establishes the necessary empirical baseline and methodology for evaluating agentic tool-use performance, which is the core mechanism th",
+  "relevant": true
+}

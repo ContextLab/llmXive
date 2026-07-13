@@ -1,0 +1,74 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Execution Log"
+description: "Structured record of an agent's execution for a single task."
+type: object
+required:
+  - task_id
+  - agent_type
+  - steps
+  - final_status
+  - ground_truth_match
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the task."
+  agent_type:
+    type: string
+    description: "Type of agent: 'baseline' or 'augmented'."
+    enum:
+      - "baseline"
+      - "augmented"
+  steps:
+    type: array
+    description: "Sequence of actions taken by the agent."
+    items:
+      type: object
+      properties:
+        step_number:
+          type: integer
+        action:
+          type: string
+          description: "The action taken (e.g., 'tool_call', 'reasoning')."
+        tool_name:
+          type: string
+          description: "Name of the tool used, if applicable."
+        output:
+          type: string
+          description: "Output of the tool or reasoning step."
+        signature_match:
+          type: boolean
+          description: "True if a failure signature was detected (augmented agent only)."
+        recovery_action:
+          type: string
+          description: "Action taken upon signature match (augmented agent only)."
+  final_status:
+    type: string
+    description: "Final status of the task execution."
+    enum:
+      - "success"
+      - "failure"
+  ground_truth_match:
+    type: boolean
+    description: "True if the final status matches the ground truth."
+  signature_matches:
+    type: array
+    description: "List of signature matches detected (augmented agent only)."
+    items:
+      type: object
+      properties:
+        tool_name:
+          type: string
+        signature:
+          type: string
+        action_taken:
+          type: string
+  recovery_actions:
+    type: array
+    description: "List of recovery actions taken (augmented agent only)."
+    items:
+      type: object
+      properties:
+        action_type:
+          type: string
+        result:
+          type: string

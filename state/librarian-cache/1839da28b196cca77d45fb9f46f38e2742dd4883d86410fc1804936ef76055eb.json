@@ -1,0 +1,647 @@
+{
+  "fetched_at": "2026-07-13T07:58:27Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of LLM Tool-Use Agents \"",
+      "target_n": 5
+    },
+    "duration_seconds": 58.761,
+    "ended_at": "2026-07-13T07:58:27Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "long-horizon planning evaluation for LLM agents"
+        ],
+        [
+          2,
+          "tool-augmented large language model benchmarking"
+        ],
+        [
+          3,
+          "multi-step reasoning assessment in LLMs"
+        ],
+        [
+          4,
+          "LLM agent planning frameworks and metrics"
+        ],
+        [
+          5,
+          "hierarchical task planning with language models"
+        ],
+        [
+          6,
+          "automated planning evaluation for AI agents"
+        ],
+        [
+          7,
+          "LLM tool use reliability and robustness"
+        ],
+        [
+          8,
+          "complex task decomposition by language models"
+        ],
+        [
+          9,
+          "benchmarks for autonomous agent planning"
+        ],
+        [
+          10,
+          "multi-turn interaction planning in LLMs"
+        ],
+        [
+          11,
+          "goal-directed reasoning in large language models"
+        ],
+        [
+          12,
+          "evaluation of LLMs in open-ended environments"
+        ],
+        [
+          13,
+          "planning failures in tool-using agents"
+        ],
+        [
+          14,
+          "iterative refinement strategies for LLM planning"
+        ],
+        [
+          15,
+          "semantic planning in generative AI"
+        ],
+        [
+          16,
+          "LLM agent benchmarking suites for reasoning"
+        ],
+        [
+          17,
+          "cross-domain planning capabilities of LLMs"
+        ],
+        [
+          18,
+          "long-context planning in foundation models"
+        ],
+        [
+          19,
+          "verification of LLM-generated action sequences"
+        ],
+        [
+          20,
+          "cognitive architectures for LLM-based agents"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of LLM Tool-Use Agents \" computer science": 0,
+        "long-horizon planning evaluation for LLM agents": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "memorization data contamination LLM planning",
+      "ALFWorld WebShop SOTO agent benchmarks",
+      "graph search homophily reasoning LLMs",
+      "multi-step success rate tool calling evaluation",
+      "chain-of-thought decomposition error propagation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2604.19457"
+      ]
+    },
+    "per_query_hit_count": {
+      "ALFWorld WebShop SOTO agent benchmarks": 3,
+      "chain-of-thought decomposition error propagation": 3,
+      "graph search homophily reasoning LLMs": 3,
+      "llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of LLM Tool-Use Agents \" computer science": 3,
+      "memorization data contamination LLM planning": 3,
+      "multi-step success rate tool calling evaluation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2601.10758",
+          "rationale": "The paper focuses on security vulnerabilities (adversarial attacks and safety) in LLM agents, whereas the user's question concerns the evaluation of long-horizon planning capabilities and benchmarks. While both involve LLM agents, the paper does not measure the same planning mechanisms, planning-specific variables, or provide a baseline for planning performance, failing to meet the inclusion criteria for a literature review on planning evaluation.",
+          "title": "Agents at Risk: How Users Unwittingly Undermine LLM Safety"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T07:57:29Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"planbench-xl: evaluating long-horizon planning of llm tool-use agents \" computer science",
+      "raw": "llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of LLM Tool-Use Agents \" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) trained on web-scale datasets raise substantial concerns regarding permissible data usage. One major question is whether these models \"memorize\" all their training data or they integrate many data sources in some way more akin to how a human would learn and synthesize information. The answer hinges, to a large degree, on how we define memorization. In this work, we propose the Adversarial Compression Ratio (ACR) as a metric for assessing memorization in LLMs. A given string from the training data is considered memorized if it can be elicited by a prompt (much) shorter than the string itself -- in other words, if these strings can be \"compressed\" with the model by computing adversarial prompts of fewer tokens. The ACR overcomes the limitations of existing notions of memorization by (i) offering an adversarial view of measuring memorization, especially for monitoring unlearning and compliance; and (ii) allowing for the flexibility to measure memorization for arbitrary strings at a reasonably low compute. Our definition serves as a practical tool for determining when model owners may be violating terms around data usage, providing a potential legal tool and a critical lens through which to address such scenarios.",
+          "claimed_authors": [
+            "Avi Schwarzschild",
+            "Zhili Feng",
+            "Pratyush Maini",
+            "Zachary C. Lipton",
+            "J. Zico Kolter"
+          ],
+          "claimed_title": "Rethinking LLM Memorization through the Lens of Adversarial Compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.15146"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='Rethinking LLM Memorization through the Lens of Adversarial Compression')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing benchmarks for grounding language in interactive environments either lack real-world linguistic elements, or prove difficult to scale up due to substantial human involvement in the collection of data or feedback signals. To bridge this gap, we develop WebShop -- a simulated e-commerce website environment with $1.18$ million real-world products and $12,087$ crowd-sourced text instructions. Given a text instruction specifying a product requirement, an agent needs to navigate multiple types of webpages and issue diverse actions to find, customize, and purchase an item. WebShop provides several challenges for language grounding including understanding compositional instructions, query (re-)formulation, comprehending and acting on noisy text in webpages, and performing strategic exploration. We collect over $1,600$ human demonstrations for the task, and train and evaluate a diverse range of agents using reinforcement learning, imitation learning, and pre-trained image and language models. Our best model achieves a task success rate of $29\\%$, which outperforms rule-based heuristics ($9.6\\%$) but is far lower than human expert performance ($59\\%$). We also analyze agent and human trajectories and ablate various model components to provide insights for developing future agents with stronger language understanding and decision making abilities. Finally, we show that agents trained on WebShop exhibit non-trivial sim-to-real transfer when evaluated on amazon.com and ebay.com, indicating the potential value of WebShop in developing practical web-based agents that can operate in the wild.",
+          "claimed_authors": [
+            "Shunyu Yao",
+            "Howard Chen",
+            "John Yang",
+            "Karthik Narasimhan"
+          ],
+          "claimed_title": "WebShop: Towards Scalable Real-World Web Interaction with Grounded Language Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.01206"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='WebShop: Towards Scalable Real-World Web Interaction with Grounded Language Agents')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Using a spectral decomposition technique (Soto & Martin 2012, hereafter Paper I), we investigate the physical origin of the high-velocity emission line gas in a sample of 39 gas-rich, ultraluminous infrared galaxy (ULIRG) mergers. Regions with shock-like excitation were identified in two kinematically distinct regimes, characterized by broad ($σ>$ 150 \\kms) and narrow linewidths. Here we investigate the physical origin of the high-velocity (broad) emission with shock-like line ratios. Considering the large amount of extinction in these galaxies, the blueshift of the broad emission suggests an origin on the near side of the galaxy and therefore an interpretation as a galactic outflow. The large spatial extent of the broad, shocked emission component is generally inconsistent with an origin in the narrow-line region of a AGN, so we conclude that energy and momentum supplied by the starburst drives these outflows. The new data are used to examine the fraction of the supernova energy radiated by shocks and the mass loss rate in the warm-ionized phase of the wind. We show that the shocks produced by galactic outflows can be recognized in moderately high-resolution, integrated spectra of these nearby, ultraluminous starbursts. The spectral fitting technique introduced in Paper I may therefore be used to improve the accuracy of the physical properties measured for high-redshift galaxies from their (observed frame) infrared spectra.",
+          "claimed_authors": [
+            "Kurt T. Soto",
+            "C. L. Martin",
+            "M. K. M. Prescott",
+            "L. Armus"
+          ],
+          "claimed_title": "The Emission-Line Spectra of Major Mergers: Evidence for Shocked Outflows",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1205.0083"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='The Emission-Line Spectra of Major Mergers: Evidence for Shocked Outflows')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Machine learning research depends on objectively interpretable, comparable, and reproducible algorithm benchmarks. We advocate the use of curated, comprehensive suites of machine learning tasks to standardize the setup, execution, and reporting of benchmarks. We enable this through software tools that help to create and leverage these benchmarking suites. These are seamlessly integrated into the OpenML platform, and accessible through interfaces in Python, Java, and R. OpenML benchmarking suites (a) are easy to use through standardized data formats, APIs, and client libraries; (b) come with extensive meta-information on the included datasets; and (c) allow benchmarks to be shared and reused in future studies. We then present a first, carefully curated and practical benchmarking suite for classification: the OpenML Curated Classification benchmarking suite 2018 (OpenML-CC18). Finally, we discuss use cases and applications which demonstrate the usefulness of OpenML benchmarking suites and the OpenML-CC18 in particular.",
+          "claimed_authors": [
+            "Bernd Bischl",
+            "Giuseppe Casalicchio",
+            "Matthias Feurer",
+            "Pieter Gijsbers",
+            "Frank Hutter",
+            "Michel Lang",
+            "Rafael G. Mantovani",
+            "Jan N. van Rijn",
+            "Joaquin Vanschoren"
+          ],
+          "claimed_title": "OpenML Benchmarking Suites",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.03731"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='OpenML Benchmarking Suites')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) have demonstrated remarkable text generation capabilities, and recent advances in training paradigms have led to breakthroughs in their reasoning performance. In this work, we investigate how the reasoning effort of such models scales with problem complexity. We use the infinitely scalable Tents puzzle, which has a known linear-time solution, to analyze this scaling behavior. Our results show that reasoning effort scales with problem size, but only up to a critical problem complexity. Beyond this threshold, the reasoning effort does not continue to increase, and may even decrease. This observation highlights a critical limitation in the logical coherence of current LLMs as problem complexity increases, and underscores the need for strategies to improve reasoning scalability. Furthermore, our results reveal significant performance differences between current state-of-the-art reasoning models when faced with increasingly complex logical puzzles.",
+          "claimed_authors": [
+            "Benjamin Estermann",
+            "Roger Wattenhofer"
+          ],
+          "claimed_title": "Reasoning Effort and Problem Complexity: A Scaling Analysis in LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.15113"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='Reasoning Effort and Problem Complexity: A Scaling Analysis in LLMs')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Analogical reasoning -- the capacity to identify and map structural relationships between different domains -- is fundamental to human cognition and learning. Recent studies have shown that large language models (LLMs) can sometimes match humans in analogical reasoning tasks, opening the possibility that analogical reasoning might emerge from domain-general processes. However, it is still debated whether these emergent capacities are largely superficial and limited to simple relations seen during training or whether they encompass the flexible representational and mapping capabilities which are the focus of leading cognitive models of analogy. In this study, we introduce novel analogical reasoning tasks that require participants to map between semantically contentful words and sequences of letters and other abstract characters. This task necessitates the ability to flexibly re-represent rich semantic information -- an ability which is known to be central to human analogy but which is thus far not well captured by existing cognitive theories and models. We assess the performance of both human participants and LLMs on tasks focusing on reasoning from semantic structure and semantic content, introducing variations that test the robustness of their analogical inferences. Advanced LLMs match human performance across several conditions, though humans and LLMs respond differently to certain task variations and semantic distractors. Our results thus provide new evidence that LLMs might offer a how-possibly explanation of human analogical reasoning in contexts that are not yet well modeled by existing theories, but that even today's best models are unlikely to yield how-actually explanations.",
+          "claimed_authors": [
+            "Sam Musker",
+            "Alex Duchnowski",
+            "Raphaël Millière",
+            "Ellie Pavlick"
+          ],
+          "claimed_title": "LLMs as Models for Analogical Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.13803"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='LLMs as Models for Analogical Reasoning')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Complex physical models are the most advanced tools available for producing realistic simulations of the climate system. However, such levels of realism imply high computational cost and restrictions on their use for policymaking and risk assessment. Two central characteristics of climate change are uncertainty and that it is a dynamic problem in which international actions can significantly alter climate projections and information needs, including partial and full compliance of global climate goals. Here we present AIRCC-Clim, a simple climate model emulator that produces regional probabilistic climate change projections of monthly and annual temperature and precipitation, as well as risk measures, based both on standard and user-defined emissions scenarios for six greenhouse gases. AIRCC-Clim emulates 37 atmosphere-ocean coupled general circulation models with low computational and technical requirements for the user. This standalone, user-friendly software is designed for a variety of applications including impact assessments, climate policy evaluation and integrated assessment modelling.",
+          "claimed_authors": [
+            "Francisco Estrada",
+            "Oscar Calderón-Bustamante",
+            "Wouter Botzen",
+            "Julián A. Velasco",
+            "Richard S. J. Tol"
+          ],
+          "claimed_title": "AIRCC-Clim: a user-friendly tool for generating regional probabilistic climate change scenarios and risk measures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.01762"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='AIRCC-Clim: a user-friendly tool for generating regional probabilistic climate change scenarios and risk measures')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Every LLM tool call is structurally an RPC -- a function name, JSON arguments, and a serialized result -- yet each protocol (native Python, MCP, OpenAPI, LangChain) is integrated from scratch. We present ToolRegistry, a system that makes this RPC nature explicit: a single Tool object acts as a universal stub regardless of transport, while the registry serves as the RPC client runtime for dispatch, schema generation, and execution. The system ships as three packages -- a core registry, a server exposing tools over MCP and OpenAPI, and a hub of production-ready implementations -- and invokes tools through pluggable thread or process backends. The system now also provides tag-based permission policies, BM25F-powered progressive tool disclosure for large registries, think-augmented function calling, multi-provider schema support (OpenAI, Anthropic, Gemini), declarative JSONC/YAML configuration, and a near-zero-dependency core built on stdlib-only vendored modules. In our benchmarks the library cuts integration code by 60-80%, and choosing the right concurrency mode (thread vs. process) yields up to 3.1x throughput over the alternative for a given workload. ToolRegistry is open-source at https://github.com/Oaklight/ToolRegistry; documentation lives at https://toolregistry.readthedocs.io/.",
+          "claimed_authors": [
+            "Peng Ding",
+            "Rick Stevens"
+          ],
+          "claimed_title": "ToolRegistry: A Protocol-Agnostic Tool Management Library for Function-Calling LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.10593"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='ToolRegistry: A Protocol-Agnostic Tool Management Library for Function-Calling LLMs')",
+        "failed_at": "2026-07-13T07:58:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Chain-of-Thought (CoT) reasoning improves multi-step mathematical problem solving in large language models but remains vulnerable to exposure bias and error accumulation, as early mistakes propagate irreversibly through autoregressive decoding. In this work, we propose DiffCoT, a diffusion-styled CoT framework that reformulates CoT reasoning as an iterative denoising process. DiffCoT integrates diffusion principles at the reasoning-step level via a sliding-window mechanism, enabling unified generation and retrospective correction of intermediate steps while preserving token-level autoregression. To maintain causal consistency, we further introduce a causal diffusion noise schedule that respects the temporal structure of reasoning chains. Extensive experiments on three multi-step CoT reasoning benchmarks across diverse model backbones demonstrate that DiffCoT consistently outperforms existing CoT preference optimization methods, yielding improved robustness and error-correction capability in CoT reasoning.",
+          "claimed_authors": [
+            "Shidong Cao",
+            "Hongzhan Lin",
+            "Yuxuan Gu",
+            "Ziyang Luo",
+            "Jing Ma"
+          ],
+          "claimed_title": "DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03559"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs')",
+        "failed_at": "2026-07-13T07:58:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models have demonstrated remarkable abilities across various tasks, with Chain-of-Thought (CoT) prompting emerging as a key technique to enhance reasoning capabilities. However, existing research primarily focuses on improving performance, lacking a comprehensive framework to explain and understand the fundamental factors behind CoT's success. To bridge this gap, we introduce a novel perspective grounded in the Hopfieldian view of cognition in cognitive neuroscience. We establish a connection between CoT reasoning and key cognitive elements such as stimuli, actions, neural populations, and representation spaces. From our view, we can understand the reasoning process as the movement between these representation spaces. Building on this insight, we develop a method for localizing reasoning errors in the response of CoTs. Moreover, we propose the Representation-of-Thought (RoT) framework, which leverages the robustness of low-dimensional representation spaces to enhance the robustness of the reasoning process in CoTs. Experimental results demonstrate that RoT improves the robustness and interpretability of CoT reasoning while offering fine-grained control over the reasoning process.",
+          "claimed_authors": [
+            "Lijie Hu",
+            "Liang Liu",
+            "Shu Yang",
+            "Xin Chen",
+            "Zhen Tan",
+            "Muhammad Asif Ali",
+            "Mengdi Li",
+            "Di Wang"
+          ],
+          "claimed_title": "Understanding Reasoning in Chain-of-Thought from the Hopfieldian View",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.03595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='Understanding Reasoning in Chain-of-Thought from the Hopfieldian View')",
+        "failed_at": "2026-07-13T07:58:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in reasoning with large language models (RLLMs), such as OpenAI-O1 and DeepSeek-R1, have demonstrated their impressive capabilities in complex domains like mathematics and coding. A central factor in their success lies in the application of long chain-of-thought (Long CoT) characteristics, which enhance reasoning abilities and enable the solution of intricate problems. However, despite these developments, a comprehensive survey on Long CoT is still lacking, limiting our understanding of its distinctions from traditional short chain-of-thought (Short CoT) and complicating ongoing debates on issues like \"overthinking\" and \"inference-time scaling.\" This survey seeks to fill this gap by offering a unified perspective on Long CoT. (1) We first distinguish Long CoT from Short CoT and introduce a novel taxonomy to categorize current reasoning paradigms. (2) Next, we explore the key characteristics of Long CoT: deep reasoning, extensive exploration, and feasible reflection, which enable models to handle more complex tasks and produce more efficient, coherent outcomes compared to the shallower Short CoT. (3) We then investigate key phenomena such as the emergence of Long CoT with these characteristics, including overthinking, and inference-time scaling, offering insights into how these processes manifest in practice. (4) Finally, we identify significant research gaps and highlight promising future directions, including the integration of multi-modal reasoning, efficiency improvements, and enhanced knowledge frameworks. By providing a structured overview, this survey aims to inspire future research and further the development of logical reasoning in artificial intelligence.",
+          "claimed_authors": [
+            "Qiguang Chen",
+            "Libo Qin",
+            "Jinhao Liu",
+            "Dengyun Peng",
+            "Jiannan Guan",
+            "Peng Wang",
+            "Mengkang Hu",
+            "Yuhang Zhou",
+            "Te Gao",
+            "Wanxiang Che"
+          ],
+          "claimed_title": "Towards Reasoning Era: A Survey of Long Chain-of-Thought for Reasoning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.09567"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"PlanBench-XL: Evaluating Long-Horizon Planning of ', candidate_title='Towards Reasoning Era: A Survey of Long Chain-of-Thought for Reasoning Large Language Models')",
+        "failed_at": "2026-07-13T07:58:01Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Benjamin Elder",
+            "Anupama Murthi",
+            "Jungkoo Kang",
+            "Ankita Rajaram Naik",
+            "Kiran Kate",
+            "Kinjal Basu",
+            "Danish Contractor"
+          ],
+          "title": "Live API-Bench: 2500+ Live APIs for Testing Multi-Step Tool Calling",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.11266",
+        "summary": "Large language models (LLMs) increasingly rely on external tools and APIs to execute complex tasks specified in natural language. Evaluating such tool calling capabilities in realistic enterprise settings is challenging: APIs are often proprietary, heterogeneous, and difficult to share, limiting reproducible benchmarks. To address this, we introduce Live API Bench, a comprehensive benchmark constructed by transforming NL2SQL datasets into interactive API environments. Our pipeline converts SQL queries from BIRD SQL into executable API sequences across three formulations SLOT, SEL, and REST covering minimal general purpose operations, domain specific multi step tasks, and function oriented RESTful interactions, respectively. The benchmark spans 11 databases with over 2,500 invocable tools, paired with human authored queries, ground truth API sequences, and verified final answers. Live API Bench enables systematic evaluation of core challenges in tool use, including error handling, sequential reasoning, parameter generation, response parsing, and robustness across diverse domains. We evaluate 10 LLMs and 4 ReACT agents, observing low task completion rates (7 to 47pct), which improve modestly to 50pct under interactive agent settings, highlighting substantial scope for improving LLM tool calling performance. We release all code and data associated with this paper.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.11266",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T07:58:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Truong Xuan Khanh",
+            "Truong Quynh Hoa"
+          ],
+          "title": "Dynamic Intelligence Ceilings: Measuring Long-Horizon Limits of Planning and Creativity in Artificial Systems",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.06102",
+        "summary": "Recent advances in artificial intelligence have produced systems capable of remarkable performance across a wide range of tasks. These gains, however, are increasingly accompanied by concerns regarding long-horizon developmental behavior, as many systems converge toward repetitive solution patterns rather than sustained growth.\n  We argue that a central limitation of contemporary AI systems lies not in capability per se, but in the premature fixation of their performance frontier. To address this issue, we introduce the concept of a \\emph{Dynamic Intelligence Ceiling} (DIC), defined as the highest level of effective intelligence attainable by a system at a given time under its current resources, internal intent, and structural configuration.\n  To make this notion empirically tractable, we propose a trajectory-centric evaluation framework that measures intelligence as a moving frontier rather than a static snapshot. We operationalize DIC using two estimators: the \\emph{Progressive Difficulty Ceiling} (PDC), which captures the maximal reliably solvable difficulty under constrained resources, and the \\emph{Ceiling Drift Rate} (CDR), which quantifies the temporal evolution of this frontier. These estimators are instantiated through a procedurally generated benchmark that jointly evaluates long-horizon planning and structural creativity within a single controlled environment.\n  Our results reveal a qualitative distinction between systems that deepen exploitation within a fixed solution manifold and those that sustain frontier expansion over time. Importantly, our framework does not posit unbounded intelligence, but reframes limits as dynamic and trajectory-dependent rather than static and prematurely fixed.\n  \\vspace{0.5em} \\noindent\\textbf{Keywords:} AI evaluation, planning and creativity, developmental intelligence, dynamic intelligence ceilings, complex adaptive systems",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.06102",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T07:58:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vasundra Srininvasan"
+          ],
+          "title": "Four-Axis Decision Alignment for Long-Horizon Enterprise AI Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.19457",
+        "summary": "Long-horizon enterprise agents make high-stakes decisions (loan underwriting, claims adjudication, clinical review, prior authorization) under lossy memory, multi-step reasoning, and binding regulatory constraints. Current evaluation reports a single task-success scalar that conflates distinct failure modes and hides whether an agent is aligned with the standards its deployment environment requires. We propose that long-horizon decision behavior decomposes into four orthogonal alignment axes, each independently measurable and failable: factual precision (FRP), reasoning coherence (RCS), compliance reconstruction (CRR), and calibrated abstention (CAR). CRR is a novel regulatory-grounded axis; CAR is a measurement axis separating coverage from accuracy. We exercise the decomposition on a controlled benchmark (LongHorizon-Bench) covering loan qualification and insurance claims adjudication with deterministic ground-truth construction. Running six memory architectures, we find structure aggregate accuracy cannot see: retrieval collapses on factual precision; schema-anchored architectures pay a scaffolding tax; plain summarization under a fact-preservation prompt is a strong baseline on FRP, RCS, EDA, and CRR; and all six architectures commit on every case, exposing a decisional-alignment axis the field has not targeted. The decomposition also surfaced a pre-registered prediction of our own, that summarization would fail factual recall, which the data reversed at large magnitude, an axis-level reversal aggregate accuracy would have hidden. Institutional alignment (regulatory reconstruction) and decisional alignment (calibrated abstention) are under-represented in the alignment literature and become load-bearing once decisions leave the laboratory. The framework transfers to any regulated decisioning domain via two steps: build a fact schema, and calibrate the CRR auditor prompt.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.19457",
+          "http_status": 200,
+          "pdf_sample_score": 0.3536,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T07:58:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sumeet Ramesh Motwani",
+            "Daniel Nichols",
+            "Charles London",
+            "Peggy Li",
+            "Fabio Pizzati",
+            "Acer Blake",
+            "Hasan Hammoud",
+            "Tavish McDonald",
+            "Akshat Naik",
+            "Alesia Ivanova",
+            "Vignesh Baskaran",
+            "Ivan Laptev",
+            "Ruben Glatt",
+            "Tal Ben-Nun",
+            "Philip Torr",
+            "Natasha Jaques",
+            "Ameya Prabhu",
+            "Brian Bartoldson",
+            "Bhavya Kailkhura",
+            "Christian Schroeder de Witt"
+          ],
+          "title": "LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.14140",
+        "summary": "As language models are increasingly deployed for complex autonomous tasks, their ability to reason accurately over longer horizons becomes critical. An essential component of this ability is planning and managing a long, complex chain-of-thought (CoT). We introduce LongCoT, a scalable benchmark of 2,500 expert-designed problems spanning chemistry, mathematics, computer science, chess, and logic to isolate and directly measure the long-horizon CoT reasoning capabilities of frontier models. Problems consist of a short input with a verifiable answer; solving them requires navigating a graph of interdependent steps that span tens to hundreds of thousands of reasoning tokens. Each local step is individually tractable for frontier models, so failures reflect long-horizon reasoning limitations. At release, the best models achieve <10% accuracy (GPT 5.2: 9.8%; Gemini 3 Pro: 6.1%) on LongCoT, revealing a substantial gap in current capabilities. Overall, LongCoT provides a rigorous measure of long-horizon reasoning, tracking the ability of frontier models to reason reliably over extended periods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.14140",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T07:58:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Imad Aouali",
+            "Flavian Vasile",
+            "Otmane Sakhi",
+            "Alexandre Gilotte",
+            "Benjamin Heymann"
+          ],
+          "title": "RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.18805",
+        "summary": "LLM recommendation agents increasingly produce structured recommendation reports: sets of items accompanied by natural-language justifications. Yet existing evaluations often reduce this setting to reranking small shortlisted candidate sets or judge reports mainly by semantic plausibility. We introduce Recommendation Atlas (Agentic Tool-Level Assessment for Shopping), or RecoAtlas, a benchmark and toolkit for evaluating shopping agents with behavior-grounded metrics. RecoAtlas complements held-out interaction metrics with learned utility proxies for relevance, complementarity, and diversity derived from interaction data, while separately measuring semantic coherence and explanation quality. Its controlled tool environment exposes agents to either semantic, behavior-aligned, or faulty tools, enabling diagnosis of whether performance gains arise from stronger reasoning, better signals, or more effective tool-use policies. Across controlled experiments, we show that RecoAtlas exhibits key properties of a meaningful benchmark for agentic systems: performance scales with model capacity and test-time compute, improves with stronger and better-aligned tools, degrades under noisy or misaligned signals, and reveals that semantic plausibility does not necessarily capture behavior-grounded utility. RecoAtlas provides a foundation for developing and evaluating shopping assistants that optimize not only for plausible recommendations, but also for coherent, behaviorally grounded recommendation sets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.18805",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T07:58:08Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"planbench-xl: evaluating long-horizon planning of llm tool-use agents \" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

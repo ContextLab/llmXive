@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.19457",
+  "judged_at": "2026-07-13T07:58:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"planbench-xl: evaluating long-horizon planning of llm tool-use agents \" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same core mechanism (long-horizon planning and decision alignment in LLM agents) and evaluates the same dependent variables (task success, reasoning coherence, and failure modes) that the user's question regarding \"PlanBench-XL\" and long-horizon planning seeks to extend. It provides the necessary empirical baseline and alternative evaluation framework for the specific domain of long-horizon LLM tool-use agents.",
+  "relevant": true
+}
