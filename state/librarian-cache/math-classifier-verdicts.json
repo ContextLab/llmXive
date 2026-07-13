@@ -1111,6 +1111,10 @@
     "classified_at": "2026-07-04T01:38:07Z",
     "verdict": false
   },
+  "PROJ-862-llmxive-follow-up-extending-formalizing::1.6.0": {
+    "classified_at": "2026-07-13T01:58:13Z",
+    "verdict": false
+  },
   "PROJ-863-llmxive-follow-up-extending-joyai-vl-int::1.6.0": {
     "classified_at": "2026-07-06T08:02:35Z",
     "verdict": false

@@ -1,0 +1,703 @@
+{
+  "fetched_at": "2026-07-13T01:59:05Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Thought Representation in \"",
+      "target_n": 5
+    },
+    "duration_seconds": 92.503,
+    "ended_at": "2026-07-13T01:59:05Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "formalization of latent thoughts in natural language processing"
+        ],
+        [
+          2,
+          "axiomatic frameworks for thought representation in linguistics"
+        ],
+        [
+          3,
+          "cognitive semantics of latent thought structures"
+        ],
+        [
+          4,
+          "formal models of internal monologue in computational linguistics"
+        ],
+        [
+          5,
+          "representation of unspoken cognition in language models"
+        ],
+        [
+          6,
+          "theoretical foundations of thought encoding in NLP"
+        ],
+        [
+          7,
+          "semantic formalism for latent cognitive states"
+        ],
+        [
+          8,
+          "axioms of mental representation in computational semantics"
+        ],
+        [
+          9,
+          "structured thought patterns in large language model outputs"
+        ],
+        [
+          10,
+          "formalizing the gap between thought and speech in AI"
+        ],
+        [
+          11,
+          "cognitive architecture of latent reasoning in transformers"
+        ],
+        [
+          12,
+          "linguistic formalization of implicit cognitive processes"
+        ],
+        [
+          13,
+          "symbolic representation of latent semantics in language models"
+        ],
+        [
+          14,
+          "axiomatic approaches to modeling internal language processing"
+        ],
+        [
+          15,
+          "computational models of thought-to-speech translation"
+        ],
+        [
+          16,
+          "latent variable models of cognitive representation in linguistics"
+        ],
+        [
+          17,
+          "formal semantics of reasoning traces in generative models"
+        ],
+        [
+          18,
+          "theoretical linguistics of latent thought structures"
+        ],
+        [
+          19,
+          "cognitive grounding of latent representations in NLP"
+        ],
+        [
+          20,
+          "formalizing pre-verbal thought in computational frameworks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "axiomatic frameworks for thought representation in linguistics": 0,
+        "cognitive semantics of latent thought structures": 1,
+        "formalization of latent thoughts in natural language processing": 4,
+        "llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Thought Representation in \" linguistics": 0
+      },
+      "total_queries_issued": 3
+    },
+    "extracted_queries": [
+      "latent reasoning chain-of-thought tokenization",
+      "axiomatized thought representation cognitive linguistics",
+      "formal semantics mental model logic",
+      "inference trace interpretability evaluation",
+      "cognitive architecture symbolic grounding theory"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2103.14757"
+      ]
+    },
+    "per_query_hit_count": {
+      "axiomatized thought representation cognitive linguistics": 2,
+      "cognitive architecture symbolic grounding theory": 3,
+      "formal semantics mental model logic": 3,
+      "inference trace interpretability evaluation": 3,
+      "latent reasoning chain-of-thought tokenization": 3,
+      "llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Thought Representation in \" linguistics": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2110.10780",
+          "rationale": "The paper focuses on a clinical NLP development framework for electronic health records (EHR) and does not address the user's specific question regarding the formalization of latent thoughts, axioms of thought representation, or linguistic theory. It fails to meet any inclusion criteria as it studies a distinct domain (clinical data engineering) with no measurable connection to the mechanism, variables, or empirical setting of the user's inquiry into thought representation axioms.",
+          "title": "An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)"
+        },
+        {
+          "primary_pointer": "2306.06371",
+          "rationale": "The paper focuses on Java code generation from natural language, which is a distinct application domain from the user's question regarding the formalization of latent thoughts and thought representation axioms in linguistics. It fails to address the specific mechanism (thought representation axioms), the domain (linguistics/theoretical framework), or the variables of interest, and instead belongs to the separate field of code-generation benchmarks and architectures.",
+          "title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text"
+        },
+        {
+          "primary_pointer": "2006.16212",
+          "rationale": "The paper focuses on unsupervised morphological processing for a specific low-resource language (Tangkhul), which does not address the user's question regarding the formalization of latent thoughts, axioms of thought representation, or the theoretical linguistics framework implied by \"llmXive.\" It fails to meet any inclusion criteria as it studies a distinct construct (morpheme identification) in a different domain (low-resource NLP) without connecting to the mechanism, variables, or foundationa",
+          "title": "Towards the Study of Morphological Processing of the Tangkhul Language"
+        },
+        {
+          "primary_pointer": "2103.14757",
+          "rationale": "The paper focuses on the applied engineering task of generating multiple-choice questions from text using keyword extraction, which is a distinct construct from the user's question about the theoretical formalization of \"latent thoughts\" and \"thought representation\" axioms in linguistics. It fails to address the specific mechanism, domain, or variables of the user's inquiry and falls under the rejection rule for distinct constructs sharing only broad homonym keywords (e.g., \"NLP\" or \"text\").",
+          "title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques"
+        },
+        {
+          "primary_pointer": "2512.20263",
+          "rationale": "The paper focuses on computational drug discovery and antibody design using a model named \"Latent-X2,\" which is entirely off-domain from the user's question regarding the linguistic formalization of latent thoughts in LLMs. Although both contexts involve the concept of \"latent\" representations, the paper addresses a distinct biological construct (immunogenicity and molecular binding) rather than the linguistic or cognitive mechanisms specified in the user's query, failing all inclusion criteria ",
+          "title": "Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T01:57:33Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"formalizing latent thoughts: four axioms of thought representation in \" linguistics",
+      "raw": "llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Thought Representation in \" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery relies on iterative expert workflows that are slow to parallelize and difficult to scale. Here we introduce Latent-Y, an AI agent that autonomously executes complete antibody design campaigns from text prompts, covering literature review, target analysis, epitope identification, candidate design, computational validation, and selection of lab-ready sequences. Latent-Y is integrated into the Latent Labs Platform, where it operates in the same environment as drug-discovery experts with access to bioinformatics tools, biological databases, and scientific literature. The agent can run fully autonomously end-to-end, or collaboratively, where researchers review progress, provide feedback, and direct subsequent steps. Candidate antibodies are generated using Latent-X2, our frontier generative model for drug-like antibody design. We demonstrate the agent's capability across three distinct campaign types: epitope discovery guided by therapeutic specifications, cross-species binder design, and autonomous design from a scientific publication targeting human transferrin receptor for blood-brain barrier crossing. Across nine targets, Latent-Y produced lab-confirmed nanobody binders against six, achieving a 67% target-level success rate with binding affinities reaching the single-digit nanomolar range, without human filtering or intervention. In user studies, experts working with Latent-Y completed design campaigns 56 times faster than independent expert time estimates, compressing weeks of work into hours. Because Latent-X2 is a general-purpose atomic-level model for biologics design, the same agent architecture naturally extends to macrocyclic peptide and mini-binder design campaigns, broadening autonomous discovery across therapeutic modalities. Latent-Y is available to selected partners at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Sebastian M. Schmon",
+            "Daniella Pretorius",
+            "Simon Mathis",
+            "Rebecca Bartke-Croughan",
+            "Aishaini Puvanendran",
+            "James Vuckovic",
+            "Henry Kenlay",
+            "Mária Vlachynská",
+            "Alex Bridgland",
+            "Ivan Grishin",
+            "Sven Over",
+            "David Li",
+            "Bridget Li",
+            "Jonathan Crabbé",
+            "Agrin Hilmkil",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29727"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models have demonstrated remarkable abilities across various tasks, with Chain-of-Thought (CoT) prompting emerging as a key technique to enhance reasoning capabilities. However, existing research primarily focuses on improving performance, lacking a comprehensive framework to explain and understand the fundamental factors behind CoT's success. To bridge this gap, we introduce a novel perspective grounded in the Hopfieldian view of cognition in cognitive neuroscience. We establish a connection between CoT reasoning and key cognitive elements such as stimuli, actions, neural populations, and representation spaces. From our view, we can understand the reasoning process as the movement between these representation spaces. Building on this insight, we develop a method for localizing reasoning errors in the response of CoTs. Moreover, we propose the Representation-of-Thought (RoT) framework, which leverages the robustness of low-dimensional representation spaces to enhance the robustness of the reasoning process in CoTs. Experimental results demonstrate that RoT improves the robustness and interpretability of CoT reasoning while offering fine-grained control over the reasoning process.",
+          "claimed_authors": [
+            "Lijie Hu",
+            "Liang Liu",
+            "Shu Yang",
+            "Xin Chen",
+            "Zhen Tan",
+            "Muhammad Asif Ali",
+            "Mengdi Li",
+            "Di Wang"
+          ],
+          "claimed_title": "Understanding Reasoning in Chain-of-Thought from the Hopfieldian View",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.03595"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Understanding Reasoning in Chain-of-Thought from the Hopfieldian View')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional drug discovery relies on rounds of screening millions of candidate molecules with low success rates, making drug discovery time and resource intensive. To overcome this screening bottleneck, we introduce Latent-X, an all-atom protein design model that enables a new paradigm of precision AI design. Given a target protein epitope, Latent-X jointly generates the all atom structure and sequence of the protein binder and target, directly modelling the non-covalent interactions essential for specific binding. We demonstrate its efficacy across two therapeutically relevant modalities through extensive wet lab experiments, testing as few as 30-100 designs per target. For macrocyclic peptides, Latent-X achieves experimental hit rates exceeding 90% on all evaluated benchmark targets. For mini-binders, it consistently produces potent candidates against all evaluated benchmark targets, with binding affinities reaching the low nanomolar and picomolar range - comparable to those of approved therapeutics - whilst also being highly specific in mammalian display. In direct comparisons with the state-of-the-art models AlphaProteo, RFdiffusion and RFpeptides under identical conditions demonstrates, Latent-X generates binders with higher hit rates and better binding affinities, and uniquely creates structurally diverse binders, including complex beta-sheet folds. Its end-to-end process is an order of magnitude faster than existing multi-step computational pipelines. By drastically improving the efficiency and success rate of de novo design, Latent-X represents a significant advance towards push-button biologics discovery and a valuable tool for protein engineers. Latent-X is available at https://platform.latentlabs.com, enabling users to reliably generate de novo binders without AI infrastructure or coding.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Alex Bridgland",
+            "Jonathan Crabbé",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "Rebecca Bartke-Croughan",
+            "Robin Rombach",
+            "Michael Flashman",
+            "Tomas Matteson",
+            "Simon Mathis",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19375"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rings of symmetric polynomials form an inverse system whose limit, the ring of symmetric functions, is the model for the bosonic Fock space representation of the affine Lie algebra. We categorify this construction by considering an inverse limit of categories of polynomial representation of general linear groups. We show that this limit naturally carries an action of the affine Lie algebra (in the sense of Rouquier), thereby obtaining a famiy of categorifications of the bosonic Fock space representation.",
+          "claimed_authors": [
+            "Jiuzu Hong",
+            "Oded Yacobi"
+          ],
+          "claimed_title": "Polynomial representations and categorifications of Fock Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1101.2456"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Polynomial representations and categorifications of Fock Space')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modal logics for reasoning about the power of coalitions capture the notion of effectivity functions associated with game forms. The main goal of coalition logics is to provide formal tools for modeling the dynamics of a game frame whose states may correspond to different game forms. The two classes of effectivity functions studied are the families of playable and truly playable effectivity functions, respectively. In this paper we generalize the concept of effectivity function beyond the yes/no truth scale. This enables us to describe the situations in which the coalitions assess their effectivity in degrees, based on functions over the outcomes taking values in a finite Łukasiewicz chain. Then we introduce two modal extensions of Łukasiewicz finite-valued logic together with many-valued neighborhood semantics in order to encode the properties of many-valued effectivity functions associated with game forms. As our main results we prove completeness theorems for the two newly introduced modal logics.",
+          "claimed_authors": [
+            "Tomáš Kroupa",
+            "Bruno Teheux"
+          ],
+          "claimed_title": "Modal Extensions of Łukasiewicz Logic for Modeling Coalitional Power",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1411.6452"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Modal Extensions of Łukasiewicz Logic for Modeling Coalitional Power')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We develop a bottom-up approach to truth-value semantics for classical logic of partial terms based on equality and apply it to prove the conservativity of the addition of partial description and partial selection functions, independently of any strictness assumption.",
+          "claimed_authors": [
+            "Franco Parlamento"
+          ],
+          "claimed_title": "Truth-value semantics and functional extensions for classical logic of partial terms based on equality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1112.6331"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Truth-value semantics and functional extensions for classical logic of partial terms based on equality')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Computability logic (CL) (see http://www.cis.upenn.edu/~giorgi/cl.html) is a recently launched program for redeveloping logic as a formal theory of computability, as opposed to the formal theory of truth that logic has more traditionally been. Formulas in it represent computational problems, \"truth\" means existence of an algorithmic solution, and proofs encode such solutions. Within the line of research devoted to finding axiomatizations for ever more expressive fragments of CL, the present paper introduces a new deductive system CL12 and proves its soundness and completeness with respect to the semantics of CL. Conservatively extending classical predicate calculus and offering considerable additional expressive and deductive power, CL12 presents a reasonable, computationally meaningful, constructive alternative to classical logic as a basis for applied theories. To obtain a model example of such theories, this paper rebuilds the traditional, classical-logic-based Peano arithmetic into a computability-logic-based counterpart. Among the purposes of the present contribution is to provide a starting point for what, as the author wishes to hope, might become a new line of research with a potential of interesting findings -- an exploration of the presumably quite unusual metatheory of CL-based arithmetic and other CL-based applied systems.",
+          "claimed_authors": [
+            "Giorgi Japaridze"
+          ],
+          "claimed_title": "Towards applied theories based on computability logic",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0805.3521"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Towards applied theories based on computability logic')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "I apply the set-up of Lax-Phillips Scattering Theory to a non-archimedean local field. It is possible to choose the outgoing space and the incoming space to be Fourier transforms of each other. Key elements of the Lax-Phillips theory are seen to make sense and to have the expected interrelations: the scattering matrix S, the projection K to the interacting space, the contraction semi-group Z and the time delay operator T. The scattering matrix is causal, its analytic continuation has the expected poles and zeros, and its phase derivative is the (non-negative) spectral function of T, which is also the restriction to the diagonal of the kernel of K. The contraction semi-group Z is related to S (and T) through a trace formula. Introducing an odd-even grading on the interacting space allows to express the Weil local explicit formula in terms of a ``supertrace''. I also apply my methods to the evaluation of a trace considered by Connes.",
+          "claimed_authors": [
+            "Jean-Francois Burnol"
+          ],
+          "claimed_title": "Scattering on the p-adic field and a trace formula",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "math/9901051"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Scattering on the p-adic field and a trace formula')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Semi-supervised (SS) inference has received much attention in recent years. Apart from a moderate-sized labeled data, L, the SS setting is characterized by an additional, much larger sized, unlabeled data, U. The setting of |U| >> |L|, makes SS inference unique and different from the standard missing data problems, owing to natural violation of the so-called \"positivity\" or \"overlap\" assumption. However, most of the SS literature implicitly assumes L and U to be equally distributed, i.e., no selection bias in the labeling. Inferential challenges in missing at random (MAR) type labeling allowing for selection bias, are inevitably exacerbated by the decaying nature of the propensity score (PS). We address this gap for a prototype problem, the estimation of the response's mean. We propose a double robust SS (DRSS) mean estimator and give a complete characterization of its asymptotic properties. The proposed estimator is consistent as long as either the outcome or the PS model is correctly specified. When both models are correctly specified, we provide inference results with a non-standard consistency rate that depends on the smaller size |L|. The results are also extended to causal inference with imbalanced treatment groups. Further, we provide several novel choices of models and estimators of the decaying PS, including a novel offset logistic model and a stratified labeling model. We present their properties under both high and low dimensional settings. These may be of independent interest. Lastly, we present extensive simulations and also a real data application.",
+          "claimed_authors": [
+            "Yuqian Zhang",
+            "Abhishek Chakrabortty",
+            "Jelena Bradic"
+          ],
+          "claimed_title": "Double Robust Semi-Supervised Inference for the Mean: Selection Bias under MAR Labeling with Decaying Overlap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.06667"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Double Robust Semi-Supervised Inference for the Mean: Selection Bias under MAR Labeling with Decaying Overlap')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Post-hoc interpretability methods are critical tools to explain neural-network results. Several post-hoc methods have emerged in recent years, but when applied to a given task, they produce different results, raising the question of which method is the most suitable to provide correct post-hoc interpretability. To understand the performance of each method, quantitative evaluation of interpretability methods is essential. However, currently available frameworks have several drawbacks which hinders the adoption of post-hoc interpretability methods, especially in high-risk sectors. In this work, we propose a framework with quantitative metrics to assess the performance of existing post-hoc interpretability methods in particular in time series classification. We show that several drawbacks identified in the literature are addressed, namely dependence on human judgement, retraining, and shift in the data distribution when occluding samples. We additionally design a synthetic dataset with known discriminative features and tunable complexity. The proposed methodology and quantitative metrics can be used to understand the reliability of interpretability methods results obtained in practical applications. In turn, they can be embedded within operational workflows in critical fields that require accurate interpretability results for e.g., regulatory policies.",
+          "claimed_authors": [
+            "Hugues Turbé",
+            "Mina Bjelogrlic",
+            "Christian Lovis",
+            "Gianmarco Mengaldo"
+          ],
+          "claimed_title": "Evaluation of post-hoc interpretability methods in time-series classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.05656"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Evaluation of post-hoc interpretability methods in time-series classification')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Humans use signs, e.g., sentences in a spoken language, for communication and thought. Hence, symbol systems like language are crucial for our communication with other agents and adaptation to our real-world environment. The symbol systems we use in our human society adaptively and dynamically change over time. In the context of artificial intelligence (AI) and cognitive systems, the symbol grounding problem has been regarded as one of the central problems related to {\\it symbols}. However, the symbol grounding problem was originally posed to connect symbolic AI and sensorimotor information and did not consider many interdisciplinary phenomena in human communication and dynamic symbol systems in our society, which semiotics considered. In this paper, we focus on the symbol emergence problem, addressing not only cognitive dynamics but also the dynamics of symbol systems in society, rather than the symbol grounding problem. We first introduce the notion of a symbol in semiotics from the humanities, to leave the very narrow idea of symbols in symbolic AI. Furthermore, over the years, it became more and more clear that symbol emergence has to be regarded as a multifaceted problem. Therefore, secondly, we review the history of the symbol emergence problem in different fields, including both biological and artificial systems, showing their mutual relations. We summarize the discussion and provide an integrative viewpoint and comprehensive overview of symbol emergence in cognitive systems. Additionally, we describe the challenges facing the creation of cognitive systems that can be part of symbol emergence systems.",
+          "claimed_authors": [
+            "Tadahiro Taniguchi",
+            "Emre Ugur",
+            "Matej Hoffmann",
+            "Lorenzo Jamone",
+            "Takayuki Nagai",
+            "Benjamin Rosman",
+            "Toshihiko Matsuka",
+            "Naoto Iwahashi",
+            "Erhan Oztop",
+            "Justus Piater",
+            "Florentin Wörgötter"
+          ],
+          "claimed_title": "Symbol Emergence in Cognitive Developmental Systems: a Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.08829"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='Symbol Emergence in Cognitive Developmental Systems: a Survey')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Jackendoff (2002) posed four challenges that linguistic combinatoriality and rules of language present to theories of brain function. The essence of these problems is the question of how to neurally instantiate the rapid construction and transformation of the compositional structures that are typically taken to be the domain of symbolic processing. He contended that typical connectionist approaches fail to meet these challenges and that the dialogue between linguistic theory and cognitive neuroscience will be relatively unproductive until the importance of these problems is widely recognised and the challenges answered by some technical innovation in connectionist modelling. This paper claims that a little-known family of connectionist models (Vector Symbolic Architectures) are able to meet Jackendoff's challenges.",
+          "claimed_authors": [
+            "Ross W. Gayler"
+          ],
+          "claimed_title": "Vector Symbolic Architectures answer Jackendoff's challenges for cognitive neuroscience",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "cs/0412059"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title=\"Vector Symbolic Architectures answer Jackendoff's challenges for cognitive neuroscience\")",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neuroethology has been an active field of study for more than a century now. Out of some of the most interesting species that has been studied so far, weakly electric fish is a fascinating one. It performs communication, echo-location and inter-species detection efficiently with an interesting configuration of sensors, neu-rons and a simple brain. In this paper we propose a cognitive architecture inspired by the way these fishes handle and process information. We believe that it is eas-ier to understand and mimic the neural architectures of a simpler species than that of human. Hence, the proposed architecture is expected to both help research in cognitive robotics and also help understand more complicated brains like that of human beings.",
+          "claimed_authors": [
+            "Amit Kumar Mishra"
+          ],
+          "claimed_title": "WEBCA: Weakly-Electric-Fish Bioinspired Cognitive Architecture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.11401"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Formalizing Latent Thoughts: Four Axioms of Though', candidate_title='WEBCA: Weakly-Electric-Fish Bioinspired Cognitive Architecture')",
+        "failed_at": "2026-07-13T01:58:13Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sijia Liu",
+            "Andrew Wen",
+            "Liwei Wang",
+            "Huan He",
+            "Sunyang Fu",
+            "Robert Miller",
+            "Andrew Williams",
+            "Daniel Harris",
+            "Ramakanth Kavuluru",
+            "Mei Liu",
+            "Noor Abu-el-rub",
+            "Dalton Schutte",
+            "Rui Zhang",
+            "Masoud Rouhizadeh",
+            "John D. Osborne",
+            "Yongqun He",
+            "Umit Topaloglu",
+            "Stephanie S Hong",
+            "Joel H Saltz",
+            "Thomas Schaffter",
+            "Emily Pfaff",
+            "Christopher G. Chute",
+            "Tim Duong",
+            "Melissa A. Haendel",
+            "Rafael Fuentes",
+            "Peter Szolovits",
+            "Hua Xu",
+            "Hongfang Liu",
+            "National COVID Cohort Collaborative",
+            "Natural Language Processing",
+            " Subgroup",
+            "National COVID Cohort Collaborative"
+          ],
+          "title": "An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2110.10780",
+        "summary": "While we pay attention to the latest advances in clinical natural language processing (NLP), we can notice some resistance in the clinical and translational research community to adopt NLP models due to limited transparency, interpretability, and usability. In this study, we proposed an open natural language processing development framework. We evaluated it through the implementation of NLP algorithms for the National COVID Cohort Collaborative (N3C). Based on the interests in information extraction from COVID-19 related clinical notes, our work includes 1) an open data annotation process using COVID-19 signs and symptoms as the use case, 2) a community-driven ruleset composing platform, and 3) a synthetic text data generation workflow to generate texts for information extraction tasks without involving human subjects. The corpora were derived from texts from three different institutions (Mayo Clinic, University of Kentucky, University of Minnesota). The gold standard annotations were tested with a single institution's (Mayo) ruleset. This resulted in performances of 0.876, 0.706, and 0.694 in F-scores for Mayo, Minnesota, and Kentucky test datasets, respectively. The study as a consortium effort of the N3C NLP subgroup demonstrates the feasibility of creating a federated NLP algorithm development and benchmarking platform to enhance multi-institution clinical NLP study and adoption. Although we use COVID-19 as a use case in this effort, our framework is general enough to be applied to other domains of interest in clinical NLP.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2110.10780",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T01:58:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "El Mehdi Chouham",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.06371",
+        "summary": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.06371",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T01:58:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mirinso Shadang",
+            "Navanath Saharia",
+            "Thoudam Doren Singh"
+          ],
+          "title": "Towards the Study of Morphological Processing of the Tangkhul Language",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.16212",
+        "summary": "There is no or little work on natural language processing of Tangkhul language. The current work is a humble beginning of morphological processing of this language using an unsupervised approach. We use a small corpus collected from different sources of text books, short stories and articles of other topics. Based on the experiments carried out, the morpheme identification task using morphessor gives reasonable and interesting output despite using a small corpus.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2006.16212",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T01:58:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chidinma A. Nwafor",
+            "Ikechukwu E. Onyenwe"
+          ],
+          "title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2103.14757",
+        "summary": "Automatic multiple-choice question generation (MCQG) is a useful yet challenging task in Natural Language Processing (NLP). It is the task of automatic generation of correct and relevant questions from textual data. Despite its usefulness, manually creating sizeable, meaningful and relevant questions is a time-consuming and challenging task for teachers. In this paper, we present an NLP-based system for automatic MCQG for Computer-Based Testing Examination (CBTE).We used NLP technique to extract keywords that are important words in a given lesson material. To validate that the system is not perverse, five lesson materials were used to check the effectiveness and efficiency of the system. The manually extracted keywords by the teacher were compared to the auto-generated keywords and the result shows that the system was capable of extracting keywords from lesson materials in setting examinable questions. This outcome is presented in a user-friendly interface for easy accessibility.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2103.14757",
+          "http_status": 200,
+          "pdf_sample_score": 0.2065,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T01:58:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            " Latent Labs Team",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Jonathan Crabbé",
+            "Alex Bridgland",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "James Vuckovic",
+            "Simon Mathis",
+            "Tomas Matteson",
+            "Rebecca Bartke-Croughan",
+            "Amir Motmaen",
+            "Robin Rombach",
+            "Mária Vlachynská",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "title": "Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.20263",
+        "summary": "Drug discovery has long sought computational systems capable of designing drug-like molecules directly: developable and non-immunogenic from the start. Here we introduce Latent-X2, a frontier generative model that achieves this goal through zero-shot design of antibodies with strong binding affinities, drug-like properties, and, for the first time for any de novo generated antibody, confirmed low immunogenicity in human donor panels. Latent-X2 is an all-atom model conditioned on target structure, epitope specification, and optional antibody framework, jointly generating sequences and structures while modelling the bound complex. Testing only 4 to 24 designs per target in each modality, we successfully generated VHH and scFv antibodies against 9 of 18 evaluated targets, achieving a 50% target-level success rate with picomolar to nanomolar binding affinities. Designed molecules exhibit developability profiles that match or exceed those of approved antibody therapeutics, including expression yield, aggregation propensity, polyreactivity, hydrophobicity, and thermal stability, without optimization, filtering, or selection. In the first immunogenicity assessment of any AI-generated antibody, representative de novo VHH binders targeting TNFL9 exhibit both potent target engagement and low immunogenicity across T-cell proliferation and cytokine release assays. The model generalizes beyond antibodies: against K-Ras, long considered undruggable, we generated macrocyclic peptide binders competitive with trillion-scale mRNA display screens. These properties emerge directly from the model, demonstrating the therapeutic viability of zero-shot molecular design, now available without AI infrastructure or coding expertise at https://platform.latentlabs.com.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.20263",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T01:58:33Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"formalizing latent thoughts: four axioms of thought representation in \" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
