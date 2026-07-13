@@ -1,77 +1,65 @@
-"""
-Configuration utilities for the sleep quality prediction project.
-Provides path management, simple configuration handling, and directory creation.
-"""
-import json
 import os
 from pathlib import Path
 from typing import Any, Dict, Union
 
-# Base directory of the project (one level up from this file's directory)
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Project root relative to this file
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+# Seeds
+RANDOM_SEED = 42
+PCA_SEED = 42
 
-def get_paths() -> Dict[str, str]:
+# Paths
+DATA_RAW_DIR = _PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = _PROJECT_ROOT / "data" / "processed"
+DATA_RESULTS_DIR = _PROJECT_ROOT / "data" / "results"
+DATA_LOGS_DIR = _PROJECT_ROOT / "data" / "logs"
+FIGURES_DIR = _PROJECT_ROOT / "figures"
+
+# Hyperparameters
+VARIANCE_THRESHOLD = 0.001
+PCA_RETENTION_DEFAULT = 0.95
+SUBSET_SIZE_DEFAULT = 100
+N_FOLDS_CV = 5
+N_PERMUTATIONS = 1000
+N_BOOTSTRAP_RESAMPLES = 1000
+CONFIDENCE_LEVEL = 0.95
+
+# Time and Resource constraints
+MAX_WALL_CLOCK_SECONDS = 18000  # 5 hours
+MAX_MEMORY_GB = 6
+SENSITIVITY_BUDGET_SECONDS = 10800  # 3 hours
+
+def get_paths() -> dict:
     """
-    Return a dictionary of important filesystem paths used throughout the project.
-
-    Keys:
-        raw:        Directory for raw downloaded data.
-        processed: Directory for processed data (features, predictions, etc.).
-        logs:       Directory for JSON log files.
-        figures:    Directory for generated figures.
-        results:    Directory for final result artifacts (e.g., ResultReport.json).
+    Return a dictionary of all important paths used in the pipeline.
     """
     return {
-        "raw": str(BASE_DIR / "data" / "raw"),
-        "processed": str(BASE_DIR / "data" / "processed"),
-        "logs": str(BASE_DIR / "data" / "logs"),
-        "figures": str(BASE_DIR / "data" / "figures"),
-        "results": str(BASE_DIR / "data" / "results"),
+        "data_raw": str(DATA_RAW_DIR),
+        "data_processed": str(DATA_PROCESSED_DIR),
+        "data_results": str(DATA_RESULTS_DIR),
+        "data_logs": str(DATA_LOGS_DIR),
+        "figures": str(FIGURES_DIR),
+        "behavioral": str(DATA_RAW_DIR / "behavioral" / "hcp1200_behavioral_data.csv"),
+        "predictions": str(DATA_PROCESSED_DIR / "predictions.npy"),
+        "bootstrap_ci": str(DATA_RESULTS_DIR / "bootstrap_r2_ci.json"),
+        "result_report": str(DATA_RESULTS_DIR / "ResultReport.json"),
+        "log_file": str(DATA_LOGS_DIR / "pipeline_run.json"),
+        "permutation_results": str(DATA_RESULTS_DIR / "permutation_results.json"),
+        "sensitivity_results": str(DATA_RESULTS_DIR / "sensitivity_analysis.json"),
+        "interpretation": str(DATA_RESULTS_DIR / "interpretation.json"),
+        "plot_file": str(DATA_RESULTS_DIR / "brain_connectome.svg"),
     }
 
-
-def get_config() -> Dict[str, Any]:
+def ensure_dirs():
     """
-    Load a simple JSON configuration file if it exists.
-    The configuration file is optional; an empty dict is returned if absent.
+    Create all necessary directories if they do not exist.
     """
-    config_path = BASE_DIR / "config.json"
-    if config_path.is_file():
-        with open(config_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
-
-
-def set_config(new_config: Dict[str, Any]) -> None:
-    """
-    Persist a configuration dictionary to ``config.json`` in the project root.
-    Overwrites any existing configuration.
-    """
-    config_path = BASE_DIR / "config.json"
-    with open(config_path, "w", encoding="utf-8") as f:
-        json.dump(new_config, f, indent=2)
-
-
-def ensure_dirs(paths: Union[Dict[str, str], list, tuple, set, str]) -> None:
-    """
-    Ensure that all directory paths provided exist.
-
-    The function is flexible and accepts:
-        * a dict of paths (values are strings)
-        * an iterable of path strings (list, tuple, set)
-        * a single path string
-
-    Non‑existent directories are created (including parent directories).
-    """
-    if isinstance(paths, dict):
-        iterable = paths.values()
-    elif isinstance(paths, (list, tuple, set)):
-        iterable = paths
-    else:  # Assume a single path string
-        iterable = [paths]
-
-    for path in iterable:
-        if not path:
-            continue
-        Path(path).mkdir(parents=True, exist_ok=True)
+    for path in [
+        DATA_RAW_DIR,
+        DATA_PROCESSED_DIR,
+        DATA_RESULTS_DIR,
+        DATA_LOGS_DIR,
+        FIGURES_DIR
+    ]:
+        path.mkdir(parents=True, exist_ok=True)

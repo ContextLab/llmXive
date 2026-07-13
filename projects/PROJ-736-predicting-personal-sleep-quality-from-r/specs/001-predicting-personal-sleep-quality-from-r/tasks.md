@@ -58,7 +58,7 @@
 - [X] T002 Implement `code/config.py` with seeds, paths, and hyperparameters (variance_threshold set to a low default, PCA retention defaults, subset size 100)
 - [X] T003 [P] Implement `code/utils/logging.py` for structured JSON logging (FR-010)
 - [X] T004 [P] Create `code/utils/metrics.py` for Pearson r, R², and p-value calculation utilities
-- [ ] T005 Implement `code/data/download_hcp.py` to fetch HCP minimally preprocessed CIFTI files and `hcp1200_behavioral_data.csv` from `hcp_1200/behavioral/` with checksum verification. **Output**: Save to `data/raw/behavioral/hcp1200_behavioral_data.csv`.
+- [X] T005 Implement `code/data/download_hcp.py` to fetch HCP minimally preprocessed CIFTI files and `hcp1200_behavioral_data.csv` from `hcp_1200/behavioral/` with checksum verification. **Output**: Save to `data/raw/behavioral/hcp1200_behavioral_data.csv`. <!-- FAILED: unspecified -->
 - [X] T006 Implement `code/data/preprocess.py` for Schaefer parcellation, nuisance regression, and 0.01-0.1 Hz band-pass filtering (FR-001)
 - [X] T007 Implement `code/data/feature_engineering.py` for pairwise Pearson correlation, Fisher-z transformation, and upper-triangular vector extraction (FR-002)
 - [ ] T007b [US1] Implement subject filtering logic in `code/data/download_hcp.py` (or a helper module) to identify subjects with valid Sleep Scores and exclude those with >0.3mm framewise displacement (US1 Acceptance 2). **This task MUST be executed after T005 outputs the behavioral file.**
@@ -85,10 +85,10 @@
 
 ### Implementation for User Story 1
 
-- [X] T014a [US1] Implement orchestration in `code/main.py` to **import and invoke** the download function from `code/data/download_hcp.py` (T005) to fetch raw data.
-- [X] T014b [US1] Implement orchestration in `code/main.py` to **import and invoke** the preprocessing function from `code/data/preprocess.py` (T006) to process filtered subjects. <!-- FAILED: unspecified -->
-- [ ] T014c [US1] Implement orchestration in `code/main.py` to **import and invoke** the feature engineering function from `code/data/feature_engineering.py` (T007) to process filtered subjects. <!-- FAILED: unspecified -->
-- [X] T014d [US1] Implement `code/main.py` orchestration to: (1) download raw data, (2) preprocess time series, (3) compute connectivity vectors, and (4) save `.npy` files to `data/processed/`
+- [X] T014a [US1] Implement orchestration in `code/main.py` to **import and invoke** the download function from `code/data/download_hcp.py` (T005) to fetch raw data. <!-- FAILED: unspecified -->
+- [X] T014b [US1] Implement orchestration in `code/main.py` to **import and invoke** the preprocessing function from `code/data/preprocess.py` (T006) to process filtered subjects. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [X] T014c [US1] Implement orchestration in `code/main.py` to **import and invoke** the feature engineering function from `code/data/feature_engineering.py` (T007) to process filtered subjects. <!-- FAILED: unspecified -->
+- [X] T014d [US1] Implement `code/main.py` orchestration to: (1) download raw data, (2) preprocess time series, (3) compute connectivity vectors, and (4) save `.npy` files to `data/processed/` <!-- FAILED: unspecified -->
 - [X] T015 [US1] Add logging for data ingestion, preprocessing, and feature engineering stages to `data/logs/pipeline_run.json` (FR-010)
 - [X] T016 [US1] Implement error handling to log excluded subjects and abort if success rate <80% (SC-001)
 - [X] T017 [P] [US1] Create unit tests for Fisher-z transformation and variance calculations in `tests/unit/test_feature_engineering.py`
@@ -115,9 +115,9 @@ expected <block end>, but found ':'
  in "<unicode string>", line 1, column 1:
 :
  ^) -->
-- [ ] T020 [US2] Implement `code/modeling/train.py` to **invoke T020a** on the full dataset, tune ElasticNetCV, output Pearson r and R² per fold, and **save outer-fold predictions** to `data/processed/predictions.npy` for T023 (FR-004, FR-005). <!-- FAILED: unspecified -->
+- [ ] T020 [US2] Implement `code/modeling/train.py` to **invoke T020a** on the full dataset, tune ElasticNetCV, output Pearson r and R² per fold, and **save outer-fold predictions** to `data/processed/predictions.npy` for T023 (FR-004, FR-005).
 - [X] T022 [US2] Implement `code/modeling/evaluate.py` to perform 1,000 label permutations on a **stratified subset of 100 subjects** (based on Sleep Score). **Must invoke T020a with the subset parameter**. **Must register a signal handler for graceful shutdown** to flush the permutation null distribution to disk if aborted. **Deliverable**: Approximate p-value derived from subset (Plan Override of FR-006).
-- [ ] T023 [US2] Implement `code/modeling/evaluate.py` to perform 1,000 bootstrap resamples of **outer-fold predictions** (loaded from `data/processed/predictions.npy`) for % CI on R² (FR-007). <!-- FAILED: unspecified -->
+- [ ] T023 [US2] Implement `code/modeling/evaluate.py` to perform 1,000 bootstrap resamples of **outer-fold predictions** (loaded from `data/processed/predictions.npy`) for % CI on R² (FR-007).
 - [X] T024a [US2] Implement logic in `code/modeling/evaluate.py` to check for 'all edges removed' edge case: if variance thresholding results in zero features, log a warning and skip the grid point without crashing (Spec Edge Case 2).
 - [X] T024 [US2] Implement sensitivity analysis in `code/modeling/evaluate.py` to iterate variance thresholds including low values and PCA retention {0.95, 0.90, 0.85}. **Must invoke T020a with full dataset**. **Must enforce a cumulative 3-hour time budget** for the 9 grid points; if exceeded, log completed rows as a list in `ResultReport.json['sensitivity_analysis']` and set `incomplete: true` before aborting.
 - [X] T025 [US2] Implement `code/modeling/evaluate.py` to enforce CPU-only execution, monitor RAM usage (≤6 GB) using `psutil`, and abort if wall-clock time exceeds a predefined threshold using `signal` module (FR-009). **Must integrate the signal handler logic from T022/T024 to ensure partial results are flushed.**

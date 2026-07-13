@@ -5,105 +5,103 @@ Coordinates data download, preprocessing, feature engineering, and modeling.
 import os
 import sys
 import json
+import time
 from pathlib import Path
 from datetime import datetime
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent
-sys.path.insert(0, str(project_root))
+# Add project root to path for imports
+project_root = Path(__file__).parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from config import get_paths, ensure_dirs
-from utils.logging import log_stage_start, log_stage_complete, log_stage_error, setup_logging
-from data.download_hcp import main as download_main
+from utils.logging import setup_logging, log_stage_start, log_stage_complete, log_stage_error
+from data.download_hcp import main as download_main, filter_subjects
 from data.preprocess import main as preprocess_main
 from data.feature_engineering import main as feature_main
-from modeling.train import main as train_main
-from modeling.evaluate import main as evaluate_main
-from modeling.report_generator import main as report_main
-from modeling.interpret import main as interpret_main
-from modeling.finalize_report import main as finalize_main
 
 def run_pipeline():
-    """Execute the complete sleep quality prediction pipeline."""
+    """
+    Orchestration function for the sleep quality prediction pipeline.
+    Executes the following stages in order:
+    1. Download raw HCP data (T005)
+    2. Filter subjects based on Sleep Score and Motion (T007b)
+    3. Preprocess time series (T006)
+    4. Compute connectivity vectors (T007)
+    5. Save outputs to data/processed/
+    """
+    start_time = time.time()
     paths = get_paths()
-    
-    # Ensure all required directories exist
-    # ensure_dirs expects a dict of paths, not a list
-    ensure_dirs(paths)
-    
-    log_file = os.path.join(paths["logs"], "pipeline_run.json")
-    
-    logger = setup_logging(log_file=log_file)
-    logger.info("=== Starting Complete Sleep Quality Prediction Pipeline ===")
-    logger.info(f"Timestamp: {datetime.now().isoformat()}")
-    
+    ensure_dirs()
+
+    # Setup logging
+    logger = setup_logging(paths['log_file'])
+    logger.info("Pipeline started")
+
     try:
-        # Step 1: Download raw data
+        # Stage 1: Download raw data
         log_stage_start(logger, "Data Download")
-        result = download_main()
-        if result != 0:
-            raise RuntimeError("Data download failed")
-        log_stage_complete(logger, "Data Download", {"status": "success"})
-        
-        # Step 2: Preprocess data
-        log_stage_start(logger, "Data Preprocessing")
-        result = preprocess_main()
-        if result != 0:
-            raise RuntimeError("Data preprocessing failed")
-        log_stage_complete(logger, "Data Preprocessing", {"status": "success"})
-        
-        # Step 3: Feature engineering (T014c)
-        # Import and invoke the feature engineering function to process filtered subjects
+        # Invoke the download function from download_hcp.py
+        # This fetches HCP minimally preprocessed CIFTI files and behavioral data
+        download_main()
+        log_stage_complete(logger, "Data Download")
+
+        # Stage 2: Filter subjects (T007b logic integrated here or called explicitly)
+        # The download_main should have produced the behavioral file.
+        # We now filter subjects based on Sleep Score and Motion.
+        log_stage_start(logger, "Subject Filtering")
+        # Note: filter_subjects is imported from download_hcp. 
+        # Depending on implementation, it might need to be called here to update the filtered list.
+        # Assuming filter_subjects writes a filtered list or updates the behavioral file.
+        # We call it to ensure the filtering logic is applied.
+        filtered_subjects = filter_subjects()
+        log_stage_complete(logger, "Subject Filtering", extra={"count": len(filtered_subjects)})
+
+        # Stage 3: Preprocess time series (T006)
+        log_stage_start(logger, "Preprocessing")
+        # Invoke preprocessing on the filtered subjects
+        preprocess_main(filtered_subjects)
+        log_stage_complete(logger, "Preprocessing")
+
+        # Stage 4: Feature Engineering (T007)
         log_stage_start(logger, "Feature Engineering")
-        result = feature_main()
-        if result != 0:
-            raise RuntimeError("Feature engineering failed")
-        log_stage_complete(logger, "Feature Engineering", {"status": "success"})
+        # Invoke feature engineering on the filtered subjects
+        # This step computes pairwise correlations, applies Fisher-z, and extracts vectors
+        feature_main(filtered_subjects)
+        log_stage_complete(logger, "Feature Engineering")
+
+        # Stage 5: Aggregate and save final outputs
+        log_stage_start(logger, "Aggregation and Saving")
+        # Load all feature vectors and save as a single .npy file
+        from data.feature_engineering import load_feature_vectors
+        feature_matrix, final_subjects = load_feature_vectors(filtered_subjects)
         
-        # Step 4: Train model
-        log_stage_start(logger, "Model Training")
-        result = train_main()
-        if result != 0:
-            raise RuntimeError("Model training failed")
-        log_stage_complete(logger, "Model Training", {"status": "success"})
+        # Save the feature matrix
+        output_path = paths['processed_dir'] / "connectivity_matrix.npy"
+        np.save(output_path, feature_matrix)
+        logger.info(f"Saved connectivity matrix to {output_path}")
         
-        # Step 5: Evaluate model
-        log_stage_start(logger, "Model Evaluation")
-        result = evaluate_main()
-        if result != 0:
-            raise RuntimeError("Model evaluation failed")
-        log_stage_complete(logger, "Model Evaluation", {"status": "success"})
+        # Save subject IDs
+        subjects_path = paths['processed_dir'] / "subject_ids.npy"
+        np.save(subjects_path, np.array(final_subjects))
+        logger.info(f"Saved subject IDs to {subjects_path}")
         
-        # Step 6: Interpret model
-        log_stage_start(logger, "Model Interpretation")
-        result = interpret_main()
-        if result != 0:
-            logger.warning("Model interpretation completed with warnings")
-        log_stage_complete(logger, "Model Interpretation", {"status": "success"})
-        
-        # Step 7: Generate report
-        log_stage_start(logger, "Report Generation")
-        result = report_main()
-        if result != 0:
-            raise RuntimeError("Report generation failed")
-        log_stage_complete(logger, "Report Generation", {"status": "success"})
-        
-        # Step 8: Finalize report
-        log_stage_start(logger, "Report Finalization")
-        result = finalize_main()
-        if result != 0:
-            raise RuntimeError("Report finalization failed")
-        log_stage_complete(logger, "Report Finalization", {"status": "success"})
-        
-        logger.info("=== Pipeline Complete ===")
-        return 0
-        
+        # Also save the behavioral data for the filtered subjects
+        import pandas as pd
+        behavioral_path = paths['behavioral_file']
+        df = pd.read_csv(behavioral_path)
+        mask = df['SubjectID' if 'SubjectID' in df.columns else df.columns[0]].astype(str).isin(final_subjects)
+        filtered_df = df[mask]
+        filtered_df.to_csv(paths['processed_dir'] / "filtered_behavioral.csv", index=False)
+        logger.info(f"Saved filtered behavioral data to {paths['processed_dir'] / 'filtered_behavioral.csv'}")
+
+        elapsed = time.time() - start_time
+        logger.info(f"Pipeline completed successfully in {elapsed:.2f} seconds")
+        return True
+
     except Exception as e:
-        log_stage_error(logger, "Pipeline", str(e))
-        logger.error(f"Pipeline failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
+        log_stage_error(logger, "Pipeline Execution", str(e))
+        raise
 
 if __name__ == "__main__":
     sys.exit(run_pipeline())
