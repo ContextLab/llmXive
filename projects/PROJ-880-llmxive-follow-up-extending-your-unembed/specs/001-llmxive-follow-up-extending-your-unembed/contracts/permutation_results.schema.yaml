@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PermutationResultsSchema"
+description: "Schema for the output of the permutation test and statistical analysis using spherical noise."
+type: object
+required:
+  - iterations
+  - observed_statistic
+  - null_distribution
+  - p_value
+properties:
+  iterations:
+    type: integer
+    description: "Number of spherical noise iterations executed."
+    minimum: 1
+  observed_statistic:
+    type: number
+    description: "The observed difference between native and cross-lingual similarity."
+  null_distribution:
+    type: array
+    description: "List of statistics generated from isotropic noise vectors projected onto spectra."
+    items:
+      type: number
+  p_value:
+    type: number
+    description: "Calculated p-value for the observed statistic."
+    minimum: 0
+    maximum: 1
+  sensitivity_sweep:
+    type: object
+    description: "Results from varying the iteration count."
+    additionalProperties:
+      type: object
+      properties:
+        iterations:
+          type: integer
+        p_value:
+          type: number
+  timestamp:
+    type: string
+    format: date-time
+  hardware_profile:
+    type: string
+    description: "CPU cores and RAM used during execution."
+  alignment_method:
+    type: string
+    description: "Method used for cross-lingual alignment (e.g., 'procrustes_shared_vocab')."
+    enum:
+      - "procrustes_shared_vocab"
+      - "none"
+  null_method:
+    type: string
+    description: "Method used for null distribution generation."
+    enum:
+      - "spherical_noise"
+      - "frequency_shuffle"
+    default: "spherical_noise"

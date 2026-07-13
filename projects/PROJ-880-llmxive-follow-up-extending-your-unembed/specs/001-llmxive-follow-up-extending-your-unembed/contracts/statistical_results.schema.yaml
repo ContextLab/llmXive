@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Results Schema"
+description: "Schema for final permutation test results and p-values."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      experiment_id:
+        type: "string"
+        description: "Unique identifier for the run."
+      timestamp:
+        type: "string"
+        format: "date-time"
+        description: "ISO 8601 timestamp of the run."
+    required:
+      - experiment_id
+      - timestamp
+  results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        pair:
+          type: "string"
+          description: "The language pair (e.g., en-zh)."
+        observed_similarity:
+          type: "number"
+          description: "The cosine similarity of the observed average vector."
+        p_value_n100:
+          type: "number"
+          description: "P-value from 100 permutations."
+        p_value_n1000:
+          type: "number"
+          description: "P-value from 1000 permutations."
+        p_value_n10000:
+          type: "number"
+          description: "P-value from 10000 permutations."
+        convergence_status:
+          type: "string"
+          enum: ["converged", "inconclusive"]
+          description: "Whether the p-value stabilized across sweeps."
+        significance:
+          type: "boolean"
+          description: "True if p-value < alpha (0.05) after Bonferroni correction."
+      required:
+        - pair
+        - observed_similarity
+        - p_value_n100
+        - p_value_n1000
+        - p_value_n10000
+        - convergence_status
+        - significance
+required:
+  - metadata
+  - results

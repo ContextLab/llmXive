@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Frequency List Schema"
+description: "Schema for raw frequency lists downloaded from Hugging Face."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source_url:
+        type: "string"
+        description: "The verified URL from which the data was downloaded."
+      language:
+        type: "string"
+        enum: ["en", "fr", "zh"]
+        description: "The language code of the frequency list."
+      checksum_sha256:
+        type: "string"
+        description: "SHA-256 checksum of the file."
+      derived_from:
+        type: "string"
+        description: "Hash of the source artifact if derived."
+    required:
+      - source_url
+      - language
+      - checksum_sha256
+  data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        token_id:
+          type: "integer"
+          description: "The token ID in the model's vocabulary."
+        token_str:
+          type: "string"
+          description: "The string representation of the token."
+        frequency:
+          type: "number"
+          description: "The raw frequency count."
+      required:
+        - token_id
+        - token_str
+        - frequency
+required:
+  - metadata
+  - data

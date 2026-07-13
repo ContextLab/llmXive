@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1809.09924",
+  "judged_at": "2026-07-13T15:07:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"your unembedding matrix is secretly a feature lens for text embeddings\" linguistics",
+  "rationale": "The paper focuses on image embeddings and visual semantic similarity using class hierarchies, which is an off-domain application compared to the user's specific question about text embeddings and linguistic feature lenses. While both involve \"embeddings,\" the constructs (visual vs. linguistic) and domains (computer vision vs. NLP) are distinct, failing the criteria for same-mechanism evidence or cross-vocabulary relevance.",
+  "relevant": false
+}

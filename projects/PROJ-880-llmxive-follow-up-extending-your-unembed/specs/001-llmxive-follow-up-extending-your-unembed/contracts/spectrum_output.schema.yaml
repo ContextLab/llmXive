@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SpectrumOutputSchema"
+description: "Schema for the output of the SVD extraction step (Top-k singular vectors) including symmetry diagnostics."
+type: object
+required:
+  - model_id
+  - k
+  - singular_values
+  - variance_explained
+  - U
+  - V
+properties:
+  model_id:
+    type: string
+    description: "The Hugging Face model identifier used for extraction."
+  k:
+    type: integer
+    description: "Number of singular vectors extracted."
+    minimum: 1
+  singular_values:
+    type: array
+    description: "List of the top-k singular values in descending order."
+    items:
+      type: number
+  variance_explained:
+    type: number
+    description: "Ratio of total variance captured by the top-k vectors."
+    minimum: 0
+    maximum: 1
+  U:
+    type: array
+    description: "Left singular vectors (shape: k x embedding_dim). Flattened or nested list."
+    items:
+      type: array
+      items:
+        type: number
+  V:
+    type: array
+    description: "Right singular vectors (shape: k x vocab_size). Flattened or nested list."
+    items:
+      type: array
+      items:
+        type: number
+  symmetry_norm:
+    type: number
+    description: "Frobenius norm of (Input Embedding Matrix - Unembedding Matrix Transpose). Diagnostic for circularity."
+    minimum: 0
+  metadata:
+    type: object
+    description: "Optional metadata about the run."
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      hardware_profile:
+        type: string
+        description: "CPU/RAM profile used."

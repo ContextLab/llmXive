@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SVD Output Schema"
+description: "Schema for the top-k singular vectors and values."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      model_name:
+        type: "string"
+        description: "The name of the model (e.g., llama-3-8b)."
+      k_components:
+        type: "integer"
+        description: "The number of singular vectors computed (default 50)."
+      variance_explained:
+        type: "number"
+        description: "Cumulative variance explained by the top-k components."
+      algorithm:
+        type: "string"
+        enum: ["randomized"]
+        description: "The SVD algorithm used."
+      random_seed:
+        type: "integer"
+        description: "The random seed used for reproducibility."
+    required:
+      - model_name
+      - k_components
+      - variance_explained
+      - algorithm
+      - random_seed
+  components:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        component_id:
+          type: "integer"
+          description: "Index of the component (0 to k-1)."
+        singular_value:
+          type: "number"
+          description: "The singular value for this component."
+        vector:
+          type: "array"
+          items:
+            type: "number"
+          description: "The flattened singular vector (dimension D)."
+      required:
+        - component_id
+        - singular_value
+        - vector
+required:
+  - metadata
+  - components

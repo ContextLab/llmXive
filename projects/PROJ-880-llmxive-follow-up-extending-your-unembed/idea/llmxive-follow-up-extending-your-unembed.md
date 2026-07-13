@@ -5,34 +5,78 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
 
-## Summary of the prior work
-The paper "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings" identifies that raw text embeddings from Large Language Models (LLMs) are biased toward high-frequency, uninformative tokens due to the structure of the unembedding matrix. It introduces "EmbedFilter," a training-free linear transformation that projects embeddings onto the orthogonal complement of the "edge spectrum" subspace (associated with frequent tokens), thereby reducing anisotropy and improving zero-shot retrieval performance while enabling dimensionality reduction.
+**Field**: linguistics / mechanistic interpretability
 
-## Proposed extension
-**Research Question:** Does the "edge spectrum" subspace identified by EmbedFilter encode a universal, language-agnostic "common sense" prior that is invariant across different linguistic typologies, or does its composition shift to reflect language-specific syntactic noise?
-This matters because if the subspace is language-agnostic, a single universal filter could be applied to any LLM regardless of training data composition, whereas language-specific shifts would necessitate dynamic, corpus-aware filtering strategies for non-English or low-resource languages.
+## Research question
+
+Does the "edge spectrum" subspace identified in LLM unembedding matrices encode a universal, language-agnostic "common sense" prior, or does its semantic composition shift to reflect language-specific syntactic and frequency patterns across different linguistic typologies?
+
+## Motivation
+
+Understanding whether the anisotropy in LLM embeddings is driven by universal statistical regularities or language-specific artifacts is critical for developing generalizable embedding correction techniques. If the edge spectrum is language-specific, a single universal filter (like the original EmbedFilter) may fail on non-English or low-resource languages, necessitating corpus-aware adaptation strategies for global NLP applications.
+
+## Related work
+
+- [Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings](https://arxiv.org/abs/2606.07502) — Establishes that high-frequency tokens dominate the edge spectrum of unembedding matrices, causing anisotropy, and proposes a training-free linear transformation to remove this bias.
+- [Semantic Structure and Interpretability of Word Embeddings](https://arxiv.org/abs/1711.00331) — Provides foundational evidence that word embeddings capture semantic relationships and that their geometric structure reflects linguistic regularities, supporting the hypothesis that subspace composition carries semantic meaning.
+- [reward-lens: A Mechanistic Interpretability Library for Reward Models](https://arxiv.org/abs/2604.26130) — While focused on reward models, this work demonstrates the utility of mechanistic interpretability tools (like logit lens and direct logit attribution) in dissecting how specific model components (like unembedding matrices) encode task-specific or frequency-based priors.
+
+## Expected results
+
+We expect to find that while the *magnitude* of the bias toward high-frequency tokens is consistent across languages, the *specific tokens* and *semantic concepts* dominating the edge spectrum differ significantly (e.g., English function words vs. language-specific particles). This would confirm that the edge spectrum is not a universal "common sense" prior but rather a reflection of language-specific corpus statistics, implying that static filters are insufficient for multilingual deployment.
 
 ## Methodology sketch
-**Data:** Select three distinct LLM backbones (e.g., Llama-3, Mistral, and a non-English model like BLOOM or a Chinese-specific model) and their corresponding unembedding matrices; pair these with token frequency lists from the RedPajama (English) and a comparable non-English open corpus (e.g., Common Crawl subsets in French or Chinese).
-**Procedure:** 
-1. Compute the "average token" embedding $\hat{\vh}$ for each language using the respective frequency distribution and the model's unembedding matrix pseudo-inverse (CPU-tractable linear algebra).
-2. Perform Singular Value Decomposition (SVD) on the unembedding matrix to extract the top-$k$ and bottom-$k$ singular vectors (the edge spectrum).
-3. Calculate the cosine similarity between the "average token" vectors of different languages when projected onto their *own* edge spectrum versus a *cross-language* edge spectrum.
-4. Quantify the shift in the specific tokens that dominate the edge spectrum logits when switching from English to non-English frequency priors.
-**Expected Result:** We hypothesize that while the *magnitude* of the bias toward high-frequency tokens remains consistent (validating the anisotropy theory), the *specific semantic content* of the edge spectrum shifts significantly (e.g., English edge spectrum dominated by "the/is/and", while Chinese edge spectrum dominated by specific particles), suggesting that a universal static filter may under-perform on non-English corpora without language-adaptive re-calibration.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the unembedding matrices (weight matrices) for three open-source LLMs: Llama-3 (English), BLOOM (multilingual), and a Chinese-specific model (e.g., Qwen-1.5-7B). Retrieve token frequency lists from RedPajama (English) and comparable open corpora (e.g., Common Crawl subsets) for French and Chinese.
+- **Frequency Projection**: Compute the "average token" embedding vector $\hat{\vh}$ for each language by calculating the frequency-weighted sum of the model's vocabulary embeddings (using the pseudo-inverse of the unembedding matrix where necessary to map logits to embedding space).
+- **Spectral Decomposition**: Perform Singular Value Decomposition (SVD) on each model's unembedding matrix to extract the top-$k$ singular vectors (the "edge spectrum") and the bottom-$k$ vectors.
+- **Cross-Lingual Similarity Analysis**: Calculate the cosine similarity between the "average token" vectors of different languages when projected onto (a) their own model's edge spectrum and (b) a cross-language edge spectrum (e.g., projecting Chinese average tokens onto the English edge spectrum).
+- **Token Attribution**: Identify the specific tokens with the highest loadings in the top-$k$ singular vectors for each language and compare their semantic categories (function words, particles, content words) using standard tokenizers and frequency lists.
+- **Statistical Validation**: Perform a permutation test to determine if the observed cross-lingual similarity shifts are statistically significant compared to a null distribution generated by randomizing token frequencies.
+- **Validation Independence**: Ensure the validation metric (cosine similarity of projected vectors) relies on the *structure* of the singular vectors and *independent* frequency counts, not on the model's downstream predictions or the same vectors used to construct the projection, avoiding circularity.
 
-- **Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings** — {'name': 'Songhao Wu', 'kind': 'human'}, {'name': 'Zhongxin Chen', 'kind': 'human'}, {'name': 'Yuxuan Liu', 'kind': 'human'}, {'name': 'Heng Cui', 'kind': 'human'}, {'name': 'Cong Li', 'kind': 'human'}, {'name': 'Rui Yan', 'kind': 'human'}, {'name': 'qwen.qwen3.5-122b', 'kind': 'llm', 'affiliation': None, 'email': None, 'agent_version': None, 'model_name': 'qwen.qwen3.5-122b', 'backend': 'dartmouth', 'first_contributed_at': '2026-06-29T22:20:08.481035Z'}. https://arxiv.org/abs/2606.07502.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_07502,
-  title = {Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings},
-  author = {\{'name': 'Songhao Wu', 'kind': 'human'\} and \{'name': 'Zhongxin Chen', 'kind': 'human'\} and \{'name': 'Yuxuan Liu', 'kind': 'human'\} and \{'name': 'Heng Cui', 'kind': 'human'\} and \{'name': 'Cong Li', 'kind': 'human'\} and \{'name': 'Rui Yan', 'kind': 'human'\} and \{'name': 'qwen.qwen3.5-122b', 'kind': 'llm', 'affiliation': None, 'email': None, 'agent_version': None, 'model_name': 'qwen.qwen3.5-122b', 'backend': 'dartmouth', 'first_contributed_at': '2026-06-29T22:20:08.481035Z'\}},
-  year = {2026},
-  eprint = {2606.07502},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.07502},
-  url = {https://arxiv.org/abs/2606.07502}
-}
-```
+- Reviewed existing ideas: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings".
+- Closest match: None (This is a direct extension of the prior work, but the specific research question regarding cross-lingual universality of the edge spectrum is novel).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-13T15:07:12Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings" linguistics
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings" linguistics | 0 |
+| 1 | unembedding matrix as feature lens | 2 |
+| 2 | semantic interpretation of output embeddings | 4 |
+| 3 | linear probing of language model output layers | 0 |
+| 4 | decoding weights as semantic directions | 0 |
+| 5 | feature visualization in transformer output space | 0 |
+| 6 | linguistic properties of unembedding vectors | 0 |
+| 7 | semantic decoding in large language models | 0 |
+| 8 | output projection matrix interpretability | 0 |
+| 9 | semantic feature extraction from word embeddings | 0 |
+| 10 | linear representation hypothesis in LLMs | 0 |
+| 11 | output layer weights and semantic meaning | 0 |
+| 12 | decoding linear probes for language understanding | 0 |
+| 13 | semantic structure of vocabulary embeddings | 0 |
+| 14 | interpretability of LLM output projections | 0 |
+| 15 | feature lens analysis in neural language models | 0 |
+| 16 | semantic alignment of unembedding and input embeddings | 0 |
+| 17 | linguistic analysis of decoder weight matrices | 0 |
+| 18 | semantic direction discovery in output space | 0 |
+| 19 | unembedding matrix as linguistic probe | 0 |
+| 20 | semantic interpretation of final layer representations | 0 |
+
+### Verified citations
+
+1. **reward-lens: A Mechanistic Interpretability Library for Reward Models** (2026). Mohammed Suhail B Nadaf. arXiv. [2604.26130](https://arxiv.org/abs/2604.26130). PDF-sampled: No.
+2. **Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings** (2026). Songhao Wu, Zhongxin Chen, Yuxuan Liu, Heng Cui, Cong Li, et al.. arXiv. [2606.07502](https://arxiv.org/abs/2606.07502). PDF-sampled: No.
+3. **Semantic Structure and Interpretability of Word Embeddings** (2017). Lutfi Kerem Senel, Ihsan Utlu, Veysel Yucesoy, Aykut Koc, Tolga Cukur. arXiv. [1711.00331](https://arxiv.org/abs/1711.00331). PDF-sampled: No.
