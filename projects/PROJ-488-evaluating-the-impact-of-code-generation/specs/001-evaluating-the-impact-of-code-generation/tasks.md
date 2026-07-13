@@ -37,15 +37,15 @@
 - [X] T004 Implement seed management module in `code/seeds.py` with documented seed value **42** for `numpy`, `random`, and (optional) `torch`.
 - [X] T005 Implement checksum utilities in `code/checksum.py` to compute SHA‑256 for downloaded datasets and write `data/checksums.json`.
 - [X] T006 Implement state‑tracking utilities in `code/state_tracker.py` to compute artifact hashes and update `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml` with `updated_at` timestamps.
-- [ ] T007 Setup logging infrastructure in `code/logging_config.py` with snippet‑ID aware logger (INFO level, console + file).
-- [ ] T008 Create data model definitions in `code/data_model.py`:
+- [X] T007 Setup logging infrastructure in `code/logging_config.py` with snippet‑ID aware logger (INFO level, console + file).
+- [X] T008 Create data model definitions in `code/data_model.py`:
  - `CodeSnippet` (id, source, code, length, language)
  - `MetricScore` (snippet_id, metric_type, score, timestamp)
  - `DatasetGroup` (label, snippets, aggregates)
  - `MetricResult` schema for CSV output.
-- [ ] T009 Draft amendment PR to **Principle VI** permitting use of **CodeParrot/CodeGen** as the LLM‑generated code source; include justification and impact analysis in `docs/amendment-vi.md`. **Proposed text**: "Allow LLM-generated code from verified training corpora (e.g., CodeParrot/CodeGen) when HumanEval/MBPP lack sufficient sample size (n≥1000) for statistical power." **BLOCKS Phase 3-5**.
-- [ ] T010 Draft amendment PR to **Principle VII** permitting use of **radon** and **pylint** for metric extraction; include CPU‑feasibility argument in `docs/amendment-vii.md`. **Proposed text**: "Allow CPU-tractable static analysis tools (radon, pylint) with documented justification when lightweight LLM inference exceeds runtime constraints (≤6h on 2-core CPU)." **BLOCKS Phase 3-5**.
-- [ ] T011 Submit both PRs, record their URLs in `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml` amendment_status map, and update the amendment‑status section after review. **BLOCKS Phase 3-5**.
+- [X] T009 Draft amendment PR to **Principle VI** permitting use of **CodeParrot/CodeGen** as the LLM‑generated code source; include justification and impact analysis in `docs/amendment-vi.md`. **Proposed text**: "Allow LLM-generated code from verified training corpora (e.g., CodeParrot/CodeGen) when HumanEval/MBPP lack sufficient sample size (n≥1000) for statistical power." **BLOCKS Phase 3-5**.
+- [X] T010 Draft amendment PR to **Principle VII** permitting use of **radon** and **pylint** for metric extraction; include CPU‑feasibility argument in `docs/amendment-vii.md`. **Proposed text**: "Allow CPU-tractable static analysis tools (radon, pylint) with documented justification when lightweight LLM inference exceeds runtime constraints (≤6h on 2-core CPU)." **BLOCKS Phase 3-5**.
+- [X] T011 Submit both PRs, record their URLs in `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml` amendment_status map, and update the amendment‑status section after review. **BLOCKS Phase 3-5**. <!-- FAILED: unspecified -->
 
 ---
 
@@ -53,14 +53,14 @@
 
 **Goal**: Download and preprocess human‑written (CodeSearchNet) and LLM‑generated (CodeParrot/CodeGen) code datasets, filter to Python functions with comparable sizes.
 
-- [ ] T012 [US1] Implement HuggingFace download for **CodeSearchNet** in `code/data_ingestion.py` using `datasets.load_dataset('code_search_net',...)`, with exponential backoff (≥3 retries, 60 s intervals) and robust error handling.
-- [ ] T013 [US1] Implement HuggingFace download for **CodeParrot/CodeGen** in the same module using `datasets.load_dataset('codeparrot/codegen',...)`, recording SHA‑256 checksums to `data/checksums.json`.
-- [ ] T014 [US1] Implement dataset verification workflow: confirm that both datasets are listed in `data/verified_sources.json`; abort with **error 101** if a dataset is not verified.
-- [ ] T015 [US1] Implement streaming and sampling to ensure total snippets ≤ 10,000 to comply with 14 GB disk limit; use `datasets.load_dataset(..., streaming=True)` with [deferred] sample fraction.
+- [X] T012 [US1] Implement HuggingFace download for **CodeSearchNet** in `code/data_ingestion.py` using `datasets.load_dataset('code_search_net',...)`, with exponential backoff (≥3 retries, 60 s intervals) and robust error handling.
+- [X] T013 [US1] Implement HuggingFace download for **CodeParrot/CodeGen** in the same module using `datasets.load_dataset('codeparrot/codegen',...)`, recording SHA‑256 checksums to `data/checksums.json`.
+- [X] T014 [US1] Implement dataset verification workflow: confirm that both datasets are listed in `data/verified_sources.json`; abort with **error 101** if a dataset is not verified.
+- [X] T015 [US1] Implement streaming and sampling to ensure total snippets ≤ 10,000 to comply with 14 GB disk limit; use `datasets.load_dataset(..., streaming=True)` with [deferred] sample fraction.
 - [ ] T016 [US1] Implement Python‑only filtering: keep snippets where `language == "python"` and extract top‑level functions using `ast`.
 - [ ] T017 [US1] Implement function‑length filtering to achieve median length difference ≤ 20 % between groups (binary search algorithm, max 5 iterations, abort with **error 103** after max attempts).
 - [ ] T018 [US1] Implement AST parsing validation: parse each snippet, log invalid IDs, require ≥95% successful parses; abort with **error 102** if threshold not met.
-- [ ] T019 [US1] Verify snippet count: ensure ≥ 1000 valid Python snippets per group; abort with **error 104** if not met.
+- [~] T019 [US1] Verify snippet count: ensure ≥ 1000 valid Python snippets per group; abort with **error 104** if not met.
 
 ---
 
@@ -68,12 +68,12 @@
 
 **Goal**: Run radon for complexity and pylint for bug indicators on each code snippet, aggregate into metric distributions per dataset group.
 
-- [ ] T020 [US2] Implement radon complexity extraction (cyclomatic complexity, LOC, maintainability index) in `code/metric_extraction.py`.
-- [ ] T021 [US2] Implement pylint bug‑indicator extraction (potential bugs, style issues) in the same file.
-- [ ] T022 [US2] Validate extracted scores: detect NaN or out‑of‑range values; if ≥5% of snippets fail, abort with **error 102** and generate diagnostic report.
-- [ ] T023 [US2] Aggregate metrics per group and write CSV files to `data/metrics/` (one file per metric type) including mean, median, variance.
-- [ ] T024 [US2] Ensure metric output conforms to `MetricResult` schema defined in `code/data_model.py`.
-- [ ] T025 [US2] Add CPU‑only execution guard: verify `torch` is not used for inference; ensure `radon` and `pylint` execute without CUDA device assignment.
+- [~] T020 [US2] Implement radon complexity extraction (cyclomatic complexity, LOC, maintainability index) in `code/metric_extraction.py`.
+- [~] T021 [US2] Implement pylint bug‑indicator extraction (potential bugs, style issues) in the same file.
+- [~] T022 [US2] Validate extracted scores: detect NaN or out‑of‑range values; if ≥5% of snippets fail, abort with **error 102** and generate diagnostic report.
+- [~] T023 [US2] Aggregate metrics per group and write CSV files to `data/metrics/` (one file per metric type) including mean, median, variance.
+- [~] T024 [US2] Ensure metric output conforms to `MetricResult` schema defined in `code/data_model.py`.
+- [~] T025 [US2] Add CPU‑only execution guard: verify `torch` is not used for inference; ensure `radon` and `pylint` execute without CUDA device assignment.
 
 ---
 

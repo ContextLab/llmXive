@@ -1,1 +1,34 @@
-[]
+- artifact_hash: efd58963ff8a4b4649998c969d2003db50a460e31897a7d37bda36dab8f5f2c7
+  artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/docs/amendment-vi.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: codeparrot (CodeParrot)
+  kind: url
+  value: https://huggingface.co/codeparrot
+  verification_status: verified
+  verified_against_url: https://huggingface.co/codeparrot
+  verified_at: '2026-07-13T14:01:48.621066Z'
+- artifact_hash: efd58963ff8a4b4649998c969d2003db50a460e31897a7d37bda36dab8f5f2c7
+  artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/docs/amendment-vi.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2101.00027] The Pile: An 800GB Dataset of Diverse Text for Language
+    Modeling'
+  kind: url
+  value: https://arxiv.org/abs/2101.00027
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2101.00027
+  verified_at: '2026-07-13T14:01:48.621066Z'
+- artifact_hash: efd58963ff8a4b4649998c969d2003db50a460e31897a7d37bda36dab8f5f2c7
+  artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/docs/amendment-vi.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2107.03374] Evaluating Large Language Models Trained on Code'
+  kind: url
+  value: https://arxiv.org/abs/2107.03374
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2107.03374
+  verified_at: '2026-07-13T14:01:48.621066Z'

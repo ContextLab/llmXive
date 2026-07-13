@@ -1,0 +1,11 @@
+# Existing dependencies
+datasets>=2.14.0
+radon>=6.0.0
+pylint>=3.0.0
+scipy>=1.11.0
+matplotlib>=3.8.0
+pandas>=2.1.0
+numpy>=1.24.0
+pyyaml>=6.0.0
+# T015 dependencies are covered by 'datasets' and standard library
+# No new dependencies required.

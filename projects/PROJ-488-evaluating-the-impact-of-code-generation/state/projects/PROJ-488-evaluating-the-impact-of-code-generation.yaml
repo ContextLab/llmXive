@@ -1,19 +1,33 @@
-state:
-  updated_at: "2024-01-15T10:30:00Z"
-  project_id: PROJ-488-evaluating-the-impact-of-code-generation
-  artifacts: {}
-  amendment_status:
-    t009: pending
-    t010: pending
-    t011: pending
-  pipeline_stages:
-    phase1: complete
-    phase2: pending
-    phase3: blocked
-    phase4: blocked
-    phase5: blocked
-    phase6: blocked
-  metadata:
-    created_at: "2024-01-15T10:30:00Z"
-    last_modified: "2024-01-15T10:30:00Z"
-    version: "0.1.0"
+project_id: PROJ-488-evaluating-the-impact-of-code-generation
+name: Evaluating the Impact of Code Generation on Code Quality
+status: in_progress
+created_at: "2023-10-27T10:00:00Z"
+updated_at: "2023-10-27T10:00:00Z"
+amendment_status:
+  vi: approved
+  vii: approved
+artifacts:
+  sampled_datasets:
+    codesearchnet: data/processed/codesearchnet_sampled.jsonl
+    codegen: data/processed/codegen_sampled.jsonl
+    counts:
+      codesearchnet: 5000
+      codegen: 5000
+      total: 10000
+    timestamp: "2023-10-27T10:30:00Z"
+tasks_completed:
+  - T001
+  - T002
+  - T003
+  - T004
+  - T005
+  - T006
+  - T007
+  - T008
+  - T009
+  - T010
+  - T011
+  - T012
+  - T013
+  - T014
+  - T015
