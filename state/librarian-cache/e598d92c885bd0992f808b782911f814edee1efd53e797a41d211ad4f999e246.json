@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-06T13:53:55Z",
+  "fetched_at": "2026-07-13T14:46:59Z",
   "field": "psychology",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,15 @@
       "idea_body_excerpt": "The Impact of Bounded Confidence on Opinion Polarization Speed",
       "target_n": 5
     },
-    "duration_seconds": 353.126,
-    "ended_at": "2026-06-06T13:53:55Z",
+    "duration_seconds": 46.482,
+    "ended_at": "2026-07-13T14:46:59Z",
     "expansion": null,
     "extracted_queries": [
-      "Deffuant Weisbuch confidence bound",
-      "agent based modeling social simulation",
-      "statistical physics opinion dynamics",
-      "consensus time convergence rate",
-      "social influence homophily echo chambers"
+      "bounded confidence opinion dynamics simulation",
+      "DeGroot model Hegselmann-Krause agent-based",
+      "homophily echo chamber polarization threshold",
+      "convergence rate opinion fragmentation speed",
+      "social influence threshold polarization mechanism"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -31,25 +31,31 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "cond-mat/0311279"
+        "2401.01346"
       ]
     },
     "per_query_hit_count": {
-      "Deffuant Weisbuch confidence bound": 3,
+      "DeGroot model Hegselmann-Krause agent-based": 3,
       "The Impact of Bounded Confidence on Opinion Polarization Speed psychology": 3,
-      "agent based modeling social simulation": 3,
-      "consensus time convergence rate": 3,
-      "social influence homophily echo chambers": 3,
-      "statistical physics opinion dynamics": 3
+      "bounded confidence opinion dynamics simulation": 1,
+      "convergence rate opinion fragmentation speed": 3,
+      "homophily echo chamber polarization threshold": 3,
+      "social influence threshold polarization mechanism": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 0,
-      "rejections": []
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2402.12212",
+          "rationale": "The paper investigates opinion polarization in autonomous AI agents within echo chambers, which is an off-domain application (AI agents vs. human psychology) and does not measure the specific \"bounded confidence\" mechanism or human opinion dynamics requested. While it shares the general topic of polarization, it fails to satisfy the criteria for same-mechanism evidence, empirical population, or foundational methodology for the specific psychological construct of bounded confidence in humans.",
+          "title": "Polarization of Autonomous Generative AI Agents Under Echo Chambers"
+        }
+      ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-06T13:48:02Z",
+    "started_at": "2026-07-13T14:46:12Z",
     "term_input": {
       "normalized": "the impact of bounded confidence on opinion polarization speed psychology",
       "raw": "The Impact of Bounded Confidence on Opinion Polarization Speed psychology"
@@ -58,20 +64,20 @@
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We present a model of opinion dynamics in which agents adjust continuous opinions as a result of random binary encounters whenever their difference in opinion is below a given threshold. High thresholds yield convergence of opinions towards an average opinion, whereas low thresholds result in several opinion clusters. The model is further generalised to network interactions, threshold heterogeneity, adaptive thresholds and binary strings of opinions.",
+          "claimed_abstract": "Systematic exploration of Agent-Based Models (ABMs) is challenged by the curse of dimensionality and their inherent stochasticity. We present a multi-stage pipeline integrating the systematic design of experiments with machine learning surrogates. Using a predator-prey case study, our methodology proceeds in two steps. First, an automated model-based screening identifies dominant variables, assesses outcome variability, and segments the parameter space. Second, we train Machine Learning models to map the remaining nonlinear interaction effects. This approach automates the discovery of unstable regions where system outcomes are highly dependent on nonlinear interactions between many variables. Thus, this work provides modelers with a rigorous, hands-off framework for sensitivity analysis and policy testing, even when dealing with high-dimensional stochastic simulators.",
           "claimed_authors": [
-            "Gerard Weisbuch",
-            "Guillaume Deffuant",
-            "Frederic Amblard",
-            "Jean Pierre Nadal"
+            "Paul Saves",
+            "Matthieu Mastio",
+            "Nicolas Verstaevel",
+            "Benoit Gaudou"
           ],
-          "claimed_title": "Interacting Agents and Continuous Opinions Dynamics",
+          "claimed_title": "From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models",
           "claimed_venue": "arXiv",
-          "claimed_year": 2001,
-          "primary_pointer": "cond-mat/0111494"
+          "claimed_year": 2026,
+          "primary_pointer": "2604.03350"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Interacting Agents and Continuous Opinions Dynamics')",
-        "failed_at": "2026-06-06T13:49:43Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models')",
+        "failed_at": "2026-07-13T14:46:45Z",
         "reason": "query_irrelevant"
       },
       {
@@ -90,76 +96,41 @@
           "primary_pointer": "1311.5108"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
-        "failed_at": "2026-06-06T13:49:44Z",
+        "failed_at": "2026-07-13T14:46:45Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "ChatGPT, the AI-powered chatbot with a massive user base of hundreds of millions, has become a global phenomenon. However, the use of Conversational AI Systems (CAISs) like ChatGPT for research in the field of Social Simulation is still limited. Specifically, there is no evidence of its usage in Agent-Based Social Simulation (ABSS) model design. This paper takes a crucial first step toward exploring the untapped potential of this emerging technology in the context of ABSS model design. The research presented here demonstrates how CAISs can facilitate the development of innovative conceptual ABSS models in a concise timeframe and with minimal required upfront case-based knowledge. By employing advanced prompt engineering techniques and adhering to the Engineering ABSS framework, we have constructed a comprehensive prompt script that enables the design of conceptual ABSS models with or by the CAIS. A proof-of-concept application of the prompt script, used to generate the conceptual ABSS model for a case study on the impact of adaptive architecture in a museum environment, illustrates the practicality of the approach. Despite occasional inaccuracies and conversational divergence, the CAIS proved to be a valuable companion for ABSS modellers.",
+          "claimed_abstract": "We consider the Hegselmann-Krause model for opinion dynamics and study the evolution of the system under various settings. We first analyze the termination time of the synchronous Hegselmann-Krause dynamics in arbitrary finite dimensions and show that the termination time in general only depends on the number of agents involved in the dynamics. To the best of our knowledge, that is the sharpest bound for the termination time of such dynamics that removes dependency of the termination time from the dimension of the ambient space. This answers an open question in [1] on how to obtain a tighter upper bound for the termination time. Furthermore, we study the asynchronous Hegselmann-Krause model from a novel game-theoretic approach and show that the evolution of an asynchronous Hegselmann-Krause model is equivalent to a sequence of best response updates in a well-designed potential game. We then provide a polynomial upper bound for the expected time and expected number of switching topologies until the dynamic reaches an arbitrarily small neighborhood of its equilibrium points, provided that the agents update uniformly at random. This is a step toward analysis of heterogeneous Hegselmann-Krause dynamics. Finally, we consider the heterogeneous Hegselmann-Krause dynamics and provide a necessary condition for the finite termination time of such dynamics. In particular, we sketch some future directions toward more detailed analysis of the heterogeneous Hegselmann-Krause model.",
           "claimed_authors": [
-            "Peer-Olaf Siebers"
+            "Seyed Rasoul Etesami",
+            "Tamer Basar"
           ],
-          "claimed_title": "Exploring the Potential of Conversational AI Support for Agent-Based Social Simulation Model Design",
+          "claimed_title": "Game-Theoretic Analysis of the Hegselmann-Krause Model for Opinion Dynamics in Finite Dimensions",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2405.08032"
+          "claimed_year": 2014,
+          "primary_pointer": "1412.6546"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Exploring the Potential of Conversational AI Support for Agent-Based Social Simulation Model Design')",
-        "failed_at": "2026-06-06T13:49:44Z",
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Game-Theoretic Analysis of the Hegselmann-Krause Model for Opinion Dynamics in Finite Dimensions')",
+        "failed_at": "2026-07-13T14:46:45Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Systematic exploration of Agent-Based Models (ABMs) is challenged by the curse of dimensionality and their inherent stochasticity. We present a multi-stage pipeline integrating the systematic design of experiments with machine learning surrogates. Using a predator-prey case study, our methodology proceeds in two steps. First, an automated model-based screening identifies dominant variables, assesses outcome variability, and segments the parameter space. Second, we train Machine Learning models to map the remaining nonlinear interaction effects. This approach automates the discovery of unstable regions where system outcomes are highly dependent on nonlinear interactions between many variables. Thus, this work provides modelers with a rigorous, hands-off framework for sensitivity analysis and policy testing, even when dealing with high-dimensional stochastic simulators.",
+          "claimed_abstract": "The stimulated photon echo formed by the sequence of three laser excitation pulses in gaseous medium on the transition with the angular momentum change 0-1 is considered with an account of elastic depolarizing collisions. The polarization properties of this echo may be potentially interesting for the purposes of data processing. It is shown, that with the polarization of the first pulse orthogonal to that of the second and third pulses the appearance of the echo signal will be entirely determined by the action of collisions. The existence of this echo is determined by the difference in the alignment and the orientation relaxation rates of the excited level.",
           "claimed_authors": [
-            "Paul Saves",
-            "Matthieu Mastio",
-            "Nicolas Verstaevel",
-            "Benoit Gaudou"
+            "V. A. Reshetov",
+            "E. N. Popov"
           ],
-          "claimed_title": "From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models",
+          "claimed_title": "Collision-induced stimulated photon echo at the transition 0-1",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2604.03350"
+          "claimed_year": 2012,
+          "primary_pointer": "1205.5381"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models')",
-        "failed_at": "2026-06-06T13:49:44Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Statistical physics has proven to be a very fruitful framework to describe phenomena outside the realm of traditional physics. The last years have witnessed the attempt by physicists to study collective phenomena emerging from the interactions of individuals as elementary units in social structures. Here we review the state of the art by focusing on a wide list of topics ranging from opinion, cultural and language dynamics to crowd behavior, hierarchy formation, human dynamics, social spreading. We highlight the connections between these problems and other, more traditional, topics of statistical physics. We also emphasize the comparison of model results with empirical data from social systems.",
-          "claimed_authors": [
-            "Claudio Castellano",
-            "Santo Fortunato",
-            "Vittorio Loreto"
-          ],
-          "claimed_title": "Statistical physics of social dynamics",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2007,
-          "primary_pointer": "0710.3256"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Statistical physics of social dynamics')",
-        "failed_at": "2026-06-06T13:49:44Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The European Particle Physics Strategy Update (EPPSU) process takes a bottom-up approach, whereby the community is first invited to submit proposals (also called inputs) for projects that it would like to see realised in the near-term, mid-term and longer-term future. National inputs as well as inputs from National Laboratories are also an important element of the process. All these inputs are then reviewed by the Physics Preparatory Group (PPG), whose role is to organize a Symposium around the submitted ideas and to prepare a community discussion on the importance and merits of the various proposals. The results of these discussions are then concisely summarised in this Briefing Book, prepared by the Conveners, assisted by Scientific Secretaries, and with further contributions provided by the Contributors listed on the title page. This constitutes the basis for the considerations of the European Strategy Group (ESG), consisting of scientific delegates from CERN Member States, Associate Member States, directors of major European laboratories, representatives of various European organizations as well as invitees from outside the European Community. The ESG has the mission to formulate the European Strategy Update for the consideration and approval of the CERN Council.",
-          "claimed_authors": [
-            " European Strategy for Particle Physics Preparatory Group"
-          ],
-          "claimed_title": "Physics Briefing Book",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1910.11775"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Physics Briefing Book')",
-        "failed_at": "2026-06-06T13:49:44Z",
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Collision-induced stimulated photon echo at the transition 0-1')",
+        "failed_at": "2026-07-13T14:46:45Z",
         "reason": "query_irrelevant"
       },
       {
@@ -177,81 +148,97 @@
           "primary_pointer": "2103.10093"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Conjectures on Convergence and Scalar Curvature')",
-        "failed_at": "2026-06-06T13:49:44Z",
+        "failed_at": "2026-07-13T14:46:46Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_abstract": "Convergence rate to the stationary distribution for continuous-time Markov processes can be studied using Lyapunov functions. Recent work by the author provided explicit rates of convergence in special case of a reflected jump-diffusion on a half-line. These results are proved for total variation distance and its generalizations: measure distances defined by test functions regardless of their continuity. Here we prove similar results for Wasserstein distance, convergence in which is related to convergence for continuou test functions. In some cases, including the reflected Ornstein-Uhlenbeck process, we get faster exponential convergence rates for Wasserstein distance than for total variation distance.",
           "claimed_authors": [
-            "Mihaela Time"
+            "Andrey Sarantsev"
           ],
-          "claimed_title": "Space-time distributions",
+          "claimed_title": "Convergence rate to equilibrium in Wasserstein distance for reflected jump-diffusions",
           "claimed_venue": "arXiv",
-          "claimed_year": 1998,
-          "primary_pointer": "gr-qc/9810059"
+          "claimed_year": 2020,
+          "primary_pointer": "2003.10590"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Space-time distributions')",
-        "failed_at": "2026-06-06T13:49:44Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Convergence rate to equilibrium in Wasserstein distance for reflected jump-diffusions')",
+        "failed_at": "2026-07-13T14:46:46Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Recently, there has been a great deal of attention in a class of controllers based on time-varying gains, called prescribed-time controllers, that steer the system's state to the origin in the desired time, a priori set by the user, regardless of the initial condition. Furthermore, such a class of controllers has been shown to maintain a prescribed-time convergence in the presence of disturbances even if the disturbance bound is unknown. However, such properties require a time-varying gain that becomes singular at the terminal time, which limits its application to scenarios under quantization or measurement noise. This chapter presents a methodology to design a broader class of controllers, called predefined-time controllers, with a prescribed convergence-time bound. Our approach allows designing robust predefined-time controllers based on time-varying gains while maintaining uniformly bounded time-varying gains. We analyze the condition for uniform Lyapunov stability under the proposed time-varying controllers.",
+          "claimed_abstract": "This paper is concerned with the numerical analysis of the explicit upwind finite volume scheme for numerically solving continuity equations. We are interested in the case where the advecting velocity field has spatial Sobolev regularity and initial data are merely integrable. We estimate the error between approximate solutions constructed by the upwind scheme and distributional solutions of the continuous problem in a Kantorovich-Rubinstein distance, which was recently used for stability estimates for the continuity equation by Seis [23]. Restricted to Cartesian meshes, our estimate shows that the rate of weak convergence is at least of order $1/2$ in the mesh size. The proof relies on a probabilistic interpretation of the upwind scheme Delarue and Lagoutière [9]. We complement the weak convergence result with an example that illustrates that for rough initial data no rates can be expected in strong norms. The same example suggests that the weak order $1/2$ rate is optimal.",
           "claimed_authors": [
-            "Rodrigo Aldana-López",
-            "Richard Seeber",
-            "Hernan Haimovich",
-            "David Gómez-Gutiérrez"
+            "André Schlichting",
+            "Christian Seis"
           ],
-          "claimed_title": "Designing controllers with predefined convergence-time bound using bounded time-varying gains",
+          "claimed_title": "Convergence rates for upwind schemes with rough coefficients",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.02473"
+          "claimed_year": 2016,
+          "primary_pointer": "1606.09156"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Designing controllers with predefined convergence-time bound using bounded time-varying gains')",
-        "failed_at": "2026-06-06T13:49:44Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Convergence rates for upwind schemes with rough coefficients')",
+        "failed_at": "2026-07-13T14:46:46Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "While social media make it easy to connect with and access information from anyone, they also facilitate basic influence and unfriending mechanisms that may lead to segregated and polarized clusters known as \"echo chambers.\" Here we study the conditions in which such echo chambers emerge by introducing a simple model of information sharing in online social networks with the two ingredients of influence and unfriending. Users can change both their opinions and social connections based on the information to which they are exposed through sharing. The model dynamics show that even with minimal amounts of influence and unfriending, the social network rapidly devolves into segregated, homogeneous communities. These predictions are consistent with empirical data from Twitter. Although our findings suggest that echo chambers are somewhat inevitable given the mechanisms at play in online social media, they also provide insights into possible mitigation strategies.",
+          "claimed_abstract": "In many real-world situations, different and often opposite opinions, innovations, or products are competing with one another for their social influence in a networked society. In this paper, we study competitive influence propagation in social networks under the competitive linear threshold (CLT) model, an extension to the classic linear threshold model. Under the CLT model, we focus on the problem that one entity tries to block the influence propagation of its competing entity as much as possible by strategically selecting a number of seed nodes that could initiate its own influence propagation. We call this problem the influence blocking maximization (IBM) problem. We prove that the objective function of IBM in the CLT model is submodular, and thus a greedy algorithm could achieve 1-1/e approximation ratio. However, the greedy algorithm requires Monte-Carlo simulations of competitive influence propagation, which makes the algorithm not efficient. We design an efficient algorithm CLDAG, which utilizes the properties of the CLT model, to address this issue. We conduct extensive simulations of CLDAG, the greedy algorithm, and other baseline algorithms on real-world and synthetic datasets. Our results show that CLDAG is able to provide best accuracy in par with the greedy algorithm and often better than other algorithms, while it is two orders of magnitude faster than the greedy algorithm.",
           "claimed_authors": [
-            "Kazutoshi Sasahara",
-            "Wen Chen",
-            "Hao Peng",
-            "Giovanni Luca Ciampaglia",
-            "Alessandro Flammini",
-            "Filippo Menczer"
+            "Xinran He",
+            "Guojie Song",
+            "Wei Chen",
+            "Qingye Jiang"
           ],
-          "claimed_title": "Social Influence and Unfollowing Accelerate the Emergence of Echo Chambers",
+          "claimed_title": "Influence Blocking Maximization in Social Networks under the Competitive Linear Threshold Model Technical Report",
           "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1905.03919"
+          "claimed_year": 2011,
+          "primary_pointer": "1110.4723"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Social Influence and Unfollowing Accelerate the Emergence of Echo Chambers')",
-        "failed_at": "2026-06-06T13:49:44Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Influence Blocking Maximization in Social Networks under the Competitive Linear Threshold Model Technical Report')",
+        "failed_at": "2026-07-13T14:46:46Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "A social network confers benefits and advantages on individuals (and on groups), the literature refers to these advantages as social capital. This paper presents a micro-founded mathematical model of the evolution of a social network and of the social capital of individuals within the network. The evolution of the network is influenced by the extent to which individuals are homophilic, structurally opportunistic, socially gregarious and by the distribution of types in the society. In the analysis, we identify different kinds of social capital: bonding capital, popularity capital, and bridging capital. Bonding capital is created by forming a circle of connections, homophily increases bonding capital because it makes this circle of connections more homogeneous. Popularity capital leads to preferential attachment: individuals who become popular tend to become more popular because others are more likely to link to them. Homophily creates asymmetries in the levels of popularity attained by different social groups, more gregarious types of agents are more likely to become popular. However, in homophilic societies, individuals who belong to less gregarious, less opportunistic, or major types are likely to be more central in the network and thus acquire a bridging capital.",
+          "claimed_abstract": "Influence maximization (IM), which selects a set of $k$ users (called seeds) to maximize the influence spread over a social network, is a fundamental problem in a wide range of applications such as viral marketing and network monitoring. Existing IM solutions fail to consider the highly dynamic nature of social influence, which results in either poor seed qualities or long processing time when the network evolves. To address this problem, we define a novel IM query named Stream Influence Maximization (SIM) on social streams. Technically, SIM adopts the sliding window model and maintains a set of $k$ seeds with the largest influence value over the most recent social actions. Next, we propose the Influential Checkpoints (IC) framework to facilitate continuous SIM query processing. The IC framework creates a checkpoint for each window slide and ensures an $\\varepsilon$-approximate solution. To improve its efficiency, we further devise a Sparse Influential Checkpoints (SIC) framework which selectively keeps $O(\\frac{\\log{N}}β)$ checkpoints for a sliding window of size $N$ and maintains an $\\frac{\\varepsilon(1-β)}{2}$-approximate solution. Experimental results on both real-world and synthetic datasets confirm the effectiveness and efficiency of our proposed frameworks against the state-of-the-art IM approaches.",
           "claimed_authors": [
-            "Ahmed M. Alaa",
-            "Kartik Ahuja",
-            "Mihaela van der Schaar"
+            "Yanhao Wang",
+            "Qi Fan",
+            "Yuchen Li",
+            "Kian-Lee Tan"
           ],
-          "claimed_title": "A Micro-foundation of Social Capital in Evolving Social Networks",
+          "claimed_title": "Real-Time Influence Maximization on Dynamic Social Streams",
           "claimed_venue": "arXiv",
-          "claimed_year": 2015,
-          "primary_pointer": "1511.02429"
+          "claimed_year": 2017,
+          "primary_pointer": "1702.01586"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='A Micro-foundation of Social Capital in Evolving Social Networks')",
-        "failed_at": "2026-06-06T13:49:45Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Real-Time Influence Maximization on Dynamic Social Streams')",
+        "failed_at": "2026-07-13T14:46:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Why is our society multicultural? Based on the two mechanisms of homophily and social influence, the classical model for the dissemination of cultures proposed by Axelrod predicts the existence of a fragmented regime where different cultures can coexist in a social network. However, in such model the multicultural regime is achievable only when a high number of cultural traits is present, and is not robust against cultural drift, i.e. the spontaneous mutations of agents' traits. In real systems, social influence is inherently organised in layers, meaning that individuals tend to diversify their connections according to the topic on which they interact. In this work we show that the observed persistence of multiculturality in real-world social systems is a natural consequence of the layered organisation of social influence. We find that the critical number of cultural traits that separates the monocultural and the multicultural regimes depends on the redundancy of pairwise connections across layers. Surprisingly, for low values of structural redundancy the system is always in a multicultural state, independently on the number of traits, and is robust to the presence of cultural drift. Moreover, we show that layered social influence allows the coexistence of different levels of consensus on different topics. The insight obtained from simulations on synthetic graphs are confirmed by the analysis of two real-world social networks, where the multicultural regime persists even for a very small number of cultural traits, suggesting that the layered organisation of social interactions might indeed be at the heart of multicultural societies.",
+          "claimed_authors": [
+            "Federico Battiston",
+            "Vincenzo Nicosia",
+            "Vito Latora",
+            "Maxi San Miguel"
+          ],
+          "claimed_title": "Layered social influence promotes multiculturality in the Axelrod model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1606.05641"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Bounded Confidence on Opinion Polarization Speed psychology', candidate_title='Layered social influence promotes multiculturality in the Axelrod model')",
+        "failed_at": "2026-07-13T14:46:46Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -281,7 +268,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-06T13:49:43Z"
+          "verified_at": "2026-07-13T14:46:42Z"
         }
       },
       {
@@ -300,13 +287,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2401.01346",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2772,
           "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-06T13:49:43Z"
+          "verified_at": "2026-07-13T14:46:42Z"
         }
       },
       {
@@ -331,51 +318,24 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-06T13:49:43Z"
+          "verified_at": "2026-07-13T14:46:44Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Guillaume Deffuant",
-            "Frederic Amblard",
-            "Gerard Weisbuch"
+            "P. Nyczka"
           ],
-          "title": "Modelling Group Opinion Shift to Extreme : the Smooth Bounded Confidence Model",
+          "title": "A Model of Opinion Dynamics with Bounded Confidence and Noise",
           "venue": "arXiv",
-          "year": 2004
+          "year": 2011
         },
-        "primary_pointer": "cond-mat/0410199",
-        "summary": "We consider the phenomenon of opinion shift to the extreme reported in the social psychology literature. We argue that a good candidate to model this phenomenon can be a new variant of the bounded confidence (BC) model, the smooth BC model which we propose in this paper. This model considers individuals with a continuous opinion and an uncertainty. Individuals interact by random pairs, and attract each other&#8217;s opinion proportionally to a Gaussian function of the distance between their opinions. We first show that this model presents a shift to the extreme when we introduce extremists (very convinced individuals with extreme opinions) in the population, even if there is the same number of extremists located at each extreme. This behaviour is similar to the one already identified with other versions of BC model. Then we propose a modification of the smooth BC model to account for the social psychology data and theories related to this phenomenon. The modification is based on the hypothesis of perspective taking (empathy) in the context of consensus seeking.",
+        "primary_pointer": "1106.0008",
+        "summary": "This paper introduces a new model of continuous opinion dynamics with random noise. The model belongs to the broad class of so called bounded confidence models. It differs from other popular bounded confidence models by the update rule, since it is intended to describe how the single person can influence at the same time a group of several listeners. Moreover, opinion noise is introduced to the model. Due to this noise, in some specific cases, spontaneous transitions between two states with a different number of large opinion clusters occur. Detailed analysis of these transitions is provided, with MC simulations and ME numerical integration analysis.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/cond-mat/0410199",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.6667,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-06T13:49:43Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Gerard Weisbuch"
-          ],
-          "title": "Bounded confidence and Social networks",
-          "venue": "arXiv",
-          "year": 2003
-        },
-        "primary_pointer": "cond-mat/0311279",
-        "summary": "In the so-called bounded confidence model proposed by Deffuant et al, agents can influence each other's opinion provided that opinions are already sufficiently close enough.\n  We here discuss the influence of possible social networks topologies on the dynamics of this model.",
-        "summary_grounded_pdf": null,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/cond-mat/0311279",
+          "final_url": "https://arxiv.org/abs/1106.0008",
           "http_status": 200,
           "pdf_sample_score": null,
           "query_relevance_score": 0.5,
@@ -383,31 +343,30 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-06T13:49:44Z"
+          "verified_at": "2026-07-13T14:46:45Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Michele Starnini",
-            "Fabian Baumann",
-            "Tobias Galla",
-            "David Garcia",
-            "Gerardo Iñiguez",
-            "Márton Karsai",
-            "Jan Lorenz",
-            "Katarzyna Sznajd-Weron"
+            "Duilio Balsamo",
+            "Valeria Gelardi",
+            "Chengyuan Han",
+            "Daniele Rama",
+            "Abhishek Samantray",
+            "Claudia Zucca",
+            "Michele Starnini"
           ],
-          "title": "Opinion dynamics: Statistical physics and beyond",
+          "title": "Inside the Echo Chamber: Disentangling network dynamics from polarization",
           "venue": "arXiv",
-          "year": 2025
+          "year": 2019
         },
-        "primary_pointer": "2507.11521",
-        "summary": "Opinion dynamics, the study of how individual beliefs and collective public opinion evolve, is a fertile domain for applying statistical physics to complex social phenomena. Like physical systems, societies exhibit macroscopic regularities from localized interactions, leading to outcomes such as consensus or fragmentation. This field has grown significantly, attracting interdisciplinary methods and driven by a surge in large-scale behavioral data. This review covers its rapid progress, bridging the literature dispersion. We begin with essential concepts and definitions, encompassing the nature of opinions, microscopic and macroscopic dynamics. This foundation leads to an overview of empirical research, from lab experiments to large-scale data analysis, which informs and validates models of opinion dynamics. We then present individual-based models, categorized by their macroscopic phenomena (e.g., consensus, polarization, echo chambers) and microscopic mechanisms (e.g., homophily, assimilation). Furthermore, the review covers common analytical and computational tools, including stochastic processes, treatments, simulations, and optimization. Finally, we explore emerging frontiers, such as connecting empirical data to models and using AI agents as testbeds for novel social phenomena. By systematizing terminology and emphasizing analogies with traditional physics, this review aims to consolidate knowledge, provide a robust theoretical foundation, and shape future research in opinion dynamics.",
+        "primary_pointer": "1906.09076",
+        "summary": "Echo chambers are defined by the simultaneous presence of opinion polarization with respect to a controversial topic and homophily, i.e. the preference of individuals to interact with like-minded peers. While recent efforts have been devoted to detecting the presence of echo chambers in polarized debates on online social media, the dynamics leading to the emergence of these phenomena remain unclear. Here, we contribute to this endeavor by proposing novel metrics to single out the effect of the network dynamics from the opinion polarization. By using a Twitter data set collected during a controversial political debate in Brazil in 2016, we employ a temporal network approach to gauge the strength of the echo chamber effect over time. We define a measure of opinion coherence in the network showing how the echo chamber becomes weaker across the observed period. The analysis of the hashtags diffusion in the network shows that this is due to the increase of social interactions between users with opposite opinions. Finally, the analysis of the mutual entropy between the opinions expressed and received by the users permits to quantify the social contagion effect. We find empirical evidence that the polarization of the users and the dynamics of their interactions may evolve independently. Our findings may be of interest to the broad array of researchers studying the dynamics of echo chambers and polarization in online social networks.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2507.11521",
+          "final_url": "https://arxiv.org/abs/1906.09076",
           "http_status": 200,
           "pdf_sample_score": null,
           "query_relevance_score": 0.3333,
@@ -415,36 +374,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-06T13:49:44Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Bohan Jiang",
-            "Mansooreh Karami",
-            "Lu Cheng",
-            "Tyler Black",
-            "Huan Liu"
-          ],
-          "title": "Mechanisms and Attributes of Echo Chambers in Social Media",
-          "venue": "arXiv",
-          "year": 2021
-        },
-        "primary_pointer": "2106.05401",
-        "summary": "Echo chambers may exclude social media users from being exposed to other opinions, therefore, can cause rampant negative effects. Among abundant evidence are the 2016 and 2020 US presidential elections conspiracy theories and polarization, as well as the COVID-19 disinfodemic. To help better detect echo chambers and mitigate its negative effects, this paper explores the mechanisms and attributes of echo chambers in social media. In particular, we first illustrate four primary mechanisms related to three main factors: human psychology, social networks, and automatic systems. We then depict common attributes of echo chambers with a focus on the diffusion of misinformation, spreading of conspiracy theory, creation of social trends, political polarization, and emotional contagion of users. We illustrate each mechanism and attribute in a multi-perspective of sociology, psychology, and social computing with recent case studies. Our analysis suggest an emerging need to detect echo chambers and mitigate their negative effects.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2106.05401",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-06T13:49:44Z"
+          "verified_at": "2026-07-13T14:46:45Z"
         }
       }
     ]

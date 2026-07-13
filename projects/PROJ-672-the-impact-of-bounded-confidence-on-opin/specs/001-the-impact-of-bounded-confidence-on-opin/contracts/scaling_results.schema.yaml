@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ScalingResult Schema"
+description: "Schema for the fitted power-law parameters"
+type: object
+properties:
+  topology_type:
+    type: string
+    enum: ["ER", "BA", "WS"]
+    description: "Topology type for this fit"
+  gamma:
+    type: number
+    description: "Scaling exponent"
+  epsilon_c:
+    type: number
+    description: "Critical threshold estimate"
+  r_squared:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Coefficient of determination"
+  standard_error:
+    type: number
+    description: "Standard error of the estimate"
+  sample_size:
+    type: integer
+    minimum: 1
+    description: "Number of data points used in the fit"
+required:
+  - topology_type
+  - gamma
+  - epsilon_c
+  - r_squared
+  - standard_error
+  - sample_size
+additionalProperties: false

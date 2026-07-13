@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionResult Schema"
+description: "Schema for the multiple linear regression coefficients"
+type: object
+properties:
+  metric_name:
+    type: string
+    description: "Name of the structural metric (e.g., 'assortativity')"
+  coefficient:
+    type: number
+    description: "Regression coefficient"
+  std_error:
+    type: number
+    description: "Standard error of the coefficient"
+  t_statistic:
+    type: number
+    description: "T-statistic"
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "P-value for significance"
+  model_r_squared:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "R-squared of the full model"
+required:
+  - metric_name
+  - coefficient
+  - std_error
+  - t_statistic
+  - p_value
+  - model_r_squared
+additionalProperties: false

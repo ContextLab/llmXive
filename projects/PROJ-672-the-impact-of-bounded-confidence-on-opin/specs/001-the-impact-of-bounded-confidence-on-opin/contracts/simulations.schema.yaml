@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationRun Schema"
+description: "Schema for the raw simulation output data"
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the simulation run"
+  network_id:
+    type: string
+    description: "Reference to the network instance used"
+  epsilon:
+    type: number
+    minimum: 0.05
+    maximum: 0.50
+    description: "Confidence threshold parameter"
+  seed:
+    type: integer
+    description: "Random seed for the simulation"
+  convergence_time:
+    type: integer
+    minimum: 1
+    description: "Number of iterations to converge"
+  final_clusters:
+    type: integer
+    minimum: 1
+    description: "Number of opinion clusters at convergence"
+  status:
+    type: string
+    enum: ["converged", "non_converged", "timeout"]
+    description: "Outcome of the simulation"
+  max_opinion_change:
+    type: number
+    description: "Maximum change in opinion at the final step"
+required:
+  - run_id
+  - network_id
+  - epsilon
+  - seed
+  - convergence_time
+  - final_clusters
+  - status
+  - max_opinion_change
+additionalProperties: false

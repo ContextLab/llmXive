@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NetworkInstance Schema"
+description: "Schema for the generated network metrics dataset"
+type: object
+properties:
+  network_id:
+    type: string
+    description: "Unique identifier for the network instance"
+  topology_type:
+    type: string
+    enum: ["ER", "BA", "WS"]
+    description: "Type of network topology"
+  node_count:
+    type: integer
+    const: 500
+    description: "Number of nodes in the network"
+  edge_count:
+    type: integer
+    minimum: 0
+    description: "Total number of edges"
+  assortativity:
+    type: number
+    description: "Pearson correlation of degrees"
+  average_path_length:
+    type: number
+    description: "Average shortest path length"
+  clustering_coefficient:
+    type: number
+    description: "Average clustering coefficient"
+  rewiring_probability:
+    type: ["number", "null"]
+    description: "Rewiring probability for WS networks"
+  seed:
+    type: integer
+    description: "Random seed used for generation"
+required:
+  - network_id
+  - topology_type
+  - node_count
+  - edge_count
+  - assortativity
+  - average_path_length
+  - clustering_coefficient
+  - seed
+additionalProperties: false

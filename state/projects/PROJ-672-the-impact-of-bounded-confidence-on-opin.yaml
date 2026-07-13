@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-06T13:40:17.345242Z'
-current_stage: flesh_out_in_progress
+current_stage: clarified
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-672-the-impact-of-bounded-confidence-on-opin
-last_run_id: b1785fd5-6d55-47a4-8c67-ad3f3f065790
+last_run_id: 5a453886-f30b-41e7-b860-727090bedafa
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/specs/001-the-impact-of-bounded-confidence-on-opin
 title: The Impact of Bounded Confidence on Opinion Polarization Speed
-updated_at: '2026-06-11T20:36:21.961943Z'
+updated_at: '2026-07-13T15:29:37.031253Z'
