@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ResearchClawBench Task Metadata"
+description: "Schema for the filtered task subset used in the experiment."
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the task."
+  failure_mode:
+    type: string
+    description: "The dominant failure mode detected (e.g., 'experimental protocol mismatch')."
+    enum:
+      - "experimental protocol mismatch"
+      - "retrieval failure"
+      - "reasoning error"
+      - "other"
+  domain:
+    type: string
+    description: "Scientific domain of the task."
+  template_id:
+    type: string
+    description: "ID of the curated template to inject (if scaffolded)."
+required:
+  - task_id
+  - failure_mode
+  - domain
+  - template_id

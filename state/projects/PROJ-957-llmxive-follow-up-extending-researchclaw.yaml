@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T16:51:29.511596Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-957-llmxive-follow-up-extending-researchclaw
-last_run_id: 9aebc9c9-2092-4c67-a621-2da115125418
+last_run_id: 18874de0-118e-4b81-b181-f81ff97a80f3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw
 title: 'llmXive follow-up: extending "ResearchClawBench: A Benchmark for End-to-End
   Autonomous Scientific Re"'
-updated_at: '2026-07-12T07:30:16.708559Z'
+updated_at: '2026-07-13T07:40:01.292564Z'

@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ResearchClawBench Scoring Rubric",
+  "description": "Defines the logic for scoring Protocol Alignment and Scientific Core. Includes validation for orthogonality and prompt bias.",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "protocol_alignment": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string", "const": "Protocol Alignment" },
+            "range": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
+            "description": { "type": "string" },
+            "scoring_logic": { "type": "string" }
+          },
+          "required": ["name", "range", "description", "scoring_logic"]
+        },
+        "scientific_core": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string", "const": "Scientific Core" },
+            "range": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
+            "description": { "type": "string" },
+            "scoring_logic": { "type": "string" },
+            "prompt_independence_check": {
+              "type": "string",
+              "description": "Logic to ensure score is not biased by scaffold text presence."
+            }
+          },
+          "required": ["name", "range", "description", "scoring_logic", "prompt_independence_check"]
+        }
+      },
+      "required": ["protocol_alignment", "scientific_core"]
+    },
+    "validation_tests": {
+      "type": "object",
+      "properties": {
+        "set_a_expected": { "type": "number" },
+        "set_b_expected": { "type": "number" },
+        "pilot_irr_margin": { "type": "number", "description": "Maximum acceptable IRR for TOST margin validity (default 5)." }
+      },
+      "required": ["set_a_expected", "set_b_expected", "pilot_irr_margin"]
+    }
+  },
+  "required": ["version", "metrics", "validation_tests"]
+}
+
+
+## projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/contracts/score_output.schema.yaml

@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Score Output Schema"
+description: "Schema for the aggregated scores CSV/JSON output."
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Link to the original task."
+  agent_id:
+    type: string
+    description: "Identifier for the agent used."
+  condition:
+    type: string
+    description: "Experimental condition."
+    enum:
+      - "zero_shot"
+      - "scaffolded"
+  protocol_alignment:
+    type: integer
+    description: "Score for protocol adherence."
+    minimum: 0
+    maximum: 50
+  scientific_core:
+    type: integer
+    description: "Score for scientific reasoning."
+    minimum: 0
+    maximum: 50
+  n_generations:
+    type: integer
+    description: "Number of generations averaged for this score."
+required:
+  - task_id
+  - agent_id
+  - condition
+  - protocol_alignment
+  - scientific_core
+  - n_generations
+
+
+## projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/contracts/task_metadata.schema.yaml

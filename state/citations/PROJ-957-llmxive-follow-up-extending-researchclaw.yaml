@@ -1,4 +1,4 @@
-- artifact_hash: e57c3c8b5eb1fe357d82b2d2ae31b639927535c25a9e6a1ff6a51fb022e378b6
+- artifact_hash: 2df8c3f06ed59876ce64de4d3f821ae5eb8e31ec56b9ce90868afe49ff23ba06
   artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/spec.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: '2606.07591'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-07-12T07:29:51.061425Z'
+  verified_at: '2026-07-13T06:46:53.661474Z'
