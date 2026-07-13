@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for the output of the training and evaluation phase."
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "RandomForest"
+      - "GradientBoosting"
+  hyperparameters:
+    type: object
+    description: "JSON object containing model hyperparameters"
+  metrics:
+    type: object
+    required:
+      - r2_score
+      - rmse_mv
+    properties:
+      r2_score:
+        type: number
+        description: "R-squared score on the test set"
+      rmse_mv:
+        type: number
+        description: "Root Mean Squared Error in millivolts"
+      baseline_r2:
+        type: number
+        description: "R-squared of the null model (mean prediction)"
+  feature_importance:
+    type: array
+    description: "List of features with importance scores and p-values"
+    items:
+      type: object
+      required:
+        - feature_name
+        - importance_score
+        - p_value
+      properties:
+        feature_name:
+          type: string
+        importance_score:
+          type: number
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+        is_significant:
+          type: boolean
+          description: "True if p_value < 0.05 after correction"
+  execution_info:
+    type: object
+    properties:
+      runtime_seconds:
+        type: number
+      random_seed:
+        type: integer
+      permutation_count:
+        type: integer
+        description: "Number of permutations used for significance testing (e.g., 2000)"
+        minimum: 1000
+required:
+  - model_type
+  - metrics
+  - feature_importance
+  - execution_info
+additionalProperties: false

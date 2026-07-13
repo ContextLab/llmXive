@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Corrosion Dataset Ingest Schema"
+description: "Schema for the merged dataset before splitting. Ensures composition and environment variables are present. Note: cluster_id is derived from hierarchical clustering of composition."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source:
+        type: string
+        description: "Source of the data (e.g., 'NIST', 'Mock')"
+      generated_at:
+        type: string
+        format: date-time
+      record_count:
+        type: integer
+        minimum: 0
+      cluster_count:
+        type: integer
+        minimum: 3
+        description: "Number of distinct clusters. Pipeline halts if < 3."
+  records:
+    type: array
+    items:
+      type: object
+      required:
+        - alloy_id
+        - cluster_id
+        - composition
+        - ph
+        - corrosion_potential_mv
+      properties:
+        alloy_id:
+          type: string
+          description: "Unique identifier for the alloy"
+        alloy_name:
+          type: string
+          description: "Human-readable name"
+        cluster_id:
+          type: string
+          description: "Cluster ID derived from compositional clustering (e.g., Cluster_0)"
+          pattern: "^Cluster_[0-9]+$"
+        composition:
+          type: object
+          description: "Elemental weight fractions. Keys are element symbols, values are floats."
+          additionalProperties:
+            type: number
+            minimum: 0
+            maximum: 1
+          minProperties: 1
+        ph:
+          type: number
+          description: "pH of the environment"
+        temperature_celsius:
+          type: number
+          description: "Temperature in Celsius"
+        electrolyte_type:
+          type: string
+          description: "Type of electrolyte"
+        corrosion_potential_mv:
+          type: number
+          description: "Corrosion potential in millivolts vs SHE"
+        is_outlier:
+          type: boolean
+          description: "True if pH is outside [0, 14]"
+      additionalProperties: false
+required:
+  - metadata
+  - records
+additionalProperties: false
