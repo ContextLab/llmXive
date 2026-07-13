@@ -1,0 +1,8 @@
+{
+  "status": "success",
+  "source_type": "huggingface",
+  "dataset_id": "citevqa",
+  "url": "https://huggingface.co/datasets/citevqa",
+  "details": "Dataset 'citevqa' found on Hugging Face Hub. Builder config: default",
+  "timestamp": "2.24.0"
+}

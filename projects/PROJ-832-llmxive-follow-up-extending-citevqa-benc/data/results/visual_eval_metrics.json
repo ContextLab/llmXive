@@ -1,0 +1,12 @@
+{
+  "vla": 0.0,
+  "saa": 0.0,
+  "mean_iou": 0.0,
+  "total_samples": 0,
+  "correct_localization_count": 0,
+  "attributed_correct_count": 0,
+  "vla_distribution": [],
+  "saa_distribution": [],
+  "iou_distribution": [],
+  "note": "Placeholder file. Run python code/visual_evaluator.py to populate with real results from visual_control experiment."
+}

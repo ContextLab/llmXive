@@ -1,0 +1,15 @@
+# This file extends the configuration in pyproject.toml for CLI usage if needed.
+# Primary configuration is in pyproject.toml under [tool.ruff].
+extend = "pyproject.toml"
+line-length = 88
+target-version = "py39"
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "data",
+    "figures"
+]

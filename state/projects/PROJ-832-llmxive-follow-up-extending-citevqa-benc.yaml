@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T02:19:04.909926Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-832-llmxive-follow-up-extending-citevqa-benc
-last_run_id: f27a5125-a19d-45bc-ad35-d8886be9dac5
+last_run_id: 145e6485-d085-4679-acef-2ff13a6fb5c3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-832-llmxive-follow-up-extending-citevqa-benc/specs/001-llmxive-follow-up-extending-citevqa-benc
 title: 'llmXive follow-up: extending "CiteVQA: Benchmarking Evidence Attribution for
   Trustworthy Document In"'
-updated_at: '2026-07-12T05:36:08.050926Z'
+updated_at: '2026-07-13T06:12:57.326263Z'

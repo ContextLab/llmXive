@@ -1,0 +1,302 @@
+resolved_at: '2026-07-13T05:36:49.783459+00:00'
+datasets:
+- intent: L6-v2
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lsb/simplewiki2023-all-minilm-l6-v2-embedding/resolve/main/data/train-00000-of-00002-3dabc2a2d6e3d70d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lsb/openwebtext-all-minilm-l6-v2-embedding/resolve/main/data/train-00000-of-00105-5fb99383dece10fd.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sukantan/nyaya-ae-all-MiniLM-L6-v2/resolve/main/data/train-00000-of-00001-279622e5c6f82ce9.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lsb/simplewiki2023-all-minilm-l6-v2-embedding/resolve/main/data/train-00000-of-00002-3dabc2a2d6e3d70d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lsb/openwebtext-all-minilm-l6-v2-embedding/resolve/main/data/train-00000-of-00105-5fb99383dece10fd.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sukantan/nyaya-ae-all-MiniLM-L6-v2/resolve/main/data/train-00000-of-00001-279622e5c6f82ce9.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sukantan/nyaya-ae-all-MiniLM-L6-v2-ftlegal-v1/resolve/main/data/train-00000-of-00001-fd3b864488085258.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sukantan/nyaya-ae-all-MiniLM-L6-v2-ftlegal-v2/resolve/main/data/train-00000-of-00001-262c9be20807eaa8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Navigating_spatial_barriers_in_healthcare_health_equity_and_end-of-life_care_infrastructure_in_South_Korea_and_China_docx/32972051
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Multi-omics_integration_of_gut_skin_axis_in_probiotic-treated_dermatological_conditions_xlsx/32972192
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_SIRT3_deficiency_aggravates_renal_injury_and_fibrosis_in_chronic_kidney_disease_and_is_associated_with_intestinal_barrier_dysfunction_and_gut_microbiota_dysbiosis_docx/32972198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_3_Multi-omics_integration_of_gut_skin_axis_in_probiotic-treated_dermatological_conditions_jpeg/32972135
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_SIRT3_deficiency_aggravates_renal_injury_and_fibrosis_in_chronic_kidney_disease_and_is_associated_with_intestinal_barrier_dysfunction_and_gut_microbiota_dysbiosis_xlsx/32972138
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10836010
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17237284
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1205150
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1202258
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20325026
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21321429
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21321429
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313019
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21313019
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21300351
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SAA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/reralle/saa-march/resolve/main/data/test-00000-of-00001-707ad7df5377b691.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/saattrupdan/doc-nli/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/saadob12/Autochart/resolve/main/test_autochart.csv
+    source: huggingface
+    format: tsv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/saattrupdan/doc-nli/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/saadob12/Autochart/resolve/main/test_autochart.csv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/saadob12/chart-to-text/resolve/main/test_c2t_big.csv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/Saauan/leetcode-performance/resolve/main/leetcode_dataset.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/reralle/saa-march/resolve/main/data/test-00000-of-00001-707ad7df5377b691.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_4_Influence_of_camera_geometry_on_3D_joint_angle_estimation_in_markerless_motion_capture_xlsx/32972270
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Influence_of_camera_geometry_on_3D_joint_angle_estimation_in_markerless_motion_capture_xlsx/32972261
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Influence_of_camera_geometry_on_3D_joint_angle_estimation_in_markerless_motion_capture_xlsx/32972264
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Influence_of_camera_geometry_on_3D_joint_angle_estimation_in_markerless_motion_capture_xlsx/32972267
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_4_Influence_of_camera_geometry_on_3D_joint_angle_estimation_in_markerless_motion_capture_tif/32972252
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15170704
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.174667c
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18045060
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1462615
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0006291X00924161
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/100844
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2512.18053
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/150187
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21320627
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21320627
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PDFs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nickua/ICLR-pdfs/resolve/main/data/test-00000-of-00001-23ceda2e660c5da1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nickua/ICLR-pdfs-linebreaks/resolve/main/data/test-00000-of-00001-e28a71dab29bdd6d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/kladar/public-pdfs/53d770350c39f6ef2fbf75056706f7207a0714d2/grid.json?%2Fdatasets%2Fkladar%2Fpublic-pdfs%2Fresolve%2Fmain%2Fgrid.json=&etag=%22ccc21b278df93ba4604cb9ee19fc10f590620ed6%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/nickua/ICLR-pdfs/resolve/main/data/test-00000-of-00001-23ceda2e660c5da1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nickua/ICLR-pdfs-linebreaks/resolve/main/data/test-00000-of-00001-e28a71dab29bdd6d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_4_Influence_of_camera_geometry_on_3D_joint_angle_estimation_in_markerless_motion_capture_xlsx/32972270
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Influence_of_camera_geometry_on_3D_joint_angle_estimation_in_markerless_motion_capture_docx/32972273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Influence_of_camera_geometry_on_3D_joint_angle_estimation_in_markerless_motion_capture_xlsx/32972261
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Influence_of_camera_geometry_on_3D_joint_angle_estimation_in_markerless_motion_capture_xlsx/32972264
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Influence_of_camera_geometry_on_3D_joint_angle_estimation_in_markerless_motion_capture_xlsx/32972267
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/556438
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21259435
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7045269
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18363561
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7265603
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/100905
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Humoral_Vector_Theory_HVT_A_Humoral_Medical_Framework_b_b_for_Voynich_Decipherment_with_A_Working_Key_Translations_b_b_Across_Multiple_Sections_b_/32492736/17
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Humoral_Vector_Theory_HVT_A_Humoral_Medical_Framework_b_b_for_Voynich_Decipherment_with_A_Working_Key_Translations_b_b_Across_Multiple_Sections_b_/32492736/18
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Humoral_Vector_Theory_HVT_A_Humoral_Medical_Framework_b_b_for_Voynich_Decipherment_with_A_Working_Key_Translations_b_b_Across_Multiple_Sections_b_/32492736
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21330680
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

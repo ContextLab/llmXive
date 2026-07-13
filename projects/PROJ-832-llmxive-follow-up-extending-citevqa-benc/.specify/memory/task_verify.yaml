@@ -1,0 +1,11 @@
+? T001a Create directory structure per implementation plan (`code/`, `tests/`, `data/`,
+  `data/raw/`, `data/processed/`, `data/results/`, `data/logs/`, `scripts/`)
+: 2
+T001b Create `code/__init__.py`, `tests/__init__.py`, `data/.gitkeep`, `scripts/.gitkeep`: 2
+? 'T002a Create `requirements.txt` with pinned versions: `torch-cpu`, `transformers`,
+  `sentence-transformers`, `pdfplumber`, `scikit-learn`, `pandas`, `pytest`, `memory-profiler`,
+  `numpy`, `matplotlib`'
+: 2
+T002b Set up Python virtual environment (`python -m venv venv`) and install requirements: 1
+'T002b Set up Python virtual environment (`python -m venv venv`) and install requirements <!-- FAILED: unspecified -->': 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 2

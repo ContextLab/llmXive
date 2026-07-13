@@ -1,0 +1,12 @@
+torch-cpu
+transformers
+sentence-transformers
+pdfplumber
+scikit-learn
+pandas
+pytest
+memory-profiler
+numpy
+matplotlib
+scipy
+memory-profiler

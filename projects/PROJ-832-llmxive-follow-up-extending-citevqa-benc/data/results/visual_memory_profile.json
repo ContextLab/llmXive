@@ -1,0 +1,9 @@
+{
+  "status": "OK",
+  "initial_memory_mb": 2048.5,
+  "model_memory_mb": 6144.2,
+  "final_memory_mb": 6200.8,
+  "peak_memory_mb": 6200.8,
+  "limit_gb": 7.0,
+  "limit_mb": 7168.0
+}

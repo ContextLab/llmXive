@@ -1,0 +1,22 @@
+[lint]
+select = ["E", "F", "W", "I", "N", "B", "C4", "UP", "SIM"]
+ignore = ["E501", "E731", "F401"]
+fixable = ["ALL"]
+unfixable = []
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"]
+"scripts/*" = ["T201"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-length = 88
+skip-magic-trailing-comma = false
+docstring-code-format = true
+docstring-code-line-length = 60
+
+[lint.isort]
+known-first-party = ["code"]
+force-single-line = false
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]

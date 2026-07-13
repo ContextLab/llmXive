@@ -1,0 +1,124 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Evaluation Result Schema
+description: Schema for the output of the SAA and VLA evaluation for a single query.
+type: object
+required:
+  - query_id
+  - model_type
+  - saa_score
+  - visual_localization_score
+  - iou_score
+  - semantic_similarity
+  - retrieved_context_contains_gt
+  - bootstrap_ci_lower
+  - bootstrap_ci_upper
+  - baseline_scalar
+  - is_significant
+properties:
+  query_id:
+    type: string
+    description: "Identifier for the query."
+  model_type:
+    type: string
+    description: "Type of model used (text-only or visual-only)."
+    enum:
+      - text-only
+      - visual-only
+  answer_correct:
+    type: boolean
+    description: "Whether the answer is correct (Exact Match or Sim >= 0.85 AND retrieved context contains GT)."
+  spatial_correct:
+    type: boolean
+    description: "Whether the bounding box IoU > 0.5."
+  iou_score:
+    type: number
+    description: "Intersection over Union score."
+    minimum: 0.0
+    maximum: 1.0
+  semantic_similarity:
+    type: number
+    description: "Cosine similarity between predicted and ground truth answer."
+    minimum: 0.0
+    maximum: 1.0
+  retrieved_context_contains_gt:
+    type: boolean
+    description: "Whether the ground truth answer was present in the retrieved top-k context."
+  saa_score:
+    type: integer
+    description: "Strict Attributed Accuracy (1 if both correct and retrieved, 0 otherwise)."
+    enum:
+      - 0
+      - 1
+  visual_localization_score:
+    type: integer
+    description: "Visual Localization Accuracy (1 if IoU > 0.5 for visual-only, 0 otherwise)."
+    enum:
+      - 0
+      - 1
+  error_type:
+    type: string
+    description: "Classification of the error."
+    enum:
+      - none
+      - wrong_answer
+      - wrong_box
+      - both
+      - retrieval_failure
+  predicted_chunk_id:
+    type: string
+    description: "The chunk ID predicted by the model."
+  ground_truth_chunk_id:
+    type: string
+    description: "The ground truth chunk ID."
+  predicted_bounding_box:
+    type: object
+    description: "The predicted bounding box (if applicable)."
+    required:
+      - x_min
+      - y_min
+      - x_max
+      - y_max
+    properties:
+      x_min:
+        type: number
+      y_min:
+        type: number
+      x_max:
+        type: number
+      y_max:
+        type: number
+  visual_only_predicted_box:
+    type: object
+    description: "The predicted bounding box for visual-only model."
+    required:
+      - x_min
+      - y_min
+      - x_max
+      - y_max
+    properties:
+      x_min:
+        type: number
+      y_min:
+        type: number
+      x_max:
+        type: number
+      y_max:
+        type: number
+  saa_mean:
+    type: number
+    description: "Mean SAA score for the dataset."
+  vla_mean:
+    type: number
+    description: "Mean VLA score for the dataset."
+  bootstrap_ci_lower:
+    type: number
+    description: "Lower bound of the 95% Bootstrap CI for SAA mean."
+  bootstrap_ci_upper:
+    type: number
+    description: "Upper bound of the 95% Bootstrap CI for SAA mean."
+  baseline_scalar:
+    type: number
+    description: "Baseline SAA scalar from the CiteVQA paper."
+  is_significant:
+    type: boolean
+    description: "True if the baseline scalar is outside the 95% CI."

@@ -1,0 +1,22 @@
+{
+  "bootstrap_ci": {
+    "mean_saa": 0.0,
+    "ci_lower": 0.0,
+    "ci_upper": 0.0,
+    "confidence_level": 0.95,
+    "baseline": 0.0,
+    "baseline_in_ci": true,
+    "n_bootstrap": 10000,
+    "n_samples": 0,
+    "bootstrap_means_sample": []
+  },
+  "t_test": {
+    "error": "Insufficient samples for t-test (need >= 2).",
+    "t_statistic": null,
+    "p_value": null,
+    "significant": false
+  },
+  "analysis_timestamp": "2023-10-27T12:00:00Z",
+  "n_samples": 0,
+  "baseline_value": 0.0
+}

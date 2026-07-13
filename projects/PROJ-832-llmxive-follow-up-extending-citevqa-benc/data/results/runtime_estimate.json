@@ -1,0 +1,12 @@
+{
+  "pilot_runtime_seconds": 30.5,
+  "pilot_samples": 10,
+  "average_time_per_sample_seconds": 3.05,
+  "total_test_set_size": 1000,
+  "estimated_total_runtime_seconds": 3050.0,
+  "estimated_total_runtime_hours": 0.8472222222222222,
+  "limit_hours": 6.0,
+  "limit_seconds": 21600.0,
+  "fits_within_limit": true,
+  "sc_004_status": "PASS"
+}
