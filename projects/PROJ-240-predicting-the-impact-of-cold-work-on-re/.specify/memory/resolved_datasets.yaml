@@ -1,0 +1,190 @@
+resolved_at: '2026-07-13T19:33:51.079870+00:00'
+datasets:
+- intent: VIF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/dongguanting/VIF-RAG-QA-20K/resolve/main/VIF-RAG_sampled%20(20K).json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/66d42cebcf97d88019c1c54d/e794cd49b01e2c46b3321bf498b047ffc0aeffb59911b11c645521b4581f9d82?Expires=1783974769&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2ZDQyY2ViY2Y5N2Q4ODAxOWMxYzU0ZC9lNzk0Y2Q0OWIwMWUyYzQ2YjMzMjFiZjQ5OGIwNDdmZmMwYWVmZmI1OTkxMWIxMWM2NDU1MjFiNDU4MWY5ZDgyKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk3NDc2OX19fV19&Signature=MEUCICL~YOFhSf0NKBoky2XOFkzHiUsFHxy2LK8QPxiIpyoDAiEAqCsS4toGMoYdXKvpYiXt~YFHRJbb8iujGeKJOk48-bw_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27gpt4_single_multi_autoif_sharegpt_rag_mix.json%3B+filename%3D%22gpt4_single_multi_autoif_sharegpt_rag_mix.json%22%3B&response-content-type=application%2Fjson&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T193249Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c45a6640ae85ab2fcf2b0dc55f369cd146c924c63c0271c2c7910ce76bd47c21
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Hydrothermal_Vent_Signatures_in_Gravid_Antarctic_Krill/32978291
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Analysis_of_fibrosis_in_cultured_non-glaucomatous_and_glaucomatous_trabecular_meshwork_cells/32978297
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/TCGA_expression_data_after_cleaning_procedure/32978285
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Analytical_vectorial_light-field_engineering_with_fixed-meta-atom_interferometric_metasurfaces_-_7969468_pdf/32906591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/From_Matrix_Mechanics_to_Quantum_Circuits_Computational_Reproduction_of_Two_Spin-_1_2_Angular-Momentum_Coupling_Using_MATLAB_and_PennyLane/32978282
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20926278
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19154354
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20191456
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14837515
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19827885
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.vmcvdnd54
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/65013
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/106695
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Daily_COVID-19_Data_Socio-Economic_and_Governance_Indices_and_Statistical_Analysis_Results_for_54_African_Countries_14_February_12_June_2020_/32961629
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Daily_COVID-19_Data_Socio-Economic_and_Governance_Indices_and_Statistical_Analysis_Results_for_54_African_Countries_14_February_12_June_2020_/32961629/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NIST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__BigCodeLlama-92b/resolve/main/2024-02-02T12-17-18.661697/details_harness|arc:challenge|25_2024-02-02T12-17-18.661697.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-15b-v1/resolve/main/2024-02-09T14-57-48.901535/details_harness|arc:challenge|25_2024-02-09T14-57-48.901535.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/Hydrothermal_Vent_Signatures_in_Gravid_Antarctic_Krill/32978291
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Analysis_of_fibrosis_in_cultured_non-glaucomatous_and_glaucomatous_trabecular_meshwork_cells/32978297
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/TCGA_expression_data_after_cleaning_procedure/32978285
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Analytical_vectorial_light-field_engineering_with_fixed-meta-atom_interferometric_metasurfaces_-_7969468_pdf/32906591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/From_Matrix_Mechanics_to_Quantum_Circuits_Computational_Reproduction_of_Two_Spin-_1_2_Angular-Momentum_Coupling_Using_MATLAB_and_PennyLane/32978282
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189804
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6384789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7254581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3382347
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12807749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ulri.figshare.com/articles/report/Research_Data_on_Upholstered_Furniture_Fire_Barriers/32957003
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ulri.figshare.com/articles/report/Research_Data_on_Upholstered_Furniture_Fire_Barriers/32957003/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ulri.figshare.com/articles/report/Specifying_Upholstered_Furniture_Fire_Barriers/32956658/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ulri.figshare.com/articles/report/Specifying_Upholstered_Furniture_Fire_Barriers/32956658
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/pk56t/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

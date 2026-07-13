@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1407.4260",
+  "judged_at": "2026-07-13T19:21:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of cold work on recrystallization kinetics in aluminum alloys materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) because it investigates the fundamental mechanisms of recrystallization kinetics and compares modeling approaches for microstructure evolution, which are the core scientific components of the user's question, even though the specific material (steel vs. aluminum) and processing condition (hot rolling vs. cold work) differ. In a literature review, this work serves as a canonical reference for the theoretical frameworks and modeling techniques (e.g., cellu",
+  "relevant": true
+}

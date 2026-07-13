@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExperimentalRecordSchema"
+description: "Schema for validated experimental records of aluminum alloy recrystallization."
+type: "object"
+properties:
+  record_id:
+    type: "string"
+    description: "Unique identifier for the record."
+  cold_work_pct:
+    type: "number"
+    minimum: 0.0
+    maximum: 100.0
+    description: "Percentage of cold work deformation."
+  annealing_temp_c:
+    type: "number"
+    minimum: -273.15
+    description: "Annealing temperature in Celsius."
+  time_to_peak_min:
+    type: "number"
+    exclusiveMinimum: 0.0
+    description: "Time to peak softening in minutes."
+  composition:
+    type: "object"
+    properties:
+      mg_wt:
+        type: "number"
+        minimum: 0.0
+        description: "Weight percent of Magnesium."
+      si_wt:
+        type: "number"
+        minimum: 0.0
+        description: "Weight percent of Silicon."
+      cu_wt:
+        type: "number"
+        minimum: 0.0
+        description: "Weight percent of Copper."
+      mn_wt:
+        type: "number"
+        minimum: 0.0
+        description: "Weight percent of Manganese."
+    required:
+      - mg_wt
+      - si_wt
+      - cu_wt
+      - mn_wt
+    additionalProperties: false
+  validation_status:
+    type: "string"
+    enum:
+      - "Valid"
+      - "Invalid"
+      - "Warning"
+    description: "Status after validation."
+  source_type:
+    type: "string"
+    enum:
+      - "Real"
+      - "Synthetic"
+    description: "Origin of the data record."
+required:
+  - record_id
+  - cold_work_pct
+  - annealing_temp_c
+  - time_to_peak_min
+  - composition
+  - validation_status
+  - source_type
+additionalProperties: false

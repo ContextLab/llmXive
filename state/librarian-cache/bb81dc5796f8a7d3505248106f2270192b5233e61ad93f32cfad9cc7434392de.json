@@ -1,0 +1,600 @@
+{
+  "fetched_at": "2026-07-13T19:21:28Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum Alloys",
+      "target_n": 5
+    },
+    "duration_seconds": 72.379,
+    "ended_at": "2026-07-13T19:21:28Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "effect of cold rolling on recrystallization rate in aluminum"
+        ],
+        [
+          2,
+          "stored energy influence on recrystallization kinetics aluminum alloys"
+        ],
+        [
+          3,
+          "deformation temperature impact on nucleation and growth in aluminum"
+        ],
+        [
+          4,
+          "cold work fraction and recrystallization time-temperature-transformation"
+        ],
+        [
+          5,
+          "strain-induced recrystallization mechanisms in aluminum"
+        ],
+        [
+          6,
+          "relationship between dislocation density and recrystallization speed"
+        ],
+        [
+          7,
+          "annealing behavior of cold-worked aluminum alloys"
+        ],
+        [
+          8,
+          "recrystallization nucleation sites in deformed aluminum microstructures"
+        ],
+        [
+          9,
+          "kinetics of grain boundary migration after cold deformation"
+        ],
+        [
+          10,
+          "role of solute drag in recrystallization of cold-worked aluminum"
+        ],
+        [
+          11,
+          "predictive modeling of recrystallization in deformed aluminum"
+        ],
+        [
+          12,
+          "stored energy distribution and recrystallization rates"
+        ],
+        [
+          13,
+          "recovery and recrystallization competition in aluminum"
+        ],
+        [
+          14,
+          "effect of pre-deformation on Avrami exponent in aluminum"
+        ],
+        [
+          15,
+          "recrystallization texture evolution from cold work"
+        ],
+        [
+          16,
+          "deformation microstructure evolution and recrystallization onset"
+        ],
+        [
+          17,
+          "kinetic models for static recrystallization in aluminum"
+        ],
+        [
+          18,
+          "influence of initial grain size on cold work recrystallization"
+        ],
+        [
+          19,
+          "subgrain growth and recrystallization in cold-rolled aluminum"
+        ],
+        [
+          20,
+          "thermodynamic driving force for recrystallization in deformed aluminum"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum Alloys materials science": 0,
+        "effect of cold rolling on recrystallization rate in aluminum": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "deformation stored energy annealing nucleation",
+      "cold rolling severe plastic deformation aluminum",
+      "dislocation density grain boundary mobility",
+      "Avrami exponent recrystallization fraction evolution",
+      "Zener pinning solute drag precipitation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2305.08378"
+      ]
+    },
+    "per_query_hit_count": {
+      "Avrami exponent recrystallization fraction evolution": 3,
+      "Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum Alloys materials science": 3,
+      "Zener pinning solute drag precipitation": 3,
+      "cold rolling severe plastic deformation aluminum": 3,
+      "deformation stored energy annealing nucleation": 2,
+      "dislocation density grain boundary mobility": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "cond-mat/0409358",
+          "rationale": "The paper focuses on characterizing surface roughness via light scattering, which is a distinct physical construct from the internal microstructural evolution (recrystallization kinetics) and thermodynamic mechanisms the user is asking about. While both involve cold-worked aluminum, the paper does not measure the same mechanism, variables, or empirical outcomes required for a literature review on recrystallization kinetics, failing criteria (a) and (b).",
+          "title": "Light scattering from cold rolled aluminum surfaces"
+        },
+        {
+          "primary_pointer": "2206.14479",
+          "rationale": "The paper focuses on the mechanics of cold rolling in **polymeric films**, whereas the user's question specifically concerns **recrystallization kinetics in aluminum alloys** (a metallic system). While both involve \"cold work,\" the underlying physical mechanisms (elastic-plastic deformation in polymers vs. thermally activated recrystallization in metals) and the material domains are distinct, failing the \"off-domain entirely\" or \"distinct construct\" rejection criteria.",
+          "title": "Mechanics and Modeling of Cold Rolling of Polymeric Films at Large Strains -- A Rate-Independent Approach"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T19:20:16Z",
+    "term_input": {
+      "normalized": "predicting the impact of cold work on recrystallization kinetics in aluminum alloys materials science",
+      "raw": "Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum Alloys materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-07-13T19:20:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Proposed as blanket structural materials for fusion power reactors, reduced activation ferritic/martensitic (RAFM) steel undergoes volume expanding and contracting in a cyclic mode under service environment. Particularly, being subjected to significant fluxes of fusion neutrons RAFM steel suffers considerable local volume variations in the radiation damage involved regions. It is necessary to study the structure properties of the alloying elements in contraction and expansion states. In this paper we studied local substitution structures of thirteen alloying elements Al, Co, Cr, Cu, Mn, Mo, Nb, Ni, Si, Ta, Ti, V, and W in bcc Fe and calculated their substitutional energies in the volume variation range from -1.0% to 1.0%. From the structure relaxation results of the first five neighbor shells around the substitutional atom we find the relaxation in each neighbor shell keeps approximately uniform within the volume variation from -1.0% to 1.0% except those of Mn and the relaxation of the fifth neighbor shell is stronger than that of the third and forth, indicating that the lattice distortion due to the substitution atom is easier to spread in <111> direction than in other direction. The relaxation pattern and intensity are related to the size and electron structure of the substitutional atom. For some alloying elements, such as Mo, Nb, Ni, Ta, Ti and W, the substitutional energy decreases noticeably when the volume increases. Further analysis show that the substitutional energy comprises the energy variation originated from local structure relaxation and the chemical potential difference of the substitutional atom between its elemental crystalline state and the solid solution phase in bcc Fe. We think the approximately uniform relaxation of each neighbor shell around a substitutional atom give rise to a linear decrease in the substitutional energy with the increasing volume.",
+          "claimed_authors": [
+            "Wei Liu",
+            "Wei-Lu Wang",
+            "C. S. Liu",
+            "Q. F. Fang",
+            "Qun-Ying Huang",
+            "Yi-Can Wu",
+            "Key Laboratory of Materials Physics",
+            "Institute of Solid State Physics",
+            "Chinese Academy of Sciences",
+            "P. O. Box 1129",
+            "Hefei 230031",
+            "P. R. China",
+            "Institute of Plasma Physics",
+            "Chinese Academy of Sciences",
+            "Hefei 230031",
+            "P. R. China"
+          ],
+          "claimed_title": "Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1008.3001"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe')",
+        "failed_at": "2026-07-13T19:20:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-13T19:20:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-07-13T19:20:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We simulate the homogeneous nucleation of ice from supercooled liquid water at 220 K in the isobaric-isothermal ensemble using the MW monatomic water potential. Monte Carlo simulations using umbrella sampling are performed in order to determine the nucleation free energy barrier. We find the Gibbs energy profile to be relatively consistent with that predicted by classical nucleation theory; the free energy barrier to nucleation was determined to be ~18 kT and the critical nucleus comprised ~85 ice particles. Growth from the supercooled liquid gives clusters that are predominantly cubic, whilst starting with a pre-formed subcritical nucleus of cubic or hexagonal ice results in the growth of predominantly that phase of ice only.",
+          "claimed_authors": [
+            "Aleks Reinhardt",
+            "Jonathan P. K. Doye"
+          ],
+          "claimed_title": "Free energy landscapes for homogeneous nucleation of ice for a monatomic water model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1109.6837"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Free energy landscapes for homogeneous nucleation of ice for a monatomic water model')",
+        "failed_at": "2026-07-13T19:20:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present experimental light scattering measurements from aluminum surfaces obtained by cold rolling. We show that our results are consistent with a scale invariant description of the roughness of these surfaces. The roughness parameters that we obtain from the light scattering experiment are consistent with those obtained from Atomic Force Microscopy measurements.",
+          "claimed_authors": [
+            "Damien Vandembroucq",
+            "Annie Tarrats",
+            "Jean-Jacques Greffet",
+            "Stephane Roux",
+            "Franck Plouraboue"
+          ],
+          "claimed_title": "Light scattering from cold rolled aluminum surfaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "cond-mat/0409358"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Light scattering from cold rolled aluminum surfaces')",
+        "failed_at": "2026-07-13T19:20:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mixtures of Fe and Cu powders are cold-compacted and subsequently deformed with severe plastic deformation by high-pressure torsion, leading to bulk samples. The dilution of Fe in the Cu matrix is investigated with SQUID-magnetometry, whereas the magnetic properties change as a function of Fe-content from a frustrated regime to a thermal activated behaviour. The magnetic properties are correlated with the microstructure, investigated by synchrotron X-ray diffraction and atom probe tomography. Annealing of the as-deformed states leads to demixing and grain growth, with the coercivity as a function of annealing temperature obeying the random anisotropy model. The presented results show that high-pressure torsion is a technique capable to affect the microstructure even on atomic length scales.",
+          "claimed_authors": [
+            "Martin Stückler",
+            "Lukas Weissitsch",
+            "Stefan Wurster",
+            "Peter Felfer",
+            "Heinz Krenn",
+            "Reinhard Pippan",
+            "Andrea Bachmaier"
+          ],
+          "claimed_title": "Magnetic dilution by severe plastic deformation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.02932"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Magnetic dilution by severe plastic deformation')",
+        "failed_at": "2026-07-13T19:20:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a continuum model for the dynamics of low angle grain boundaries in two dimensions based on the motion of constituent dislocations of the grain boundaries. The continuum model consists of an equation for the motion of grain boundaries (i.e., motion of the constituent dislocations in the grain boundary normal direction) and equations for the dislocation structure evolution on the grain boundaries. This model is derived from the discrete dislocation dynamics model. The long-range elastic interaction between dislocations is included in the continuum model, which ensures that the dislocation structure on a grain boundary is consistent with the Frank's formula. These evolution of the grain boundary and its dislocation structure are able to describe both normal motion and tangential translation of the grain boundary and grain rotation due to both coupling and sliding. Since the continuum model is based upon dislocation structure, it naturally accounts for the grain boundary shape change during the motion and rotation of the grain boundary by motion and reaction of the constituent dislocations. Using the derived continuum grain boundary dynamics model, simulations are performed for the dynamics of circular and non-circular two dimensional grain boundaries, and the results are validated by discrete dislocation dynamics simulations.",
+          "claimed_authors": [
+            "Luchan Zhang",
+            "Yang Xiang"
+          ],
+          "claimed_title": "Motion of grain boundaries incorporating dislocation structure",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.01856"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Motion of grain boundaries incorporating dislocation structure')",
+        "failed_at": "2026-07-13T19:20:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a continuum model to compute the energy of low angle grain boundaries for any given degrees of freedom (arbitrary rotation axis, rotation angle and boundary plane orientation) based on a continuum dislocation structure. In our continuum model, we minimize the grain boundary energy associated with the dislocation structure subject to the constraint of Frank's formula for dislocations with all possible Burgers vectors. This constrained minimization problem is solved by the penalty method by which it is turned into an unconstrained minimization problem. The grain boundary dislocation structure is approximated by a network of straight dislocations that predicts the energy and dislocation densities of the grain boundaries. The grain boundary energy based on the calculated dislocation structure is able to incorporate its anisotropic nature. We use our continuum model to systematically study the energy of $<111>$ low angle grain boundaries in fcc Al with any boundary plane orientation and all six possible Burgers vectors. Comparisons with results of the atomistic simulations show that our continuum model is able to give excellent predictions of the energy and dislocation densities of low angle grain boundaries. We also study the energy of low angle grain boundaries in fcc Al with varying rotation axis while the rest degrees of freedom are fixed. With minor modifications, our model can also apply to dislocation structures and energy of heterogeneous interfaces.",
+          "claimed_authors": [
+            "Luchan Zhang",
+            "Yejun Gu",
+            "Yang Xiang"
+          ],
+          "claimed_title": "Energy of low angle grain boundaries based on continuum dislocation structure",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.04318"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Energy of low angle grain boundaries based on continuum dislocation structure')",
+        "failed_at": "2026-07-13T19:20:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the mechanisms of slip transfer at a grain boundary, in titanium, using Differential Aperture X-ray Laue Micro-diffraction (DAXM). This 3D characterization tool enables measurement of the full (9-component) Nye lattice curvature tensor and calculation of the density of geometrically necessary dislocations (GNDs). We observe dislocation pile-ups at a grain boundary, as the neighbor grain prohibits easy passage for dislocation transmission. This incompatibility results in local micro-plasticity within the slipping grain, near to where the slip planes intersect the grain boundary, and we observe bands of GNDs lying near the grain boundary. We observe that the distribution of GNDs can be significantly influenced by the formation of grain boundary ledges that serve as secondary dislocation sources. This observation highlights the non-continuum nature of polycrystal deformation and helps us understand the higher order complexity of grain boundary characteristics.",
+          "claimed_authors": [
+            "Yi Guo",
+            "David M. Collins",
+            "Edmund Tarleton",
+            "Felix Hofmann",
+            "Angus J. Wilkinson",
+            "T. Ben Britton"
+          ],
+          "claimed_title": "Dislocation density distribution at slip band-grain boundary intersections",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.00674"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Dislocation density distribution at slip band-grain boundary intersections')",
+        "failed_at": "2026-07-13T19:20:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although mutations drive the evolutionary process, the rates at which the mutations occur are themselves subject to evolutionary forces. Our purpose here is to understand the role of selection and random genetic drift in the evolution of mutation rates, and we address this question in asexual populations at mutation-selection equilibrium neglecting selective sweeps. Using a multitype branching process, we calculate the fixation probability of a rare nonmutator in a large asexual population of mutators, and find that a nonmutator is more likely to fix when the deleterious mutation rate of the mutator population is high. Compensatory mutations in the mutator population are found to decrease the fixation probability of a nonmutator when the selection coefficient is large. But, surprisingly, the fixation probability changes nonmonotonically with increasing compensatory mutation rate when the selection is mild. Using these results for the fixation probability and a drift-barrier argument, we find a novel relationship between the mutation rates and the population size. We also discuss the time to fix the nonmutator in an adapted population of asexual mutators, and compare our results with experiments.",
+          "claimed_authors": [
+            "Ananthu James",
+            "Kavita Jain"
+          ],
+          "claimed_title": "Fixation probability of rare nonmutator and evolution of mutation rates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.03632"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Fixation probability of rare nonmutator and evolution of mutation rates')",
+        "failed_at": "2026-07-13T19:20:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Kolmogorov-Johnson-Mehl-Avrami model for isothermal transformation kinetics is universal under specific assumptions. However, the experimental Avrami exponent deviates from the universal value. In this context, we study the effect of transient heterogeneous nucleation on the Avrami exponent for bulk materials and also for transformations leading to nanostructured materials. All transformations are assumed to be polymorphic. A discrete version of the KJMA model is modified for this purpose. Scaling relations for transformations under different conditions are reported.",
+          "claimed_authors": [
+            "I. Sinha",
+            "R. K. Mandal"
+          ],
+          "claimed_title": "Avrami exponent under transient and heterogeneous nucleation transformation conditions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1010.0049"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Avrami exponent under transient and heterogeneous nucleation transformation conditions')",
+        "failed_at": "2026-07-13T19:20:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the Prime Focus Spectrograph (PFS) Galaxy Evolution pillar of the 360-night PFS Subaru Strategic Program. This 130-night program will capitalize on the wide wavelength coverage and massive multiplexing capabilities of PFS to study the evolution of typical galaxies from cosmic dawn to the present. From Lyman alpha emitters at z~7 to probe reionization, drop-outs at z~3 to map the inter-galactic medium in absorption, and a continuum-selected sample at z~1.5, we will chart the physics of galaxy evolution within the evolving cosmic web. This article is dedicated to the memory of Olivier Le Fevre, who was an early advocate for the construction of PFS, and a key early member of the Galaxy Evolution Working Group.",
+          "claimed_authors": [
+            "Jenny Greene",
+            "Rachel Bezanson",
+            "Masami Ouchi",
+            "John Silverman",
+            "the PFS Galaxy Evolution Working Group"
+          ],
+          "claimed_title": "The Prime Focus Spectrograph Galaxy Evolution Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.14908"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='The Prime Focus Spectrograph Galaxy Evolution Survey')",
+        "failed_at": "2026-07-13T19:20:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A novel phase field model has been developed to study the effect of coherent precipitate on the Zener pinning of matrix grain boundaries. The model accounts for misfit strain between precipitate and matrix as well as the elastic inhomogeneity and anisotropy between them. The results show that increase in elastic misfit, elastic inhomogeneity, and elastic anisotropy increases the coarsening rate of the precipitates. Increased coarsening of precipitates in turn decreases the pinning of grain boundaries. Therefore, increase in misfit strain, elastic inhomogeneity and anisotropy negatively affect the Zener pinning through coherent precipitate. This study shows elastic anisotropy gives rise to the needle shape precipitate. It has also been shown that these needle shaped precipitates are not very effective in Zener pinning. This study provides an understanding into the effect of coherent precipitate on the Zener pinning of matrix grain boundaries.",
+          "claimed_authors": [
+            "Tamoghna Chakrabarti",
+            "Sukriti Manna"
+          ],
+          "claimed_title": "Zener Pinning through Coherent Precipitates: A Phase Field Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1805.03831"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Zener Pinning through Coherent Precipitates: A Phase Field Study')",
+        "failed_at": "2026-07-13T19:20:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We discuss the interband light tunneling in a two-dimensional periodic photonic structure, as was studied recently in experiments for optically-induced photonic lattices [H. Trompeter et al., Phys. Rev. Lett. \\textbf{96}, 053903 (2006)]. We identify the Zener tunneling regime at the crossing of two Bloch bands, which occurs in a generic case of the Bragg reflection when the Bloch index crosses the edge of the irreducible Brillouin zone. Similarly, the higher-order Zener tunneling involves four Bloch bands when the Bloch index passes through a high-symmetry point on the edge of the Brillouin zone. We derive simple analytical models that describe the tunneling effect, and calculate the corresponding tunneling probabilities.",
+          "claimed_authors": [
+            "V. S. Shchesnovich",
+            "S. B. Cavalcanti",
+            "J. M. Hickmann",
+            "Yu. S. Kivshar"
+          ],
+          "claimed_title": "Zener tunneling in two-dimensional photonic lattices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "cond-mat/0606251"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Zener tunneling in two-dimensional photonic lattices')",
+        "failed_at": "2026-07-13T19:20:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We compute the drag force on a mirror moving at relativistic velocity relative to blackbody radiation background.",
+          "claimed_authors": [
+            "N. R. Balasanyan",
+            "V. E. Mkrtchian"
+          ],
+          "claimed_title": "Blackbody radiation drag on a relativistically moving mirror",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0907.2311"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum All', candidate_title='Blackbody radiation drag on a relativistically moving mirror')",
+        "failed_at": "2026-07-13T19:20:51Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shivam Dangwal",
+            "Kaveh Edalati",
+            "Ruslan Z. Valiev",
+            "Terence G. Langdon"
+          ],
+          "title": "Breaks in the Hall-Petch Relationship after Severe Plastic Deformation of Magnesium, Aluminum, Copper, and Iron",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.11798",
+        "summary": "Strengthening by grain refinement via the Hall-Petch mechanism and softening by nanograin formation via the inverse Hall-Petch mechanism have been the subject of argument for decades, particularly for ultrafine-grained materials. In this study, the Hall-Petch relationship is examined for ultrafine-grained magnesium, aluminum, copper, and iron produced by severe plastic deformation in the literature. Magnesium, aluminum, copper, and their alloys follow the Hall-Petch relationship with a low slope, but an up-break appears when the grain sizes are reduced below 500-1000 nm. This extra strengthening, which is mainly due to the enhanced contribution of dislocations, is followed by a down-break for grain sizes smaller than 70-150 nm due to the diminution of the dislocation contribution and an enhancement of thermally-activated phenomena. For pure iron with a lower dislocation mobility, the Hall-Petch breaks are not evident, but the strength at the nanometer grain size range is lower than the expected Hall-Petch trend in the submicrometer range. The strength of nanograined iron can be increased to the expected trend by stabilizing grain boundaries via impurity atoms. Detailed analyses of the data confirm that grain refinement to the nanometer level is not necessarily a solution to achieve extra strengthening, but other strategies such as microstructural stabilization by segregation or precipitation are required.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.11798",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T19:20:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Adam Morawiec"
+          ],
+          "title": "On recrystallization nucleation in pure aluminum",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2305.08378",
+        "summary": "Static recrystallization is an important aspect of metal processing. The initial stage of recrystallization - nucleation of new grains - determines its later stages. The accepted mechanisms of recrystallization nucleation are based on the assumption that embryos with orientations of the nuclei preexist in the deformed matrix. However, this standard picture seems to be incomplete. There are indications that, in some cases, the deformed matrix has no orientations observed in recrystallized material. Therefore a mechanism of early stage recrystallization without preexisting embryos is considered. Since the recrystallization growth shows strong orientation selection, and the recrystallization front is believed to migrate through collective shuffling of atoms, it is postulated that the shuffling mechanism responsible for oriented growth of a recrystallizing grain extends to the very beginning of the grain's existence, i.e., that a new orientation can be created via rearrangement of atoms in a strained region. The postulate explains the formation of new orientations, and it has the potential to significantly change the understanding of the early phase of recrystallization.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2305.08378",
+          "http_status": 200,
+          "pdf_sample_score": 0.2,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T19:21:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jan Orend",
+            "Felix Hagemann",
+            "Frank Klose",
+            "Bengt Maas",
+            "Heinz Palkowski"
+          ],
+          "title": "A new unified approach for modeling hot rolling of steel Part 1: Comparison of models for recrystallization",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1407.4260",
+        "summary": "Models for the microstructure evolution during hot rolling are reviewed. The basic macroscopic phenomena related to recrystallization are summarized. Constitutive models based on semi empirical equations are compared to more sophisticated models based on cellular automata, vertex and Monte-Carlo-Potts methods. The applicability of each kind of model approach for online and offline process control in steel industry is discussed. While constitutive models are still state-of-the-art for online process control, mesoscale models with a spatial representation of the microstructure can provide better predictive capabilities at the cost of long computation times. To fill this gap a new approach based on modeling the interaction of an ensemble of multiple grains is outlined and first simulation results are presented. The proposed approach allows the unified modeling of dynamic, static and metadynamic recrystallization as well as grain growth.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1407.4260",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T19:21:05Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the impact of cold work on recrystallization kinetics in aluminum alloys materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

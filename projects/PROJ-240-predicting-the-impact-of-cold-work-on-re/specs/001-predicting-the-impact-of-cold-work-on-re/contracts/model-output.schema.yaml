@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutputSchema"
+description: "Schema for model training and validation outputs."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model used (e.g., RandomForest)."
+  hyperparameters:
+    type: "object"
+    description: "Hyperparameters used for training."
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        importance_score:
+          type: "number"
+        confidence_interval_95:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 2
+          maxItems: 2
+      required:
+        - feature_name
+        - importance_score
+        - confidence_interval_95
+  vif_scores:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Variance Inflation Factor for each main effect feature."
+  collinearity_notes:
+    type: "string"
+    description: "Notes on interaction terms and correlation checks."
+  performance_metrics:
+    type: "object"
+    properties:
+      r_squared:
+        type: "number"
+      mae:
+        type: "number"
+    required:
+      - r_squared
+      - mae
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        input_perturbation_pct:
+          type: "number"
+          description: "Percentage of noise added to input features (e.g., 1, 5, 10)."
+        mae_at_perturbation:
+          type: "number"
+        r_squared_at_perturbation:
+          type: "number"
+      required:
+        - input_perturbation_pct
+        - mae_at_perturbation
+        - r_squared_at_perturbation
+  data_source:
+    type: "string"
+    description: "Indicates if data was Real or Synthetic."
+required:
+  - model_type
+  - feature_importance
+  - vif_scores
+  - performance_metrics
+  - sensitivity_analysis
+  - data_source
+additionalProperties: false
