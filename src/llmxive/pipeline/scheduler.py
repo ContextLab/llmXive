@@ -440,10 +440,73 @@ def pick_for_worker(
         return None
     stage = slots[worker_index]
     depth = slots[:worker_index].count(stage)
-    in_stage = sorted(by_stage[stage], key=lambda p: (p.updated_at, p.id))
+    in_stage = _order_within_stage(stage, by_stage[stage], repo_root=repo_root)
     if depth >= len(in_stage):
         return None
     return in_stage[depth]
+
+
+#: Stages whose completion needs MANY sequential ticks (the implementer drains a
+#: batch of tasks per tick, and a project carries 30-70 tasks).
+_IMPLEMENT_STAGES: frozenset[Stage] = frozenset({
+    Stage.IN_PROGRESS, Stage.PAPER_IN_PROGRESS,
+})
+
+
+def _remaining_tasks(project: Project, *, repo_root: Path | None) -> int:
+    """Open (``[ ]``) + under-review (``[~]``) task count for an implement project.
+
+    Resolved through the SSoT ``feature_dir_for`` (honours the ``speckit_*_dir``
+    pointer) so a stale lower-numbered ``specs/*`` dir can never shadow the real one.
+    An unreadable/absent tasks.md sorts LAST (a large sentinel) rather than first —
+    "no tasks file" must not masquerade as "almost finished".
+    """
+    rr = Path(repo_root) if repo_root is not None else Path.cwd()
+    track = "paper" if project.current_stage == Stage.PAPER_IN_PROGRESS else "research"
+    try:
+        fdir = project_store.feature_dir_for(
+            rr / "projects" / project.id, track=track
+        )
+        if fdir is None:
+            return _NO_TASKS_SENTINEL
+        text = (fdir / "tasks.md").read_text(encoding="utf-8")
+    except OSError:
+        return _NO_TASKS_SENTINEL
+    return text.count("- [ ]") + text.count("- [~]")
+
+
+#: Sorts a project with no readable tasks.md to the BACK of its implement queue.
+_NO_TASKS_SENTINEL = 1 << 30
+
+
+def _order_within_stage(
+    stage: Stage, projects: list[Project], *, repo_root: Path | None
+) -> list[Project]:
+    """Order a stage's queue for the matrix workers.
+
+    Implement stages are served SHORTEST-REMAINING-FIRST: the project closest to
+    done goes first. Everywhere else, oldest-waiting first (staleness) — there is no
+    "remaining work" to be short of.
+
+    Why implement is different: draining a project takes SEVERAL ticks (~38 tasks at
+    ~10/tick). Ordering by staleness made that a strict ROUND-ROBIN — working on a
+    project refreshes its ``updated_at`` and sends it to the back of the queue, so
+    each project waited for all 434 others between touches. Every project crept
+    forward and NONE ever finished: classic processor-sharing starvation, and the
+    reason zero projects had EVER crossed research_complete. Serving the shortest
+    remaining queue first turns the same compute into COMPLETED projects (it is
+    optimal for mean completion time), and it cannot starve the long ones: a finished
+    project LEAVES the stage, so the queue steadily advances to them.
+
+    Staleness remains the tiebreak, so equal-remaining projects still go
+    oldest-first.
+    """
+    if stage in _IMPLEMENT_STAGES:
+        return sorted(
+            projects,
+            key=lambda p: (_remaining_tasks(p, repo_root=repo_root), p.updated_at, p.id),
+        )
+    return sorted(projects, key=lambda p: (p.updated_at, p.id))
 
 
 def _apportion_workers(
@@ -530,6 +593,22 @@ def _apportion_workers(
                 best_score, best = score, s
         if best is None:
             break  # every pile exhausted / capped
+        _take(best)
+    # The share cap exists to stop one stage crowding OUT the others — never to idle
+    # a worker. If slots remain because every stage is at its cap (e.g. in_progress is
+    # the only occupied stage), hand them out ignoring the cap, bounded only by pile
+    # size. Otherwise a 1-stage repo would leave a third of the matrix doing nothing.
+    while len(slots) < n_workers:
+        best = None
+        best_score = -1.0
+        for s in ranked_stages:
+            if counts[s] >= len(by_stage[s]):
+                continue  # a worker here would pick nothing
+            score = weights[s] / (counts[s] + 1)
+            if score > best_score:
+                best_score, best = score, s
+        if best is None:
+            break  # genuinely fewer projects than workers
         _take(best)
     return slots
 

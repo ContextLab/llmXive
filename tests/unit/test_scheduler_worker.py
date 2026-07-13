@@ -241,3 +241,54 @@ def test_sparse_transient_stage_is_always_drained(tmp_path: Path) -> None:
     picks = [scheduler.pick_for_worker(i, 6, repo_root=repo) for i in range(6)]
     ids = [p.id for p in picks if p is not None]
     assert len(ids) == len(set(ids)), f"workers double-picked: {ids}"
+
+
+# --- in_progress is served SHORTEST-REMAINING first (completions, not sharing) ---
+#
+# Within a stage, projects were ordered stalest-`updated_at`-first. But working on a
+# project REFRESHES its updated_at and sends it to the back — so in_progress became a
+# strict round-robin across all 435 projects. Draining a project takes several ticks
+# (~38 tasks at ~10/tick), so each one had to wait for the other 434 between touches
+# and NOTHING ever completed: processor-sharing starvation, and the reason 0 projects
+# had ever crossed research_complete. Implement stages now serve the project CLOSEST
+# to done first, which converts the same effort into finished projects. It cannot
+# starve the big ones: a completed project LEAVES the stage, so the queue advances.
+
+
+def _impl_project(repo: Path, pid: str, *, open_tasks: int, age_days: float) -> None:
+    _make(repo, pid, Stage.IN_PROGRESS, age_days=age_days)
+    d = repo / "projects" / pid / "specs" / "001-t"
+    d.mkdir(parents=True, exist_ok=True)
+    lines = ["# Tasks", ""]
+    lines += [f"- [X] T{i:03d} done work" for i in range(3)]
+    lines += [f"- [ ] T{100 + i:03d} remaining work" for i in range(open_tasks)]
+    (d / "tasks.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def test_in_progress_serves_the_closest_to_done_first(tmp_path: Path) -> None:
+    for sub in ("projects", "run-log", "locks"):
+        (tmp_path / "state" / sub).mkdir(parents=True, exist_ok=True)
+    # The near-done project is the FRESHEST (worked on most recently) — under the old
+    # stalest-first order it would be picked LAST, which is exactly the bug.
+    _impl_project(tmp_path, "PROJ-9001-almost", open_tasks=2, age_days=1)
+    _impl_project(tmp_path, "PROJ-9002-midway", open_tasks=20, age_days=10)
+    _impl_project(tmp_path, "PROJ-9003-barely", open_tasks=60, age_days=30)
+
+    p0 = scheduler.pick_for_worker(0, 1, repo_root=tmp_path)
+    assert p0 is not None and p0.id == "PROJ-9001-almost", p0
+
+    # Successive workers walk outward: fewest-remaining first, then the rest.
+    picks = [scheduler.pick_for_worker(i, 3, repo_root=tmp_path) for i in range(3)]
+    got = [p.id for p in picks if p is not None]
+    assert got == ["PROJ-9001-almost", "PROJ-9002-midway", "PROJ-9003-barely"], got
+
+
+def test_non_implement_stages_still_ordered_by_staleness(tmp_path: Path) -> None:
+    """The change is scoped to the implement stages — elsewhere oldest-waiting still
+    wins (there is no 'remaining work' to be short of)."""
+    for sub in ("projects", "run-log", "locks"):
+        (tmp_path / "state" / sub).mkdir(parents=True, exist_ok=True)
+    _make(tmp_path, "PROJ-9101-fresh", Stage.BRAINSTORMED, age_days=1)
+    _make(tmp_path, "PROJ-9102-stale", Stage.BRAINSTORMED, age_days=40)
+    p0 = scheduler.pick_for_worker(0, 1, repo_root=tmp_path)
+    assert p0 is not None and p0.id == "PROJ-9102-stale", p0
