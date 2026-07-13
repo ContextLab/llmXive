@@ -17,13 +17,30 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1
-    \'\'\'\n', 'human_solution': "    from math import floor, ceil\n\n    if value.count('.') == 1:\n        # remove trailing zeros\n        while (value[-1] == '0'):\n            value = value[:-1]\n\n    num = float(value)\n    if value[-2:] == '.5':\n        if num > 0:\n            res = ceil(num)\n        else:\n            res = floor(num)\n    elif len(value) > 0:\n        res = int(round(num))\n    else:\n        res = 0\n\n    return res\n\n", 'test_suite_path': 'data/benchmarks/processed/tests/humaneval_HumanEval/99.py', 'difficulty': 'medium', 'code_patterns': {'loops': 1, 'conditionals': 6, 'recursion': 0, 'list_comprehension': 0, 'lambda': 0}, 'dataset_source': 'humaneval'} not found in catalog.
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py", line 295, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py", line 286, in main
-    log_pipeline_summary(logger, results)
-TypeError: log_pipeline_summary() missing 3 required positional arguments: 'successful', 'failed', and 'duration_seconds'
+    - WARNING - Task ID {'task_id': 'HumanEval/0', 'prompt': 'from typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    """ Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    """\n', 'human_solution': '    for idx, elem in enumerate(numbers):\n        for idx2, elem2 in enumerate(numbers):\n            if idx != idx2:\n                distance = abs(elem - elem2)\n                if distance < threshold:\n                    return True\n\n    return False\n', 'test_suite_path': 'data/benchmarks/processed/tests/humaneval_HumanEval/0.py', 'difficulty': 'medium', 'code_patterns': {'loops': 2, 'conditionals': 2, 'recursion': 0, 'list_comprehension': 0, 'lambda': 0}, 'dataset_source': 'humaneval'} not found in catalog.
+2026-07-13 22:14:38,922 - ERROR - Generation failed for task HumanEval/0: stat: path should be string, bytes, os.PathLike or integer, not tuple
+Critical Error: [Errno 2] No such file or directory: 'data/coverage_reports/HumanEval/0.json'
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real, installable source was discovered AND verified by actually loading data from it:
+
+- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
+- **Verified**: this loads **164** real records with fields: task_id, prompt, canonical_solution, test, entry_point.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import datasets
+
+ds_dict = datasets.load_dataset('openai/openai_humaneval')
+total_records = sum(len(split) for split in ds_dict.values())
+print(f"RECORDS={total_records}")
+
+first_split = next(iter(ds_dict.values()))
+print("FIELDS=" + ",".join(first_split.column_names))
+```
+
+Write the loader to use this package/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a website endpoint.
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -33,18 +50,15 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_model_config` — defined in `code/config.py`; called 5 way(s):
+### `get_model_config` — defined in `code/config.py`; called 1 way(s):
 
-- code/config.py: # Called as get_model_config() -> return Config-like object for .fallback_model access
-- code/config.py: # Called as get_model_config(name) -> return ModelConfig
 - code/llm_generator.py: config = get_model_config(candidate_model)
-- code/main.py: # get_model_config() returns a Config object with .fallback_model
-- code/main.py: cfg = get_model_config()
 
 Make `get_model_config` in `code/config.py` accept ALL of the above.
 
-### `log_pipeline_summary` — defined in `code/logger_config.py`; called 1 way(s):
+### `log_pipeline_summary` — defined in `code/logger_config.py`; called 2 way(s):
 
+- code/logger_config.py: expected call signature: log_pipeline_summary(logger, results).
 - code/main.py: log_pipeline_summary(logger, results)
 
 Make `log_pipeline_summary` in `code/logger_config.py` accept ALL of the above.

@@ -42,7 +42,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/config.py` for seed management, API key loading (`LLM_API_KEY`), and model fallback logic (gpt-4 -> code-llama-7b -> bigcode/starcoderbase-3b)
+- [X] T004 Implement `code/config.py` for seed management, API key loading (`LLM_API_KEY`), and model fallback logic (gpt-4 -> code-llama-7b -> bigcode/starcoderbase-3b)
 - [X] T005 Implement `code/utils.py` with exponential backoff retry logic for API rate limits (a small number of retries, a moderate wait duration)
 - [X] T006a [P] Implement `code/dataset_loader.py` to ingest MBPP via `datasets.load_dataset("mbpp")` and save raw canonical files unchanged to `data/benchmarks/raw/mbpp/`
 - [X] T006b [P] Extend `code/dataset_loader.py` to ingest HumanEval via `datasets.load_dataset("google-research-datasets/human_eval")` and save raw canonical files unchanged to `data/benchmarks/raw/humaneval/`
@@ -53,7 +53,7 @@
 - [X] T010 [P] [US1] Contract test for dataset loading in `tests/unit/test_dataset_loader.py`
 - [X] T011 [P] [US1] Integration test for end-to-end generation and coverage on multiple tasks in `tests/integration/test_pipeline_us1.py`
 - [X] T012 [P] [US1] Implement `code/coverage_runner.py` to execute `pytest --cov` on generated files and parse output for `line_coverage` and `branch_coverage`. **Validation**: For HumanEval tasks (identified by `task_id` prefix 'HumanEval/' or `dataset_source`='humaneval' in catalog), explicitly validate and log `branch_coverage` as `N/A` before writing to `coverage_reports/{task_id}.json` to ensure artifact compliance at generation.
-- [ ] T013 [US1] Implement logic in `code/main.py` to orchestrate generation and coverage execution for a batch of tasks. **Deliverables**:
+- [X] T013 [US1] Implement logic in `code/main.py` to orchestrate generation and coverage execution for a batch of tasks. **Deliverables**:
  1. Add `argparse` arguments: `--dataset`, `--model`, `--batch-size`.
  2. Implement `try/except` blocks for `SyntaxError` and generic `Exception` during execution.
  3. On failure, write a JSON record to `coverage_reports/{task_id}.json` with schema: `{ "task_id": "...", "status": "failed", "error_message": "...", "timestamp": "..." }`.

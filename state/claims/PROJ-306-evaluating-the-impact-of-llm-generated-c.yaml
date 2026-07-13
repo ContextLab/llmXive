@@ -167,3 +167,22 @@
   source_type: external
   status: verified
   updated_at: '2026-07-13T21:05:22Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: HumanEval tasks have branch_coverage set to N/A
+  claim_id: c_44633b67
+  context: Task T012 specifies that for HumanEval tasks the system must log branch_coverage
+    as N/A to ensure artifact compliance.
+  evidence:
+    entailment_evidence: HumanEval tasks have branch coverage set to N/A
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/HumanEval_tasks_have_branch_coverage_set_to_N/A
+  kind: entity_fact
+  raw_text: For HumanEval tasks, branch_coverage is explicitly validated and logged
+    as N/A before writing to coverage_reports/{task_id}.json.
+  resolved_value: HumanEval tasks have branch_coverage set to N/A
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T22:36:57Z'

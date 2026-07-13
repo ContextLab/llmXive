@@ -1,221 +1,179 @@
-"""
-Configuration utilities for the project.
+from __future__ import annotations
 
-This module provides:
-  - Seed management (with optional environment override)
-  - API‑key retrieval for LLM services
-  - Model‑chain definition and fallback handling
-  - Helper to obtain either a full project ``Config`` object or a
-    ``ModelConfig`` for a specific model name.
-
-The implementation is deliberately tolerant:
-  * ``get_seed`` falls back to a constant if the environment variable is missing.
-  * ``set_seed`` seeds ``random`` and ``numpy`` (the most common
-    libraries used in the repo) and mirrors the behaviour of the original
-    stub.
-  * ``get_api_key`` reads the generic ``LLM_API_KEY`` variable; the individual
-    model resolvers still expose their own ``api_key_env`` attribute.
-  * ``get_model_config`` works both as ``get_model_config()`` → ``Config`` and
-    ``get_model_config(name)`` → ``ModelConfig`` irrespective of positional or
-    keyword usage.
-"""
-
+import hashlib
 import os
 import random
-import hashlib
 from dataclasses import dataclass, field
-from typing import Optional, List, Dict, Any
-from types import SimpleNamespace
+from typing import List, Optional
 
-# ``numpy`` is optional in the environment; we import lazily and ignore if unavailable.
-try:
-    import numpy as _np
-except Exception:  # pragma: no cover
-    _np = None
+# --------------------------------------------------------------------------- #
+# Seed management utilities
+# --------------------------------------------------------------------------- #
+def get_seed() -> int:
+    """
+    Return a deterministic integer seed derived from the environment.
 
+    Priority:
+    1. ``LLM_SEED`` environment variable (must be an integer string).
+    2. A hash of the current working directory – stable across runs on the same
+       repository location.
+    """
+    seed_env = os.getenv("LLM_SEED")
+    if seed_env and seed_env.isdigit():
+        return int(seed_env)
+    cwd = os.getcwd()
+    return int(hashlib.sha256(cwd.encode()).hexdigest(), 16) % (2**32)
+
+
+def set_seed(seed: Optional[int] = None) -> None:
+    """
+    Set seeds for ``random`` (and other libraries if added later) to ensure
+    reproducibility across the pipeline.
+    """
+    if seed is None:
+        seed = get_seed()
+    random.seed(seed)
+
+
+# --------------------------------------------------------------------------- #
+# API key handling
+# --------------------------------------------------------------------------- #
+def get_api_key() -> str:
+    """
+    Retrieve the LLM API key from the environment.
+
+    Raises
+    ------
+    EnvironmentError
+        If ``LLM_API_KEY`` is not defined.
+    """
+    key = os.getenv("LLM_API_KEY")
+    if not key:
+        raise EnvironmentError("LLM_API_KEY not set in environment")
+    return key
+
+
+# --------------------------------------------------------------------------- #
+# Model configuration structures
+# --------------------------------------------------------------------------- #
 @dataclass
 class ModelConfig:
     """
-    Configuration for a single LLM model.
-
-    Attributes
-    ----------
-    name: str
-        Human‑readable model identifier.
-    api_key_env: Optional[str]
-        Name of the environment variable that stores the API key for this model.
-    api_endpoint: Optional[str]
-        Base URL for the model’s inference endpoint (if applicable).
-    max_tokens: int
-        Upper bound on generated token count.
-    temperature: float
-        Sampling temperature.
-    quantization_bits: Optional[int]
-        Bit‑width for quantized inference (e.g., 4‑bit for CPU fallback).
-    device_map: str
-        Device placement hint for ``transformers``/``bitsandbytes``.
+    Container for model configuration used by the generation pipeline.
     """
     name: str
-    api_key_env: Optional[str] = None
-    api_endpoint: Optional[str] = None
-    max_tokens: int = 512
-    temperature: float = 0.7
-    quantization_bits: Optional[int] = None
-    device_map: str = "auto"
+    fallback_chain: List[str] = field(
+        default_factory=lambda: ["gpt-4", "code-llama-7b", "bigcode/starcoderbase-3b"]
+    )
+    api_key: Optional[str] = None
+    temperature: float = 0.0
+    max_new_tokens: int = 256
+
 
 @dataclass
 class Config:
     """
     Global configuration used throughout the pipeline.
+    """
+    seed: int = field(default_factory=get_seed)
+    api_key: str = field(default_factory=get_api_key)
+    model_config: ModelConfig = field(
+        default_factory=lambda: ModelConfig(name="gpt-4")
+    )
 
-    Attributes
-    ----------
-    seed: int
-        Random seed for reproducibility.
-    api_key: Optional[str]
-        Generic LLM API key (``LLM_API_KEY``). Individual models may use their own
-        keys, but this provides a convenient default.
-    model_chain: List[str]
-        Ordered list of model identifiers to try, from most capable to fallback.
-    fallback_model: str
-        The model name that will be used when all others are unavailable.
-    """
-    seed: int = 42
-    api_key: Optional[str] = None
-    model_chain: List[str] = field(default_factory=lambda: ["gpt-4", "code-llama-7b", "bigcode/starcoderbase-3b"])
-    fallback_model: str = "bigcode/starcoderbase-3b"
 
-# ----------------------------------------------------------------------
-# Seed management
-# ----------------------------------------------------------------------
-def get_seed() -> int:
-    """
-    Return the random seed to be used.
+# --------------------------------------------------------------------------- #
+# Helper functions for model availability & resolution
+# --------------------------------------------------------------------------- #
+_KNOWN_MODELS = {"gpt-4", "code-llama-7b", "bigcode/starcoderbase-3b"}
 
-    The function first checks the ``SEED`` environment variable; if it is
-    present and can be interpreted as an integer, that value is returned.
-    Otherwise the default seed ``42`` is used.
-    """
-    env_seed = os.getenv("SEED") or os.getenv("PYTHONHASHSEED")
-    if env_seed is not None:
-        try:
-            return int(env_seed)
-        except ValueError:
-            # Fall back silently – the caller will still get a deterministic seed.
-            pass
-    return 42
 
-def set_seed(seed: int) -> None:
+def _is_model_available(name: str) -> bool:
     """
-    Apply ``seed`` globally.
+    Determine whether a model is “available”.
 
-    - ``random`` seed
-    - ``numpy`` seed (if numpy is available)
-    - ``PYTHONHASHSEED`` environment variable (helps reproducibility for
-      hash‑based operations)
+    For the purposes of this repository we treat all known models as available.
+    In a real deployment this could query the HuggingFace hub, an OpenAI endpoint,
+    or look for locally‑installed binaries.
     """
-    random.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
-    if _np is not None:
-        _np.random.seed(seed)
+    return name in _KNOWN_MODELS
 
-# ----------------------------------------------------------------------
-# API‑key handling
-# ----------------------------------------------------------------------
-def get_api_key() -> Optional[str]:
-    """
-    Retrieve the generic LLM API key.
 
-    The environment variable ``LLM_API_KEY`` is the canonical location.
+def get_model_chain(candidate: str) -> List[str]:
     """
-    return os.getenv("LLM_API_KEY")
+    Return a fallback chain for *candidate*.
 
-# ----------------------------------------------------------------------
-# Model chain & resolution
-# ----------------------------------------------------------------------
-def get_model_chain() -> List[str]:
+    The default chain is ``["gpt-4", "code-llama-7b", "bigcode/starcoderbase-3b"]``.
+    If *candidate* is recognised, it is moved to the front while preserving the
+    order of the remaining models.
     """
-    Return the ordered list of model identifiers that the pipeline will try.
-    """
-    return ["gpt-4", "code-llama-7b", "bigcode/starcoderbase-3b"]
+    default_chain = ["gpt-4", "code-llama-7b", "bigcode/starcoderbase-3b"]
+    if candidate in default_chain:
+        chain = [candidate] + [m for m in default_chain if m != candidate]
+    else:
+        chain = default_chain
+    return chain
 
-def resolve_model(name: str) -> ModelConfig:
+
+def resolve_model(candidate: str) -> str:
     """
-    Convert a model identifier into a :class:`ModelConfig`.
+    Resolve *candidate* to the first *available* model in its fallback chain.
+
+    The function:
+    1. Builds the candidate's fallback chain via :func:`get_model_chain`.
+    2. Returns the first model in that chain for which ``_is_model_available`` is
+       ``True``.
+    3. If none are available (highly unlikely in this limited context), it raises
+       a ``RuntimeError``.
+    """
+    chain = get_model_chain(candidate)
+    for model_name in chain:
+        if _is_model_available(model_name):
+            return model_name
+    raise RuntimeError(
+        f"No available model found for candidate '{candidate}'. "
+        f"Tried chain: {chain}"
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Public API required by other modules
+# --------------------------------------------------------------------------- #
+def get_model_config(candidate_model: Optional[str] = None) -> ModelConfig:
+    """
+    Return a :class:`ModelConfig` for *candidate_model* respecting the fallback order.
 
     Parameters
     ----------
-    name: str
-        Identifier of the model (e.g. ``"gpt-4"``).
+    candidate_model : str | None
+        The explicitly requested model.  If ``None`` or empty, the default model
+        ``gpt-4`` (the first element of the default chain) is used.
 
     Returns
     -------
     ModelConfig
-        Fully populated configuration for the requested model.
+        An instance with ``name`` set to the resolved model and ``fallback_chain``
+        reflecting the full ordered list of candidates.
     """
-    if name == "gpt-4":
-        return ModelConfig(
-            name="gpt-4",
-            api_key_env="OPENAI_API_KEY",
-            api_endpoint="https://api.openai.com/v1/chat/completions",
-            max_tokens=1024,
-        )
-    elif name == "code-llama-7b":
-        return ModelConfig(
-            name="code-llama-7b",
-            api_key_env="HF_API_KEY",
-            quantization_bits=4,
-            device_map="cpu",
-        )
-    elif name == "bigcode/starcoderbase-3b":
-        return ModelConfig(
-            name="bigcode/starcoderbase-3b",
-            api_key_env="HF_API_KEY",
-            quantization_bits=4,
-            device_map="cpu",
-        )
-    # Generic fallback – useful for custom models
-    return ModelConfig(name=name, api_key_env="LLM_API_KEY")
+    if not candidate_model:
+        # No explicit request – use the default chain's first element.
+        resolved_name = "gpt-4"
+        fallback = ["gpt-4", "code-llama-7b", "bigcode/starcoderbase-3b"]
+    else:
+        candidate_model = candidate_model.strip()
+        resolved_name = resolve_model(candidate_model)
+        fallback = get_model_chain(candidate_model)
 
-# ----------------------------------------------------------------------
-# Public accessor – tolerant to all call signatures used in the repo
-# ----------------------------------------------------------------------
-def get_model_config(name: Optional[str] = None, **kwargs: Any) -> Any:
-    """
-    Retrieve configuration objects.
+    return ModelConfig(name=resolved_name, fallback_chain=fallback)
 
-    * ``get_model_config()`` → returns a :class:`Config` instance containing
-      the full model chain and the default fallback model.
-    * ``get_model_config('gpt-4')`` → returns a :class:`ModelConfig` for the
-      specified model.
-    * Keyword usage (e.g. ``get_model_config(name='gpt-4')``) is also supported.
 
-    The function accepts arbitrary ``**kwargs`` to stay forward‑compatible
-    with any future call sites that might pass additional parameters.
-    """
-    # Support both positional and keyword ``name`` arguments.
-    if name is None and "name" in kwargs:
-        name = kwargs.pop("name")
-
-    if name is None:
-        # No specific model requested – build the global Config.
-        chain = get_model_chain()
-        fallback = chain[-1] if chain else "bigcode/starcoderbase-3b"
-        cfg = Config(
-            seed=get_seed(),
-            api_key=get_api_key(),
-            model_chain=chain,
-            fallback_model=fallback,
-        )
-        return cfg
-
-    # A specific model name was supplied – return its ModelConfig.
-    return resolve_model(name)
-
-# ----------------------------------------------------------------------
-# Convenience: expose the current seed/value as module‑level constants
-# ----------------------------------------------------------------------
-# These are evaluated at import time; they reflect the environment at that
-# moment. Users can call ``set_seed`` later to change the behaviour.
-CURRENT_SEED = get_seed()
-set_seed(CURRENT_SEED)
+__all__ = [
+    "get_seed",
+    "set_seed",
+    "get_api_key",
+    "ModelConfig",
+    "Config",
+    "get_model_chain",
+    "resolve_model",
+    "get_model_config",
+]
