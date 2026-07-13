@@ -1,0 +1,58 @@
+Project Directory Tree for PROJ-837-llmxive-follow-up-extending-moebius-0-2b
+
+.
+├── code/
+│   ├── config.py
+│   ├── config_env.py
+│   ├── data/
+│   │   ├── loader.py
+│   │   ├── mask_generator.py
+│   │   └── annotator.py
+│   ├── models/
+│   │   ├── data_models.py
+│   │   ├── moebius_tiny.py
+│   │   ├── gating_head.py
+│   │   └── moebius_dynamic.py
+│   ├── training/
+│   │   ├── train_gating.py
+│   │   └── train_end_to_end.py
+│   ├── eval/
+│   │   ├── metrics.py
+│   │   ├── stats.py
+│   │   └── report.py
+│   └── utils/
+│       ├── seed.py
+│       ├── cpu_profiler.py
+│       └── logger.py
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   │   └── masked_images/
+│   ├── annotations/
+│   │   └── decoupled_scores.csv
+│   └── results/
+│       ├── validation_log.txt
+│       ├── proxy_validation.json
+│       ├── power_analysis.json
+│       ├── evaluation_report.json
+│       └── latency_raw.csv
+├── tests/
+│   ├── unit/
+│   │   ├── test_mask_generator.py
+│   │   ├── test_gating_head.py
+│   │   └── test_metrics.py
+│   └── integration/
+│       ├── test_data_independence.py
+│       ├── test_dynamic_rank.py
+│       └── test_stats_eval.py
+├── specs/
+│   └── 001-llmxive-moebius-dynamic/
+├── projects/
+│   └── PROJ-837-llmxive-follow-up-extending-moebius-0-2b/
+│       ├── plan.md
+│       └── structure.txt
+├── requirements.txt
+├── pyproject.toml
+└── README.md
+
+Note: This structure is created by T001.

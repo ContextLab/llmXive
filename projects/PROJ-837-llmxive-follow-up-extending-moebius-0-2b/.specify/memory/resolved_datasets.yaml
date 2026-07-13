@@ -1,0 +1,133 @@
+resolved_at: '2026-07-13T12:48:55.269593+00:00'
+datasets:
+- intent: Places2
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/wlamonica/places2-subset-highly-structured/resolve/main/train_256_subset.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/wlamonica/places2-subset-highly-structured/resolve/main/train_256_subset.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/dataset/_b_Associations_of_Sphingolipid_Profiles_in_Serum_Liver_and_Five_Adipose_Tissue_Depots_in_Holstein_Dairy_Cows_b_/32621439
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/thesis/Determinants_of_bank_risk_essays_on_ownership_transparency_and_liquidity_creation/31999659
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Haibei_MAGs/32974730
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Analisis_Sentimen_Berita_Cryptocurrency_Menggunakan_Large_Language_Models_untuk_Prediksi_Tren_Pasar_Studi_Pendekatan_Berbasis_Arsitektur_API/32974787
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Home_School_and_Community_Participation_of_Children_With_Unilateral_Cerebral_Palsy_and_Peers_With_Typical_Development/32974823
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7718780
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.ijitee.org/portfolio-item/D84310210421/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18304570
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/101433
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2601.15368
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18098133
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18098133
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2509.11638
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GPU-accelerated
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_Associations_of_Sphingolipid_Profiles_in_Serum_Liver_and_Five_Adipose_Tissue_Depots_in_Holstein_Dairy_Cows_b_/32621439
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sussex.figshare.com/articles/thesis/Determinants_of_bank_risk_essays_on_ownership_transparency_and_liquidity_creation/31999659
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Haibei_MAGs/32974730
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Analisis_Sentimen_Berita_Cryptocurrency_Menggunakan_Large_Language_Models_untuk_Prediksi_Tren_Pasar_Studi_Pendekatan_Berbasis_Arsitektur_API/32974787
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Home_School_and_Community_Participation_of_Children_With_Unilateral_Cerebral_Palsy_and_Peers_With_Typical_Development/32974823
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13937876
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17138571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7649179
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15863506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.ck2br
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21338499
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21338499
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21338359
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21338244
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21338191
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

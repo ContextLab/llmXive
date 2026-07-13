@@ -1,0 +1,14 @@
+? T001 Create project structure per `plan.md` and `projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/`
+  directory layout
+: 2
+? T002 Initialize a Python project with PyTorch (CPU-only), scikit-learn, pillow,
+  numpy, pandas, scipy, datasets, lpips, torchmetrics, torchvision dependencies in
+  `requirements.txt`
+: 2
+T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`: 1
+T004 Implement `code/config.py` with seeds, paths, hyperparameters, and mode flags (CI vs Research): 1
+T006 [P] Implement `code/utils/cpu_profiler.py` for CPU-specific timing utilities (`time.perf_counter`): 1
+T007 Create base data model classes (`MaskedRegion`, `InferenceResult`, `GatingState`) in `code/models/data_models.py`: 1
+T008 Configure error handling and logging infrastructure in `code/utils/logger.py`: 1
+T009 Setup environment configuration management for dataset paths and artifact hashes: 1
+T010 [P] [US1] Unit test for mask generation metrics (gradient variance, entropy) in `tests/unit/test_mask_generator.py`: 1

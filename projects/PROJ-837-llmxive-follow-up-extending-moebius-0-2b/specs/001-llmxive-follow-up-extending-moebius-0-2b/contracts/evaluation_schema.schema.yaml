@@ -1,0 +1,144 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Report Schema"
+description: "Schema for the final evaluation report containing latency and quality metrics."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    description: "Metadata about the evaluation run."
+    properties:
+      model_version:
+        type: "string"
+      dataset_subset:
+        type: "string"
+      cpu_cores:
+        type: "integer"
+        enum: [2]
+      timestamp:
+        type: "string"
+        format: "date-time"
+      mode:
+        type: "string"
+        enum: ["CI_Simulation", "Research_Human"]
+        description: "Indicates whether results are from CI simulation or human-grounded research."
+    required:
+      - model_version
+      - cpu_cores
+      - timestamp
+      - mode
+  latency:
+    type: "object"
+    description: "Latency metrics for dynamic and static models."
+    properties:
+      dynamic_low_complexity:
+        type: "object"
+        properties:
+          mean_ms:
+            type: "number"
+          std_ms:
+            type: "number"
+        required:
+          - mean_ms
+          - std_ms
+      static_baseline:
+        type: "object"
+        properties:
+          mean_ms:
+            type: "number"
+          std_ms:
+            type: "number"
+        required:
+          - mean_ms
+          - std_ms
+      reduction_percent:
+        type: "number"
+        description: "Percentage reduction in latency for low-complexity regions."
+    required:
+      - dynamic_low_complexity
+      - static_baseline
+      - reduction_percent
+  quality:
+    type: "object"
+    description: "Quality metrics (FID, LPIPS)."
+    properties:
+      fid:
+        type: "object"
+        properties:
+          dynamic:
+            type: "number"
+          static:
+            type: "number"
+          difference:
+            type: "number"
+        required:
+          - dynamic
+          - static
+          - difference
+      lpiPS:
+        type: "object"
+        properties:
+          dynamic:
+            type: "number"
+          static:
+            type: "number"
+          difference:
+            type: "number"
+        required:
+          - dynamic
+          - static
+          - difference
+    required:
+      - fid
+      - lpiPS
+  statistics:
+    type: "object"
+    description: "Statistical test results."
+    properties:
+      t_test_p_value:
+        type: "number"
+        description: "P-value from paired t-test on quality metrics."
+      correlation_proxy_human:
+        type: "number"
+        description: "Pearson correlation between synthetic metrics and ground truth."
+      spearman_rank_correlation:
+        type: "number"
+        description: "Spearman correlation between ground truth and effective model rank."
+      statistical_power:
+        type: "number"
+        description: "Calculated statistical power for the latency reduction claim."
+      permutation_test_p_value:
+        type: "number"
+        description: "P-value from permutation test on gating inputs."
+    required:
+      - t_test_p_value
+      - correlation_proxy_human
+      - spearman_rank_correlation
+      - statistical_power
+      - permutation_test_p_value
+  ablation:
+    type: "object"
+    description: "Ablation study results (Dynamic vs. Forced Low Rank)."
+    properties:
+      dynamic_vs_static_low_rank:
+        type: "object"
+        properties:
+          latency_diff:
+            type: "number"
+          quality_diff:
+            type: "number"
+        required:
+          - latency_diff
+          - quality_diff
+      prediction_overhead:
+        type: "number"
+        description: "Overhead of the gating mechanism."
+    required:
+      - dynamic_vs_static_low_rank
+      - prediction_overhead
+required:
+  - metadata
+  - latency
+  - quality
+  - statistics
+  - ablation
+additionalProperties: false

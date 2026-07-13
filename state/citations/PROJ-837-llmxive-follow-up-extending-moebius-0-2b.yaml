@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 7dbee4f8dc450817a5a69d77c00b2e80356ad545688d29f0ba7a405306b61367
+  artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/mit-places/Places365`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/mit-places/Places365
+  verified_at: '2026-07-13T12:57:03.659304Z'
+- artifact_hash: d66c4f8b8b70e2479f245ede266d787a895411901dbc96cd6a4a28abdb3bf5e9
+  artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: MS-DOS - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q47604
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q47604
+  verified_at: '2026-07-13T13:26:02.235959Z'

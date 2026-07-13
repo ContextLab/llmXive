@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MaskedRegion Schema"
+description: "Schema for the synthetic mask metrics and human annotations."
+type: "object"
+properties:
+  image_id:
+    type: "string"
+    description: "Unique identifier for the source image."
+  mask_id:
+    type: "string"
+    description: "Unique identifier for the specific mask."
+  gradient_variance:
+    type: "number"
+    description: "Calculated variance of gradients within the masked region."
+  texture_entropy:
+    type: "number"
+    description: "Calculated entropy of pixel intensities within the masked region."
+  mask_coverage_ratio:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Ratio of masked pixels to total pixels."
+  human_complexity_score:
+    type: "number"
+    minimum: 1.0
+    maximum: 5.0
+    description: "Average human-rated complexity score (Likert scale)."
+  krippendorff_alpha:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Inter-rater reliability metric (Krippendorff's alpha)."
+  mask_geometry:
+    type: "object"
+    description: "JSON object describing the mask shape."
+    properties:
+      type:
+        type: "string"
+        enum: ["rectangle", "polygon", "random"]
+      coordinates:
+        type: "array"
+        description: "Array of coordinate points or bounding box values."
+    required:
+      - type
+required:
+  - image_id
+  - mask_id
+  - gradient_variance
+  - texture_entropy
+  - mask_coverage_ratio
+  - human_complexity_score
+additionalProperties: false
