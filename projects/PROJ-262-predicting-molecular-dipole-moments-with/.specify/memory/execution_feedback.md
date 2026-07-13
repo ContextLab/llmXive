@@ -29,26 +29,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
                   ^^^^^^^^^^^^^^
 AttributeError: module 'numpy' has no attribute '__version__'
 - python code/training/train_gnn.py -> rc=1
-    ining/train_gnn.py", line 160, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py", line 141, in main
-    mae, rmse, _ = train_one_seed(
-                   ^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py", line 91, in train_one_seed
-    set_global_seed(seed)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py", line 35, in set_global_seed
-    np.random.seed(seed)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/numpy/__init__.py", line 43, in seed
-    random.seed(s)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/numpy/__init__.py", line 43, in seed
-    random.seed(s)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/numpy/__init__.py", line 43, in seed
-    random.seed(s)
-  [Previous line repeated 993 more times]
-RecursionError: maximum recursion depth exceeded
+    p as map
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/torch/utils/data/datapipes/iter/__init__.py", line 1, in <module>
+    from torch.utils.data.datapipes.iter.callable import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/torch/utils/data/datapipes/iter/callable.py", line 8, in <module>
+    from torch.utils.data._utils.collate import default_collate
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/torch/utils/data/_utils/__init__.py", line 53, in <module>
+    from . import collate, fetch, pin_memory, signal_handling, worker
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/torch/utils/data/_utils/collate.py", line 330, in <module>
+    default_collate_fn_map[np.ndarray] = collate_numpy_array_fn
+                           ^^^^^^^^^^
+AttributeError: module 'numpy' has no attribute 'ndarray'. Did you mean: 'array'?
 - python code/training/train_rf.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py", line 13, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py", line 12, in <module>
     import pandas as pd
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/__init__.py", line 22, in <module>
     from pandas.compat import (
