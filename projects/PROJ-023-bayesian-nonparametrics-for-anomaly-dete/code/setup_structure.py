@@ -1,66 +1,55 @@
 """
-Setup script to initialize the project directory structure.
-Creates all required directories as per the implementation plan.
+Project Structure Setup Script
+
+This script creates the required directory structure for the Bayesian Nonparametrics
+for Anomaly Detection project as specified in tasks.md.
 """
 import os
 from pathlib import Path
 
 def main():
     """Create the project directory structure."""
-    base_dir = Path(".")
-    
-    # Define all required directories
+    root = Path(__file__).parent.parent
+
+    # Define required directories relative to project root
     directories = [
         "code",
         "data",
-        "paper",
-        "contracts",
-        "tests",
         "data/raw",
         "data/processed",
         "data/results",
+        "paper",
         "paper/figures",
-        # Additional standard directories often needed
+        "contracts",
+        "tests",
+        "tests/contract",
+        "tests/integration",
         "code/lib",
         "code/scripts",
-        "code/tests",
-        "code/tests/contract",
-        "code/tests/integration",
-        "specs",
-        "docs",
     ]
-    
+
     created_count = 0
     for dir_path in directories:
-        full_path = base_dir / dir_path
+        full_path = root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
+            print(f"Created directory: {full_path.relative_to(root)}")
             created_count += 1
         else:
-            print(f"Directory already exists: {full_path}")
-    
-    print(f"\nProject structure initialization complete.")
-    print(f"Created {created_count} new directories.")
-    
-    # Verify the structure
-    print("\nVerifying directory structure...")
-    required_dirs = [
-        "code", "data", "paper", "contracts", "tests",
-        "data/raw", "data/processed", "data/results", "paper/figures"
-    ]
-    
-    missing = []
-    for d in required_dirs:
-        if not (base_dir / d).exists():
-            missing.append(d)
-    
-    if missing:
-        print(f"ERROR: Missing required directories: {missing}")
-        return 1
-    else:
-        print("All required directories verified.")
-        return 0
+            print(f"Directory exists: {full_path.relative_to(root)}")
+
+    print(f"\nSetup complete. Created {created_count} new directories.")
+
+    # Verify structure
+    print("\nVerifying directory structure:")
+    for dir_path in directories:
+        full_path = root / dir_path
+        if full_path.exists():
+            print(f"  ✓ {full_path.relative_to(root)}")
+        else:
+            print(f"  ✗ {full_path.relative_to(root)} (MISSING)")
+
+    return 0
 
 if __name__ == "__main__":
     exit(main())

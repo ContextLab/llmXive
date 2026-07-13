@@ -6,5 +6,4 @@ pandas
 numpy
 matplotlib
 seaborn
-pyyaml
 pytest

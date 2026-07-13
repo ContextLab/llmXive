@@ -31,7 +31,7 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/639716e4eb65a32e3457879f/24fe0797a6827178aa6f9a2718f509fc302d2b6e8fceae923c0de9536dce8dd6?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.csv%3B+filename%3D%22test.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&Expires=1783519652&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM5NzE2ZTRlYjY1YTMyZTM0NTc4NzlmLzI0ZmUwNzk3YTY4MjcxNzhhYTZmOWEyNzE4ZjUwOWZjMzAyZDJiNmU4ZmNlYWU5MjNjMGRlOTUzNmRjZThkZDZcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNTE5NjUyfX19XX0_&Signature=MEYCIQC6mI4a-huTyAunNAOiZ2e3M7RrveFJPJxM-z01ZyLegAIhAPpF0bJCqyg4wg5prbG26K44h3Y5x7JZtolk2rRxfDQj&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-08T13:07:31.600784Z'
-- artifact_hash: bf4566a1f9ff4a6f4aa5407d91b84f29d06deb3f7a86b6e8004c8a1ac0b74247
+- artifact_hash: 8dedd2f8b0e715c6fa44b6be83f94b0e565ea368d4f88a651635754428ae7569
   artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/data/PROVENANCE.md
   cite_id: c-001
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://www.timeseriesclassification.com/DownloadData/ECG5000.zip
   verification_status: verified
   verified_against_url: https://timeseriesclassification.com/404.php
-  verified_at: '2026-07-08T13:36:41.073665Z'
-- artifact_hash: bf4566a1f9ff4a6f4aa5407d91b84f29d06deb3f7a86b6e8004c8a1ac0b74247
+  verified_at: '2026-07-13T04:36:19.099721Z'
+- artifact_hash: 8dedd2f8b0e715c6fa44b6be83f94b0e565ea368d4f88a651635754428ae7569
   artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/data/PROVENANCE.md
   cite_id: c-002
   cited_authors: []
@@ -52,15 +52,15 @@
   value: https://www.timeseriesclassification.com/DownloadData/SMD.zip
   verification_status: verified
   verified_against_url: https://timeseriesclassification.com/404.php
-  verified_at: '2026-07-08T13:36:41.073665Z'
-- artifact_hash: bf4566a1f9ff4a6f4aa5407d91b84f29d06deb3f7a86b6e8004c8a1ac0b74247
+  verified_at: '2026-07-13T04:36:19.099721Z'
+- artifact_hash: 8dedd2f8b0e715c6fa44b6be83f94b0e565ea368d4f88a651635754428ae7569
   artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/data/PROVENANCE.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/numentaAnomalyBenchmark.csv
+  value: https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/numenta
   verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/numentaAnomalyBenchmark.csv
-  verified_at: '2026-07-08T13:36:41.073665Z'
+  verified_against_url: https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/numenta
+  verified_at: '2026-07-13T04:36:19.099721Z'

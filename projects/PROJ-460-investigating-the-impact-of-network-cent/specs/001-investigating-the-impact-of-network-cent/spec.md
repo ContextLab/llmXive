@@ -82,6 +82,7 @@ The system MUST train a logistic regression classifier on centrality features to
 - **FR-016**: System MUST apply L1-regularization (Lasso) with 10-fold cross-validation on centrality metrics to handle multicollinearity before classification, ensuring interpretability of feature weights (See US-2).
 - **FR-017**: System MUST check for the presence of dMRI data in the ABIDE dataset. If absent, the system MUST log a specific "dMRI_MISSING" flag and proceed with functional-only analysis, documenting this as a primary scope limitation (See US-2).
 - **FR-018**: System MUST output a `mediation_analysis_skipped.log` file containing a detailed rationale for skipping mediation analysis if dMRI data is missing (See US-2).
+- **FR-019**: System MUST calculate all statistical metrics (p-values, effect sizes, accuracy, AUC) directly from the processed dataset during execution; the system MUST NOT use simulated, hardcoded, or placeholder values for any research results (See US-2, US-3).
 
 ### Key Entities *(include if feature involves data)*
 

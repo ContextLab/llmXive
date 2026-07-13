@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `code/`, `data/`, `paper/`, `contracts/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `paper/figures/`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (CPU-only `pymc>=5.0.0,<6.0.0`, `numpyro>=1.3.0,<1.4.0`, `scikit-learn>=1.3.0,<1.4.0`, `pandas>=2.0.0,<2.1.0`, `scipy>=1.11.0,<1.12.0`, `matplotlib>=3.7.0,<3.8.0`, `seaborn>=0.12.0,<0.13.0`, `pyyaml>=6.0.0,<6.1.0`, `bootstrapped>=0.3.0,<0.4.0`)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan: `code/`, `data/`, `paper/`, `contracts/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `paper/figures/`
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (CPU-only `pymc>=5.0.0,<6.0.0`, `numpyro>=1.3.0,<1.4.0`, `scikit-learn>=1.3.0,<1.4.0`, `pandas>=2.0.0,<2.1.0`, `scipy>=1.11.0,<1.12.0`, `matplotlib>=3.7.0,<3.8.0`, `seaborn>=0.12.0,<0.13.0`, `pyyaml>=6.0.0,<6.1.0`, `bootstrapped>=0.3.0,<0.4.0`)
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -55,9 +55,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/lib/data_loader.py` to fetch real time series from UCR/UCI (e.g., NAB, UCR Archive) with version pinning and SHA-256 checksum verification; store metadata in `data/PROVENANCE.md`; include validation for missing values and extreme outliers
-- [ ] T005 [P] Create `contracts/dataset.schema.yaml`, `contracts/evaluation.schema.yaml`, and `contracts/prediction.schema.yaml` defining column types, units, and constraints
-- [ ] T006 Implement `code/lib/anomaly_injector.py` to inject synthetic anomalies (mean shift, variance spike, gradual drift) with configurable parameters via a YAML/JSON config file; ensure near-threshold values are supported; NO hardcoded parameter values; ensure no look-ahead bias
+- [X] T004 Implement `code/lib/data_loader.py` to fetch real time series from UCR/UCI (e.g., NAB, UCR Archive) with version pinning and SHA-256 checksum verification; store metadata in `data/PROVENANCE.md`; include validation for missing values and extreme outliers
+- [X] T005 [P] Create `contracts/dataset.schema.yaml`, `contracts/evaluation.schema.yaml`, and `contracts/prediction.schema.yaml` defining column types, units, and constraints
+- [X] T006 Implement `code/lib/anomaly_injector.py` to inject synthetic anomalies (mean shift, variance spike, gradual drift) with configurable parameters via a YAML/JSON config file; ensure near-threshold values are supported; NO hardcoded parameter values; ensure no look-ahead bias
 - [~] T007 Implement `code/lib/metrics.py` for Precision, Recall, F1, AUC-ROC, and Bootstrap Confidence Interval calculations; include Bonferroni correction logic
 - [~] T008 Implement `code/lib/utils.py` for normalization, missing-value handling (interpolation policy), and seed pinning for reproducibility
 - [~] T009 Create `data/VERSION.txt` and `paper/README.md` to document pipeline version and structure
@@ -129,11 +129,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026a [US3] Implement `code/scripts/evaluate.py` to calculate F1, AUC, and Bootstrap Confidence Intervals (per Plan.md Complexity Tracking); ensure dependencies on T015, T020, T021, T022, T023 are met; output `data/results/evaluation.json`
-- [ ] T026b [US3] Implement **Wilcoxon signed-rank test** (or paired t-test) in `code/scripts/evaluate.py` to compare Bayesian vs. Baseline F1-scores as mandated by FR-006 and SC-001; output p-value to `data/results/evaluation.json`
-- [ ] T026c [US3] Implement **Bonferroni correction** (or Benjamini-Hochberg) in `code/scripts/evaluate.py` for multiple hypothesis tests as mandated by FR-009; output adjusted p-values to `data/results/evaluation.json`
-- [ ] T026d [US3] Implement **fixed thresholding strategy** (e.g., % specificity) in `code/scripts/evaluate.py` and enforce it before correlation analysis as mandated by FR-012; output threshold parameters to `data/results/evaluation.json`
-- [ ] T027 [US3] Implement `code/scripts/sensitivity_analysis.py` to sweep decision thresholds (High specificity, F1-opt) and report false-positive/negative rates; output `data/results/sensitivity_analysis.json`
+- [~] T026a [US3] Implement `code/scripts/evaluate.py` to calculate F1, AUC, and Bootstrap Confidence Intervals (per Plan.md Complexity Tracking); ensure dependencies on T015, T020, T021, T022, T023 are met; output `data/results/evaluation.json`
+- [~] T026b [US3] Implement **Wilcoxon signed-rank test** (or paired t-test) in `code/scripts/evaluate.py` to compare Bayesian vs. Baseline F1-scores as mandated by FR-006 and SC-001; output p-value to `data/results/evaluation.json`
+- [~] T026c [US3] Implement **Bonferroni correction** (or Benjamini-Hochberg) in `code/scripts/evaluate.py` for multiple hypothesis tests as mandated by FR-009; output adjusted p-values to `data/results/evaluation.json`
+- [~] T026d [US3] Implement **fixed thresholding strategy** (e.g., % specificity) in `code/scripts/evaluate.py` and enforce it before correlation analysis as mandated by FR-012; output threshold parameters to `data/results/evaluation.json`
+- [~] T027 [US3] Implement `code/scripts/sensitivity_analysis.py` to sweep decision thresholds (High specificity, F1-opt) and report false-positive/negative rates; output `data/results/sensitivity_analysis.json`
 - [ ] T028 [US3] Implement `code/scripts/render_fig1.py` to plot time series with injected anomalies and detection scores; save `paper/figures/fig1_timeseries.png`
 - [ ] T029 [US3] Implement `code/scripts/render_fig2.py` to plot method comparison (F1 vs. shift magnitude) and correlation matrices; save `paper/figures/fig2_method_comparison.png`
 - [ ] T030 [US3] Create `paper/results.md` summarizing findings, p-values, and associational claims (avoiding causal language per FR-008)

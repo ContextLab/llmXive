@@ -1,0 +1,6 @@
+'T007a [P] Define `data_version.json` schema (fields: `source_url`, `checksum_sha256`, `timestamp`)': 1
+T007b [P] Implement logging infrastructure in `src/main.py` to write to `data_version.json`: 1
+T008 Implement error handling wrapper for API/FTP fetches (exponential backoff) in `src/data/utils.py`: 1
+T009 Setup `contracts/` directory with `dataset.schema.yaml` and `output.schema.yaml` based on plan requirements: 1
+T010 [P] [US1] Unit test for SMILES canonicalization and invalid SMILES exclusion in `tests/unit/test_data.py`: 1
+T011 [P] [US1] Unit test for merge logic on InChIKey (handling missing data/NaNs) in `tests/unit/test_data.py`: 1

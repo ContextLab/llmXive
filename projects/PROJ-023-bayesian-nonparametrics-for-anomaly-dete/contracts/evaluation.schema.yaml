@@ -1,141 +1,93 @@
-# Evaluation Schema for Bayesian Nonparametrics Anomaly Detection
-# Defines the structure for evaluation metrics, statistical tests, and results.
+# Evaluation Schema for Anomaly Detection Metrics
+# Defines the structure of evaluation results and statistical tests
 
-version: "1.0.0"
-description: "Schema for evaluation results and statistical significance outputs."
+$schema: http://json-schema.org/draft-07/schema#
+title: EvaluationResults
+description: Schema for evaluation metrics, confidence intervals, and statistical test results
 
-datasets:
-  evaluation_metrics:
-    file_pattern: "data/results/evaluation.json"
-    description: "Aggregated metrics (F1, AUC, Bootstrap CI) per method and dataset."
-    schema:
-      type: "object"
-      required:
-        - "method_name"
-        - "dataset_id"
-        - "metrics"
-        - "statistics"
-      properties:
-        method_name:
-          type: "string"
-          description: "Name of the method (e.g., 'Bayesian_GP', 'Shewhart')."
-        dataset_id:
-          type: "string"
-          description: "Source dataset identifier."
-        metrics:
-          type: "object"
-          required:
-            - "precision"
-            - "recall"
-            - "f1_score"
-            - "auc_roc"
-            - "brier_score"
-          properties:
-            precision:
-              type: "number"
-              minimum: 0.0
-              maximum: 1.0
-            recall:
-              type: "number"
-              minimum: 0.0
-              maximum: 1.0
-            f1_score:
-              type: "number"
-              minimum: 0.0
-              maximum: 1.0
-            auc_roc:
-              type: "number"
-              minimum: 0.0
-              maximum: 1.0
-            brier_score:
-              type: "number"
-              minimum: 0.0
-              maximum: 1.0
-        statistics:
-          type: "object"
-          required:
-            - "bootstrap_ci"
-            - "statistical_test"
-          properties:
-            bootstrap_ci:
-              type: "object"
-              required:
-                - "f1_lower"
-                - "f1_upper"
-                - "confidence_level"
-              properties:
-                f1_lower:
-                  type: "number"
-                f1_upper:
-                  type: "number"
-                confidence_level:
-                  type: "number"
-                  default: 0.95
-            statistical_test:
-              type: "object"
-              required:
-                - "test_name"
-                - "p_value"
-                - "adjusted_p_value"
-                - "significant"
-              properties:
-                test_name:
-                  type: "string"
-                  description: "Name of the test (e.g., 'Wilcoxon', 'Paired_T_Test')."
-                p_value:
-                  type: "number"
-                  minimum: 0.0
-                  maximum: 1.0
-                adjusted_p_value:
-                  type: "number"
-                  minimum: 0.0
-                  maximum: 1.0
-                  description: "P-value after Bonferroni or BH correction."
-                significant:
-                  type: "boolean"
-                  description: "True if adjusted p-value < alpha."
-                alpha:
-                  type: "number"
-                  default: 0.05
+metrics:
+  precision:
+    type: float
+    description: Precision score
+    constraints:
+      - range: [0.0, 1.0]
+    unit: ratio
 
-  sensitivity_analysis:
-    file_pattern: "data/results/sensitivity_analysis.json"
-    description: "Results from threshold sensitivity sweeps."
-    schema:
-      type: "object"
-      required:
-        - "method_name"
-        - "thresholds"
-      properties:
-        method_name:
-          type: "string"
-        thresholds:
-          type: "array"
-          items:
-            type: "object"
-            required:
-              - "threshold_value"
-              - "precision"
-              - "recall"
-              - "f1_score"
-              - "false_positive_rate"
-              - "false_negative_rate"
-            properties:
-              threshold_value:
-                type: "number"
-              precision:
-                type: "number"
-              recall:
-                type: "number"
-              f1_score:
-                type: "number"
-              false_positive_rate:
-                type: "number"
-              false_negative_rate:
-                type: "number"
+  recall:
+    type: float
+    description: Recall score
+    constraints:
+      - range: [0.0, 1.0]
+    unit: ratio
 
-constraints:
-  max_iterations_bootstrap: 1000
-  min_samples_bootstrap: 30
-  alpha_significance: 0.05
-  correction_method: "bonferroni"
+  f1_score:
+    type: float
+    description: F1 harmonic mean of precision and recall
+    constraints:
+      - range: [0.0, 1.0]
+    unit: ratio
+
+  auc_roc:
+    type: float
+    description: Area Under the Receiver Operating Characteristic Curve
+    constraints:
+      - range: [0.0, 1.0]
+    unit: ratio
+
+  brier_score:
+    type: float
+    description: Brier score for probability calibration
+    constraints:
+      - range: [0.0, 1.0]
+    unit: ratio
+
+confidence_intervals:
+  type: object
+  description: Bootstrap confidence intervals for metrics
+  properties:
+    metric_name:
+      type: string
+    lower_bound:
+      type: float
+    upper_bound:
+      type: float
+    confidence_level:
+      type: float
+      default: 0.95
+    bootstrap_samples:
+      type: integer
+      minimum: 1000
+
+statistical_tests:
+  type: object
+  description: Results of statistical significance tests
+  properties:
+    test_type:
+      type: string
+      enum: [wilcoxon_signed_rank, paired_t_test, bonferroni_corrected]
+    p_value:
+      type: float
+      minimum: 0.0
+      maximum: 1.0
+    adjusted_p_value:
+      type: float
+      minimum: 0.0
+      maximum: 1.0
+      description: P-value after Bonferroni or Benjamini-Hochberg correction
+    significant_at_alpha:
+      type: boolean
+      description: Whether the result is significant at alpha=0.05
+
+thresholds:
+  type: object
+  description: Decision thresholds used for evaluation
+  properties:
+    specificity_target:
+      type: float
+      description: Target specificity level
+    f1_optimal_threshold:
+      type: float
+      description: Threshold that maximizes F1 score
+    method:
+      type: string
+      enum: [fixed_sensitivity, f1_optimal, specificity_target]

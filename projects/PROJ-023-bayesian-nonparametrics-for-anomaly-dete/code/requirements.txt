@@ -1,24 +1,27 @@
-# Core inference libraries (CPU-only)
+# Python 3.11+ dependencies for Bayesian Nonparametrics Anomaly Detection
+# Pinned versions to ensure reproducibility and CPU-only compatibility
+
+# Bayesian Inference Libraries
 pymc>=5.0.0,<6.0.0
 numpyro>=1.3.0,<1.4.0
 
-# Data manipulation and scientific computing
+# Data Manipulation & Numerical Computing
+numpy>=1.24.0,<2.0.0
 pandas>=2.0.0,<2.1.0
 scipy>=1.11.0,<1.12.0
-numpy>=1.24.0,<1.25.0
 
-# Machine learning baselines
+# Machine Learning Baselines
 scikit-learn>=1.3.0,<1.4.0
 
 # Visualization
 matplotlib>=3.7.0,<3.8.0
 seaborn>=0.12.0,<0.13.0
 
-# Configuration and utilities
+# Configuration & Utilities
 pyyaml>=6.0.0,<6.1.0
 
-# Statistical analysis
+# Statistical Analysis
 bootstrapped>=0.3.0,<0.4.0
 
-# Optional: For data loading if needed (not strictly required by T002 but common)
-# requests>=2.31.0,<2.32.0
+# Note: PyMC and NumPyro are configured for CPU-only execution in scripts.
+# No GPU-specific CUDA dependencies are included.
