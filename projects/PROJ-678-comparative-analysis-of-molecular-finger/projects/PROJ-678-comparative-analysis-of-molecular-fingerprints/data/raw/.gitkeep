@@ -1,1 +1,2 @@
-# This directory stores raw, unmodified data downloaded from external sources.
+# This directory stores raw, unprocessed data downloaded from external sources.
+# Do not modify files here directly; use the download pipeline to fetch data.

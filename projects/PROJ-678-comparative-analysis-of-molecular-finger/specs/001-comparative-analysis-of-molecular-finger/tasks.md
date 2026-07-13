@@ -56,9 +56,9 @@
 - [ ] T001 Create project directory structure: `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/` with subdirs `data/raw/`, `data/processed/`, `code/`, `tests/`. Note: `specs/` is a sibling to `projects/`, not nested inside.
 - [ ] T002 Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md`
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml`
-- [ ] T004 [P] Create `data/raw/` and `data/processed/` directories with `.gitkeep`
+- [ ] T004 [P] Create `data/raw/` and `data/processed/` directories with `.gitkeep` <!-- FAILED: unspecified -->
 - [X] T005 [P] Implement `code/utils.py` with logging configuration, random seed initialization (seed=42), and environment variable loading
-- [~] T006 [P] Create `code/constants.py` with exact variable definitions: `SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]"` (str), `TANIMOTO_THRESHOLD = 0.85` (float), `MORGAN_RADIUS = 2` (int), `MORGAN_BITS = 2048` (int), `MACCS_BITS = 166` (int), `N_FOLDS = 5` (int). Ensure `code/filter.py` imports and applies this exact constant.
+- [ ] T006 [P] Create `code/constants.py` with exact variable definitions: `SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]"` (str), `TANIMOTO_THRESHOLD = 0.85` (float), `MORGAN_RADIUS = 2` (int), `MORGAN_BITS = 2048` (int), `MACCS_BITS = 166` (int), `N_FOLDS = 5` (int). Ensure `code/filter.py` imports and applies this exact constant.
 - [~] T007 Setup `tests/` directory structure (`unit/`, `integration/`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -107,9 +107,9 @@
 
 - [~] T017 [US2] Implement `code/fingerprints.py` to generate Morgan (radius=2, 2048 bits) and MACCS (166 bits) fingerprints for all compounds in filtered CSV; implement chunked processing (batch=500) if memory > 7GB
 - [~] T018 [US2] Implement `code/split.py` to execute Greedy Maximal Dissimilarity Split (Tanimoto < 0.85) for each of 5 folds: 1) Initialize test set with the compound furthest from the mean; 2) Iterate through remaining compounds, selecting the one with max min-distance to current test set; 3) Add to test set if distance > threshold; 4) Verify test set size >= 20; 5) Halt execution if split cannot achieve 20 samples with Tanimoto < 0.85.
-- [ ] T019 [US2] Implement `code/train.py` to train two Random Forest models (100 trees, max_depth=15) per fold (Morgan vs MACCS) using CPU-only constraints (no CUDA)
-- [ ] T020 [US2] Save model artifacts and split indices to `data/processed/models/` and `data/processed/splits/`
-- [ ] T021 [US2] Add error handling in `code/split.py` to halt execution, log "Insufficient Structural Diversity: Cannot achieve valid split," and output `data/processed/invalid_split_report.md` if the 20-sample threshold with Tanimoto < 0.85 cannot be met.
+- [~] T019 [US2] Implement `code/train.py` to train two Random Forest models (100 trees, max_depth=15) per fold (Morgan vs MACCS) using CPU-only constraints (no CUDA)
+- [~] T020 [US2] Save model artifacts and split indices to `data/processed/models/` and `data/processed/splits/`
+- [~] T021 [US2] Add error handling in `code/split.py` to halt execution, log "Insufficient Structural Diversity: Cannot achieve valid split," and output `data/processed/invalid_split_report.md` if the 20-sample threshold with Tanimoto < 0.85 cannot be met.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -123,15 +123,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T022 [P] [US3] Unit test in `tests/unit/test_stats.py::test_paired_ttest_cv_scores` to verify paired t-test logic on CV scores.
-- [ ] T023 [P] [US3] Unit test in `tests/unit/test_stats.py::test_bootstrap_confidence_interval` to verify bootstrap CI calculation.
+- [~] T022 [P] [US3] Unit test in `tests/unit/test_stats.py::test_paired_ttest_cv_scores` to verify paired t-test logic on CV scores.
+- [~] T023 [P] [US3] Unit test in `tests/unit/test_stats.py::test_bootstrap_confidence_interval` to verify bootstrap CI calculation.
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Implement `code/evaluate.py` to calculate ROC-AUC, Precision-Recall AUC, and Balanced Accuracy for all 5 folds
-- [ ] T025 [US3] Implement `code/evaluate.py` to perform a Paired t-test on the 5-fold CV scores for BOTH ROC-AUC and Precision-Recall AUC differences to determine statistical significance (p < 0.05).
-- [ ] T026 [US3] Implement `code/evaluate.py` to generate confidence intervals via bootstrap resampling of the performance difference for BOTH ROC-AUC and Precision-Recall AUC
-- [ ] T027 [US3] Implement `code/evaluate.py` to map Morgan fingerprint bits to phosphorus-centered substructures: 1) Identify phosphorus atom (atomic number characteristic of the element) in the molecule; 2) Use RDKit `GetBitInfo` to find bits within a defined radius of the phosphorus atom; 3) Sum the Gini importance for these specific bits; 4) Compare this sum to the total Gini importance.
+- [~] T024 [US3] Implement `code/evaluate.py` to calculate ROC-AUC, Precision-Recall AUC, and Balanced Accuracy for all 5 folds
+- [~] T025 [US3] Implement `code/evaluate.py` to perform a Paired t-test on the 5-fold CV scores for BOTH ROC-AUC and Precision-Recall AUC differences to determine statistical significance (p < 0.05). <!-- ATOMIZE: requested -->
+- [~] T026 [US3] Implement `code/evaluate.py` to generate confidence intervals via bootstrap resampling of the performance difference for BOTH ROC-AUC and Precision-Recall AUC
+- [~] T027 [US3] Implement `code/evaluate.py` to map Morgan fingerprint bits to phosphorus-centered substructures: 1) Identify phosphorus atom (atomic number characteristic of the element) in the molecule; 2) Use RDKit `GetBitInfo` to find bits within a defined radius of the phosphorus atom; 3) Sum the Gini importance for these specific bits; 4) Compare this sum to the total Gini importance.
 - [ ] T028 [US3] Implement `code/evaluate.py` to verify SC-003: explicitly check if the sum of Gini importance for Morgan bits (radius 2) exceeds the sum for MACCS keys by ≥ 15%; record result in report.
 - [ ] T029 [US3] Generate final report `data/processed/research_results.md` containing: (1) Metrics table (ROC-AUC, PR-AUC, Balanced Accuracy per fold), (2) Statistical Test Results (p-values for ROC-AUC and PR-AUC), (3) SC-003 Analysis (Gini sums and threshold verification)
 - [ ] T030 [US3] Add logic to handle "Low Sample Size" warning: if n < 50, skip t-test and report descriptive stats only in `data/processed/research_results.md`

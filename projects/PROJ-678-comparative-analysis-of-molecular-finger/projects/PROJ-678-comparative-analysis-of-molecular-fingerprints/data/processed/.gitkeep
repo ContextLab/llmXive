@@ -1,1 +1,2 @@
-# This directory stores processed, filtered, and derived data artifacts.
+# This directory stores processed data derived from raw datasets.
+# Intermediate and final analysis artifacts are saved here.

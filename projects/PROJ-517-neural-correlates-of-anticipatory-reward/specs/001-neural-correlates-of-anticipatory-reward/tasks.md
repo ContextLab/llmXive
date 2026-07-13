@@ -128,9 +128,9 @@
 - [~] T024a [US2] Implement `code/modeling.py` Robustness Check: Fit categorical GLM treating `reward_magnitude` as a factor (Plan Complexity Tracking)
 - [~] T024b [US2] Implement `code/modeling.py` Robustness Check: Perform Likelihood Ratio Test (LRT) comparing categorical vs linear model; if p < 0.05, flag non-linearity (Plan Complexity Tracking)
 - [~] T025 [US2] Implement `code/modeling.py` Cross-Validation: k-fold CV to evaluate predictive performance (FR-008); Calculate and report R2 and MSE on held-out data; also report coefficient stability (cv_score_mean, cv_score_std)
-- [ ] T026a [US2] Implement `code/modeling.py` Neuron Grouping: Detect, count, and group analyzed neurons from the input DataFrame; report `neuron_count`
-- [ ] T026b [US2] Implement `code/modeling.py` Multiple Comparisons: Apply Bonferroni correction if `neuron_count` > 1 (SC-005); Depends on T026a
-- [ ] T027 [US2] Implement `code/modeling.py` Reward Independence Check: Flag if reward is endogenous vs exogenous
+- [~] T026a [US2] Implement `code/modeling.py` Neuron Grouping: Detect, count, and group analyzed neurons from the input DataFrame; report `neuron_count`
+- [~] T026b [US2] Implement `code/modeling.py` Multiple Comparisons: Apply Bonferroni correction if `neuron_count` > 1 (SC-005); Depends on T026a
+- [~] T027 [US2] Implement `code/modeling.py` Reward Independence Check: Flag if reward is endogenous vs exogenous
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -144,12 +144,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Implement visual regression test `tests/visual/test_plots.py::test_plot_generation`: Generate plot from `data/processed/test_data.csv`; assert output `data/figures/result.png` exists; assert SSIM > 0.95 against reference image `tests/visual/ref/result.png`
+- [~] T028 [P] [US3] Implement visual regression test `tests/visual/test_plots.py::test_plot_generation`: Generate plot from `data/processed/test_data.csv`; assert output `data/figures/result.png` exists; assert SSIM > 0.95 against reference image `tests/visual/ref/result.png`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/visualization.py`: Generate scatter plot with `reward_magnitude` (x), `firing_rate` (y), regression line, and 95% CI (FR-005, SC-003)
-- [ ] T030 [US3] Implement `code/reporting.py`: Generate `summary_report.txt` with coefficient, p-value, MDES, CV scores, and data loss metrics (FR-006)
+- [~] T029 [US3] Implement `code/visualization.py`: Generate scatter plot with `reward_magnitude` (x), `firing_rate` (y), regression line, and 95% CI (FR-005, SC-003)
+- [~] T030 [US3] Implement `code/reporting.py`: Generate `summary_report.txt` with coefficient, p-value, MDES, CV scores, and data loss metrics (FR-006)
 - [ ] T031 [US3] Implement `code/reporting.py`: Selection Bias Impact Analysis (compare included vs excluded trials)
 
 **Checkpoint**: All user stories should now be independently functional

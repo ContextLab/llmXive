@@ -1,1 +1,2 @@
-# This directory contains unit and integration tests for the project.
+# This directory contains test suites for the research pipeline.
+# Unit and integration tests are organized in subdirectories.

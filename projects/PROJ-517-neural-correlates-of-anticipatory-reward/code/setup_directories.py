@@ -3,21 +3,23 @@ from pathlib import Path
 
 def main():
     """
-    Create all required project directories.
-    This script is idempotent and safe to run multiple times.
+    Creates the required project directories for the neural correlates project.
+    Specifically creates the spec directory for the first feature.
     """
-    project_root = Path(__file__).parent.parent
+    # Define the project root (assumed to be the directory containing this script's parent)
+    # We assume the script is run from the project root or the directory structure is relative to cwd
+    project_root = Path.cwd()
     
+    # Directories to create based on T001a, T001b, and T001c
     directories = [
-        # Phase 1: Setup
         "code",
         "tests",
         "data/raw",
         "data/processed",
         "data/figures",
-        "specs/001-neural-correlates-of-anticipatory-reward",
+        "specs/001-neural-correlates-of-anticipatory-reward"
     ]
-    
+
     created_count = 0
     for dir_path in directories:
         full_path = project_root / dir_path
@@ -27,9 +29,8 @@ def main():
             created_count += 1
         else:
             print(f"Directory already exists: {full_path}")
-    
-    print(f"\nTotal directories created in this run: {created_count}")
-    print(f"Total directories ensured: {len(directories)}")
+
+    print(f"Setup complete. {created_count} new directories created.")
     return 0
 
 if __name__ == "__main__":

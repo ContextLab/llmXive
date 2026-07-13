@@ -1,103 +1,98 @@
 """
-Evaluation script for model performance.
-Computes errors, performs statistical analysis, and generates reports.
+Evaluation script for the material stiffness prediction model.
+Loads predictions and ground truth, computes errors, and generates reports.
 """
 import json
 import numpy as np
 from pathlib import Path
+from typing import Dict, List, Tuple
 from code.evaluation.stats_utils import compute_one_way_anova, compute_degradation_rate
 
-def load_predictions(predictions_path: Path):
-    """Load model predictions."""
+def load_predictions(predictions_path: Path) -> Dict:
+    """Load model predictions from JSON file."""
     with open(predictions_path, 'r') as f:
         return json.load(f)
 
-def load_ground_truth(metadata_path: Path):
-    """Load ground truth stiffness values."""
-    with open(metadata_path, 'r') as f:
+def load_ground_truth(ground_truth_path: Path) -> Dict:
+    """Load ground truth data from JSON file."""
+    with open(ground_truth_path, 'r') as f:
         return json.load(f)
 
-def compute_errors(predictions, ground_truth) -> List[Dict]:
-    """Compute prediction errors."""
-    errors = []
-    for pred, truth in zip(predictions, ground_truth):
-        # Compute MAE for stiffness tensor
-        pred_tensor = np.array(pred['prediction'])
-        true_tensor = np.array(truth['stiffness_tensor'])
-        mae = np.mean(np.abs(pred_tensor - true_tensor))
+def compute_errors(predictions: Dict, ground_truth: Dict) -> Dict[str, np.ndarray]:
+    """
+    Compute prediction errors.
+    
+    Args:
+        predictions: Dictionary containing model predictions
+        ground_truth: Dictionary containing ground truth values
         
-        errors.append({
-            "seed": pred['seed'],
-            "density": pred['density'],
-            "mae": float(mae),
-            "prediction": pred['prediction'],
-            "ground_truth": truth['stiffness_tensor']
-        })
+    Returns:
+        Dictionary with error metrics
+    """
+    pred_values = np.array(predictions['predictions'])
+    truth_values = np.array(ground_truth['stiffness_values'])
+    
+    errors = {
+        'absolute_error': np.abs(pred_values - truth_values),
+        'squared_error': (pred_values - truth_values) ** 2,
+        'relative_error': np.abs((pred_values - truth_values) / truth_values)
+    }
+    
     return errors
 
-def generate_report(errors: List[Dict], output_path: Path):
-    """Generate analysis report."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def generate_report(errors: Dict, output_path: Path, metadata: Dict = None):
+    """
+    Generate evaluation report.
     
-    # Bin by density
-    density_bins = {}
-    for err in errors:
-        density = err['density']
-        if density < 0.2:
-            bin_name = "low"
-        elif density < 0.4:
-            bin_name = "medium"
-        else:
-            bin_name = "high"
-        
-        if bin_name not in density_bins:
-            density_bins[bin_name] = []
-        density_bins[bin_name].append(err['mae'])
+    Args:
+        errors: Dictionary of computed errors
+        output_path: Path to save the report
+        metadata: Optional metadata to include in the report
+    """
+    report_lines = [
+        "# Model Evaluation Report",
+        "",
+        "## Error Metrics",
+        f"- Mean Absolute Error (MAE): {np.mean(errors['absolute_error']):.6f}",
+        f"- Mean Squared Error (MSE): {np.mean(errors['squared_error']):.6f}",
+        f"- Mean Relative Error: {np.mean(errors['relative_error']):.6f}",
+        ""
+    ]
     
-    # ANOVA test
-    f_stat, p_val = compute_one_way_anova(density_bins)
+    if metadata:
+        report_lines.append("## Metadata")
+        for key, value in metadata.items():
+            report_lines.append(f"- {key}: {value}")
+        report_lines.append("")
     
-    # Degradation rate (for OOD analysis)
-    ood_densities = [e['density'] for e in errors if e['density'] > 0.4]
-    ood_errors = [e['mae'] for e in errors if e['density'] > 0.4]
-    degradation_rate = compute_degradation_rate(ood_densities, ood_errors) if ood_densities else 0.0
-    
-    # Write report
     with open(output_path, 'w') as f:
-        f.write("# Model Evaluation Report\n\n")
-        f.write("## Statistical Analysis\n")
-        f.write(f"One-way ANOVA: F={f_stat:.4f}, p-value={p_val:.4f}\n\n")
-        f.write("## Error by Density Bin\n")
-        for bin_name, mae_list in density_bins.items():
-            f.write(f"- {bin_name}: Mean MAE = {np.mean(mae_list):.4f}\n")
-        f.write(f"\n## Degradation Rate\n")
-        f.write(f"OOD Degradation Rate: {degradation_rate:.6f} MAE per % density\n")
+        f.write('\n'.join(report_lines))
 
 def main():
     """CLI entry point for evaluation."""
     import argparse
-    parser = argparse.ArgumentParser(description="Evaluate model performance")
-    parser.add_argument("--predictions", type=str, default="data/processed/predictions.json", help="Predictions file")
-    parser.add_argument("--metadata", type=str, default="data/raw/stiffness_metadata.json", help="Ground truth metadata")
-    parser.add_argument("--output", type=str, default="data/processed/analysis_report.md", help="Output report")
+    parser = argparse.ArgumentParser(description="Evaluate model predictions")
+    parser.add_argument("--predictions", type=str, required=True, help="Path to predictions JSON")
+    parser.add_argument("--ground_truth", type=str, required=True, help="Path to ground truth JSON")
+    parser.add_argument("--output", type=str, default="data/processed/evaluation_report.md", help="Output report path")
     args = parser.parse_args()
     
     predictions_path = Path(args.predictions)
-    metadata_path = Path(args.metadata)
+    ground_truth_path = Path(args.ground_truth)
     output_path = Path(args.output)
     
-    if not predictions_path.exists() or not metadata_path.exists():
-        print("Error: Predictions or metadata file not found. Run training first.")
-        return 1
-    
+    if not predictions_path.exists():
+        raise FileNotFoundError(f"Predictions file not found: {predictions_path}")
+    if not ground_truth_path.exists():
+        raise FileNotFoundError(f"Ground truth file not found: {ground_truth_path}")
+        
     predictions = load_predictions(predictions_path)
-    ground_truth = load_ground_truth(metadata_path)
+    ground_truth = load_ground_truth(ground_truth_path)
     
     errors = compute_errors(predictions, ground_truth)
     generate_report(errors, output_path)
     
-    print(f"Evaluation report saved to {output_path}")
-    return 0
+    print(f"Evaluation report generated: {output_path}")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

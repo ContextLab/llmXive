@@ -1,76 +1,99 @@
 """
-Script to verify and initialize linting/formatting configurations.
-This script ensures that ruff and black are installed and configurations
-are valid. It does not modify project files directly but validates the setup.
+Utility script to verify linting and formatting tool configurations.
+This script checks if ruff and black are installed and if their config files are valid.
 """
 import subprocess
 import sys
 import tomllib
 from pathlib import Path
 
-def check_command_available(cmd: str) -> bool:
+
+def check_command_available(command: str) -> bool:
     """Check if a command is available in the system PATH."""
     try:
-        subprocess.run([cmd, "--version"], capture_output=True, check=True)
+        subprocess.run(
+            [command, "--version"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
-def validate_config_files() -> bool:
-    """Validate that configuration files exist and are readable."""
-    root = Path(__file__).resolve().parent.parent.parent
-    ruff_config = root / ".ruff.toml"
-    black_config = root / ".black.toml"
 
-    if not ruff_config.exists():
-        print(f"Error: {ruff_config} not found.")
-        return False
-    
-    if not black_config.exists():
-        print(f"Error: {black_config} not found.")
-        return False
+def validate_config_files() -> dict:
+    """
+    Validate that configuration files for black and ruff exist and are parsable.
+    Returns a dictionary with validation results.
+    """
+    results = {
+        "black_config_valid": False,
+        "ruff_config_valid": False,
+        "errors": []
+    }
 
-    try:
-        with open(ruff_config, "rb") as f:
-            tomllib.load(f)
-        print("✓ .ruff.toml is valid TOML")
-    except Exception as e:
-        print(f"Error parsing .ruff.toml: {e}")
-        return False
+    project_root = Path(__file__).resolve().parent.parent.parent
+
+    # Check pyproject.toml for Black and Ruff configuration
+    pyproject_path = project_root / "pyproject.toml"
+    if not pyproject_path.exists():
+        results["errors"].append("pyproject.toml not found at project root")
+        return results
 
     try:
-        with open(black_config, "rb") as f:
-            tomllib.load(f)
-        print("✓ .black.toml is valid TOML")
-    except Exception as e:
-        print(f"Error parsing .black.toml: {e}")
-        return False
+        with open(pyproject_path, "rb") as f:
+            config = tomllib.load(f)
 
-    return True
+        # Validate Black config
+        if "tool" in config and "black" in config["tool"]:
+            results["black_config_valid"] = True
+        else:
+            results["errors"].append("Black configuration missing in pyproject.toml")
+
+        # Validate Ruff config
+        if "tool" in config and "ruff" in config["tool"]:
+            results["ruff_config_valid"] = True
+        else:
+            results["errors"].append("Ruff configuration missing in pyproject.toml")
+
+    except tomllib.TOMLDecodeError as e:
+        results["errors"].append(f"Failed to parse pyproject.toml: {e}")
+
+    return results
+
 
 def main():
-    """Main entry point for the linting setup verification."""
-    print("Checking linting and formatting tools...")
-    
-    # Check for ruff
-    if not check_command_available("ruff"):
-        print("Warning: 'ruff' not found. Install with: pip install ruff")
-        return 1
-    print("✓ ruff is installed")
+    """Main entry point for the setup verification script."""
+    print("Checking Linting and Formatting Tools Configuration...")
+    print("-" * 50)
 
-    # Check for black
-    if not check_command_available("black"):
-        print("Warning: 'black' not found. Install with: pip install black")
+    # Check tools availability
+    black_available = check_command_available("black")
+    ruff_available = check_command_available("ruff")
+
+    print(f"Black available: {black_available}")
+    print(f"Ruff available: {ruff_available}")
+
+    if not black_available or not ruff_available:
+        print("\nWARNING: Tools are not installed. Run: pip install -e '.[dev]'")
         return 1
-    print("✓ black is installed")
 
     # Validate configs
-    if not validate_config_files():
-        print("Error: Configuration validation failed.")
+    validation = validate_config_files()
+
+    if validation["errors"]:
+        print("\nConfiguration Errors:")
+        for error in validation["errors"]:
+            print(f"  - {error}")
         return 1
 
-    print("\nLinting and formatting setup is valid.")
+    print("\nAll configuration files are valid.")
+    print("To format code: black .")
+    print("To lint code: ruff check .")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

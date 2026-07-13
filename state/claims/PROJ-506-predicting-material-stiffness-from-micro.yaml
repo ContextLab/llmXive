@@ -1060,22 +1060,6 @@
   status: not_enough_info
   updated_at: '2026-07-10T17:48:40Z'
 - artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
-  attempts: 4
-  canonical: training completes within 6 hours on 2-core CPU
-  claim_id: c_1ffcbcfc
-  context: 'Independent Test: Verify training completes within 6 hours on 2-core CPU,
-    saves model artifact, and reports MSE/R2.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Training completes within 6 hours on 2-core CPU
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-10T17:48:41Z'
-- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
   attempts: 1
   canonical: statistical method changed from paired t-tests to One-way ANOVA and Tukey
     HSD
@@ -1266,3 +1250,202 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T17:53:31Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/docs/constitution_amendment_proposal.md
+  attempts: 1
+  canonical: Moulinec and Suquet developed FFT-based homogenization methods in 1994
+    and 2003
+  claim_id: c_16a61de1
+  context: 'However, recent developments in FFT-based homogenization (as referenced
+    in the project plan and scientific literature, e.g., Moulinec & Suquet, 1994;
+    2003) have demonstrated:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Moulinec & Suquet, 1994; 2003
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T21:54:47Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/docs/constitution_amendment_proposal.md
+  attempts: 1
+  canonical: FFT-based homogenization has O(N log N) complexity
+  claim_id: c_717a8323
+  context: '4. **Efficiency**: O(N log N) complexity enables processing of high-resolution
+    microstructures'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FFT-based_homogenization_has_O(N_log_N)_complexity
+  kind: entity_fact
+  raw_text: FFT-based homogenization has O(N log N) complexity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T21:55:40Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Output directory contains at least 2,000 image files with stiffness tensors
+    within Voigt-Reuss-Hill bounds
+  claim_id: c_a42da466
+  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
+    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_directory_contains_at_least_2,000_image_files_with_st
+  kind: magnitude
+  raw_text: "Output directory contains \u2265 2,000 image files and a metadata file\
+    \ with stiffness tensors within Voigt-Reuss-Hill bounds."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T21:56:40Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime is less than or equal to 6 hours on simulated free-tier
+    constraints
+  claim_id: c_d507813a
+  context: "T046 Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_is_less_than_or_equal_to_6_hours_on_si
+  kind: magnitude
+  raw_text: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T21:57:02Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: output directory contains 2000 or more image files with stiffness tensors
+    within Voigt-Reuss-Hill bounds
+  claim_id: c_3776030d
+  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
+    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Output directory contains \u2265 2,000 image files and a metadata file\
+    \ with stiffness tensors within Voigt-Reuss-Hill bounds."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T21:57:26Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: shallow CNN trained on generated dataset using PyTorch CPU-only mode
+    completes within 6 hours
+  claim_id: c_65972679
+  context: 'Goal: Train a shallow Convolutional Neural Network on the generated dataset
+    using PyTorch in CPU-only mode, ensuring completion within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a shallow Convolutional Neural Network on the generated dataset
+    using PyTorch in CPU-only mode, ensuring completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T21:57:53Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: full pipeline runtime is 6 hours or less on simulated free-tier constraints
+  claim_id: c_62bb6568
+  context: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T21:57:53Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: 2000 image files with stiffness tensors within Voigt-Reuss-Hill bounds
+  claim_id: c_f0561d80
+  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
+    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Output directory contains \u2265 2,000 image files and a metadata file\
+    \ with stiffness tensors within Voigt-Reuss-Hill bounds."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:00:56Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 5
+  canonical: training completes within 6 hours on 2-core CPU
+  claim_id: c_1ffcbcfc
+  context: 'Independent Test: Verify training completes within 6 hours on 2-core CPU,
+    saves model artifact, and reports MSE/R2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training completes within 6 hours on 2-core CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:01:36Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: variance or standard deviation of R-squared values across 5 folds
+  claim_id: c_f13c4e0e
+  context: 'Stability Reporting: Calculate and report the variance/standard deviation
+    of R-squared values across the 5 folds to satisfy SC-005.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate and report the variance/standard deviation of R-squared values
+    across the 5 folds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:02:22Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Generate dataset with varying void/inclusion densities and compute effective
+    elastic stiffness tensors using FFT-based numerical homogenization
+  claim_id: c_78d641b4
+  context: 'Phase 3: User Story 1 - Synthetic Data Generation and Ground Truth Calculation
+    (Priority: P1) Goal description.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Goal: {{claim:c_55975982}} (2510.20502, https://arxiv.org/abs/2510.20502)
+    with varying void/inclusion densities and compute their effective elastic stiffness
+    tensors using FFT-based numerical homogenization.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:04:02Z'
