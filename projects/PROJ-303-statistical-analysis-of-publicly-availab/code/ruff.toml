@@ -1,0 +1,55 @@
+[tool.ruff]
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+# Assume Python 3.11
+target-version = "py311"
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of pycodestyle (`E`) codes.
+select = ["E", "F", "W", "I", "UP", "N", "C4", "B", "A", "T20"]
+ignore = ["E501", "E741", "B008"]
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+# Per-file ignores.
+per-file-ignores = {}
+
+# Ignore `E402` (import order) in specific files if needed.
+# extend-ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["T20"]

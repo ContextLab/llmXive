@@ -1,0 +1,287 @@
+resolved_at: '2026-07-13T06:48:14.846709+00:00'
+datasets:
+- intent: NOAA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 225573
+      parsed: true
+  - url: https://huggingface.co/datasets/brianofrim/NOAA_buoycams/resolve/main/split_sizes.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 70
+      parsed: true
+  - url: https://huggingface.co/datasets/yueq92/NOAA_narratives_NER/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 114547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/brianofrim/NOAA_buoycams/resolve/main/split_sizes.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/yueq92/NOAA_narratives_NER/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-oceanservice.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-www.nmfs.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Multi-Class_Ovarian_Cancer_Subtype_Classification_b_/32972447
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Raw_Data_Supporting_Area-Wide_Suppression_of_the_Mediterranean_Fruit_Fly_Ceratitis_capitata_Using_a_Male-Only_Sterile_Insect_Technique_Program_in_Citrus_Orchards_of_Western_T_rkiye/32956388
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Surveillance_of_Migratory_Shorebirds_and_Seabirds_in_2024_in_Australia_Reveals_Incursions_of_a_Diversity_of_Low_Pathogenicity_Avian_Influenza_Viruses_but_Not_High_Pathogenicity_Avian_Influenza_H5N1/32972531
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.curtin.edu.au/articles/thesis/Relationship_agency_and_vulnerability_Understanding_and_responding_to_violence_against_women_across_the_lifespan/32972498
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Digital_Marketing/32972507
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.135212/slp
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/7505022
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18893503
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5787067
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14816488
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21331279
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21331279
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21330239
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21330239
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=df62b0bfc7f847c1bb223a30032c5c88
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GHCN-Daily
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ml-project-group-3/NOAA_GHCN_Daily/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ml-project-group-3/NOAA_GHCN_Daily/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Multi-Class_Ovarian_Cancer_Subtype_Classification_b_/32972447
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Raw_Data_Supporting_Area-Wide_Suppression_of_the_Mediterranean_Fruit_Fly_Ceratitis_capitata_Using_a_Male-Only_Sterile_Insect_Technique_Program_in_Citrus_Orchards_of_Western_T_rkiye/32956388
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Surveillance_of_Migratory_Shorebirds_and_Seabirds_in_2024_in_Australia_Reveals_Incursions_of_a_Diversity_of_Low_Pathogenicity_Avian_Influenza_Viruses_but_Not_High_Pathogenicity_Avian_Influenza_H5N1/32972531
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.curtin.edu.au/articles/thesis/Relationship_agency_and_vulnerability_Understanding_and_responding_to_violence_against_women_across_the_lifespan/32972498
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Digital_Marketing/32972507
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.c866t1gfp
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15402876
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8308359
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4518811
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.9kd51c5d1
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.7m0cfxq9h
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/h9fg3636j4/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/h9fg3636j4
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21223135
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: USA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-Personas-USA/resolve/main/data/train-00000-of-00011.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nvidia/Privasis-USA/resolve/main/corpus.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/huggingface/agent-usage/resolve/main/data/daily/2026-04.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 7462
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-Personas-USA/resolve/main/data/train-00000-of-00011.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nvidia/Privasis-USA/resolve/main/corpus.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/usail-hkust/JailJudge/resolve/main/JAILJUDGE_ID.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/huggingface/agent-usage/resolve/main/data/daily/2026-04.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Shayanvsf/US_Airline_Sentiment/resolve/main/data/test-00000-of-00001-9696555e053ff5e2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Multi-Class_Ovarian_Cancer_Subtype_Classification_b_/32972447
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Raw_Data_Supporting_Area-Wide_Suppression_of_the_Mediterranean_Fruit_Fly_Ceratitis_capitata_Using_a_Male-Only_Sterile_Insect_Technique_Program_in_Citrus_Orchards_of_Western_T_rkiye/32956388
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Surveillance_of_Migratory_Shorebirds_and_Seabirds_in_2024_in_Australia_Reveals_Incursions_of_a_Diversity_of_Low_Pathogenicity_Avian_Influenza_Viruses_but_Not_High_Pathogenicity_Avian_Influenza_H5N1/32972531
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.curtin.edu.au/articles/thesis/Relationship_agency_and_vulnerability_Understanding_and_responding_to_violence_against_women_across_the_lifespan/32972498
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Digital_Marketing/32972507
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1320564
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1320571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1320553
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4479768
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4406076
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21331316
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21331316
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.zora.uzh.ch/handle/20.500.14742/49425
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ecat.ga.gov.au/geonetwork/srv/eng/catalog.search#/metadata/151195
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/60461
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

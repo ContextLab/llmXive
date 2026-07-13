@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Extreme Event Dataset Schema"
+description: "Schema for the processed extreme event dataset (extremes.csv)"
+type: object
+properties:
+  station_id:
+    type: string
+    description: "Unique identifier for the weather station"
+  date:
+    type: string
+    format: date
+    description: "Date of the observation (YYYY-MM-DD)"
+  magnitude:
+    type: number
+    description: "Excess over the 95th percentile threshold"
+  threshold_value:
+    type: number
+    description: "The 95th percentile threshold calculated from training data"
+  is_exceedance:
+    type: boolean
+    description: "Always true for rows in this dataset"
+  latitude:
+    type: number
+    description: "Latitude of the station"
+  longitude:
+    type: number
+    description: "Longitude of the station"
+required:
+  - station_id
+  - date
+  - magnitude
+  - threshold_value
+  - is_exceedance
+  - latitude
+  - longitude
+additionalProperties: false

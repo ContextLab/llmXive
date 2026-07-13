@@ -1,0 +1,11 @@
+- artifact_hash: e2166eeab589225a4c45798f716d0b4bb4af09a648264ead852a788203b871d6
+  artifact_path: projects/PROJ-303-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/noaa-ghcn-daily`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/noaa-ghcn-daily/datasets
+  verified_at: '2026-07-13T06:57:15.013075Z'

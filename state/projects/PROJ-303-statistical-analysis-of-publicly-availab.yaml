@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T09:46:55.229677Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-303-statistical-analysis-of-publicly-availab
-last_run_id: 35ddde2d-501a-4c2e-b823-baa7e67ed1b7
+last_run_id: d5b2c40d-a51a-4a0e-96b0-f0ad3c3adcee
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-303-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Weather Data for Extreme Event Prediction
-updated_at: '2026-07-07T19:05:56.415929Z'
+updated_at: '2026-07-13T07:35:59.446249Z'

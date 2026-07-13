@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Evaluation Output Schema"
+description: "Schema for the JSON output containing model evaluation metrics"
+type: object
+properties:
+  metrics:
+    type: array
+    items:
+      type: object
+      properties:
+        metric_name:
+          type: string
+          enum:
+            - Brier
+            - RMSE
+            - Coverage
+          description: "Name of the metric"
+        value:
+          type: number
+          description: "Numerical value of the metric"
+        model_type:
+          type: string
+          enum:
+            - independent_gpd
+            - spatial_gpd
+            - fallback_gpd
+          description: "Type of model used"
+        test_period:
+          type: string
+          description: "Date range of the test set (e.g., 2019-2020)"
+        station_id:
+          type: ["string", "null"]
+          description: "Station ID if metric is per-station, null for regional"
+      required:
+        - metric_name
+        - value
+        - model_type
+        - test_period
+  fallback_log:
+    type: array
+    items:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        event:
+          type: string
+          description: "Description of the fallback event (e.g., CONVERGENCE_ERROR, TIMEOUT)"
+      required:
+        - timestamp
+        - event
+required:
+  - metrics
+additionalProperties: false

@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "statistical-analysis-weather"
+version = "0.1.0"
+description = "Statistical Analysis of Publicly Available Weather Data for Extreme Event Prediction"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "scikit-learn",
+    "matplotlib",
+    "seaborn",
+    "requests",
+    "pyyaml",
+    "geopandas",
+    "pytest",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.nox
+    | \.pytest_cache
+    | \.ruff_cache
+    | \.tox
+    | \.venv
+    | \.vscode
+    | __pypackages__
+    | _build
+    | buck-out
+    | build
+    | dist
+    | node_modules
+    | site-packages
+    | venv
+)/
+'''
+
+[tool.ruff]
+# Inherits from ruff.toml but can override if project specific needs arise
+line-length = 88
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
