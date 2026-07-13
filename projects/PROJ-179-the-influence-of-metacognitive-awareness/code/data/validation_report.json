@@ -1,0 +1,8 @@
+{
+  "status": "FAIL",
+  "message": "Dataset not found.",
+  "fields_checked": [
+    "confidence_rating",
+    "source_label"
+  ]
+}

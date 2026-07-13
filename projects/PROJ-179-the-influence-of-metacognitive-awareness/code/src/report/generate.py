@@ -6,57 +6,62 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parents[3]
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
+# Import existing utilities from the project
 from config.env_config import load_config, setup_logging
 
-# --- Helper Functions ---
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def load_json_file(filepath):
-    """Load a JSON file and return its contents."""
+def load_json_file(filepath: str) -> dict:
+    """Load a JSON file and return its contents as a dictionary."""
     try:
         with open(filepath, 'r') as f:
             return json.load(f)
     except FileNotFoundError:
-        logging.error(f"File not found: {filepath}")
-        return None
-    except json.JSONDecodeError:
-        logging.error(f"Invalid JSON in file: {filepath}")
-        return None
+        logger.error(f"File not found: {filepath}")
+        return {}
+    except json.JSONDecodeError as e:
+        logger.error(f"Error decoding JSON in {filepath}: {e}")
+        return {}
 
-def write_json_file(data, filepath):
-    """Write data to a JSON file."""
-    Path(filepath).parent.mkdir(parents=True, exist_ok=True)
-    with open(filepath, 'w') as f:
-        json.dump(data, f, indent=2)
-    logging.info(f"Report written to {filepath}")
+def write_json_file(filepath: str, data: dict) -> bool:
+    """Write a dictionary to a JSON file."""
+    try:
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=2, default=str)
+        return True
+    except Exception as e:
+        logger.error(f"Error writing to {filepath}: {e}")
+        return False
 
-def load_bootstrap_results(filepath):
-    """Load bootstrap results for correlation analysis."""
+def load_bootstrap_results(filepath: str = "data/results/bootstrap_config.json") -> dict:
+    """Load bootstrap results from the specified file."""
     return load_json_file(filepath)
 
-def load_regression_results(filepath):
-    """Load regression analysis results."""
+def load_regression_results(filepath: str = "data/results/regression_analysis.json") -> dict:
+    """Load regression results from the specified file."""
     return load_json_file(filepath)
 
-def load_diagnostics_results(filepath):
-    """Load diagnostics results."""
+def load_diagnostics_results(filepath: str = "data/results/diagnostics.json") -> dict:
+    """Load diagnostics results from the specified file."""
     return load_json_file(filepath)
 
-def determine_correlation_direction(r_value):
-    """Determine the direction of correlation based on r_value."""
+def load_correlation_results(filepath: str = "data/results/primary_analysis.json") -> dict:
+    """Load correlation results from the specified file."""
+    return load_json_file(filepath)
+
+def determine_correlation_direction(r_value: float) -> str:
+    """Determine if correlation is positive, negative, or negligible."""
     if r_value > 0.1:
         return "positive"
     elif r_value < -0.1:
         return "negative"
-    else:
-        return "negligible"
+    return "negligible"
 
-def calculate_effect_size_magnitude(r_value):
-    """Calculate the magnitude of effect size based on Cohen's guidelines."""
+def calculate_effect_size_magnitude(r_value: float) -> str:
+    """Calculate the magnitude of the effect size based on Cohen's guidelines."""
     abs_r = abs(r_value)
     if abs_r >= 0.5:
         return "large"
@@ -64,253 +69,219 @@ def calculate_effect_size_magnitude(r_value):
         return "medium"
     elif abs_r >= 0.1:
         return "small"
-    else:
-        return "negligible"
+    return "negligible"
 
-def apply_bonferroni_correction(p_values, family_size):
+def apply_bonferroni_correction(p_values: list, num_tests: int) -> list:
     """
     Apply Bonferroni correction for multiple comparisons.
     
     Args:
-        p_values (list of float): List of raw p-values.
-        family_size (int): The number of tests in the family (total comparisons).
+        p_values: List of raw p-values
+        num_tests: Number of statistical tests performed
         
     Returns:
-        list of float: Corrected p-values (capped at 1.0).
+        List of corrected p-values (capped at 1.0)
     """
-    if family_size <= 0:
-        return p_values
+    if num_tests == 0:
+        return [1.0] * len(p_values)
     
-    corrected = [min(p * family_size, 1.0) for p in p_values]
-    return corrected
+    alpha = 0.05
+    corrected_p_values = []
+    for p in p_values:
+        corrected_p = min(p * num_tests, 1.0)
+        corrected_p_values.append(corrected_p)
+    
+    return corrected_p_values
 
-def apply_bh_correction(p_values):
+def apply_bh_correction(p_values: list) -> list:
     """
-    Apply Benjamini-Hochberg (FDR) correction for multiple comparisons.
+    Apply Benjamini-Hochberg correction for multiple comparisons (FDR).
     
     Args:
-        p_values (list of float): List of raw p-values.
+        p_values: List of raw p-values
         
     Returns:
-        list of float: Corrected p-values (capped at 1.0).
+        List of corrected p-values
     """
     n = len(p_values)
     if n == 0:
         return []
-        
-    # Sort p-values and keep track of original indices
-    indexed_p_values = list(enumerate(p_values))
-    sorted_p_values = sorted(indexed_p_values, key=lambda x: x[1])
     
-    corrected = [0.0] * n
-    rank = n
+    # Sort p-values while keeping track of original indices
+    sorted_indices = sorted(range(n), key=lambda i: p_values[i])
+    sorted_p_values = [p_values[i] for i in sorted_indices]
     
     # Calculate BH critical values
-    # q_i = (i / m) * alpha, but we compute adjusted p-values
-    # adjusted_p_i = min( (m/i) * p_i, adjusted_p_{i+1} )
+    corrected_p_values = [0.0] * n
+    prev_corrected = 1.0
     
-    last_corrected = 1.0
-    for rank, (original_idx, p_val) in enumerate(sorted_p_values, 1):
-        # BH adjustment: p_adj = p * m / rank
-        adj_p = min(p_val * n / rank, last_corrected, 1.0)
-        corrected[original_idx] = adj_p
-        last_corrected = adj_p
-        
-    return corrected
-
-# --- Report Generation Functions ---
-
-def generate_primary_analysis_report(correlation_results, bootstrap_results, config):
-    """
-    Generate the primary analysis report with correlation metrics and CI.
+    for i in range(n - 1, -1, -1):
+        rank = i + 1
+        raw_p = sorted_p_values[i]
+        # BH adjusted p-value: p * n / rank
+        adjusted_p = min(raw_p * n / rank, prev_corrected)
+        corrected_p_values[sorted_indices[i]] = adjusted_p
+        prev_corrected = adjusted_p
     
-    Args:
-        correlation_results (dict): Results from correlation analysis.
-        bootstrap_results (dict): Results from bootstrap analysis.
-        config (AppConfig): Configuration object.
-        
-    Returns:
-        dict: The generated report.
-    """
+    return corrected_p_values
+
+def generate_primary_analysis_report(correlation_results: dict, bootstrap_results: dict) -> dict:
+    """Generate the primary analysis report."""
+    r_value = correlation_results.get("correlation", np.nan)
+    p_value = correlation_results.get("p_value", np.nan)
+    ci_lower = correlation_results.get("ci_lower", np.nan)
+    ci_upper = correlation_results.get("ci_upper", np.nan)
+    
     report = {
-        "analysis_type": "Primary Correlation Analysis",
-        "method": "Hold-Out Accuracy (70/30 Train/Test)",
-        "metrics": {
-            "pearson_r": correlation_results.get("correlation", np.nan),
-            "p_value": correlation_results.get("p_value", np.nan),
-            "ci_95_lower": correlation_results.get("ci_lower", np.nan),
-            "ci_95_upper": correlation_results.get("ci_upper", np.nan),
-            "n_resamples": correlation_results.get("n_resamples", 0),
-            "direction": determine_correlation_direction(correlation_results.get("correlation", 0)),
-            "effect_size_magnitude": calculate_effect_size_magnitude(correlation_results.get("correlation", 0))
-        },
-        "bootstrap_config": {
-            "count": bootstrap_results.get("n_resamples", 1000) if bootstrap_results else 1000,
-            "runtime_warning": bootstrap_results.get("runtime_warning", False) if bootstrap_results else False
-        } if bootstrap_results else None
+        "analysis_type": "primary_correlation",
+        "correlation": r_value,
+        "p_value": p_value,
+        "ci_95_lower": ci_lower,
+        "ci_95_upper": ci_upper,
+        "n_resamples": bootstrap_results.get("n_resamples", 0),
+        "direction": determine_correlation_direction(r_value),
+        "effect_size_magnitude": calculate_effect_size_magnitude(r_value),
+        "interpretation": "Metacognitive awareness significantly predicts reality testing accuracy." if p_value < 0.05 else "No significant relationship found."
     }
     return report
 
-def generate_regression_analysis_report(regression_results, diagnostics_results, config):
-    """
-    Generate the hierarchical regression analysis report.
-    
-    Args:
-        regression_results (dict): Results from regression analysis.
-        diagnostics_results (dict): Results from diagnostics checks.
-        config (AppConfig): Configuration object.
-        
-    Returns:
-        dict: The generated report.
-    """
+def generate_regression_analysis_report(regression_results: dict, diagnostics_results: dict) -> dict:
+    """Generate the regression analysis report."""
     report = {
-        "analysis_type": "Hierarchical Regression Analysis",
+        "analysis_type": "hierarchical_regression",
         "model_1": regression_results.get("model_1", {}),
         "model_2": regression_results.get("model_2", {}),
         "delta_r_squared": regression_results.get("delta_r_squared", np.nan),
         "f_change": regression_results.get("f_change", np.nan),
-        "n_minus_1_model_used": regression_results.get("n_minus_1_model_used", False),
-        "diagnostics": {
-            "normality": diagnostics_results.get("normality", {}) if diagnostics_results else {},
-            "homoscedasticity": diagnostics_results.get("homoscedasticity", {}) if diagnostics_results else {},
-            "collinearity": diagnostics_results.get("collinearity", {}) if diagnostics_results else {},
-            "all_passed": diagnostics_results.get("all_passed", False) if diagnostics_results else False
-        } if diagnostics_results else {}
+        "p_change": regression_results.get("p_change", np.nan),
+        "diagnostics": diagnostics_results,
+        "assumptions_met": diagnostics_results.get("all_passed", False)
     }
     return report
 
-def generate_robustness_analysis_report(robustness_results, config):
+def generate_robustness_analysis_report(
+    visual_results: dict,
+    auditory_results: dict,
+    correction_method: str = "bonferroni"
+) -> dict:
     """
-    Generate the robustness analysis report with modality-specific correlations
-    and multiple comparison corrections (Bonferroni and Benjamini-Hochberg).
+    Generate the robustness analysis report with multiple comparison correction.
     
     Args:
-        robustness_results (dict): Results from robustness analysis (dict of modality -> results).
-        config (AppConfig): Configuration object.
+        visual_results: Results from visual modality analysis
+        auditory_results: Results from auditory modality analysis
+        correction_method: Method for correction ('bonferroni' or 'bh')
         
     Returns:
-        dict: The generated report with corrected p-values.
+        Dictionary containing corrected results and interpretation
     """
-    if not robustness_results:
-        logging.warning("No robustness results provided.")
-        return {"error": "No robustness results provided"}
-
-    # Extract raw p-values and correlations
-    modalities = list(robustness_results.keys())
-    raw_p_values = []
-    correlations = []
+    # Extract p-values from each modality
+    p_visual = visual_results.get("p_value", 1.0)
+    p_auditory = auditory_results.get("p_value", 1.0)
     
-    report_data = {
-        "analysis_type": "Modality-Specific Robustness Analysis",
-        "method": "Hold-Out Accuracy (70/30) per Modality",
-        "corrections_applied": ["Bonferroni", "Benjamini-Hochberg (FDR)"],
-        "results": {}
+    raw_p_values = [p_visual, p_auditory]
+    
+    # Apply correction
+    if correction_method == "bonferroni":
+        corrected_p_values = apply_bonferroni_correction(raw_p_values, num_tests=2)
+    elif correction_method == "bh":
+        corrected_p_values = apply_bh_correction(raw_p_values)
+    else:
+        logger.warning(f"Unknown correction method: {correction_method}. Using no correction.")
+        corrected_p_values = raw_p_values
+    
+    corrected_p_visual = corrected_p_values[0]
+    corrected_p_auditory = corrected_p_values[1]
+    
+    # Determine significance
+    sig_visual = corrected_p_visual < 0.05
+    sig_auditory = corrected_p_auditory < 0.05
+    
+    # Build report
+    report = {
+        "analysis_type": "modality_specific_robustness",
+        "correction_method": correction_method,
+        "num_tests": 2,
+        "visual_modality": {
+            "correlation": visual_results.get("correlation", np.nan),
+            "p_value_raw": p_visual,
+            "p_value_corrected": corrected_p_visual,
+            "ci_95_lower": visual_results.get("ci_lower", np.nan),
+            "ci_95_upper": visual_results.get("ci_upper", np.nan),
+            "significant_after_correction": sig_visual,
+            "direction": determine_correlation_direction(visual_results.get("correlation", 0)),
+            "effect_size_magnitude": calculate_effect_size_magnitude(visual_results.get("correlation", 0))
+        },
+        "auditory_modality": {
+            "correlation": auditory_results.get("correlation", np.nan),
+            "p_value_raw": p_auditory,
+            "p_value_corrected": corrected_p_auditory,
+            "ci_95_lower": auditory_results.get("ci_lower", np.nan),
+            "ci_95_upper": auditory_results.get("ci_upper", np.nan),
+            "significant_after_correction": sig_auditory,
+            "direction": determine_correlation_direction(auditory_results.get("correlation", 0)),
+            "effect_size_magnitude": calculate_effect_size_magnitude(auditory_results.get("correlation", 0))
+        },
+        "interpretation": {
+            "visual": "Significant relationship in visual modality." if sig_visual else "No significant relationship in visual modality.",
+            "auditory": "Significant relationship in auditory modality." if sig_auditory else "No significant relationship in auditory modality.",
+            "summary": "Robust relationship across modalities." if (sig_visual and sig_auditory) else "Relationship modality-specific or non-significant."
+        }
     }
     
-    for modality, results in robustness_results.items():
-        if results and results.get("status") == "success":
-            p_val = results.get("p_value", np.nan)
-            r_val = results.get("correlation", np.nan)
-            raw_p_values.append(p_val)
-            correlations.append(r_val)
-            
-            report_data["results"][modality] = {
-                "pearson_r": r_val,
-                "p_value": p_val,
-                "ci_95_lower": results.get("ci_lower", np.nan),
-                "ci_95_upper": results.get("ci_upper", np.nan),
-                "n_resamples": results.get("n_resamples", 0),
-                "direction": determine_correlation_direction(r_val),
-                "effect_size_magnitude": calculate_effect_size_magnitude(r_val)
-            }
-    
-    family_size = len(raw_p_values)
-    
-    if family_size > 0:
-        # Apply Bonferroni correction
-        bonf_corrected = apply_bonferroni_correction(raw_p_values, family_size)
-        
-        # Apply Benjamini-Hochberg correction
-        bh_corrected = apply_bh_correction(raw_p_values)
-        
-        # Update report with corrected p-values
-        for i, modality in enumerate(modalities):
-            if modality in report_data["results"]:
-                report_data["results"][modality]["p_value_bonferroni"] = bonf_corrected[i]
-                report_data["results"][modality]["p_value_bh"] = bh_corrected[i]
-                
-                # Determine significance after correction (alpha = 0.05)
-                alpha = 0.05
-                report_data["results"][modality]["significant_bonferroni"] = bonf_corrected[i] < alpha
-                report_data["results"][modality]["significant_bh"] = bh_corrected[i] < alpha
-    else:
-        logging.warning("No valid results to correct for multiple comparisons.")
+    return report
 
-    return report_data
-
-def write_report(report, output_path):
+def write_report(report: dict, filepath: str) -> bool:
     """Write the report to a JSON file."""
-    write_json_file(report, output_path)
+    return write_json_file(filepath, report)
 
 def main():
-    """Main entry point for report generation."""
-    config = load_config()
-    logger = setup_logging(config)
+    """Main entry point for generating the robustness analysis report."""
     logger.info("Starting robustness analysis report generation (T028)...")
     
-    # Paths
-    base_dir = config.get("paths", {}).get("base", "projects/PROJ-179-the-influence-of-metacognitive-awareness")
-    results_dir = Path(base_dir) / config.get("paths", {}).get("results", "data/results")
+    # Load configuration
+    config = load_config()
+    base_dir = Path(config.get("paths", {}).get("base", "projects/PROJ-179-the-influence-of-metacognitive-awareness"))
     
-    # Load robustness results
-    robustness_path = Path(base_dir) / "data" / "results" / "robustness_raw.json"
-    # Fallback if raw file doesn't exist, try to load from individual modality files if structure differs
-    # For now, assume the robustness script writes to robustness_raw.json or similar
-    # If the robustness script (T027) writes directly to the final path, we might just need to read it.
-    # However, T028 specifically asks to update the report to apply corrections.
-    # We assume T027 writes uncorrected results to data/results/robustness_raw.json or similar.
-    # Let's check if the robustness script writes to a specific location.
-    # Based on T027 description, it runs the pipeline on subsets.
-    # We will assume the robustness analysis results are in data/results/robustness_analysis_raw.json
-    # or we need to construct them from the modality-specific files if they exist.
-    # Given the task is to update `src/report/generate.py`, we assume the data is available.
+    # Define paths
+    visual_results_path = base_dir / "data/results/visual_modality_analysis.json"
+    auditory_results_path = base_dir / "data/results/auditory_modality_analysis.json"
+    output_path = base_dir / "data/results/robustness_analysis.json"
     
-    # Attempt to load robustness results
-    # If T027 writes to data/results/robustness_analysis.json directly, we might need to read that,
-    # but T028 is about *updating* the report generation to apply corrections.
-    # So we assume the input to this function is the raw uncorrected results.
-    # Let's assume the robustness script outputs to data/results/robustness_raw.json
-    robustness_input_path = Path(base_dir) / "data" / "results" / "robustness_raw.json"
+    # Load results from T027 (robustness analysis)
+    # Note: These files should have been created by T027
+    visual_results = load_json_file(str(visual_results_path))
+    auditory_results = load_json_file(str(auditory_results_path))
     
-    if not robustness_input_path.exists():
-        # Fallback: check if the robustness script already wrote to the final location
-        # and we just need to re-process? No, T028 is the one applying corrections.
-        # If the file doesn't exist, we can't generate the report.
-        logger.error(f"Robustness results not found at {robustness_input_path}")
-        # Try to find any robustness related json
-        potential_files = list((Path(base_dir) / "data" / "results").glob("*robustness*.json"))
-        if potential_files:
-            robustness_input_path = potential_files[0]
-            logger.info(f"Using fallback file: {robustness_input_path}")
-        else:
-            logger.error("No robustness results found. Cannot generate report.")
-            return 1
-
-    robustness_data = load_json_file(robustness_input_path)
+    # Check if results are available
+    if not visual_results or not auditory_results:
+        logger.error("Could not load modality-specific results. Ensure T027 has completed successfully.")
+        # Create a minimal report indicating failure
+        report = {
+            "analysis_type": "modality_specific_robustness",
+            "status": "failed",
+            "reason": "Missing input results from T027",
+            "visual_modality": {},
+            "auditory_modality": {}
+        }
+    else:
+        # Generate the report with Bonferroni correction (default)
+        report = generate_robustness_analysis_report(
+            visual_results=visual_results,
+            auditory_results=auditory_results,
+            correction_method="bonferroni"
+        )
+        report["status"] = "success"
     
-    if not robustness_data:
-        logger.error("Failed to load robustness results.")
+    # Write the report
+    success = write_report(report, str(output_path))
+    
+    if success:
+        logger.info(f"Robustness analysis report written to {output_path}")
+        return 0
+    else:
+        logger.error("Failed to write robustness analysis report.")
         return 1
-    
-    # Generate report with corrections
-    report = generate_robustness_analysis_report(robustness_data, config)
-    
-    # Write output
-    output_path = results_dir / "robustness_analysis.json"
-    write_report(report, output_path)
-    
-    logger.info("Robustness analysis report generated successfully.")
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

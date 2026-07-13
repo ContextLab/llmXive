@@ -1,117 +1,104 @@
-"""
-Main analysis runner for PROJ-179.
-Orchestrates the full pipeline: Preprocess -> Correlation -> Regression -> Robustness -> Report Generation.
-
-This script is invoked by quickstart.md to produce the final analysis artifacts.
-"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Ensure project root is in path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from config.env_config import load_config, setup_logging
-from data.preprocess import main as run_preprocess
-from src.analysis.correlation import main as run_correlation
-from src.analysis.bootstrap import main as run_bootstrap
-from src.analysis.regression import main as run_regression
-from src.analysis.diagnostics import main as run_diagnostics
-from src.analysis.filter import main as run_filter
-from src.analysis.robustness import main as run_robustness
-from src.report.generate import main as run_report
 
 def main():
+    """
+    Main entry point for the analysis pipeline.
+    Executes the sequence: Download -> Validate -> Preprocess -> Correlation -> Bootstrap -> Regression -> Filter -> Robustness -> Report
+    """
     logger = setup_logging("info")
-    logger.info("Starting full analysis pipeline (T035)...")
-
-    config = load_config()
+    logger.info("Starting full analysis pipeline...")
     
-    # Ensure output directories exist
-    data_dir = project_root / "data"
-    derived_dir = data_dir / "derived"
-    results_dir = data_dir / "results"
-    derived_dir.mkdir(parents=True, exist_ok=True)
-    results_dir.mkdir(parents=True, exist_ok=True)
-
-    # 1. Preprocessing (generates data/derived/trial_data.csv)
-    logger.info("Step 1: Running Preprocessing...")
+    # 0. Validate Data Availability (T004)
     try:
-        run_preprocess()
+        from data.validate_data_availability import main as validate_avail_main
+        validate_avail_main()
+    except Exception as e:
+        logger.error(f"Data availability check failed: {e}")
+        sys.exit(1)
+
+    # 1. Download Data (T005)
+    try:
+        from data.download import main as download_main
+        download_main()
+    except Exception as e:
+        logger.error(f"Data download failed: {e}")
+        sys.exit(1)
+    
+    # 2. Validate Data (T006)
+    try:
+        from data.validate_data import main as validate_data_main
+        validate_data_main()
+    except Exception as e:
+        logger.error(f"Data validation failed: {e}")
+        sys.exit(1)
+
+    # 3. Preprocess (T012) - Ensure this runs first to generate trial_data.csv
+    try:
+        from data.preprocess import main as preprocess_main
+        preprocess_main()
     except Exception as e:
         logger.error(f"Preprocessing failed: {e}")
-        # If preprocess fails, we cannot proceed. 
-        # However, we must ensure the script exits cleanly if data is missing 
-        # rather than crashing with a traceback that looks like a bug.
-        if "No input CSV" in str(e):
-            logger.warning("Skipping analysis due to missing input data. Run T005 first.")
-            return
-        raise
-
-    # 2. Primary Correlation Analysis (generates data/results/primary_analysis.json)
-    logger.info("Step 2: Running Primary Correlation Analysis...")
+        sys.exit(1)
+    
+    # 4. Correlation Analysis (T014)
     try:
-        run_correlation()
+        from src.analysis.correlation import main as correlation_main
+        correlation_main()
     except Exception as e:
         logger.error(f"Correlation analysis failed: {e}")
-        # Continue to attempt other steps if possible, or exit
-        raise
-
-    # 3. Bootstrap Analysis (generates data/results/bootstrap_config.json)
-    logger.info("Step 3: Running Bootstrap Analysis...")
+        sys.exit(1)
+    
+    # 5. Bootstrap (T015)
     try:
-        run_bootstrap()
+        from src.analysis.bootstrap import main as bootstrap_main
+        bootstrap_main()
     except Exception as e:
         logger.error(f"Bootstrap analysis failed: {e}")
-        raise
-
-    # 4. Filter by Modality (generates data/derived/visual_trials.csv, auditory_trials.csv)
-    logger.info("Step 4: Filtering data by Modality...")
+        sys.exit(1)
+    
+    # 6. Regression (T020)
     try:
-        run_filter()
-    except Exception as e:
-        logger.error(f"Filtering failed: {e}")
-        # Non-fatal if we just want primary results, but required for robustness
-        raise
-
-    # 5. Robustness Analysis (generates data/results/robustness_analysis.json)
-    logger.info("Step 5: Running Robustness Analysis...")
-    try:
-        run_robustness()
-    except Exception as e:
-        logger.error(f"Robustness analysis failed: {e}")
-        # Continue to regression if robustness fails due to modality issues
-        pass
-
-    # 6. Regression Analysis (generates data/results/regression_analysis.json)
-    logger.info("Step 6: Running Regression Analysis...")
-    try:
-        run_regression()
+        from src.analysis.regression import main as regression_main
+        regression_main()
     except Exception as e:
         logger.error(f"Regression analysis failed: {e}")
-        # Continue to diagnostics
-        pass
-
-    # 7. Diagnostics
-    logger.info("Step 7: Running Diagnostics...")
+        sys.exit(1)
+    
+    # 7. Filter for Modality (T026)
     try:
-        run_diagnostics()
+        from src.analysis.filter import main as filter_main
+        filter_main()
     except Exception as e:
-        logger.error(f"Diagnostics failed: {e}")
-        pass
-
-    # 8. Final Report Generation (aggregates all results)
-    logger.info("Step 8: Generating Final Reports...")
+        logger.error(f"Filter analysis failed: {e}")
+        sys.exit(1)
+    
+    # 8. Robustness (T027)
     try:
-        run_report()
+        from src.analysis.robustness import main as robustness_main
+        robustness_main()
+    except Exception as e:
+        logger.error(f"Robustness analysis failed: {e}")
+        sys.exit(1)
+    
+    # 9. Generate Reports (T016, T022, T028)
+    try:
+        from src.report.generate import main as report_main
+        report_main()
     except Exception as e:
         logger.error(f"Report generation failed: {e}")
-        raise
-
+        sys.exit(1)
+    
     logger.info("Analysis pipeline completed successfully.")
 
 if __name__ == "__main__":
