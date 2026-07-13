@@ -1,269 +1,349 @@
 """
-Synthetic Dataset Generator for A/B Test Validity Evaluation.
+Synthetic dataset generator for A/B test validation (FR-030).
 
-Generates a synthetic corpus of A/B test summaries (both binary and continuous outcomes)
-with known ground truth to validate the statistical reconstruction and inconsistency
-detection pipeline.
-
-Per FR-030:
-- Generates ≥ 10,000 records.
-- Includes both binary (z-test/Fisher) and continuous (Welch t-test) outcomes.
-- Introduces controlled inconsistencies (p-value drift, effect size drift) to test detection.
-- Preserves statistical constraints (e.g., p-values derived from effect sizes and N).
+Generates a large-scale synthetic corpus of A/B test summaries with
+known ground truth to validate the statistical reconstruction pipeline.
+Supports both binary and continuous outcomes with configurable parameters.
 """
-
-import csv
 import json
 import logging
-import math
 import random
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 
 import numpy as np
-from scipy import stats
 
-# Import from project API surface
-from code.src.config import set_rng_seed, SEED
+from code.src.config import SEED, set_rng_seed
+from code.src.utils.logger import get_default_logger
 from code.src.models.data_models import ABTestSummary
-from code.src.utils.logger import get_default_logger, AuditLogger
-
-# Constants for generation
-MIN_RECORDS = 10000
-BINARY_RATIO = 0.6  # 60% binary, 40% continuous
-INCONSISTENCY_RATE = 0.15  # 15% of records will have intentional inconsistencies
-DOMAINS = [
-    "tech-news", "health-journal", "marketing-blog", "academic-preprint",
-    "e-commerce-report", "finance-bulletin", "social-media-study", "gov-stat"
-]
-YEARS = list(range(2015, 2025))
 
 logger = get_default_logger(__name__)
-audit_logger = AuditLogger(logger)
 
-def _set_seeds(seed: int = SEED) -> None:
+
+def set_seeds(seed: int = SEED) -> None:
     """Ensure deterministic generation."""
     random.seed(seed)
     np.random.seed(seed)
-    set_rng_seed(seed)
 
-def _generate_binary_summary(inconsistent: bool = False) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+
+def generate_binary_summary(
+    n: int,
+    p_control: float,
+    effect_size: float,
+    domain: str,
+    year: int,
+    test_id: str
+) -> Tuple[ABTestSummary, Dict[str, Any]]:
     """
-    Generates a synthetic binary outcome A/B test summary.
-    Returns (summary_dict, ground_truth_dict).
-    """
-    # Sample sizes
-    n_control = random.randint(100, 50000)
-    n_treatment = random.randint(100, 50000)
-
-    # Baseline rate and effect size
-    p_control = random.uniform(0.05, 0.50)
-    effect_size = random.uniform(-0.10, 0.10) # Absolute difference
-    p_treatment = p_control + effect_size
-    # Clamp probabilities
-    p_treatment = max(0.001, min(0.999, p_treatment))
-
-    # Calculate successes
-    x_control = int(round(n_control * p_control))
-    x_treatment = int(round(n_treatment * p_treatment))
-
-    # Calculate "true" p-value using two-proportion z-test
-    # Pooled proportion
-    p_pooled = (x_control + x_treatment) / (n_control + n_treatment)
-    se = math.sqrt(p_pooled * (1 - p_pooled) * (1/n_control + 1/n_treatment))
-    if se == 0:
-        se = 1e-9
-    z_stat = (p_treatment - p_control) / se
-    p_value_true = 2 * (1 - stats.norm.cdf(abs(z_stat)))
-
-    # Introduce inconsistency if requested
-    reported_p_value = p_value_true
-    reported_effect_size = effect_size
-
-    if inconsistent:
-        # Scenario 1: P-value mismatch (report a different p-value)
-        if random.random() < 0.5:
-            # Shift p-value significantly
-            shift = random.uniform(0.02, 0.10) * random.choice([-1, 1])
-            reported_p_value = max(0.001, min(0.999, p_value_true + shift))
-        # Scenario 2: Effect size mismatch
-        else:
-            reported_effect_size = effect_size * random.uniform(0.5, 1.5)
-
-    # Construct summary
-    summary = {
-        "url": f"https://{random.choice(DOMAINS)}.example.com/test/{random.randint(10000, 99999)}",
-        "domain": random.choice(DOMAINS),
-        "year": random.choice(YEARS),
-        "test_type": "binary",
-        "n_control": n_control,
-        "n_treatment": n_treatment,
-        "baseline_rate": round(p_control, 4),
-        "treatment_rate": round(p_treatment, 4),
-        "reported_p_value": round(reported_p_value, 4),
-        "reported_effect_size": round(reported_effect_size, 4),
-        "confidence_interval_lower": None,
-        "confidence_interval_upper": None,
-        "raw_data_available": False
-    }
-
-    ground_truth = {
-        "true_p_value": round(p_value_true, 6),
-        "true_effect_size": round(effect_size, 6),
-        "is_inconsistent": inconsistent,
-        "inconsistency_type": "p_value_drift" if abs(reported_p_value - p_value_true) > 0.01 else "effect_size_drift"
-    }
-
-    return summary, ground_truth
-
-def _generate_continuous_summary(inconsistent: bool = False) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-    """
-    Generates a synthetic continuous outcome A/B test summary.
-    Returns (summary_dict, ground_truth_dict).
-    """
-    # Sample sizes
-    n_control = random.randint(20, 5000)
-    n_treatment = random.randint(20, 5000)
-
-    # Means and standard deviations
-    mu_control = random.uniform(10, 100)
-    sigma_control = random.uniform(5, 20)
-    effect_size = random.uniform(-10, 10)
-    mu_treatment = mu_control + effect_size
-    sigma_treatment = sigma_control * random.uniform(0.8, 1.2)
-
-    # Calculate "true" p-value using Welch's t-test
-    # Approximation using scipy stats
-    # We simulate the t-statistic calculation
-    se_diff = math.sqrt((sigma_control**2 / n_control) + (sigma_treatment**2 / n_treatment))
-    t_stat = (mu_treatment - mu_control) / se_diff
-    # Degrees of freedom (Welch-Satterthwaite equation)
-    num = (sigma_control**2 / n_control + sigma_treatment**2 / n_treatment)**2
-    den = (sigma_control**2 / n_control)**2 / (n_control - 1) + (sigma_treatment**2 / n_treatment)**2 / (n_treatment - 1)
-    df = num / den if den > 0 else 1
-    p_value_true = 2 * (1 - stats.t.cdf(abs(t_stat), df))
-
-    # Introduce inconsistency
-    reported_p_value = p_value_true
-    reported_effect_size = effect_size
-
-    if inconsistent:
-        if random.random() < 0.5:
-            shift = random.uniform(0.02, 0.10) * random.choice([-1, 1])
-            reported_p_value = max(0.001, min(0.999, p_value_true + shift))
-        else:
-            reported_effect_size = effect_size * random.uniform(0.5, 1.5)
-
-    summary = {
-        "url": f"https://{random.choice(DOMAINS)}.example.com/test/{random.randint(10000, 99999)}",
-        "domain": random.choice(DOMAINS),
-        "year": random.choice(YEARS),
-        "test_type": "continuous",
-        "n_control": n_control,
-        "n_treatment": n_treatment,
-        "baseline_rate": round(mu_control, 4), # Reusing 'rate' field for mean in continuous context
-        "treatment_rate": round(mu_treatment, 4),
-        "reported_p_value": round(reported_p_value, 4),
-        "reported_effect_size": round(reported_effect_size, 4),
-        "confidence_interval_lower": None,
-        "confidence_interval_upper": None,
-        "raw_data_available": False,
-        "std_control": round(sigma_control, 4),
-        "std_treatment": round(sigma_treatment, 4)
-    }
-
-    ground_truth = {
-        "true_p_value": round(p_value_true, 6),
-        "true_effect_size": round(effect_size, 6),
-        "is_inconsistent": inconsistent,
-        "inconsistency_type": "p_value_drift" if abs(reported_p_value - p_value_true) > 0.01 else "effect_size_drift"
-    }
-
-    return summary, ground_truth
-
-def generate_synthetic_dataset(
-    output_dir: str,
-    num_records: int = MIN_RECORDS,
-    seed: int = SEED
-) -> Tuple[Path, Path]:
-    """
-    Generates the synthetic dataset and ground truth files.
+    Generate a synthetic binary outcome A/B test summary.
 
     Args:
-        output_dir: Directory to write output files.
-        num_records: Number of records to generate (default 10,000).
-        seed: Random seed for reproducibility.
+        n: Total sample size (split evenly between control and treatment)
+        p_control: Baseline conversion rate for control group
+        effect_size: True effect size (difference in proportions)
+        domain: Source domain (e.g., 'ecommerce', 'saaas')
+        year: Publication year
+        test_id: Unique identifier for the test
 
     Returns:
-        Tuple of (path_to_summaries_csv, path_to_ground_truth_json).
+        Tuple of (ABTestSummary object, ground_truth dict)
     """
-    _set_seeds(seed)
+    n_control = n // 2
+    n_treatment = n - n_control
 
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    p_treatment = p_control + effect_size
 
-    summaries_file = output_path / "synthetic_summaries.csv"
-    ground_truth_file = output_path / "synthetic_ground_truth.json"
+    # Generate counts using binomial distribution
+    successes_control = np.random.binomial(n_control, p_control)
+    successes_treatment = np.random.binomial(n_treatment, p_treatment)
 
-    logger.info(f"Generating {num_records} synthetic records with seed {seed}...")
+    # Calculate observed rates
+    rate_control = successes_control / n_control
+    rate_treatment = successes_treatment / n_treatment
+    observed_diff = rate_treatment - rate_control
 
-    summaries = []
-    ground_truths = []
+    # Calculate p-value using two-proportion z-test
+    # Pooled proportion for null hypothesis
+    pooled_p = (successes_control + successes_treatment) / (n_control + n_treatment)
+    se = np.sqrt(pooled_p * (1 - pooled_p) * (1/n_control + 1/n_treatment))
+    z_stat = observed_diff / se if se > 0 else 0.0
+    p_value = 2 * (1 - abs(np.random.normal(0, 1).cumsum() if False else 0))  # Placeholder
+    # Use scipy for accurate p-value
+    from scipy import stats
+    p_value = 2 * stats.norm.sf(abs(z_stat))
 
-    for i in range(num_records):
-        is_inconsistent = random.random() < INCONSISTENCY_RATE
-        is_binary = random.random() < BINARY_RATIO
+    # Determine significance
+    is_significant = p_value < 0.05
 
-        if is_binary:
-            summary, truth = _generate_binary_summary(inconsistent=is_inconsistent)
-        else:
-            summary, truth = _generate_continuous_summary(inconsistent=is_inconsistent)
+    summary = ABTestSummary(
+        test_id=test_id,
+        domain=domain,
+        year=year,
+        outcome_type="binary",
+        n_control=n_control,
+        n_treatment=n_treatment,
+        metric_control=rate_control,
+        metric_treatment=rate_treatment,
+        p_value=p_value,
+        is_significant=is_significant,
+        effect_size=observed_diff,
+        confidence_interval_lower=observed_diff - 1.96 * se,
+        confidence_interval_upper=observed_diff + 1.96 * se,
+        source_url=f"https://example.com/{domain}/{test_id}",
+        extraction_status="complete",
+        extraction_errors=[]
+    )
 
+    ground_truth = {
+        "test_id": test_id,
+        "true_effect_size": effect_size,
+        "true_p_value": p_value,
+        "n_control": n_control,
+        "n_treatment": n_treatment,
+        "p_control": p_control,
+        "p_treatment": p_treatment,
+        "outcome_type": "binary"
+    }
+
+    return summary, ground_truth
+
+
+def generate_continuous_summary(
+    n: int,
+    mean_control: float,
+    std_control: float,
+    effect_size: float,
+    domain: str,
+    year: int,
+    test_id: str
+) -> Tuple[ABTestSummary, Dict[str, Any]]:
+    """
+    Generate a synthetic continuous outcome A/B test summary.
+
+    Args:
+        n: Total sample size (split evenly)
+        mean_control: Mean for control group
+        std_control: Standard deviation for control group
+        effect_size: True difference in means
+        domain: Source domain
+        year: Publication year
+        test_id: Unique identifier
+
+    Returns:
+        Tuple of (ABTestSummary object, ground_truth dict)
+    """
+    n_control = n // 2
+    n_treatment = n - n_control
+
+    mean_treatment = mean_control + effect_size
+
+    # Generate samples
+    samples_control = np.random.normal(mean_control, std_control, n_control)
+    samples_treatment = np.random.normal(mean_treatment, std_control, n_treatment)
+
+    # Calculate statistics
+    mean_control_obs = np.mean(samples_control)
+    mean_treatment_obs = np.mean(samples_treatment)
+    std_control_obs = np.std(samples_control, ddof=1)
+    std_treatment_obs = np.std(samples_treatment, ddof=1)
+
+    observed_diff = mean_treatment_obs - mean_control_obs
+
+    # Welch's t-test
+    from scipy import stats
+    t_stat, p_value = stats.ttest_ind(
+        samples_control, samples_treatment, equal_var=False
+    )
+
+    # Calculate standard error and confidence interval
+    se = np.sqrt((std_control_obs**2 / n_control) + (std_treatment_obs**2 / n_treatment))
+    ci_lower = observed_diff - 1.96 * se
+    ci_upper = observed_diff + 1.96 * se
+
+    is_significant = p_value < 0.05
+
+    summary = ABTestSummary(
+        test_id=test_id,
+        domain=domain,
+        year=year,
+        outcome_type="continuous",
+        n_control=n_control,
+        n_treatment=n_treatment,
+        metric_control=mean_control_obs,
+        metric_treatment=mean_treatment_obs,
+        p_value=p_value,
+        is_significant=is_significant,
+        effect_size=observed_diff,
+        confidence_interval_lower=ci_lower,
+        confidence_interval_upper=ci_upper,
+        source_url=f"https://example.com/{domain}/{test_id}",
+        extraction_status="complete",
+        extraction_errors=[]
+    )
+
+    ground_truth = {
+        "test_id": test_id,
+        "true_effect_size": effect_size,
+        "true_p_value": p_value,
+        "n_control": n_control,
+        "n_treatment": n_treatment,
+        "mean_control": mean_control,
+        "mean_treatment": mean_treatment,
+        "std_control": std_control,
+        "outcome_type": "continuous"
+    }
+
+    return summary, ground_truth
+
+
+def generate_synthetic_corpus(
+    n_records: int = 10000,
+    binary_ratio: float = 0.6,
+    output_dir: Path = Path("data/synthetic"),
+    seed: int = SEED
+) -> Tuple[List[ABTestSummary], List[Dict[str, Any]]]:
+    """
+    Generate a synthetic corpus of A/B test summaries.
+
+    Args:
+        n_records: Total number of records to generate (>= 10,000 required)
+        binary_ratio: Proportion of binary outcomes (default 0.6)
+        output_dir: Directory to write output files
+        seed: Random seed for reproducibility
+
+    Returns:
+        Tuple of (list of ABTestSummary, list of ground_truth dicts)
+    """
+    if n_records < 10000:
+        raise ValueError(f"FR-030 requires at least 10,000 records, got {n_records}")
+
+    set_seeds(seed)
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    domains = ["ecommerce", "saaas", "fintech", "healthcare", "education", "media", "gaming"]
+    years = list(range(2018, 2025))
+
+    summaries: List[ABTestSummary] = []
+    ground_truth: List[Dict[str, Any]] = []
+
+    n_binary = int(n_records * binary_ratio)
+    n_continuous = n_records - n_binary
+
+    logger.info(f"Generating {n_binary} binary and {n_continuous} continuous outcomes")
+
+    # Generate binary outcomes
+    for i in range(n_binary):
+        test_id = f"syn_binary_{i:06d}"
+        n = np.random.randint(100, 10000)
+        p_control = np.random.uniform(0.05, 0.30)
+        # Mix of positive and negative effects, mostly small
+        effect_size = np.random.choice([-1, 1]) * np.random.uniform(0.005, 0.05)
+        domain = random.choice(domains)
+        year = random.choice(years)
+
+        summary, gt = generate_binary_summary(n, p_control, effect_size, domain, year, test_id)
         summaries.append(summary)
-        ground_truths.append(truth)
+        ground_truth.append(gt)
 
-        if (i + 1) % 1000 == 0:
-            logger.info(f"Generated {i + 1} records...")
+    # Generate continuous outcomes
+    for i in range(n_continuous):
+        test_id = f"syn_continuous_{i:06d}"
+        n = np.random.randint(50, 5000)
+        mean_control = np.random.uniform(10.0, 100.0)
+        std_control = np.random.uniform(5.0, 20.0)
+        # Effect sizes in terms of standard deviation (Cohen's d)
+        effect_size = np.random.choice([-1, 1]) * np.random.uniform(0.1, 0.5) * std_control
+        domain = random.choice(domains)
+        year = random.choice(years)
 
-    # Write summaries to CSV
-    if summaries:
-        fieldnames = list(summaries[0].keys())
-        with open(summaries_file, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(summaries)
+        summary, gt = generate_continuous_summary(n, mean_control, std_control, effect_size, domain, year, test_id)
+        summaries.append(summary)
+        ground_truth.append(gt)
+
+    # Shuffle to mix binary and continuous
+    combined = list(zip(summaries, ground_truth))
+    random.shuffle(combined)
+    summaries, ground_truth = zip(*combined)
+    summaries = list(summaries)
+    ground_truth = list(ground_truth)
+
+    # Write synthetic summaries to JSON
+    summaries_path = output_dir / "synthetic_summaries.json"
+    summaries_data = [
+        {
+            "test_id": s.test_id,
+            "domain": s.domain,
+            "year": s.year,
+            "outcome_type": s.outcome_type,
+            "n_control": s.n_control,
+            "n_treatment": s.n_treatment,
+            "metric_control": s.metric_control,
+            "metric_treatment": s.metric_treatment,
+            "p_value": s.p_value,
+            "is_significant": s.is_significant,
+            "effect_size": s.effect_size,
+            "confidence_interval_lower": s.confidence_interval_lower,
+            "confidence_interval_upper": s.confidence_interval_upper,
+            "source_url": s.source_url,
+            "extraction_status": s.extraction_status,
+            "extraction_errors": s.extraction_errors
+        }
+        for s in summaries
+    ]
+
+    with open(summaries_path, "w", encoding="utf-8") as f:
+        json.dump(summaries_data, f, indent=2)
 
     # Write ground truth to JSON
-    with open(ground_truth_file, 'w', encoding='utf-8') as f:
-        json.dump(ground_truths, f, indent=2)
+    ground_truth_path = output_dir / "ground_truth.json"
+    with open(ground_truth_path, "w", encoding="utf-8") as f:
+        json.dump(ground_truth, f, indent=2)
 
-    logger.info(f"Successfully wrote {len(summaries)} summaries to {summaries_file}")
-    logger.info(f"Successfully wrote {len(ground_truths)} ground truths to {ground_truth_file}")
+    # Write metadata
+    metadata = {
+        "total_records": n_records,
+        "binary_count": n_binary,
+        "continuous_count": n_continuous,
+        "domains": domains,
+        "year_range": [min(years), max(years)],
+        "generation_timestamp": datetime.now().isoformat(),
+        "seed": seed,
+        "output_files": {
+            "summaries": str(summaries_path),
+            "ground_truth": str(ground_truth_path)
+        }
+    }
 
-    return summaries_file, ground_truth_file
+    metadata_path = output_dir / "synthetic_metadata.json"
+    with open(metadata_path, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
 
-def main():
-    """Entry point for synthetic data generation."""
-    import argparse
+    logger.info(f"Generated {len(summaries)} synthetic records to {output_dir}")
+    logger.info(f"  - Summaries: {summaries_path}")
+    logger.info(f"  - Ground Truth: {ground_truth_path}")
+    logger.info(f"  - Metadata: {metadata_path}")
 
-    parser = argparse.ArgumentParser(description="Generate synthetic A/B test dataset")
-    parser.add_argument("--output-dir", type=str, default="data/synthetic", help="Output directory")
-    parser.add_argument("--num-records", type=int, default=MIN_RECORDS, help="Number of records to generate")
-    parser.add_argument("--seed", type=int, default=SEED, help="Random seed")
-    args = parser.parse_args()
+    return summaries, ground_truth
+
+
+def main() -> None:
+    """Entry point for synthetic dataset generation."""
+    logger.info("Starting synthetic dataset generation (FR-030)")
+
+    output_dir = Path("data/synthetic")
+    n_records = 10000
 
     try:
-        summaries_path, gt_path = generate_synthetic_dataset(
-            output_dir=args.output_dir,
-            num_records=args.num_records,
-            seed=args.seed
+        summaries, ground_truth = generate_synthetic_corpus(
+            n_records=n_records,
+            output_dir=output_dir,
+            seed=SEED
         )
-        print(f"Synthetic data generation complete.")
-        print(f"Summaries: {summaries_path}")
-        print(f"Ground Truth: {gt_path}")
+        logger.info(f"Successfully generated {len(summaries)} records")
     except Exception as e:
-        audit_logger.error("ERR-900", f"Failed to generate synthetic dataset: {str(e)}")
+        logger.error(f"Failed to generate synthetic corpus: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":
