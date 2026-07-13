@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.14361",
+  "judged_at": "2026-07-13T23:06:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "understanding oceanic phytoplankton communities through remote sensing and oceanographic data ocean science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational methodology and canonical reference for the \"Remote Sensing\" component of the user's question, providing the essential survey of Vision-Language Models and datasets that a literature review on modern remote sensing applications would require. While it does not specifically focus on phytoplankton, it establishes the state-of-the-art techniques and data resources (criterion b) that are directly applicable to analyzing oceanic communities ",
+  "relevant": true
+}

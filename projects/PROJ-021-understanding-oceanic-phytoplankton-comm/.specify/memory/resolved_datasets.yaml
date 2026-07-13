@@ -1,0 +1,592 @@
+resolved_at: '2026-07-13T23:20:56.531455+00:00'
+datasets:
+- intent: MODIS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nasa-cisto-data-science-group/modis-lake-powell-raster-dataset/resolve/main/metadata.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 366
+      parsed: true
+  candidates_tried:
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6409f114938fddcfca30e030/73cf55f7e27210ef6136044d5da01f0248af7fe6478e554652f181b40b625068?Expires=1783988181&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0MDlmMTE0OTM4ZmRkY2ZjYTMwZTAzMC83M2NmNTVmN2UyNzIxMGVmNjEzNjA0NGQ1ZGEwMWYwMjQ4YWY3ZmU2NDc4ZTU1NDY1MmYxODFiNDBiNjI1MDY4KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4ODE4MX19fV19&Signature=MEYCIQCyHtGpKrC1NJWUKJSQv5yamNq2GxiRe0ekOtMv27YVfgIhANfnNG5l~uqnK~MSTSUfmkzIVRCFo90p7aMZWBtjKio3&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27MODIS_multiclass_dataset.csv%3B+filename%3D%22MODIS_multiclass_dataset.csv%22%3B&response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T231621Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a691747977b2d4e8bba47b6b2ae49877456f802e84a3daf716c186ab3c74a0d9
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://huggingface.co/datasets/nasa-cisto-data-science-group/modis-lake-powell-raster-dataset/resolve/main/metadata.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6459a377f92601affa3bc936/73cf55f7e27210ef6136044d5da01f0248af7fe6478e554652f181b40b625068?Expires=1783988181&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0NTlhMzc3ZjkyNjAxYWZmYTNiYzkzNi83M2NmNTVmN2UyNzIxMGVmNjEzNjA0NGQ1ZGEwMWYwMjQ4YWY3ZmU2NDc4ZTU1NDY1MmYxODFiNDBiNjI1MDY4KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4ODE4MX19fV19&Signature=MEQCIE5iecAJWb5ILqHdAgBMNAWnzrh5OwQZuOuR3Jv3~SH7AiAvigfbWEZU595pi918Woa5E4hD4jtCrwcp6DkicquHJg__&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27MODIS_multiclass_dataset.csv%3B+filename%3D%22MODIS_multiclass_dataset.csv%22%3B&response-content-type=text%2Fcsv&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T231621Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1f0e347786060adfa1a93484f735fc2a01e820b9fdc57419155b21b25a3b65c9
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6594a641ccbc1e2cc7931121/0bc062358b7c32ef85b62dd85162f4a814f3db613cfac6a381726bdc702ccd80?Expires=1783988181&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY1OTRhNjQxY2NiYzFlMmNjNzkzMTEyMS8wYmMwNjIzNThiN2MzMmVmODViNjJkZDg1MTYyZjRhODE0ZjNkYjYxM2NmYWM2YTM4MTcyNmJkYzcwMmNjZDgwKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4ODE4MX19fV19&Signature=MEUCIC~9C4tRMA7y-EBP1YIbY~mljffCrz8db329OHKhACu~AiEAo8z~Mp3ysTxNAB6j2-3wcOlcNcsv4lk5LfulkYjoWCI_&Key-Pair-Id=K1LYXO563TGWFU&response-content-type=application%2Fzip&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_modis_2_2008_2015.zip%3B+filename%3D%22dataset_modis_2_2008_2015.zip%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T231621Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5f17f8aafb5bfd504acfaaa1dabf45ca47539f766cbff3128b98d04d0816efcf
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://figshare.com/articles/poster/PENTINGNYA_PERUBAHAN_KURIKULUM_i_PERSPEKTIF_SOSIOLOGI_KEBIJAKAN_PENDIDIKAN_i_/32978819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/The_dyadic_association_between_patient_overdose_risk_and_family_attitudes_towards_medications_for_opioid_use_disorder/32978846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tropical_Wetland_Methane_Emissions_and_Trends_2004_2023_Inferred_from_Landsat-Based_Inundated_Vegetation_Data/32978854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/_b_Dyadic_association_between_support_persons_attitudes_towards_medication_for_opioid_use_disorder_and_patients_mental_health_outcomes_b_/32978837
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DT_Tutor_-_Instruments/32898275
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8013472
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8048232
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0040162597000760
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/004016259390013W
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/004016259390030B
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21340777
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21340777
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://radar.kit.edu/radar/en/dataset/2u9qaupue8z7etn1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.bvq83bkmd
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.2280gb63b
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BGC-Argo
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/PENTINGNYA_PERUBAHAN_KURIKULUM_i_PERSPEKTIF_SOSIOLOGI_KEBIJAKAN_PENDIDIKAN_i_/32978819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/The_dyadic_association_between_patient_overdose_risk_and_family_attitudes_towards_medications_for_opioid_use_disorder/32978846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tropical_Wetland_Methane_Emissions_and_Trends_2004_2023_Inferred_from_Landsat-Based_Inundated_Vegetation_Data/32978854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/_b_Dyadic_association_between_support_persons_attitudes_towards_medication_for_opioid_use_disorder_and_patients_mental_health_outcomes_b_/32978837
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DT_Tutor_-_Instruments/32898275
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10452898
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6604601
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19709012
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7682700
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6599224
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21335756
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21335756
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20997631
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://archimer.ifremer.fr/doc/00243/35385/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.971298
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-tractable
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/PENTINGNYA_PERUBAHAN_KURIKULUM_i_PERSPEKTIF_SOSIOLOGI_KEBIJAKAN_PENDIDIKAN_i_/32978819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/The_dyadic_association_between_patient_overdose_risk_and_family_attitudes_towards_medications_for_opioid_use_disorder/32978846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tropical_Wetland_Methane_Emissions_and_Trends_2004_2023_Inferred_from_Landsat-Based_Inundated_Vegetation_Data/32978854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/_b_Dyadic_association_between_support_persons_attitudes_towards_medication_for_opioid_use_disorder_and_patients_mental_health_outcomes_b_/32978837
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DT_Tutor_-_Instruments/32898275
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5524642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15115020
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2510.01764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05104
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CLIP-based
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/PENTINGNYA_PERUBAHAN_KURIKULUM_i_PERSPEKTIF_SOSIOLOGI_KEBIJAKAN_PENDIDIKAN_i_/32978819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/The_dyadic_association_between_patient_overdose_risk_and_family_attitudes_towards_medications_for_opioid_use_disorder/32978846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tropical_Wetland_Methane_Emissions_and_Trends_2004_2023_Inferred_from_Landsat-Based_Inundated_Vegetation_Data/32978854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/_b_Dyadic_association_between_support_persons_attitudes_towards_medication_for_opioid_use_disorder_and_patients_mental_health_outcomes_b_/32978837
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DT_Tutor_-_Instruments/32898275
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17404710
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15181945
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15182024
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15182008
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15181930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/106573-vanessa-visual-connotation-and-aesthetic-attributes-understanding-network-for-multimodal-aspect-based-sentiment-analysis
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/139721-evoke-efficient-and-high-fidelity-eeg-to-video-reconstruction-via-decoupling-implicit-neural-representation
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/141005-beyond-cosine-similarity-magnitude-aware-clip-for-no-reference-image-quality-assessment
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/94124-clipsyntel-clip-and-llm-synergy-for-multimodal-question-summarization-in-healthcare-video
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/95228-meme-ingful-analysis-enhanced-understanding-of-cyberbullying-in-memes-through-multimodal-explanations
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VLM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 39475
+      parsed: true
+  candidates_tried:
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6891e8dbfab7a43a5a3c3ec2/46754857d0fe4b1cd73977c86c86af0f8dcd172efebbd719ac0b936d45eb115b?Expires=1783988321&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY4OTFlOGRiZmFiN2E0M2E1YTNjM2VjMi80Njc1NDg1N2QwZmU0YjFjZDczOTc3Yzg2Yzg2YWYwZjhkY2QxNzJlZmViYmQ3MTlhYzBiOTM2ZDQ1ZWIxMTViKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4ODMyMX19fV19&Signature=MEUCIQCm69dyOFnSx~LM02288ZM0T15os70cyMsbJbXcjJu5VwIgbSUcQI8zhnAUKA2XYU84w6OmY8c9--cQunUIOejd8JE_&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27captioning_1.jsonl%3B+filename%3D%22captioning_1.jsonl%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T231841Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=470b155ee9e3cbc922525e71867509cb8b37b9cfdc8eb3eac03f8e0e387d2f46
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/68ecf696b845b2eff7934675/37247dc5eed4e540ab58feea3e0d43cd5d1816014db4e828320fb988c7a5bc44?Expires=1783988321&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY4ZWNmNjk2Yjg0NWIyZWZmNzkzNDY3NS8zNzI0N2RjNWVlZDRlNTQwYWI1OGZlZWEzZTBkNDNjZDVkMTgxNjAxNGRiNGU4MjgzMjBmYjk4OGM3YTViYzQ0KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4ODMyMX19fV19&Signature=MEQCIE6CzJHRK23U2Qu8RPsNQ-ekptLHOHZJcAW8~UsUuxS8AiAo6cW1Q5jjVBs8RnOdyWoozHN9r7QEVN~Yva80ig9pOw__&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27activity_net_1.jsonl%3B+filename%3D%22activity_net_1.jsonl%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T231841Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d6a471144b34a6e6782a8a202ba87f1d185b225a0142a4088205099eca7821ab
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/648e97d67377576b62a9b464/6ef700c496660570409891c7024a421d4334a088d75a71ca9ee5e2d8f280f489?Expires=1783988322&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0OGU5N2Q2NzM3NzU3NmI2MmE5YjQ2NC82ZWY3MDBjNDk2NjYwNTcwNDA5ODkxYzcwMjRhNDIxZDQzMzRhMDg4ZDc1YTcxY2E5ZWU1ZTJkOGYyODBmNDg5KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4ODMyMn19fV19&Signature=MEUCICBhAGSPrulQunWmnCzcvRHCZV~1V2x1Cn0jQvX83VSsAiEA7Hvo9In764YoDDNgIYApguEvgswMCAVRFoXkxQZoON0_&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27merged.csv%3B+filename%3D%22merged.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T231842Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a965d6be44e73fa3f13bc2c634300a2109ba345dcac7c5d7c8bdd29c531c9939
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://figshare.com/articles/poster/PENTINGNYA_PERUBAHAN_KURIKULUM_i_PERSPEKTIF_SOSIOLOGI_KEBIJAKAN_PENDIDIKAN_i_/32978819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/The_dyadic_association_between_patient_overdose_risk_and_family_attitudes_towards_medications_for_opioid_use_disorder/32978846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tropical_Wetland_Methane_Emissions_and_Trends_2004_2023_Inferred_from_Landsat-Based_Inundated_Vegetation_Data/32978854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/_b_Dyadic_association_between_support_persons_attitudes_towards_medication_for_opioid_use_disorder_and_patients_mental_health_outcomes_b_/32978837
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DT_Tutor_-_Instruments/32898275
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11262689
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14332541
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14510331
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10048289
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6951581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/119442-probing-perceptual-constancy-in-large-vision-language-models
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/122810-symmetrical-visual-contrastive-optimization-aligning-vision-language-models-with-minimal-contrastive-images
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/132534-language-informed-synthesis-of-rational-agent-models-for-grounded-theory-of-mind-reasoning-on-the-fly
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21340652
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21340652
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RMSE
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/67805d68b334b2e1e65fe605/ce0475d554f81cbf8f02e344b2c695050def22fb4d8c2b232804956049fd56a8?Expires=1783988355&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY3ODA1ZDY4YjMzNGIyZTFlNjVmZTYwNS9jZTA0NzVkNTU0ZjgxY2JmOGYwMmUzNDRiMmM2OTUwNTBkZWYyMmZiNGQ4YzJiMjMyODA0OTU2MDQ5ZmQ1NmE4KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4ODM1NX19fV19&Signature=MEQCIE9MNsv6fOByQ5o33DC4LOYibC41TfVCmw~GEUKXVaICAiB~igG7NeJO-Is7ZQnWbZPx6KdMDRRE-bU6ZyPmArFhNw__&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T231915Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5d20933ea18b0b223b0c36b9404680b46ed045dde49779bb54a67d1429c3b766
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/67805f089a9941c1844af93e/ea677010088659071a940118bdf4029df2097753a859b8924b8c50923173c282?Expires=1783988356&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY3ODA1ZjA4OWE5OTQxYzE4NDRhZjkzZS9lYTY3NzAxMDA4ODY1OTA3MWE5NDAxMThiZGY0MDI5ZGYyMDk3NzUzYTg1OWI4OTI0YjhjNTA5MjMxNzNjMjgyKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4ODM1Nn19fV19&Signature=MEYCIQCvnpfsVmB3ls5UzSIp9wYHzytg00oS5tG-zsLzEg5sDgIhAOJhF0jsUbyTtlDw9BstLDKsLgBUZCv5lmAjul3ImL63&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T231916Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=064246fc05cd87afca1e9c76bc25b37ceee195f3a3966faed02a34d7c2a03d88
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?Expires=1783988356&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY4ZWRkNDYyNTlmMTRmMjFjNjk4YWEyOC9mNDRmNzAzZWNkNTdkMWRkZmZhYjY4ZWExNjZkZmZjYjgxOGYwMmEwMjc0NTY2YWI0NjUxMjM5ZWQ4NWZmZmZmKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4ODM1Nn19fV19&Signature=MEUCICgubt1TmXNXTtwCCF2rJBxsTQvdOx4-g6njWxDc8~u9AiEA2ticUuwAkGzmnL4Hi69osl2ct-yGIuzD1DsWaeglMKM_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&response-content-type=application%2Fjson&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T231916Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5eba25dff9049978040dd7e4463359077ff0317969cc035dfb2e132cf217c888
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://figshare.com/articles/poster/PENTINGNYA_PERUBAHAN_KURIKULUM_i_PERSPEKTIF_SOSIOLOGI_KEBIJAKAN_PENDIDIKAN_i_/32978819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/The_dyadic_association_between_patient_overdose_risk_and_family_attitudes_towards_medications_for_opioid_use_disorder/32978846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tropical_Wetland_Methane_Emissions_and_Trends_2004_2023_Inferred_from_Landsat-Based_Inundated_Vegetation_Data/32978854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/_b_Dyadic_association_between_support_persons_attitudes_towards_medication_for_opioid_use_disorder_and_patients_mental_health_outcomes_b_/32978837
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DT_Tutor_-_Instruments/32898275
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20325172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17593144
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17750460
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10972798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10966066
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21345448
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21345448
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344973
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344973
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344433
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ModelPerformance
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/PENTINGNYA_PERUBAHAN_KURIKULUM_i_PERSPEKTIF_SOSIOLOGI_KEBIJAKAN_PENDIDIKAN_i_/32978819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/The_dyadic_association_between_patient_overdose_risk_and_family_attitudes_towards_medications_for_opioid_use_disorder/32978846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tropical_Wetland_Methane_Emissions_and_Trends_2004_2023_Inferred_from_Landsat-Based_Inundated_Vegetation_Data/32978854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/_b_Dyadic_association_between_support_persons_attitudes_towards_medication_for_opioid_use_disorder_and_patients_mental_health_outcomes_b_/32978837
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DT_Tutor_-_Instruments/32898275
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1322609
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20540197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20151475
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21134242
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20339480
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19658481
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19658481
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.zora.uzh.ch/handle/20.500.14742/229043
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/conference_contribution/Distribution_Models_Of_Temperate_Rocky_Reef_Habitat-Forming_Species_On_TheContinental_Shelf_In_Eastern_Australia_Setting_The_Baseline_To_Monitor_AndPredict_Future_Changes/25682511/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/conference_contribution/Distribution_Models_Of_Temperate_Rocky_Reef_Habitat-Forming_Species_On_TheContinental_Shelf_In_Eastern_Australia_Setting_The_Baseline_To_Monitor_AndPredict_Future_Changes/25682511
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MAE
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Maeji/autotrain-data-230121_t5_lcw99/resolve/main/raw/paper_summary.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/63d7d6d2143d89ad8089d82b/34c9c829cf723db574ec64061721ab81be1e59c37ec61ff3a6e7f63fa2d45de7?Expires=1783988423&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYzZDdkNmQyMTQzZDg5YWQ4MDg5ZDgyYi8zNGM5YzgyOWNmNzIzZGI1NzRlYzY0MDYxNzIxYWI4MWJlMWU1OWMzN2VjNjFmZjNhNmU3ZjYzZmEyZDQ1ZGU3KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4ODQyM319fV19&Signature=MEUCIBazEp2d9V3rt8DyJr5eqdF75nhxwIzJaeMsDzeyODl6AiEAy6b3WYU0ZFSslobri735FXw-RpSIoqROHPHs~p2FNQ0_&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27MAESTRO_2004_SYNTH.zip%3B+filename%3D%22MAESTRO_2004_SYNTH.zip%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fzip&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T232023Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=44613652094ddf353525f1bd748d94ff7cbf0dbf147b5614903537dff9fff958
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/63e4c2bb2251c5154c51dc0a/4aa38c069e15af338ca42da9e75f157953514b647c42ff737ae144b6279286d6?Expires=1783988423&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYzZTRjMmJiMjI1MWM1MTU0YzUxZGMwYS80YWEzOGMwNjllMTVhZjMzOGNhNDJkYTllNzVmMTU3OTUzNTE0YjY0N2M0MmZmNzM3YWUxNDRiNjI3OTI4NmQ2KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4ODQyM319fV19&Signature=MEYCIQCQXvjnDUE4rsTlM~a5dJMfBj-o1evlCx76ElEE263omQIhAKzh2p-So2PCn2V-PVA-pr4gv76E4oZWbTbqJXhNQpIe&Key-Pair-Id=K1LYXO563TGWFU&response-content-type=application%2Fzip&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27LoRa_Maekawa_Miku_A.zip%3B+filename%3D%22LoRa_Maekawa_Miku_A.zip%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T232023Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=cacaaf38e56da1b0c71ee4cbd0f1c9fb122128defc2c5bfd4e24746aba7b63f0
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/63fd669035702912bc46eee7/14c8ea02a15c2d6e7eb2184858c4febd1239a62ab8e3c63eb901c670d3f5879f?Expires=1783988423&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYzZmQ2NjkwMzU3MDI5MTJiYzQ2ZWVlNy8xNGM4ZWEwMmExNWMyZDZlN2ViMjE4NDg1OGM0ZmViZDEyMzlhNjJhYjhlM2M2M2ViOTAxYzY3MGQzZjU4NzlmKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4ODQyM319fV19&Signature=MEQCIB2No-XvQf4K3O-qxnR974vnyCfQSq2jye4g3vp7YS6~AiBfkOcDCFyE89tMXeC9roL-QwuWm2ks--4b5-8zrSZcxA__&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00017-a44871a8bbf731f8.parquet%3B+filename%3D%22train-00000-of-00017-a44871a8bbf731f8.parquet%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T232023Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8f4ba8393aaeed1aacbc931af38d5bd04d4dc9ea72d753793d55a8b52614646f
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/63fe66587a7f94a38ae3e406/80f7c822064d928ec37207b055c2be5f060cb69f7f718e2a47601335479af10c?Expires=1783988423&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYzZmU2NjU4N2E3Zjk0YTM4YWUzZTQwNi84MGY3YzgyMjA2NGQ5MjhlYzM3MjA3YjA1NWMyYmU1ZjA2MGNiNjlmN2Y3MThlMmE0NzYwMTMzNTQ3OWFmMTBjKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk4ODQyM319fV19&Signature=MEUCIQDW33jR2FNtM4IB5F0z2n1Y4MMCcJt4Z~Zv4dC1UpE3rwIgCoMtFbJrQ0P5mpyz4pkwYWKW5IHUL~y0SO7cVAqKHyc_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-15d650750bca2093.parquet%3B+filename%3D%22test-00000-of-00001-15d650750bca2093.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T232023Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5067c4f191360b0363422a4a0b7275ca12f0e399aec31bb925c2833a3cddf3d2
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://figshare.com/articles/poster/PENTINGNYA_PERUBAHAN_KURIKULUM_i_PERSPEKTIF_SOSIOLOGI_KEBIJAKAN_PENDIDIKAN_i_/32978819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/The_dyadic_association_between_patient_overdose_risk_and_family_attitudes_towards_medications_for_opioid_use_disorder/32978846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tropical_Wetland_Methane_Emissions_and_Trends_2004_2023_Inferred_from_Landsat-Based_Inundated_Vegetation_Data/32978854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hra.figshare.com/articles/journal_contribution/_b_Dyadic_association_between_support_persons_attitudes_towards_medication_for_opioid_use_disorder_and_patients_mental_health_outcomes_b_/32978837
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DT_Tutor_-_Instruments/32898275
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8299749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13984656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10023439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14174346
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21345246
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21345246
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344973
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344973
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344433
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

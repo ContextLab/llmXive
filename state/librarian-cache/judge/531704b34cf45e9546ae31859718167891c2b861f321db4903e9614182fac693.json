@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.11919",
+  "judged_at": "2026-07-13T23:07:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "understanding oceanic phytoplankton communities through remote sensing and oceanographic data ocean science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it introduces a remote sensing methodology specifically designed to analyze temporal and spectral signals in satellite imagery, which are the core data types used to monitor and understand oceanic phytoplankton communities. Although the abstract highlights land-use applications, the underlying mechanism (time-series vision-language modeling for medium-resolution multispectral data) is directly applicable to the user's domain of oceanographic remote se",
+  "relevant": true
+}

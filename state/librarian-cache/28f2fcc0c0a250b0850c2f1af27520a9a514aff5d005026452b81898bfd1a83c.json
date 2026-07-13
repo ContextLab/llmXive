@@ -1,0 +1,555 @@
+{
+  "fetched_at": "2026-07-13T23:07:13Z",
+  "field": "ocean science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "ocean science",
+      "idea_body_excerpt": "Understanding Oceanic Phytoplankton Communities through Remote Sensing and Oceanographic Data",
+      "target_n": 5
+    },
+    "duration_seconds": 106.098,
+    "ended_at": "2026-07-13T23:07:13Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "phytoplankton remote sensing"
+        ],
+        [
+          2,
+          "ocean color satellite data analysis"
+        ],
+        [
+          3,
+          "chlorophyll-a concentration retrieval"
+        ],
+        [
+          4,
+          "phytoplankton community structure from space"
+        ],
+        [
+          5,
+          "satellite oceanography for biological productivity"
+        ],
+        [
+          6,
+          "hyperspectral remote sensing of marine phytoplankton"
+        ],
+        [
+          7,
+          "phytoplankton functional type classification"
+        ],
+        [
+          8,
+          "oceanographic in situ data integration with satellite imagery"
+        ],
+        [
+          9,
+          "marine primary productivity estimation via remote sensing"
+        ],
+        [
+          10,
+          "phytoplankton bloom detection algorithms"
+        ],
+        [
+          11,
+          "multi-sensor ocean data fusion for ecology"
+        ],
+        [
+          12,
+          "spectral signatures of phytoplankton taxa"
+        ],
+        [
+          13,
+          "bio-optical models for ocean color"
+        ],
+        [
+          14,
+          "remote sensing of harmful algal blooms"
+        ],
+        [
+          15,
+          "phytoplankton pigment analysis from satellite data"
+        ],
+        [
+          16,
+          "large-scale phytoplankton distribution mapping"
+        ],
+        [
+          17,
+          "oceanographic remote sensing time series analysis"
+        ],
+        [
+          18,
+          "machine learning for phytoplankton community inference"
+        ],
+        [
+          19,
+          "satellite-derived chlorophyll and environmental drivers"
+        ],
+        [
+          20,
+          "global ocean observing system for phytoplankton dynamics"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Understanding Oceanic Phytoplankton Communities through Remote Sensing and Oceanographic Data ocean science": 0,
+        "phytoplankton remote sensing": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "chlorophyll-a fluorescence ocean color remote sensing",
+      "MODIS Sentinel-3 ocean color phytoplankton functional type",
+      "bio-optical algorithms inherent optical properties",
+      "primary production estimation satellite oceanography",
+      "biogeochemical models carbon export flux"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2508.11919"
+      ]
+    },
+    "per_query_hit_count": {
+      "MODIS Sentinel-3 ocean color phytoplankton functional type": 3,
+      "Understanding Oceanic Phytoplankton Communities through Remote Sensing and Oceanographic Data ocean science": 3,
+      "bio-optical algorithms inherent optical properties": 3,
+      "biogeochemical models carbon export flux": 3,
+      "chlorophyll-a fluorescence ocean color remote sensing": 0,
+      "primary production estimation satellite oceanography": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2403.19646",
+          "rationale": "The paper focuses on a general-purpose AI framework for interpreting surface changes in remote sensing imagery (e.g., urban expansion, deforestation) and does not measure oceanic phytoplankton communities, specific oceanographic variables, or the biological mechanisms of marine ecosystems. While it uses remote sensing, it lacks the specific domain connection (ocean science/phytoplankton) required by criteria (a), (b), or (e), and instead falls under the \"off-domain entirely\" rejection rule for a",
+          "title": "Change-Agent: Towards Interactive Comprehensive Remote Sensing Change Interpretation and Analysis"
+        },
+        {
+          "primary_pointer": "1903.09469",
+          "rationale": "The paper focuses on the computer vision methodology of image retrieval using deep learning features (VLAD, attention mechanisms) for general remote sensing imagery, without addressing the specific biological domain of oceanic phytoplankton communities or the integration of oceanographic data required by the user's question. It falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (sharing \"Remote Sensing\" but lacking the specific scientific mechanism, population,",
+          "title": "Aggregated Deep Local Features for Remote Sensing Image Retrieval"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T23:05:26Z",
+    "term_input": {
+      "normalized": "understanding oceanic phytoplankton communities through remote sensing and oceanographic data ocean science",
+      "raw": "Understanding Oceanic Phytoplankton Communities through Remote Sensing and Oceanographic Data ocean science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Remote Sensing Image Retrieval remains a challenging topic due to the special nature of Remote Sensing Imagery. Such images contain various different semantic objects, which clearly complicates the retrieval task. In this paper, we present an image retrieval pipeline that uses attentive, local convolutional features and aggregates them using the Vector of Locally Aggregated Descriptors (VLAD) to produce a global descriptor. We study various system parameters such as the multiplicative and additive attention mechanisms and descriptor dimensionality. We propose a query expansion method that requires no external inputs. Experiments demonstrate that even without training, the local convolutional features and global representation outperform other systems. After system tuning, we can achieve state-of-the-art or competitive results. Furthermore, we observe that our query expansion method increases overall system performance by about 3%, using only the top-three retrieved images. Finally, we show how dimensionality reduction produces compact descriptors with increased retrieval performance and fast retrieval computation times, e.g. 50% faster than the current systems.",
+          "claimed_authors": [
+            "Raffaele Imbriaco",
+            "Clint Sebastian",
+            "Egor Bondarev",
+            "Peter H. N. de With"
+          ],
+          "claimed_title": "Aggregated Deep Local Features for Remote Sensing Image Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1903.09469"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Understanding Oceanic Phytoplankton Communities through Remote Sensing and Ocean', candidate_title='Aggregated Deep Local Features for Remote Sensing Image Retrieval')",
+        "failed_at": "2026-07-13T23:06:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the subtropical gyres, phytoplankton rely on eddies for transporting nutrients from depth to the euphotic zone. But, what controls the rate of nutrient supply for new production? We show that vertical nutrient flux depends both on the vertical motion within the eddying flow and varies nonlinearly with the growth rate of the phytoplankton itself. Flux is maximized when the growth rate matches the inverse of the decorrelation timescale for vertical motion. Using a three-dimensional ocean model and a linear nutrient uptake model, we find that phytoplankton productivity is maximized for a growth rate of 1/3 day$^{-1}$, which corresponds to the timescale of submesoscale dynamics. Variability in the frequency of vertical motion across different physical features of the flow favors phytoplankton production with different growth rates. Such a growth-transport feedback can generate diversity in the phytoplankton community structure at submesoscales and higher net productivity in the presence of community diversity.",
+          "claimed_authors": [
+            "Mara Freilich",
+            "Glenn Flierl",
+            "Amala Mahadevan"
+          ],
+          "claimed_title": "Diversity of growth rates maximizes phytoplankton productivity in an eddying ocean",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.13418"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Understanding Oceanic Phytoplankton Communities through Remote Sensing and Ocean', candidate_title='Diversity of growth rates maximizes phytoplankton productivity in an eddying ocean')",
+        "failed_at": "2026-07-13T23:06:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Some early color photographic processes based on special color screen filters pose specific challenges in their digitization and digital presentation. Those challenges include dynamic range, resolution, and the difficulty of stitching geometrically-repeating patterns. We describe a novel method used to digitize the collection of early color photographs at the National Geographic Society which makes use of a custom open-source software tool to analyze and precisely stitch regular color screen processes.",
+          "claimed_authors": [
+            "Jan Hubička",
+            "Linda Kimrová",
+            "Kenzie Klaeser",
+            "Sara Manco",
+            "Doug Peterson"
+          ],
+          "claimed_title": "Digital analysis of early color photographs taken using regular color screen processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.09631"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Understanding Oceanic Phytoplankton Communities through Remote Sensing and Ocean', candidate_title='Digital analysis of early color photographs taken using regular color screen processes')",
+        "failed_at": "2026-07-13T23:06:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Following how the electrical transistor revolutionized the field of electronics,the realization of an optical transistor in which the flow of light is controlled optically should open the long-sought era of optical computing and new data processing possibilities. However, such function requires photons to influence each other, an effect which is unnatural in free space. Here it is shown that a ferroelectric and photovoltaic crystal gated optically at the onset of its bandgap energy can act as a photonic transistor. The light-induced charge generation and distribution processes alter the internal electric field and therefore impact the optical transmission with a memory effect and pronounced nonlinearity. The latter results in an optical computing possibility, which does not need to operate coherently. These findings advance efficient room temperature optical transistors, memristors, modulators and all-optical logic circuits.",
+          "claimed_authors": [
+            "A. Makhort",
+            "R. Gumeniuk",
+            "J. -F. Dayen",
+            "P. Dunne",
+            "U. Burkhardt",
+            "M. Viret",
+            "B. Doudin",
+            "B. Kundys"
+          ],
+          "claimed_title": "Photovoltaic-ferroelectric materials for the realization of all-optical devices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.06515"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Understanding Oceanic Phytoplankton Communities through Remote Sensing and Ocean', candidate_title='Photovoltaic-ferroelectric materials for the realization of all-optical devices')",
+        "failed_at": "2026-07-13T23:06:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We review the recent developments in the field of photonic lattices emphasizing their unique properties for controlling linear and nonlinear propagation of light. We draw some important links between optical lattices and photonic crystals pointing towards practical applications in optical communications and computing, beam shaping, and bio-sensing.",
+          "claimed_authors": [
+            "Dragomir N. Neshev",
+            "Andrey A. Sukhorukov",
+            "Wieslaw Krolikowski",
+            "Yuri S. Kivshar"
+          ],
+          "claimed_title": "Nonlinear optics and light localization in periodic photonic lattices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0705.1817"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Understanding Oceanic Phytoplankton Communities through Remote Sensing and Ocean', candidate_title='Nonlinear optics and light localization in periodic photonic lattices')",
+        "failed_at": "2026-07-13T23:06:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A review of the main phenomena related with the linear optical properties of isolated and supported metal nanoparticles is presented. The extinction, absorption and scattering efficiencies are calculated using the Mie theory and the Discrete Dipole Approximation. The origin of the optical spectra is discussed in terms of the size, shape and environment for each nanoparticle. The main optical features of each nanoparticle are identified, showing the tremendous potentiality of optical spectroscopy as a tool of characterization.",
+          "claimed_authors": [
+            "Cecilia Noguez"
+          ],
+          "claimed_title": "Optical Properties of Isolated and Supported Metal Nanoparticles",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "cond-mat/0411570"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Understanding Oceanic Phytoplankton Communities through Remote Sensing and Ocean', candidate_title='Optical Properties of Isolated and Supported Metal Nanoparticles')",
+        "failed_at": "2026-07-13T23:06:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The growing number of satellite constellations in low Earth orbit (LEO) enhances global communications and Earth observation, and support of space commerce is a high priority of many governments. At the same time, the proliferation of satellites in LEO has negative effects on astronomical observations and research, and the preservation of the dark and quiet sky. These satellite constellations reflect sunlight onto optical telescopes, and their radio emission impacts radio observatories, jeopardising our access to essential scientific discoveries through astronomy. The changing visual appearance of the sky also impacts our cultural heritage and environment. Both ground-based observatories and space-based telescopes in LEO are affected, and there are no places on Earth that can escape the effects of satellite constellations given their global nature. The minimally disturbed dark and radio-quiet sky is crucial for conducting fundamental research in astronomy and important public services such as planetary defence, technology development, and high-precision geolocation. Some aspects of satellite deployment and operation are regulated by States and intergovernmental organisations. While regulatory agencies in some States have started to require operators to coordinate with their national astronomy agencies over impacts, mitigation of the impact of space objects on astronomical activities is not sufficiently regulated. To address this issue, the CPS urges States and the international community to take steps to protect the dark and quiet sky as specified in this paper.",
+          "claimed_authors": [
+            "IAU Centre for the Protection of the Dark",
+            "Quiet Sky from Satellite Constellation Interference",
+            "Gyula I. G. Józsa",
+            "Andrew Williams",
+            "Richard Green",
+            "Isabel Marsh",
+            "John Antoniadis",
+            "Domingos Barbosa",
+            "John Barentine",
+            "Guillermo Blanc",
+            "Aaron Boley",
+            "Bruno Coelho",
+            "Patricia Cooper",
+            "Sara Dalledonne",
+            "Federico Di Vruno",
+            "Joe Diamond",
+            "Adam Dong",
+            "Ronald Drimmel",
+            "Siegfried Eggl",
+            "Nusrin Habeeb",
+            "Jessica Heim",
+            "Chris Hofer",
+            "Narae Hwang",
+            "Mathieu Isidro",
+            "David Koplow",
+            "James Lowenthal",
+            "Sara Lucatello",
+            "Mariya Lyubenova",
+            "Robert Massey",
+            "Mike Peel",
+            "Meredith Rawls",
+            "Adrien Saada",
+            "Alejandro Sanchez",
+            "Pedro Sanhueza",
+            "Warren Skidmore",
+            "Boris Sorokin",
+            "P. Sreekumar",
+            "Tim Stevenson",
+            "Paula Tartari",
+            "Vincenza Tornatore",
+            "Connie Walker",
+            "Benjamin Winkel",
+            "Yana Yakushina"
+          ],
+          "claimed_title": "Call to Protect the Dark and Quiet Sky from Harmful Interference by Satellite Constellations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.08244"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Understanding Oceanic Phytoplankton Communities through Remote Sensing and Ocean', candidate_title='Call to Protect the Dark and Quiet Sky from Harmful Interference by Satellite Constellations')",
+        "failed_at": "2026-07-13T23:06:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The hierarchical structure of production planning has the advantage of assigning different decision variables to their respective time horizons and therefore ensures their manageability. However, the restrictive structure of this top-down approach implying that upper level decisions are the constraints for lower level decisions also has its shortcomings. One problem that occurs is that deterministic mixed integer decision problems are often used for long-term planning, but the real production system faces a set of stochastic influences. Therefore, a planned utilisation factor has to be included into this deterministic aggregate planning problem. In practice, this decision is often based on past data and not consciously taken. In this paper, the effect of long-term forecast error on the optimal planned utilisation factor is evaluated for a production system facing stochastic demand and the benefit of exploiting this decision's potential is discussed. Overall costs including capacity, backorder and inventory costs, are determined with simulation for different multi-stage and multi-item production system structures. The results show that the planned utilisation factor used in the aggregate planning problem has a high influence on optimal costs. Additionally, the negative effect of forecast errors is evaluated and discussed in detail for different production system environments.",
+          "claimed_authors": [
+            "Klaus Altendorfer",
+            "Thomas Felberbauer",
+            "Herbert Jodlbauer"
+          ],
+          "claimed_title": "Effects of forecast errors on optimal utilisation in aggregate production planning with stochastic customer demand",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.00773"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Understanding Oceanic Phytoplankton Communities through Remote Sensing and Ocean', candidate_title='Effects of forecast errors on optimal utilisation in aggregate production planning with stochastic customer demand')",
+        "failed_at": "2026-07-13T23:06:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Attitude estimation or determination is a fundamental task for satellites to remain effectively operational. This task is furthermore complicated on small satellites by the limited space and computational power available on-board. This, coupled with a usually low budget, restricts small satellites from using high precision sensors for its especially important task of attitude estimation. On top of this, small satellites, on account of their size and weight, are comparatively more sensitive to environmental or orbital disturbances as compared to their larger counterparts. Magnetic disturbance forms the major contributor to orbital disturbances on small satellites in Lower Earth Orbits (LEO). This magnetic disturbance depends on the Residual Magnetic Moment (RMM) of the satellite itself, which for higher accuracy should be determined in real-time. This paper presents a method for in-orbit estimation of the satellite magnetic dipole using a Random Walk Model in order to circumnavigate the inaccuracy arising due to unknown orbital magnetic disturbances. It is also ensured that the dipole as well as attitude estimation of the satellite is done using only a magnetometer as the sensor.",
+          "claimed_authors": [
+            "Raunak Srivastava",
+            "Roshan Sah",
+            "Kaushik Das"
+          ],
+          "claimed_title": "Attitude and In-orbit Residual Magnetic Moment Estimation of Small Satellites Using only Magnetometer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.09257"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Understanding Oceanic Phytoplankton Communities through Remote Sensing and Ocean', candidate_title='Attitude and In-orbit Residual Magnetic Moment Estimation of Small Satellites Using only Magnetometer')",
+        "failed_at": "2026-07-13T23:06:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we present multi-epoch observations of the pre-main sequence binary HK Ori. These data have been drawn from the EXPORT database and are complemented by high quality spectro-astrometric data of the system. The spectroscopic data appear to be very well represented by a combination of an A dwarf star spectrum superposed on a (sub-)giant G-type spectrum. The radial velocity of the system is consistent with previous determinations, and does not reveal binary motion, as expected for a wide binary. The spectral, photometric and polarimetric properties and variability of the system indicate that the active object in the system is a T Tauri star with UX Ori characteristics. The spectro-astrometry of HK Ori is sensitive down to milli-arcsecond scales and confirms the speckle interferometric results from Leinert et al. The spectro-astrometry allows with fair certainty the identification of the active star within the binary, which we suggest to be a G-type T Tauri star based on its spectral characteristics.",
+          "claimed_authors": [
+            "D. Baines",
+            "R. D. Oudmaijer",
+            "A. Mora",
+            "C. Eiroa",
+            "the EXPORT collaboration"
+          ],
+          "claimed_title": "The pre-main sequence binary HK Ori : Spectro-astrometry and EXPORT data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "astro-ph/0406542"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Understanding Oceanic Phytoplankton Communities through Remote Sensing and Ocean', candidate_title='The pre-main sequence binary HK Ori : Spectro-astrometry and EXPORT data')",
+        "failed_at": "2026-07-13T23:06:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The outstanding multidisciplinary applicability of nanomaterials has paved the path for the rapid advancement of nanoscience during the last few decades. Such technological progress subsequently results in an inevitable environmental exposure of nanomaterials. Presently, nanomaterials are employed in an extensive range of commercial products. Safe and sustainable incorporation of nanomaterials in industrial products requires a profound and comprehensive understanding of their potential toxicity. Among different nanomaterials, carbon nanomaterials marked its notable superiority toward the development of state-of-the-art nanotechnology due to the significant contribution of each of the carbon allotropes with varied dimensionality. The zero-dimensional fullerene, one-dimensional carbon nanotube, and two-dimensional graphene possess an exclusive combination of distinctive properties that are utilized in most of the nanotechnology-based products nowadays. However, potential risk factors are associated with the production and the use of carbon nanomaterials. Consequently, the number of studies regarding the assessment of the toxicity of these nanomaterials has increased rapidly in the past decade. This chapter will summarize the recent scientific efforts on the toxicity evaluation of different carbon nanomaterials.",
+          "claimed_authors": [
+            "Arpita Adhikari",
+            "Joydip Sengupta"
+          ],
+          "claimed_title": "Toxicity of Carbon Nanomaterials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.13918"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Understanding Oceanic Phytoplankton Communities through Remote Sensing and Ocean', candidate_title='Toxicity of Carbon Nanomaterials')",
+        "failed_at": "2026-07-13T23:06:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents optical UBVRI broadband photo-polarimetry of the EXPORT sample obtained at the 2.5m Nordic Optical Telescope. The database consists of multi-epoch photo-polarimetry of 68 pre-main-sequence and main-sequence stars. An investigation of the polarization variability indicates that 22 objects are variable at the 3sigma level in our data. All these objects are pre-main sequence stars, consisting of both T Tauri and Herbig Ae/Be objects while the main sequence, Vega type and post-T Tauri type objects are not variable. The polarization properties of the variable sources are mostly indicative of the UXOR-type behaviour; the objects show highest polarization when the brightness is at minimum. We add seven new objects to the class of UXOR variables (BH Cep, VX Cas, DK Tau, HK Ori, LkHa 234, KK Oph and RY Ori). The main reason for their discovery is the fact that our data-set is the largest in its kind, indicating that many more young UXOR-type pre-main sequence stars remain to be discovered. The set of Vega-like systems has been investigated for the presence of intrinsic polarization. As they lack variability, this was done using indirect methods, and apart from the known case of BD +31.643, the following stars were found to be strong candidates to exhibit polarization due to the presence of circumstellar disks: 51 Oph, BD +31.643C, HD 58647 and HD 233517.",
+          "claimed_authors": [
+            "R. D. Oudmaijer",
+            "J. Palacios",
+            "C. Eiroa",
+            "the EXPORT collaboration"
+          ],
+          "claimed_title": "EXPORT: optical photometry and polarimetry of Vega-type and pre-main sequence stars",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "astro-ph/0110641"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Understanding Oceanic Phytoplankton Communities through Remote Sensing and Ocean', candidate_title='EXPORT: optical photometry and polarimetry of Vega-type and pre-main sequence stars')",
+        "failed_at": "2026-07-13T23:06:12Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xingxing Weng",
+            "Chao Pang",
+            "Gui-Song Xia"
+          ],
+          "title": "Vision-Language Modeling Meets Remote Sensing: Models, Datasets and Perspectives",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.14361",
+        "summary": "Vision-language modeling (VLM) aims to bridge the information gap between images and natural language. Under the new paradigm of first pre-training on massive image-text pairs and then fine-tuning on task-specific data, VLM in the remote sensing domain has made significant progress. The resulting models benefit from the absorption of extensive general knowledge and demonstrate strong performance across a variety of remote sensing data analysis tasks. Moreover, they are capable of interacting with users in a conversational manner. In this paper, we aim to provide the remote sensing community with a timely and comprehensive review of the developments in VLM using the two-stage paradigm. Specifically, we first cover a taxonomy of VLM in remote sensing: contrastive learning, visual instruction tuning, and text-conditioned image generation. For each category, we detail the commonly used network architecture and pre-training objectives. Second, we conduct a thorough review of existing works, examining foundation models and task-specific adaptation methods in contrastive-based VLM, architectural upgrades, training strategies and model capabilities in instruction-based VLM, as well as generative foundation models with their representative downstream applications. Third, we summarize datasets used for VLM pre-training, fine-tuning, and evaluation, with an analysis of their construction methodologies (including image sources and caption generation) and key properties, such as scale and task adaptability. Finally, we conclude this survey with insights and discussions on future research directions: cross-modal representation alignment, vague requirement comprehension, explanation-driven model reliability, continually scalable model capabilities, and large-scale datasets featuring richer modalities and greater challenges.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.14361",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T23:06:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Geoffrey Dawson",
+            "Remy Vandaele",
+            "Andrew Taylor",
+            "David Moffat",
+            "Helen Tamura-Wicks",
+            "Sarah Jackson",
+            "Rosie Lickorish",
+            "Paolo Fraccaro",
+            "Hywel Williams",
+            "Chunbo Luo",
+            "Anne Jones"
+          ],
+          "title": "A Sentinel-3 foundation model for ocean colour",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.21273",
+        "summary": "Artificial Intelligence (AI) Foundation models (FMs), pre-trained on massive unlabelled datasets, have the potential to drastically change AI applications in ocean science, where labelled data are often sparse and expensive to collect. In this work, we describe a new foundation model using the Prithvi-EO Vision Transformer architecture which has been pre-trained to reconstruct data from the Sentinel-3 Ocean and Land Colour Instrument (OLCI). We evaluate the model by fine-tuning on two downstream marine earth observation tasks. We first assess model performance compared to current baseline models used to quantify chlorophyll concentration. We then evaluate the FMs ability to refine remote sensing-based estimates of ocean primary production. Our results demonstrate the utility of self-trained FMs for marine monitoring, in particular for making use of small amounts of high quality labelled data and in capturing detailed spatial patterns of ocean colour whilst matching point observations. We conclude that this new generation of geospatial AI models has the potential to provide more robust, data-driven insights into ocean ecosystems and their role in global climate processes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.21273",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T23:06:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pallavi Jain",
+            "Diego Marcos",
+            "Dino Ienco",
+            "Roberto Interdonato",
+            "Tristan Berchoux"
+          ],
+          "title": "TimeSenCLIP: A Time Series Vision-Language Model for Remote Sensing",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.11919",
+        "summary": "Vision-language models (VLMs) have shown significant promise in remote sensing applications, particularly for land-use and land-cover (LULC) mapping via zero-shot classification and retrieval. However, current approaches face several key challenges, such as the dependence on caption-based supervision, which is often not available or very limited in terms of the covered semantics, and the fact of being adapted from generic VLM architectures that are suitable for very high resolution images. Consequently, these models tend to prioritize spatial context over spectral and temporal information, limiting their effectiveness for medium-resolution remote sensing imagery. In this work, we present TimeSenCLIP, a lightweight VLM for remote sensing time series, using a cross-view temporal contrastive framework to align multispectral Sentinel-2 time series with geo-tagged ground-level imagery, without requiring textual annotations. Unlike prior VLMs, TimeSenCLIP emphasizes temporal and spectral signals over spatial context, investigating whether single-pixel time series contain sufficient information for solving a variety of tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.11919",
+          "http_status": 200,
+          "pdf_sample_score": 0.2293,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T23:06:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chenyang Liu",
+            "Jiafan Zhang",
+            "Keyan Chen",
+            "Man Wang",
+            "Zhengxia Zou",
+            "Zhenwei Shi"
+          ],
+          "title": "Remote Sensing SpatioTemporal Vision-Language Models: A Comprehensive Survey",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.02573",
+        "summary": "The interpretation of multi-temporal remote sensing imagery is critical for monitoring Earth's dynamic processes-yet previous change detection methods, which produce binary or semantic masks, fall short of providing human-readable insights into changes. Recent advances in Vision-Language Models (VLMs) have opened a new frontier by fusing visual and linguistic modalities, enabling spatio-temporal vision-language understanding: models that not only capture spatial and temporal dependencies to recognize changes but also provide a richer interactive semantic analysis of temporal images (e.g., generate descriptive captions and answer natural-language queries). In this survey, we present the first comprehensive review of RS-STVLMs. The survey covers the evolution of models from early task-specific models to recent general foundation models that leverage powerful large language models. We discuss progress in representative tasks, such as change captioning, change question answering, and change grounding. Moreover, we systematically dissect the fundamental components and key technologies underlying these models, and review the datasets and evaluation metrics that have driven the field. By synthesizing task-level insights with a deep dive into shared architectural patterns, we aim to illuminate current achievements and chart promising directions for future research in spatio-temporal vision-language understanding for remote sensing. We will keep tracing related works at https://github.com/Chen-Yang-Liu/Awesome-RS-SpatioTemporal-VLMs",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.02573",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T23:06:21Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "understanding oceanic phytoplankton communities through remote sensing and oceanographic data ocean science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1903.09469",
+  "judged_at": "2026-07-13T23:06:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "understanding oceanic phytoplankton communities through remote sensing and oceanographic data ocean science",
+  "rationale": "The paper focuses on the computer vision methodology of image retrieval using deep learning features (VLAD, attention mechanisms) for general remote sensing imagery, without addressing the specific biological domain of oceanic phytoplankton communities or the integration of oceanographic data required by the user's question. It falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (sharing \"Remote Sensing\" but lacking the specific scientific mechanism, population,",
+  "relevant": false
+}

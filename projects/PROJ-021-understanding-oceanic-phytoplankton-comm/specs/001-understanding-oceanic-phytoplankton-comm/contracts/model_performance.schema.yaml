@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformance"
+description: "Schema for model evaluation results."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "RandomForest"
+      - "VLM"
+    description: "Type of model evaluated."
+  dataset_split:
+    type: "string"
+    enum:
+      - "train"
+      - "val"
+      - "test"
+    description: "Dataset split used for evaluation."
+  rmse:
+    type: "number"
+    description: "Root Mean Square Error."
+  r_squared:
+    type: "number"
+    description: "R-squared coefficient."
+  mae:
+    type: "number"
+    description: "Mean Absolute Error."
+  basin:
+    type: "string"
+    description: "Ocean basin (or 'global')."
+  timestamp:
+    type: "string"
+    description: "ISO8601 timestamp of evaluation."
+  fdr_corrected_p_value:
+    type: "number"
+    description: "Benjamini-Hochberg corrected p-value."
+required:
+  - model_type
+  - dataset_split
+  - rmse
+  - r_squared
+  - mae
+  - basin
+  - timestamp

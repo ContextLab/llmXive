@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AlignedDataset"
+description: "Schema for the final aligned dataset (root object)."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source:
+        type: "string"
+        description: "Data sources used (e.g., SeaBASS)."
+      processing_date:
+        type: "string"
+        description: "ISO8601 date."
+      missingness_rate:
+        type: "number"
+        description: "Percentage of missing values (must be ≤ 5)."
+      power_analysis_status:
+        type: "string"
+        description: "Status of power analysis (e.g., 'sufficient', 'reduced_scope')."
+    required:
+      - source
+      - processing_date
+      - missingness_rate
+  data:
+    type: "array"
+    items:
+      $ref: "#/definitions/PhytoplanktonSample"
+definitions:
+  PhytoplanktonSample:
+    type: "object"
+    properties:
+      sample_id:
+        type: "string"
+      latitude:
+        type: "number"
+      longitude:
+        type: "number"
+      timestamp:
+        type: "string"
+      chlorophyll_a:
+        type: "number"
+      temperature:
+        type: "number"
+      salinity:
+        type: "number"
+      nutrients:
+        type: "object"
+        properties:
+          nitrate:
+            type: "number"
+          phosphate:
+            type: "number"
+      basin:
+        type: "string"
+      quality_flag:
+        type: "string"
+      image_patch_path:
+        type: "string"
+        description: "Path to the real satellite patch file."
+    required:
+      - sample_id
+      - latitude
+      - longitude
+      - timestamp
+      - chlorophyll_a
+      - temperature
+      - salinity
+      - nutrients
+      - basin
+      - quality_flag
+      - image_patch_path
