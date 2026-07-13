@@ -100,6 +100,53 @@ def test_task_key_distinguishes_distinct_ids() -> None:
     )
 
 
+def test_duplicate_task_ids_get_distinct_keys() -> None:
+    """18% of live projects (78/433, 240 lines) carry DUPLICATE task ids — two
+    different tasks both numbered T001, from merged task lists. Keying on the bare
+    id would collapse them: the second would inherit the first's ``[X]`` snapshot
+    entry and silently ESCAPE independent verification, and their reject counts
+    would share a counter (firing REJECT_CAP early). Disambiguate by occurrence."""
+    text = (
+        "- [X] T001 Set up GitHub Actions workflow\n"
+        "- [X] T001 Create repository skeleton with src/\n"
+        "- [ ] T002 Something else\n"
+    )
+    keys = tv.task_keys(text)
+    assert len(set(keys.values())) == 3, keys
+    # ...and the numbering is positional, so it survives claim-marker churn.
+    churned = text.replace(
+        "Set up GitHub Actions workflow",
+        "Set up GitHub Actions workflow [UNRESOLVED-CLAIM: c_9f21 — status=x]",
+    )
+    assert list(tv.task_keys(churned).values()) == list(keys.values())
+
+
+def test_second_duplicate_id_is_still_verified(tmp_path: Path, monkeypatch) -> None:
+    """A newly-claimed task must be judged even when an EARLIER task shares its id."""
+    tasks = tmp_path / "tasks.md"
+    tasks.write_text("# T\n\n- [X] T001 first task\n", encoding="utf-8")
+    snapshot = tv.claimed_done_keys(tasks.read_text(encoding="utf-8"))
+    # The implementer now claims a SECOND, different task that reuses id T001.
+    tasks.write_text(
+        "# T\n\n- [X] T001 first task\n- [X] T001 a different second task\n",
+        encoding="utf-8",
+    )
+    judged: list[str] = []
+
+    def _spy(**kw):
+        from types import SimpleNamespace
+
+        judged.append(kw["task_text"])
+        return SimpleNamespace(complete=True, reason="ok", deferred=False)
+
+    monkeypatch.setattr(tv, "verify_task", _spy)
+    tv.run_verification_pass(
+        tmp_path, tasks, already_verified=snapshot,
+        notes_path=tmp_path / "n.md", state_path=tmp_path / "s.yaml",
+    )
+    assert len(judged) == 1 and "different second task" in judged[0], judged
+
+
 def test_settled_task_not_rejudged_after_reannotation(tmp_path: Path, monkeypatch) -> None:
     """A verifier-accepted ``[X]`` task that the claims layer then re-annotates must
     stay ``[X]``: it is settled work and must never be re-judged (nor un-checked)."""

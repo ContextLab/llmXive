@@ -216,13 +216,42 @@ def _task_key(rest: str) -> str:
     return _VOLATILE_MARK_RE.sub("", body).strip()
 
 
+def task_keys(tasks_text: str | list[str]) -> dict[int, str]:
+    """Map line-index -> UNIQUE stable key, for every task line in ``tasks_text``.
+
+    The bare task id is not always unique: 18% of live projects (78/433, 240 lines)
+    carry DUPLICATE ids — two genuinely different tasks both numbered ``T001``, from
+    merged task lists. Collapsing them would let the second inherit the first's
+    ``[X]`` snapshot entry and ESCAPE independent verification, and would make them
+    share a reject counter (firing REJECT_CAP early). So repeats are disambiguated
+    by occurrence: ``T001``, ``T001#1``, ``T001#2``.
+
+    Occurrence order — not prose — is the discriminator, precisely because the claims
+    layer rewrites prose every tick but never reorders the list. Keys are therefore
+    stable across ticks while staying unique within the file."""
+    lines = tasks_text.splitlines() if isinstance(tasks_text, str) else tasks_text
+    seen: dict[str, int] = {}
+    out: dict[int, str] = {}
+    for i, line in enumerate(lines):
+        m = _TASK_LINE_RE.match(line)
+        if not m:
+            continue
+        base = _task_key(m.group(3))
+        n = seen.get(base, 0)
+        seen[base] = n + 1
+        out[i] = base if n == 0 else f"{base}#{n}"
+    return out
+
+
 def claimed_done_keys(tasks_text: str) -> set[str]:
     """Keys of tasks currently marked ``[X]`` (already verified-accepted)."""
+    lines = tasks_text.splitlines()
+    keys = task_keys(lines)
     out: set[str] = set()
-    for line in tasks_text.splitlines():
-        m = _TASK_LINE_RE.match(line)
+    for i, key in keys.items():
+        m = _TASK_LINE_RE.match(lines[i])
         if m and m.group(2) in ("x", "X"):
-            out.add(_task_key(m.group(3)))
+            out.add(key)
     return out
 
 
@@ -265,12 +294,13 @@ def run_verification_pass(
     rejected: list[tuple[str, str]] = []
     deferred: list[str] = []
     budget = cap
+    keys = task_keys(lines)  # unique + churn-stable; see task_keys()
     for i, line in enumerate(lines):
         m = _TASK_LINE_RE.match(line)
         if not m:
             continue
         mark, rest = m.group(2), m.group(3)
-        key = _task_key(rest)
+        key = keys[i]
         newly_claimed = mark in ("x", "X") and key not in already_verified
         under_review = mark == "~"
         if not (newly_claimed or under_review):
@@ -322,11 +352,7 @@ def run_verification_pass(
     # self-heals the legacy text-keyed entries stranded by the identity fix above
     # (projects had accumulated ~205 dead keys for ~132 real tasks), so a task's
     # count reflects ONLY its own consecutive rejections and REJECT_CAP can fire.
-    live_keys = {
-        _task_key(m.group(3))
-        for m in (_TASK_LINE_RE.match(line) for line in lines)
-        if m
-    }
+    live_keys = set(task_keys(lines).values())
     reject_counts = {k: v for k, v in reject_counts.items() if k in live_keys}
 
     state_path.parent.mkdir(parents=True, exist_ok=True)
@@ -368,5 +394,6 @@ __all__ = [
     "claimed_done_keys",
     "gather_evidence",
     "run_verification_pass",
+    "task_keys",
     "verify_task",
 ]
