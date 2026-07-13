@@ -1,140 +1,162 @@
 """
 Unit tests for the Inconsistency Validator (T025).
+
+Covers:
+- Absolute p-difference > 0.05
+- Relative effect-size > 5%
+- Inequality handling
+- Sample-size mismatch generation of data_quality_warning
 """
-import pytest
+
 import json
+import tempfile
 from pathlib import Path
-from code.src.audit.validator import (
-    validate_single_summary,
-    calculate_relative_difference,
-    run_validator,
-    write_audit_report
-)
+from datetime import datetime
+
+import pytest
 from code.src.models.data_models import ABTestSummary
+from code.src.audit.validator import (
+    run_validator,
+    calculate_relative_difference,
+    validate_single_summary,
+    THRESHOLD_P_ABSOLUTE,
+    THRESHOLD_EFFECT_RELATIVE
+)
 
-def test_calculate_relative_difference_basic():
-    assert calculate_relative_difference(10.0, 10.0) == 0.0
-    assert calculate_relative_difference(10.0, 11.0) == 1.0 / 11.0
-    assert calculate_relative_difference(0.0, 0.0) == 0.0
-    assert calculate_relative_difference(0.0, 1.0) == 1.0
-    assert calculate_relative_difference(1.0, 0.0) == 1.0
 
-def test_calculate_relative_difference_none():
-    assert calculate_relative_difference(None, 1.0) is None
-    assert calculate_relative_difference(1.0, None) is None
+def test_calculate_relative_difference():
+    """Test relative difference calculation."""
+    assert calculate_relative_difference(10, 10) == 0.0
+    assert calculate_relative_difference(10, 0) == 1.0
+    assert calculate_relative_difference(0, 10) == 1.0
+    assert abs(calculate_relative_difference(100, 105) - 0.05) < 1e-6
 
-def test_validate_p_value_consistency():
-    # Create a summary with a reported p-value
+
+def test_validate_single_summary_p_value_mismatch():
+    """Test detection of p-value mismatch > 0.05."""
     summary = ABTestSummary(
-        url="http://example.com/test1",
+        id="test-1",
+        url="http://example.com",
         domain="example.com",
-        year=2023,
-        n_control=1000,
-        n_treatment=1000,
-        control_rate=0.1,
-        treatment_rate=0.12,
-        p_value=0.04,
-        effect_size=0.02
+        p_value=0.01,
+        effect_size=0.5,
+        sample_size=1000
     )
-    
-    # Case 1: Reconstructed p-value is close (consistent)
-    rec_close = {'p_value': 0.041, 'effect_size': 0.02, 'n_control': 1000, 'n_treatment': 1000}
-    is_consistent, warnings, mismatch = validate_single_summary(summary, rec_close)
-    assert is_consistent is True
-    assert len(warnings) == 0
-    assert mismatch is False
+    # Reconstructed p-value is far off
+    is_consistent, p_reason, effect_reason, has_n_warning = validate_single_summary(
+        summary, reconstructed_p_value=0.10, reconstructed_effect_size=0.5
+    )
+    assert not is_consistent
+    assert p_reason is not None
+    assert "P-value discrepancy" in p_reason
+    assert effect_reason is None
+    assert not has_n_warning
 
-    # Case 2: Reconstructed p-value is far (inconsistent)
-    rec_far = {'p_value': 0.15, 'effect_size': 0.02, 'n_control': 1000, 'n_treatment': 1000}
-    is_consistent, warnings, mismatch = validate_single_summary(summary, rec_far)
-    assert is_consistent is False
-    assert any("P-value inconsistency" in w for w in warnings)
-    assert mismatch is False
 
-def test_validate_effect_size_consistency():
+def test_validate_single_summary_effect_size_mismatch():
+    """Test detection of effect-size mismatch > 5%."""
     summary = ABTestSummary(
-        url="http://example.com/test2",
+        id="test-2",
+        url="http://example.com",
         domain="example.com",
-        year=2023,
-        n_control=1000,
-        n_treatment=1000,
-        control_rate=0.1,
-        treatment_rate=0.12,
-        p_value=0.04,
-        effect_size=0.02
+        p_value=0.03,
+        effect_size=1.0,
+        sample_size=1000
     )
-    
-    # Case 1: Effect size close
-    rec_close = {'p_value': 0.04, 'effect_size': 0.021, 'n_control': 1000, 'n_treatment': 1000}
-    is_consistent, warnings, mismatch = validate_single_summary(summary, rec_close)
-    assert is_consistent is True
-    
-    # Case 2: Effect size far (> 5% relative diff)
-    # 0.02 vs 0.03 -> diff 0.01, max 0.03 -> 0.33 > 0.05
-    rec_far = {'p_value': 0.04, 'effect_size': 0.03, 'n_control': 1000, 'n_treatment': 1000}
-    is_consistent, warnings, mismatch = validate_single_summary(summary, rec_far)
-    assert is_consistent is False
-    assert any("Effect size inconsistency" in w for w in warnings)
+    # Reconstructed effect size is 10% different (0.9 vs 1.0 -> 10% diff)
+    is_consistent, p_reason, effect_reason, has_n_warning = validate_single_summary(
+        summary, reconstructed_p_value=0.03, reconstructed_effect_size=0.9
+    )
+    assert not is_consistent
+    assert effect_reason is not None
+    assert "Effect size discrepancy" in effect_reason
+    assert p_reason is None
+    assert not has_n_warning
 
-def test_validate_sample_size_mismatch():
+
+def test_validate_single_summary_sample_size_mismatch():
+    """Test detection of sample size mismatch and warning generation."""
     summary = ABTestSummary(
-        url="http://example.com/test3",
+        id="test-3",
+        url="http://example.com",
         domain="example.com",
-        year=2023,
-        n_control=1000,
-        n_treatment=1000,
-        control_rate=0.1,
-        treatment_rate=0.12,
-        p_value=0.04,
-        effect_size=0.02
+        p_value=0.03,
+        effect_size=0.5,
+        sample_size=1000
     )
-    
-    # Case: Sample size mismatch
-    rec_mismatch = {'p_value': 0.04, 'effect_size': 0.02, 'n_control': 1000, 'n_treatment': 500}
-    is_consistent, warnings, mismatch = validate_single_summary(summary, rec_mismatch)
-    
-    assert is_consistent is False
-    assert mismatch is True
-    assert any("Sample size mismatch" in w for w in warnings)
+    # Reconstructed sample size is different
+    is_consistent, p_reason, effect_reason, has_n_warning = validate_single_summary(
+        summary, 
+        reconstructed_p_value=0.03, 
+        reconstructed_effect_size=0.5,
+        reconstructed_sample_size=900
+    )
+    # Statistical values are consistent, but sample size is not
+    # The function returns is_consistent=True for stats, but has_n_warning=True
+    assert is_consistent # Stats are fine
+    assert has_n_warning
+    assert p_reason is None
+    assert effect_reason is None
 
-def test_run_validator_integration(tmp_path):
-    # Prepare test data
+
+def test_run_validator_integration():
+    """Test the full run_validator function and output generation."""
     summaries = [
         ABTestSummary(
-            url="http://a.com", domain="a.com", year=2023,
-            n_control=1000, n_treatment=1000,
-            control_rate=0.1, treatment_rate=0.12,
-            p_value=0.04, effect_size=0.02
+            id="s1",
+            url="http://a.com",
+            domain="a.com",
+            p_value=0.01,
+            effect_size=0.5,
+            sample_size=1000
         ),
         ABTestSummary(
-            url="http://b.com", domain="b.com", year=2023,
-            n_control=1000, n_treatment=1000,
-            control_rate=0.1, treatment_rate=0.12,
-            p_value=0.04, effect_size=0.02
+            id="s2",
+            url="http://b.com",
+            domain="b.com",
+            p_value=0.03,
+            effect_size=1.0,
+            sample_size=2000
         )
     ]
-    
-    reconstructed = [
-        {'p_value': 0.041, 'effect_size': 0.02, 'n_control': 1000, 'n_treatment': 1000}, # Consistent
-        {'p_value': 0.15, 'effect_size': 0.02, 'n_control': 1000, 'n_treatment': 1000}  # Inconsistent
-    ]
-    
-    records = run_validator(summaries, reconstructed)
-    
-    assert len(records) == 2
-    assert records[0].is_consistent is True
-    assert records[1].is_consistent is False
-    assert records[1].data_quality_warning is not None
 
-    # Test writing
-    output_path = tmp_path / "audit_report.json"
-    write_audit_report(records, str(output_path))
-    
-    assert output_path.exists()
-    with open(output_path) as f:
-        data = json.load(f)
-    assert len(data) == 2
-    assert data[0]['is_consistent'] is True
-    assert data[1]['is_consistent'] is False
-    assert 'Sample size mismatch' not in str(data[1].get('warnings', [])) # Only p-value issue here
-    assert 'P-value inconsistency' in str(data[1].get('warnings', []))
+    reconstructed_results = [
+        {
+            "summary_id": "s1",
+            "p_value": 0.10, # Mismatch
+            "effect_size": 0.5,
+            "sample_size": 1000
+        },
+        {
+            "summary_id": "s2",
+            "p_value": 0.03,
+            "effect_size": 1.0,
+            "sample_size": 1800 # Mismatch
+        }
+    ]
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "audit_report.json"
+        records = run_validator(summaries, reconstructed_results, output_path)
+
+        assert len(records) == 2
+        
+        # Check first record (p-value mismatch)
+        r1 = records[0]
+        assert "p_value_mismatch" in r1.flags
+        assert not r1.exclude_from_prevalence
+        
+        # Check second record (sample size mismatch)
+        r2 = records[1]
+        assert "sample_size_mismatch" in r2.flags
+        assert r2.exclude_from_prevalence
+        assert "data_quality_warning" in r2.notes
+
+        # Verify file exists and is valid JSON
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+            assert len(data) == 2
+            assert data[0]['flags'] == ["p_value_mismatch"]
+            assert data[1]['flags'] == ["sample_size_mismatch"]
+            assert data[1]['exclude_from_prevalence'] is True

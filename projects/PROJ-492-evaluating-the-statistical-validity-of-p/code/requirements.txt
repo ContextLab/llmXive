@@ -8,5 +8,5 @@ tqdm
 pyyaml
 jsonschema
 psutil
+pydantic>=2.0
 pytest
-pydantic
