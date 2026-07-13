@@ -1,187 +1,119 @@
 # Phenomenological AI: First-Person Experience Modeling - Quick Start Guide
 
-This guide provides instructions for setting up the environment and running the automated science pipeline for phenomenological report generation and analysis.
+This guide provides the essential steps to set up the environment and run the automated science pipeline for generating and analyzing phenomenological reports.
 
 ## Prerequisites
 
-- Python 3.10 or higher
+- Python 3.9+
 - pip (Python package manager)
-- At least 4GB of available RAM (8GB+ recommended for analysis phases)
-- CPU-only execution (no GPU required)
+- ~4GB RAM (for CPU-only TinyLlama execution)
+- ~2GB disk space for models and data
 
-## Environment Setup
+## 1. Environment Setup
 
-1. **Clone the repository** and navigate to the project directory:
- ```bash
- cd PROJ-592-phenomenological-ai-first-person-experie
- ```
-
-2. **Create a virtual environment** (recommended):
- ```bash
- python -m venv.venv
- source.venv/bin/activate # On Windows:.venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r code/requirements.txt
- ```
-
- *Note: If you encounter permission errors, ensure you are using a virtual environment.*
-
-4. **Verify installation**:
- ```bash
- python -c "import llama_cpp; print('llama-cpp-python installed successfully')"
- ```
-
-## Project Structure
-
-```
-code/ # Source code
- config.py # Configuration and marker definitions
- main.py # Pipeline orchestration
- generation/ # Data generation scripts
- analysis/ # Metric computation and statistical analysis
- validation/ # Human rating and validation scripts
- utils/ # Utility functions (logging, I/O, archiving)
-data/
- raw/ # Generated phenomenological reports
- processed/ # Computed metrics and statistical results
- qualitative/ # Human rating data
-specs/ # Feature specifications and contracts
-tests/ # Unit and integration tests
-```
-
-## CLI Usage Examples
-
-The main pipeline is controlled via `code/main.py` with the `--mode` argument.
-
-### 1. Generation Mode
-
-Generate the corpus of phenomenological reports using the TinyLlama model and four prompting strategies.
-
+### Clone and Navigate
 ```bash
-python code/main.py --mode generation
+git clone <repository-url>
+cd llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie
 ```
 
-**What it does:**
-- Loads 20 base prompts from `data/prompts/base_prompts.json`
-- Applies 4 prompting strategies (Direct, Hypothetical, Comparative, Role-play)
-- Generates ~80 samples per prompt per strategy using `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF`
-- Outputs to `data/raw/phenomenological_reports.json`
-
-**Expected duration:** 2-4 hours on CPU (depending on hardware)
-
-### 2. Control Corpus Generation
-
-Generate a control corpus from real-world text for discriminant validity testing.
-
+### Create Virtual Environment
 ```bash
-python code/main.py --mode generate_control
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
 ```
 
-**What it does:**
-- Downloads samples from the `arxiv_nlp` dataset
-- Generates ≥80 control samples
-- Outputs to `data/raw/control_corpus.json`
-
-### 3. Analysis Mode
-
-Compute phenomenological metrics (Consistency, Stability, Markers) on generated reports.
-
+### Install Dependencies
+Install the core requirements, including `llama-cpp-python` for CPU inference and `datasets` for control corpus loading:
 ```bash
-python code/main.py --mode analysis
+pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
-**What it does:**
-- Runs consistency analysis using NLI model (`cross-encoder/stsb-distilroberta-base`)
-- Computes semantic stability via embedding cosine similarity
-- Counts phenomenological markers (sensory, temporal, intentional)
-- Outputs to `data/processed/metrics.json`
+> **Note on `llama-cpp-python`**: Ensure you have a compatible C++ compiler installed. For CPU-only execution, install with `CMAKE_ARGS="-DLLAMA_BLAS=OFF"` to avoid unnecessary dependencies.
+> ```bash
+> CMAKE_ARGS="-DLLAMA_BLAS=OFF" pip install llama-cpp-python
+> ```
 
-**Expected duration:** 30-60 minutes
-
-### 4. Statistics Mode
-
-Perform statistical analysis and hypothesis testing on computed metrics.
-
+### Download the Model
+The pipeline uses `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF` (specifically `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`).
+If not already present in `data/models/`, download it:
 ```bash
-python code/main.py --mode stats
+mkdir -p data/models
+wget -O data/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
 ```
 
-**What it does:**
-- Checks normality (Shapiro-Wilk) and homogeneity (Levene) assumptions
-- Runs ANOVA + FDR correction + Tukey HSD (if assumptions met)
-- Runs Kruskal-Wallis test (if assumptions violated)
-- Performs sensitivity analysis on metric weights
-- Outputs to `data/processed/validity_scores.csv` and `data/processed/statistical_results.json`
+## 2. Project Structure
 
-**Expected duration:** 10-20 minutes
+- `code/`: Source code for generation, analysis, and validation.
+- `data/raw/`: Generated phenomenological reports and control corpus samples.
+- `data/processed/`: Computed metrics (validity scores, statistics).
+- `data/qualitative/`: Human rating sheets and anonymized data.
+- `specs/`: Feature specifications and contracts.
 
-### 5. Validation Mode
+## 3. Running the Pipeline
 
-Prepare samples for human evaluation and compute inter-rater reliability.
+The main entry point is `code/main.py`. Use the `--task` argument to select the phase.
 
+### A. Generate Phenomenological Reports (US1)
+Generates ~80 samples per prompt per strategy (4 strategies) using the TinyLlama model on CPU.
 ```bash
-python code/main.py --mode validate
+python code/main.py --task generate --config code/config.py
 ```
+**Output**: `data/raw/generation_samples.json`
 
-**What it does:**
-- Stratified sampling of reports for human rating
-- Loads validation rubric from `code/validation/rubric.md`
-- Calculates Cohen's κ for inter-rater agreement
-- Outputs to `data/qualitative/ratings.csv`
-
-**Expected duration:** 5-10 minutes (excluding human rating time)
-
-### 6. Full Pipeline
-
-Execute the entire pipeline from generation to validation.
-
+### B. Generate Control Corpus (US1)
+Generates control samples from the `arxiv_nlp` dataset for discriminant validity testing.
 ```bash
-python code/main.py --mode full_pipeline
+python code/main.py --task generate_control --config code/config.py
 ```
+**Output**: `data/raw/control_samples.json`
 
-**What it does:**
-- Runs all phases sequentially: Generation → Control → Analysis → Stats → Validation
-- Ensures data dependencies are met between phases
-- Outputs all artifacts to their respective directories
+### C. Analyze Metrics (US2)
+Computes Internal Consistency, Semantic Stability, and Marker Presence metrics.
+```bash
+python code/main.py --task analyze --config code/config.py
+```
+**Output**: Intermediate metric files in `data/processed/`
 
-**Expected duration:** 3-6 hours total
+### D. Statistical Analysis (US2)
+Performs Shapiro-Wilk, Levene, ANOVA/Kruskal-Wallis, and post-hoc tests.
+```bash
+python code/main.py --task stats --config code/config.py
+```
+**Output**: `data/processed/validity_scores.csv` and statistical summary logs.
 
-## Troubleshooting
+### E. Validation & Sampling (US3)
+Selects a stratified sample for human rating.
+```bash
+python code/main.py --task validate_human --config code/config.py
+```
+**Output**: `data/qualitative/sampled_reports.json`
 
-### CUDA/GPU Errors
-This project is designed for CPU-only execution. If you encounter CUDA errors:
-- Ensure you are using the TinyLlama-1.1B-GGUF model (not 7B models)
-- Verify `llama-cpp-python` was installed with CPU support: `pip install llama-cpp-python --force-reinstall --no-binary llama-cpp-python`
+### F. Full Pipeline (End-to-End)
+Executes Generation → Control → Analysis → Stats in sequence.
+```bash
+python code/main.py --task full --config code/config.py
+```
+**Expected Duration**: ≤6 hours on free-tier CPU resources.
 
-### Import Errors
-If you see `ImportError: cannot import name 'X' from 'Y'`:
-- Ensure you are running from the project root directory
-- Verify `code/` is in your Python path: `PYTHONPATH=code:$PYTHONPATH python code/main.py`
+## 4. Verification
 
-### Memory Errors
-If the process is killed due to memory:
-- Reduce `MAX_SAMPLES_PER_PROMPT` in `code/config.py`
-- Close other memory-intensive applications
-- Use a machine with ≥8GB RAM for the analysis phase
+After running the full pipeline, verify the following artifacts exist:
+- `data/raw/generation_samples.json` (≥3200 samples expected: 20 prompts × 4 strategies × ~40 seeds)
+- `data/raw/control_samples.json` (≥80 samples)
+- `data/processed/validity_scores.csv` (Non-null scores for all metrics)
+- `data/qualitative/sampled_reports.json` (Stratified subset)
 
-## Output Verification
+## 5. Troubleshooting
 
-After running the pipeline, verify the following outputs exist:
+- **CUDA Errors**: Ensure you are not using a GPU. The `config.py` is set to CPU-only for TinyLlama.
+- **Memory Errors**: If OOM occurs, reduce `MAX_SAMPLES_PER_PROMPT` in `code/config.py`.
+- **Missing Model**: Verify `data/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf` exists.
 
-- `data/raw/phenomenological_reports.json` (≥6400 samples: 20 prompts × 4 strategies × 80 samples)
-- `data/raw/control_corpus.json` (≥80 samples)
-- `data/processed/metrics.json` (Consistency, Stability, Marker scores)
-- `data/processed/validity_scores.csv` (Statistical test results)
-- `data/qualitative/ratings.csv` (Human rating data, if validated)
+## 6. Next Steps
 
-## Next Steps
-
-1. Run the full pipeline to generate initial results
-2. Review `data/processed/statistical_results.json` for hypothesis test outcomes
-3. Conduct human validation using the rubric in `code/validation/rubric.md`
-4. Generate the reproducibility archive with `python code/utils/archiver.py`
-
-For detailed API documentation, refer to the docstrings in each module under `code/`.
+- Review `specs/contracts/` for data schemas.
+- Implement custom analysis in `code/analysis/` modules.
+- Run human rating using `code/validation/human_rater.py` on the sampled reports.
+- Archive reproducibility data with `python code/main.py --task archive`.

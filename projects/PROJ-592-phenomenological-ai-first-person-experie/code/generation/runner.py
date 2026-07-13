@@ -1,10 +1,14 @@
 """
-Phenomenological AI Generation Runner (CPU-Only).
+Phenomenological AI: Generation Runner (CPU-Only)
 
-Implements the primary generation pipeline for User Story 1.
-Uses TinyLlama-1.1B-GGUF via llama-cpp-python on CPU.
-Includes timeout handling and sample-size logging to ensure >=80 successful samples per condition.
+Implements the primary generation pipeline using TinyLlama-1.1B-Chat-v1.0-GGUF.
+Includes timeout handling, retry logic, and sample-size logging to ensure
+>= 80 successful samples per condition (prompt/strategy combination).
+
+This script is designed for CPU-only execution (CI path).
 """
+from __future__ import annotations
+
 import os
 import sys
 import time
@@ -16,323 +20,342 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 
-# Local imports
-from config import get_config, get_marker_list
-from utils.logging import get_logger, log_operation, retry_on_failure
-from utils.io import safe_write_json, archive_artifact
+# Add project root to path if running as script
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(project_root))
+
+try:
+    from llama_cpp import Llama
+except ImportError:
+    print("ERROR: llama-cpp-python is required. Install with: pip install llama-cpp-python")
+    sys.exit(1)
+
+from config import get_config, get_marker_dictionaries
 from generation.prompt_engineering import load_base_prompts, apply_strategy
+from utils.logging import get_logger, log_operation, retry_on_failure, capture_warning, WarningContext
+from utils.io import safe_write_json, ensure_dir
 
-# Configure logging
-logger = get_logger("generation_runner")
+# --- Configuration Constants ---
+MIN_SAMPLES_PER_CONDITION = 80
+MAX_ATTEMPTS_PER_SAMPLE = 3
+GENERATION_TIMEOUT_SECONDS = 120
+MODEL_PATH_KEY = "tinyllama_model_path"
+MODEL_PARAMS_KEY = "tinyllama_params"
 
+# --- Custom Exceptions ---
 class GenerationTimeoutError(Exception):
-    """Raised when generation exceeds the configured timeout."""
+    """Raised when generation exceeds the timeout limit."""
     pass
 
+class GenerationError(Exception):
+    """Raised for other generation failures."""
+    pass
+
+# --- Timeout Handler ---
 def timeout_handler(signum, frame):
-    """Signal handler for timeout."""
-    raise GenerationTimeoutError("Generation timed out")
+    raise GenerationTimeoutError("Generation timed out after configured limit.")
 
-def load_model(config: Dict[str, Any]) -> Any:
-    """
-    Load the TinyLlama model using llama-cpp-python.
-    Configures for CPU-only execution.
-    """
-    try:
-        from llama_cpp import Llama
-        
-        model_path = config.get("model_path")
-        if not model_path or not os.path.exists(model_path):
-            # Fallback to expected GGUF path if not specified
-            base_dir = Path(__file__).parent.parent.parent
-            model_path = str(base_dir / "data" / "models" / "tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf")
-            if not os.path.exists(model_path):
-                raise FileNotFoundError(f"Model not found at {model_path}")
-        
-        logger.log("model_load", path=model_path, type="tinyllama")
-        
-        model = Llama(
-            model_path=model_path,
-            n_ctx=2048,
-            n_threads=config.get("n_threads", 4),
-            n_batch=512,
-            use_mmap=True,
-            use_mlock=False,
-            verbose=False  # Suppress llama.cpp verbose output
+# Set up signal handler for timeout (Unix only)
+if hasattr(signal, 'SIGALRM'):
+    signal.signal(signal.SIGALRM, timeout_handler)
+
+# --- Helper Functions ---
+def setup_logger():
+    """Initialize the logger for this module."""
+    logger = logging.getLogger(__name__)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
-        return model
-    except ImportError:
-        logger.log("model_load_error", error="llama_cpp not installed")
-        raise
-    except Exception as e:
-        logger.log("model_load_error", error=str(e))
-        raise
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    return logger
 
-@retry_on_failure(max_attempts=3, delay=2.0, logger=logger)
+@retry_on_failure(max_attempts=MAX_ATTEMPTS_PER_SAMPLE, delay=2.0, logger=None)
 def generate_sample(
-    model: Any,
+    model: Llama,
     prompt: str,
     strategy: str,
-    config: Dict[str, Any],
     seed: int,
-    timeout_seconds: int = 120
+    params: Dict[str, Any],
+    timeout: int = GENERATION_TIMEOUT_SECONDS
 ) -> Dict[str, Any]:
     """
-    Generate a single phenomenological sample with timeout handling.
+    Generate a single sample with timeout handling and retry logic.
     
     Args:
-        model: Loaded LLM instance
-        prompt: The base prompt text
-        strategy: Prompting strategy used
-        config: Configuration dictionary
-        seed: Random seed for reproducibility
-        timeout_seconds: Maximum time allowed for generation
+        model: The loaded Llama model instance.
+        prompt: The base prompt text.
+        strategy: The prompting strategy used.
+        seed: Random seed for reproducibility.
+        params: Generation parameters (temperature, max_tokens, etc.).
+        timeout: Timeout in seconds for the generation call.
     
     Returns:
-        Dictionary containing generation results and metadata
-    """
-    # Set timeout
-    signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(timeout_seconds)
+        A dictionary containing the generation result and metadata.
     
+    Raises:
+        GenerationTimeoutError: If generation exceeds the timeout.
+        GenerationError: If generation fails after retries.
+    """
+    logger = get_logger()
+    log_operation("generate_sample_attempt", strategy=strategy, seed=seed)
+    
+    # Set random seed for reproducibility
+    random.seed(seed)
+    if hasattr(model, 'seed'):
+        model.seed = seed
+
+    # Prepare the full prompt
+    # Assuming the model expects chat format, we might need to wrap the prompt
+    # depending on the model's specific requirements. 
+    # For TinyLlama Chat, we usually wrap in <|system|> or similar if not handled by the model directly.
+    # Here we assume the prompt is already formatted or the model handles raw text.
+    full_prompt = prompt
+
+    # Set up timeout
+    if hasattr(signal, 'SIGALRM'):
+        signal.alarm(timeout)
+
     try:
-        # Set seed for reproducibility
-        random.seed(seed)
-        if hasattr(model, 'seed'):
-            model.seed = seed
-        
-        # Apply strategy-specific parameters if needed
-        generation_params = {
-            "max_tokens": config.get("max_tokens", 512),
-            "temperature": config.get("temperature", 0.7),
-            "top_p": config.get("top_p", 0.9),
-            "stop": ["\n\n", "###"],
-            "seed": seed
-        }
-        
-        # Generate text
         start_time = time.time()
         output = model(
-            prompt,
-            **generation_params
+            full_prompt,
+            max_tokens=params.get("max_tokens", 512),
+            temperature=params.get("temperature", 0.7),
+            top_p=params.get("top_p", 0.9),
+            repeat_penalty=params.get("repeat_penalty", 1.1),
+            stop=["\n\n", "END"], # Common stop sequences
+            echo=False
         )
-        elapsed_time = time.time() - start_time
+        elapsed = time.time() - start_time
         
         # Cancel alarm
         signal.alarm(0)
+
+        result_text = output.get("choices", [{}])[0].get("text", "").strip()
         
-        # Extract generated text
-        generated_text = output.get("choices", [{}])[0].get("text", "").strip()
-        
+        if not result_text:
+            raise GenerationError("Model returned empty text.")
+
         return {
             "success": True,
-            "text": generated_text,
+            "text": result_text,
             "strategy": strategy,
+            "seed": seed,
             "prompt": prompt,
-            "seed": seed,
-            "elapsed_time": elapsed_time,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-        
-    except GenerationTimeoutError as e:
-        signal.alarm(0)
-        logger.log("generation_timeout", strategy=strategy, prompt_len=len(prompt))
-        return {
-            "success": False,
-            "error": "timeout",
-            "strategy": strategy,
-            "seed": seed,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-    except Exception as e:
-        signal.alarm(0)
-        logger.log("generation_error", strategy=strategy, error=str(e))
-        return {
-            "success": False,
-            "error": str(e),
-            "strategy": strategy,
-            "seed": seed,
+            "elapsed_time": elapsed,
             "timestamp": datetime.utcnow().isoformat()
         }
 
+    except GenerationTimeoutError:
+        signal.alarm(0)
+        raise
+    except Exception as e:
+        signal.alarm(0)
+        raise GenerationError(f"Generation failed: {str(e)}")
+
 def run_generation_pipeline(
-    config_path: str,
-    output_dir: Optional[str] = None
+    model_path: str,
+    model_params: Dict[str, Any],
+    prompts: List[Dict[str, Any]],
+    strategies: List[str],
+    output_dir: str,
+    min_samples: int = MIN_SAMPLES_PER_CONDITION,
+    logger: Optional[logging.Logger] = None
 ) -> Dict[str, Any]:
     """
-    Run the full generation pipeline with timeout handling and sample-size logging.
-    
-    Ensures >=80 successful samples per condition (prompt x strategy combination).
+    Run the full generation pipeline for all prompts and strategies.
     
     Args:
-        config_path: Path to configuration file
-        output_dir: Optional output directory override
+        model_path: Path to the GGUF model file.
+        model_params: Parameters for loading the model.
+        prompts: List of base prompts to use.
+        strategies: List of prompting strategies to apply.
+        output_dir: Directory to save generated samples.
+        min_samples: Minimum number of successful samples per condition.
+        logger: Logger instance.
     
     Returns:
-        Summary statistics of the generation run
+        Summary statistics of the generation run.
     """
-    config = get_config(config_path)
-    output_dir = output_dir or config.get("output_dir", "data/raw")
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    if logger is None:
+        logger = setup_logger()
     
-    logger.log("pipeline_start", config_path=config_path, output_dir=str(output_path))
-    
-    # Load base prompts
-    prompts = load_base_prompts(config.get("prompts_path", "data/prompts/base_prompts.json"))
-    strategies = ["direct", "hypothetical", "comparative", "roleplay"]
-    
-    # Configuration for sample generation
-    samples_per_condition = config.get("samples_per_condition", 80)
-    timeout_seconds = config.get("timeout_seconds", 120)
+    logger.info(f"Starting generation pipeline with {len(prompts)} prompts and {len(strategies)} strategies.")
+    logger.info(f"Target: >= {min_samples} samples per condition.")
     
     # Load model
-    model = load_model(config)
-    
-    # Track results
+    logger.info(f"Loading model from {model_path}...")
+    try:
+        model = Llama(
+            model_path=model_path,
+            **model_params
+        )
+        logger.info("Model loaded successfully.")
+    except Exception as e:
+        logger.error(f"Failed to load model: {e}")
+        return {"success": False, "error": str(e)}
+
+    # Initialize results storage
     all_results = []
-    condition_stats = {}
+    condition_stats = {} # (prompt_id, strategy) -> {total_attempts, successes, failures}
     
-    total_attempts = 0
-    successful_samples = 0
-    failed_samples = 0
+    output_path = Path(output_dir)
+    ensure_dir(output_path)
     
+    # Iterate over all conditions
     for strategy in strategies:
-        for prompt_idx, prompt_text in enumerate(prompts):
-            condition_key = f"{strategy}_prompt_{prompt_idx}"
-            condition_stats[condition_key] = {"success": 0, "failed": 0}
+        for prompt_data in prompts:
+            prompt_id = prompt_data.get("id", "unknown")
+            prompt_text = prompt_data.get("prompt", "")
+            
+            condition_key = (prompt_id, strategy)
+            if condition_key not in condition_stats:
+                condition_stats[condition_key] = {
+                    "total_attempts": 0,
+                    "successes": 0,
+                    "failures": 0,
+                    "samples": []
+                }
+            
+            logger.info(f"Processing condition: Prompt {prompt_id}, Strategy {strategy}")
             
             attempts = 0
-            while condition_stats[condition_key]["success"] < samples_per_condition:
+            while condition_stats[condition_key]["successes"] < min_samples:
                 attempts += 1
-                total_attempts += 1
+                seed = random.randint(0, 2**32 - 1)
+                condition_stats[condition_key]["total_attempts"] += 1
                 
-                # Generate unique seed for this attempt
-                seed = random.randint(1, 1000000)
-                
-                result = generate_sample(
-                    model=model,
-                    prompt=prompt_text,
-                    strategy=strategy,
-                    config=config,
-                    seed=seed,
-                    timeout_seconds=timeout_seconds
-                )
-                
-                if result.get("success", False):
-                    condition_stats[condition_key]["success"] += 1
-                    successful_samples += 1
+                try:
+                    # Apply strategy to prompt if needed (though prompt_data might already be strategy-specific)
+                    # For this implementation, we assume prompt_data contains the full text or we apply a wrapper.
+                    # If prompt_data is just a base, we might need to apply_strategy here.
+                    # Assuming prompt_data is the final prompt for simplicity based on T008 context.
+                    
+                    result = generate_sample(
+                        model=model,
+                        prompt=prompt_text,
+                        strategy=strategy,
+                        seed=seed,
+                        params=model_params.get("generation_params", {})
+                    )
+                    
+                    condition_stats[condition_key]["successes"] += 1
+                    condition_stats[condition_key]["samples"].append(result)
                     all_results.append(result)
                     
-                    # Log progress every 10 samples
-                    if condition_stats[condition_key]["success"] % 10 == 0:
-                        logger.log(
-                            "sample_progress",
-                            condition=condition_key,
-                            current=condition_stats[condition_key]["success"],
-                            target=samples_per_condition
-                        )
-                else:
-                    condition_stats[condition_key]["failed"] += 1
-                    failed_samples += 1
+                    logger.info(f"  Success {condition_stats[condition_key]['successes']}/{min_samples} (Attempt {attempts})")
                     
-                    # Log failure
-                    logger.log(
-                        "sample_failed",
-                        condition=condition_key,
-                        error=result.get("error", "unknown"),
-                        attempt=attempts
-                    )
-                
-                # Safety break after too many failures
-                if attempts > samples_per_condition * 3:
-                    logger.log(
-                        "condition_aborted",
-                        condition=condition_key,
-                        reason="excessive_failures",
-                        success=condition_stats[condition_key]["success"],
-                        target=samples_per_condition
-                    )
-                    break
-    
-    # Final logging of sample sizes
-    logger.log(
-        "pipeline_complete",
-        total_attempts=total_attempts,
-        successful_samples=successful_samples,
-        failed_samples=failed_samples,
-        condition_stats=condition_stats
-    )
-    
-    # Verify minimum sample size requirement
-    min_met = all(
-        stats["success"] >= samples_per_condition 
-        for stats in condition_stats.values()
-    )
-    
-    if not min_met:
-        logger.log(
-            "warning",
-            message="Minimum sample size (80) not met for all conditions",
-            condition_stats=condition_stats
-        )
-    
-    # Save results
-    output_file = output_path / "phenomenological_reports.json"
-    safe_write_json(output_file, all_results)
-    
-    # Save summary stats
+                    # Optional: Save intermediate results to avoid data loss
+                    if condition_stats[condition_key]["successes"] % 10 == 0:
+                        temp_file = output_path / f"temp_{prompt_id}_{strategy}.json"
+                        safe_write_json(temp_file, all_results)
+                        logger.info(f"  Saved intermediate results to {temp_file}")
+
+                except Exception as e:
+                    condition_stats[condition_key]["failures"] += 1
+                    logger.warning(f"  Attempt {attempts} failed: {e}")
+                    
+                    # If we've exhausted attempts and still haven't reached min_samples,
+                    # we might want to break or warn heavily.
+                    if attempts > MAX_ATTEMPTS_PER_SAMPLE * min_samples * 2: # Safety break
+                        logger.error(f"  Exceeded max attempts for condition {condition_key}. Stopping.")
+                        break
+            
+            # Save condition results
+            condition_file = output_path / f"results_{prompt_id}_{strategy}.json"
+            safe_write_json(condition_file, condition_stats[condition_key]["samples"])
+            logger.info(f"Saved results for condition {condition_key} to {condition_file}")
+
+    # Final Summary
     summary = {
-        "total_attempts": total_attempts,
-        "successful_samples": successful_samples,
-        "failed_samples": failed_samples,
-        "condition_stats": condition_stats,
-        "min_sample_size_met": min_met,
-        "timestamp": datetime.utcnow().isoformat()
+        "total_conditions": len(condition_stats),
+        "total_samples": len(all_results),
+        "min_samples_target": min_samples,
+        "conditions_met": 0,
+        "details": {}
     }
+    
+    for key, stats in condition_stats.items():
+        met = stats["successes"] >= min_samples
+        if met:
+            summary["conditions_met"] += 1
+        summary["details"][f"{key[0]}_{key[1]}"] = {
+            "successes": stats["successes"],
+            "target": min_samples,
+            "met": met,
+            "attempts": stats["total_attempts"],
+            "failures": stats["failures"]
+        }
+    
+    summary["all_results"] = all_results
     summary_file = output_path / "generation_summary.json"
     safe_write_json(summary_file, summary)
     
-    # Archive artifacts
-    archive_artifact(
-        artifacts=[output_file, summary_file],
-        archive_path=output_path / "generation_archive.tar.gz"
-    )
+    logger.info(f"Pipeline complete. {summary['conditions_met']}/{summary['total_conditions']} conditions met target.")
     
     return summary
 
 def main():
-    """CLI entry point for the generation runner."""
-    import argparse
+    """Main entry point for the generation runner."""
+    logger = setup_logger()
     
-    parser = argparse.ArgumentParser(description="Phenomenological AI Generation Runner")
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="code/config.py",
-        help="Path to configuration file"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default=None,
-        help="Override output directory"
-    )
-    
-    args = parser.parse_args()
-    
+    # Load configuration
     try:
-        summary = run_generation_pipeline(
-            config_path=args.config,
-            output_dir=args.output_dir
-        )
-        
-        print(json.dumps(summary, indent=2))
-        logger.log("main_success", summary=summary)
-        
+        config = get_config()
     except Exception as e:
-        logger.log("main_error", error=str(e))
-        print(f"Error: {e}", file=sys.stderr)
+        logger.error(f"Failed to load config: {e}")
+        sys.exit(1)
+    
+    # Get model paths and params
+    model_path = config.get(MODEL_PATH_KEY)
+    if not model_path:
+        # Fallback or error
+        model_path = os.environ.get("TINYLLAMA_MODEL_PATH")
+        if not model_path:
+            logger.error("Model path not found in config or environment.")
+            sys.exit(1)
+    
+    model_params = config.get(MODEL_PARAMS_KEY, {})
+    
+    # Load prompts
+    prompts_file = config.get("base_prompts_path", "data/prompts/base_prompts.json")
+    try:
+        prompts = load_base_prompts(prompts_file)
+        logger.info(f"Loaded {len(prompts)} base prompts.")
+    except Exception as e:
+        logger.error(f"Failed to load prompts: {e}")
+        sys.exit(1)
+    
+    # Define strategies (from config or hardcoded)
+    strategies = config.get("strategies", ["Direct", "Hypothetical", "Comparative", "Role-play"])
+    
+    # Output directory
+    output_dir = config.get("raw_output_dir", "data/raw/")
+    ensure_dir(output_dir)
+    
+    # Run pipeline
+    summary = run_generation_pipeline(
+        model_path=model_path,
+        model_params=model_params,
+        prompts=prompts,
+        strategies=strategies,
+        output_dir=output_dir,
+        min_samples=MIN_SAMPLES_PER_CONDITION,
+        logger=logger
+    )
+    
+    if summary.get("success"):
+        print("Generation pipeline completed successfully.")
+        print(f"Total samples: {summary['total_samples']}")
+        print(f"Conditions met target: {summary['conditions_met']}/{summary['total_conditions']}")
+    else:
+        print("Generation pipeline failed.")
+        print(summary.get("error", "Unknown error"))
         sys.exit(1)
 
 if __name__ == "__main__":

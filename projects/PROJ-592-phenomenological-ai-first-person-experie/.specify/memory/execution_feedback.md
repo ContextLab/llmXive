@@ -2,59 +2,57 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 command(s) failed: python code/main.py --task generate --config code/config.py (rc=1); python code/main.py --task generate_control --config code/config.py (rc=1); python code/main.py --task select_validation_sample --config code/config.py (rc=1); 1 declared deliverable(s) absent: data/processed/validity_scores.csv
+**Summary**: 7 command(s) failed: python code/main.py --task generate --config code/config.py (rc=1); python code/main.py --task generate_control --config code/config.py (rc=1); python code/main.py --task select_validation_sample --config code/config.py (rc=2); 1 declared deliverable(s) absent: data/processed/validity_scores.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --task generate --config code/config.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 15, in <module>
-    from generation.control_corpus import generate_control_corpus, main as control_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/control_corpus.py", line 22, in <module>
-    from config import get_config
-ImportError: cannot import name 'get_config' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/.venv/lib/python3.11/site-packages/config/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 174, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 144, in main
+    log_operation("main_start", task=args.task, config=args.config)
+TypeError: log_operation() missing 1 required positional argument: 'message'
 - python code/main.py --task generate_control --config code/config.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 15, in <module>
-    from generation.control_corpus import generate_control_corpus, main as control_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/control_corpus.py", line 22, in <module>
-    from config import get_config
-ImportError: cannot import name 'get_config' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/.venv/lib/python3.11/site-packages/config/__init__.py)
-- python code/main.py --task select_validation_sample --config code/config.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 15, in <module>
-    from generation.control_corpus import generate_control_corpus, main as control_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/control_corpus.py", line 22, in <module>
-    from config import get_config
-ImportError: cannot import name 'get_config' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/.venv/lib/python3.11/site-packages/config/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 174, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 144, in main
+    log_operation("main_start", task=args.task, config=args.config)
+TypeError: log_operation() missing 1 required positional argument: 'message'
+- python code/main.py --task select_validation_sample --config code/config.py -> rc=2
+    usage: main.py [-h]
+               [--task {generate,generate_control,analyze,stats,validate_human,sensitivity-kappa,archive,full}]
+               [--config CONFIG]
+main.py: error: argument --task: invalid choice: 'select_validation_sample' (choose from 'generate', 'generate_control', 'analyze', 'stats', 'validate_human', 'sensitivity-kappa', 'archive', 'full')
 - python code/main.py --task analyze -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 15, in <module>
-    from generation.control_corpus import generate_control_corpus, main as control_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/control_corpus.py", line 22, in <module>
-    from config import get_config
-ImportError: cannot import name 'get_config' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/.venv/lib/python3.11/site-packages/config/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 174, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 144, in main
+    log_operation("main_start", task=args.task, config=args.config)
+TypeError: log_operation() missing 1 required positional argument: 'message'
 - python code/main.py --task validate_human -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 15, in <module>
-    from generation.control_corpus import generate_control_corpus, main as control_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/control_corpus.py", line 22, in <module>
-    from config import get_config
-ImportError: cannot import name 'get_config' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/.venv/lib/python3.11/site-packages/config/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 174, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 144, in main
+    log_operation("main_start", task=args.task, config=args.config)
+TypeError: log_operation() missing 1 required positional argument: 'message'
 - python code/main.py --task stats -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 15, in <module>
-    from generation.control_corpus import generate_control_corpus, main as control_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/control_corpus.py", line 22, in <module>
-    from config import get_config
-ImportError: cannot import name 'get_config' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/.venv/lib/python3.11/site-packages/config/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 174, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 144, in main
+    log_operation("main_start", task=args.task, config=args.config)
+TypeError: log_operation() missing 1 required positional argument: 'message'
 - python code/main.py --task sensitivity-kappa -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 15, in <module>
-    from generation.control_corpus import generate_control_corpus, main as control_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/generation/control_corpus.py", line 22, in <module>
-    from config import get_config
-ImportError: cannot import name 'get_config' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/.venv/lib/python3.11/site-packages/config/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 174, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py", line 144, in main
+    log_operation("main_start", task=args.task, config=args.config)
+TypeError: log_operation() missing 1 required positional argument: 'message'
 
 ## Declared deliverables still missing
 
@@ -68,17 +66,35 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `retry_on_failure` — defined in `code/utils/logging.py`; called 9 way(s):
+### `log_operation` — defined in `code/utils/logging.py`; called 14 way(s):
 
-- code/utils/logging.py: 3. Implements retry logic with @retry_on_failure decorator
-- code/utils/logging.py: - @retry_on_failure(max_retries=N, logger=logger)
-- code/utils/logging.py: - @retry_on_failure(max_attempts=N, delay=D)
-- code/utils/logging.py: - @retry_on_failure(max_attempts=N, delay_seconds=D)
-- code/utils/logging.py: - @retry_on_failure(max_attempts=N, delay=D, logger=logger)
+- code/main.py: log_operation("setup_environment", config_path=config_path)
+- code/main.py: log_operation("run_generation_phase")
+- code/main.py: log_operation("run_control_phase")
+- code/main.py: log_operation("run_analysis_phase")
+- code/main.py: log_operation("run_stats_phase")
+- code/main.py: log_operation("run_validation_phase")
+- code/main.py: log_operation("run_full_pipeline")
+- code/main.py: log_operation("full_pipeline_complete")
+- code/main.py: log_operation("main_start", task=args.task, config=args.config)
+- code/main.py: log_operation("task_complete", task=args.task)
+- code/main.py: log_operation("task_failed", task=args.task, error=str(e))
+- code/utils/logging.py: # Decorator usage: @log_operation
+- code/generation/timeout_monitor.py: log_operation(
+- code/generation/runner.py: log_operation("generate_sample_attempt", strategy=strategy, seed=seed)
+
+Make `log_operation` in `code/utils/logging.py` accept ALL of the above.
+
+### `retry_on_failure` — defined in `code/utils/logging.py`; called 8 way(s):
+
+- code/utils/logging.py: - @retry_on_failure(max_attempts=3)
+- code/utils/logging.py: - @retry_on_failure(max_retries=3)
+- code/utils/logging.py: - @retry_on_failure(max_attempts=3, delay=2.0)
+- code/utils/logging.py: - @retry_on_failure(max_attempts=3, delay_seconds=2.0, logger=logger)
 - code/validation/turing_simulation.py: @retry_on_failure(max_attempts=3, delay_seconds=1.0)
 - code/generation/runner_local.py: @retry_on_failure(max_attempts=3, delay=5)
-- code/generation/runner.py: @retry_on_failure(max_retries=MAX_RETRIES, logger=logger)
-- code/generation/control_corpus.py: @retry_on_failure(max_attempts=3, delay=2.0)
+- code/generation/runner.py: @retry_on_failure(max_attempts=MAX_ATTEMPTS_PER_SAMPLE, delay=2.0, logger=None)
+- code/generation/control_corpus.py: @retry_on_failure(max_attempts=3, delay=2.0, logger=logger)
 
 Make `retry_on_failure` in `code/utils/logging.py` accept ALL of the above.
 
@@ -167,6 +183,7 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/validity_scores.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — IS a run-book command
     - `code/analysis/sensitivity_analysis.py` — NOT invoked by the run-book
     - `code/analysis/validity_justification.py` — NOT invoked by the run-book
     - `code/analysis/stats.py` — NOT invoked by the run-book

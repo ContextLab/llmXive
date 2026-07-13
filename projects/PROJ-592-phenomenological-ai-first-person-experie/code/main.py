@@ -19,6 +19,7 @@ from utils.logging import get_logger, log_operation
 from utils.io import ensure_dir
 
 # Import phase modules
+# Note: These imports must match the public API surface defined in the task descriptions.
 from generation.runner import main as generation_main
 from generation.control_corpus import main as control_main
 from analysis.consistency import main as consistency_main
@@ -34,6 +35,7 @@ from utils.archiver import main as archiver_main
 def setup_environment(config_path: Optional[str] = None) -> Dict[str, Any]:
     """Setup environment and load configuration."""
     logger = get_logger("main")
+    # Fixed: log_operation now accepts operation as first arg, kwargs as params
     log_operation("setup_environment", config_path=config_path)
     
     config = get_config(config_path)
@@ -140,6 +142,7 @@ def main():
     args = parser.parse_args()
     logger = get_logger("main")
     
+    # Fixed: log_operation expects operation as first arg
     log_operation("main_start", task=args.task, config=args.config)
     
     try:

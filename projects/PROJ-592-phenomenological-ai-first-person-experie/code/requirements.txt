@@ -28,3 +28,4 @@ pytest>=7.4.0
 # Optional: for local 7B models
 # accelerate>=0.20.0
 # bitsandbytes>=0.40.0
+llama_cpp  # auto-added: imported by run-book but missing from venv

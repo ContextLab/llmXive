@@ -1,5 +1,9 @@
 [
   {
+    "symbol": "log_operation",
+    "owner": null
+  },
+  {
     "symbol": "retry_on_failure",
     "owner": null
   }

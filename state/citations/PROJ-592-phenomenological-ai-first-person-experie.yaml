@@ -9,3 +9,25 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/phenomenological-ai
   verified_at: '2026-06-30T02:43:37.373188Z'
+- artifact_hash: 5abbb9484fabaa33ee95675fc8ade4a562542ad13f0ee31ceefac5b6a7a71fd4
+  artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+  kind: url
+  value: https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+  verification_status: verified
+  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6591d4d754f88261730df832/015c9bb0376d9c3c9dab434ecb3bd57961dce1921a5b1bf134c6f1b824c25c8d?Expires=1783977911&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY1OTFkNGQ3NTRmODgyNjE3MzBkZjgzMi8wMTVjOWJiMDM3NmQ5YzNjOWRhYjQzNGVjYjNiZDU3OTYxZGNlMTkyMWE1YjFiZjEzNGM2ZjFiODI0YzI1YzhkKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk3NzkxMX19fV19&Signature=MEUCIQCasLNWjTjFn93%7E14YUh5kcsozJ9b7HBqcajBBZ8GeM2AIgAiVgOF6W9FtNAtOtfliNDriY9jy1ka8jd2i4NiOabg8_&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf%3B+filename%3D%22tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T202511Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=686a4e212cb730eed46dc8b157fcd735f76c31ed83bf20cab5cf7ce392d31dda
+  verified_at: '2026-07-13T20:25:11.642504Z'
+- artifact_hash: 10cd6fac6d0a5f333c5ba417e8cc6acc60f2d42a9da8d9b2113353530ae68e6e
+  artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Huawei Mate XT - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Huawei_Mate_XT
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Huawei_Mate_XT
+  verified_at: '2026-07-13T20:26:42.169283Z'

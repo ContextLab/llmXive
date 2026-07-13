@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T005** — The provided `code/utils/logging.py` defines a flexible logger and a `LogEntry` dataclass, but the file is truncated (ends mid‑statement) and contains no implementation for capturing warnings or for retrying failed operations (multiple attempts per sample). Consequently, the required warning‑capture and retry‑logic features are missing.
+- **T013** — No code, configuration, or log files were provided that demonstrate timeout handling or sample‑size logging, nor any evidence that ≥80 successful samples per condition are achieved. The required artifact is missing, so the task is not satisfied.
+- **T030a** — No evidence of a `quickstart.md` file containing the required CLI usage examples (`python main.py --mode generation`, `... analysis`, `... validate`) or environment setup instructions is provided. The implementer’s claim cannot be verified because the artifact is missing or not shown.
+- **T031b** — The provided `code/utils/logging.py` is truncated (the file ends abruptly in the middle of a line) and thus does not contain a complete implementation. Consequently we cannot verify that log levels are consistently standardized or that a uniform output format (e.g., JSON) is reliably produced throughout the module. The artifact must be a complete, non‑truncated file that demonstrably enforces standardized log levels and a consistent formatting scheme.

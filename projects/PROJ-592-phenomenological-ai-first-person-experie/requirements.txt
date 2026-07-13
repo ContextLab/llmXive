@@ -1,20 +1,25 @@
 # Phenomenological AI Pipeline Dependencies
-# Core
+# Core NLP and ML libraries
 numpy>=1.24.0
 pandas>=2.0.0
-scipy>=1.10.0
-scikit-learn>=1.2.0
+scikit-learn>=1.3.0
+scipy>=1.11.0
 
-# LLM Inference
+# Model loading and inference (CPU-optimized)
 llama-cpp-python>=0.2.0
+transformers>=4.35.0
+sentence-transformers>=2.2.0
 
-# Data Handling
+# Data handling
 datasets>=2.14.0
+jsonschema>=4.19.0
 
 # Utilities
+tqdm>=4.65.0
 pyyaml>=6.0
 ruff>=0.1.0
 black>=23.0.0
 
-# Testing
-pytest>=7.4.0
+# Optional: for local 7B models (not used in CI)
+# accelerate>=0.24.0
+# bitsandbytes>=0.41.0
