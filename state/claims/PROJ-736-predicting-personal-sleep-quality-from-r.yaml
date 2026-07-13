@@ -516,3 +516,191 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T18:25:35Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: 1000 label permutations on 100 subject subset
+  claim_id: c_6159856a
+  context: T022 [US2] Implement code/modeling/evaluate.py to perform 1,000 label permutations
+    on a stratified subset of 100 subjects (based on Sleep Score).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 1,000 label permutations on a stratified subset of 100 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:18:53Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: 1000 bootstrap resamples of outer-fold predictions
+  claim_id: c_c039d541
+  context: "T023 [US2] Implement code/modeling/evaluate.py to perform 1,000 bootstrap\
+    \ resamples of outer-fold predictions (loaded from data/processed/predictions.npy)\
+    \ for % CI on R\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 1,000 bootstrap resamples of outer-fold predictions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:19:12Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: 3-hour time budget for 9 grid points
+  claim_id: c_b488a911
+  context: T024 [US2] Implement sensitivity analysis... Must enforce a cumulative
+    3-hour time budget for the 9 grid points.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a cumulative 3-hour time budget for 9 grid points in sensitivity
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:19:33Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: RAM usage limit 6 GB
+  claim_id: c_0aecabc9
+  context: "T025 [US2] Implement code/modeling/evaluate.py to enforce CPU-only execution,\
+    \ monitor RAM usage (\u22646 GB) using psutil."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if RAM usage exceeds 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:20:02Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: verify plot contains 50 edges
+  claim_id: c_994a0fd3
+  context: "T033 [P] [US3] Verify plot file exists and contains \u226550 edges: Use\
+    \ Python's built-in xml.etree.ElementTree to parse SVG."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_plot_contains_50_edges
+  kind: magnitude
+  raw_text: Verify plot file contains at least 50 edges.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:20:27Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: plot all available if less than 50 coefficients
+  claim_id: c_2c7fb764
+  context: T031 [US3] Generate brain-surface plot... Must handle case where <50 non-zero
+    coefficients exist by plotting all available and logging a warning.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Plot_all_available_if_less_than_50_coefficients
+  kind: magnitude
+  raw_text: Handle case where fewer than 50 non-zero coefficients exist by plotting
+    all available.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:20:59Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: exclude subjects with framewise displacement greater than 0.3mm
+  claim_id: c_49fa6153
+  context: T007b [US1] Implement subject filtering logic... to identify subjects with
+    valid Sleep Scores and exclude those with >0.3mm framewise displacement.
+  evidence:
+    entailment_evidence: Exclude subjects with framewise displacement greater than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_framewise_displacement_greater_than_0.
+  kind: magnitude
+  raw_text: Exclude subjects with greater than 0.3mm framewise displacement.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-13T22:21:29Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: apply 0.01 to 0.1 Hz band-pass filtering
+  claim_id: c_62f946b5
+  context: T006 Implement code/data/preprocess.py for Schaefer parcellation, nuisance
+    regression, and 0.01-0.1 Hz band-pass filtering.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply 0.01-0.1 Hz band-pass filtering.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:22:04Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: PCA retention values 0.95 0.90 0.85
+  claim_id: c_25215056
+  context: T024 [US2] Implement sensitivity analysis... iterate variance thresholds
+    including low values and PCA retention {0.95, 0.90, 0.85}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use PCA retention values of 0.95, 0.90, and 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:22:27Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: abort if success rate less than 80 percent
+  claim_id: c_5efd58bf
+  context: T016 [US1] Implement error handling to log excluded subjects and abort
+    if success rate <80%.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_success_rate_less_than_80_percent
+  kind: magnitude
+  raw_text: Abort if success rate is less than 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:22:54Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: default subset size 100
+  claim_id: c_b038bb91
+  context: T002 Implement code/config.py with seeds, paths, and hyperparameters...
+    subset size 100.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a default subset size of 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T22:23:23Z'

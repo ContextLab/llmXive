@@ -1,1 +1,1 @@
-# Utility modules
+"""Utility module."""

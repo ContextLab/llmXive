@@ -1,1 +1,1 @@
-# Sleep Quality Prediction Pipeline
+"""Project root package."""

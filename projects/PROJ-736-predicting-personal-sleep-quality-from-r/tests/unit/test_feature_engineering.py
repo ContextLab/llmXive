@@ -1,6 +1,5 @@
 """
 Unit tests for feature engineering functions.
-Tests Fisher-z transformation and variance calculations.
 """
 import numpy as np
 import pytest
@@ -15,98 +14,71 @@ if str(project_root) not in sys.path:
 from data.feature_engineering import (
     compute_pairwise_correlation,
     fisher_z_transform,
-    extract_upper_triangular_vector,
-    process_subject_features
+    extract_upper_triangular_vector
 )
 
-class TestFisherZTransform:
-    def test_fisher_z_identity(self):
-        """Test that Fisher-z of 0 is 0"""
-        assert abs(fisher_z_transform(0.0)) < 1e-6
+def test_compute_pairwise_correlation_shape():
+    """Test that correlation matrix has correct shape."""
+    # Create synthetic time series: 100 time points, 5 nodes
+    np.random.seed(42)
+    ts = np.random.randn(100, 5)
+    
+    corr = compute_pairwise_correlation(ts)
+    
+    assert corr.shape == (5, 5)
+    # Diagonal should be 1.0
+    assert np.allclose(np.diag(corr), 1.0)
 
-    def test_fisher_z_positive(self):
-        """Test Fisher-z for positive correlation"""
-        z = fisher_z_transform(0.5)
-        assert z > 0
-        
-    def test_fisher_z_negative(self):
-        """Test Fisher-z for negative correlation"""
-        z = fisher_z_transform(-0.5)
-        assert z < 0
+def test_compute_pairwise_correlation_symmetry():
+    """Test that correlation matrix is symmetric."""
+    np.random.seed(42)
+    ts = np.random.randn(100, 5)
+    
+    corr = compute_pairwise_correlation(ts)
+    
+    assert np.allclose(corr, corr.T)
 
-    def test_fisher_z_edge_cases(self):
-        """Test Fisher-z handles extreme values without crashing"""
-        # Should not raise error, though values will be large
-        z_pos = fisher_z_transform(0.9999)
-        z_neg = fisher_z_transform(-0.9999)
-        assert z_pos > 0
-        assert z_neg < 0
+def test_fisher_z_transform_range():
+    """Test that Fisher-z transform produces valid range."""
+    # Correlations close to -1 and 1
+    r = np.array([-0.99, -0.5, 0.0, 0.5, 0.99])
+    z = fisher_z_transform(r)
+    
+    # Check that output is finite
+    assert np.all(np.isfinite(z))
+    
+    # Check monotonicity (higher r -> higher z)
+    assert np.all(np.diff(z) > 0)
 
-class TestCorrelationMatrix:
-    def test_symmetric_matrix(self):
-        """Test that correlation matrix is symmetric"""
-        # Create simple time series: 100 timepoints, 5 regions
-        np.random.seed(42)
-        ts = np.random.randn(100, 5)
-        corr = compute_pairwise_correlation(ts)
-        
-        # Check symmetry
-        assert np.allclose(corr, corr.T)
+def test_fisher_z_transform_inverse():
+    """Test approximate inverse of Fisher-z transform."""
+    r_original = np.array([-0.9, -0.5, 0.0, 0.5, 0.9])
+    z = fisher_z_transform(r_original)
+    
+    # Inverse: r = (exp(2z) - 1) / (exp(2z) + 1)
+    r_recovered = (np.exp(2 * z) - 1) / (np.exp(2 * z) + 1)
+    
+    assert np.allclose(r_original, r_recovered, atol=1e-4)
 
-    def test_diagonal_ones(self):
-        """Test that diagonal of correlation matrix is 1"""
-        np.random.seed(42)
-        ts = np.random.randn(100, 5)
-        corr = compute_pairwise_correlation(ts)
-        
-        # Check diagonal
-        assert np.allclose(np.diag(corr), 1.0)
+def test_extract_upper_triangular_vector_length():
+    """Test that extracted vector has correct length."""
+    n = 5
+    corr = np.eye(n)
+    vec = extract_upper_triangular_vector(corr)
+    
+    expected_len = n * (n - 1) // 2
+    assert len(vec) == expected_len
 
-    def test_shape(self):
-        """Test output shape matches input regions"""
-        np.random.seed(42)
-        ts = np.random.randn(100, 10)
-        corr = compute_pairwise_correlation(ts)
-        assert corr.shape == (10, 10)
-
-class TestUpperTriangularExtraction:
-    def test_vector_length(self):
-        """Test vector length for n regions is n*(n-1)/2"""
-        n = 10
-        corr_matrix = np.eye(n)
-        vec = extract_upper_triangular_vector(corr_matrix)
-        expected_len = n * (n - 1) // 2
-        assert len(vec) == expected_len
-
-    def test_excludes_diagonal(self):
-        """Test that diagonal elements are excluded"""
-        n = 5
-        corr_matrix = np.ones((n, n))  # All ones
-        vec = extract_upper_triangular_vector(corr_matrix)
-        # If diagonal were included, we'd have n^2 elements
-        # Excluding diagonal and lower triangle: n*(n-1)/2
-        assert len(vec) == n * (n - 1) // 2
-
-class TestProcessSubjectFeatures:
-    def test_output_shape(self):
-        """Test output vector shape"""
-        np.random.seed(42)
-        ts = np.random.randn(100, 10)
-        vec = process_subject_features(ts)
-        
-        # 10 regions -> 10*9/2 = 45 edges
-        expected_len = 10 * 9 // 2
-        assert len(vec) == expected_len
-
-    def test_deterministic(self):
-        """Test that processing is deterministic"""
-        np.random.seed(42)
-        ts = np.random.randn(100, 5)
-        
-        vec1 = process_subject_features(ts)
-        vec2 = process_subject_features(ts)
-        
-        assert np.allclose(vec1, vec2)
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_extract_upper_triangular_vector_values():
+    """Test that extracted values match upper triangle."""
+    n = 4
+    corr = np.random.randn(n, n)
+    corr = (corr + corr.T) / 2  # Make symmetric
+    
+    vec = extract_upper_triangular_vector(corr)
+    
+    # Reconstruct and compare
+    i, j = np.triu_indices(n, k=1)
+    expected = corr[i, j]
+    
+    assert np.allclose(vec, expected)

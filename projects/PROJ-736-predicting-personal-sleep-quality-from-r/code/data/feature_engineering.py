@@ -1,127 +1,144 @@
 """
-Script for feature engineering on preprocessed fMRI data.
-Computes pairwise correlations, applies Fisher-z transform, and extracts upper-triangular vectors.
+Feature Engineering Module.
+
+Computes pairwise Pearson correlation, Fisher-z transformation, and extracts
+upper triangular vectors for connectivity matrices.
 """
 import os
 import sys
 import json
+import logging
 import numpy as np
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict
-import logging
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from config import get_paths, ensure_dirs
-from utils.logging import setup_logging, log_stage_start, log_stage_complete, log_stage_error
+from config import get_paths, get_hyperparameter
+
+logger = logging.getLogger(__name__)
 
 def compute_pairwise_correlation(time_series: np.ndarray) -> np.ndarray:
     """
-    Compute pairwise Pearson correlation matrix from time series.
-    ts: shape (time, nodes)
-    Returns: shape (nodes, nodes) correlation matrix
+    Compute pairwise Pearson correlation matrix.
+    
+    Args:
+        time_series: 2D array (Time x ROIs)
+        
+    Returns:
+        2D correlation matrix (ROIs x ROIs)
     """
-    # Center the data
-    ts_centered = ts - np.mean(ts, axis=0)
-    # Compute correlation
-    corr_matrix = np.corrcoef(ts_centered, rowvar=False)
+    # Normalize time series
+    # corrcoef expects variables in rows or columns?
+    # np.corrcoef(x, y=None, rowvar=1) -> rowvar=1: rows are variables
+    # We have Time x ROIs, so ROIs are columns. rowvar=0.
+    corr_matrix = np.corrcoef(time_series, rowvar=0)
     return corr_matrix
 
-def fisher_z_transform(r: np.ndarray) -> np.ndarray:
+def fisher_z_transform(r_matrix: np.ndarray) -> np.ndarray:
     """
-    Apply Fisher-z transformation to correlation values.
-    z = 0.5 * ln((1+r)/(1-r))
+    Apply Fisher-z transformation to correlation matrix.
+    
+    Args:
+        r_matrix: Correlation matrix
+        
+    Returns:
+        Z-transformed matrix
     """
-    # Clip to avoid log(0) or log(negative)
-    r_clipped = np.clip(r, -0.9999, 0.9999)
-    z = 0.5 * np.log((1 + r_clipped) / (1 - r_clipped))
-    return z
+    # Clip values to [-0.999, 0.999] to avoid log(0)
+    r_clipped = np.clip(r_matrix, -0.999, 0.999)
+    z_matrix = 0.5 * np.log((1 + r_clipped) / (1 - r_clipped))
+    return z_matrix
 
-def extract_upper_triangular_vector(corr_matrix: np.ndarray) -> np.ndarray:
+def extract_upper_triangular_vector(z_matrix: np.ndarray) -> np.ndarray:
     """
-    Extract the upper triangular part of the correlation matrix (excluding diagonal).
-    Returns a 1D vector of length n*(n-1)/2
+    Extract upper triangular vector from symmetric matrix.
+    
+    Args:
+        z_matrix: Z-transformed matrix
+        
+    Returns:
+        1D vector of upper triangle elements
     """
-    n = corr_matrix.shape[0]
-    # Get indices of upper triangle
-    i, j = np.triu_indices(n, k=1)
-    return corr_matrix[i, j]
+    n = z_matrix.shape[0]
+    # Upper triangle, exclude diagonal
+    indices = np.triu_indices(n, k=1)
+    return z_matrix[indices]
 
-def process_subject_features(subject_id: str, paths: Dict) -> np.ndarray:
+def process_subject_features(time_series: np.ndarray) -> np.ndarray:
     """
-    Process a single subject's time series into a feature vector.
+    Full feature engineering pipeline for a subject.
+    
+    Args:
+        time_series: Preprocessed time series (Time x ROIs)
+        
+    Returns:
+        Feature vector (n_edges,)
     """
-    ts_path = paths['processed_dir'] / f"{subject_id}_ts.npy"
-    if not ts_path.exists():
-        raise FileNotFoundError(f"Time series file not found for {subject_id}")
-    
-    ts = np.load(ts_path)
-    
-    # Compute correlation
-    corr = compute_pairwise_correlation(ts)
-    
-    # Fisher-z transform
-    z = fisher_z_transform(corr)
-    
-    # Extract upper triangle
-    vec = extract_upper_triangular_vector(z)
-    
-    return vec
+    corr = compute_pairwise_correlation(time_series)
+    z_corr = fisher_z_transform(corr)
+    vector = extract_upper_triangular_vector(z_corr)
+    return vector
 
-def save_feature_vector(subject_id: str, vec: np.ndarray, paths: Dict):
-    """Save feature vector to disk."""
-    out_path = paths['processed_dir'] / f"{subject_id}_features.npy"
-    np.save(out_path, vec)
+def save_feature_vector(subject_id: str, vector: np.ndarray, output_dir: str) -> None:
+    """Save the feature vector to disk."""
+    output_path = Path(output_dir) / f"{subject_id}.npy"
+    np.save(str(output_path), vector)
+    logger.info(f"Saved feature vector for {subject_id} to {output_path}")
 
-def main(subject_ids: Optional[List[str]] = None) -> bool:
+def main(subject_ids: List[str]) -> bool:
     """
-    Load feature vectors for all subjects and stack into a matrix.
-    Returns: (matrix, list_of_subject_ids)
+    Orchestrate feature engineering for a list of subjects.
+    
+    Args:
+        subject_ids: List of subject IDs.
+        
+    Returns:
+        True if all processed successfully.
     """
     paths = get_paths()
-    vectors = []
-    valid_subjects = []
+    output_dir = paths['processed_dir'] / "features"
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    for subj in subjects:
-        vec_path = paths['processed_dir'] / f"{subj}_features.npy"
-        if vec_path.exists():
-            vec = np.load(vec_path)
-            vectors.append(vec)
-            valid_subjects.append(subj)
-        else:
-            logging.warning(f"Feature vector not found for {subj}")
+    n_rois = get_hyperparameter('n_rois')
+    n_edges = (n_rois * (n_rois - 1)) // 2
     
-    if not vectors:
-        raise ValueError("No feature vectors loaded.")
+    success_count = 0
     
-    matrix = np.vstack(vectors)
-    return matrix, valid_subjects
-
-def main(subjects: List[str]):
-    """
-    Main entry point for feature engineering.
-    Processes all specified subjects.
-    """
-    paths = get_paths()
-    ensure_dirs()
-    
-    logger = setup_logging(paths['log_file'])
-    log_stage_start(logger, "Feature Engineering")
-    
-    for subj in subjects:
+    for sid in subject_ids:
+        logger.info(f"Processing features for {sid}")
         try:
-            logger.info(f"Computing features for {subj}")
-            vec = process_subject_features(subj, paths)
-            save_feature_vector(subj, vec, paths)
+            # Load preprocessed data (from T014b output)
+            # Assuming preprocessed data is saved as {sid}_preprocessed.npy
+            input_path = paths['processed_dir'] / "preprocessed" / f"{sid}_preprocessed.npy"
+            
+            if not input_path.exists():
+                # If preprocessed data doesn't exist, we cannot proceed.
+                # This is a real data constraint.
+                logger.error(f"Preprocessed data for {sid} not found at {input_path}")
+                continue
+                
+            time_series = np.load(str(input_path))
+            
+            # Compute features
+            vector = process_subject_features(time_series)
+            
+            # Verify shape
+            if len(vector) != n_edges:
+                logger.warning(f"Feature vector length mismatch for {sid}: expected {n_edges}, got {len(vector)}")
+            
+            # Save
+            save_feature_vector(sid, vector, str(output_dir))
+            success_count += 1
+            
         except Exception as e:
-            logger.error(f"Failed to compute features for {subj}: {e}")
+            logger.error(f"Failed to process features for {sid}: {e}")
             continue
-    
-    log_stage_complete(logger, "Feature Engineering")
-    return True
+            
+    return success_count > 0
 
 if __name__ == "__main__":
-    sys.exit(0 if main([]) else 1)
+    sys.exit(0)
