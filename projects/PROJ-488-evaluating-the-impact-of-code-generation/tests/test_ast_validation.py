@@ -1,78 +1,111 @@
-"""
-Tests for AST Validation Module (T018).
-"""
+import json
+import os
+import tempfile
+from pathlib import Path
 import pytest
-import ast
-from code.ast_validation import parse_snippet, validate_datasets
+
+from ast_validation import parse_snippet, validate_datasets, run_ast_validation, ERROR_INVALID_PARSE_THRESHOLD
 
 class TestParseSnippet:
-    def test_valid_python(self):
-        code = "def hello():\n    return 'world'"
-        assert parse_snippet(code) is True
+    def test_valid_python_function(self):
+        code = "def foo(x):\n    return x + 1"
+        success, error = parse_snippet("test-001", code, "python")
+        assert success is True
+        assert error is None
 
-    def test_valid_python_complex(self):
-        code = """
-        import os
-        def calculate(x, y):
-            if x > y:
-                return x - y
-            else:
-                return y - x
-        """
-        assert parse_snippet(code) is True
+    def test_valid_python_class(self):
+        code = "class Bar:\n    def __init__(self):\n        self.val = 1"
+        success, error = parse_snippet("test-002", code, "python")
+        assert success is True
+        assert error is None
 
-    def test_invalid_python_syntax(self):
-        code = "def broken(:"
-        assert parse_snippet(code) is False
+    def test_syntax_error(self):
+        code = "def broken("
+        success, error = parse_snippet("test-003", code, "python")
+        assert success is False
+        assert "SyntaxError" in error
 
-    def test_empty_string(self):
-        assert parse_snippet("") is True  # Empty is valid AST (Module with no body)
-
-    def test_invalid_syntax_random(self):
-        code = "this is not code @#$%"
-        # This might parse as a string or fail depending on context, but usually fails if not valid python
-        # Actually "this is not code" is not valid python statement
-        assert parse_snippet(code) is False
+    def test_unsupported_language(self):
+        code = "function foo() { return 1; }"
+        success, error = parse_snippet("test-004", code, "javascript")
+        assert success is False
+        assert "Unsupported language" in error
 
 class TestValidateDatasets:
     def test_all_valid(self):
         data = [
-            {"id": "1", "code": "x = 1"},
-            {"id": "2", "code": "y = 2"}
+            {"id": "1", "code": "def a(): pass", "language": "python"},
+            {"id": "2", "code": "def b(): pass", "language": "python"}
         ]
-        report, success = validate_datasets(data, [])
-        assert report["groups"]["human_written"]["parse_rate"] == 1.0
-        assert success is False # Because second group is empty/failed in logic if not handled
-        # Note: The logic in validate_datasets checks for empty groups and marks as failed.
-        # To test success=True, we need both groups to have data and pass.
-    
-    def test_mixed_validity(self):
-        data_human = [
-            {"id": "1", "code": "x = 1"},
-            {"id": "2", "code": "def bad("} # Invalid
+        passed, failed_ids, rate = validate_datasets(data, threshold=0.95)
+        assert passed is True
+        assert failed_ids == []
+        assert rate == 1.0
+
+    def test_below_threshold(self):
+        data = [
+            {"id": "1", "code": "def a(): pass", "language": "python"},
+            {"id": "2", "code": "def b(: pass", "language": "python"}, # Syntax error
+            {"id": "3", "code": "def c(): pass", "language": "python"},
+            {"id": "4", "code": "def d(: pass", "language": "python"}  # Syntax error
         ]
-        data_llm = [
-            {"id": "3", "code": "y = 2"},
-            {"id": "4", "code": "z = 3"}
+        # 2/4 = 0.5, threshold 0.95 -> fail
+        passed, failed_ids, rate = validate_datasets(data, threshold=0.95)
+        assert passed is False
+        assert len(failed_ids) == 2
+        assert rate == 0.5
+
+    def test_empty_list(self):
+        passed, failed_ids, rate = validate_datasets([], threshold=0.95)
+        assert passed is False
+        assert rate == 0.0
+
+class TestRunAstValidation:
+    def test_full_workflow_pass(self):
+        data = [
+            {"id": "1", "code": "def a(): return 1", "language": "python"},
+            {"id": "2", "code": "def b(): return 2", "language": "python"}
         ]
-        report, success = validate_datasets(data_human, data_llm)
-        assert report["groups"]["human_written"]["parse_rate"] == 0.5
-        assert report["groups"]["llm_generated"]["parse_rate"] == 1.0
-        # Success should be False because 0.5 < 0.95
-        assert success is False
         
-    def test_threshold_met(self):
-        # Create 20 items, 19 valid (95%)
-        data_human = [{"id": str(i), "code": "x=1"} for i in range(19)] + [{"id": "19", "code": "def bad("}]
-        data_llm = [{"id": str(i), "code": "y=2"} for i in range(20)]
-        report, success = validate_datasets(data_human, data_llm)
-        assert report["groups"]["human_written"]["parse_rate"] == 0.95
-        assert success is True
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = os.path.join(tmpdir, "input.json")
+            output_path = os.path.join(tmpdir, "report.json")
+            
+            with open(input_path, 'w') as f:
+                json.dump(data, f)
+            
+            success = run_ast_validation(input_path, output_path, threshold=0.95)
+            
+            assert success is True
+            assert os.path.exists(output_path)
+            
+            with open(output_path, 'r') as f:
+                report = json.load(f)
+            
+            assert report["passed"] is True
+            assert report["success_rate"] == 1.0
+
+    def test_full_workflow_fail(self):
+        data = [
+            {"id": "1", "code": "def a(): pass", "language": "python"},
+            {"id": "2", "code": "def b(: pass", "language": "python"}
+        ]
         
-    def test_threshold_not_met(self):
-        # Create 20 items, 18 valid (90%)
-        data_human = [{"id": str(i), "code": "x=1"} for i in range(18)] + [{"id": "18", "code": "def bad("}, {"id": "19", "code": "def bad2("}]
-        data_llm = [{"id": str(i), "code": "y=2"} for i in range(20)]
-        report, success = validate_datasets(data_human, data_llm)
-        assert report["groups"]["human_written"]["parse_rate"] == 0.90
-        assert success is False
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = os.path.join(tmpdir, "input.json")
+            output_path = os.path.join(tmpdir, "report.json")
+            
+            with open(input_path, 'w') as f:
+                json.dump(data, f)
+            
+            success = run_ast_validation(input_path, output_path, threshold=0.95)
+            
+            assert success is False
+            assert os.path.exists(output_path)
+            
+            with open(output_path, 'r') as f:
+                report = json.load(f)
+            
+            assert report["passed"] is False
+            assert report["success_rate"] == 0.5
+            assert len(report["failed_ids"]) == 1

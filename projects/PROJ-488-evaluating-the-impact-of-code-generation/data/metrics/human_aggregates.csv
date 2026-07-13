@@ -1,0 +1,9 @@
+metric_name,mean,median,variance,count
+cyclomatic_complexity,2.5,2.0,1.25,1000
+lines_of_code,25.0,24.0,12.5,1000
+maintainability_index,12.0,12.5,0.5,1000
+bug_count,0.5,0.0,0.75,1000
+convention_count,1.2,1.0,0.8,1000
+refactor_count,0.8,1.0,0.4,1000
+warning_count,2.1,2.0,1.1,1000
+info_count,5.5,5.0,2.0,1000

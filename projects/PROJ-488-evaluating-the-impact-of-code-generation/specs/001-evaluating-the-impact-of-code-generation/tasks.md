@@ -57,10 +57,10 @@
 - [X] T013 [US1] Implement HuggingFace download for **CodeParrot/CodeGen** in the same module using `datasets.load_dataset('codeparrot/codegen',...)`, recording SHA‑256 checksums to `data/checksums.json`.
 - [X] T014 [US1] Implement dataset verification workflow: confirm that both datasets are listed in `data/verified_sources.json`; abort with **error 101** if a dataset is not verified.
 - [X] T015 [US1] Implement streaming and sampling to ensure total snippets ≤ 10,000 to comply with 14 GB disk limit; use `datasets.load_dataset(..., streaming=True)` with [deferred] sample fraction.
-- [ ] T016 [US1] Implement Python‑only filtering: keep snippets where `language == "python"` and extract top‑level functions using `ast`.
-- [ ] T017 [US1] Implement function‑length filtering to achieve median length difference ≤ 20 % between groups (binary search algorithm, max 5 iterations, abort with **error 103** after max attempts).
-- [ ] T018 [US1] Implement AST parsing validation: parse each snippet, log invalid IDs, require ≥95% successful parses; abort with **error 102** if threshold not met.
-- [~] T019 [US1] Verify snippet count: ensure ≥ 1000 valid Python snippets per group; abort with **error 104** if not met.
+- [X] T016 [US1] Implement Python‑only filtering: keep snippets where `language == "python"` and extract top‑level functions using `ast`.
+- [X] T017 [US1] Implement function‑length filtering to achieve median length difference ≤ 20 % between groups (binary search algorithm, max 5 iterations, abort with **error 103** after max attempts).
+- [X] T018 [US1] Implement AST parsing validation: parse each snippet, log invalid IDs, require ≥95% successful parses; abort with **error 102** if threshold not met.
+- [X] T019 [US1] Verify snippet count: ensure ≥ 1000 valid Python snippets per group; abort with **error 104** if not met.
 
 ---
 
@@ -68,12 +68,12 @@
 
 **Goal**: Run radon for complexity and pylint for bug indicators on each code snippet, aggregate into metric distributions per dataset group.
 
-- [~] T020 [US2] Implement radon complexity extraction (cyclomatic complexity, LOC, maintainability index) in `code/metric_extraction.py`.
-- [~] T021 [US2] Implement pylint bug‑indicator extraction (potential bugs, style issues) in the same file.
-- [~] T022 [US2] Validate extracted scores: detect NaN or out‑of‑range values; if ≥5% of snippets fail, abort with **error 102** and generate diagnostic report.
-- [~] T023 [US2] Aggregate metrics per group and write CSV files to `data/metrics/` (one file per metric type) including mean, median, variance.
-- [~] T024 [US2] Ensure metric output conforms to `MetricResult` schema defined in `code/data_model.py`.
-- [~] T025 [US2] Add CPU‑only execution guard: verify `torch` is not used for inference; ensure `radon` and `pylint` execute without CUDA device assignment.
+- [X] T020 [US2] Implement radon complexity extraction (cyclomatic complexity, LOC, maintainability index) in `code/metric_extraction.py`.
+- [X] T021 [US2] Implement pylint bug‑indicator extraction (potential bugs, style issues) in the same file.
+- [X] T022 [US2] Validate extracted scores: detect NaN or out‑of‑range values; if ≥5% of snippets fail, abort with **error 102** and generate diagnostic report.
+- [ ] T023 [US2] Aggregate metrics per group and write CSV files to `data/metrics/` (one file per metric type) including mean, median, variance.
+- [ ] T024 [US2] Ensure metric output conforms to `MetricResult` schema defined in `code/data_model.py`.
+- [ ] T025 [US2] Add CPU‑only execution guard: verify `torch` is not used for inference; ensure `radon` and `pylint` execute without CUDA device assignment.
 
 ---
 
@@ -82,15 +82,15 @@
 **Goal**: Apply Mann‑Whitney U tests with Cliff's delta, generate boxplots, produce review guideline recommendations, and verify statistical power and independence assumptions.
 
 - [ ] T026 [US3] [SC-003] Implement power‑analysis module in `code/statistical_analysis.py` to compute achieved power given observed effect size and sample size; enforce ≥ 0.8 power and log warnings otherwise.
-- [ ] T027 [US3] [SC-003] Implement independence mitigation: subsample to at most one snippet per original repository (using metadata) **OR** apply cluster‑robust standard errors; prefer subsampling if repository metadata available, else use cluster‑robust SE; document approach in `results/independence.md`.
-- [ ] T028 [US3] Implement Mann‑Whitney U test for each metric comparison (human vs LLM) and store raw p‑values.
-- [ ] T029 [US3] Compute Cliff's delta effect size with magnitude labels (small/medium/large) for each metric.
-- [ ] T030 [US3] Apply Benjamini‑Hochberg multiple‑comparison correction across all metrics; store adjusted p‑values.
-- [ ] T031 [US3] Generate boxplot visualizations for each metric in `code/visualization.py`; save figures to `results/figures/` with clear median and IQR labels.
-- [ ] T032 [US3] Generate review guideline recommendations in `code/guideline_generator.py` for any metric with adjusted p < 0.05 **and** |Cliff's delta| ≥ 0.1; write to `results/guidelines.md`.
-- [ ] T033 [US3] Perform sensitivity analysis across significance thresholds {0.01, 0.05, 0.1}; record how headline rates vary in `results/sensitivity.md`.
-- [ ] T034 [US3] Conduct pilot‑study validation OR cite peer‑reviewed source per FR‑011: (A) Load external human‑reviewed snippet set (CodeReviewDataset from HuggingFace, n≥50), compute Pearson r between static metric and recorded review effort; require r ≥ 0.5; OR (B) cite peer‑reviewed source establishing correlation, then run Reference‑Validator Agent verification per Constitution Principle II (title overlap ≥0.7). Record results in `results/pilot_study.md`.
-- [ ] T035 [US3] Document community‑standard justification for all thresholds (significance level, effect‑size interpretation) in `results/justification.md` (covers FR‑008).
+- [X] T027 [US3] [SC-003] Implement independence mitigation: subsample to at most one snippet per original repository (using metadata) **OR** apply cluster‑robust standard errors; prefer subsampling if repository metadata available, else use cluster‑robust SE; document approach in `results/independence.md`.
+- [~] T028 [US3] Implement Mann‑Whitney U test for each metric comparison (human vs LLM) and store raw p‑values.
+- [~] T029 [US3] Compute Cliff's delta effect size with magnitude labels (small/medium/large) for each metric.
+- [~] T030 [US3] Apply Benjamini‑Hochberg multiple‑comparison correction across all metrics; store adjusted p‑values.
+- [~] T031 [US3] Generate boxplot visualizations for each metric in `code/visualization.py`; save figures to `results/figures/` with clear median and IQR labels.
+- [~] T032 [US3] Generate review guideline recommendations in `code/guideline_generator.py` for any metric with adjusted p < 0.05 **and** |Cliff's delta| ≥ 0.1; write to `results/guidelines.md`.
+- [~] T033 [US3] Perform sensitivity analysis across significance thresholds {0.01, 0.05, 0.1}; record how headline rates vary in `results/sensitivity.md`.
+- [~] T034 [US3] Conduct pilot‑study validation OR cite peer‑reviewed source per FR‑011: (A) Load external human‑reviewed snippet set (CodeReviewDataset from HuggingFace, n≥50), compute Pearson r between static metric and recorded review effort; require r ≥ 0.5; OR (B) cite peer‑reviewed source establishing correlation, then run Reference‑Validator Agent verification per Constitution Principle II (title overlap ≥0.7). Record results in `results/pilot_study.md`.
+- [~] T035 [US3] Document community‑standard justification for all thresholds (significance level, effect‑size interpretation) in `results/justification.md` (covers FR‑008).
 
 ---
 

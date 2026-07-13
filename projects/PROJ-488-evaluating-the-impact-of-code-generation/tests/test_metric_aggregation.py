@@ -1,138 +1,84 @@
 """
-Tests for metric aggregation module (T023).
+Tests for Metric Aggregation Module (T023)
 """
 import os
 import sys
-import json
 import tempfile
 import pandas as pd
-import numpy as np
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-
-from metric_aggregation import (
-    load_metrics_for_group,
-    aggregate_metrics,
-    write_aggregate_csv,
-    run_aggregation
-)
-from data_model import validate_metric_result
-
-class TestMetricAggregation:
-    """Test cases for metric aggregation."""
-
-    def setup_method(self):
-        """Set up test fixtures."""
-        # Create temporary directories
-        self.temp_dir = tempfile.mkdtemp()
-        self.processed_dir = Path(self.temp_dir) / "data" / "processed"
-        self.metrics_dir = Path(self.temp_dir) / "data" / "metrics"
-        
-        self.processed_dir.mkdir(parents=True, exist_ok=True)
-        self.metrics_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Mock the global paths
-        self.original_processed_dir = None
-        self.original_metrics_dir = None
-
-    def teardown_method(self):
-        """Clean up test fixtures."""
-        import shutil
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
-
-    def test_aggregate_metrics_basic(self):
-        """Test basic aggregation of scores."""
-        # Create sample data
-        scores = [10.0, 12.0, 8.0, 15.0, 11.0]
-        df = pd.DataFrame({"score": scores})
-        
-        agg = aggregate_metrics(df, "test_metric", "human_written")
-        
-        assert agg["count"] == 5
-        assert agg["mean"] == pytest.approx(11.2)
-        assert agg["median"] == pytest.approx(11.0)
-        assert agg["variance"] > 0
-        assert agg["min"] == 8.0
-        assert agg["max"] == 15.0
-        assert agg["group"] == "human_written"
-        assert agg["metric_type"] == "test_metric"
-
-    def test_aggregate_metrics_empty(self):
-        """Test aggregation with no valid scores."""
-        df = pd.DataFrame({"score": [None, None, None]})
-        
-        agg = aggregate_metrics(df, "test_metric", "human_written")
-        
-        assert agg["count"] == 0
-        assert agg["mean"] is None
-        assert agg["median"] is None
-        assert agg["variance"] is None
-
-    def test_write_aggregate_csv(self):
-        """Test writing aggregates to CSV."""
-        aggregates = [
-            {"metric_type": "test", "group": "human", "count": 10, "mean": 5.0},
-            {"metric_type": "test", "group": "llm", "count": 10, "mean": 6.0}
-        ]
-        
-        output_path = write_aggregate_csv(aggregates, "test")
-        
-        assert output_path.exists()
-        df = pd.read_csv(output_path)
-        assert len(df) == 2
-        assert "metric_type" in df.columns
-        assert "group" in df.columns
-
-    def test_load_metrics_for_group_missing_file(self):
-        """Test error handling for missing file."""
-        with pytest.raises(FileNotFoundError):
-            load_metrics_for_group("human_written", "missing_metric")
-
-    def test_run_aggregation_integration(self):
-        """Test the full aggregation workflow with mock data."""
-        # Create mock metric files
-        metric_types = ["cyclomatic_complexity", "lines_of_code"]
-        groups = ["human_written", "llm_generated"]
-        
-        for metric_type in metric_types:
-            for group in groups:
-                scores = np.random.rand(50) * 10
-                df = pd.DataFrame({"score": scores})
-                file_path = self.processed_dir / f"{group}_{metric_type}.csv"
-                df.to_csv(file_path, index=False)
-        
-        # Patch the global paths
-        with patch("metric_aggregation.PROCESSED_DIR", self.processed_dir):
-            with patch("metric_aggregation.METRICS_DIR", self.metrics_dir):
-                with patch("metric_aggregation.REGISTER_ARTIFACT_HASH", MagicMock()):
-                    output_files = run_aggregation(metric_types)
-        
-        assert len(output_files) == len(metric_types)
-        
-        for metric_type in metric_types:
-            output_path = output_files[metric_type]
-            assert output_path.exists()
-            df = pd.read_csv(output_path)
-            assert len(df) == 2  # Two groups
-            assert "mean" in df.columns
-            assert "median" in df.columns
-            assert "variance" in df.columns
-
-    def test_aggregate_metrics_nan_handling(self):
-        """Test that NaN values are properly handled."""
-        scores = [10.0, np.nan, 12.0, np.nan, 8.0]
-        df = pd.DataFrame({"score": scores})
-        
-        agg = aggregate_metrics(df, "test_metric", "human_written")
-        
-        # Should only count non-NaN values
-        assert agg["count"] == 3
-        assert agg["mean"] == pytest.approx(10.0)  # (10+12+8)/3
-
 import pytest
+from pathlib import Path
+import numpy as np
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+# Add code directory to path
+code_dir = Path(__file__).parent.parent / "code"
+sys.path.insert(0, str(code_dir))
+
+from metric_aggregation import aggregate_metrics, write_aggregate_csv, load_metrics_for_group
+from logging_config import setup_logger
+
+logger = setup_logger("test_metric_aggregation", "data/logs/test_metric_aggregation.log")
+
+
+def test_aggregate_metrics_calculation():
+    """Test that mean, median, and variance are calculated correctly."""
+    data = {
+        "cyclomatic_complexity": [1, 2, 3, 4, 5],
+        "lines_of_code": [10, 20, 30, 40, 50]
+    }
+    df = pd.DataFrame(data)
+    
+    cols = ["cyclomatic_complexity"]
+    result = aggregate_metrics(df, cols)
+    
+    assert "cyclomatic_complexity" in result
+    assert result["cyclomatic_complexity"]["mean"] == 3.0
+    assert result["cyclomatic_complexity"]["median"] == 3.0
+    # Variance of [1,2,3,4,5] (sample) is 2.5
+    assert np.isclose(result["cyclomatic_complexity"]["variance"], 2.5)
+    assert result["cyclomatic_complexity"]["count"] == 5
+
+
+def test_aggregate_metrics_with_nan():
+    """Test that NaN values are handled correctly."""
+    data = {
+        "cyclomatic_complexity": [1.0, np.nan, 3.0, 4.0, 5.0]
+    }
+    df = pd.DataFrame(data)
+    
+    cols = ["cyclomatic_complexity"]
+    result = aggregate_metrics(df, cols)
+    
+    # Should ignore NaN
+    assert result["cyclomatic_complexity"]["count"] == 4
+    # Mean of [1, 3, 4, 5] is 3.25
+    assert np.isclose(result["cyclomatic_complexity"]["mean"], 3.25)
+
+
+def test_write_aggregate_csv(tmp_path):
+    """Test writing aggregates to CSV."""
+    aggregates = {
+        "metric_a": {"mean": 10.0, "median": 10.0, "variance": 1.0, "count": 10},
+        "metric_b": {"mean": 20.0, "median": 20.0, "variance": 2.0, "count": 20}
+    }
+    
+    output_file = write_aggregate_csv("test_group", aggregates, tmp_path)
+    
+    assert output_file.exists()
+    df = pd.read_csv(output_file)
+    
+    assert len(df) == 2
+    assert "metric_name" in df.columns
+    assert "mean" in df.columns
+    assert "median" in df.columns
+    assert "variance" in df.columns
+    assert "count" in df.columns
+    
+    assert df.loc[df["metric_name"] == "metric_a", "mean"].values[0] == 10.0
+
+
+def test_load_metrics_for_group_missing_file():
+    """Test error handling when file is missing."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        metrics_dir = Path(tmp_dir)
+        with pytest.raises(FileNotFoundError):
+            load_metrics_for_group("nonexistent", metrics_dir)

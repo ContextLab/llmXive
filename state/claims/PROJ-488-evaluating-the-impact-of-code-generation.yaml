@@ -738,3 +738,530 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T14:19:49Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/independence.md
+  attempts: 1
+  canonical: original snippet count of 2000
+  claim_id: c_c4aed0d6
+  context: 'Method Used: subsample. Original Snippet Count: 2000. Final Snippet Count:
+    847.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Original Snippet Count: 2000'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T14:42:25Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/independence.md
+  attempts: 1
+  canonical: final snippet count of 847
+  claim_id: c_015e3501
+  context: 'Original Snippet Count: 2000. Final Snippet Count: 847. Number of Unique
+    Repositories: 847.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Final Snippet Count: 847'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T14:43:42Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/independence.md
+  attempts: 1
+  canonical: number of unique repositories of 847
+  claim_id: c_073f03f1
+  context: 'Final Snippet Count: 847. Number of Unique Repositories: 847.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Number of Unique Repositories: 847'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T14:43:57Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 1250 human snippets analyzed for cyclomatic_complexity
+  claim_id: c_45d7f7d9
+  context: cyclomatic_complexity section listing snippet counts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Human snippets: 1250'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:06:27Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 1250 CodeGen snippets analyzed for cyclomatic_complexity
+  claim_id: c_8314d004
+  context: cyclomatic_complexity section listing snippet counts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'CodeGen snippets: 1250'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:06:58Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: cyclomatic_complexity p-value of 0.0032
+  claim_id: c_f36e5a03
+  context: Detailed Results table for cyclomatic_complexity
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-value for cyclomatic_complexity is 0.0032
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:07:21Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: maintainability_index p-value of 0.0845
+  claim_id: c_10e9869f
+  context: Detailed Results table for maintainability_index
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-value for maintainability_index is 0.0845
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:07:44Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 1250 human snippets analyzed for maintainability_index
+  claim_id: c_26f757fe
+  context: maintainability_index section listing snippet counts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Human snippets: 1250'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:07:44Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 1250 CodeGen snippets analyzed for maintainability_index
+  claim_id: c_77c0b805
+  context: maintainability_index section listing snippet counts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'CodeGen snippets: 1250'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:07:44Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: lines_of_code p-value of 0.0015
+  claim_id: c_f9e5a9f2
+  context: Detailed Results table for lines_of_code
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-value for lines_of_code is 0.0015
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:08:10Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 1250 human snippets analyzed for lines_of_code
+  claim_id: c_7e7aff5b
+  context: lines_of_code section listing snippet counts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Human snippets: 1250'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:08:10Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 1250 CodeGen snippets analyzed for lines_of_code
+  claim_id: c_1df7dbe9
+  context: lines_of_code section listing snippet counts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'CodeGen snippets: 1250'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:08:10Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: bug_potential p-value of 0.1234
+  claim_id: c_e048c527
+  context: Detailed Results table for bug_potential
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-value for bug_potential is 0.1234
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:08:32Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 1250 human snippets analyzed for bug_potential
+  claim_id: c_73f47646
+  context: bug_potential section listing snippet counts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Human snippets: 1250'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:08:32Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 1250 CodeGen snippets analyzed for bug_potential
+  claim_id: c_8062cbd1
+  context: bug_potential section listing snippet counts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'CodeGen snippets: 1250'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:08:32Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: style_issues p-value of 0.0089
+  claim_id: c_e3b8e4d7
+  context: Detailed Results table for style_issues
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-value for style_issues is 0.0089
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:08:53Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 1250 human snippets analyzed for style_issues
+  claim_id: c_8c610568
+  context: style_issues section listing snippet counts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Human snippets: 1250'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:08:53Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 1250 CodeGen snippets analyzed for style_issues
+  claim_id: c_42885e97
+  context: style_issues section listing snippet counts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'CodeGen snippets: 1250'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:08:53Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 3 of 5 metrics significant at alpha 0.01
+  claim_id: c_09061fe3
+  context: Headline Rates Analysis table and Conclusion
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At \u03B1=0.01, 3 out of 5 metrics show significant differences"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:09:17Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 60.0% headline rate at alpha 0.01
+  claim_id: c_d2774238
+  context: Headline Rates Analysis table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At \u03B1=0.01, headline rate is 60.0%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:09:17Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 3 of 5 metrics significant at alpha 0.05
+  claim_id: c_4c0a49d2
+  context: Headline Rates Analysis table and Conclusion
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At \u03B1=0.05, 3 out of 5 metrics show significant differences"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:09:17Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 60.0% headline rate at alpha 0.05
+  claim_id: c_ccec7b3e
+  context: Headline Rates Analysis table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At \u03B1=0.05, headline rate is 60.0%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:09:17Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 4 of 5 metrics significant at alpha 0.1
+  claim_id: c_b9b46764
+  context: Headline Rates Analysis table and Conclusion
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At \u03B1=0.1, 4 out of 5 metrics show significant differences"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:09:35Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/sensitivity.md
+  attempts: 1
+  canonical: 80.0% headline rate at alpha 0.1
+  claim_id: c_7747aacc
+  context: Headline Rates Analysis table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At \u03B1=0.1, headline rate is 80.0%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:09:35Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/justification.md
+  attempts: 1
+  canonical: 0.05 significance level is standard convention in scientific research
+    and software engineering
+  claim_id: c_195a05e6
+  context: The 0.05 significance level is the standard convention in scientific research,
+    including software engineering and empirical studies of programming languages.
+    It represents a balance between Type I error (false positive) and Type II error
+    (false negative) rates.
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The 0.05 significance level is the standard convention in scientific research,
+    including software engineering and empirical studies of programming languages.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T15:19:04Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/justification.md
+  attempts: 1
+  canonical: Benjamini-Hochberg procedure controls False Discovery Rate
+  claim_id: c_ea29164e
+  context: The BH procedure controls the False Discovery Rate (FDR), which is more
+    appropriate than the Bonferroni correction for exploratory research where some
+    false positives are acceptable if the overall rate is controlled.
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: '1906.01701'
+        url: https://arxiv.org/abs/1906.01701
+        value: "\u03B1"
+      quote: ses, mFDR (mFNR) and FDR (FNR) are asymptotically equivalen t, in the
+      source_id: '1606.02386'
+      url: https://arxiv.org/abs/1606.02386
+      value: q
+    filled: true
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg (BH) procedure controls the False Discovery Rate
+    (FDR).
+  resolved_value: q
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T15:19:37Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/justification.md
+  attempts: 1
+  canonical: Cliff's Delta < 0.147 classified as Negligible
+  claim_id: c_a4429dbd
+  context: "| Cliff's Delta (|\u03B4|) | Magnitude | Interpretation | ... | Negligible\
+    \ | < 0.147 | Negligible | No practical difference |"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cliff's_Delta_%3C_0.147_classified_as_Negligible
+  kind: magnitude
+  raw_text: A Cliff's Delta magnitude of less than 0.147 is classified as Negligible.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:20:25Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/justification.md
+  attempts: 1
+  canonical: Cliff's Delta 0.147 to 0.330 classified as Small
+  claim_id: c_a6156e82
+  context: "| Small | 0.147 \u2013 0.330 | Small | Minor difference, potentially negligible\
+    \ in practice |"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A Cliff's Delta magnitude between 0.147 and 0.330 is classified as Small.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:20:44Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/justification.md
+  attempts: 1
+  canonical: Cliff's Delta 0.330 to 0.474 classified as Medium
+  claim_id: c_f66c822a
+  context: "| Medium | 0.330 \u2013 0.474 | Medium | Noticeable difference, warrants\
+    \ attention |"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A Cliff's Delta magnitude between 0.330 and 0.474 is classified as Medium.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:21:02Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/justification.md
+  attempts: 1
+  canonical: Cliff's Delta >= 0.474 classified as Large
+  claim_id: c_e51029df
+  context: "| Large | \u2265 0.474 | Large | Substantial difference, likely practically\
+    \ significant |"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cliff's_Delta_%3E=_0.474_classified_as_Large
+  kind: magnitude
+  raw_text: A Cliff's Delta magnitude greater than or equal to 0.474 is classified
+    as Large.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:21:49Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/justification.md
+  attempts: 1
+  canonical: 0.80 power is standard minimum threshold in empirical research
+  claim_id: c_88b5b770
+  context: A power of 0.80 (80%) is the standard minimum threshold in empirical research
+    to ensure that the study has a high probability of detecting an effect if one
+    truly exists.
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: A power of 0.80 is the standard minimum threshold in empirical research.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-13T15:21:49Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/justification.md
+  attempts: 1
+  canonical: Study design targets sample size of 1000 per group
+  claim_id: c_00f2012b
+  context: "The study design targets n \u2265 1000 per group (Task T019) to ensure\
+    \ sufficient power for detecting small-to-medium effects."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Study_design_targets_sample_size_of_1000_per_group
+  kind: magnitude
+  raw_text: The study design targets a sample size of at least 1000 per group.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T15:22:36Z'

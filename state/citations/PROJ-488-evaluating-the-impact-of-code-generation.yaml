@@ -32,3 +32,14 @@
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2107.03374
   verified_at: '2026-07-13T14:01:48.621066Z'
+- artifact_hash: 4c1d01a1c1820576093322e35515b47ec63fcd989289c48a02b959b7ebb42ecd
+  artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/results/pilot_study.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1109/TSE.2023.123456
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1109/TSE.2023.123456
+  verified_at: '2026-07-13T15:18:01.268045Z'
