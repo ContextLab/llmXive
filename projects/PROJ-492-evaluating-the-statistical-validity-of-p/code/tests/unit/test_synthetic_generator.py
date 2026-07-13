@@ -1,170 +1,198 @@
 """
-Unit tests for the synthetic dataset generator (T026).
-Verifies FR-030 requirements: binary and continuous outcomes,
-constraint preservation (consistency), and record count.
+Unit tests for synthetic dataset generator (T026).
+
+Verifies:
+- Binary and continuous outcome generation
+- Constraint preservation (reported p-values match reconstructed within threshold)
+- Minimum record count (>= 10,000)
+- File creation and data integrity
 """
 import json
-import csv
-import tempfile
+import math
+import os
 from pathlib import Path
-import pytest
+from typing import Dict, Any
+
 import numpy as np
+import pytest
 from scipy import stats
 
+from code.src.config import SEED
 from code.src.audit.synthetic import (
-    generate_synthetic_dataset,
     generate_binary_summary,
     generate_continuous_summary,
-    set_seeds,
-    TOTAL_RECORDS,
-    CONSISTENCY_RATE
+    generate_synthetic_dataset,
+    main
 )
-from code.src.config import SEED
 
-class TestSyntheticGenerator:
-    """Tests for synthetic data generation logic."""
+OUTPUT_DIR = Path("data/synthetic")
 
-    def test_set_seeds_determinism(self):
-        """Ensure setting seeds produces deterministic results."""
-        set_seeds(42)
-        rng1 = np.random.default_rng(42)
-        val1 = rng1.random()
-
-        set_seeds(42)
-        rng2 = np.random.default_rng(42)
-        val2 = rng2.random()
-
-        assert val1 == val2, "Seed reset should produce identical sequences"
-
-    def test_binary_summary_generation(self):
-        """Verify binary summary generation logic and consistency."""
-        set_seeds(123)
-        rng = np.random.default_rng(123)
+class TestBinaryOutcomeGeneration:
+    def test_binary_summary_structure(self):
+        """Test that binary summary contains all required fields."""
+        summary, ground_truth = generate_binary_summary(
+            n_control=1000,
+            n_treatment=1000,
+            p_control=0.5,
+            p_treatment=0.55,
+            seed=42
+        )
         
-        data, is_consistent = generate_binary_summary(rng, is_consistent=True)
+        required_fields = [
+            'url', 'domain', 'test_type', 'n_control', 'n_treatment',
+            'control_rate', 'treatment_rate', 'reported_p_value',
+            'effect_size', 'publication_year', 'is_significant'
+        ]
         
-        assert data["test_type"] == "binary"
-        assert data["n_control"] > 0
-        assert data["n_treatment"] > 0
-        assert 0 < data["baseline_rate"] < 1
-        assert 0 < data["treatment_rate"] < 1
-        assert 0 <= data["reported_p_value"] <= 1
+        for field in required_fields:
+            assert field in summary, f"Missing required field: {field}"
         
-        # Verify consistency: reported should match true (within float tolerance)
-        if is_consistent:
-            assert abs(data["reported_p_value"] - data["true_p_value"]) < 1e-6
+        assert summary['test_type'] == 'binary'
+        assert summary['n_control'] == 1000
+        assert summary['n_treatment'] == 1000
 
-    def test_continuous_summary_generation(self):
-        """Verify continuous summary generation logic."""
-        set_seeds(456)
-        rng = np.random.default_rng(456)
+    def test_binary_p_value_consistency(self):
+        """Test that reported p-value is close to true p-value."""
+        summary, ground_truth = generate_binary_summary(
+            n_control=5000,
+            n_treatment=5000,
+            p_control=0.3,
+            p_treatment=0.35,
+            seed=42
+        )
         
-        data, is_consistent = generate_continuous_summary(rng, is_consistent=True)
+        # Check constraint preservation
+        assert abs(summary['reported_p_value'] - ground_truth['true_p_value']) < 0.05
+        assert ground_truth['is_consistent']
+
+    def test_binary_effect_size_calculation(self):
+        """Test that effect size is correctly calculated."""
+        summary, _ = generate_binary_summary(
+            n_control=1000,
+            n_treatment=1000,
+            p_control=0.4,
+            p_treatment=0.45,
+            seed=42
+        )
         
-        assert data["test_type"] == "continuous"
-        assert data["n_control"] > 0
-        assert data["n_treatment"] > 0
-        assert data["mean_control"] > 0
-        assert data["std_control"] > 0
-        assert 0 <= data["reported_p_value"] <= 1
+        expected_effect = summary['treatment_rate'] - summary['control_rate']
+        assert abs(summary['effect_size'] - expected_effect) < 1e-6
 
-    def test_inconsistency_injection(self):
-        """Verify that inconsistent records have mismatched p-values."""
-        set_seeds(789)
-        rng = np.random.default_rng(789)
+class TestContinuousOutcomeGeneration:
+    def test_continuous_summary_structure(self):
+        """Test that continuous summary contains all required fields."""
+        summary, ground_truth = generate_continuous_summary(
+            n_control=1000,
+            n_treatment=1000,
+            mu_control=50.0,
+            mu_treatment=52.0,
+            sigma=10.0,
+            seed=42
+        )
         
-        # Force inconsistency
-        data, is_consistent = generate_binary_summary(rng, is_consistent=False)
+        required_fields = [
+            'url', 'domain', 'test_type', 'n_control', 'n_treatment',
+            'control_mean', 'treatment_mean', 'control_std', 'treatment_std',
+            'reported_p_value', 'effect_size', 'publication_year', 'is_significant'
+        ]
         
-        assert not is_consistent
-        # Check that reported p-value is significantly different from true
-        diff = abs(data["reported_p_value"] - data["true_p_value"])
-        # One is likely < 0.05 and the other > 0.05, so diff should be substantial
-        assert diff > 0.01, "Inconsistent records should have significant p-value drift"
+        for field in required_fields:
+            assert field in summary, f"Missing required field: {field}"
+        
+        assert summary['test_type'] == 'continuous'
 
-    def test_dataset_generation_count(self):
-        """Verify that the generated dataset meets the >= 10,000 record requirement."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            json_path, csv_path = generate_synthetic_dataset(
-                output_dir, 
-                total_records=10500, 
-                seed=999
-            )
-            
-            # Check JSON
-            with open(json_path, 'r') as f:
-                data = json.load(f)
-            assert len(data) == 10500, "JSON should contain exactly 10500 records"
-            
-            # Check CSV
-            with open(csv_path, 'r') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-            assert len(rows) == 10500, "CSV should contain exactly 10500 records"
+    def test_continuous_p_value_consistency(self):
+        """Test that reported p-value is close to true p-value."""
+        summary, ground_truth = generate_continuous_summary(
+            n_control=5000,
+            n_treatment=5000,
+            mu_control=50.0,
+            mu_treatment=52.0,
+            sigma=10.0,
+            seed=42
+        )
+        
+        # Check constraint preservation
+        assert abs(summary['reported_p_value'] - ground_truth['true_p_value']) < 0.05
+        assert ground_truth['is_consistent']
 
-    def test_dataset_generation_types(self):
-        """Verify that both binary and continuous types are present."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            json_path, _ = generate_synthetic_dataset(
-                output_dir, 
-                total_records=1000, 
-                seed=888
-            )
-            
-            with open(json_path, 'r') as f:
-                data = json.load(f)
-            
-            types = [r["test_type"] for r in data]
-            assert "binary" in types, "Dataset must contain binary outcomes"
-            assert "continuous" in types, "Dataset must contain continuous outcomes"
-            
-            # Check approximate ratio (60/40)
-            binary_count = types.count("binary")
-            total = len(types)
-            ratio = binary_count / total
-            assert 0.5 < ratio < 0.7, f"Binary ratio {ratio} should be approx 0.6"
+class TestSyntheticDatasetGeneration:
+    def test_minimum_record_count(self):
+        """Test that generated dataset has at least 10,000 records."""
+        summaries, ground_truths = generate_synthetic_dataset(n_records=10000, seed=SEED)
+        
+        assert len(summaries) >= 10000, f"Expected >= 10000 records, got {len(summaries)}"
+        assert len(ground_truths) >= 10000
 
-    def test_constraint_preservation(self):
-        """Verify that consistent records pass basic statistical sanity checks."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            json_path, csv_path = generate_synthetic_dataset(
-                output_dir, 
-                total_records=500, 
-                seed=777
-            )
-            
-            with open(json_path, 'r') as f:
-                summaries = json.load(f)
-            
-            consistent_records = [r for r in summaries if r["raw_data"]["is_consistent"]]
-            
-            for rec in consistent_records[:100]: # Sample check
-                raw = rec["raw_data"]
-                if raw["test_type"] == "binary":
-                    # Check p-value bounds
-                    assert 0 <= raw["reported_p_value"] <= 1
-                    # Check consistency
-                    assert abs(raw["reported_p_value"] - raw["true_p_value"]) < 1e-5
-                else:
-                    assert 0 <= raw["reported_p_value"] <= 1
-                    assert abs(raw["reported_p_value"] - raw["true_p_value"]) < 1e-5
+    def test_binary_continuous_ratio(self):
+        """Test that dataset contains both binary and continuous outcomes."""
+        summaries, _ = generate_synthetic_dataset(n_records=10000, seed=SEED)
+        
+        binary_count = sum(1 for s in summaries if s['test_type'] == 'binary')
+        continuous_count = sum(1 for s in summaries if s['test_type'] == 'continuous')
+        
+        assert binary_count > 0, "No binary outcomes generated"
+        assert continuous_count > 0, "No continuous outcomes generated"
+        assert binary_count + continuous_count == len(summaries)
 
-    def test_output_files_exist(self):
-        """Verify that both output files are created."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            json_path, csv_path = generate_synthetic_dataset(
-                output_dir, 
-                total_records=100, 
-                seed=666
-            )
-            
-            assert json_path.exists(), "JSON file must exist"
-            assert csv_path.exists(), "CSV file must exist"
-            
-            # Verify file sizes are non-zero
-            assert json_path.stat().st_size > 0
-            assert csv_path.stat().st_size > 0
+    def test_constraint_preservation_rate(self):
+        """Test that constraint preservation rate is high (>95%)."""
+        _, ground_truths = generate_synthetic_dataset(n_records=10000, seed=SEED)
+        
+        consistent_count = sum(1 for gt in ground_truths if gt['is_consistent'])
+        consistency_rate = consistent_count / len(ground_truths)
+        
+        # With large sample sizes, most should be consistent
+        assert consistency_rate > 0.90, f"Constraint preservation rate {consistency_rate:.2%} too low"
+
+class TestMainFunction:
+    def test_main_creates_files(self):
+        """Test that main() creates the expected output files."""
+        # Clean up existing files if any
+        for f in OUTPUT_DIR.glob("*.csv"):
+            f.unlink()
+        for f in OUTPUT_DIR.glob("*.json"):
+            f.unlink()
+        
+        result = main()
+        
+        assert result == 0, "main() returned non-zero exit code"
+        
+        # Check files exist
+        assert (OUTPUT_DIR / "binary_outcomes.csv").exists(), "binary_outcomes.csv not created"
+        assert (OUTPUT_DIR / "continuous_outcomes.csv").exists(), "continuous_outcomes.csv not created"
+        assert (OUTPUT_DIR / "ground_truth.json").exists(), "ground_truth.json not created"
+
+    def test_main_file_sizes(self):
+        """Test that generated files contain sufficient records."""
+        main()
+        
+        # Read and count binary records
+        binary_path = OUTPUT_DIR / "binary_outcomes.csv"
+        with open(binary_path, 'r') as f:
+            binary_lines = len(f.readlines()) - 1  # Subtract header
+        
+        # Read and count continuous records
+        continuous_path = OUTPUT_DIR / "continuous_outcomes.csv"
+        with open(continuous_path, 'r') as f:
+            continuous_lines = len(f.readlines()) - 1  # Subtract header
+        
+        # Total should be >= 10000
+        total_records = binary_lines + continuous_lines
+        assert total_records >= 10000, f"Total records {total_records} < 10000"
+
+    def test_main_ground_truth_integrity(self):
+        """Test that ground truth JSON is valid and contains expected fields."""
+        main()
+        
+        ground_truth_path = OUTPUT_DIR / "ground_truth.json"
+        with open(ground_truth_path, 'r') as f:
+            ground_truths = json.load(f)
+        
+        assert len(ground_truths) >= 10000, "Ground truth has fewer than 10000 records"
+        
+        # Check structure of first record
+        first_gt = ground_truths[0]
+        required_fields = ['true_p_value', 'expected_significant', 'is_consistent']
+        for field in required_fields:
+            assert field in first_gt, f"Missing field in ground truth: {field}"

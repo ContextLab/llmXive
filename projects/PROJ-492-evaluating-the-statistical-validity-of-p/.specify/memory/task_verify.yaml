@@ -283,6 +283,16 @@
   \ SKIPPED: non-mapping output -->"
 : 1
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_b60fadb6\
+  \ \u2014 status=not_enough_info], relative effect\u2011size > 5\u202F% [UNRESOLVED-CLAIM:\
+  \ c_3c17fe71 \u2014 status=not_enough_info]) **and verify that sample\u2011size\
+  \ mismatch entries are excluded from aggregate prevalence estimates [UNRESOLVED-CLAIM:\
+  \ c_12775b74 \u2014 status=not_enough_info] ** per FR\u2011004b (generate `AuditRecord`\
+  \ objects with data_quality_warning messages for sample\u2011size discrepancies,\
+  \ writing `output/audit_report.json`). **DEPENDS ON:** T023. <!-- SKIPPED: non-mapping\
+  \ output -->"
+: 1
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_ec0a1ff1\
   \ \u2014 status=not_enough_info], relative effect\u2011size > 5\u202F% [UNRESOLVED-CLAIM:\
   \ c_6b4d3f70 \u2014 status=not_enough_info]) **and verify that sample\u2011size\
@@ -550,6 +560,20 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 {{claim:c_44abad1e}} (binary AND continuous outcomes) **and {{claim:c_b7e273c3}}\
   \ ** (constraint\u2011preservation\u20112958f04c) (files are created and contain\
+  \ \u2265 10 000 records. [UNRESOLVED-CLAIM: c_78a8991f \u2014 status=not_enough_info]).\
+  \ **DEPENDS ON:** T006\u2011T012. <!-- SKIPPED: YAML+regex parse failed (while parsing\
+  \ a block mapping"
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 {{claim:c_44abad1e}} (binary AND continuous outcomes) **and {{claim:c_b7e273c3}}\
+  \ ** (constraint\u2011preservation\u20112958f04c) (files are created and contain\
+  \ \u2265 10 000 records. [UNRESOLVED-CLAIM: c_c593f187 \u2014 status=not_enough_info]).\
+  \ **DEPENDS ON:** T006\u2011T012. <!-- SKIPPED: YAML+regex parse failed (while parsing\
+  \ a block mapping"
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 {{claim:c_44abad1e}} (binary AND continuous outcomes) **and {{claim:c_b7e273c3}}\
+  \ ** (constraint\u2011preservation\u20112958f04c) (files are created and contain\
   \ \u2265 10 000 records.). **DEPENDS ON:** T006\u2011T012. <!-- SKIPPED: YAML+regex\
   \ parse failed (while parsing a block mapping"
 : 2
@@ -601,7 +625,7 @@ T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that {{cl
   \ c_b60fadb6 \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
   \ (verify all tests pass) [DEPENDS ON: T025]. <!-- FAILED: unspecified -->"
-: 1
+: 2
 ? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM:\
   \ c_ec0a1ff1 \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
