@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.15133",
+  "judged_at": "2026-07-13T01:13:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dragmesh-2: physically plausible dexterous hand-object interaction wit\" computer science",
+  "rationale": "The paper is the foundational work (category d) and the direct source of the \"DragMesh-2\" system mentioned in the user's query, establishing the baseline methodology for physically plausible dexterous hand-object interaction that the user intends to extend.",
+  "relevant": true
+}

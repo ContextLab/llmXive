@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1808.00177",
+  "judged_at": "2026-07-13T01:13:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dragmesh-2: physically plausible dexterous hand-object interaction wit\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides foundational empirical evidence on the same core mechanism (dexterous in-hand manipulation policies) and domain (Shadow Dexterous Hand) referenced in the user's question, serving as a canonical prior work for extending physically plausible hand-object interaction research.",
+  "relevant": true
+}

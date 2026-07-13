@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T09:33:11.574024Z'
-current_stage: brainstormed
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-860-llmxive-follow-up-extending-dragmesh-2-p
-last_run_id: null
+last_run_id: fc5d94d4-f115-4c97-9909-21884183937f
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p
 title: 'llmXive follow-up: extending "DragMesh-2: Physically Plausible Dexterous Hand-Object
   Interaction wit"'
-updated_at: '2026-07-02T09:33:11.574024Z'
+updated_at: '2026-07-13T01:51:28.463310Z'

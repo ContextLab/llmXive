@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NovelObjectManifest"
+description: "Schema for the generated novel object geometries and friction parameters."
+type: "object"
+properties:
+  object_id:
+    type: "string"
+    description: "Unique identifier for the generated object."
+  base_mesh_source:
+    type: "string"
+    description: "Reference to the base DragMesh geometry used."
+  friction_coefficient:
+    type: "number"
+    minimum: 0.1
+    maximum: 1.2
+    description: "Randomized friction coefficient for the simulation."
+  object_mass:
+    type: "number"
+    minimum: 0.1
+    maximum: 5.0
+    description: "Mass of the object, used for torque normalization."
+  geometry_params:
+    type: "object"
+    description: "Parameters used to perturb the base geometry."
+    properties:
+      scale:
+        type: "number"
+      rotation:
+        type: "array"
+        items:
+          type: "number"
+      articulation_links:
+        type: "array"
+        items:
+          type: "object"
+    required:
+      - scale
+      - rotation
+      - articulation_links
+required:
+  - object_id
+  - base_mesh_source
+  - friction_coefficient
+  - object_mass
+  - geometry_params
+additionalProperties: false

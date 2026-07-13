@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1709.10087",
+  "judged_at": "2026-07-13T01:13:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dragmesh-2: physically plausible dexterous hand-object interaction wit\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (dexterous hand-object interaction) and domain (controlling high-dimensional robotic hands) as the user's question, even though it focuses on a reinforcement learning approach rather than the specific \"DragMesh-2\" physics-based method. It provides the necessary canonical prior work on the challenges and solutions for dexterous manipulation that a literature review on extending such methods would require.",
+  "relevant": true
+}

@@ -1,0 +1,679 @@
+{
+  "fetched_at": "2026-07-13T01:13:40Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Object Interaction wit\"",
+      "target_n": 5
+    },
+    "duration_seconds": 470.714,
+    "ended_at": "2026-07-13T01:13:40Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "dexterous manipulation with physically simulated hands"
+        ],
+        [
+          2,
+          "contact-rich hand-object interaction using physics engines"
+        ],
+        [
+          3,
+          "physically plausible dexterous grasping and manipulation"
+        ],
+        [
+          4,
+          "sim-to-real transfer for dexterous hand control"
+        ],
+        [
+          5,
+          "whole-hand contact simulation in robotic manipulation"
+        ],
+        [
+          6,
+          "physics-based learning for dexterous object manipulation"
+        ],
+        [
+          7,
+          "high-fidelity dexterous hand kinematic and dynamic modeling"
+        ],
+        [
+          8,
+          "real-time physics simulation for robotic grasping"
+        ],
+        [
+          9,
+          "reinforcement learning for contact-rich manipulation tasks"
+        ],
+        [
+          10,
+          "dexterous manipulation with non-penetrating contact constraints"
+        ],
+        [
+          11,
+          "learning to manipulate objects with articulated hand models"
+        ],
+        [
+          12,
+          "differentiable physics for dexterous hand-object interaction"
+        ],
+        [
+          13,
+          "robust dexterous manipulation under uncertainty"
+        ],
+        [
+          14,
+          "simulation of compliant contact in dexterous hands"
+        ],
+        [
+          15,
+          "end-to-end learning for physically plausible manipulation"
+        ],
+        [
+          16,
+          "dexterous manipulation in physics-based virtual environments"
+        ],
+        [
+          17,
+          "contact-implicit trajectory optimization for dexterous hands"
+        ],
+        [
+          18,
+          "simulating complex contact dynamics in robotic grasping"
+        ],
+        [
+          19,
+          "data-driven dexterous manipulation with physics priors"
+        ],
+        [
+          20,
+          "articulated rigid body dynamics for robotic hand control"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "dexterous manipulation with physically simulated hands": 5,
+        "llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Object Interaction wit\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "dexterous manipulation physics-based simulation contact dynamics",
+      "DragMesh-2 hand-object interaction dataset benchmark",
+      "contact-rich manipulation differentiable physics neural simulation",
+      "sim-to-real transfer dexterous grasp stability",
+      "rigid body dynamics neural implicit representation collision avoidance"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2010.09618"
+      ]
+    },
+    "per_query_hit_count": {
+      "DragMesh-2 hand-object interaction dataset benchmark": 3,
+      "contact-rich manipulation differentiable physics neural simulation": 3,
+      "dexterous manipulation physics-based simulation contact dynamics": 3,
+      "llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Object Interaction wit\" computer science": 0,
+      "rigid body dynamics neural implicit representation collision avoidance": 3,
+      "sim-to-real transfer dexterous grasp stability": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T01:05:49Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"dragmesh-2: physically plausible dexterous hand-object interaction wit\" computer science",
+      "raw": "llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Object Interaction wit\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing research that addressed cable manipulation relied on two-fingered grippers, which make it difficult to perform similar cable manipulation tasks that humans perform. However, unlike dexterous manipulation of rigid objects, the development of dexterous cable manipulation skills in robotics remains underexplored due to the unique challenges posed by a cable's deformability and inherent uncertainty. In addition, using a dexterous hand introduces specific difficulties in tasks, such as cable grasping, pulling, and in-hand bending, for which no dedicated task definitions, benchmarks, or evaluation metrics exist. Furthermore, we observed that most existing dexterous hands are designed with structures identical to humans', typically featuring only one thumb, which often limits their effectiveness during dexterous cable manipulation. Lastly, existing non-task-specific methods did not have enough generalization ability to solve these cable manipulation tasks or are unsuitable due to the designed hardware. We have three contributions in real-world dexterous cable manipulation in the following steps: (1) We first defined and organized a set of dexterous cable manipulation tasks into a comprehensive taxonomy, covering most short-horizon action primitives and long-horizon tasks for one-handed cable manipulation. This taxonomy revealed that coordination between the thumb and the index finger is critical for cable manipulation, which decomposes long-horizon tasks into simpler primitives. (2) We designed a novel five-fingered hand with 25 degrees of freedom (DoF), featuring two symmetric thumb-index configurations and a rotatable joint on each fingertip, which enables dexterous cable manipulation. (3) We developed a demonstration collection pipeline for this non-anthropomorphic hand, which is difficult to operate by previous motion capture methods.",
+          "claimed_authors": [
+            "Sun Zhaole",
+            "Xiao Gao",
+            "Xiaofeng Mao",
+            "Jihong Zhu",
+            "Aude Billard",
+            "Robert B. Fisher"
+          ],
+          "claimed_title": "Dexterous Cable Manipulation: Taxonomy, Multi-Fingered Hand Design, and Long-Horizon Manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.00396"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title='Dexterous Cable Manipulation: Taxonomy, Multi-Fingered Hand Design, and Long-Horizon Manipulation')",
+        "failed_at": "2026-07-13T01:12:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We use reinforcement learning (RL) to learn dexterous in-hand manipulation policies which can perform vision-based object reorientation on a physical Shadow Dexterous Hand. The training is performed in a simulated environment in which we randomize many of the physical properties of the system like friction coefficients and an object's appearance. Our policies transfer to the physical robot despite being trained entirely in simulation. Our method does not rely on any human demonstrations, but many behaviors found in human manipulation emerge naturally, including finger gaiting, multi-finger coordination, and the controlled use of gravity. Our results were obtained using the same distributed RL system that was used to train OpenAI Five. We also include a video of our results: https://youtu.be/jwSbzNHGflM",
+          "claimed_authors": [
+            " OpenAI",
+            "Marcin Andrychowicz",
+            "Bowen Baker",
+            "Maciek Chociej",
+            "Rafal Jozefowicz",
+            "Bob McGrew",
+            "Jakub Pachocki",
+            "Arthur Petron",
+            "Matthias Plappert",
+            "Glenn Powell",
+            "Alex Ray",
+            "Jonas Schneider",
+            "Szymon Sidor",
+            "Josh Tobin",
+            "Peter Welinder",
+            "Lilian Weng",
+            "Wojciech Zaremba"
+          ],
+          "claimed_title": "Learning Dexterous In-Hand Manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.00177"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title='Learning Dexterous In-Hand Manipulation')",
+        "failed_at": "2026-07-13T01:12:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dexterous multi-fingered hands are extremely versatile and provide a generic way to perform a multitude of tasks in human-centric environments. However, effectively controlling them remains challenging due to their high dimensionality and large number of potential contacts. Deep reinforcement learning (DRL) provides a model-agnostic approach to control complex dynamical systems, but has not been shown to scale to high-dimensional dexterous manipulation. Furthermore, deployment of DRL on physical systems remains challenging due to sample inefficiency. Consequently, the success of DRL in robotics has thus far been limited to simpler manipulators and tasks. In this work, we show that model-free DRL can effectively scale up to complex manipulation tasks with a high-dimensional 24-DoF hand, and solve them from scratch in simulated experiments. Furthermore, with the use of a small number of human demonstrations, the sample complexity can be significantly reduced, which enables learning with sample sizes equivalent to a few hours of robot experience. The use of demonstrations result in policies that exhibit very natural movements and, surprisingly, are also substantially more robust.",
+          "claimed_authors": [
+            "Aravind Rajeswaran",
+            "Vikash Kumar",
+            "Abhishek Gupta",
+            "Giulia Vezzani",
+            "John Schulman",
+            "Emanuel Todorov",
+            "Sergey Levine"
+          ],
+          "claimed_title": "Learning Complex Dexterous Manipulation with Deep Reinforcement Learning and Demonstrations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.10087"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title='Learning Complex Dexterous Manipulation with Deep Reinforcement Learning and Demonstrations')",
+        "failed_at": "2026-07-13T01:12:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-13T01:12:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Estimating 3D hand and object pose from a single image is an extremely challenging problem: hands and objects are often self-occluded during interactions, and the 3D annotations are scarce as even humans cannot directly label the ground-truths from a single image perfectly. To tackle these challenges, we propose a unified framework for estimating the 3D hand and object poses with semi-supervised learning. We build a joint learning framework where we perform explicit contextual reasoning between hand and object representations by a Transformer. Going beyond limited 3D annotations in a single image, we leverage the spatial-temporal consistency in large-scale hand-object videos as a constraint for generating pseudo labels in semi-supervised learning. Our method not only improves hand pose estimation in challenging real-world dataset, but also substantially improve the object pose which has fewer ground-truths per instance. By training with large-scale diverse videos, our model also generalizes better across multiple out-of-domain datasets. Project page and code: https://stevenlsw.github.io/Semi-Hand-Object",
+          "claimed_authors": [
+            "Shaowei Liu",
+            "Hanwen Jiang",
+            "Jiarui Xu",
+            "Sifei Liu",
+            "Xiaolong Wang"
+          ],
+          "claimed_title": "Semi-Supervised 3D Hand-Object Poses Estimation with Interactions in Time",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.05266"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title='Semi-Supervised 3D Hand-Object Poses Estimation with Interactions in Time')",
+        "failed_at": "2026-07-13T01:12:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce DIFFTACTILE, a physics-based differentiable tactile simulation system designed to enhance robotic manipulation with dense and physically accurate tactile feedback. In contrast to prior tactile simulators which primarily focus on manipulating rigid bodies and often rely on simplified approximations to model stress and deformations of materials in contact, DIFFTACTILE emphasizes physics-based contact modeling with high fidelity, supporting simulations of diverse contact modes and interactions with objects possessing a wide range of material properties. Our system incorporates several key components, including a Finite Element Method (FEM)-based soft body model for simulating the sensing elastomer, a multi-material simulator for modeling diverse object types (such as elastic, elastoplastic, cables) under manipulation, a penalty-based contact model for handling contact dynamics. The differentiable nature of our system facilitates gradient-based optimization for both 1) refining physical properties in simulation using real-world data, hence narrowing the sim-to-real gap and 2) efficient learning of tactile-assisted grasping and contact-rich manipulation skills. Additionally, we introduce a method to infer the optical response of our tactile sensor to contact using an efficient pixel-based neural module. We anticipate that DIFFTACTILE will serve as a useful platform for studying contact-rich manipulations, leveraging the benefits of dense tactile feedback and differentiable physics. Code and supplementary materials are available at the project website https://difftactile.github.io/.",
+          "claimed_authors": [
+            "Zilin Si",
+            "Gu Zhang",
+            "Qingwei Ben",
+            "Branden Romero",
+            "Zhou Xian",
+            "Chao Liu",
+            "Chuang Gan"
+          ],
+          "claimed_title": "DIFFTACTILE: A Physics-based Differentiable Tactile Simulator for Contact-rich Robotic Manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.08716"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title='DIFFTACTILE: A Physics-based Differentiable Tactile Simulator for Contact-rich Robotic Manipulation')",
+        "failed_at": "2026-07-13T01:12:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The European Particle Physics Strategy Update (EPPSU) process takes a bottom-up approach, whereby the community is first invited to submit proposals (also called inputs) for projects that it would like to see realised in the near-term, mid-term and longer-term future. National inputs as well as inputs from National Laboratories are also an important element of the process. All these inputs are then reviewed by the Physics Preparatory Group (PPG), whose role is to organize a Symposium around the submitted ideas and to prepare a community discussion on the importance and merits of the various proposals. The results of these discussions are then concisely summarised in this Briefing Book, prepared by the Conveners, assisted by Scientific Secretaries, and with further contributions provided by the Contributors listed on the title page. This constitutes the basis for the considerations of the European Strategy Group (ESG), consisting of scientific delegates from CERN Member States, Associate Member States, directors of major European laboratories, representatives of various European organizations as well as invitees from outside the European Community. The ESG has the mission to formulate the European Strategy Update for the consideration and approval of the CERN Council.",
+          "claimed_authors": [
+            " European Strategy for Particle Physics Preparatory Group"
+          ],
+          "claimed_title": "Physics Briefing Book",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.11775"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title='Physics Briefing Book')",
+        "failed_at": "2026-07-13T01:12:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the current expectations for the design and physics program of an e+e- linear collider of center of mass energy 500 GeV -- 1 TeV. We review the experiments that would be carried out at this facility and demonstrate its key role in exploring physics beyond the Standard Model over the full range of theoretical possibilities. We then show the feasibility of constructing this machine, by reviewing the current status of linear collider technology and by presenting a precis of our `zeroth-order' design.",
+          "claimed_authors": [
+            " NLC ZDR Design Group",
+            " NLC Physics Working Group",
+            "S. Kuhlman"
+          ],
+          "claimed_title": "Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "hep-ex/9605011"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title=\"Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96\")",
+        "failed_at": "2026-07-13T01:12:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dexterous grasping in cluttered scenes presents significant challenges due to diverse object geometries, occlusions, and potential collisions. Existing methods primarily focus on single-object grasping or grasp-pose prediction without interaction, which are insufficient for complex, cluttered scenes. Recent vision-language-action models offer a potential solution but require extensive real-world demonstrations, making them costly and difficult to scale. To address these limitations, we revisit the sim-to-real transfer pipeline and develop key techniques that enable zero-shot deployment in reality while maintaining robust generalization. We propose ClutterDexGrasp, a two-stage teacher-student framework for closed-loop target-oriented dexterous grasping in cluttered scenes. The framework features a teacher policy trained in simulation using clutter density curriculum learning, incorporating both a geometry and spatially-embedded scene representation and a novel comprehensive safety curriculum, enabling general, dynamic, and safe grasping behaviors. Through imitation learning, we distill the teacher's knowledge into a student 3D diffusion policy (DP3) that operates on partial point cloud observations. To the best of our knowledge, this represents the first zero-shot sim-to-real closed-loop system for target-oriented dexterous grasping in cluttered scenes, demonstrating robust performance across diverse objects and layouts. More details and videos are available at https://clutterdexgrasp.github.io/.",
+          "claimed_authors": [
+            "Zeyuan Chen",
+            "Qiyang Yan",
+            "Yuanpei Chen",
+            "Tianhao Wu",
+            "Jiyao Zhang",
+            "Zihan Ding",
+            "Jinzhou Li",
+            "Yaodong Yang",
+            "Hao Dong"
+          ],
+          "claimed_title": "ClutterDexGrasp: A Sim-to-Real System for General Dexterous Grasping in Cluttered Scenes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.14317"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title='ClutterDexGrasp: A Sim-to-Real System for General Dexterous Grasping in Cluttered Scenes')",
+        "failed_at": "2026-07-13T01:12:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bridging the sim-to-real gap is a core challenge in deploying learned manipulation policies. Sim-to-real learning is attractive because it can replace expensive real robot demonstrations with scalable synthetic data, yet world-action models have not previously been shown to transfer from simulation to real robotic manipulation. We study whether a world-action model can be trained from synthetic priors and deployed zero-shot in the real world. To this end, we build upon Cosmos Policy, a video diffusion model adapted for visuomotor control. We construct simulation environments with extensive domain randomization and generate demonstrations using the AnyTask motion planning pipeline. We evaluate our approach across object lifting, drawer opening, and pick-and-place tasks using ${\\sim}800$ synthetic demonstrations per task and no real demonstrations. When deployed zero-shot on a Franka Robot, our policy attains a 35\\% average success rate. To our knowledge, this represents the first successful sim-to-real transfer of a world-action model for robotic manipulation.",
+          "claimed_authors": [
+            "Zixing Wang",
+            "Kausik Sivakumar",
+            "Jinghuan Shang",
+            "Yafei Hu",
+            "Zhaoming Xie",
+            "Ran Gong",
+            "Xiaohan Zhang",
+            "Karl Schmeckpeper"
+          ],
+          "claimed_title": "Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.31101"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title='Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors')",
+        "failed_at": "2026-07-13T01:12:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter addresses the critical challenge of simulation-to-reality (sim-to-real) transfer for deep reinforcement learning (DRL) in bipedal locomotion. After contextualizing the problem within various control architectures, we dissect the ``curse of simulation'' by analyzing the primary sources of sim-to-real gap: robot dynamics, contact modeling, state estimation, and numerical solvers. Building on this diagnosis, we structure the solutions around two complementary philosophies. The first is to shrink the gap through model-centric strategies that systematically improve the simulator's physical fidelity. The second is to harden the policy, a complementary approach that uses in-simulation robustness training and post-deployment adaptation to make the policy inherently resilient to model inaccuracies. The chapter concludes by synthesizing these philosophies into a strategic framework, providing a clear roadmap for developing and evaluating robust sim-to-real solutions.",
+          "claimed_authors": [
+            "Lingfan Bao",
+            "Tianhu Peng",
+            "Chengxu Zhou"
+          ],
+          "claimed_title": "Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.06465"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title='Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion')",
+        "failed_at": "2026-07-13T01:12:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In 1909 Born studied the \"relativistic undeformable body\" but made the mistake of calling it \"rigid\". The \"rigid body\" as one can find in Relativity books is, in fact, this Born \"undeformable body\". In Relativity it is necessary to distinguish between \"rigid\" and \"undeformable\". The \"undeformable\" body (in the sense of the most rigid possible) must be the \"deformable\" body where schock waves propagate with maximum speed c. We present in this text the elastic laws for rigid bodies. We think that these laws, which are ignored by the majority of relativists, should be taught in the elementary relativistic courses. With the approach of 2005, the centenary year of Relativity, we should like to appeal to all those who have some influence on these matters to avoid this mistake of repeatedly calling \"rigid\" to the \"undeformable body\".",
+          "claimed_authors": [
+            "A. Brotas",
+            "J. C. Fernandes"
+          ],
+          "claimed_title": "The Relativistic Elasticity of Rigid Bodies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "physics/0307019"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title='The Relativistic Elasticity of Rigid Bodies')",
+        "failed_at": "2026-07-13T01:12:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Active soft bodies can affect their shape through an internal actuation mechanism that induces a deformation. Similar to recent work, this paper utilizes a differentiable, quasi-static, and physics-based simulation layer to optimize for actuation signals parameterized by neural networks. Our key contribution is a general and implicit formulation to control active soft bodies by defining a function that enables a continuous mapping from a spatial point in the material space to the actuation value. This property allows us to capture the signal's dominant frequencies, making the method discretization agnostic and widely applicable. We extend our implicit model to mandible kinematics for the particular case of facial animation and show that we can reliably reproduce facial expressions captured with high-quality capture systems. We apply the method to volumetric soft bodies, human poses, and facial expressions, demonstrating artist-friendly properties, such as simple control over the latent space and resolution invariance at test time.",
+          "claimed_authors": [
+            "Lingchen Yang",
+            "Byungsoo Kim",
+            "Gaspard Zoss",
+            "Baran Gözcü",
+            "Markus Gross",
+            "Barbara Solenthaler"
+          ],
+          "claimed_title": "Implicit Neural Representation for Physics-driven Actuated Soft Bodies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.14861"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title='Implicit Neural Representation for Physics-driven Actuated Soft Bodies')",
+        "failed_at": "2026-07-13T01:12:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Implicit neural representation (INR) characterizes the attributes of a signal as a function of corresponding coordinates which emerges as a sharp weapon for solving inverse problems. However, the expressive power of INR is limited by the spectral bias in the network training. In this paper, we find that such a frequency-related problem could be greatly solved by re-arranging the coordinates of the input signal, for which we propose the disorder-invariant implicit neural representation (DINER) by augmenting a hash-table to a traditional INR backbone. Given discrete signals sharing the same histogram of attributes and different arrangement orders, the hash-table could project the coordinates into the same distribution for which the mapped signal can be better modeled using the subsequent INR network, leading to significantly alleviated spectral bias. Furthermore, the expressive power of the DINER is determined by the width of the hash-table. Different width corresponds to different geometrical elements in the attribute space, \\textit{e.g.}, 1D curve, 2D curved-plane and 3D curved-volume when the width is set as $1$, $2$ and $3$, respectively. More covered areas of the geometrical elements result in stronger expressive power. Experiments not only reveal the generalization of the DINER for different INR backbones (MLP vs. SIREN) and various tasks (image/video representation, phase retrieval, refractive index recovery, and neural radiance field optimization) but also show the superiority over the state-of-the-art algorithms both in quality and speed. \\textit{Project page:} \\url{https://ezio77.github.io/DINER-website/}",
+          "claimed_authors": [
+            "Hao Zhu",
+            "Shaowen Xie",
+            "Zhen Liu",
+            "Fengyi Liu",
+            "Qi Zhang",
+            "You Zhou",
+            "Yi Lin",
+            "Zhan Ma",
+            "Xun Cao"
+          ],
+          "claimed_title": "Disorder-invariant Implicit Neural Representation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.00837"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DragMesh-2: Physically Plausible Dexterous Hand-Ob', candidate_title='Disorder-invariant Implicit Neural Representation')",
+        "failed_at": "2026-07-13T01:12:45Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tianshan Zhang",
+            "Yijia Duan",
+            "Yanjun Li",
+            "Zeyu Zhang",
+            "Hao Tang"
+          ],
+          "title": "DragMesh-2: Physically Plausible Dexterous Hand-Object Interaction with Articulated Objects",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.15133",
+        "summary": "Dexterous interaction with articulated objects is important for household, assistive, and humanoid manipulation, where multi-finger hands can provide compliant contact patterns beyond parallel-jaw grasping. However, articulated-object manipulation differs from static-object manipulation: the target part cannot be directly actuated, and its motion must emerge through sustained physical hand--handle contact. This makes the transition from object-centric articulated generation to hand-driven dexterous hand--object interaction non-trivial, since geometric trajectory replay or open-loop execution does not model the contact dynamics required to move the articulated part. Moreover, policies trained only for task completion under fixed dynamics can overfit nominal contact loads, especially without tactile or force feedback, and may degrade when the contact load changes. To address these challenges, we present DragMesh-2, a contact-driven framework for dexterous interaction with articulated objects that extends articulated interaction from object-centric generation to hand-driven dexterous hand--object interaction, where articulated motion must arise through physical contact. We further propose PICA, a physically informed contact-aware training mechanism that injects physical signals into policy learning without tactile or force feedback, improving robustness and task success under changing contact loads. Finally, we conduct systematic evaluation across multiple damping conditions and articulated-object categories to study robustness under contact-load variation, and provide a pure-geometry dexterous interaction resource to support future loco-manipulation and humanoid hand--object interaction research. Across seven GAPartNet objects, DragMesh-2 achieves stronger robustness under contact-load variation than the compared methods while maintaining high task success across damping conditions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.15133",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5385,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T01:12:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sun Zhaole",
+            "Xiao Gao",
+            "Xiaofeng Mao",
+            "Jihong Zhu",
+            "Aude Billard",
+            "Robert B. Fisher"
+          ],
+          "title": "Dexterous Cable Manipulation: Taxonomy, Multi-Fingered Hand Design, and Long-Horizon Manipulation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2502.00396",
+        "summary": "Existing research that addressed cable manipulation relied on two-fingered grippers, which make it difficult to perform similar cable manipulation tasks that humans perform. However, unlike dexterous manipulation of rigid objects, the development of dexterous cable manipulation skills in robotics remains underexplored due to the unique challenges posed by a cable's deformability and inherent uncertainty. In addition, using a dexterous hand introduces specific difficulties in tasks, such as cable grasping, pulling, and in-hand bending, for which no dedicated task definitions, benchmarks, or evaluation metrics exist. Furthermore, we observed that most existing dexterous hands are designed with structures identical to humans', typically featuring only one thumb, which often limits their effectiveness during dexterous cable manipulation. Lastly, existing non-task-specific methods did not have enough generalization ability to solve these cable manipulation tasks or are unsuitable due to the designed hardware. We have three contributions in real-world dexterous cable manipulation in the following steps: (1) We first defined and organized a set of dexterous cable manipulation tasks into a comprehensive taxonomy, covering most short-horizon action primitives and long-horizon tasks for one-handed cable manipulation. This taxonomy revealed that coordination between the thumb and the index finger is critical for cable manipulation, which decomposes long-horizon tasks into simpler primitives. (2) We designed a novel five-fingered hand with 25 degrees of freedom (DoF), featuring two symmetric thumb-index configurations and a rotatable joint on each fingertip, which enables dexterous cable manipulation. (3) We developed a demonstration collection pipeline for this non-anthropomorphic hand, which is difficult to operate by previous motion capture methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2502.00396",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T01:13:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            " OpenAI",
+            "Marcin Andrychowicz",
+            "Bowen Baker",
+            "Maciek Chociej",
+            "Rafal Jozefowicz",
+            "Bob McGrew",
+            "Jakub Pachocki",
+            "Arthur Petron",
+            "Matthias Plappert",
+            "Glenn Powell",
+            "Alex Ray",
+            "Jonas Schneider",
+            "Szymon Sidor",
+            "Josh Tobin",
+            "Peter Welinder",
+            "Lilian Weng",
+            "Wojciech Zaremba"
+          ],
+          "title": "Learning Dexterous In-Hand Manipulation",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1808.00177",
+        "summary": "We use reinforcement learning (RL) to learn dexterous in-hand manipulation policies which can perform vision-based object reorientation on a physical Shadow Dexterous Hand. The training is performed in a simulated environment in which we randomize many of the physical properties of the system like friction coefficients and an object's appearance. Our policies transfer to the physical robot despite being trained entirely in simulation. Our method does not rely on any human demonstrations, but many behaviors found in human manipulation emerge naturally, including finger gaiting, multi-finger coordination, and the controlled use of gravity. Our results were obtained using the same distributed RL system that was used to train OpenAI Five. We also include a video of our results: https://youtu.be/jwSbzNHGflM",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1808.00177",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T01:13:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aravind Rajeswaran",
+            "Vikash Kumar",
+            "Abhishek Gupta",
+            "Giulia Vezzani",
+            "John Schulman",
+            "Emanuel Todorov",
+            "Sergey Levine"
+          ],
+          "title": "Learning Complex Dexterous Manipulation with Deep Reinforcement Learning and Demonstrations",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1709.10087",
+        "summary": "Dexterous multi-fingered hands are extremely versatile and provide a generic way to perform a multitude of tasks in human-centric environments. However, effectively controlling them remains challenging due to their high dimensionality and large number of potential contacts. Deep reinforcement learning (DRL) provides a model-agnostic approach to control complex dynamical systems, but has not been shown to scale to high-dimensional dexterous manipulation. Furthermore, deployment of DRL on physical systems remains challenging due to sample inefficiency. Consequently, the success of DRL in robotics has thus far been limited to simpler manipulators and tasks. In this work, we show that model-free DRL can effectively scale up to complex manipulation tasks with a high-dimensional 24-DoF hand, and solve them from scratch in simulated experiments. Furthermore, with the use of a small number of human demonstrations, the sample complexity can be significantly reduced, which enables learning with sample sizes equivalent to a few hours of robot experience. The use of demonstrations result in policies that exhibit very natural movements and, surprisingly, are also substantially more robust.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1709.10087",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T01:13:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aditya Kannan",
+            "Kenneth Shaw",
+            "Shikhar Bahl",
+            "Pragna Mannam",
+            "Deepak Pathak"
+          ],
+          "title": "DEFT: Dexterous Fine-Tuning for Real-World Hand Policies",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2310.19797",
+        "summary": "Dexterity is often seen as a cornerstone of complex manipulation. Humans are able to perform a host of skills with their hands, from making food to operating tools. In this paper, we investigate these challenges, especially in the case of soft, deformable objects as well as complex, relatively long-horizon tasks. However, learning such behaviors from scratch can be data inefficient. To circumvent this, we propose a novel approach, DEFT (DExterous Fine-Tuning for Hand Policies), that leverages human-driven priors, which are executed directly in the real world. In order to improve upon these priors, DEFT involves an efficient online optimization procedure. With the integration of human-based learning and online fine-tuning, coupled with a soft robotic hand, DEFT demonstrates success across various tasks, establishing a robust, data-efficient pathway toward general dexterous manipulation. Please see our website at https://dexterous-finetuning.github.io for video results.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2310.19797",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T01:13:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abbaraju Praveen",
+            "Haoguang Yang",
+            "Hyukjun Jang",
+            "Richard M Voyles"
+          ],
+          "title": "Aerial Mobile Manipulator System to Enable Dexterous Manipulations with Increased Precision",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2010.09618",
+        "summary": "Problems associated with physical interactions using aerial mobile manipulators (AMM) are being independently addressed with respect to mobility and manipulability. Multirotor unmanned aerial vehicles (UAV) are a common choice for mobility while on-board manipulators are increasingly be used for manipulability. However, the dynamic coordination between the UAV and on-board manipulator remains a significant obstacle to enable dexterous manipulation with high precision. This paper presents an AMM system configuration to addresses both the mobility and manipulability issues together. A fully-actuated UAV is chosen to achieve dexterous aerial mobile manipulation, but is limited by the actuation range of the UAV. An on-board manipulator is employed to enhance the performance in terms of dexterity and precision at the end-effector. Experimental results on position keeping of the dexterous hexrotor by withstanding the disturbances caused by the motions of the on-board manipulator and external wind disturbances are presented. Preliminary simulation results on end-point tracking in a simple planar on-board manipulator case is presented.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2010.09618",
+          "http_status": 200,
+          "pdf_sample_score": 0.2606,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T01:13:10Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"dragmesh-2: physically plausible dexterous hand-object interaction wit\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

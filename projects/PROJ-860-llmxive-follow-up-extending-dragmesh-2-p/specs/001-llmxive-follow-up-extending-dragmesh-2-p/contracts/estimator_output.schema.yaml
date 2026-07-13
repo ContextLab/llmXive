@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StiffnessEstimateLog"
+description: "Schema for the output of the Virtual Tactile Estimator at each timestep."
+type: "object"
+properties:
+  timestep_id:
+    type: "integer"
+    description: "The simulation step index."
+  k_est:
+    type: "number"
+    minimum: 0.01
+    maximum: 100.0
+    description: "Computed stiffness proxy, clamped to [0.01, 100.0]."
+  delta_tau_hand:
+    type: "number"
+    description: "Filtered temporal derivative of hand joint torques."
+  delta_v_object:
+    type: "number"
+    description: "Temporal derivative of object velocity."
+  is_stiction:
+    type: "boolean"
+    description: "True if object velocity was below epsilon threshold."
+  mass_normalized:
+    type: "boolean"
+    description: "True if the torque derivative was normalized by object mass."
+  reward_weights:
+    type: "object"
+    description: "Dynamic reward weights applied for this step."
+    properties:
+      r_detach:
+        type: "number"
+      r_contact:
+        type: "number"
+      r_goal:
+        type: "number"
+      adjustment_factor:
+        type: "number"
+      transition_smoothness:
+        type: "number"
+    required:
+      - r_detach
+      - r_contact
+      - r_goal
+      - adjustment_factor
+      - transition_smoothness
+required:
+  - timestep_id
+  - k_est
+  - delta_tau_hand
+  - delta_v_object
+  - is_stiction
+  - mass_normalized
+  - reward_weights
+additionalProperties: false

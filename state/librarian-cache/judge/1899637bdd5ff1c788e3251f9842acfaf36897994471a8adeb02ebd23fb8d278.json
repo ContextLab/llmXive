@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.00396",
+  "judged_at": "2026-07-13T01:13:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dragmesh-2: physically plausible dexterous hand-object interaction wit\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (e) by addressing the core mechanism of \"dexterous hand-object interaction\" and the specific empirical population of \"dexterous hands\" (multi-fingered robotic manipulators) referenced in the user's question, even though it focuses on the specific sub-domain of cable manipulation rather than the rigid objects in the cited \"DragMesh-2\" work. It provides the necessary canonical prior work on dexterous hand design and task taxonomies that a literature review on ",
+  "relevant": true
+}

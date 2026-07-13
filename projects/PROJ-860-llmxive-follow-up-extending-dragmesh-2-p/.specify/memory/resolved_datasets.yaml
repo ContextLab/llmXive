@@ -1,0 +1,45 @@
+resolved_at: '2026-07-13T01:18:30.387648+00:00'
+datasets:
+- intent: DragMesh
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AIGeeksGroup/DragMesh-2/resolve/main/dataset_manifest.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 21295
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AIGeeksGroup/DragMesh-2/resolve/main/dataset_manifest.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Amadeus_University_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32969933
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Vision_University_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32969930
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Azman_University_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32969921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Huda_University_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32969918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Z_Call_07036833482_2026_27_Franco_British_International_University_Post_UTME_FORM_Admission_Form_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32969915
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.15133
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2512.06424
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

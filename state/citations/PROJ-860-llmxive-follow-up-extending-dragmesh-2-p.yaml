@@ -1,0 +1,11 @@
+- artifact_hash: 2ae1ef5259c80f6774fc70d7c349db92e6b9e21c2d3bafc14aa5c6ff02159692
+  artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: dataset_manifest.jsonl
+  kind: url
+  value: https://huggingface.co/datasets/AIGeeksGroup/DragMesh-2/resolve/main/dataset_manifest.jsonl`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/AIGeeksGroup/DragMesh-2/9699c0b64d4086eeb5c531d825e8d50a85abc460/dataset_manifest.jsonl?%2Fdatasets%2FAIGeeksGroup%2FDragMesh-2%2Fresolve%2Fmain%2Fdataset_manifest.jsonl=&etag=%22ad99bf157ba549d136168f72e6882237272ba935%22
+  verified_at: '2026-07-13T01:29:11.203640Z'

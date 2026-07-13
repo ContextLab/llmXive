@@ -1103,6 +1103,10 @@
     "classified_at": "2026-07-13T00:22:07Z",
     "verdict": false
   },
+  "PROJ-860-llmxive-follow-up-extending-dragmesh-2-p::1.6.0": {
+    "classified_at": "2026-07-13T01:04:59Z",
+    "verdict": false
+  },
   "PROJ-861-llmxive-follow-up-extending-appo-agentic::1.6.0": {
     "classified_at": "2026-07-04T01:38:07Z",
     "verdict": false

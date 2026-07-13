@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2010.09618",
+  "judged_at": "2026-07-13T01:13:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dragmesh-2: physically plausible dexterous hand-object interaction wit\" computer science",
+  "rationale": "This paper satisfies criterion (b) as it measures the same dependent variable (dexterous manipulation precision) and addresses the same core mechanism (dynamic coordination for physically plausible interaction) within the broader domain of robotic manipulation, even though it applies to an aerial platform rather than a stationary hand. It provides essential prior work on the physical constraints and control strategies required for dexterous interaction, which is directly relevant to extending th",
+  "relevant": true
+}

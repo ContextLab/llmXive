@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2310.19797",
+  "judged_at": "2026-07-13T01:13:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dragmesh-2: physically plausible dexterous hand-object interaction wit\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (dexterous hand-object interaction) and domain (real-world robotic manipulation) as the user's question, specifically addressing the challenge of \"physically plausible\" interaction through a fine-tuning approach on soft/deformable objects. Although it does not mention the specific \"DragMesh-2\" framework, it provides canonical prior work on the independent variable (dexterous hand policies) and dependent variable",
+  "relevant": true
+}
