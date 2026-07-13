@@ -1,0 +1,524 @@
+{
+  "fetched_at": "2026-07-13T12:44:38Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimodal Large Language M\"",
+      "target_n": 5
+    },
+    "duration_seconds": 53.001,
+    "ended_at": "2026-07-13T12:44:38Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "multimodal large language model evaluation"
+        ],
+        [
+          2,
+          "vision-language model benchmarking"
+        ],
+        [
+          3,
+          "multimodal LLM hallucination detection"
+        ],
+        [
+          4,
+          "cross-modal reasoning evaluation"
+        ],
+        [
+          5,
+          "large multimodal model robustness testing"
+        ],
+        [
+          6,
+          "VLM performance metrics beyond current observations"
+        ],
+        [
+          7,
+          "multimodal foundation model assessment"
+        ],
+        [
+          8,
+          "image-text understanding evaluation"
+        ],
+        [
+          9,
+          "multimodal LLM visual grounding evaluation"
+        ],
+        [
+          10,
+          "comprehensive multimodal AI benchmarking"
+        ],
+        [
+          11,
+          "multimodal large language model limitations"
+        ],
+        [
+          12,
+          "evaluating VLMs on out-of-distribution data"
+        ],
+        [
+          13,
+          "multimodal reasoning benchmarks"
+        ],
+        [
+          14,
+          "large language model visual comprehension"
+        ],
+        [
+          15,
+          "multimodal AI safety and evaluation"
+        ],
+        [
+          16,
+          "vision-language model factual consistency"
+        ],
+        [
+          17,
+          "multimodal LLM generalization capabilities"
+        ],
+        [
+          18,
+          "next-generation multimodal evaluation frameworks"
+        ],
+        [
+          19,
+          "automated evaluation of vision-language models"
+        ],
+        [
+          20,
+          "multimodal large language model trustworthiness"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimodal Large Language M\" computer science": 0,
+        "multimodal large language model evaluation": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "memorization data contamination multimodal LLM",
+      "VQA benchmark CLIP alignment hallucination",
+      "cross-modal retrieval zero-shot generalization",
+      "image-text perplexity held-out evaluation",
+      "training data leakage multimodal pretraining"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2306.13549"
+      ]
+    },
+    "per_query_hit_count": {
+      "VQA benchmark CLIP alignment hallucination": 3,
+      "cross-modal retrieval zero-shot generalization": 3,
+      "image-text perplexity held-out evaluation": 3,
+      "llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimodal Large Language M\" computer science": 3,
+      "memorization data contamination multimodal LLM": 3,
+      "training data leakage multimodal pretraining": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2211.12112",
+          "rationale": "The paper focuses on human evaluation benchmarks for text-to-image generation models, which is a distinct domain from the user's question regarding the evaluation of Multimodal Large Language Models (MLLMs) in the context of \"Beyond the Current Observation\" (likely referring to temporal reasoning or future prediction). While both involve multimodal AI, the specific mechanism (generating static images vs. reasoning about observations), the task (image synthesis vs. observation evaluation), and th",
+          "title": "Human Evaluation of Text-to-Image Models on a Multi-Task Benchmark"
+        },
+        {
+          "primary_pointer": "2312.05434",
+          "rationale": "The paper focuses on a specific downstream application (harmful meme detection) using distilled reasoning, whereas the user's question targets the evaluation of a specific multimodal LLM architecture (\"Beyond the Current Observation\") and its general capabilities or limitations. The paper does not measure the same mechanism, establish a baseline for the specific model in question, or serve as a foundational reference for the evaluation framework implied by the user's query, making it a distinct ",
+          "title": "Beneath the Surface: Unveiling Harmful Memes with Multimodal Reasoning Distilled from Large Language Models"
+        },
+        {
+          "primary_pointer": "2605.17152",
+          "rationale": "The candidate paper is a tutorial overview on multilingual and multimodal LLMs for low-resource languages, which does not address the specific \"llmXive follow-up\" or the evaluation of \"Beyond the Current Observation\" mentioned in the user's question. It fails to meet any inclusion criteria (a-f) as it does not measure the same mechanism, establish a baseline for the specific evaluation framework, or serve as a foundational method for the specific \"Beyond the Current Observation\" concept, represe",
+          "title": "Multilingual and Multimodal LLMs in the Wild: Building for Low-Resource Languages"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T12:43:45Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"beyond the current observation: evaluating multimodal large language m\" computer science",
+      "raw": "llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimodal Large Language M\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-13T12:44:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-13T12:44:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-13T12:44:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) trained on web-scale datasets raise substantial concerns regarding permissible data usage. One major question is whether these models \"memorize\" all their training data or they integrate many data sources in some way more akin to how a human would learn and synthesize information. The answer hinges, to a large degree, on how we define memorization. In this work, we propose the Adversarial Compression Ratio (ACR) as a metric for assessing memorization in LLMs. A given string from the training data is considered memorized if it can be elicited by a prompt (much) shorter than the string itself -- in other words, if these strings can be \"compressed\" with the model by computing adversarial prompts of fewer tokens. The ACR overcomes the limitations of existing notions of memorization by (i) offering an adversarial view of measuring memorization, especially for monitoring unlearning and compliance; and (ii) allowing for the flexibility to measure memorization for arbitrary strings at a reasonably low compute. Our definition serves as a practical tool for determining when model owners may be violating terms around data usage, providing a potential legal tool and a critical lens through which to address such scenarios.",
+          "claimed_authors": [
+            "Avi Schwarzschild",
+            "Zhili Feng",
+            "Pratyush Maini",
+            "Zachary C. Lipton",
+            "J. Zico Kolter"
+          ],
+          "claimed_title": "Rethinking LLM Memorization through the Lens of Adversarial Compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.15146"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='Rethinking LLM Memorization through the Lens of Adversarial Compression')",
+        "failed_at": "2026-07-13T12:44:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-13T12:44:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-13T12:44:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Vision-Language Models (LVLMs) are susceptible to object hallucinations, an issue in which their generated text contains non-existent objects, greatly limiting their reliability and practicality. Current approaches often rely on the model's token likelihoods or other internal information, instruction tuning on additional datasets, or incorporating complex external tools. We first perform empirical analysis on sentence-level LVLM hallucination, finding that CLIP similarity to the image acts as a stronger and more robust indicator of hallucination compared to token likelihoods. Motivated by this, we introduce our CLIP-Guided Decoding (CGD) approach, a straightforward but effective training-free approach to reduce object hallucination at decoding time. CGD uses CLIP to guide the model's decoding process by enhancing visual grounding of generated text with the image. Experiments demonstrate that CGD effectively mitigates object hallucination across multiple LVLM families while preserving the utility of text generation. Codes are available at https://github.com/d-ailin/CLIP-Guided-Decoding.",
+          "claimed_authors": [
+            "Ailin Deng",
+            "Zhirui Chen",
+            "Bryan Hooi"
+          ],
+          "claimed_title": "Seeing is Believing: Mitigating Hallucination in Large Vision-Language Models via CLIP-Guided Decoding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.15300"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='Seeing is Believing: Mitigating Hallucination in Large Vision-Language Models via CLIP-Guided Decoding')",
+        "failed_at": "2026-07-13T12:44:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While Visual Question Answering (VQA) models continue to push the state-of-the-art forward, they largely remain black-boxes - failing to provide insight into how or why an answer is generated. In this ongoing work, we propose addressing this shortcoming by learning to generate counterfactual images for a VQA model - i.e. given a question-image pair, we wish to generate a new image such that i) the VQA model outputs a different answer, ii) the new image is minimally different from the original, and iii) the new image is realistic. Our hope is that providing such counterfactual examples allows users to investigate and understand the VQA model's internal mechanisms.",
+          "claimed_authors": [
+            "Jingjing Pan",
+            "Yash Goyal",
+            "Stefan Lee"
+          ],
+          "claimed_title": "Question-Conditioned Counterfactual Image Generation for VQA",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.06352"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='Question-Conditioned Counterfactual Image Generation for VQA')",
+        "failed_at": "2026-07-13T12:44:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For humanity to maintain and expand its agency into the future, the most powerful systems we create must be those which act to align the future with the will of humanity. The most powerful systems today are massive institutions like governments, firms, and NGOs. Deliberative technology is already being used across these institutions to help align governance and diplomacy with human will, and modern AI is poised to make this technology significantly better. At the same time, the race to superhuman AGI is already underway, and the AI systems it gives rise to may become the most powerful systems of the future. Failure to align the impact of such powerful AI with the will of humanity may lead to catastrophic consequences, while success may unleash abundance. Right now, there is a window of opportunity to use deliberative technology to align the impact of powerful AI with the will of humanity. Moreover, it may be possible to engineer a symbiotic coupling between powerful AI and deliberative alignment systems such that the quality of alignment improves as AI capabilities increase.",
+          "claimed_authors": [
+            "Andrew Konya",
+            "Deger Turan",
+            "Aviv Ovadya",
+            "Lina Qui",
+            "Daanish Masood",
+            "Flynn Devine",
+            "Lisa Schirch",
+            "Isabella Roberts",
+            "Deliberative Alignment Forum"
+          ],
+          "claimed_title": "Deliberative Technology for Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.03893"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='Deliberative Technology for Alignment')",
+        "failed_at": "2026-07-13T12:44:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper addresses the challenges of learning representations for recipes and food images in the cross-modal retrieval problem. As the relationship between a recipe and its cooked dish is cause-and-effect, treating a recipe as a text source describing the visual appearance of a dish for learning representation, as the existing approaches, will create bias misleading image-and-recipe similarity judgment. Specifically, a food image may not equally capture every detail in a recipe, due to factors such as the cooking process, dish presentation, and image-capturing conditions. The current representation learning tends to capture dominant visual-text alignment while overlooking subtle variations that determine retrieval relevance. In this paper, we model such bias in cross-modal representation learning using causal theory. The causal view of this problem suggests ingredients as one of the confounder sources and a simple backdoor adjustment can alleviate the bias. By causal intervention, we reformulate the conventional model for food-to-recipe retrieval with an additional term to remove the potential bias in similarity judgment. Based on this theory-informed formulation, we empirically prove the oracle performance of retrieval on the Recipe1M dataset to be MedR=1 across the testing data sizes of 1K, 10K, and even 50K. We also propose a plug-and-play neural module, which is essentially a multi-label ingredient classifier for debiasing. New state-of-the-art search performances are reported on the Recipe1M dataset.",
+          "claimed_authors": [
+            "Qing Wang",
+            "Chong-Wah Ngo",
+            "Ee-Peng Lim"
+          ],
+          "claimed_title": "Towards Unbiased Cross-Modal Representation Learning for Food Image-to-Recipe Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.15201"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='Towards Unbiased Cross-Modal Representation Learning for Food Image-to-Recipe Retrieval')",
+        "failed_at": "2026-07-13T12:44:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Contrastive language-image pre-training (CLIP) has demonstrated remarkable zero-shot classification ability, namely image classification using novel text labels. Existing works have attempted to enhance CLIP by fine-tuning on downstream tasks, but these have inadvertently led to performance degradation on unseen classes, thus harming zero-shot generalization. This paper aims to address this challenge by leveraging readily available image-text pairs from an external dataset for cross-modal guidance during inference. To this end, we propose X-MoRe, a novel inference method comprising two key steps: (1) cross-modal retrieval and (2) modal-confidence-based ensemble. Given a query image, we harness the power of CLIP's cross-modal representations to retrieve relevant textual information from an external image-text pair dataset. Then, we assign higher weights to the more reliable modality between the original query image and retrieved text, contributing to the final prediction. X-MoRe demonstrates robust performance across a diverse set of tasks without the need for additional training, showcasing the effectiveness of utilizing cross-modal features to maximize CLIP's zero-shot ability.",
+          "claimed_authors": [
+            "Seongha Eom",
+            "Namgyu Ho",
+            "Jaehoon Oh",
+            "Se-Young Yun"
+          ],
+          "claimed_title": "Cross-Modal Retrieval Meets Inference:Improving Zero-Shot Classification with Cross-Modal Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.15273"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='Cross-Modal Retrieval Meets Inference:Improving Zero-Shot Classification with Cross-Modal Retrieval')",
+        "failed_at": "2026-07-13T12:44:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cross-modality retrieval encompasses retrieval tasks where the fetched items are of a different type than the search query, e.g., retrieving pictures relevant to a given text query. The state-of-the-art approach to cross-modality retrieval relies on learning a joint embedding space of the two modalities, where items from either modality are retrieved using nearest-neighbor search. In this work, we introduce a neural network layer based on Canonical Correlation Analysis (CCA) that learns better embedding spaces by analytically computing projections that maximize correlation. In contrast to previous approaches, the CCA Layer (CCAL) allows us to combine existing objectives for embedding space learning, such as pairwise ranking losses, with the optimal projections of CCA. We show the effectiveness of our approach for cross-modality retrieval on three different scenarios (text-to-image, audio-sheet-music and zero-shot retrieval), surpassing both Deep CCA and a multi-view network using freely learned projections optimized by a pairwise ranking loss, especially when little training data is available (the code for all three methods is released at: https://github.com/CPJKU/cca_layer).",
+          "claimed_authors": [
+            "Matthias Dorfer",
+            "Jan Schlüter",
+            "Andreu Vall",
+            "Filip Korzeniowski",
+            "Gerhard Widmer"
+          ],
+          "claimed_title": "End-to-End Cross-Modality Retrieval with CCA Projections and Pairwise Ranking Loss",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.06979"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='End-to-End Cross-Modality Retrieval with CCA Projections and Pairwise Ranking Loss')",
+        "failed_at": "2026-07-13T12:44:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multimodal generative AI usually involves generating image or text responses given inputs in another modality. The evaluation of image-text relevancy is essential for measuring response quality or ranking candidate responses. In particular, binary relevancy evaluation, i.e., ``Relevant'' vs. ``Not Relevant'', is a fundamental problem. However, this is a challenging task considering that texts have diverse formats and the definition of relevancy varies in different scenarios. We find that Multimodal Large Language Models (MLLMs) are an ideal choice to build such evaluators, as they can flexibly handle complex text formats and take in additional task information. In this paper, we present LLaVA-RE, a first attempt for binary image-text relevancy evaluation with MLLM. It follows the LLaVA architecture and adopts detailed task instructions and multimodal in-context samples. In addition, we propose a novel binary relevancy data set that covers various tasks. Experimental results validate the effectiveness of our framework.",
+          "claimed_authors": [
+            "Tao Sun",
+            "Oliver Liu",
+            "JinJin Li",
+            "Lan Ma"
+          ],
+          "claimed_title": "LLaVA-RE: Binary Image-Text Relevancy Evaluation with Multimodal Large Language Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.05602"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='LLaVA-RE: Binary Image-Text Relevancy Evaluation with Multimodal Large Language Model')",
+        "failed_at": "2026-07-13T12:44:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluating text-to-image and text-to-video models is challenging due to a fundamental disconnect: established metrics fail to jointly measure visual quality and semantic alignment with text, leading to a poor correlation with human judgments. To address this critical issue, we propose cFreD, a general metric based on a Conditional Fréchet Distance that unifies the assessment of visual fidelity and text-prompt consistency into a single score. Existing metrics such as Fréchet Inception Distance (FID) capture image quality but ignore text conditioning while alignment scores such as CLIPScore are insensitive to visual quality. Furthermore, learned preference models require constant retraining and are unlikely to generalize to novel architectures or out-of-distribution prompts. Through extensive experiments across multiple recently proposed text-to-image models and diverse prompt datasets, cFreD exhibits a higher correlation with human judgments compared to statistical metrics , including metrics trained with human preferences. Our findings validate cFreD as a robust, future-proof metric for the systematic evaluation of text conditioned models, standardizing benchmarking in this rapidly evolving field. We release our evaluation toolkit and benchmark.",
+          "claimed_authors": [
+            "Jaywon Koo",
+            "Jefferson Hernandez",
+            "Moayed Haji-Ali",
+            "Ziyan Yang",
+            "Vicente Ordonez"
+          ],
+          "claimed_title": "Evaluating Text-to-Image and Text-to-Video Synthesis with a Conditional Fréchet Distance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.21721"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='Evaluating Text-to-Image and Text-to-Video Synthesis with a Conditional Fréchet Distance')",
+        "failed_at": "2026-07-13T12:44:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Beyond the Current Observation: Evaluating Multimo', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-07-13T12:44:16Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chaoyou Fu",
+            "Peixian Chen",
+            "Yunhang Shen",
+            "Yulei Qin",
+            "Mengdan Zhang",
+            "Xu Lin",
+            "Jinrui Yang",
+            "Xiawu Zheng",
+            "Ke Li",
+            "Xing Sun",
+            "Yunsheng Wu",
+            "Rongrong Ji",
+            "Caifeng Shan",
+            "Ran He"
+          ],
+          "title": "MME: A Comprehensive Evaluation Benchmark for Multimodal Large Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.13394",
+        "summary": "Multimodal Large Language Model (MLLM) relies on the powerful LLM to perform multimodal tasks, showing amazing emergent abilities in recent studies, such as writing poems based on an image. However, it is difficult for these case studies to fully reflect the performance of MLLM, lacking a comprehensive evaluation. In this paper, we fill in this blank, presenting the first comprehensive MLLM Evaluation benchmark MME. It measures both perception and cognition abilities on a total of 14 subtasks. In order to avoid data leakage that may arise from direct use of public datasets for evaluation, the annotations of instruction-answer pairs are all manually designed. The concise instruction design allows us to fairly compare MLLMs, instead of struggling in prompt engineering. Besides, with such an instruction, we can also easily carry out quantitative statistics. A total of 30 advanced MLLMs are comprehensively evaluated on our MME, which not only suggests that existing MLLMs still have a large room for improvement, but also reveals the potential directions for the subsequent model optimization. The data are released at the project page https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models/tree/Evaluation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.13394",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T12:44:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shukang Yin",
+            "Chaoyou Fu",
+            "Sirui Zhao",
+            "Ke Li",
+            "Xing Sun",
+            "Tong Xu",
+            "Enhong Chen"
+          ],
+          "title": "A Survey on Multimodal Large Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.13549",
+        "summary": "Recently, Multimodal Large Language Model (MLLM) represented by GPT-4V has been a new rising research hotspot, which uses powerful Large Language Models (LLMs) as a brain to perform multimodal tasks. The surprising emergent capabilities of MLLM, such as writing stories based on images and OCR-free math reasoning, are rare in traditional multimodal methods, suggesting a potential path to artificial general intelligence. To this end, both academia and industry have endeavored to develop MLLMs that can compete with or even better than GPT-4V, pushing the limit of research at a surprising speed. In this paper, we aim to trace and summarize the recent progress of MLLMs. First of all, we present the basic formulation of MLLM and delineate its related concepts, including architecture, training strategy and data, as well as evaluation. Then, we introduce research topics about how MLLMs can be extended to support more granularity, modalities, languages, and scenarios. We continue with multimodal hallucination and extended techniques, including Multimodal ICL (M-ICL), Multimodal CoT (M-CoT), and LLM-Aided Visual Reasoning (LAVR). To conclude the paper, we discuss existing challenges and point out promising research directions. In light of the fact that the era of MLLM has only just begun, we will keep updating this survey and hope it can inspire more research. An associated GitHub link collecting the latest papers is available at https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.13549",
+          "http_status": 200,
+          "pdf_sample_score": 0.2881,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T12:44:21Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"beyond the current observation: evaluating multimodal large language m\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

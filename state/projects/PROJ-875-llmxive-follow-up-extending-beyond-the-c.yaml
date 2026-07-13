@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T14:47:55.485410Z'
-current_stage: brainstormed
+current_stage: specified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-875-llmxive-follow-up-extending-beyond-the-c
-last_run_id: null
+last_run_id: d6858467-1471-4b17-a426-c14eaf34919e
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c
 title: 'llmXive follow-up: extending "Beyond the Current Observation: Evaluating Multimodal
   Large Language M"'
-updated_at: '2026-07-02T14:47:55.485410Z'
+updated_at: '2026-07-13T12:48:05.787589Z'
