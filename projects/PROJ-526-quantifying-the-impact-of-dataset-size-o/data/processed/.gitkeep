@@ -1,0 +1,2 @@
+# This file ensures the data/processed directory is tracked by git
+# Processed data and results will be written here by the pipeline

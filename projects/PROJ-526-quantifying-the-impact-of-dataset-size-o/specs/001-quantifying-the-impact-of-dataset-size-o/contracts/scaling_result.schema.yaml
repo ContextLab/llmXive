@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ScalingResultSchema"
+description: "Schema for the aggregated scaling law results per property."
+type: object
+properties:
+  property_name:
+    type: string
+    description: "Name of the target property."
+  scaling_exponent_b:
+    type: ["number", "null"]
+    description: "Fitted scaling exponent b. Null if non-power-law."
+  intercept_a:
+    type: ["number", "null"]
+    description: "Fitted intercept a. Null if non-power-law."
+  r_squared:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Goodness of fit R-squared value."
+  fit_status:
+    type: string
+    enum:
+      - "power-law"
+      - "non-power-law"
+    description: "Status of the power-law fit."
+  descriptor_complexity:
+    type: number
+    description: "Shannon entropy of elemental distribution in the dataset."
+  target_heterogeneity:
+    type: number
+    description: "Coefficient of variation (std/mean) of the property values."
+  shuffled_baseline_mae:
+    type: number
+    description: "MAE from the model trained on shuffled labels."
+required:
+  - property_name
+  - r_squared
+  - fit_status
+  - descriptor_complexity
+  - target_heterogeneity
+  - shuffled_baseline_mae
+additionalProperties: false

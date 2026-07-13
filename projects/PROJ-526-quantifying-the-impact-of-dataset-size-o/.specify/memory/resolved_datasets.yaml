@@ -1,0 +1,163 @@
+resolved_at: '2026-07-13T05:41:08.922578+00:00'
+datasets:
+- intent: AFLOW
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kamabata/aflow_graph_ids/resolve/main/id_jsons/00/0000.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9686
+      parsed: true
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_thermalcond_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 91694
+      parsed: true
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_thermalexp_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 75446
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kamabata/aflow_graph_ids/resolve/main/id_jsons/00/0000.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_thermalcond_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_thermalexp_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_debyet_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/figure/Image_4_Effective_analysis_of_testicular_seminoma_toxicity_and_mechanisms_of_acetyl_tributyl_citrate_using_network_toxicology_bulk_RNA_sequencing_data_single-cell_RNA_sequencing_data_and_clinical_data_tif/32972321
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_5_Effective_analysis_of_testicular_seminoma_toxicity_and_mechanisms_of_acetyl_tributyl_citrate_using_network_toxicology_bulk_RNA_sequencing_data_single-cell_RNA_sequencing_data_and_clinical_data_tif/32972324
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_6_Effective_analysis_of_testicular_seminoma_toxicity_and_mechanisms_of_acetyl_tributyl_citrate_using_network_toxicology_bulk_RNA_sequencing_data_single-cell_RNA_sequencing_data_and_clinical_data_tif/32972327
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_2_Effective_analysis_of_testicular_seminoma_toxicity_and_mechanisms_of_acetyl_tributyl_citrate_using_network_toxicology_bulk_RNA_sequencing_data_single-cell_RNA_sequencing_data_and_clinical_data_tif/32972315
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_3_Effective_analysis_of_testicular_seminoma_toxicity_and_mechanisms_of_acetyl_tributyl_citrate_using_network_toxicology_bulk_RNA_sequencing_data_single-cell_RNA_sequencing_data_and_clinical_data_tif/32972318
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20089143
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20841352
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14216795
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2563185
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19679862
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openkim.org/id/TD_199652920580_000
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20841352
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20841352
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rodare.hzdr.de/record/4176
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rodare.hzdr.de/record/4723
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LearningCurve
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/figure/Image_4_Effective_analysis_of_testicular_seminoma_toxicity_and_mechanisms_of_acetyl_tributyl_citrate_using_network_toxicology_bulk_RNA_sequencing_data_single-cell_RNA_sequencing_data_and_clinical_data_tif/32972321
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_5_Effective_analysis_of_testicular_seminoma_toxicity_and_mechanisms_of_acetyl_tributyl_citrate_using_network_toxicology_bulk_RNA_sequencing_data_single-cell_RNA_sequencing_data_and_clinical_data_tif/32972324
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_6_Effective_analysis_of_testicular_seminoma_toxicity_and_mechanisms_of_acetyl_tributyl_citrate_using_network_toxicology_bulk_RNA_sequencing_data_single-cell_RNA_sequencing_data_and_clinical_data_tif/32972327
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_2_Effective_analysis_of_testicular_seminoma_toxicity_and_mechanisms_of_acetyl_tributyl_citrate_using_network_toxicology_bulk_RNA_sequencing_data_single-cell_RNA_sequencing_data_and_clinical_data_tif/32972315
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_3_Effective_analysis_of_testicular_seminoma_toxicity_and_mechanisms_of_acetyl_tributyl_citrate_using_network_toxicology_bulk_RNA_sequencing_data_single-cell_RNA_sequencing_data_and_clinical_data_tif/32972318
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/570062
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20711755
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19672952
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8144483
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21002621
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1249052
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/570062
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1249057
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.egms.de/static/en/meetings/dgnc2016/16dgnc114.shtml
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

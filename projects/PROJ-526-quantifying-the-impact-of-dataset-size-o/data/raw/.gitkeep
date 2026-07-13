@@ -1,0 +1,2 @@
+# This file ensures the data/raw directory is tracked by git
+# Real data files will be downloaded here by the pipeline

@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MaterialDatasetSchema"
+description: "Schema for the processed material dataset with Magpie descriptors."
+type: object
+properties:
+  material_id:
+    type: string
+    description: "Unique identifier for the material."
+  property_class:
+    type: string
+    description: "Classification of the property (e.g., 'electronic', 'thermal')."
+  property_value:
+    type: number
+    description: "Target property value."
+  magpie_features:
+    type: array
+    items:
+      type: number
+    description: "145-dimensional Magpie composition descriptor vector."
+required:
+  - material_id
+  - property_class
+  - property_value
+  - magpie_features
+additionalProperties: false

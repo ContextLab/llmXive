@@ -1,0 +1,2 @@
+# This file ensures the state directory is tracked by git
+# State files (amendments, checksums) will be written here

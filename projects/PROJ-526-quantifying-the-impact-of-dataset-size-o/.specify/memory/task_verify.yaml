@@ -1,0 +1,10 @@
+? 'T001a [P] Create root directories: `projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/`,
+  `code/`, `data/`, `tests/`, `state/`, `docs/`'
+: 1
+'T001b [P] Create subdirectories: `data/raw/`, `data/processed/`, `tests/contract/`, `tests/unit/`, `tests/integration/`': 1
+T001c [P] Initialize git repository and create `.gitignore` for Python/data artifacts: 1
+? T002 Initialize Python 3.10 project with dependencies (`pymatgen`, `matminer`, `scikit-learn`,
+  `pandas`, `numpy`, `requests`, `huggingface_hub`) in `requirements.txt`
+: 1
+T003 [P] Configure linting (flake8/black) and formatting tools: 1
+T004 Create `data/` directory structure (`raw/`, `processed/`) and `state/` for checksums: 1
