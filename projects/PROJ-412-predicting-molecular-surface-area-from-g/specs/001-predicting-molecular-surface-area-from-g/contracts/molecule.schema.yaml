@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecule Graph Record"
+description: "Schema for processed molecule records containing 2D graph features and 3D surface area labels."
+type: "object"
+properties:
+  smiles:
+    type: "string"
+    description: "Canonical SMILES string of the molecule."
+  mol_id:
+    type: "string"
+    description: "Unique identifier for the molecule."
+  num_atoms:
+    type: "integer"
+    description: "Number of atoms in the molecule."
+    minimum: 1
+  molecular_weight:
+    type: "number"
+    description: "Molecular weight for stratification."
+    minimum: 0
+  features_node:
+    type: "array"
+    description: "Flattened node feature matrix."
+    items:
+      type: "number"
+  features_edge:
+    type: "array"
+    description: "Flattened edge feature matrix."
+    items:
+      type: "number"
+  adjacency_matrix:
+    type: "array"
+    description: "Flattened adjacency matrix."
+    items:
+      type: "number"
+  surface_area:
+    type: "number"
+    description: "Ground truth 3D Surface Area (Å²) computed by RDKit."
+    minimum: 0
+  conformer_status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed"
+      - "minimized"
+    description: "Status of 3D conformer generation."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if the molecule was filtered out."
+required:
+  - smiles
+  - mol_id
+  - num_atoms
+  - molecular_weight
+  - features_node
+  - features_edge
+  - adjacency_matrix
+  - surface_area
+  - conformer_status
+additionalProperties: false

@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Prediction Result"
+description: "Schema for model evaluation results containing predictions and errors."
+type: "object"
+properties:
+  mol_id:
+    type: "string"
+    description: "Unique identifier for the molecule."
+  true_surface_area:
+    type: "number"
+    description: "Ground truth surface area."
+    minimum: 0
+  gcn_prediction:
+    type: "number"
+    description: "Prediction from the Graph Convolutional Network."
+  baseline_prediction:
+    type: "number"
+    description: "Prediction from the Geometry-Based Baseline."
+  gcn_error:
+    type: "number"
+    description: "Absolute error of the GCN model."
+    minimum: 0
+  baseline_error:
+    type: "number"
+    description: "Absolute error of the baseline model."
+    minimum: 0
+  split:
+    type: "string"
+    enum:
+      - "train"
+      - "test"
+    description: "Data split identifier."
+required:
+  - mol_id
+  - true_surface_area
+  - gcn_prediction
+  - baseline_prediction
+  - gcn_error
+  - baseline_error
+  - split
+additionalProperties: false

@@ -1,0 +1,502 @@
+resolved_at: '2026-07-13T19:29:28.373900+00:00'
+datasets:
+- intent: SMILES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 6057
+      parsed: true
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?Expires=1783974392&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0NDI2MGY3NzJiNGNhN2VlZWU2YTBhMi9lZTVlMDk0NWM1ODkzYmE5ZTlkNjFhNWE0NGUzM2VkMmM2YzUzOTQ5NzE1YzU0NmY0MjI0M2FiYmNiODU4MTIxKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk3NDM5Mn19fV19&Signature=MEQCIDvP8BKZgNImzascE0iJuEeQCRoPJ2ITP1-d0BYPX2qxAiAEpAmdQjTzSAs3McViiRrqPdkaANGR8sf6V6Y1tmq6aQ__&Key-Pair-Id=K1LYXO563TGWFU&response-content-type=text%2Fplain&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T192632Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=48ad9189d1b3a467d7f135516f549546cfc35264f3ad2fa3ec12d7fce493e4ab
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?Expires=1783974393&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0NDI2OTcyNzJiNGNhN2VlZWU3OTU3Ni9mYjJkM2VkMThiOWE2NTAwNTI0Y2NmMmViYWUyYTQ5NWQ0ZThjOTMxY2UzZjk5OWNkNDM2ODUyOTg0ZjBlNDI0KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk3NDM5M319fV19&Signature=MEQCIGL~0TqvEd8-oj0NpjwHuHioVc4cJT-rovZ3Ahw0kBdBAiApnT5T36P-otzTI6vvYnDoGxDRvSZ1bwbKU3hMU80RUw__&Key-Pair-Id=K1LYXO563TGWFU&response-content-type=text%2Fplain&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T192633Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7eed0cc93b8c13ba1b34ceef4aedc5f139be1864b326895b3f112e9dc9026211
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Analytical_vectorial_light-field_engineering_with_fixed-meta-atom_interferometric_metasurfaces_-_7969468_pdf/32906591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/From_Matrix_Mechanics_to_Quantum_Circuits_Computational_Reproduction_of_Two_Spin-_1_2_Angular-Momentum_Coupling_Using_MATLAB_and_PennyLane/32978282
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ctsnet.figshare.com/articles/media/Technical_Considerations_for_Aberrant_Left_Hepatic_Artery_Preservation_During_Robotic-Assisted_Minimally_Invasive_Esophagectomy/32975639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/goodcomp3_locations_dict_area/32978252
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Single-cell_RNA_sequencing_reveals_microglial_proliferative_bias_and_neuroinflammatory_communication_reprogramming_following_traumatic_brain_injury_pdf/32978279
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/jctb.5000412311
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/ct/article/120735
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/ct/article/208076
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/ct/article/207971
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673602326825
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341249
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341249
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.bath.ac.uk/1496/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/129808-molecular-string-representation-preferences-in-pretrained-llms-a-comparative-study-in-zero-and-few-shot-molecular-property-prediction
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/401738
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ZINC15
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jonghyunlee/ZINC15/resolve/main/zinc_processed.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jonghyunlee/ZINC15/resolve/main/zinc_processed.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/692fcada4852ae5cebd66c44/9d188a9cc6da3d5fbb0f80042313a4fd417fa16946fe4435dc654779b1fc7a52?Expires=1783974413&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY5MmZjYWRhNDg1MmFlNWNlYmQ2NmM0NC85ZDE4OGE5Y2M2ZGEzZDVmYmIwZjgwMDQyMzEzYTRmZDQxN2ZhMTY5NDZmZTQ0MzVkYzY1NDc3OWIxZmM3YTUyKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk3NDQxM319fV19&Signature=MEQCIFqqKjTheQOuFdnRuh0k7t-4whJiN3BN~v0MPPfQY~kEAiAMu0dug3xWPr6KWZLtKAUKCvfp5j2iREKQVSRMJa3v3g__&Key-Pair-Id=K1LYXO563TGWFU&response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27zinc15_40M.csv%3B+filename%3D%22zinc15_40M.csv%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T192653Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5af5ba2a419ac5ff1033cd9d75051f953d31f83e2ec96ed350afa24c6bdb46dd
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/692fe066da83d772a9d337ea/db2de805dd24091735fd763a74b5f075c513b8dac674e096ca41754e8bb87173?Expires=1783974414&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY5MmZlMDY2ZGE4M2Q3NzJhOWQzMzdlYS9kYjJkZTgwNWRkMjQwOTE3MzVmZDc2M2E3NGI1ZjA3NWM1MTNiOGRhYzY3NGUwOTZjYTQxNzU0ZThiYjg3MTczKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk3NDQxNH19fV19&Signature=MEUCIAGIEqh2xIXwP1i9zTKazqaER3X7ko0ESFGmmgS1FlviAiEA~Rgri8Uv0sVUQGB6mqGhKbQUDw5PZyJHP8dFlIbsNTE_&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27zinc15_190M.csv%3B+filename%3D%22zinc15_190M.csv%22%3B&response-content-type=text%2Fcsv&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T192654Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=385e71edb091f829a8585314481c110f6a21e4405b40f648c46a10e5f7891ba8
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/692fe97c6405f1d79dd94490/26568486923af6a2c64d7801c1f10e9db52d96b141f34d1a4c3d8636963b551a?Expires=1783974415&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY5MmZlOTdjNjQwNWYxZDc5ZGQ5NDQ5MC8yNjU2ODQ4NjkyM2FmNmEyYzY0ZDc4MDFjMWYxMGU5ZGI1MmQ5NmIxNDFmMzRkMWE0YzNkODYzNjk2M2I1NTFhKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk3NDQxNX19fV19&Signature=MEUCIQCLbpElc3aW48toin5aB1exY6uf4sPqbdbd4ZLUEHI0lwIgNuJ-tzIHd~u39RblFqdXGNoSFmGq1HsQkmHNFqV4hqk_&Key-Pair-Id=K1LYXO563TGWFU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27zinc15_40m_safe.csv%3B+filename%3D%22zinc15_40m_safe.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T192655Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=daf8e0970577cf22ba9e421158c27243a5a1f75ae9de2d172688143781330945
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6933ac253d5a6342f67f4fad/965ce6ff0f8502eecc14e8ca018a840b62f6d0ba2beb90284b384789dba9f93e?Expires=1783974416&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY5MzNhYzI1M2Q1YTYzNDJmNjdmNGZhZC85NjVjZTZmZjBmODUwMmVlY2MxNGU4Y2EwMThhODQwYjYyZjZkMGJhMmJlYjkwMjg0YjM4NDc4OWRiYTlmOTNlKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk3NDQxNn19fV19&Signature=MEYCIQCfuC4OTeA63PdN5W8dknn6B-G688-H3sj8kd4MmiGuxgIhALNGAxvvEa8EdrAwVOm8yPaoRNaa22vOZMYLh9LkiBv9&Key-Pair-Id=K1LYXO563TGWFU&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27zinc15_40m_selfies.csv%3B+filename%3D%22zinc15_40m_selfies.csv%22%3B&response-content-type=text%2Fcsv&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T192656Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7124a33fa39c5980639ec93b89c86cc6e113ef3937ab16568f71a644a567ef1c
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Analytical_vectorial_light-field_engineering_with_fixed-meta-atom_interferometric_metasurfaces_-_7969468_pdf/32906591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/From_Matrix_Mechanics_to_Quantum_Circuits_Computational_Reproduction_of_Two_Spin-_1_2_Angular-Momentum_Coupling_Using_MATLAB_and_PennyLane/32978282
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ctsnet.figshare.com/articles/media/Technical_Considerations_for_Aberrant_Left_Hepatic_Artery_Preservation_During_Robotic-Assisted_Minimally_Invasive_Esophagectomy/32975639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/goodcomp3_locations_dict_area/32978252
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Single-cell_RNA_sequencing_reveals_microglial_proliferative_bias_and_neuroinflammatory_communication_reprogramming_following_traumatic_brain_injury_pdf/32978279
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4606901
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12535177
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6562818
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4248976
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4278152
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.rbnzs7hq5
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open.library.ubc.ca/collections/52383/items/1.0383362
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open.library.ubc.ca/collections/24/items/1.0398235
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open.library.ubc.ca/collections/24/items/1.0384604
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18067610
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OpenDataPubChem
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/TCGA_expression_data_after_cleaning_procedure/32978285
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Analytical_vectorial_light-field_engineering_with_fixed-meta-atom_interferometric_metasurfaces_-_7969468_pdf/32906591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/From_Matrix_Mechanics_to_Quantum_Circuits_Computational_Reproduction_of_Two_Spin-_1_2_Angular-Momentum_Coupling_Using_MATLAB_and_PennyLane/32978282
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ctsnet.figshare.com/articles/media/Technical_Considerations_for_Aberrant_Left_Hepatic_Artery_Preservation_During_Robotic-Assisted_Minimally_Invasive_Esophagectomy/32975639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/goodcomp3_locations_dict_area/32978252
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RDKit
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nglebm19/rdkit_chemical/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nglebm19/rdkit_chemical/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/TCGA_expression_data_after_cleaning_procedure/32978285
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Analytical_vectorial_light-field_engineering_with_fixed-meta-atom_interferometric_metasurfaces_-_7969468_pdf/32906591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/From_Matrix_Mechanics_to_Quantum_Circuits_Computational_Reproduction_of_Two_Spin-_1_2_Angular-Momentum_Coupling_Using_MATLAB_and_PennyLane/32978282
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ctsnet.figshare.com/articles/media/Technical_Considerations_for_Aberrant_Left_Hepatic_Artery_Preservation_During_Robotic-Assisted_Minimally_Invasive_Esophagectomy/32975639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/goodcomp3_locations_dict_area/32978252
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/32402
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8369849
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21291217
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1322631
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6248289
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.bath.ac.uk/1496/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21320257
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21317279
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617826
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617826
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GCN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ReasonGNN/test-gcn-embeddings/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ReasonGNN/pretrained-gcn-embeddings/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: "https://huggingface.co/datasets/MENGYEWEIWU/gcn/resolve/main/\u5927\u6A21\
+      \u578B+lightgcn/gcn_logs_incremental_bert/global_training_stats.json"
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 3072
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/hieupth/gcnd/resolve/main/20210921/XaTinhDong/20210921.txt
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/gcnikhil25/guanaco-llama2-1k/resolve/main/data/train-00000-of-00001-14d78d1523bd8778.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ReasonGNN/test-gcn-embeddings/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ReasonGNN/pretrained-gcn-embeddings/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: "https://huggingface.co/datasets/MENGYEWEIWU/gcn/resolve/main/\u5927\u6A21\
+      \u578B+lightgcn/gcn_logs_incremental_bert/global_training_stats.json"
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/TCGA_expression_data_after_cleaning_procedure/32978285
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Analytical_vectorial_light-field_engineering_with_fixed-meta-atom_interferometric_metasurfaces_-_7969468_pdf/32906591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/From_Matrix_Mechanics_to_Quantum_Circuits_Computational_Reproduction_of_Two_Spin-_1_2_Angular-Momentum_Coupling_Using_MATLAB_and_PennyLane/32978282
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ctsnet.figshare.com/articles/media/Technical_Considerations_for_Aberrant_Left_Hepatic_Artery_Preservation_During_Robotic-Assisted_Minimally_Invasive_Esophagectomy/32975639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/goodcomp3_locations_dict_area/32978252
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20316190
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.2rbnzs7p5
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17293733
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pubs.rsc.org/cy/article/11/23/7712-7726/724228
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://mbmg.pensoft.net/article/85794/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21325914
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21325914
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/70124
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/105437
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/2727cf19-b1f6-4b9e-b691-2a3e8612e190
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Analysis_of_fibrosis_in_cultured_non-glaucomatous_and_glaucomatous_trabecular_meshwork_cells/32978297
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/TCGA_expression_data_after_cleaning_procedure/32978285
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Analytical_vectorial_light-field_engineering_with_fixed-meta-atom_interferometric_metasurfaces_-_7969468_pdf/32906591
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/From_Matrix_Mechanics_to_Quantum_Circuits_Computational_Reproduction_of_Two_Spin-_1_2_Angular-Momentum_Coupling_Using_MATLAB_and_PennyLane/32978282
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ctsnet.figshare.com/articles/media/Technical_Considerations_for_Aberrant_Left_Hepatic_Artery_Preservation_During_Robotic-Assisted_Minimally_Invasive_Esophagectomy/32975639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344750
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344750
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343792
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Analysis Result"
+description: "Schema for sensitivity analysis results across relative MAE thresholds (1%, 5%, 10% of mean surface area). Absolute thresholds (e.g., 0.01 Å²) are physically unrealistic for molecular surface areas (50-500 Å²) and are not used."
+type: "object"
+properties:
+  threshold:
+    type: "number"
+ description: "MAE cutoff value as a fraction of mean surface area (e.g., 0.01, 0.05, 0.10 representing [deferred], [deferred], [deferred])."
+    enum:
+      - 0.01
+      - 0.05
+      - 0.1
+  gcn_success_rate:
+    type: "number"
+    description: "Percentage of molecules predicted within the threshold by GCN."
+    minimum: 0
+    maximum: 100
+  baseline_success_rate:
+    type: "number"
+    description: "Percentage of molecules predicted within the threshold by Baseline."
+    minimum: 0
+    maximum: 100
+  adjusted_p_value:
+    type: "number"
+    description: "Bonferroni-corrected p-value for the difference in success rates."
+    minimum: 0
+    maximum: 1
+required:
+  - threshold
+  - gcn_success_rate
+  - baseline_success_rate
+  - adjusted_p_value
+additionalProperties: false
