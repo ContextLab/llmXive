@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "symbol": "__init__",
+    "owner": "SignalConfig"
+  }
+]

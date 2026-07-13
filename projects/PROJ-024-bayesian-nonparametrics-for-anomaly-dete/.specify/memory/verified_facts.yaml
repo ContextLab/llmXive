@@ -1,6 +1,5 @@
-0.1|analysi implement including representative sensitivity set significance threshold:
-  quote: smaller than 0.05. The remaining pairs form a plausible set of sensitivity
-    parameters
-  source_id: '1501.05788'
-  url: https://arxiv.org/abs/1501.05788
-  value: '0.05'
+'|breaking construction must stick use':
+  quote: via a stick-breaking construction of Sethuraman [6]. Altho ugh Bayesian nonparamet-
+  source_id: '1210.4347'
+  url: https://arxiv.org/abs/1210.4347
+  value: Sethuraman [6]

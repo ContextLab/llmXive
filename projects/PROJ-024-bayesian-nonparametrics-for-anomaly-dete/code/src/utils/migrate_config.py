@@ -19,6 +19,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Define paths relative to project root
+# The script is at code/src/utils/migrate_config.py
+# Project root is 4 levels up: code/src/utils/ -> code/src/ -> code/ -> projects/.../
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 CONFIG_PATH = PROJECT_ROOT / "code" / "config.yaml"
 STATE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml"
@@ -29,7 +31,7 @@ KEYS_TO_MIGRATE = ['dataset_stats', 'inference_results', 'simulation_metrics']
 def load_yaml(path: Path) -> dict:
     """Load a YAML file."""
     if not path.exists():
-        logger.error(f"File not found: {path}")
+        logger.warning(f"File not found: {path}. Returning empty dict.")
         return {}
     with open(path, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f) or {}
@@ -38,7 +40,7 @@ def save_yaml(path: Path, data: dict) -> None:
     """Save data to a YAML file."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, 'w', encoding='utf-8') as f:
-        yaml.safe_dump(data, f, default_flow_style=False, sort_keys=False)
+        yaml.safe_dump(data, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
 
 def migrate_config() -> bool:
     """
