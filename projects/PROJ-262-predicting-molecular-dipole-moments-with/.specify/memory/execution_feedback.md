@@ -10,11 +10,11 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/data/download_qm9.py: synthetic/fake INPUT data not authorized by the spec — “…ata.         # We do NOT generate synthetic data.         raise Runt…”
 - code/data/download_qm9.py: synthetic/fake INPUT data not authorized by the spec — “…set. Cannot proceed with fake data.")  if __name__ == "__ma…”
-- code/data/extract_2d_descriptors.py: synthetic/fake INPUT data not authorized by the spec — “…being installed, we will generate a synthetic     2D feature vector ba…”
+- code/data/extract_2d_descriptors.py: synthetic/fake INPUT data not authorized by the spec — “…t.         # This is NOT synthetic data generation for the targe…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/download_qm9.py: synthetic/fake INPUT data not authorized by the spec — “…ata.         # We do NOT generate synthetic data.         raise Runt…”; code/data/download_qm9.py: synthetic/fake INPUT data not authorized by the spec — “…set. Cannot proceed with fake data.")  if __name__ == "__ma…”; code/data/extract_2d_descriptors.py: synthetic/fake INPUT data not authorized by the spec — “…being installed, we will generate a synthetic     2D feature vector ba…”; 6 command(s) failed: python code/data/generate_processed_data.py (rc=1); python code/training/train_gnn.py (rc=1); python code/training/train_rf.py (rc=1); 1 declared deliverable(s) absent: data/processed/molecules_10k.parquet
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/download_qm9.py: synthetic/fake INPUT data not authorized by the spec — “…ata.         # We do NOT generate synthetic data.         raise Runt…”; code/data/download_qm9.py: synthetic/fake INPUT data not authorized by the spec — “…set. Cannot proceed with fake data.")  if __name__ == "__ma…”; code/data/extract_2d_descriptors.py: synthetic/fake INPUT data not authorized by the spec — “…t.         # This is NOT synthetic data generation for the targe…”; 6 command(s) failed: python code/data/generate_processed_data.py (rc=1); python code/training/train_gnn.py (rc=1); python code/training/train_rf.py (rc=1); 1 declared deliverable(s) absent: data/processed/molecules_10k.parquet
 
 ## Failing / missing run-book commands
 

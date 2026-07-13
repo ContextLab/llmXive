@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
   "ok": false,
-  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/download_qm9.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ata.         # We do NOT generate synthetic data.         raise Runt\u2026\u201d; code/data/download_qm9.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026set. Cannot proceed with fake data.\")  if __name__ == \"__ma\u2026\u201d; code/data/extract_2d_descriptors.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026being installed, we will generate a synthetic     2D feature vector ba\u2026\u201d; 6 command(s) failed: python code/data/generate_processed_data.py (rc=1); python code/training/train_gnn.py (rc=1); python code/training/train_rf.py (rc=1); 1 declared deliverable(s) absent: data/processed/molecules_10k.parquet",
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/download_qm9.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ata.         # We do NOT generate synthetic data.         raise Runt\u2026\u201d; code/data/download_qm9.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026set. Cannot proceed with fake data.\")  if __name__ == \"__ma\u2026\u201d; code/data/extract_2d_descriptors.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026t.         # This is NOT synthetic data generation for the targe\u2026\u201d; 6 command(s) failed: python code/data/generate_processed_data.py (rc=1); python code/training/train_gnn.py (rc=1); python code/training/train_rf.py (rc=1); 1 declared deliverable(s) absent: data/processed/molecules_10k.parquet",
   "artifacts": [
     "results/metrics.csv"
   ],
@@ -15,5 +15,5 @@
   ],
   "fix_rounds": 9,
   "model_tier": 0,
-  "updated_at": "2026-07-13T23:18:39Z"
+  "updated_at": "2026-07-13T23:32:00Z"
 }
