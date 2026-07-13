@@ -1,0 +1,218 @@
+resolved_at: '2026-07-13T14:50:54.186429+00:00'
+datasets:
+- intent: ImageNet
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/evanarlian/imagenet_1k_resized_256/resolve/main/data/test-00000-of-00004-1abbff57b76eb035.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/vaishaal/ImageNetV2/resolve/main/imagenetv2-matched-frequency.tar.gz
+    source: huggingface
+    format: tar
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gmongaras/Imagenet21K/resolve/main/data/train-00000-of-07760.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/vaishaal/ImageNetV2/resolve/main/imagenetv2-matched-frequency.tar.gz
+    source: huggingface
+    status: verified
+    format: tar
+  - url: https://huggingface.co/datasets/evanarlian/imagenet_1k_resized_256/resolve/main/data/test-00000-of-00004-1abbff57b76eb035.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gmongaras/Imagenet21K/resolve/main/data/train-00000-of-07760.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gmongaras/Imagenet21K_Recaption/resolve/main/data/train-00000-of-00020.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Cut_tag/32975456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Materials_for_Embodied_Vocational_Pedagogy_Qualitative_Frameworks_Interview_Protocols_and_Phenomenological_Models_at_Layak_School/32975360
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Material_Systematic_Literature_Review_on_LLMs_and_Adaptive_Learning_in_Higher_Education_in_Computing/32975435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/BannerFreals/32975459
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_7_Prenatal_immune_activation_and_adult_Poly_I_C_re-challenge_promote_neuroimmune_priming_and_AD-related_behavioural_cellular_and_molecular_alterations_in_wild-type_mice_tif/32975471
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4742621
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7924905
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6801109
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8123226
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2469796
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21330022
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21330022
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.09086
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.09067
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LAION-400M
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/tempertrash/laion_400m/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/laion/relaion400m/resolve/main/part-00000-4227e361-38e7-40d5-8822-c6db46ea077c-c000.snappy.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/tempertrash/laion_400m/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jp1924/Laion400m-1/resolve/main/data/train-00000-of-00441.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/jp1924/Laion400m-2/resolve/main/data/train-00000-of-00436.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/jp1924/Laion400m-3/resolve/main/data/train-00000-of-00449.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/dataset/Cut_tag/32975456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Materials_for_Embodied_Vocational_Pedagogy_Qualitative_Frameworks_Interview_Protocols_and_Phenomenological_Models_at_Layak_School/32975360
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Material_Systematic_Literature_Review_on_LLMs_and_Adaptive_Learning_in_Higher_Education_in_Computing/32975435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/BannerFreals/32975459
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_7_Prenatal_immune_activation_and_adult_Poly_I_C_re-challenge_promote_neuroimmune_priming_and_AD-related_behavioural_cellular_and_molecular_alterations_in_wild-type_mice_tif/32975471
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17184502
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17184762
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8105704
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4047060
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11032013
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18106651
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18106651
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20587667
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20587667
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/140010-rethinking-membership-inference-attacks-for-clip
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TeacherRoutingDataset
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://repository.lboro.ac.uk/articles/thesis/The_role_of_emotional_home_in_homelessness_support/32660867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Cut_tag/32975456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Materials_for_Embodied_Vocational_Pedagogy_Qualitative_Frameworks_Interview_Protocols_and_Phenomenological_Models_at_Layak_School/32975360
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Material_Systematic_Literature_Review_on_LLMs_and_Adaptive_Learning_in_Higher_Education_in_Computing/32975435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/BannerFreals/32975459
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

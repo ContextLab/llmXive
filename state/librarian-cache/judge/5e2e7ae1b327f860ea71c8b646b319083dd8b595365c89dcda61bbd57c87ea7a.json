@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.17732",
+  "judged_at": "2026-07-13T14:15:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"danceopd: on-policy generative field distillation\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the core mechanism of \"generative dataset distillation\" (criterion a) and provides foundational methodology for distilling data into generative models (criterion d), which is the direct technical domain of the user's \"Generative Field Distillation\" follow-up, even though it focuses on balancing global/local details rather than the specific \"on-policy\" aspect.",
+  "relevant": true
+}

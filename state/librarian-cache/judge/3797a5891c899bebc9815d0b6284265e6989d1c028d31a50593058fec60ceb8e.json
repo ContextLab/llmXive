@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1812.00660",
+  "judged_at": "2026-07-13T14:15:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"danceopd: on-policy generative field distillation\" computer science",
+  "rationale": "This paper qualifies under category (d) as a foundational methodology reference for knowledge distillation, a core component of the user's query regarding \"Generative Field Distillation,\" and under category (a) as it measures the same mechanism of transferring knowledge from a teacher to a student model, even though it focuses on image classification rather than the specific on-policy generative field context.",
+  "relevant": true
+}

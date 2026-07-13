@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.10988",
+  "judged_at": "2026-07-13T14:15:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"danceopd: on-policy generative field distillation\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the same core mechanism (score distillation for generative models) and the same specific problem (improving generation diversity in distillation-based methods) as the user's question, satisfying criteria (a) and (b) by providing canonical prior work on the \"On-Policy Generative Field Distillation\" mechanism in a related modality (3D vs. the user's implied context).",
+  "relevant": true
+}

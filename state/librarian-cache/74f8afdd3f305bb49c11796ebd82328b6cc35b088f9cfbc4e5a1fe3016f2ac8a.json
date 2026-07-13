@@ -1,0 +1,649 @@
+{
+  "fetched_at": "2026-07-13T14:15:18Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"",
+      "target_n": 5
+    },
+    "duration_seconds": 51.478,
+    "ended_at": "2026-07-13T14:15:18Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "On-policy generative distillation"
+        ],
+        [
+          2,
+          "Generative field distillation in reinforcement learning"
+        ],
+        [
+          3,
+          "Policy distillation using generative models"
+        ],
+        [
+          4,
+          "DanceOPD algorithm extensions"
+        ],
+        [
+          5,
+          "Generative field methods for policy learning"
+        ],
+        [
+          6,
+          "On-policy knowledge distillation"
+        ],
+        [
+          7,
+          "Generative reinforcement learning distillation"
+        ],
+        [
+          8,
+          "Policy field modeling in generative AI"
+        ],
+        [
+          9,
+          "Generative imitation learning"
+        ],
+        [
+          10,
+          "On-policy generative adversarial distillation"
+        ],
+        [
+          11,
+          "Generative field representations for RL"
+        ],
+        [
+          12,
+          "Distilling generative policies from experts"
+        ],
+        [
+          13,
+          "Generative modeling for on-policy training"
+        ],
+        [
+          14,
+          "Field-based policy optimization"
+        ],
+        [
+          15,
+          "Generative off-policy to on-policy transfer"
+        ],
+        [
+          16,
+          "Reinforcement learning generative field approximation"
+        ],
+        [
+          17,
+          "On-policy generative transfer learning"
+        ],
+        [
+          18,
+          "Generative policy regularization"
+        ],
+        [
+          19,
+          "Field distillation for generative agents"
+        ],
+        [
+          20,
+          "Generative imitation in on-policy settings"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "On-policy generative distillation": 5,
+        "llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "generative policy distillation on-policy learning",
+      "DanceOPD imitation learning generative models",
+      "policy distillation KL divergence reward shaping",
+      "generative field training dynamics convergence rate",
+      "behavior cloning distributional shift off-policy correction"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2404.17732"
+      ]
+    },
+    "per_query_hit_count": {
+      "DanceOPD imitation learning generative models": 3,
+      "behavior cloning distributional shift off-policy correction": 3,
+      "generative field training dynamics convergence rate": 3,
+      "generative policy distillation on-policy learning": 3,
+      "llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\" computer science": 3,
+      "policy distillation KL divergence reward shaping": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T14:14:27Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"danceopd: on-policy generative field distillation\" computer science",
+      "raw": "llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
+          "claimed_authors": [
+            "Kasun Amarasinghe",
+            "Kit Rodolfa",
+            "Hemank Lamba",
+            "Rayid Ghani"
+          ],
+          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14374"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Machine-generated artworks are now part of the contemporary art scene: they are attracting significant investments and they are presented in exhibitions together with those created by human artists. These artworks are mainly based on generative deep learning techniques, which have seen a formidable development and remarkable refinement in the very recent years. Given the inherent characteristics of these techniques, a series of novel legal problems arise. In this article, we consider a set of key questions in the area of generative deep learning for the arts, including the following: is it possible to use copyrighted works as training set for generative models? How do we legally store their copies in order to perform the training process? Who (if someone) will own the copyright on the generated data? We try to answer these questions considering the law in force in both the United States of America and the European Union, and potential future alternatives. We then extend our analysis to code generation, which is an emerging area of generative deep learning. Finally, we also formulate a set of practical guidelines for artists and developers working on deep learning generated art, as well as some policy suggestions for policymakers.",
+          "claimed_authors": [
+            "Giorgio Franceschelli",
+            "Mirco Musolesi"
+          ],
+          "claimed_title": "Copyright in Generative Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.09266"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Copyright in Generative Deep Learning')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper focuses on the problem of detecting and reacting to changes in the distribution of a sensorimotor controller's observables. The key idea is the design of switching policies that can take conformal quantiles as input, which we define as conformal policy learning, that allows robots to detect distribution shifts with formal statistical guarantees. We show how to design such policies by using conformal quantiles to switch between base policies with different characteristics, e.g. safety or speed, or directly augmenting a policy observation with a quantile and training it with reinforcement learning. Theoretically, we show that such policies achieve the formal convergence guarantees in finite time. In addition, we thoroughly evaluate their advantages and limitations on two compelling use cases: simulated autonomous driving and active perception with a physical quadruped. Empirical results demonstrate that our approach outperforms five baselines. It is also the simplest of the baseline strategies besides one ablation. Being easy to use, flexible, and with formal guarantees, our work demonstrates how conformal prediction can be an effective tool for sensorimotor learning under uncertainty.",
+          "claimed_authors": [
+            "Huang Huang",
+            "Satvik Sharma",
+            "Antonio Loquercio",
+            "Anastasios Angelopoulos",
+            "Ken Goldberg",
+            "Jitendra Malik"
+          ],
+          "claimed_title": "Conformal Policy Learning for Sensorimotor Control Under Distribution Shifts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.01457"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Conformal Policy Learning for Sensorimotor Control Under Distribution Shifts')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Imitation learning is an effective alternative approach to learn a policy when the reward function is sparse. In this paper, we consider a challenging setting where an agent and an expert use different actions from each other. We assume that the agent has access to a sparse reward function and state-only expert observations. We propose a method which gradually balances between the imitation learning cost and the reinforcement learning objective. In addition, this method adapts the agent's policy based on either mimicking expert behavior or maximizing sparse reward. We show, through navigation scenarios, that (i) an agent is able to efficiently leverage sparse rewards to outperform standard state-only imitation learning, (ii) it can learn a policy even when its actions are different from the expert, and (iii) the performance of the agent is not bounded by that of the expert, due to the optimized usage of sparse rewards.",
+          "claimed_authors": [
+            "Konrad Zolna",
+            "Negar Rostamzadeh",
+            "Yoshua Bengio",
+            "Sungjin Ahn",
+            "Pedro O. Pinheiro"
+          ],
+          "claimed_title": "Reinforced Imitation in Heterogeneous Action Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.03438"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Reinforced Imitation in Heterogeneous Action Space')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we present a complete study of an end-to-end imitation learning system for speed control of a real car, based on a neural network with a Long Short Term Memory (LSTM). To achieve robustness and generalization from expert demonstrations, we propose data augmentation and label augmentation that are relevant for imitation learning in longitudinal control context. Based on front camera image only, our system is able to correctly control the speed of a car in simulation environment, and in a real car on a challenging test track. The system also shows promising results in open road context.",
+          "claimed_authors": [
+            "Laurent George",
+            "Thibault Buhet",
+            "Emilie Wirbel",
+            "Gaetan Le-Gall",
+            "Xavier Perrotton"
+          ],
+          "claimed_title": "Imitation Learning for End to End Vehicle Longitudinal Control with Forward Camera",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.05841"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Imitation Learning for End to End Vehicle Longitudinal Control with Forward Camera')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Q-shaping is an extension of Q-value initialization and serves as an alternative to reward shaping for incorporating domain knowledge to accelerate agent training, thereby improving sample efficiency by directly shaping Q-values. This approach is both general and robust across diverse tasks, allowing for immediate impact assessment while guaranteeing optimality. We evaluated Q-shaping across 20 different environments using a large language model (LLM) as the heuristic provider. The results demonstrate that Q-shaping significantly enhances sample efficiency, achieving a \\textbf{16.87\\%} improvement over the best baseline in each environment and a \\textbf{253.80\\%} improvement compared to LLM-based reward shaping methods. These findings establish Q-shaping as a superior and unbiased alternative to conventional reward shaping in reinforcement learning.",
+          "claimed_authors": [
+            "Xiefeng Wu"
+          ],
+          "claimed_title": "From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.01458"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Kullback-Leibler (KL) divergence is a fundamental concept in information theory that quantifies the discrepancy between two probability distributions. In the context of Variational Autoencoders (VAEs), it serves as a central regularization term, imposing structure on the latent space and thereby enabling the model to exhibit generative capabilities. In this work, we present a detailed derivation of the closed-form expression for the KL divergence between Gaussian distributions, a case of particular importance in practical VAE implementations. Starting from the general definition for continuous random variables, we derive the expression for the univariate case and extend it to the multivariate setting under the assumption of diagonal covariance. Finally, we discuss the interpretation of each term in the resulting expression and its impact on the training dynamics of the model.",
+          "claimed_authors": [
+            "Andrés Muñoz",
+            "Rodrigo Ramele"
+          ],
+          "claimed_title": "KL Divergence Between Gaussians: A Step-by-Step Derivation for the Variational Autoencoder Objective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.11744"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='KL Divergence Between Gaussians: A Step-by-Step Derivation for the Variational Autoencoder Objective')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning (RL) models have continually evolved to navigate the exploration - exploitation trade-off in uncertain Markov Decision Processes (MDPs). In this study, I leverage the principles of stochastic thermodynamics and system dynamics to explore reward shaping via diffusion processes. This provides an elegant framework as a way to think about exploration-exploitation trade-off. This article sheds light on relationships between information entropy, stochastic system dynamics, and their influences on entropy production. This exploration allows us to construct a dual-pronged framework that can be interpreted as either a maximum entropy program for deriving efficient policies or a modified cost optimization program accounting for informational costs and benefits. This work presents a novel perspective on the physical nature of information and its implications for online learning in MDPs, consequently providing a better understanding of information-oriented formulations in RL.",
+          "claimed_authors": [
+            "Peeyush Kumar"
+          ],
+          "claimed_title": "Reward Shaping via Diffusion Process in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11885"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Reward Shaping via Diffusion Process in Reinforcement Learning')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scientific research and engineering practice often require the modeling and decomposition of nonlinear systems. The Dynamic Mode Decomposition (DMD) is a novel Koopman-based technique that effectively dissects high-dimensional nonlinear systems into periodically distinct constituents on reduced-order subspaces. As a novel mathematical hatchling, the DMD bears vast potentials yet an equal degree of unknown. This serial effort investigates the nuances of DMD sampling with an engineering-oriented emphasis. This Part I aimed at elucidating how sampling range and resolution affect the convergence of DMD modes. We employed the most classical nonlinear system in fluid mechanics as the test subject--the turbulent free-shear flow over a prism--for optimal pertinency. We numerically simulated the flow by the dynamic-stress Large-Eddies Simulation with Near-Wall Resolution. With the large-quantity, high-fidelity data, we parametrized and identified four global convergence states: Initialization, Transition, Stabilization, and Divergence with increasing sampling range. Results showed that the Stabilization is the optimal state for modal convergence, in which DMD output becomes independent of the sampling range. The Initialization state also yields sufficient accuracy for most system reconstruction tasks. Moreover, defying popular beliefs, over-sampling causes algorithmic instability: as the temporal dimension, n, approaches and transcends the spatial dimension, m (i.e., m < n), the output diverges and becomes meaningless. Additionally, the convergence of the sampling resolution depends on the mode-specific dynamics, such that the resolution of 15 frames per cycle for target activities is suggested for most engineering implementations. Finally, a bi-parametric study revealed that the convergence of the sampling range and resolution are mutually independent.",
+          "claimed_authors": [
+            "Cruz Y. Li",
+            "Zengshun Chen",
+            "Tim K. T. Tse",
+            "Asiri Umenga Weerasuriya",
+            "Xuelin Zhang",
+            "Yunfei Fu",
+            "Xisheng Lin"
+          ],
+          "claimed_title": "A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.06573"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we describe a phenomenon, which we named \"super-convergence\", where neural networks can be trained an order of magnitude faster than with standard training methods. The existence of super-convergence is relevant to understanding why deep networks generalize well. One of the key elements of super-convergence is training with one learning rate cycle and a large maximum learning rate. A primary insight that allows super-convergence training is that large learning rates regularize the training, hence requiring a reduction of all other forms of regularization in order to preserve an optimal regularization balance. We also derive a simplification of the Hessian Free optimization method to compute an estimate of the optimal learning rate. Experiments demonstrate super-convergence for Cifar-10/100, MNIST and Imagenet datasets, and resnet, wide-resnet, densenet, and inception architectures. In addition, we show that super-convergence provides a greater boost in performance relative to standard training when the amount of labeled training data is limited. The architectures and code to replicate the figures in this paper are available at github.com/lnsmith54/super-convergence. See http://www.fast.ai/2018/04/30/dawnbench-fastai/ for an application of super-convergence to win the DAWNBench challenge (see https://dawn.cs.stanford.edu/benchmark/).",
+          "claimed_authors": [
+            "Leslie N. Smith",
+            "Nicholay Topin"
+          ],
+          "claimed_title": "Super-Convergence: Very Fast Training of Neural Networks Using Large Learning Rates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.07120"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Super-Convergence: Very Fast Training of Neural Networks Using Large Learning Rates')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Off-policy deep reinforcement learning (RL) algorithms are incapable of learning solely from batch offline data without online interactions with the environment, due to the phenomenon known as \\textit{extrapolation error}. This is often due to past data available in the replay buffer that may be quite different from the data distribution under the current policy. We argue that most off-policy learning methods fundamentally suffer from a \\textit{state distribution shift} due to the mismatch between the state visitation distribution of the data collected by the behavior and target policies. This data distribution shift between current and past samples can significantly impact the performance of most modern off-policy based policy optimization algorithms. In this work, we first do a systematic analysis of state distribution mismatch in off-policy learning, and then develop a novel off-policy policy optimization method to constraint the state distribution shift. To do this, we first estimate the state distribution based on features of the state, using a density estimator and then develop a novel constrained off-policy gradient objective that minimizes the state distribution shift. Our experimental results on continuous control tasks show that minimizing this distribution mismatch can significantly improve performance in most popular practical off-policy policy gradient algorithms.",
+          "claimed_authors": [
+            "Riashat Islam",
+            "Komal K. Teru",
+            "Deepak Sharma",
+            "Joelle Pineau"
+          ],
+          "claimed_title": "Off-Policy Policy Gradient Algorithms by Constraining the State Distribution Shift",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.06970"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Off-Policy Policy Gradient Algorithms by Constraining the State Distribution Shift')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove new quantitative limitations on any approximate simultaneous cloning or broadcasting of mixed states. The results are based on information-theoretic (entropic) considerations and generalize the well known no-cloning and no-broadcasting theorems. We also observe and exploit the fact that the universal cloning machine on the symmetric subspace of $n$ qudits and symmetrized partial trace channels are dual to each other. This duality manifests itself both in the algebraic sense of adjointness of quantum channels and in the operational sense that a universal cloning machine can be used as an approximate recovery channel for a symmetrized partial trace channel and vice versa. The duality extends to give control on the performance of generalized UQCMs on subspaces more general than the symmetric subspace. This gives a way to quantify the usefulness of a-priori information in the context of cloning. For example, we can control the performance of an antisymmetric analogue of the UQCM in recovering from the loss of $n-k$ fermionic particles.",
+          "claimed_authors": [
+            "Marius Lemm",
+            "Mark M. Wilde"
+          ],
+          "claimed_title": "Information-theoretic limitations on approximate quantum cloning and broadcasting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1608.07569"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Information-theoretic limitations on approximate quantum cloning and broadcasting')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in behavior cloning (BC) have enabled impressive visuomotor control policies. However, these approaches are limited by the quality of human demonstrations, the manual effort required for data collection, and the diminishing returns from offline data. In comparison, reinforcement learning (RL) trains an agent through autonomous interaction with the environment and has shown remarkable success in various domains. Still, training RL policies directly on real-world robots remains challenging due to sample inefficiency, safety concerns, and the difficulty of learning from sparse rewards for long-horizon tasks, especially for high-degree-of-freedom (DoF) systems.\n  We present a recipe that combines the benefits of BC and RL through a residual learning framework. Our approach leverages BC policies as black-box bases and learns lightweight per-step residual corrections via sample-efficient off-policy RL. We demonstrate that our method requires only sparse binary reward signals and can effectively improve manipulation policies on high-degree-of-freedom (DoF) systems in both simulation and the real world. In particular, we demonstrate, to the best of our knowledge, the first successful real-world RL training on a humanoid robot with dexterous hands. Our results demonstrate state-of-the-art performance in various vision-based tasks, pointing towards a practical pathway for deploying RL in the real world.",
+          "claimed_authors": [
+            "Lars Ankile",
+            "Zhenyu Jiang",
+            "Rocky Duan",
+            "Guanya Shi",
+            "Pieter Abbeel",
+            "Anusha Nagabandi"
+          ],
+          "claimed_title": "Residual Off-Policy RL for Finetuning Behavior Cloning Policies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.19301"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"DanceOPD: On-Policy Generative Field Distillation\"', candidate_title='Residual Off-Policy RL for Finetuning Behavior Cloning Policies')",
+        "failed_at": "2026-07-13T14:14:57Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wei Zhou",
+            "Xiongwei Zhu",
+            "Zelin Xu",
+            "Bo Dong",
+            "Lixue Gong",
+            "Yongyuan Liang",
+            "Meng Chu",
+            "Leigang Qu",
+            "Lingdong Kong",
+            "Wei Liu",
+            "Tat-Seng Chua"
+          ],
+          "title": "DanceOPD: On-Policy Generative Field Distillation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.27377",
+        "summary": "Modern image generation demands a single model that unifies diverse capabilities, including text-to-image (T2I), local editing, and global editing. However, these capabilities are rarely naturally aligned and often conflict. For instance, editing tends to degrade T2I performance, while global and local editing interfere with each other. Consequently, effectively composing these capabilities has become a central challenge for image generation model training. To tackle this, we introduce DanceOPD, an on-policy generative field distillation framework for flow-matching models that routes each sample to one capability field, queries one low-noise student-induced state, and trains with a simple velocity MSE objective. With each capability source defined as a velocity field over the shared flow state space, the student learns from fields queried on its own rollout states to compose expert capabilities. This formulation also absorbs operator-defined fields such as classifier-free guidance. Comprehensive experiments on T2I, editing, realism-field absorption, and CFG absorption show that our approach improves multi-capability composition, strengthening target capabilities while preserving anchor generation quality. We believe this work establishes a practical route for generative field distillation in flow-matching models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.27377",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T14:14:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Junqiao Fan",
+            "Yunjiao Zhou",
+            "Min Chang Jordan Ren",
+            "Jianfei Yang"
+          ],
+          "title": "Generative Dataset Distillation using Min-Max Diffusion Model",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.18626",
+        "summary": "In this paper, we address the problem of generative dataset distillation that utilizes generative models to synthesize images. The generator may produce any number of images under a preserved evaluation time. In this work, we leverage the popular diffusion model as the generator to compute a surrogate dataset, boosted by a min-max loss to control the dataset's diversity and representativeness during training. However, the diffusion model is time-consuming when generating images, as it requires an iterative generation process. We observe a critical trade-off between the number of image samples and the image quality controlled by the diffusion steps and propose Diffusion Step Reduction to achieve optimal performance. This paper details our comprehensive method and its performance. Our model achieved $2^{nd}$ place in the generative track of \\href{https://www.dd-challenge.com/#/}{The First Dataset Distillation Challenge of ECCV2024}, demonstrating its superior performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.18626",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T14:15:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Longzhen Li",
+            "Guang Li",
+            "Ren Togo",
+            "Keisuke Maeda",
+            "Takahiro Ogawa",
+            "Miki Haseyama"
+          ],
+          "title": "Generative Dataset Distillation: Balancing Global Structure and Local Details",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.17732",
+        "summary": "In this paper, we propose a new dataset distillation method that considers balancing global structure and local details when distilling the information from a large dataset into a generative model. Dataset distillation has been proposed to reduce the size of the required dataset when training models. The conventional dataset distillation methods face the problem of long redeployment time and poor cross-architecture performance. Moreover, previous methods focused too much on the high-level semantic attributes between the synthetic dataset and the original dataset while ignoring the local features such as texture and shape. Based on the above understanding, we propose a new method for distilling the original image dataset into a generative model. Our method involves using a conditional generative adversarial network to generate the distilled dataset. Subsequently, we ensure balancing global structure and local details in the distillation process, continuously optimizing the generator for more information-dense dataset generation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.17732",
+          "http_status": 200,
+          "pdf_sample_score": 0.2038,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T14:15:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kai Wang",
+            "Jianyang Gu",
+            "Daquan Zhou",
+            "Zheng Zhu",
+            "Wei Jiang",
+            "Yang You"
+          ],
+          "title": "DiM: Distilling Dataset into Generative Model",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2303.04707",
+        "summary": "Dataset distillation reduces the network training cost by synthesizing small and informative datasets from large-scale ones. Despite the success of the recent dataset distillation algorithms, three drawbacks still limit their wider application: i). the synthetic images perform poorly on large architectures; ii). they need to be re-optimized when the distillation ratio changes; iii). the limited diversity restricts the performance when the distillation ratio is large. In this paper, we propose a novel distillation scheme to \\textbf{D}istill information of large train sets \\textbf{i}nto generative \\textbf{M}odels, named DiM. Specifically, DiM learns to use a generative model to store the information of the target dataset. During the distillation phase, we minimize the differences in logits predicted by a models pool between real and generated images. At the deployment stage, the generative model synthesizes various training samples from random noises on the fly. Due to the simple yet effective designs, the trained DiM can be directly applied to different distillation ratios and large architectures without extra cost. We validate the proposed DiM across 4 datasets and achieve state-of-the-art results on all of them. To the best of our knowledge, we are the first to achieve higher accuracy on complex architectures than simple ones, such as 75.1\\% with ResNet-18 and 72.6\\% with ConvNet-3 on ten images per class of CIFAR-10. Besides, DiM outperforms previous methods with 10\\% $\\sim$ 22\\% when images per class are 1 and 10 on the SVHN dataset.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2303.04707",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T14:15:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wei-Chun Chen",
+            "Chia-Che Chang",
+            "Chien-Yu Lu",
+            "Che-Rung Lee"
+          ],
+          "title": "Knowledge Distillation with Feature Maps for Image Classification",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1812.00660",
+        "summary": "The model reduction problem that eases the computation costs and latency of complex deep learning architectures has received an increasing number of investigations owing to its importance in model deployment. One promising method is knowledge distillation (KD), which creates a fast-to-execute student model to mimic a large teacher network. In this paper, we propose a method, called KDFM (Knowledge Distillation with Feature Maps), which improves the effectiveness of KD by learning the feature maps from the teacher network. Two major techniques used in KDFM are shared classifier and generative adversarial network. Experimental results show that KDFM can use a four layers CNN to mimic DenseNet-40 and use MobileNet to mimic DenseNet-100. Both student networks have less than 1\\% accuracy loss comparing to their teacher models for CIFAR-100 datasets. The student networks are 2-6 times faster than their teacher models for inference, and the model size of MobileNet is less than half of DenseNet-100's.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1812.00660",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T14:15:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Runjie Yan",
+            "Kailu Wu",
+            "Kaisheng Ma"
+          ],
+          "title": "Flow Score Distillation for Diverse Text-to-3D Generation",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2405.10988",
+        "summary": "Recent advancements in Text-to-3D generation have yielded remarkable progress, particularly through methods that rely on Score Distillation Sampling (SDS). While SDS exhibits the capability to create impressive 3D assets, it is hindered by its inherent maximum-likelihood-seeking essence, resulting in limited diversity in generation outcomes. In this paper, we discover that the Denoise Diffusion Implicit Models (DDIM) generation process (\\ie PF-ODE) can be succinctly expressed using an analogue of SDS loss. One step further, one can see SDS as a generalized DDIM generation process. Following this insight, we show that the noise sampling strategy in the noise addition stage significantly restricts the diversity of generation results. To address this limitation, we present an innovative noise sampling approach and introduce a novel text-to-3D method called Flow Score Distillation (FSD). Our validation experiments across various text-to-image Diffusion Models demonstrate that FSD substantially enhances generation diversity without compromising quality.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2405.10988",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T14:15:04Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"danceopd: on-policy generative field distillation\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: InferenceResult
+description: Schema for the results of the CPU-only fidelity evaluation.
+type: object
+properties:
+  sample_id:
+    type: string
+    description: Reference to the original sample.
+  model_id:
+    type: string
+    description: The tree model used (or teacher_baseline).
+  predicted_routing:
+    type: string
+    description: The routing label predicted by the tree.
+  true_routing:
+    type: string
+    description: The ground truth routing label.
+  match:
+    type: boolean
+    description: True if predicted_routing equals true_routing.
+  fid_score:
+    type: number
+    description: FID score for the generated image.
+  clip_score:
+    type: number
+    description: CLIP Score for the generated image.
+  image_path:
+    type: string
+    description: Path to the generated PNG.
+required:
+  - sample_id
+  - model_id
+  - predicted_routing
+  - true_routing
+  - match
+  - fid_score
+  - clip_score
+  - image_path
+additionalProperties: false

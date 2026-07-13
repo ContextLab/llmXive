@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.04707",
+  "judged_at": "2026-07-13T14:15:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"danceopd: on-policy generative field distillation\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the core mechanism of \"generative field distillation\" and \"on-policy\" style data synthesis (via a generative model storing dataset information) mentioned in the user's question, satisfying criteria (a) for same-mechanism evidence and (f) for being in the canonical alternative-vocabulary cluster of dataset distillation and generative modeling.",
+  "relevant": true
+}

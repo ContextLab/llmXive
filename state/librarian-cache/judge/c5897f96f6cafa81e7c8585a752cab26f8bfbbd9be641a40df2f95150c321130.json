@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.18626",
+  "judged_at": "2026-07-13T14:15:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"danceopd: on-policy generative field distillation\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the core mechanism of \"generative dataset distillation\" (synthesizing a surrogate dataset using a generative model) which is the fundamental technique referenced in the user's query about \"Generative Field Distillation,\" even though it applies to images rather than the specific on-policy RL context of the user's follow-up. It provides the canonical alternative-vocabulary cluster (criterion f) for the distillation methodology the user is e",
+  "relevant": true
+}

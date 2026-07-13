@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.27377",
+  "judged_at": "2026-07-13T14:15:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"danceopd: on-policy generative field distillation\" computer science",
+  "rationale": "The candidate paper is the foundational methods paper for the specific framework (\"DanceOPD\") and technique (\"On-Policy Generative Field Distillation\") explicitly named in the user's research question, satisfying acceptance criterion (d).",
+  "relevant": true
+}
