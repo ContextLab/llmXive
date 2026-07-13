@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Microbiome and Mental Health Dataset"
+description: "Schema for the preprocessed dataset containing microbiome features and mental health scores. Requires linked sample IDs."
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the sample."
+  phq9_score:
+    type: number
+    minimum: 0
+    maximum: 27
+    description: "PHQ-9 depression score."
+  gad7_score:
+    type: ["number", "null"]
+    minimum: 0
+    maximum: 21
+    description: "GAD-7 anxiety score (may be null if data unavailable)."
+  age:
+    type: ["integer", "null"]
+    description: "Age of the participant (may be null if not in dataset)."
+  bmi:
+    type: ["number", "null"]
+    description: "Body Mass Index (may be null if not in dataset)."
+  sequencing_depth:
+    type: integer
+    minimum: 0
+    description: "Total number of reads after rarefaction or VST."
+  alpha_shannon:
+    type: number
+    description: "Shannon diversity index."
+  alpha_simpson:
+    type: number
+    description: "Simpson diversity index."
+  beta_bray_curtis:
+    type: array
+    items:
+      type: number
+    description: "Bray-Curtis beta diversity coordinates (PCoA)."
+  diet_category:
+    type: ["string", "null"]
+    enum: ["omnivore", "vegetarian", "vegan", "other", "unknown", "null"]
+    description: "Self-reported diet category."
+required:
+  - sample_id
+  - phq9_score
+  - sequencing_depth
+  - alpha_shannon
+  - alpha_simpson
+  - beta_bray_curtis
+additionalProperties: false

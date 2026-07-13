@@ -1,0 +1,523 @@
+resolved_at: '2026-07-13T17:50:10.130780+00:00'
+datasets:
+- intent: AGP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/eternalaudrey/jump-cp-0016-labelfree-AGP/resolve/main/data/train-00000-of-00053.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Resurgammm/AGP-Training/resolve/main/coding/train.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 175588
+      parsed: true
+  - url: https://huggingface.co/datasets/chongli17/AG-Pair/resolve/main/test.tsv
+    source: huggingface
+    format: tsv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/chongli17/AG-Pair/resolve/main/test.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/colabfit/Ag-PBE_MSMSE_2021/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/colabfit/AgPd_NPJ_2021/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/eternalaudrey/jump-cp-0016-labelfree-AGP/resolve/main/data/train-00000-of-00053.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Resurgammm/AGP-Training/resolve/main/coding/train.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://plos.figshare.com/articles/figure/_p_This_figure_illustrates_how_various_toolbox_components_rectangular_text_boxes_relate_to_one_another_p_/32977892
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Mutation_of_OsHPP09_E16_reduces_AVR-Pia_binding_p_/32977888
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_Kernel_update_rule_Eq_5_p_/32977889
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Crystal_structure_of_the_HMA_domain_of_OsHPP09_in_complex_with_AVR-Pia_p_/32977885
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_Anti-correlated_update_rule_Eqs_3_4_p_/32977886
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/161172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7400565
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5512429
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15331805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.zgmsbccfd
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-b-000413193
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://air.unimi.it/handle/2434/171957
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14020835
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14020835
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07802
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PHQ-9
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Ahana22/phq9-synthetic/resolve/main/data/test-00000-of-00001-3525e3b61e9b6e7b.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10415
+      parsed: true
+  - url: https://huggingface.co/datasets/Huzayfah-Patel/mindbridge-phq9-hindi-seeds/resolve/main/seeds.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 174939
+      parsed: true
+  - url: https://huggingface.co/datasets/Huzayfah-Patel/mindbridge-phq9-hindi-dialogues/resolve/main/training-dataset.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/darssanle/PHQ-9-Initial-Collection/5bd52f043f73ed1cc9ba60b1ffeb2a6eb6c8bc80/primate_dataset.json?%2Fdatasets%2Fdarssanle%2FPHQ-9-Initial-Collection%2Fresolve%2Fmain%2Fprimate_dataset.json=&etag=%22bbbb5da5fd1d82a3278925aff6b5fe0d83191a6c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Ahana22/phq9-synthetic/resolve/main/data/test-00000-of-00001-3525e3b61e9b6e7b.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Huzayfah-Patel/mindbridge-phq9-hindi-seeds/resolve/main/seeds.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Huzayfah-Patel/mindbridge-phq9-hindi-dialogues/resolve/main/training-dataset.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Huzayfah-Patel/mindbridge-phq9-hindi-evaluation/resolve/main/held-out-222.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://plos.figshare.com/articles/dataset/_p_First_five_rows_of_one_of_the_datasets_included_in_the_cpm_toolbox_The_data_is_based_on_a_two-armed_bandit_task_for_one_participant_with_a_total_of_4_unique_stimuli_from_which_only_two_can_be_chosen_among_on_any_given_each_trial_p_/32977940
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Overview_of_CPM_toolbox_modules_p_/32977937
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Figures_showing_pre-data_model_evaluations_for_various_models_p_/32977934
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_An_example_Simulator_object_for_simulating_with_best-fitting_parameters_p_/32977931
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/Fig_6_-_i_cpm_i_A_python_library_for_theory-driven_modelling_in_computational_psychiatry/32977928
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10020931
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17287722
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18437179
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8312191
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18460609
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/405056
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/51461
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21328301
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21328301
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ageconsearch.umn.edu/record/404597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GAD-7
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/darssanle/GAD-7-Initial-Collection/66b01486de7aeb40e49a4a7c592610d296a528d4/GAD-7-Initial.json?%2Fdatasets%2Fdarssanle%2FGAD-7-Initial-Collection%2Fresolve%2Fmain%2FGAD-7-Initial.json=&etag=%2266c626782c398aba79c744005dec3b37b09c864c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_First_five_rows_of_one_of_the_datasets_included_in_the_cpm_toolbox_The_data_is_based_on_a_two-armed_bandit_task_for_one_participant_with_a_total_of_4_unique_stimuli_from_which_only_two_can_be_chosen_among_on_any_given_each_trial_p_/32977940
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Overview_of_CPM_toolbox_modules_p_/32977937
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Figures_showing_pre-data_model_evaluations_for_various_models_p_/32977934
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_An_example_Simulator_object_for_simulating_with_best-fitting_parameters_p_/32977931
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/Fig_6_-_i_cpm_i_A_python_library_for_theory-driven_modelling_in_computational_psychiatry/32977928
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10998114
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19709809
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0125096
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13169629
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11658614
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/405056
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ageconsearch.umn.edu/record/404597
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21310462
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21310462
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21306549
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BMI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1459
+      parsed: true
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 12335
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://plos.figshare.com/articles/dataset/_p_First_five_rows_of_one_of_the_datasets_included_in_the_cpm_toolbox_The_data_is_based_on_a_two-armed_bandit_task_for_one_participant_with_a_total_of_4_unique_stimuli_from_which_only_two_can_be_chosen_among_on_any_given_each_trial_p_/32977940
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Overview_of_CPM_toolbox_modules_p_/32977937
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Figures_showing_pre-data_model_evaluations_for_various_models_p_/32977934
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_An_example_Simulator_object_for_simulating_with_best-fitting_parameters_p_/32977931
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/Fig_6_-_i_cpm_i_A_python_library_for_theory-driven_modelling_in_computational_psychiatry/32977928
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v11i3.3779
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/8074384
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijpeds.iaescore.com/index.php/IJPEDS/article/view/16396
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i6.2319
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Max retries exceeded with url: /index.php/EEI/article/view/2319 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''beei.org'', port=443) at 0x7f4932641790>,
+      ''Connection to beei.org timed out. (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/6646128
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/46pbj/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1133350
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/120046-gaze-and-gluttony-how-bmi-affects-our-first-fixations
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.4tu.nl/datasets/4598c213-94cb-4227-8c0c-131732629c79/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.4tu.nl/datasets/4598c213-94cb-4227-8c0c-131732629c79
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PERMANOVA
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://plos.figshare.com/articles/dataset/_p_Anonymized_dataset_of_rabies_post-exposure_prophylaxis_PEP_recipients_Ouagadougou_2021_20233_p_/32977949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_First_five_rows_of_one_of_the_datasets_included_in_the_cpm_toolbox_The_data_is_based_on_a_two-armed_bandit_task_for_one_participant_with_a_total_of_4_unique_stimuli_from_which_only_two_can_be_chosen_among_on_any_given_each_trial_p_/32977940
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Overview_of_CPM_toolbox_modules_p_/32977937
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Figures_showing_pre-data_model_evaluations_for_various_models_p_/32977934
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_An_example_Simulator_object_for_simulating_with_best-fitting_parameters_p_/32977931
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16975605
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14664690
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15933755
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15143400
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4770647
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.7h44j1099
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/106883
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18807835
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18807835
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Microbiome-mediated_resilience_and_cross-generational_consequences_in_male_b_b_i_Drosophila_i_b_b_exposed_to_combined_environmental_stressors_b_Item/29528546/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://plos.figshare.com/articles/dataset/_p_Anonymized_dataset_of_rabies_post-exposure_prophylaxis_PEP_recipients_Ouagadougou_2021_20233_p_/32977949
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_First_five_rows_of_one_of_the_datasets_included_in_the_cpm_toolbox_The_data_is_based_on_a_two-armed_bandit_task_for_one_participant_with_a_total_of_4_unique_stimuli_from_which_only_two_can_be_chosen_among_on_any_given_each_trial_p_/32977940
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Overview_of_CPM_toolbox_modules_p_/32977937
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Figures_showing_pre-data_model_evaluations_for_various_models_p_/32977934
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_An_example_Simulator_object_for_simulating_with_best-fitting_parameters_p_/32977931
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21342454
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21342454
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204132
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204132
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341538
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

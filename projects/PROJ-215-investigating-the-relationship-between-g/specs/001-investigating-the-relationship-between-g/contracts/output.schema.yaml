@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Association Results Schema"
+description: "Schema for the statistical output containing correlation results and p-values."
+type: object
+properties:
+  variable_name:
+    type: string
+    description: "Name of the tested variable (taxon ID or diversity metric)."
+  correlation_coef:
+    type: number
+    description: "Partial Spearman correlation coefficient or model coefficient."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value from the correlation test."
+  adjusted_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Benjamini-Hochberg adjusted p-value (q-value)."
+  p_value_delta:
+    type: number
+    minimum: 0
+    description: "Absolute difference between adjusted and unadjusted p-values (|p_adj - p_raw|)."
+  effect_direction:
+    type: string
+    enum: ["positive", "negative", "neutral"]
+    description: "Direction of the association."
+  covariates_adjusted:
+    type: array
+    items:
+      type: string
+    description: "List of covariates used in adjustment (e.g., age, BMI)."
+  significant:
+    type: boolean
+    description: "True if adjusted_p_value < 0.05."
+required:
+  - variable_name
+  - correlation_coef
+  - p_value
+  - adjusted_p_value
+  - p_value_delta
+  - effect_direction
+  - significant
+additionalProperties: false
