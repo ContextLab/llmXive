@@ -1,57 +1,73 @@
+"""
+Filter module for T026 (Modality-Specific Analysis).
+Splits trial data by stimulus_modality.
+"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
+from typing import Dict, Any, List
 
-# Ensure project root is in path
+import pandas as pd
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-from config.env_config import load_config, setup_logging
-
-CONFIG = load_config()
-BASE_DIR = Path(CONFIG.get("paths", {}).get("base", "projects/PROJ-179-the-influence-of-metacognitive-awareness"))
-DATA_DIR = BASE_DIR / "data"
+DATA_DIR = PROJECT_ROOT / "data"
 DERIVED_DIR = DATA_DIR / "derived"
 
-INPUT_FILE = DERIVED_DIR / "trial_data.csv"
-VISUAL_OUTPUT = DERIVED_DIR / "visual_trials.csv"
-AUDITORY_OUTPUT = DERIVED_DIR / "auditory_trials.csv"
-
 def setup_directories():
+    """Ensure output directories exist."""
     DERIVED_DIR.mkdir(parents=True, exist_ok=True)
 
 def load_trial_data():
-    if not INPUT_FILE.exists():
-        logging.error(f"Trial data not found: {INPUT_FILE}")
-        sys.exit(1)
-    return pd.read_csv(INPUT_FILE)
+    """Load the preprocessed trial data."""
+    input_path = DERIVED_DIR / "trial_data.csv"
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}. Run T012 first.")
+    
+    logging.info(f"Loading trial data from: {input_path}")
+    return pd.read_csv(input_path)
 
-def filter_by_modality(df, modality):
-    return df[df['stimulus_modality'] == modality]
+def filter_by_modality(df: pd.DataFrame, modality: str) -> pd.DataFrame:
+    """Filter dataframe by a specific stimulus_modality."""
+    if 'stimulus_modality' not in df.columns:
+        raise ValueError("Column 'stimulus_modality' not found in data.")
+    
+    filtered = df[df['stimulus_modality'] == modality].copy()
+    logging.info(f"Filtered {len(filtered)} rows for modality: {modality}")
+    return filtered
 
-def write_output(df, path):
-    df.to_csv(path, index=False)
-    logging.info(f"Wrote {len(df)} rows to {path}")
+def write_output(df: pd.DataFrame, filename: str):
+    """Write dataframe to CSV."""
+    output_path = DERIVED_DIR / filename
+    df.to_csv(output_path, index=False)
+    logging.info(f"Wrote {len(df)} rows to {output_path}")
 
 def run_filter_analysis():
-    logging.info("Starting filter analysis (T026)...")
+    """Main logic for T026."""
+    setup_directories()
     df = load_trial_data()
     
-    visual_df = filter_by_modality(df, 'visual')
-    auditory_df = filter_by_modality(df, 'auditory')
+    # Define expected modalities
+    modalities = ['visual', 'auditory']
     
-    write_output(visual_df, VISUAL_OUTPUT)
-    write_output(auditory_df, AUDITORY_OUTPUT)
-    
-    logging.info("Filter analysis (T026) completed.")
+    for mod in modalities:
+        mod_df = filter_by_modality(df, mod)
+        if len(mod_df) > 0:
+            write_output(mod_df, f"{mod}_trials.csv")
+        else:
+            logging.warning(f"No data found for modality: {mod}")
 
 def main():
-    setup_directories()
-    run_filter_analysis()
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.info("Starting filter analysis (T026)...")
+    try:
+        run_filter_analysis()
+        logging.info("Filter analysis completed successfully.")
+        return 0
+    except Exception as e:
+        logging.error(f"Filter analysis failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    logger = setup_logging("info")
-    main()
+    sys.exit(main())

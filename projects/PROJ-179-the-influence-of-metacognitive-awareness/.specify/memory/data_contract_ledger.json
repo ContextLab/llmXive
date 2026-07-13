@@ -1,14 +1,14 @@
 [
   {
-    "data_file": "raw.githubusercontent.com/llmXive/datasets/main/behavioral_trials_v2.csv",
-    "required": []
-  },
-  {
-    "data_file": "raw.githubusercontent.com/llmXive/datasets/main/metacognition_sample.csv",
+    "data_file": "raw.githubusercontent.com/llmXive/datasets/main/sample_behavioral_data.csv",
     "required": []
   },
   {
     "data_file": "raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv",
+    "required": []
+  },
+  {
+    "data_file": "raw.githubusercontent.com/psychopy/datasets/main/behavioral_sample.csv",
     "required": []
   },
   {

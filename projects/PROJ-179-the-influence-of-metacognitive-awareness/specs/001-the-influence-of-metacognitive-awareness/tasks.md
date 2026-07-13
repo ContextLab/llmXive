@@ -47,7 +47,7 @@
 - [X] T005 [Depends on: T004] Implement `data/download.py` to fetch the VALID behavioral dataset identified by T004 (with checksum validation). <!-- FAILED: unspecified -->
  - **Constraint**: This task assumes T004 has passed. Do NOT attempt to fetch OpenNeuro ds003386 as a "reference" if it is invalid.
  - **Deliverable**: Fetch the dataset. If fetch fails, exit with code 1.
-- [X] T006 [Depends on: T005] Implement `data/validate_data.py` to check for required behavioral fields (`confidence_rating`, `source_label`) in the downloaded dataset.
+- [ ] T006 [Depends on: T005] Implement `data/validate_data.py` to check for required behavioral fields (`confidence_rating`, `source_label`) in the downloaded dataset. <!-- FAILED: unspecified -->
  - **Deliverable**: Output artifact `data/validation_report.json` with status "PASS" or "FAIL".
  - **Logic**: If `confidence_rating` or `source_label` columns are missing, raise `ValueError("Required fields missing: confidence_rating, source_label")` and exit with code 1.
 - [X] T007 [P] Create base data models (Participant, Trial) in `src/models/data_models.py`
@@ -86,7 +86,7 @@
 - [X] T015 [US1] Implement `src/analysis/bootstrap.py` for 1,000 bootstrap resamples to generate 95% CI.
  - **Runtime Check**: Monitor cumulative wall-clock time of the bootstrap loop. Check periodically at regular resample intervals. If runtime > 5.5h, log warning "Runtime limit detected, reducing bootstrap count to 500", update `data/results/bootstrap_config.json` with `bootstrap_count: 500`, and exit with code 0 (success with warning).
  - **Constraint**: Default is a sufficient number of resamples. Reduction to a lower capacity is a staged fallback only if the 5.5h threshold is exceeded.
-- [ ] T016 [US1] Implement `src/report/generate.py` to render correlation magnitude, direction, p-value, and CI to `data/results/primary_analysis.json`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T016 [US1] Implement `src/report/generate.py` to render correlation magnitude, direction, p-value, and CI to `data/results/primary_analysis.json`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T017 [US1] Add validation to ensure `data/derived/confidence_summary.csv` and `data/derived/accuracy_summary.csv` are derived from disjoint trials.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -118,7 +118,7 @@
  - Check normality of residuals (Shapiro-Wilk)
  - Check homoscedasticity (Breusch-Pagan)
  - Calculate VIF for collinearity (flag if VIF ≥ 5)
-- [ ] T022 [US2] [Depends on: T021] Implement `src/report/generate.py` update to include regression coefficients, SE, t-stat, p-value, and diagnostic flags in `data/results/regression_analysis.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T022 [US2] [Depends on: T021] Implement `src/report/generate.py` update to include regression coefficients, SE, t-stat, p-value, and diagnostic flags in `data/results/regression_analysis.json`. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

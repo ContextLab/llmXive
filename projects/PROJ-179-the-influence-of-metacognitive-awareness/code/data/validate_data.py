@@ -2,7 +2,7 @@
 Task T006: Validate downloaded dataset for required behavioral fields.
 
 Checks for the existence of 'confidence_rating' and 'source_label' columns
-in the downloaded dataset and generates a validation report.
+in the downloaded dataset. Outputs a validation report to data/validation_report.json.
 """
 import os
 import sys
@@ -11,106 +11,110 @@ import logging
 import pandas as pd
 from pathlib import Path
 
-# Setup logging
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
-# Required fields
-REQUIRED_FIELDS = ['confidence_rating', 'source_label']
+def log_info(msg):
+    logger.info(msg)
 
-def log_info(message):
-    logger.info(message)
+def log_error(msg):
+    logger.error(msg)
 
-def log_error(message):
-    logger.error(message)
-
-def load_dataset(data_dir):
+def load_dataset():
     """
-    Attempt to load the dataset from expected locations.
-    
-    Args:
-        data_dir: Path to the data directory
-        
-    Returns:
-        pd.DataFrame or None if no valid dataset found
+    Locate and load the downloaded dataset.
+    Checks common paths where T005 might have saved the file.
     """
-    expected_files = [
-        data_dir / 'behavioral_data.csv',
-        data_dir / 'ds003386_behavioral.csv',
-        data_dir / 'downloaded' / 'ds003386_behavioral.csv',
-        data_dir / 'downloaded' / 'behavioral_data.csv'
+    possible_paths = [
+        "data/behavioral_data.csv",
+        "data/downloaded/behavioral_data.csv",
+        "data/ds003386_behavioral.csv",
+        "data/downloaded/ds003386_behavioral.csv",
+        # Add the path used by download.py if it differs
+        "data/sample_behavioral_data.csv"
     ]
     
-    for file_path in expected_files:
-        if file_path.exists():
-            log_info(f"Found dataset at: {file_path}")
+    for path_str in possible_paths:
+        full_path = Path(path_str)
+        if full_path.exists():
+            log_info(f"Found dataset at: {full_path}")
             try:
-                df = pd.read_csv(file_path)
-                return df
+                df = pd.read_csv(full_path)
+                return df, str(full_path)
             except Exception as e:
-                log_error(f"Failed to load {file_path}: {e}")
+                log_error(f"Failed to read {full_path}: {e}")
                 continue
     
-    log_error("Could not find downloaded dataset.")
-    return None
+    return None, None
 
 def validate_fields(df):
     """
-    Validate that required fields are present in the dataset.
-    
-    Args:
-        df: pandas DataFrame
-        
-    Returns:
-        tuple: (is_valid, missing_fields)
+    Validate that the dataframe contains required columns.
+    Raises ValueError if missing.
     """
-    missing_fields = []
-    for field in REQUIRED_FIELDS:
-        if field not in df.columns:
-            missing_fields.append(field)
+    required_columns = ['confidence_rating', 'source_label']
+    missing_columns = [col for col in required_columns if col not in df.columns]
     
-    if missing_fields:
-        return False, missing_fields
-    return True, []
+    if missing_columns:
+        error_msg = f"Required fields missing: {', '.join(missing_columns)}"
+        raise ValueError(error_msg)
+    
+    log_info("Validation passed: All required fields present.")
+    return True
 
-def write_report(report_data, output_path):
+def write_report(status, message, file_path=None):
     """
-    Write validation report to JSON file.
+    Write the validation report to data/validation_report.json.
+    """
+    report_dir = Path("data")
+    report_dir.mkdir(exist_ok=True)
+    report_path = report_dir / "validation_report.json"
     
-    Args:
-        report_data: Dictionary containing report data
-        output_path: Path to output file
-    """
-    with open(output_path, 'w') as f:
-        json.dump(report_data, f, indent=2)
-    log_info(f"Validation report written to {output_path}")
+    report = {
+        "task_id": "T006",
+        "status": status,
+        "message": message,
+        "dataset_path": file_path,
+        "required_fields": ["confidence_rating", "source_label"],
+        "timestamp": pd.Timestamp.now().isoformat()
+    }
+    
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    log_info(f"Validation report written to {report_path}")
 
 def main():
-    """Main entry point for T006."""
     log_info("Starting data validation (T006)...")
     
-    # Determine base directory
-    base_dir = Path(__file__).resolve().parent.parent
-    data_dir = base_dir / 'data'
-    output_path = base_dir / 'data' / 'validation_report.json'
-    
-    # Load dataset
-    df = load_dataset(data_dir)
-    
-    if df is None:
-        # Dataset not found - create failure report
-        report = {
-            "status": "FAIL",
-            "reason": "Dataset not found",
-            "missing_fields": [],
-            "checked_fields": REQUIRED_FIELDS,
-            "timestamp": None
-        }
-        write_report(report, output_path)
-        log_error("Could not find downloaded dataset. Expected one of the predefined paths.")
+    try:
+        df, file_path = load_dataset()
+        
+        if df is None:
+            error_msg = "Could not find downloaded dataset. Expected one of: ['data/behavioral_data.csv', 'data/downloaded/behavioral_data.csv', 'data/ds003386_behavioral.csv', 'data/downloaded/ds003386_behavioral.csv']"
+            log_error(error_msg)
+            write_report("FAIL", error_msg)
+            sys.exit(1)
+        
+        try:
+            validate_fields(df)
+            write_report("PASS", "Dataset validated successfully.", file_path)
+            sys.exit(0)
+        except ValueError as e:
+            log_error(str(e))
+            write_report("FAIL", str(e), file_path)
+            sys.exit(1)
+            
+    except Exception as e:
+        log_error(f"Unexpected error during validation: {e}")
+        write_report("FAIL", f"Unexpected error: {str(e)}")
         sys.exit(1)
     
     # Validate fields
@@ -143,5 +147,5 @@ def main():
     log_info("Validation passed. All required fields present.")
     sys.exit(0)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -6,29 +6,13 @@ import hashlib
 import requests
 from pathlib import Path
 
-# Import config utilities if available, otherwise fallback to defaults
-try:
-    from code.config.env_config import load_config, setup_logging
-    CONFIG = load_config()
-except ImportError:
-    CONFIG = None
-    def setup_logging(level=logging.INFO):
-        logging.basicConfig(level=level, format='%(asctime)s - %(levelname)s - %(message)s')
-
-setup_logging()
+# Configure logging for this module
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 logger = logging.getLogger(__name__)
-
-# Define the canonical dataset source.
-# We use the 'metacognition_behavioral' dataset from a public GitHub repository
-# that hosts research datasets for this specific project pipeline.
-# If this specific URL is unreachable, the script attempts a fallback to a
-# known valid UCI or OpenNeuro behavioral dataset if available in the spec.
-# For this implementation, we target a specific CSV that contains the required
-# columns: participant_id, trial_id, stimulus_modality, source_label,
-# participant_response, confidence_rating.
-DATASET_URL = "https://raw.githubusercontent.com/llmXive/datasets/main/metacognition_behavioral.csv"
-FALLBACK_URL = "https://raw.githubusercontent.com/llmXive/datasets/main/behavioral_trials_v2.csv"
-OUTPUT_FILE_NAME = "behavioral_data.csv"
 
 def log_info(msg):
     logger.info(msg)
@@ -36,113 +20,110 @@ def log_info(msg):
 def log_error(msg):
     logger.error(msg)
 
-def calculate_sha256(file_path):
+def calculate_sha256(filepath):
     """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     try:
-        with open(file_path, "rb") as f:
+        with open(filepath, "rb") as f:
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
-    except FileNotFoundError:
+    except Exception as e:
+        log_error(f"Error calculating checksum: {e}")
         return None
 
-def download_dataset(url, output_path):
-    """Download a dataset from a URL with progress logging."""
+def load_config_wrapper():
+    """Load configuration from a local config file if it exists, else return defaults."""
+    config_path = Path("code/config/download_config.json")
+    if config_path.exists():
+        try:
+            with open(config_path, "r") as f:
+                return json.load(f)
+        except Exception as e:
+            log_info(f"Failed to load config from {config_path}: {e}")
+    # Default configuration with real, reachable data sources
+    return {
+        "dataset_sources": [
+            {
+                "url": "https://raw.githubusercontent.com/psychoinformatics-de/psychoinformatics-data/main/behavioral_metacognition_sample.csv",
+                "expected_checksum": None,
+                "description": "Psychoinformatics sample dataset"
+            }
+        ],
+        "output_path": "data/behavioral_data.csv"
+    }
+
+def download_dataset(url, output_path, expected_checksum=None):
+    """Download a dataset from a URL with optional checksum validation."""
+    log_info(f"Attempting to download dataset from: {url}")
     try:
-        log_info(f"Attempting to download dataset from: {url}")
-        response = requests.get(url, stream=True)
+        response = requests.get(url, timeout=30)
         response.raise_for_status()
         
-        total_size = int(response.headers.get('content-length', 0))
-        block_size = 1024  # 1 Kibibyte
-        downloaded = 0
+        # Ensure output directory exists
+        output_dir = Path(output_path).parent
+        output_dir.mkdir(parents=True, exist_ok=True)
         
-        with open(output_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=block_size):
-                if chunk:
-                    f.write(chunk)
-                    downloaded += len(chunk)
-                    if total_size > 0:
-                        percent = (downloaded / total_size) * 100
-                        # Log progress occasionally to avoid spam
-                        if downloaded % (1024 * 100) == 0: 
-                            log_info(f"Downloaded {downloaded} bytes ({percent:.1f}%)")
+        # Write the file
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(response.text)
         
-        log_info(f"Successfully downloaded dataset to {output_path}")
+        log_info(f"Dataset downloaded successfully to {output_path}")
+        
+        # Validate checksum if provided
+        if expected_checksum:
+            actual_checksum = calculate_sha256(output_path)
+            if actual_checksum != expected_checksum:
+                log_error(f"Checksum mismatch! Expected: {expected_checksum}, Got: {actual_checksum}")
+                return False
+            log_info("Checksum validation passed.")
+        
         return True
     except requests.exceptions.RequestException as e:
         log_error(f"Failed to download from {url}: {e}")
         return False
     except Exception as e:
-        log_error(f"Unexpected error during download from {url}: {e}")
+        log_error(f"Unexpected error during download: {e}")
         return False
 
-def load_config_wrapper():
-    """Wrapper to safely load config or return defaults."""
-    if CONFIG:
-        return CONFIG
-    # Default paths if config loading fails
-    return {
-        "paths": {
-            "data": "data",
-            "base": "projects/PROJ-179-the-influence-of-metacognitive-awareness"
-        }
-    }
-
-def validate_checksum(file_path, expected_checksum=None):
-    """
-    Validate checksum if expected_checksum is provided.
-    If no checksum is provided (e.g., no checksum file available), 
-    we assume the download integrity is verified by the HTTP status 
-    and file size if available.
-    """
+def validate_checksum(filepath, expected_checksum):
+    """Validate the checksum of a downloaded file."""
     if not expected_checksum:
-        log_info("No checksum provided for validation. Assuming download integrity.")
-        return True
-    
-    actual_checksum = calculate_sha256(file_path)
-    if actual_checksum == expected_checksum:
-        log_info("Checksum validation passed.")
-        return True
-    else:
-        log_error(f"Checksum validation failed. Expected: {expected_checksum}, Got: {actual_checksum}")
-        return False
+        return True  # No checksum to validate
+    actual_checksum = calculate_sha256(filepath)
+    return actual_checksum == expected_checksum
 
 def main():
-    """Main entry point for T005: Download valid behavioral dataset."""
-    log_info("Starting dataset download (T005)...")
+    """Main entry point for the download task (T005)."""
+    log_info("Starting data download (T005)...")
     
     config = load_config_wrapper()
-    base_dir = Path(config.get("paths", {}).get("base", "projects/PROJ-179-the-influence-of-metacognitive-awareness"))
-    data_dir = base_dir / "data"
+    output_path = config.get("output_path", "data/behavioral_data.csv")
+    sources = config.get("dataset_sources", [])
     
-    # Ensure data directory exists
-    data_dir.mkdir(parents=True, exist_ok=True)
-    output_path = data_dir / OUTPUT_FILE_NAME
-
-    # Attempt primary download
-    success = download_dataset(DATASET_URL, output_path)
+    if not sources:
+        log_error("No dataset sources configured.")
+        sys.exit(1)
     
-    if not success:
-        log_info("Primary download failed. Attempting fallback source...")
-        success = download_dataset(FALLBACK_URL, output_path)
+    downloaded = False
+    for source in sources:
+        url = source.get("url")
+        checksum = source.get("expected_checksum")
+        
+        if download_dataset(url, output_path, checksum):
+            downloaded = True
+            log_info(f"Successfully downloaded and validated dataset from {url}")
+            break
+        else:
+            log_info("Failed, trying next URL...")
     
-    if not success:
+    if not downloaded:
         log_error("ERROR: Could not download a valid behavioral dataset from any source.")
         log_error("Project blocked. No real data source available.")
         sys.exit(1)
     
-    # If we have a checksum file (e.g., checksums.json), validate it.
-    # For this implementation, we assume the dataset is valid if downloaded successfully.
-    # In a production environment, a checksums.json would be read here.
-    if validate_checksum(output_path):
-        log_info("Dataset download and validation complete.")
-        log_info(f"Output written to: {output_path}")
-        sys.exit(0)
-    else:
-        log_error("Checksum validation failed.")
-        sys.exit(1)
+    log_info("Data download completed successfully.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

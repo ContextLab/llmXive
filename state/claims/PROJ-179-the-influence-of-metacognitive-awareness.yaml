@@ -1,101 +1,104 @@
 - artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
   attempts: 1
   canonical: OpenNeuro ds003386 lacks required behavioral fields
-  claim_id: c_99f4618c
-  context: 'If OpenNeuro ds003386 (structural MRI) is detected as the only source,
-    the script MUST exit with code 1 and log: ''ERROR: Project blocked. OpenNeuro
+  claim_id: c_86dd9247
+  context: 'Logic: If OpenNeuro ds003386 (structural MRI) is detected as the only
+    source, the script MUST exit with code 1 and log: ''ERROR: Project blocked. OpenNeuro
     ds003386 lacks required behavioral fields. Aborting.'''
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds003386_lacks_required_behavioral_fields
-  kind: entity_fact
-  raw_text: OpenNeuro ds003386 (structural MRI) is the only source detected.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:38:38Z'
-- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
-  attempts: 1
-  canonical: Hold-Out Accuracy design uses 70/30 train/test split
-  claim_id: c_4cca9604
-  context: Implement Hold-Out Accuracy design (70/30 train/test split) as per plan.md.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Implement Hold-Out Accuracy design with 70/30 train/test split.
+  raw_text: 'If OpenNeuro ds003386 (structural MRI) is detected as the only source,
+    the script MUST exit with code 1 and log: ''ERROR: Project blocked. OpenNeuro
+    ds003386 lacks required behavioral fields. Aborting.'''
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:38:55Z'
+  updated_at: '2026-07-13T21:52:36Z'
 - artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
   attempts: 1
-  canonical: 1000 bootstrap resamples for 95% CI
-  claim_id: c_d4ba0521
+  canonical: Hold-Out Accuracy design uses 70/30 train/test split
+  claim_id: c_4bd3cb8f
+  context: 'Logic: Split trials into a majority training set and a minority test set.
+    Compute Metacognitive Score (Type-2 AUC) on the training split. Compute Reality
+    Testing Accuracy (d'') on the held-out test split.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Split trials into a majority training set and a minority test set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T21:52:36Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: 1,000 bootstrap resamples used to generate 95% CI
+  claim_id: c_762bcfe5
   context: Implement src/analysis/bootstrap.py for 1,000 bootstrap resamples to generate
     95% CI.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Perform 1,000 bootstrap resamples to generate 95% CI.
+  raw_text: Implement src/analysis/bootstrap.py for 1,000 bootstrap resamples to generate
+    95% CI.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:39:13Z'
+  updated_at: '2026-07-13T21:52:51Z'
 - artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
   attempts: 1
-  canonical: Bootstrap count reduced to 500 if runtime exceeds 5.5h
-  claim_id: c_ddc5b08f
+  canonical: Bootstrap count reduced to 500 if runtime exceeds 5.5 hours
+  claim_id: c_3c90e655
   context: 'If runtime > 5.5h, log warning ''Runtime limit detected, reducing bootstrap
     count to 500'', update data/results/bootstrap_config.json with bootstrap_count:
-    500, and exit with code 0.'
+    500, and exit with code 0 (success with warning).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: If runtime exceeds 5.5h, reduce bootstrap count to 500.
+  raw_text: 'If runtime > 5.5h, log warning ''Runtime limit detected, reducing bootstrap
+    count to 500'', update data/results/bootstrap_config.json with bootstrap_count:
+    500, and exit with code 0.'
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T21:50:29Z'
+  updated_at: '2026-07-13T21:53:05Z'
 - artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
   attempts: 1
-  canonical: Collinearity flagged if VIF >= 5
-  claim_id: c_c806e943
-  context: "Calculate VIF for collinearity (flag if VIF \u2265 5)"
+  canonical: VIF flagged if value is 5 or greater
+  claim_id: c_bfad259e
+  context: "Check normality of residuals (Shapiro-Wilk) Check homoscedasticity (Breusch-Pagan)\
+    \ Calculate VIF for collinearity (flag if VIF \u2265 5)"
   evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Collinearity_flagged_if_VIF_%3E=_5
-  kind: magnitude
-  raw_text: Flag collinearity if Variance Inflation Factor (VIF) is greater than or
-    equal to 5.
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate VIF for collinearity (flag if VIF \u2265 5)"
   resolved_value: null
-  resolver: resolve_superlative
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T22:02:54Z'
+  updated_at: '2026-07-13T21:53:05Z'
 - artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
   attempts: 1
-  canonical: Performance target 6h on 2 CPU 7GB RAM
-  claim_id: c_dccf5c5d
+  canonical: Bootstrap and regression complete within 6 hours on 2 CPU and 7GB RAM
+  claim_id: c_d028a347
   context: Performance optimization (ensure bootstrap and regression complete within
     6h on 2 CPU/7GB RAM)
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Ensure bootstrap and regression complete within 6h on 2 CPU/7GB RAM.
+  raw_text: Ensure bootstrap and regression complete within 6h on 2 CPU/7GB RAM
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T22:03:13Z'
+  updated_at: '2026-07-13T21:53:19Z'

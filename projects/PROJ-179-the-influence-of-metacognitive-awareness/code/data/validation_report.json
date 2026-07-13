@@ -1,8 +1,7 @@
 {
   "status": "FAIL",
-  "message": "Dataset not found.",
-  "fields_checked": [
-    "confidence_rating",
-    "source_label"
-  ]
+  "timestamp": "2026-07-13T21:58:30.914310",
+  "details": {
+    "error": "No dataset found. Run T005 first."
+  }
 }
