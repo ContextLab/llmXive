@@ -4,97 +4,114 @@
 
 ### KnotRecord
 
-Represents a single prime knot with attributes:
+Represents a single prime knot with all required and optional attributes.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| knot_id | string | YES | Unique identifier for the knot (e.g., `KNOT_3_1`). |
-| name | string | YES | Human‑readable name or Rolfsen notation. |
-| crossing_number | integer | YES | Number of crossings in minimal diagram (≥ 3, ≤ 13). |
-| braid_index | integer | YES | Minimum number of strands in a braid representation (≥ 2, ≤ crossing_number). |
-| hyperbolic_volume | float (≥ 0) | YES | Hyperbolic volume of the knot complement (0 for torus/satellite knots). |
-| alternating | boolean | YES | Whether the knot is alternating. |
-| data_quality_flags | array of strings | NO | General data quality issues (null values, format failures, duplicates). |
-| missing_invariant_flags | array of strings | NO | Invariants not computable from available diagram representations. |
-| source | object | YES | Source metadata. |
-| source_timestamp | string (ISO‑8601) | YES | Timestamp of the source record. |
-| checksum_sha256 | string | YES | SHA‑256 checksum of the raw source record. |
-| source.database | string | YES | Database name (e.g., `"KnotAtlas"`). |
-| source.version | string | YES | Database version or access date. |
-| source.url | string | YES | Canonical URL for the record. |
-| source.accessed_at | string (ISO‑8601) | YES | Timestamp when data was accessed. |
-| source.source_timestamp | string (ISO‑8601) | YES | Timestamp of the source record (duplicate of `source_timestamp` for compatibility). |
-| source.checksum_sha256 | string | YES | SHA‑256 of the raw source record. |
+**Attributes**:
+- `knot_id`: string, unique identifier (e.g., "10_123", "11n42")
+- `crossing_number`: integer, number of crossings in minimal diagram
+- `braid_index`: integer, minimum number of strands in braid representation
+- `hyperbolic_volume`: float ≥ 0, hyperbolic volume of knot complement (0 for torus/satellite)
+- `alternating`: boolean, true if knot is alternating, false otherwise
+- `source`: object containing:
+  - `database`: string, e.g., "Knot Atlas"
+  - `version`: string, source version
+  - `url`: string, canonical URL for record
+  - `accessed_at`: ISO-8601 timestamp, when data was fetched
+  - `source_timestamp`: ISO-8601 timestamp, when source record was created/updated
+  - `checksum_sha256`: string, SHA-256 hash of raw source record
+- `data_quality_flags`: array of strings, general data quality issues (e.g., "null_crossing_number", "format_failure", "duplicate_id")
+- `missing_invariant_flags`: array of strings, invariants not computable from available representations (e.g., "no_braid_word", "no_dt_code")
+- `unclassifiable`: boolean, true if alternating classification is ambiguous/missing
+
+**Constraints**:
+- `knot_id` must be unique across dataset
+- `crossing_number` ≥ 1
+- `braid_index` ≥ 1
+- `hyperbolic_volume` ≥ 0
+- `data_quality_flags` and `missing_invariant_flags` are mutually exclusive categories (FR-002 vs. FR-009)
 
 ### InvariantsDataset
 
-Aggregated collection of KnotRecord entities:
+Aggregated collection of `KnotRecord` entities with metadata.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| records | array of KnotRecord | All knot records |
-| metadata | object | Dataset metadata |
-| metadata.source | string | Data source |
-| metadata.version | string | Dataset version |
-| metadata.created_at | string (ISO‑8601) | Creation timestamp |
-| metadata.crossing_number_range | object | Min/max crossing numbers |
-| metadata.total_records | integer | Total number of records |
-| metadata.hyperbolic_count | integer | Count of knots with volume > 0 |
-| metadata.null_percentages | object | Null percentage per required field |
+**Attributes**:
+- `records`: array of `KnotRecord` objects
+- `metadata`: object containing:
+  - `source_database`: string
+  - `source_version`: string
+  - `download_timestamp`: ISO-8601 timestamp
+  - `total_records`: integer
+  - `hyperbolic_records`: integer (volume > 0)
+  - `alternating_records`: integer
+  - `non_alternating_records`: integer
+  - `unclassifiable_records`: integer
+  - `null_counts`: object with field names as keys and null counts as values
+  - `checksum_sha256`: string, SHA-256 of entire dataset
 
-## Derived Fields
+### RegressionModel
 
-### data_quality_flags
+Represents a fitted regression model.
 
-Values:  
-- `null_crossing_number`  
-- `null_braid_index`  
-- `null_hyperbolic_volume`  
-- `null_alternating`  
-- `format_failure`  
-- `duplicate_knot_id`
+**Attributes**:
+- `model_type`: string, e.g., "linear", "polynomial", "logarithmic"
+- `coefficients`: array of floats, model coefficients
+- `intercept`: float, model intercept
+- `r_squared`: float, goodness-of-fit metric
+- `aic`: float, Akaike Information Criterion
+- `bic`: float, Bayesian Information Criterion
+- `mae`: float, Mean Absolute Error
+- `vif_crossing`: float, VIF for crossing number predictor
+- `vif_braid`: float, VIF for braid index predictor
+- `residuals`: array of floats, residual values for each knot
+- `outlier_families`: array of strings, knot families with residuals ≥ 2σ
 
-### missing_invariant_flags
+## Data Flow
 
-Values:  
-- `no_representation_available` – Invariant cannot be computed from available diagram data (e.g., additional invariants in Phase 2+).  
-- `algorithm_not_implemented` – Placeholder for future algorithmic support.
+1. **Raw Data**: `data/raw/knot_atlas_raw.json` (unmodified download)
+2. **Parsed Data**: `data/processed/knots_parsed.csv` (extracted fields)
+3. **Cleaned Data**: `data/processed/knots_cleaned.csv` (validated, deduplicated)
+4. **Validated Data**: `data/processed/knots_validated.csv` (with flags, excluded knots marked)
+5. **Filtered Data**: `data/processed/hyperbolic_knots.csv` (volume > 0 only)
+6. **Analysis Outputs**: `data/processed/plots/` (PNG files), `data/processed/model_results.json`
 
-**Flag Distinction**: `data_quality_flags` handle generic quality issues; `missing_invariant_flags` flag invariants that are intrinsically unavailable.
+## Transformation Rules
 
-## Data Transformations
+### Cleaning Rules (FR-002)
 
-### Raw → Cleaned
+1. Remove duplicate `knot_id` records (keep first occurrence)
+2. Flag records with null values in required fields (`crossing_number`, `braid_index`, `hyperbolic_volume`)
+3. Validate format against `knot_record.schema.yaml`
+4. Apply tie-breaking rules for multiple diagram representations (FR-011)
 
-1. Parse Knot Atlas JSON/CSV to extract knot records.  
-2. Apply tie‑breaking rules for multiple diagram representations (FR‑011).  
-3. Validate format against `knot_record.schema.yaml`.  
-4. Flag records with null values, format failures, duplicates.  
-5. Output: `data/processed/knots_cleaned.csv`.
+### Filtering Rules (FR-012)
 
-### Cleaned → Validated
+1. Exclude knots with `hyperbolic_volume` = 0 or undefined (torus/satellite knots)
+2. Document excluded knots in `docs/reproducibility/excluded_knots.md`
+3. Filtered dataset used for volume prediction analysis only
 
-1. Compute null percentages per required field.  
-2. Verify null percentage ≤ 5 % per field (FR‑002, SC‑001).  
-3. Verify format validation pass rate ≥ 99 % (FR‑002).  
-4. Verify duplicate count = 0 (FR‑002).  
-5. Flag records failing conditions.  
-6. Output: `data/processed/knots_validated.csv`.
+### Flagging Rules (FR-009, FR-010)
 
-### Validated → Hyperbolic
+1. `missing_invariant_flags`: Used when invariants cannot be computed from available diagram representations (Phase 2+ scope)
+2. `data_quality_flags`: Used for general data quality issues (null values, format failures, duplicates)
+3. `unclassifiable`: Set to true if alternating classification is ambiguous/missing; exclude from stratified analysis
 
-1. Filter to knots with `hyperbolic_volume` > 0 (FR‑012).  
-2. Document excluded knots in `docs/reproducibility/excluded_knots.md`.  
-3. Output: `data/processed/knots_hyperbolic.csv`.
+## Derived Metrics
 
-## Schema Validation
+### Correlation Coefficients (FR-006)
 
-All records MUST validate against `knot_record.schema.yaml` (see contracts/). Format validation pass rate ≥ 99 % required (FR‑002).
+- **Spearman**: Primary for discrete integer-valued invariants
+- **Pearson**: Supplementary for reporting completeness
+- **Effect Sizes**: r, r² for all correlations
 
-## Handling of Missing Invariants
+### Group Comparison Metrics (FR-006, SC-009)
 
-Records flagged with `missing_invariant_flags` are **excluded** from any quantitative modelling (regression, correlation, group comparison). They remain in the cleaned dataset for completeness reporting but are omitted from statistical computations. Documentation of excluded records is provided in `missing_invariants.md`.
+- **Mean Difference**: Alternating vs. non-alternating groups
+- **Variance Ratio**: Variance ratio between groups
+- **Cohen's d**: Effect size for group comparisons
 
-## Completeness Verification (SC‑001)
+### Regression Metrics (FR-005, SC-002)
 
-The validator (`code/data/validator.py`) computes null percentages, format‑pass rate, and duplicate count. These metrics are recorded in `data_quality_report.md`. The pipeline aborts if any required field exceeds a 5 % null threshold, if format‑pass rate falls below [deferred], or if any duplicates are detected, thereby enforcing SC‑001.
+- **R²**: Goodness-of-fit (descriptive for census data)
+- **AIC/BIC**: Model selection criteria
+- **MAE**: Mean Absolute Error
+- **VIF**: Variance Inflation Factor (expected high due to mathematical constraint)

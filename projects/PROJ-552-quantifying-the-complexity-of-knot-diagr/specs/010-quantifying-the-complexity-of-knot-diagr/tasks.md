@@ -67,14 +67,14 @@ description: "Task list template for feature implementation"
 - [X] T008 Create `quickstart.md` in `specs/001-knot-complexity-analysis/quickstart.md` documenting end‑to‑end pipeline execution steps (per plan.md)
 - [X] T009 [P] Implement unified flagging system in `code/data/validator.py` handling missing invariant flags, data quality flags, and ambiguous classification flags. **Core invariants (crossing number, braid index) are excluded from `missing_invariant_flags` per FR‑009.** Verification: unit tests in `tests/unit/test_validator.py` demonstrating correct flag generation.
 - [X] T016a [P] Create the validation pipeline script `code/data/run_validation.py` that orchestrates schema checks, null percentage validation (SC-001), format pass rate, and duplicate checks. Verification: script exits 0 on clean data, 1 on failure.
-- [X] T026a [P] Document invariant verification procedure for additional invariants (arc index, Seifert circle count, bridge number) against primary literature (e.g., Birman & Menasco, Ohyama 1993) in `docs/reproducibility/invariant_definitions.md`. **(Phase 2+ only)** Verification: existence of documentation.
-- [X] T026b [P] Implement `code/analysis/invariant_coverage.py` for computing and validating additional invariants. **(Phase 2+ only, optional for MVP)** Verification: module runs without error on sample data.
+- [X] T026a [P] Document Constitution Principle VI invariant verification procedure for additional invariants (arc index, Seifert circle count, bridge number) against primary literature (e.g., Birman & Menasco, Ohyama 1993) in `docs/reproducibility/invariant_definitions.md`. Verification: all additional invariants have documented reference and validation notes.
+- [X] T026b [P] Implement `code/analysis/invariant_coverage.py` for computing and validating additional invariants (optional for Phase MVP, but required for validation logic). Verification: module runs without error on sample data.
 - [X] T030 [P] Document tie‑breaking rules in `docs/reproducibility/tie_breaking_rules.md` (per SC‑007)
-- [X] T040b [P] Implement `code/analysis/hyperbolic_volume_validation.py` for cross‑check of hyperbolic volume against KnotInfo (framed as data integrity check, not independent verification). Verification: module runs and logs results.
-- [X] T065a [P] Implement `code/reproducibility/citation_validator.py` to enforce title‑token overlap ≥ 0.7 for all citations (per Constitution Principle II). Verification: script runs and reports all citations meeting threshold.
-- [X] T066a [P] Implement `code/reproducibility/hashing.py` to generate and record SHA‑256 hashes for artifacts and update `state/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr.yaml` (per Constitution Principle V). Verification: script runs, hash recorded, `updated_at` timestamp updated.
-- [X] T013 [US1] Implement downloader for **Knot Atlas** in `code/download/knot_atlas_loader.py` with robust braid_index parsing (per FR‑001) and exponential back‑off retry logic (initial = 1 s, multiplier = 2, max = 32 s) with partial caching after 3 failures (FR‑008). Verification: successful download of at least one knot record with all required fields, including braid_index.
-- [X] T015 [US1] Implement parser in `code/data/parser.py` to extract crossing number, braid index, hyperbolic volume, and alternating classification from Knot Atlas data, applying tie‑breaking rules (braid word > DT code, lexicographic). No external fallback for braid index. Verification: parser outputs correctly typed fields for a sample record.
+- [X] T040b [P] Implement `code/analysis/hyperbolic_volume_validation.py` for cross‑checking hyperbolic volume against KnotInfo (framed as data integrity check, not independent verification). Verification: module runs and logs results.
+- [X] T065a [P] Implement `code/reproducibility/citation_validator.py` to run the Reference‑Validator Agent logic, enforcing title‑token overlap ≥ 0.7 for all citations (per Constitution Principle II). Verification: run `python code/reproducibility/citation_validator.py` on all citations; all must meet the threshold.
+- [X] T066a [P] Implement `code/reproducibility/hashing.py` to generate and record content hashes for artifacts and update `state/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr.yaml` (per Constitution Principle V). Verification: run `python code/reproducibility/hashing.py` and confirm hash recorded and `updated_at` timestamp updated.
+- [X] T013 [US1] Implement downloader for **Knot Atlas** in `code/download/knot_atlas_loader.py` with robust braid_index parsing (per FR‑001) and exponential back‑off retry logic (initial = 1 s, multiplier = 2, max = 32 s) with partial caching (per FR‑008). Verification: successful download of at least one knot record with all required fields, including braid_index.
+- [X] T015 [US1] Implement parser in `code/data/parser.py` to extract crossing number, braid index, hyperbolic volume, and alternating classification from Knot Atlas data, applying tie‑breaking rules (braid word > DT code, lexicographic) (per FR‑011). Includes fallback lookup in `code/data/parser.py` to query KnotInfo API for `braid_index` when missing; log fallback usage in `docs/reproducibility/fallback_usage_log.md` (per reviewer action item). Verification: parser outputs correctly typed fields for a sample record.
 - [X] T016 [US1] Integrate `code/data/validator.py` (T009) and `code/data/run_validation.py` (T016a) to enforce null‑percentage ≤ 5 % for required fields, format pass rate ≥ 99 %, and duplicate count = 0 (per FR‑002, SC‑001). Verification: unit tests confirm enforcement of these thresholds.
 
 **Checkpoint**: Foundation ready – user story implementation can now begin in parallel.
@@ -142,22 +142,18 @@ description: "Task list template for feature implementation"
 
 **Goal**: Handle edge cases (API unavailability, missing invariants, ambiguous classifications, crossing number ties) with documented fallback behaviors, AND produce complete reproducibility documentation.
 
-- [X] T044 [US4] Generate SHA‑256 checksums for all data files using `code/reproducibility/checksum_generator.py`; record in `data/checksums.sha256`. (Matches plan and Constitution Principle III)
-- [X] T045 [US4] Record checksums in `data/checksums.sha256` and also produce optional `data/checksums.json` for tooling convenience. Documentation in `docs/reproducibility/checksums.md`.
-- [X] T046a [US4] Create `docs/reproducibility/derivation_notes.md` with required sections: (1) Formula citations (author, year, title, DOI/URL); (2) Step‑by‑step transformation logic; (3) References to code locations. Verification script checks for presence of these headings.
-- [X] T049a [US4] Generate timestamped operation logs in `data/operation_logs.jsonl` (machine‑readable) and a human‑readable summary `docs/reproducibility/operation_logs.md` containing columns: timestamp, module, action, status, duration_ms. Verification script validates column presence.
-- [X] T050a [US4] Document random seed values used in `docs/reproducibility/random_seeds.md` as a markdown table with columns: seed_name, value, purpose, location_in_code. Verification ensures table is non‑empty.
-- [X] T051 [US4] Log uncomputable invariants in `docs/reproducibility/uncomputable_invariants.md` (per FR‑003). Verification: file exists and lists any missing invariants.
-- [X] T052 [US4] Document invariant coverage in `docs/reproducibility/invariant_coverage.md` (per SC‑008). Verification: coverage percentages reported.
-- [X] T053 [US4] Generate validation status report in `docs/reproducibility/validation_status.md` (per SC‑007). Verification: report reflects results of `code/data/run_validation.py`.
-- [X] T056 [US4] Run `quickstart.md` validation to ensure end‑to‑end reproducibility and document results in `docs/reproducibility/quickstart_validation.md` with pass/fail status.
-- [X] T057 [P] Additional unit tests in `tests/unit/`:
-   - `test_downloader.py` with tests for exponential back‑off, partial cache creation, and timeout handling.
-   - `test_parser.py` with tests for crossing number parsing, braid index parsing, hyperbolic volume parsing.
-- [X] T058 Verify all random seeds are pinned and document verification results in `docs/reproducibility/seed_verification.md` (distinct from `random_seeds.md` which lists values).
-- [X] T059 Document selection bias acknowledgment (hyperbolic‑only filtering) in `docs/reproducibility/selection_bias.md` (per FR‑012, Assumptions).
-- [X] T060 Document census data statistical interpretation in `docs/reproducibility/census_interpretation.md` (per Assumptions).
-- [X] T061 Document mathematical constraint acknowledgment (**braid index ≤ crossing number**) in `docs/reproducibility/mathematical_constraints.md` (per Assumptions).
+### Implementation for User Story 4
+
+- [X] T044 [US4] Generate SHA‑256 checksums for all data files in `code/reproducibility/checksums.py` (per FR‑007). Output MUST be `data/checksums.sha256` (single canonical file).
+- [X] T045 [US4] Record checksums in `data/checksums.sha256` and document in `docs/reproducibility/checksums.md`. Verification: `sha256sum -c data/checksums.sha256` passes.
+- [X] T046 [US4] Generate derivation notes with formula citations in `docs/reproducibility/derivation_notes.md`. Verification script `code/reproducibility/derivation_validator.py` confirms all required sections are non‑empty.
+- [X] T049 [US4] Generate timestamped logs for all operations in `docs/reproducibility/operation_logs.md`.
+- [X] T050 [US4] Document random seed values used in `docs/reproducibility/random_seeds.md`.
+- [X] T051 [US4] Log uncomputable invariants in `docs/reproducibility/uncomputable_invariants.md` (per FR‑003).
+- [X] T052 [US4] Document invariant coverage in `docs/reproducibility/invariant_coverage.md` (per SC‑008).
+- [X] T053 [US4] Generate validation status report in `docs/reproducibility/validation_status.md` (per SC‑007).
+
+**Checkpoint**: User Stories 1‑4 should all work independently.
 
 ---
 
@@ -201,7 +197,63 @@ description: "Task list template for feature implementation"
 
 **Dependencies & Execution Order**
 
-- All Setup and Foundational tasks must complete before any User Story tasks.
-- Data‑integrity remediation (Phase N+3) runs after User Story 1 produces the raw/processed data.
-- Refactoring tasks (T099a‑c, T102, T103) run after regression refactor (T083) is stable.
-- Verification/cleanup tasks (T094a, T095a) run after checksum and log generation tasks (T044, T045, T049a).
+## Phase N+1: Reviewer‑Driven Additions (Adjusted for Spec Compliance)
+
+- [X] T074 [US1] **Log missing braid_index**: When `braid_index` is absent in a Knot Atlas record, record the incident in `docs/reproducibility/missing_braid_index.log` and **exclude** the knot from the primary analysis (per FR‑001; no fallback to KnotInfo). This maintains strict data lineage.
+- [X] T075 [US1] Refactor `code/data/validator.py` so that `missing_invariant_flags` are only set for Phase 2+ computed invariants (arc index, Seifert circle count, bridge number) when diagram representations are missing. Core tabulated invariants (crossing number, braid index) must never trigger this flag (per FR‑001, FR‑003).
+- [X] T076 [US1] After fixing braid‑index acquisition and flag logic, regenerate `docs/reproducibility/data_quality_report.md` and `docs/reproducibility/invariant_coverage.md`; verify that null percentages for all required fields are ≤ 5 % and that flag counts are accurate. (Depends on T073, T075)
+- [X] T077 [US4] Run `code/reproducibility/run_checksums.py` on all current data files; update `data/checksums.sha256` (per plan.md) to reflect the new hashes; commit the updated manifest. (Depends on T044, T045)
+- [X] T078 [US4] Add a checksum‑verification step to `docs/reproducibility/quickstart.md` that aborts pipeline execution if any checksum mismatch is detected; include automated test `tests/integration/test_checksum_verification.py`. (Depends on T077)
+- [X] T080 [US1] Add unit tests for the exponential backoff behavior in the downloader (`tests/unit/test_backoff.py`) verifying delay progression (1 s → 2 s → 4 s → …) and maximum cap.
+- [X] T081 [US3] Add unit tests for regression model fitting and goodness‑of‑fit metric calculation (`tests/unit/test_regression_metrics.py`) ensuring R², AIC, BIC, and MAE are computed correctly for synthetic data.
+- [X] T082 [US3] Add unit tests for residual‑family identification logic (`tests/unit/test_residual_analysis.py`) confirming that families with residuals ≥ 2 σ are correctly listed.
+- [X] T083 [US1] Add comprehensive type hints (PEP 484) to key modules: `code/download/knot_atlas_loader.py`, `code/analysis/precision.py`, `code/analysis/regression.py`, and `code/data/validator.py`; run `mypy` as part of CI.
+- [X] T084 [US1] Refactor analysis code into focused modules per code‑quality reviewer suggestion:
+ - `code/analysis/coverage.py` – pure coverage calculations
+ - `code/analysis/validation.py` – hyperbolic‑volume cross‑checks
+ - `code/analysis/model_fitting.py` – regression fitting and residual analysis
+ - `code/analysis/plotting.py` – all figure generation
+ (Depends on T032‑T034)
+- [X] T085 [US1] Update CI workflow to include linting, type‑checking (`mypy`), and the new unit tests; ensure the pipeline completes within the specified CI limit.
+- [X] T086 [US1] Document the newly added type‑hinting and modularization in `docs/reproducibility/code_structure.md` for future maintainers.
+
+---
+
+## Phase N+3: Critical Data Integrity & Filesystem Hygiene Fixes (Re‑ordered and Clarified)
+
+**CRITICAL**: Must be completed before any further analysis or reporting.
+
+- [X] T098 [US4] **Fix Flagging Logic in Validator**: Refactor `code/data/validator.py` to ensure `missing_invariant_flags` are **only** set for Phase 2+ computed invariants (arc index, etc.) when diagram representations are missing. Core tabulated invariants (crossing number, braid index) must never trigger this flag. (Addresses `c331e6ba9675`, `54f11db3305b`)
+- [X] T099 [US3] **Implement VIF Calculation**: Add VIF computation to `code/analysis/model_fitting.py` (uses `statsmodels.stats.outliers_influence.variance_inflation_factor`). Output the VIF table to `docs/reproducibility/multicollinearity_assessment.md`. Verify that VIF values are reported (expected high due to braid index ≤ crossing number) and that the file exists.
+- [X] T100 [US3] **Consolidate Regression Logic**: Remove deprecated `code/analysis/regression.py` after migration to `model_fitting.py`. Ensure no duplicate logic remains.
+- [X] T091 [US4] **Re-run Pipeline and Generate Data Fabrication Audit**: Execute `code/download/knot_atlas_loader.py` and `code/data/parser.py` (with fixes from T098) to regenerate `data/processed/knots_cleaned.csv`. Then, run a verification script to generate `docs/reproducibility/data_fabrication_audit.md`. This audit MUST contain:
+  1. A side-by-side sample of the first 10 raw JSON rows vs. the corresponding 10 parsed CSV rows.
+  2. A summary table stating that `missing_invariant_flags` for core fields (crossing number, braid index) are 0 for the first 100 rows.
+  3. **Pass/Fail Criteria**: The task is PASS only if the flag count for core fields in the first 100 rows is exactly 0. If >0, the task FAILS and the flagging logic must be re-examined.
+  Verification: Run `python code/analysis/audit_data_fabrication.py` (to be created as part of this task) which outputs the audit file and exits 0 on PASS, 1 on FAIL.
+- [X] T102 [US4] **Migrate Logs to Reproducibility Directory**: Move all existing log files (`data/logs.jsonl`, `data/operation_logs.jsonl`) to `docs/reproducibility/logs/`. Verify that each moved file is present in the new location before proceeding. Update any code references accordingly.
+- [X] T103 [US4] **Validate Migrated Logs**: Verify that all logs in `docs/reproducibility/logs/` are valid JSON lines and complete. Update `docs/reproducibility/operation_logs.md` to confirm the new location and remove any "migrated" language.
+- [X] T104 [US4] **Update Data Quality Report**: Refresh `docs/reproducibility/data_quality_report.md` with the exact record count from `data/processed/knots_cleaned.csv` and accurate flag statuses (post-fix).
+- [X] T105 [US4] **Update Data Quantities Document**: Refresh `docs/reproducibility/data_quantities.md` with the exact record count from `data/processed/knots_cleaned.csv`.
+- [X] T106 [US4] **Update Invariant Coverage Document**: Refresh `docs/reproducibility/invariant_coverage.md` with the exact record count and flag statuses from the regenerated dataset.
+- [X] T094 [US1] **Re‑run Hyperbolic Volume Consistency Check**: After data regeneration (T091), execute `code/analysis/hyperbolic_volume_validation.py` and update `docs/reproducibility/hyperbolic_volume_validation.md` with the actual match rate and coverage percentage.
+- [X] T095 **Create JSON Checksum Manifest (Preserve SHA256)**: Generate `data/checksums.json` containing a JSON mapping of file paths to their SHA‑256 hashes **in addition to** retaining the existing `data/checksums.sha256`. Verify both files exist and hashes match.
+- [X] T096 **Delete Legacy Log Files After Migration**: After successful execution of T102 and verification via T103, delete `data/logs.jsonl` and `data/operation_logs.jsonl`. This task must run **after** T102 and must verify that the migrated logs are intact before deletion.
+- [X] T093a [US4] **Update Data Quality Report Count**: Replace the record count in `docs/reproducibility/data_quality_report.md` with the count from `data/processed/knots_cleaned.csv`.
+- [X] T093b [US4] **Update Data Quantities Count**: Replace the record count in `docs/reproducibility/data_quantities.md` with the count from `data/processed/knots_cleaned.csv`.
+- [X] T093c [US4] **Update Invariant Coverage Count**: Replace the record count in `docs/reproducibility/invariant_coverage.md` with the count from `data/processed/knots_cleaned.csv`.
+
+**Dependencies & Execution Order**
+
+- T098 → T099 → T091 → T094 (linearized)
+- T102 → T103 → T096 (migration before deletion)
+- T095 runs after T044/T045 (checksum generation) and before any task that might rely on the checksum manifest.
+- All verification tasks (T093a‑c) run after T091 regeneration.
+
+---
+
+## Phase N+4: Final Review & Release
+
+- Run full CI pipeline including linting, type‑checking, unit tests, and integration tests.
+- Ensure all documentation files referenced in the Constitution are present and up‑to‑date.
+- Tag release after successful pipeline.

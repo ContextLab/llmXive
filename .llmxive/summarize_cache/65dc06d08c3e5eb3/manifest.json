@@ -1,10 +1,10 @@
 {
   "schema": "llmxive-summary/1",
   "root_hash": "65dc06d08c3e5eb3",
-  "goal": "extract every FR/SC id verbatim and every spec constraint; the tasks must cover all of them",
+  "goal": "extract every FR/SC id verbatim, every constraint, every named dataset, and the exact research question",
   "model": "qwen.qwen3.5-122b",
-  "token_budget": 4000,
-  "created_at": "2026-07-13T19:10:38.243518+00:00",
+  "token_budget": 5333,
+  "created_at": "2026-07-13T20:25:53.724018+00:00",
   "entries": [
     {
       "element_id": "e000",
@@ -31,7 +31,9 @@
         "-012",
         "4",
         "FR-007",
-        "-007"
+        "-007",
+        "5",
+        "-256"
       ],
       "summary": "# Feature Specification: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index\n\n**Feature Branch**: `001-knot-complexity-analysis`\n**Created**: 2026-06-12\n**Status**: Draft\n**Input**: User description: \"Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index\"\n\n## User Scenarios & Testing *(mandatory)*\n\n### User Story 1 - Download and Parse Knot Data from Knot Atlas (Priority: P1)\n\nAs a researcher, I need to download knot data from Knot Atlas including crossing numbers, braid indices, hyperbolic volume, and alternating/non-alternating classifica [... full chunk preserved on disk; desummarize() to retrieve.]"
     },
@@ -40,10 +42,6 @@
       "kind": "content",
       "file": "chunk_001.txt",
       "critical": [
-        "3",
-        "4",
-        "5",
-        "-256",
         "FR-001",
         "-001",
         "13",
@@ -60,6 +58,7 @@
         "-002",
         "2",
         "99%",
+        "3",
         "0",
         "FR-009",
         "-009",
@@ -74,44 +73,34 @@
         "900",
         "SC-016",
         "-016",
-        "SC-002"
+        "SC-002",
+        "FR-005",
+        "-005",
+        "1988",
+        "1993",
+        "002863",
+        "80",
+        "20"
       ],
-      "summary": "3. **Given** a knot has ambiguous alternating/non-alternating classification, **When** stratified analysis runs, **Then** the record is either excluded (with count logged) or marked as \"unclassifiable\"\n4. **Given** diagram representation ties exist, **When** invariant computations run, **Then** documented tie-breaking rules are applied consistently across all records\n5. **Given** all data transformations complete, **When** reproducibility check runs, **Then** all required artifacts (SHA-256 checksums, derivation notes, random seeds, timestamped logs) are present in docs/reproducibility/ direct [... full chunk preserved on disk; desummarize() to retrieve.]"
+      "summary": "- **FR-001**: System MUST download knot data from Knot Atlas () including crossing numbers, braid indices, hyperbolic volume, and alternating/non-alternating classification for all prime knots with crossing number \u2264 13 crossings. Data format follows Knot Atlas JSON schema or CSV export with documented column mapping. **Scope Distinction**: Data availability extends to crossing numbers up to 13 crossings, but validated completeness for the initial phase focuses on crossing number within a limited range (per SC-001). This distinction must be maintained throughout implementation and reporting. ** [... full chunk preserved on disk; desummarize() to retrieve.]"
     },
     {
       "element_id": "e002",
       "kind": "content",
       "file": "chunk_002.txt",
       "critical": [
-        "FR-005",
-        "-005",
-        "1988",
-        "1993",
-        "2",
-        "13",
-        "002863",
-        "80",
-        "20",
         "FR-006",
         "-006",
+        "13",
+        "2",
         "90%",
         "3",
         "006",
-        "007"
-      ],
-      "summary": "- **FR-005**: System MUST fit multiple regression model types (linear regression, polynomial/non\u2011linear regression models, AND logarithmic regression models) to test relationships between crossing number, braid index, and hyperbolic volume. Model forms selected based on prior knot theory literature showing non\u2011linear relationships between topological invariants (e.g., Birman &\u202fMenasco, 1988, *Mathematische Annalen*; Ohyama, 1993, *J. Knot Theory Ramifications*). **Mathematical Constraint Acknowledgment**: Braid index \u2264 crossing number is a known mathematical constraint, not an empirical findin [... full chunk preserved on disk; desummarize() to retrieve.]"
-    },
-    {
-      "element_id": "e003",
-      "kind": "content",
-      "file": "chunk_003.txt",
-      "critical": [
+        "007",
         "FR-007",
         "-007",
         "256",
         "4",
-        "006",
-        "007",
         "FR-008",
         "-008",
         "FR-009",
@@ -123,7 +112,6 @@
         "FR-011",
         "-011",
         "1",
-        "2",
         "FR-012",
         "-012",
         "0",
@@ -131,16 +119,15 @@
         "FR-013",
         "-013",
         "https://knotinfo.org/",
-        "90%",
         "10",
         "8601"
       ],
-      "summary": "- **FR-007**: System MUST document all code and data transformations for reproducibility, including random seed pinning for all stochastic operations, checksums (SHA\u2011256) for all data files recorded under `data/` directory per Constitution Principle III with documentation in `docs/reproducibility/`, derivation notes for all transformations, and timestamped logs stored in `docs/reproducibility/`. Random seeds MUST be pinned in code per Constitution Principle I (implementation action, not documentation storage); documentation of seed values used lives in `docs/reproducibility/random_seeds.md`. C [... full chunk preserved on disk; desummarize() to retrieve.]"
+      "summary": "- **FR-006**: System MUST compute correlation coefficients (Spearman correlation primary, Pearson correlation supplementary) as descriptive statistics to characterize relationships between crossing number, braid index, and hyperbolic volume, and MUST report effect size measures (Cohen's d for group comparisons, r or r\u00b2 for correlations) for all comparisons (p\u2011values are NOT reported for census data, per research.md). **Primary Correlation Method**: Spearman correlation is the primary method for discrete integer\u2011valued invariants (crossing number, braid index are small integers). **Supplementar [... full chunk preserved on disk; desummarize() to retrieve.]"
     },
     {
-      "element_id": "e004",
+      "element_id": "e003",
       "kind": "content",
-      "file": "chunk_004.txt",
+      "file": "chunk_003.txt",
       "critical": [
         "SC-001",
         "-001",
@@ -174,32 +161,32 @@
         "SC-007",
         "-007",
         "SC-008",
-        "-008"
-      ],
-      "summary": "**Invariant Dependency Note**: Additional invariants (arc index, Seifert circle count, bridge number) have known mathematical constraints with crossing number and braid index (e.g., bridge number \u2264 crossing number). These dependencies must be acknowledged in all analysis and reporting. Validation is exploratory correlation analysis, not independence testing. Additional invariants cannot claim independent predictive value beyond crossing number and braid index.\n\n## Success Criteria *(mandatory)*\n\n### Measurable Outcomes\n\n> Planning docs state *what* will be measured and the *source/reference* i [... full chunk preserved on disk; desummarize() to retrieve.]"
-    },
-    {
-      "element_id": "e005",
-      "kind": "content",
-      "file": "chunk_005.txt",
-      "critical": [
+        "-008",
         "SC-009",
         "-009",
         "SC-010",
         "-010",
-        "1",
-        "10",
         "SC-011",
         "-011",
-        "2",
-        "012",
-        "3",
-        "005",
+        "012"
+      ],
+      "summary": "**Invariant Dependency Note**: Additional invariants (arc index, Seifert circle count, bridge number) have known mathematical constraints with crossing number and braid index (e.g., bridge number \u2264 crossing number). These dependencies must be acknowledged in all analysis and reporting. Validation is exploratory correlation analysis, not independence testing. Additional invariants cannot claim independent predictive value beyond crossing number and braid index.\n\n## Success Criteria *(mandatory)*\n\n### Measurable Outcomes\n\n> Planning docs state *what* will be measured and the *source/reference* i [... full chunk preserved on disk; desummarize() to retrieve.]"
+    },
+    {
+      "element_id": "e004",
+      "kind": "content",
+      "file": "chunk_004.txt",
+      "critical": [
         "SC-012",
         "-012",
         "0",
         "13",
+        "1",
+        "012",
         "001",
+        "10",
+        "2",
+        "3",
         "SC-013",
         "-013",
         "002",
@@ -221,32 +208,31 @@
         "900",
         "95%",
         "11",
-        "002863"
-      ],
-      "summary": "- **SC-009**: Descriptive comparison metrics (mean difference, variance ratio, Cohen's d) are computed for alternating vs. non\u2011alternating knot groups. **Reporting Requirement**: Group comparison analysis is exploratory/supplementary to the core research question; results MUST be reported regardless of statistical significance. This criterion is satisfied when results are documented, not when statistical thresholds are met. Analysis is complete and valid whether or not significant differences are found. **Census Data Acknowledgment**: For census data, group differences are exact descriptive fa [... full chunk preserved on disk; desummarize() to retrieve.]"
-    },
-    {
-      "element_id": "e006",
-      "kind": "content",
-      "file": "chunk_006.txt",
-      "critical": [
-        "0",
+        "002863",
         "005",
-        "13",
         "006",
-        "014",
         "015",
         "80",
-        "20",
+        "20"
+      ],
+      "summary": "- **SC-012**: Hyperbolic volume data completeness for hyperbolic prime knots (volume >\u202f0) with crossing number \u2264\u202f13 crossings, with excluded knots (torus/satellite with zero or undefined volume) documented in `docs/reproducibility/excluded_knots.md`. **Traceability**: Anchored to User Story 1 (Download and Parse Knot Data) per FR\u2011012 filtering requirements. **Scope Validation Content**: The `validation_scope.md` document (referenced in SC\u2011001) must contain: (1) crossing number \u2264\u202f10 vs \u2264\u202f13 distinction with data availability counts, (2) justification for Phase\u202f1 scope limitation, (3) data avail [... full chunk preserved on disk; desummarize() to retrieve.]"
+    },
+    {
+      "element_id": "e005",
+      "kind": "content",
+      "file": "chunk_005.txt",
+      "critical": [
+        "005",
         "002",
         "2",
         "1",
         "90%",
         "6",
         "003",
-        "3"
+        "3",
+        "006"
       ],
-      "summary": "- **Hyperbolic Volume Availability**: Not all prime knots have computable hyperbolic volume (torus and satellite knots have volume\u202f0 or undefined). The analysis will filter to knots with valid volume measurements, acknowledging this as a selection bias that should be documented in final reports. **Selection Bias Acknowledgment**: This filtering means conclusions apply only to hyperbolic prime knots, not all prime knots. **Invariant Type Distinction**: Combinatorial invariants (crossing number, braid index) and geometric invariants (hyperbolic volume) measure fundamentally different properties; [... full chunk preserved on disk; desummarize() to retrieve.]"
+      "summary": "- **Cross\u2011Validation Removal**: The original idea specified cross\u2011validated R\u2011squared for model selection. For complete census data, cross\u2011validation is not applicable; goodness\u2011of\u2011fit metrics (R\u00b2, AUC/BIC, MAE) are used for model selection.\n - **Rationale**: These adjustments preserve scientific rigor while acknowledging that the dataset is a complete enumeration, not a sample from a larger population. All adjustments are documented in FR\u2011005, SC\u2011002, and Assumptions for transparency.\n- **Phase 2+ Scope Boundary**: Additional invariants (arc index, Seifert circle count, bridge number) are exp [... full chunk preserved on disk; desummarize() to retrieve.]"
     }
   ]
 }

@@ -122,5 +122,6 @@
 {"at": "2026-06-30T04:54:01.446619+00:00", "from_stage": "research_complete", "last_run_id": "bbc86698-9791-451e-b555-2e827ca58b99", "to_stage": "research_review"}
 {"at": "2026-07-01T07:54:42.570422+00:00", "from_stage": "research_review", "last_run_id": "9c618c45-1485-41bb-8e24-8d7bcdb5c2f4", "to_stage": "research_full_revision"}
 {"at": "2026-07-01T08:40:38.258135+00:00", "from_stage": "research_full_revision", "last_run_id": "9c618c45-1485-41bb-8e24-8d7bcdb5c2f4", "to_stage": "in_progress"}
-{"at": "2026-07-13T19:03:56.868100+00:00", "from_stage": "in_progress", "last_run_id": "7e7fd019-d9b1-4c01-beff-38d007d6f88b", "to_stage": "planned"}
-{"at": "2026-07-13T19:42:35.812496+00:00", "from_stage": "planned", "last_run_id": "f4b3154e-4aef-4ead-b507-8a4ae99f61ce", "to_stage": "tasked"}
+{"at": "2026-07-13T19:41:57.587415+00:00", "from_stage": "in_progress", "last_run_id": "bda737cc-e677-4648-84cf-21c04570d86c", "to_stage": "planned"}
+{"at": "2026-07-13T20:15:48.540221+00:00", "from_stage": "planned", "last_run_id": "7e65eaf0-e7d7-4d66-b17b-16b5d3079535", "to_stage": "clarified"}
+{"at": "2026-07-13T20:32:25.417118+00:00", "from_stage": "clarified", "last_run_id": "a41385fd-44c6-4f5b-a81c-d0b8ceab269b", "to_stage": "planned"}

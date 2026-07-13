@@ -1,7 +1,78 @@
-# DEPRECATED: This schema has been superseded by knot-record.schema.yaml.
-# It is retained only for backward compatibility and should not be referenced by the pipeline.
----
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "DeprecatedKnotRecord"
-description: "Deprecated schema – use knot-record.schema.yaml instead."
+$schema: http://json-schema.org/draft-07/schema#
+title: KnotRecord Schema
+description: Schema for individual knot records with core invariants and metadata
 type: object
+required:
+  - knot_id
+  - crossing_number
+  - braid_index
+  - hyperbolic_volume
+  - alternating
+  - source
+properties:
+  knot_id:
+    type: string
+    description: "Unique identifier for the knot (e.g., '10_123', '11n42')"
+    pattern: "^[0-9]+[a-zA-Z]?_?[0-9]+$"
+  crossing_number:
+    type: integer
+    minimum: 1
+    description: "Number of crossings in minimal diagram"
+  braid_index:
+    type: integer
+    minimum: 1
+    description: "Minimum number of strands in braid representation"
+  hyperbolic_volume:
+    type: number
+    minimum: 0
+    description: "Hyperbolic volume of knot complement (0 for torus/satellite knots)"
+  alternating:
+    type: boolean
+    description: "True if knot is alternating, false otherwise"
+  source:
+    type: object
+    required:
+      - database
+      - version
+      - url
+      - accessed_at
+    properties:
+      database:
+        type: string
+        description: "Source database name (e.g., 'Knot Atlas')"
+      version:
+        type: string
+        description: "Source database version"
+      url:
+        type: string
+        format: uri
+        description: "Canonical URL for the record"
+      accessed_at:
+        type: string
+        format: date-time
+        description: "ISO-8601 timestamp when data was fetched"
+      source_timestamp:
+        type: string
+        format: date-time
+        description: "ISO-8601 timestamp of source record creation/update"
+      checksum_sha256:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+        description: "SHA-256 hash of raw source record"
+  data_quality_flags:
+    type: array
+    items:
+      type: string
+    description: "General data quality issues (null values, format failures, duplicates)"
+    default: []
+  missing_invariant_flags:
+    type: array
+    items:
+      type: string
+    description: "Invariants not computable from available diagram representations (Phase 2+ scope)"
+    default: []
+  unclassifiable:
+    type: boolean
+    description: "True if alternating classification is ambiguous/missing"
+    default: false
+additionalProperties: false

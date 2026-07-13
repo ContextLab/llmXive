@@ -886,14 +886,58 @@
   verification_status: verified
   verified_against_url: https://oeis.org/
   verified_at: '2026-06-30T17:05:39.658752Z'
-- artifact_hash: f42a434fab9aa18cce4c3f40fe2aafc607123394e45ed56287f2641976789fea
+- artifact_hash: 51f67afe33d622bdbc591f959097eeaa2314cfd198e275168461b1e145921cfa
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Knot theory - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Knot_theory
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Knot_theory
+  verified_at: '2026-06-30T04:49:01.081480Z'
+- artifact_hash: 14f0f13986220c66942b3fca292aab9d1257aba8270df8c51919cc9f63f55b06
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://katlas.org`
-  verification_status: unreachable
-  verified_against_url: https://katlas.org`
-  verified_at: '2026-06-30T17:05:39.658752Z'
+  value: https://oeis.org/A002863
+  verification_status: pending
+  verified_against_url: https://oeis.org/A002863
+  verified_at: '2026-07-13T20:31:12.230982Z'
+- artifact_hash: 4cd078f016328b0f2eed47c67d2636219a59e019ae23fc81b9ba123d99f5dc53
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Knot Atlas
+  kind: url
+  value: https://katlas.org
+  verification_status: verified
+  verified_against_url: https://katlas.org/wiki/Main_Page
+  verified_at: '2026-07-13T20:31:49.856636Z'
+- artifact_hash: 4cd078f016328b0f2eed47c67d2636219a59e019ae23fc81b9ba123d99f5dc53
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://oeis.org/A002863
+  verification_status: pending
+  verified_against_url: https://oeis.org/A002863
+  verified_at: '2026-07-13T20:31:49.856636Z'
+- artifact_hash: 3f61115068e0191502da769a0a35b09c5d7fd32ac41a50393dc363575b45d5b8
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://oeis.org/A002863
+  verification_status: pending
+  verified_against_url: https://oeis.org/A002863
+  verified_at: '2026-07-13T20:32:19.885363Z'
