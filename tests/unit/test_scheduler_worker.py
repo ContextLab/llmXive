@@ -111,45 +111,92 @@ def test_determinism(tmp_path: Path) -> None:
             assert a.id == b.id
 
 
-def test_round_robin_wraps_to_depth(tmp_path: Path) -> None:
-    """With more workers than stages, workers wrap back to the same stages but
-    take a DEEPER (next-stalest) project — never the same one twice."""
-    repo = _population(tmp_path)
-    ranked = _ranked_stages(repo)
-    n_stages = len(ranked)
-    assert n_stages >= 2
-    # worker 0 and worker n_stages both hit ranked[0], at depth 0 and depth 1.
-    p0 = scheduler.pick_for_worker(0, n_stages * 3, repo_root=repo)
-    p_wrap = scheduler.pick_for_worker(n_stages, n_stages * 3, repo_root=repo)
-    assert p0 is not None and p_wrap is not None
-    assert p0.current_stage == p_wrap.current_stage == ranked[0]
-    assert p0.id != p_wrap.id
-    in_top = sorted(
-        [c for c in scheduler._eligible_candidates(repo_root=repo, stage=None)
-         if c.current_stage == ranked[0]],
-        key=lambda p: (p.updated_at, p.id),
-    )
-    assert p0.id == in_top[0].id
-    assert p_wrap.id == in_top[1].id
+# --- Workers are APPORTIONED by load, not round-robined one-per-stage ----------
+#
+# These two tests previously pinned the round-robin MECHANISM
+# (`ranked_stages[i % len(ranked)]`, depth = `i // len(ranked)`). That mechanism was
+# the bug: it used the stage weights only to ORDER the stages and threw their
+# MAGNITUDE away, so a stage holding 433 projects (in_progress — 41% of the fleet)
+# got exactly as many workers as a stage holding 1, and the biggest pile could never
+# drain. A worker whose slot landed on a small stage at depth >= its count also
+# picked NOTHING and idled — which the old `test_returns_none_past_the_end` asserted
+# as correct.
+#
+# The contract is now: apportion the N workers across stages in PROPORTION to the
+# load-balancing weight (overflow above equal share), capped by pile size and by
+# MAX_STAGE_WORKER_SHARE. The invariants the old tests were really protecting —
+# determinism, no double-work, stalest-first within a stage, and never
+# over-assigning an exhausted stage — are pinned below, and more strictly (across
+# ALL workers, not just two).
 
 
-def test_returns_none_past_the_end(tmp_path: Path) -> None:
-    """When the round-robin depth exceeds a stage's project count, the worker
-    gets None (rather than colliding with another worker's project)."""
+def test_repeat_slots_on_a_stage_take_deeper_projects(tmp_path: Path) -> None:
+    """When a stage is apportioned several workers they take DISTINCT, successively
+    staler projects — never the same one twice."""
     repo = _population(tmp_path)
-    ranked = _ranked_stages(repo)
-    n_stages = len(ranked)
-    # Find the smallest stage (e.g. brainstormed with 2 projects). A worker
-    # index that lands on it at a depth >= its count must return None.
+    n = len(_ranked_stages(repo)) * 3
+    picks = [scheduler.pick_for_worker(i, n, repo_root=repo) for i in range(n)]
+    by_stage: dict[Stage, list[str]] = {}
+    for p in picks:
+        if p is not None:
+            by_stage.setdefault(p.current_stage, []).append(p.id)
+    # At least one stage must hold >1 worker (that is the point of apportionment).
+    assert any(len(v) > 1 for v in by_stage.values()), by_stage
+    for stage, ids in by_stage.items():
+        assert len(ids) == len(set(ids)), f"double-work within {stage}"
+        in_stage = sorted(
+            [c for c in scheduler._eligible_candidates(repo_root=repo, stage=None)
+             if c.current_stage == stage],
+            key=lambda p: (p.updated_at, p.id),
+        )
+        # The k workers on a stage take its k stalest projects, stalest first.
+        assert ids == [p.id for p in in_stage[:len(ids)]]
+
+
+def test_no_worker_is_assigned_past_a_stage_pile(tmp_path: Path) -> None:
+    """A stage is never assigned more workers than it has projects — so no worker
+    collides with another's project, and none idles on an exhausted pile."""
+    repo = _population(tmp_path)
     cands = scheduler._eligible_candidates(repo_root=repo, stage=None)
     counts: dict[Stage, int] = {}
     for c in cands:
         counts[c.current_stage] = counts.get(c.current_stage, 0) + 1
-    small_stage = min(ranked, key=lambda s: counts[s])
-    small_rank = ranked.index(small_stage)
-    depth = counts[small_stage]  # one past the last valid depth
-    worker_index = small_rank + depth * n_stages
-    assert scheduler.pick_for_worker(worker_index, worker_index + 1, repo_root=repo) is None
+    # Ask for far more workers than there are projects: every returned pick must
+    # still be a DISTINCT project, and the surplus workers get None.
+    n = len(cands) + 5
+    picks = [scheduler.pick_for_worker(i, n, repo_root=repo) for i in range(n)]
+    got = [p.id for p in picks if p is not None]
+    assert len(got) == len(set(got)), "double-work across workers"
+    assert len(got) <= len(cands)
+    assert picks[-1] is None  # surplus worker beyond the whole population
+    per_stage: dict[Stage, int] = {}
+    for p in picks:
+        if p is not None:
+            per_stage[p.current_stage] = per_stage.get(p.current_stage, 0) + 1
+    for stage, k in per_stage.items():
+        assert k <= counts[stage], f"{stage} over-assigned"
+
+
+def test_biggest_pile_gets_the_most_workers_but_never_all(tmp_path: Path) -> None:
+    """The load-balance policy made real: the most over-target stage takes the
+    largest share of the matrix — but MAX_STAGE_WORKER_SHARE keeps it from taking
+    every worker, so the stages feeding it are never fully starved (FR-006)."""
+    repo = _population(tmp_path)
+    cands = scheduler._eligible_candidates(repo_root=repo, stage=None)
+    counts: dict[Stage, int] = {}
+    for c in cands:
+        counts[c.current_stage] = counts.get(c.current_stage, 0) + 1
+    biggest = max(counts, key=lambda s: counts[s])
+    n = 6
+    picks = [scheduler.pick_for_worker(i, n, repo_root=repo) for i in range(n)]
+    per_stage: dict[Stage, int] = {}
+    for p in picks:
+        if p is not None:
+            per_stage[p.current_stage] = per_stage.get(p.current_stage, 0) + 1
+    if counts[biggest] >= n:  # only meaningful when the pile can absorb the workers
+        assert per_stage.get(biggest, 0) == max(per_stage.values())
+        assert per_stage[biggest] < n, "one stage took EVERY worker (starvation)"
+        assert len(per_stage) >= 2
 
 
 def test_empty_repo_returns_none(tmp_path: Path) -> None:

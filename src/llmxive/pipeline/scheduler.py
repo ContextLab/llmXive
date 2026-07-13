@@ -268,6 +268,14 @@ def stage_weight(
 #: per-stage target before the balancer starts draining it (user policy).
 BRAINSTORM_HEADROOM: float = 1.25
 
+#: Ceiling on the fraction of the worker matrix any ONE stage may hold in a single
+#: tick (:func:`_apportion_workers`). The biggest pile SHOULD get most of the
+#: workers — that is the whole point of load-balancing — but never all of them: the
+#: remaining share keeps the upstream stages that feed it flowing, and stops one
+#: blocked pile from stalling the entire pipeline for a tick. FR-006 (nothing is
+#: ever fully starved) is enforced HERE for the deterministic matrix lane.
+MAX_STAGE_WORKER_SHARE: float = 2.0 / 3.0
+
 
 def _stage_target(stage: Stage, base_target: float) -> float:
     """Per-stage target population for the load balancer."""
@@ -389,14 +397,14 @@ def pick_for_worker(
        + staleness policy).
     3. Rank occupied stages by weight DESC; deterministic tiebreak: pipeline
        depth DESC (further-along first, via ``_stage_rank``), then stage value
-       (name) ASC → ``ranked_stages``.
-    4. If no stages, return None. Else
-       ``stage = ranked_stages[worker_index % len(ranked_stages)]`` and
-       ``depth = worker_index // len(ranked_stages)`` (round-robin wraps to a
-       deeper project in the same stage when there are more workers than stages).
-    5. Within that stage, order projects by staleness — oldest ``updated_at``
-       FIRST (furthest-waiting), tiebreak by ``id`` ASC. Return the ``depth``-th
-       project, or None if ``depth >= count``.
+       (name) ASC → ``ranked_stages``, with the sparse priority-drain stages
+       floated to the front so they never strand.
+    4. APPORTION the N workers across those stages in PROPORTION to their weight
+       (:func:`_apportion_workers`), capped by each stage's pile size.
+    5. Worker ``i`` takes the ``i``-th slot; its depth is the number of earlier
+       slots on the same stage. Within a stage, projects are ordered by staleness
+       — oldest ``updated_at`` FIRST — tiebreak ``id`` ASC. Distinct (stage, depth)
+       per worker ⇒ distinct projects ⇒ no double-work.
 
     ``now`` lets tests pin the staleness reference; production passes None.
     """
@@ -427,12 +435,103 @@ def pick_for_worker(
     if priority:
         rest = [s for s in ranked_stages if s not in _PRIORITY_DRAIN_STAGES]
         ranked_stages = priority + rest
-    stage = ranked_stages[worker_index % len(ranked_stages)]
-    depth = worker_index // len(ranked_stages)
+    slots = _apportion_workers(ranked_stages, by_stage, n_workers, now=now)
+    if worker_index >= len(slots):
+        return None
+    stage = slots[worker_index]
+    depth = slots[:worker_index].count(stage)
     in_stage = sorted(by_stage[stage], key=lambda p: (p.updated_at, p.id))
     if depth >= len(in_stage):
         return None
     return in_stage[depth]
+
+
+def _apportion_workers(
+    ranked_stages: list[Stage],
+    by_stage: dict[Stage, list[Project]],
+    n_workers: int,
+    *,
+    now: datetime | None = None,
+) -> list[Stage]:
+    """Hand out the N worker slots across stages IN PROPORTION to stage weight.
+
+    This is what makes the load-balance policy real. The previous assignment was
+    ``ranked_stages[worker_index % len(ranked_stages)]`` — a flat round-robin that
+    used the weights only to ORDER the stages and then threw their MAGNITUDE away.
+    Every occupied stage got exactly one worker, so a stage holding 433 projects
+    (in_progress: 41% of the fleet) was served no harder than a stage holding 1,
+    and any worker whose round-robin slot landed on a 1-project stage at depth>=1
+    picked nothing at all and idled. The biggest pile could never drain.
+
+    Apportionment is D'Hondt (the standard highest-averages method): repeatedly give
+    the next slot to the stage maximizing ``weight / (slots_already_held + 1)``. That
+    yields whole-worker counts proportional to weight, is deterministic (ties break
+    by ``ranked_stages`` order), and self-corrects — as a pile drains its weight
+    falls and its share follows.
+
+    The weights are :func:`_stage_weights_with_floor` — the LOAD-BALANCING policy
+    (how far a stage exceeds its equal-share target, with a MIN_STAGE_SHARE floor)
+    — NOT the raw :func:`stage_weight` used for ranking. That distinction matters:
+    raw weight grows exponentially with pipeline depth, so apportioning on it would
+    hand nearly every worker to the deepest pile and starve the upstream stages that
+    feed it. The floor is what guarantees no stage is ever fully starved (FR-006).
+
+    Three further guards:
+      * every priority-drain stage is seeded a slot FIRST (they are sparse, transient
+        and must never strand),
+      * a stage is capped at its pile size, so no slot is wasted on an empty depth, and
+      * NO stage may take more than :data:`MAX_STAGE_WORKER_SHARE` of the workers.
+        Without that cap a pile as lopsided as in_progress (433 of 1064) simply takes
+        EVERY worker, which starves the upstream stages that feed it — a monoculture
+        tick that also stalls the whole pipeline if the pile happens to be blocked.
+        FR-006 requires that nothing is ever fully starved; the cap is what enforces
+        it here (the MIN_STAGE_SHARE floor alone cannot: against an overflow of 380 a
+        floor weight rounds to zero whole slots).
+    """
+    balance = _stage_weights_with_floor(by_stage, now=now)
+    weights = {s: max(balance.get(s, 0.0), 0.0) for s in ranked_stages}
+    counts: dict[Stage, int] = dict.fromkeys(ranked_stages, 0)
+    slots: list[Stage] = []
+    # Ceil, and never below 1, so a single-worker matrix still schedules.
+    max_share = max(1, math.ceil(n_workers * MAX_STAGE_WORKER_SHARE))
+
+    def _capacity(s: Stage) -> int:
+        return min(len(by_stage[s]), max_share)
+
+    def _take(stage: Stage) -> None:
+        slots.append(stage)
+        counts[stage] += 1
+
+    # Seed the sparse priority-drain stages so they are always reached this tick.
+    for s in ranked_stages:
+        if len(slots) >= n_workers:
+            break
+        if s in _PRIORITY_DRAIN_STAGES and counts[s] < _capacity(s):
+            _take(s)
+    # Seed the TOP-RANKED stage (raw stage_weight: prefer-further-along + depth +
+    # staleness) so worker 0 always lands there — the "finish what's started before
+    # starting more" policy, which the overflow-based apportionment below would
+    # otherwise override in favour of whichever pile is merely the most over target.
+    for s in ranked_stages:
+        if len(slots) >= n_workers:
+            break
+        if counts[s] < _capacity(s):
+            _take(s)
+        break
+    # Apportion the rest by highest-averages, capped by pile size AND max_share.
+    while len(slots) < n_workers:
+        best: Stage | None = None
+        best_score = -1.0
+        for s in ranked_stages:  # ranked order ⇒ deterministic tiebreak
+            if counts[s] >= _capacity(s):
+                continue  # pile exhausted or at its share cap
+            score = weights[s] / (counts[s] + 1)
+            if score > best_score:
+                best_score, best = score, s
+        if best is None:
+            break  # every pile exhausted / capped
+        _take(best)
+    return slots
 
 
 def pick_next_n(
