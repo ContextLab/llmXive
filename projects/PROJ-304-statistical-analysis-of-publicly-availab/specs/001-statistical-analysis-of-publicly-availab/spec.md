@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Aggregation and Harmonization (Priority: P1)
 
-The system must ingest raw noise measurements from citizen science archives (e.g., NoiseTube) and municipal open data portals, then harmonize them with external covariates (traffic volume from OSM, land use from OSMnx, population density from WorldPop) into a unified spatial grid of appropriate resolution in WGS84.
+The system must ingest raw noise measurements from citizen science archives (e.g., NoiseTube) and municipal open data portals, then harmonize them with external covariates (traffic volume from OSM, land use from OSMnx, population density from WorldPop) into a unified spatial grid of appropriate resolution in a standard geographic coordinate system.
 
 **Why this priority**: Without a clean, unified dataset, no statistical modeling can occur. This is the foundational step that enables all subsequent analysis.
 
@@ -39,7 +39,7 @@ The system must fit an Ordinary Least Squares (OLS) regression model and two spa
 
 ### User Story 3 - Spatial Cross-Validation and Performance Comparison (Priority: P3)
 
-The system must perform 5-fold spatial cross-validation to prevent data leakage and compare the models using RMSE, R², and AIC to determine which approach best forecasts noise hotspots.
+The system must perform spatial cross-validation to prevent data leakage and compare the models using RMSE, R², and AIC to determine which approach best forecasts noise hotspots.
 
 **Why this priority**: Standard random cross-validation is invalid for spatial data due to autocorrelation. This step ensures the performance metrics are statistically sound and the model's predictive power is genuine.
 
@@ -47,31 +47,31 @@ The system must perform 5-fold spatial cross-validation to prevent data leakage 
 
 **Acceptance Scenarios**:
 
-1. **Given** the fitted models, **When** 5-fold spatial cross-validation is executed, **Then** the system generates a report comparing the mean RMSE and R² across folds for OLS vs. Spatial models, AND performs a Diebold-Mariano test (or non-parametric equivalent) on the fold differences to determine if the performance difference is statistically significant (p < 0.05).
+1. **Given** the fitted models, **When** 5-fold spatial cross-validation is executed, **Then** the system generates a report comparing the mean RMSE and R² across folds for OLS vs. Spatial models, AND performs a spatial block permutation test (10 000 permutations) on the fold RMSE differences to determine if the performance difference is statistically significant (p < 0.05).
 2. **Given** the cross-validation results, **When** the Akaike Information Criterion (AIC) is calculated, **Then** the system identifies the model with the lowest AIC, providing evidence for the most parsimonious model fit.
 
 ---
 
 ### Edge Cases
 
-- **What happens when** the dataset contains grid cells with zero traffic volume or no land-use classification? **How does system handle** this? The system treats 'zero' traffic volume as a valid observed value (0) and does NOT impute it. Only 'missing' (null) data triggers imputation or exclusion as defined in US-1 Scenario 2.
-- **How does system handle** extreme outliers in decibel readings (e.g., >140 dB due to sensor error)? The system must apply a robust statistical filter (e.g., interquartile range) to cap or remove outliers before modeling to prevent skewing the regression.
-- **What happens when** the spatial weight matrix construction fails due to disconnected components? The system must default to a nearest-neighbor weight matrix or log a critical error and halt, preventing silent model failure.
+- **The system MUST treat ‘zero’ traffic volume as a valid observed value (0) and must NOT impute it. Only missing (null) traffic data triggers imputation or exclusion as defined in User Story 1, Scenario 2.**
+- **The system MUST apply a robust statistical filter that removes any decibel reading that lies more than 1.5 × IQR above the third quartile or below 1.5 × IQR below the first quartile, thereby capping extreme outliers before modeling.**
+- **The system MUST default to constructing a nearest‑neighbor spatial weight matrix if the primary weight matrix construction fails due to disconnected components; it must also log a critical error and halt execution if both approaches fail.**
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: System MUST ingest noise data from citizen science archives and municipal portals, and covariates from OpenStreetMap and WorldPop, harmonizing them into a 200m x 200m grid in WGS84 (See US-1).
-- **FR-002**: System MUST calculate aggregated noise metrics (arithmetic mean of all readings, median, 95th percentile) per 200m x 200m grid cell to serve as the outcome variable (See US-1).
+- **FR-002**: System MUST calculate aggregated noise metrics (arithmetic mean, median, 95th percentile) **per day** for each 200m x 200m grid cell to serve as the outcome variable (See US-1).
 - **FR-003**: System MUST fit an Ordinary Least Squares (OLS) regression model with noise metrics as the outcome and traffic, land use, and population as predictors (See US-2).
 - **FR-004**: System MUST fit Spatial Lag and Spatial Error models using `PySAL` to explicitly model spatial autocorrelation in the dependent variable and error terms (See US-2).
 - **FR-005**: System MUST perform 5-fold spatial cross-validation ensuring training and test sets are spatially disjoint to prevent data leakage (See US-3).
 - **FR-006**: System MUST calculate and report Moran's I for the residuals of all models to verify the removal of spatial dependence (See US-2).
-- **FR-007**: System MUST compare model performance using RMSE, R², and AIC, and report the best-performing model (See US-3).
+- **FR-007**: System MUST compare model performance using RMSE, R², and AIC, and report the best‑performing model (See US-3).
 - **FR-008**: System MUST frame all findings as associational, explicitly avoiding causal language regarding environmental predictors (See US-2).
-- **FR-009**: System MUST implement the Benjamini-Hochberg False Discovery Rate (FDR) correction at alpha=0.05 for testing the significance of standard covariates (traffic, land use, population) across the fitted models, to control for multiple comparisons (See US-2).
-- **FR-010**: System MUST execute the entire analysis pipeline on a CPU-only environment within 6 hours, using no more than 7GB RAM, for a dataset of up to 50,000 grid cells (See US-1).
+- **FR-009**: System MUST apply the Benjamini‑Hochberg False Discovery Rate (FDR) correction at α = 0.05 to the p‑values of the three primary covariates (traffic volume, land‑use category, population density) **using spatially robust standard errors (e.g., Conley or cluster‑robust SEs)** across all fitted models (See US-2).
+- **FR-010**: System MUST execute the entire analysis pipeline on a CPU‑only environment within 6 hours, using no more than 7 GB RAM, for a dataset of up to 50,000 grid cells (See US-1).
 
 ### Key Entities
 
@@ -83,17 +83,17 @@ The system must perform 5-fold spatial cross-validation to prevent data leakage 
 
 ### Measurable Outcomes
 
-- **SC-001**: The best spatial model achieves a Moran's I p-value > 0.05 (statistically insignificant autocorrelation) in residuals, OR achieves a reduction in the Moran's I statistic of ≥ 10% relative to the OLS baseline (See US-2).
-- **SC-002**: The spatial models demonstrate a statistically significant reduction in RMSE compared to the OLS baseline (p < 0.05 via Diebold-Mariano test) (See US-3).
-- **SC-003**: The spatial autoregressive parameter (λ or ρ) in the best-fitting model is statistically significant at alpha=0.05 (See US-2).
-- **SC-004**: The entire pipeline executes within the 6-hour CPU-only constraint with memory usage under 7GB for up to 50,000 grid cells (See US-1).
-- **SC-005**: The proportion of predictor variables found to be statistically significant (p < 0.05) after applying Benjamini-Hochberg FDR correction (See US-2).
+- **SC-001**: The best spatial model must achieve **a reduction in Moran's I of at least 10 % relative to the OLS baseline** *and* the residual Moran's I must be **≤ 0.1** (indicating low spatial autocorrelation) (See US-2).
+- **SC-002**: The spatial models must demonstrate a **statistically significant reduction in RMSE compared to the OLS baseline** as determined by a **spatial block permutation test (10 000 permutations) with p < 0.05** (See US-3).
+- **SC-003**: The spatial autoregressive parameter (λ or ρ) in the best‑fitting model is statistically significant at α = 0.05 (See US-2).
+- **SC-004**: The entire pipeline executes within the 6‑hour CPU‑only constraint with memory usage under 7 GB for up to 50,000 grid cells (See US-1).
+- **SC-005**: The proportion of predictor variables found statistically significant (p < 0.05 after BH‑FDR correction) must be **≥ 30 %** (See US-2).
 
 ## Assumptions
 
-- **Assumption about data availability**: Publicly available datasets (NoiseTube, NYC Open Data, OSM, WorldPop) contain sufficient variables (traffic volume, land use, population density, noise levels) to answer the research question; if a specific variable is missing, a `[NEEDS CLARIFICATION]` will be raised.
-- **Assumption about data quality**: Citizen science noise data, while potentially noisy, is sufficiently representative of urban noise patterns to yield statistically valid results after aggregation and outlier removal.
-- **Assumption about spatial scale**: A 200m x 200m grid resolution is appropriate for capturing the spatial heterogeneity of urban noise without introducing excessive computational burden or spatial autocorrelation artifacts.
-- **Assumption about methodological constraints**: The analysis is observational; therefore, any identified relationships are associational and do not imply causation, consistent with the lack of random assignment.
-- **Assumption about computational resources**: The `PySAL` and `scikit-learn` libraries can be executed on a standard GitHub Actions free-tier runner (2 CPU cores, 7GB RAM) without requiring GPU acceleration or specialized hardware.
-- **Assumption about threshold justification**: The significance threshold (p < 0.05) is a standard community default for the corrected p-values after FDR application.
+- **Data Availability**: Traffic volume, land‑use, and population‑density covariates are expected to be available for all grid cells. If any covariate is missing for a given cell, that cell will be **excluded from model fitting**, and the system will log a warning indicating the number of excluded cells.
+- **Data Quality**: Citizen‑science noise data, while potentially noisy, is sufficiently representative of urban noise patterns to yield statistically valid results after aggregation and outlier removal.
+- **Spatial Scale**: A 200m x 200m grid resolution is appropriate for capturing the spatial heterogeneity of urban noise without introducing excessive computational burden or spatial autocorrelation artifacts.
+- **Methodological Constraints**: The analysis is observational; therefore, any identified relationships are associational and do not imply causation, consistent with the lack of random assignment.
+- **Computational Resources**: The `PySAL` and `scikit-learn` libraries can be executed on a standard GitHub Actions free‑tier runner (2 CPU cores, 7 GB RAM) without requiring GPU acceleration or specialized hardware.
+- **Threshold Justification**: The significance threshold (α = 0.05) is a standard community default for the corrected p‑values after FDR application.

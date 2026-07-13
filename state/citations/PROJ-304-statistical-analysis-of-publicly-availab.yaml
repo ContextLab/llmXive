@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 9e6760c2b6e71cfe861eaaf3850029221ede2af4eca6b2f3535183405b6c874f
+  artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/Ganidu/OLScience-guanaco-format-llama2-1k/resolve/main/data/train-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/665dad84b0551f097558189b/ce87c1028200f58c0138f37f8e99f568633ed992b9cfad4b05d8c00e878e21ea?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&Expires=1783912743&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY1ZGFkODRiMDU1MWYwOTc1NTgxODliL2NlODdjMTAyODIwMGY1OGMwMTM4ZjM3ZjhlOTlmNTY4NjMzZWQ5OTJiOWNmYWQ0YjA1ZDhjMDBlODc4ZTIxZWFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzkxMjc0M319fV19&Signature=MEUCIQDvLjBJNafclUaMMAmaIqPKra4UnX8No6oeuXaQqqGjYQIgaytfTucJ5H1D1naLo5zk73gUJyswV1OjXCVKoADy7V8_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-13T02:19:03.880250Z'
+- artifact_hash: 9e6760c2b6e71cfe861eaaf3850029221ede2af4eca6b2f3535183405b6c874f
+  artifact_path: projects/PROJ-304-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/Ganidu/OLScience-guanaco-format-llama2-8.5k/resolve/main/data/train-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/665dc493b0551f0975603489/b5329ec04f80b9abe905f20dc633dd3604b95322083e66b05e5bacfcd7490721?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1783912744&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY1ZGM0OTNiMDU1MWYwOTc1NjAzNDg5L2I1MzI5ZWMwNGY4MGI5YWJlOTA1ZjIwZGM2MzNkZDM2MDRiOTUzMjIwODNlNjZiMDVlNWJhY2ZjZDc0OTA3MjFcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzkxMjc0NH19fV19&Signature=MEUCIF84ceXDxbKim40O1eTUdr7haTsHzQ8Sb%7ESkkrLOpC6WAiEA0w%7EuIQmdH%7E453NaG8IM4u7zfY26j5U9En%7E9yLcggaw4_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-13T02:19:03.880250Z'

@@ -1,0 +1,48 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "SpatialGridCell Dataset Schema"
+description: "Schema for the harmonized 200m x 200m grid cell dataset used in the noise pollution analysis. Includes temporal dimension for FR-002."
+type: object
+properties:
+  grid_id:
+    type: integer
+    description: "Unique identifier for the grid cell."
+  date:
+    type: string
+    format: date
+    description: "The date of the observation (YYYY-MM-DD)."
+  geometry:
+    type: string
+    description: "WKT representation of the 200m x 200m polygon. CRS: EPSG:4326."
+  noise_mean_db:
+    type: number
+    description: "Arithmetic mean of noise readings (dB) for the specific day."
+  noise_median_db:
+    type: number
+    description: "Median of noise readings (dB) for the specific day."
+  noise_p95_db:
+    type: number
+    description: "95th percentile of noise readings (dB) for the specific day."
+  traffic_volume:
+    type: number
+    description: "Aggregated traffic volume for the specific day. No nulls allowed."
+  land_use_code:
+    type: string
+    description: "Categorical land use code (e.g., 'Residential', 'Commercial')."
+  pop_density:
+    type: number
+    description: "Population density per km². No nulls allowed."
+  missing_flag:
+    type: boolean
+    description: "True if any covariate was missing and imputed."
+required:
+  - grid_id
+  - date
+  - geometry
+  - noise_mean_db
+  - noise_median_db
+  - noise_p95_db
+  - traffic_volume
+  - land_use_code
+  - pop_density
+  - missing_flag
+additionalProperties: false
