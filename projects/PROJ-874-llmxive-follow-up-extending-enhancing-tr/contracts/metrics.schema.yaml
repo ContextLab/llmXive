@@ -1,0 +1,98 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Evaluation Metrics Schema
+description: >
+  Schema for validating the output of the evaluation pipeline (T030, T017).
+  Covers VBench, FVD, Object Permanence, and statistical analysis results.
+type: object
+required:
+  - experiment_id
+  - timestamp
+  - metrics
+  - statistical_summary
+properties:
+  experiment_id:
+    type: string
+    description: Unique identifier for the run (e.g., UUID or hash of config).
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the analysis.
+  video_id:
+    type: string
+    description: Identifier of the video being analyzed (optional in aggregate reports).
+  condition:
+    type: string
+    enum:
+      - baseline-naive
+      - baseline-full
+      - flow-corrected
+    description: The experimental condition applied.
+  metrics:
+    type: object
+    required:
+      - vbench_score
+      - fvd
+      - object_permanence
+    properties:
+      vbench_score:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Overall VBench score (0-1).
+      fvd:
+        type: number
+        minimum: 0.0
+        description: Frechet Video Distance (lower is better).
+      object_permanence:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Object permanence score (0-1).
+      duration_seconds:
+        type: number
+        minimum: 0.0
+        description: Wall-clock time for processing this video.
+      frame_count:
+        type: integer
+        minimum: 1
+        description: Number of frames in the video.
+  statistical_summary:
+    type: object
+    description: Results of the statistical tests (T027, T028).
+    required:
+      - test_type
+      - p_value
+      - power_sufficient
+    properties:
+      test_type:
+        type: string
+        enum:
+          - wilcoxon
+          - t-test
+          - skipped
+        description: Type of statistical test performed.
+      p_value:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: P-value from the test.
+      power_sufficient:
+        type: boolean
+        description: True if power >= 0.8 (from T030a), False otherwise.
+      effect_size:
+        type: number
+        description: Cohen's d or effect size metric (optional).
+      confidence_interval:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+        description: 95% Confidence Interval [lower, upper].
+  failure_flags:
+    type: array
+    description: List of specific failure reasons if any (T029).
+    items:
+      type: string
+    default: []
+additionalProperties: false

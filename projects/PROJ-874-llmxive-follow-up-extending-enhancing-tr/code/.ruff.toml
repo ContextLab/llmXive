@@ -1,0 +1,26 @@
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[lint.isort]
+force-single-line = false
+force-sort-within-sections = false
+known-first-party = ["utils", "config", "download", "generate", "pilot_study", "validate_datasets", "setup_data_dirs"]
+relative-imports-order = "closest-to-furthest"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

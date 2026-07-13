@@ -1,0 +1,99 @@
+name: CI - CPU and Memory Constrained
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # Install test dependencies if separate
+          pip install pytest pytest-cov
+
+      - name: Run Linting and Formatting Checks
+        run: |
+          # Ensure ruff and black are installed if not in requirements
+          pip install ruff black
+          ruff check code/ tests/
+          black --check code/ tests/
+
+      - name: Run Unit Tests with Memory Constraints
+        # Enforce CPU and RAM limits for the test environment
+        # Note: GitHub Actions runners have default limits, but we explicitly
+        # set resource constraints in the test execution to simulate the target env.
+        env:
+          PYTHONUNBUFFERED: 1
+          OMP_NUM_THREADS: 2
+          MKL_NUM_THREADS: 2
+          OPENBLAS_NUM_THREADS: 2
+        run: |
+          # Run tests with a simulated memory limit if possible via ulimit
+          # Note: ulimit -v limits virtual memory (KB). 6GB = 6291456 KB.
+          ulimit -v 6291456 || echo "ulimit not available (non-privileged shell), relying on OMP threads"
+          pytest tests/ -v --cov=code --cov-report=xml --tb=short -n 2
+
+      - name: Upload Coverage Report
+        if: always()
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+  baseline-check:
+    # Specific job to verify the pipeline runs on CPU within time limits
+    # as required by the project constraints (SC-005)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Pilot Study (Sanity Check)
+        env:
+          OMP_NUM_THREADS: 2
+          MKL_NUM_THREADS: 2
+        run: |
+          # Run the pilot study script to ensure it completes on CPU
+          # This acts as a smoke test for the flow and generation logic
+          timeout 300 python code/pilot_study.py --samples 5 || exit 1
+          echo "Pilot study completed successfully within time limit"
+
+      - name: Verify Output Artifacts
+        run: |
+          if [ ! -f "data/pilot_variance.json" ]; then
+            echo "Error: data/pilot_variance.json not found"
+            exit 1
+          fi
+          echo "Artifact verification passed"

@@ -1,0 +1,12 @@
+? 'T001a [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/`
+  directory structure: `code/`, `data/`, `tests/`, `docs/`'
+: 2
+? 'T001a [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/`
+  directory structure: `code/`, `data/`, `tests/`, `docs/` <!-- ATOMIZE: requested
+  -->'
+: 2
+T005 [P] [US0] Create `contracts/dataset.schema.yaml` and `contracts/metrics.schema.yaml`: 1
+T006 [P] [US0] Setup `code/utils/video.py` for frame extraction and basic video I/O: 1
+T008 [P] [US0] Configure error handling and logging infrastructure in `code/config.py`: 1
+T010 [P] [US1] Contract test for data download in `tests/contract/test_download.py`: 1
+T011 [P] [US1] Integration test for generation pipeline in `tests/integration/test_generation.py`: 1
