@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.23611",
+  "judged_at": "2026-07-13T18:28:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"socrates: towards reliable automated evaluation of proactive llm media\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as it provides a foundational methodology (Metamorphic Testing) and an automated evaluation framework for LLM reliability, which is the core mechanism and domain of the user's question regarding \"Reliable Automated Evaluation of Proactive LLM Media.\" Even though the specific application (media) differs, the paper establishes the canonical alternative-vocabulary cluster and technical baseline for automated LLM testing without human oracles that a literatu",
+  "relevant": true
+}

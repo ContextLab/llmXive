@@ -1,0 +1,584 @@
+{
+  "fetched_at": "2026-07-13T18:28:49Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Media\"",
+      "target_n": 5
+    },
+    "duration_seconds": 60.262,
+    "ended_at": "2026-07-13T18:28:49Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "automated evaluation of proactive large language model outputs"
+        ],
+        [
+          2,
+          "reliability assessment of AI-generated media"
+        ],
+        [
+          3,
+          "detection of hallucinations in proactive LLM responses"
+        ],
+        [
+          4,
+          "benchmarks for proactive conversational agents"
+        ],
+        [
+          5,
+          "trustworthiness metrics for large language models"
+        ],
+        [
+          6,
+          "automated fact-checking for LLM-generated content"
+        ],
+        [
+          7,
+          "safety evaluation of proactive AI systems"
+        ],
+        [
+          8,
+          "quality assurance for automated media generation"
+        ],
+        [
+          9,
+          "hallucination detection in generative AI"
+        ],
+        [
+          10,
+          "robustness testing of large language model agents"
+        ],
+        [
+          11,
+          "automated validation of AI media claims"
+        ],
+        [
+          12,
+          "evaluation frameworks for generative AI safety"
+        ],
+        [
+          13,
+          "proactive AI behavior monitoring and assessment"
+        ],
+        [
+          14,
+          "reliability metrics for synthetic media"
+        ],
+        [
+          15,
+          "automated audit of LLM decision-making"
+        ],
+        [
+          16,
+          "consistency evaluation in large language model outputs"
+        ],
+        [
+          17,
+          "automated detection of misinformation by LLMs"
+        ],
+        [
+          18,
+          "trust calibration for autonomous AI agents"
+        ],
+        [
+          19,
+          "evaluation of proactive AI content generation"
+        ],
+        [
+          20,
+          "synthetic media verification using automated tools"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "automated evaluation of proactive large language model outputs": 4,
+        "llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Media\" computer science": 0,
+        "reliability assessment of AI-generated media": 1
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "LLM hallucination detection factuality verification",
+      "SoCRATES framework automated media evaluation",
+      "proactive LLM intervention safety alignment",
+      "truthfulness benchmark hallucination rate assessment",
+      "epistemic uncertainty calibration reliability metrics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2304.08637"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM hallucination detection factuality verification": 3,
+      "SoCRATES framework automated media evaluation": 3,
+      "epistemic uncertainty calibration reliability metrics": 3,
+      "llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Media\" computer science": 3,
+      "proactive LLM intervention safety alignment": 3,
+      "truthfulness benchmark hallucination rate assessment": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2304.12244",
+          "rationale": "The paper focuses on the methodology of generating complex instruction data to improve LLM instruction-following capabilities, which does not address the user's specific question regarding the \"SoCRATES\" framework for the automated evaluation of proactive LLM media. While both involve LLMs, the candidate paper lacks the specific mechanism (proactive media evaluation), the domain (media reliability), or the canonical baseline for the \"SoCRATES\" follow-up research, failing to meet any of the inclu",
+          "title": "WizardLM: Empowering large pre-trained language models to follow complex instructions"
+        },
+        {
+          "primary_pointer": "2307.12114",
+          "rationale": "The paper evaluates LLM performance on clinical NLP tasks but does not address the user's specific focus on \"proactive LLM media\" or the \"SoCRATES\" evaluation framework for automated reliability assessment. While both involve LLMs, the paper lacks the specific mechanism (proactive media generation/evaluation), domain (media reliability), or canonical methodology required by the inclusion criteria (a-f), making it an off-domain study regarding the user's specific research gap.",
+          "title": "A Zero-shot and Few-shot Study of Instruction-Finetuned Large Language Models Applied to Clinical and Biomedical Tasks"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-13T18:27:49Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"socrates: towards reliable automated evaluation of proactive llm media\" computer science",
+      "raw": "llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of Proactive LLM Media\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Detecting hallucinations in large language models (LLMs) is critical for their safety in many applications. Without proper detection, these systems often provide harmful, unreliable answers. In recent years, LLMs have been actively used in retrieval-augmented generation (RAG) settings. However, hallucinations remain even in this setting, and while numerous hallucination detection methods have been proposed, most approaches are not specifically designed for RAG systems. To overcome this limitation, we introduce a hallucination detection method based on estimating the distances between the distributions of prompt token embeddings and language model response token embeddings. The method examines the geometric structure of token hidden states to reliably extract a signal of factuality in text, while remaining friendly to long sequences. Extensive experiments demonstrate that our method achieves state-of-the-art or competitive performance. It also has transferability from solving the NLI task to the hallucination detection task, making it a fully unsupervised and efficient method with a competitive performance on the final task.",
+          "claimed_authors": [
+            "Rodion Oblovatny",
+            "Alexandra Kuleshova",
+            "Konstantin Polev",
+            "Alexey Zaytsev"
+          ],
+          "claimed_title": "Probabilistic distances-based hallucination detection in LLMs with RAG",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09886"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='Probabilistic distances-based hallucination detection in LLMs with RAG')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hallucination detection is essential for the reliable deployment of large language models (LLMs). However, existing evaluations face two core challenges: inconsistent inference configuration and evaluation, and limited coverage of downstream domains and tasks. Consequently, reported detector performance is often difficult to compare, reproduce, and generalize beyond specific experimental settings. We introduce OpenHalDet, a unified benchmark for hallucination detection across diverse generation scenarios. OpenHalDet standardizes the evaluation pipeline, from prompt construction and response generation to truthfulness annotation, detector scoring, and metric computation. It supports heterogeneous detector families under different access settings, including black-box methods that use only generated outputs, gray-box methods that rely on probability-based signals, and white-box methods that exploit internal model signals. By bringing diverse tasks, models, and detectors into a shared framework, OpenHalDet enables controlled comparison and provides a systematic view of how different detection paradigms behave in LLM applications. We release OpenHalDet as an open and extensible codebase to facilitate reproducible evaluation and future development of hallucination detection methods. The code and datasets are available at https://github.com/Nellie179/Hallucination-Detection.",
+          "claimed_authors": [
+            "Xinyi Li",
+            "Zhen Fang",
+            "Yongxin Deng",
+            "Jinyuan Luo",
+            "Hongnan Ma",
+            "Changdae Oh",
+            "Zijing Shi",
+            "Shanshan Ye",
+            "Hanchen Wang",
+            "Shu-Lin Chen",
+            "Yadan Luo",
+            "Mengyue Yang",
+            "Sean Du",
+            "Sharon Li",
+            "Ling Chen"
+          ],
+          "claimed_title": "OpenHalDet: A Unified Benchmark for Hallucination Detection across Diverse Generation Scenarios",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.06959"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='OpenHalDet: A Unified Benchmark for Hallucination Detection across Diverse Generation Scenarios')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) have achieved remarkable success in various natural language processing tasks, yet they remain prone to generating factually incorrect outputs known as hallucinations. While recent approaches have shown promise for hallucination detection by repeatedly sampling from LLMs and quantifying the semantic inconsistency among the generated responses, they rely on fixed sampling budgets that fail to adapt to query complexity, resulting in computational inefficiency. We propose an Adaptive Bayesian Estimation framework for Semantic Entropy with Guided Semantic Exploration, which dynamically adjusts sampling requirements based on observed uncertainty. Our approach employs a hierarchical Bayesian framework to model the semantic distribution, enabling dynamic control of sampling iterations through variance-based thresholds that terminate generation once sufficient certainty is achieved. We also develop a perturbation-based importance sampling strategy to systematically explore the semantic space. Extensive experiments on four QA datasets demonstrate that our method achieves superior hallucination detection performance with significant efficiency gains. In low-budget scenarios, our approach requires about 50% fewer samples to achieve comparable detection performance to existing methods, while delivers an average AUROC improvement of 12.6% under the same sampling budget.",
+          "claimed_authors": [
+            "Qiyao Sun",
+            "Xingming Li",
+            "Xixiang He",
+            "Ao Cheng",
+            "Xuanyu Ji",
+            "Hailun Lu",
+            "Runke Huang",
+            "Qingyong Hu"
+          ],
+          "claimed_title": "Efficient Hallucination Detection: Adaptive Bayesian Estimation of Semantic Entropy with Guided Semantic Exploration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.22812"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='Efficient Hallucination Detection: Adaptive Bayesian Estimation of Semantic Entropy with Guided Semantic Exploration')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Motivated by the comments of Goodman (2009) on our paper concerning thermal tides (Arras and Socrates 2009a), we have studied an idealized problem to understand the global response of a completely fluid gas giant planet to thermal forcing at the surface (Arras and Socrates 2009b). Our findings disagree with the main claims in Goodman (2009). We find that significant quadrupole moments can indeed be induced as a result of thermal forcing. Furthermore, we find that it is possible for the orientation of the quadrupoles to be such that the planet is torqued away from synchronous rotation. Given these results, we believe our proposed thermal tide mechanism (Arras and Socrates 2009a) provides a viable scenario for generating steady-state asychronous rotation, inflated radii and possibly eccentric orbits of the hot Jupiters.",
+          "claimed_authors": [
+            "Phil Arras",
+            "Aristotle Socrates"
+          ],
+          "claimed_title": "Response to \"Concerning Thermal Tides on Hot Jupiters\" (Goodman 2009; arXiv: 0901.3279)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0912.2318"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='Response to \"Concerning Thermal Tides on Hot Jupiters\" (Goodman 2009; arXiv: 0901.3279)')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Stress and depression are prevalent nowadays across people of all ages due to the quick paces of life. People use social media to express their feelings. Thus, social media constitute a valuable form of information for the early detection of stress and depression. Although many research works have been introduced targeting the early recognition of stress and depression, there are still limitations. There have been proposed multi-task learning settings, which use depression and emotion (or figurative language) as the primary and auxiliary tasks respectively. However, although stress is inextricably linked with depression, researchers face these two tasks as two separate tasks. To address these limitations, we present the first study, which exploits two different datasets collected under different conditions, and introduce two multitask learning frameworks, which use depression and stress as the main and auxiliary tasks respectively. Specifically, we use a depression dataset and a stressful dataset including stressful posts from ten subreddits of five domains. In terms of the first approach, each post passes through a shared BERT layer, which is updated by both tasks. Next, two separate BERT encoder layers are exploited, which are updated by each task separately. Regarding the second approach, it consists of shared and task-specific layers weighted by attention fusion networks. We conduct a series of experiments and compare our approaches with existing research initiatives, single-task learning, and transfer learning. Experiments show multiple advantages of our approaches over state-of-the-art ones.",
+          "claimed_authors": [
+            "Loukas Ilias",
+            "Dimitris Askounis"
+          ],
+          "claimed_title": "Multitask learning for recognizing stress and depression in social media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.18907"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='Multitask learning for recognizing stress and depression in social media')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated accounts on social media have become increasingly problematic. We propose a key feature in combination with existing methods to improve machine learning algorithms for bot detection. We successfully improve classification performance through including the proposed feature.",
+          "claimed_authors": [
+            "Laurenz A Cornelissen",
+            "Petrus Schoonwinkel",
+            "Richard J Barnett"
+          ],
+          "claimed_title": "A Socio-Informatic Approach to Automated Account Classification on Social Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.12149"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='A Socio-Informatic Approach to Automated Account Classification on Social Media')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Frictive Policy Optimization (FPO), a framework for learning language model policies that regulate not only what to say, but when and how to intervene in order to manage epistemic and normative risk. Unlike standard alignment methods that optimize surface-level preference or task utility, FPO treats clarification, verification, challenge, redirection, and refusal as explicit control actions whose purpose is to shape the evolution of belief, commitment, and uncertainty over time. We formalize alignment as a risk-sensitive epistemic control problem in which intervention decisions are selected based on their expected effect on downstream epistemic quality rather than on immediate reward alone. We introduce a compact taxonomy of frictive interventions, a structured friction functional that operationalizes multiple alignment failure modes, and a unified family of FPO methods spanning reward shaping, preference pairing, group-relative ranking, and risk-conditioned trust regions. We further propose an evaluation framework that measures epistemic competence directly through clarification behavior, calibration, contradiction repair, refusal proportionality, and information efficiency. Together, these results provide a formal and algorithmic foundation for learning agents that are aligned not only in outcome, but in epistemic conduct.",
+          "claimed_authors": [
+            "James Pustejovsky",
+            "Nikhil Krishnaswamy"
+          ],
+          "claimed_title": "Frictive Policy Optimization for LLMs: Epistemic Intervention, Risk-Sensitive Control, and Reflective Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.25136"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='Frictive Policy Optimization for LLMs: Epistemic Intervention, Risk-Sensitive Control, and Reflective Alignment')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Safety alignment instills in Large Language Models (LLMs) a critical capacity to refuse malicious requests. Prior works have modeled this refusal mechanism as a single linear direction in the activation space. We posit that this is an oversimplification that conflates two functionally distinct neural processes: the detection of harm and the execution of a refusal. In this work, we deconstruct this single representation into a Harm Detection Direction and a Refusal Execution Direction. Leveraging this fine-grained model, we introduce Differentiated Bi-Directional Intervention (DBDI), a new white-box framework that precisely neutralizes the safety alignment at critical layer. DBDI applies adaptive projection nullification to the refusal execution direction while suppressing the harm detection direction via direct steering. Extensive experiments demonstrate that DBDI outperforms prominent jailbreaking methods, achieving up to a 97.88\\% attack success rate on models such as Llama-2. By providing a more granular and mechanistic framework, our work offers a new direction for the in-depth understanding of LLM safety alignment.",
+          "claimed_authors": [
+            "Peng Zhang",
+            "Peijie Sun"
+          ],
+          "claimed_title": "Differentiated Directional Intervention A Framework for Evading LLM Safety Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.06852"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='Differentiated Directional Intervention A Framework for Evading LLM Safety Alignment')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Aligned LLMs are secure, capable of recognizing and refusing to answer malicious questions. However, the role of internal parameters in maintaining such security is not well understood yet, further these models can be vulnerable to security degradation when subjected to fine-tuning attacks. To address these challenges, our work uncovers the mechanism behind security in aligned LLMs at the parameter level, identifying a small set of contiguous layers in the middle of the model that are crucial for distinguishing malicious queries from normal ones, referred to as ``safety layers\". We first confirm the existence of these safety layers by analyzing variations in input vectors within the model's internal layers. Additionally, we leverage the over-rejection phenomenon and parameters scaling analysis to precisely locate the safety layers. Building on these findings, we propose a novel fine-tuning approach, Safely Partial-Parameter Fine-Tuning (SPPFT), that fixes the gradient of the safety layers during fine-tuning to address the security degradation. Our experiments demonstrate that the proposed approach can significantly preserve LLM security while maintaining performance and reducing computational resources compared to full fine-tuning.",
+          "claimed_authors": [
+            "Shen Li",
+            "Liuyi Yao",
+            "Lan Zhang",
+            "Yaliang Li"
+          ],
+          "claimed_title": "Safety Layers in Aligned Large Language Models: The Key to LLM Security",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.17003"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='Safety Layers in Aligned Large Language Models: The Key to LLM Security')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Vision-Language Models (LVLMs) still struggle with vision hallucination, where generated responses are inconsistent with the visual input. Existing methods either rely on large-scale annotated data for fine-tuning, which incurs massive computational overhead, or employ static post-hoc strategies that overlook the dynamic nature of hallucination emergence. To address these, we introduce a new self-rewarding framework, enabling dynamic hallucination mitigation at inference time without external supervision. On the empirical side, we reveal that visual hallucination exhibits phase-wise dynamic patterns, peaking at the onset of each semantic phase. Drawing on these insights, we propose \\textbf{PSRD} (\\textbf{Phase-wise \\textbf{S}elf-\\textbf{R}eward \\textbf{D}ecoding) for online hallucination correction guided by phase-wise self-reward signals. To reduce the cost of repeated self-evaluation during decoding, we distill the hallucination guidance signal from LVLMs into a lightweight reward model. The reward model subsequently provides on-the-fly guidance for targeted intervention during the decoding process, enabling precise hallucination suppression. The proposed PSRD significantly reduces the hallucination rate of LLaVA-1.5-7B by 50.0% and consistently outperforms existing post-hoc methods across five hallucination evaluation benchmarks for four LVLMs. Further analysis confirms that PSRD effectively mitigates hallucination propagation and achieves a highly controllable trade-off between strong performance and inference efficiency.",
+          "claimed_authors": [
+            "Yu Zhang",
+            "Chuyang Sun",
+            "Kehai Chen",
+            "Xuefeng Bai",
+            "Yang Xiang",
+            "Min Zhang"
+          ],
+          "claimed_title": "Mitigating Multimodal Hallucination via Phase-wise Self-reward",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.17982"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='Mitigating Multimodal Hallucination via Phase-wise Self-reward')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Critical Assessment of Genome Interpretation (CAGI) aims to advance the state of the art for computational prediction of genetic variant impact, particularly those relevant to disease. The five complete editions of the CAGI community experiment comprised 50 challenges, in which participants made blind predictions of phenotypes from genetic data, and these were evaluated by independent assessors. Overall, results show that while current methods are imperfect, they have major utility for research and clinical applications. Missense variant interpretation methods are able to estimate biochemical effects with increasing accuracy. Performance is particularly strong for clinical pathogenic variants, including some difficult-to-diagnose cases, and extends to interpretation of cancer-related variants. Assessment of methods for regulatory variants and complex trait disease risk is less definitive, and indicates performance potentially suitable for auxiliary use in the clinic. Emerging methods and increasingly large, robust datasets for training and assessment promise further progress ahead.",
+          "claimed_authors": [
+            "The Critical Assessment of Genome Interpretation Consortium"
+          ],
+          "claimed_title": "CAGI, the Critical Assessment of Genome Interpretation, establishes progress and prospects for computational genetic variant interpretation methods",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.05897"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='CAGI, the Critical Assessment of Genome Interpretation, establishes progress and prospects for computational genetic variant interpretation methods')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The precision of contouring target structures and organs-at-risk (OAR) in radiotherapy planning is crucial for ensuring treatment efficacy and patient safety. Recent advancements in deep learning (DL) have significantly improved OAR contouring performance, yet the reliability of these models, especially in the presence of out-of-distribution (OOD) scenarios, remains a concern in clinical settings. This application study explores the integration of epistemic uncertainty estimation within the OAR contouring workflow to enable OOD detection in clinically relevant scenarios, using specifically compiled data. Furthermore, we introduce an advanced statistical method for OOD detection to enhance the methodological framework of uncertainty estimation. Our empirical evaluation demonstrates that epistemic uncertainty estimation is effective in identifying instances where model predictions are unreliable and may require an expert review. Notably, our approach achieves an AUC-ROC of 0.95 for OOD detection, with a specificity of 0.95 and a sensitivity of 0.92 for implant cases, underscoring its efficacy. This study addresses significant gaps in the current research landscape, such as the lack of ground truth for uncertainty estimation and limited empirical evaluations. Additionally, it provides a clinically relevant application of epistemic uncertainty estimation in an FDA-approved and widely used clinical solution for OAR segmentation from Varian, a Siemens Healthineers company, highlighting its practical benefits.",
+          "claimed_authors": [
+            "Marvin Tom Teichmann",
+            "Manasi Datar",
+            "Lisa Kratzke",
+            "Fernando Vega",
+            "Florin C. Ghesu"
+          ],
+          "claimed_title": "Towards Integrating Epistemic Uncertainty Estimation into the Radiotherapy Workflow",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.18628"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='Towards Integrating Epistemic Uncertainty Estimation into the Radiotherapy Workflow')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "CIPM published the Supplement I for GUM in 2008 as not only an alternative approach to estimate the uncertainty for a given calibration measurement but also as a proper uncertainty estimation one, whenever any of the conditions imposed in GUM which must be satisfied does not hold [1, 2]. Before the introduction of the new approach in the Supplement I, namely Monte Carlo (MC) method, the GUM rules have been always applied even if in cases where the mentioned conditions were not fulfilled. After or even before the official introduction of this MC method, a number of published papers in uncertainty estimation by using MC method had been shown up, giving more insight for the ways the uncertainties estimated and also for the specific calibration measurements under investigation themselves [3 - 16]. However, in most of those published papers, the application conditions required before a method selection should be analyzed, in fact, has been ignored. In our uncertainty study for wavelength calibration by using beat frequency technique, the application conditions have not been ignored but analyzed carefully and it was found that a GUM application condition was unsatisfactory. However, all the MC method conditions for this calibration problem have been well fulfilled. A computer program was then coded [17] following the steps in the Supplement I. The resultant outputs showed difference in statistical nature and suggested to replace the MC method to the GUM one as soon as possible for this case.",
+          "claimed_authors": [
+            "Thang H. L.",
+            "Nguyen D. D.",
+            "Dung D. N."
+          ],
+          "claimed_title": "Monte Carlo uncertainty estimation for wavelength calibration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1012.2631"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='Monte Carlo uncertainty estimation for wavelength calibration')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Conformal Prediction provides distribution-free prediction intervals with guaranteed coverage, but its reliance on a single global calibration threshold obscures the sources of uncertainty at the instance level. In particular, it conflates irreducible noise with uncertainty induced by heterogeneous training data (aleatoric), model limitations, or calibration mismatch (epistemic), offering little insight into why an interval is wide or whether it could be reduced. We introduce an uncertainty-aware explainability framework that analyses the reducibility of calibration-induced epistemic conformal uncertainty via progressive calibration localisation for regression tasks. The approach is diagnostic rather than causal: it does not estimate true aleatoric or epistemic uncertainty, but explains how conformal intervals contract and stabilise as calibration support is localised around a test instance. Across benchmarks and real-world data, absolute reducible uncertainty aligns with epistemic proxies, while its relative contribution varies by task, revealing regimes hidden by interval width. This instance-level view complements conformal uncertainty, enhancing interpretability without altering the predictor or coverage.",
+          "claimed_authors": [
+            "Fatima Rabia Yapicioglu",
+            "Meltem Aksoy",
+            "Alberto Rigenti",
+            "Tuwe Löfström-Cavallin",
+            "Helena Löfström-Cavallin",
+            "Seyda Yoncaci",
+            "Luca Longo"
+          ],
+          "claimed_title": "ConformaDecompose: Explaining Uncertainty via Calibration Localization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.27149"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SoCRATES: Towards Reliable Automated Evaluation of', candidate_title='ConformaDecompose: Explaining Uncertainty via Calibration Localization')",
+        "failed_at": "2026-07-13T18:28:20Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Steven Cho",
+            "Stefano Ruberto",
+            "Valerio Terragni"
+          ],
+          "title": "LLMORPH: Automated Metamorphic Testing of Large Language Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.23611",
+        "summary": "Automated testing is essential for evaluating and improving the reliability of Large Language Models (LLMs), yet the lack of automated oracles for verifying output correctness remains a key challenge. We present LLMORPH, an automated testing tool specifically designed for LLMs performing NLP tasks, which leverages Metamorphic Testing (MT) to uncover faulty behaviors without relying on human-labeled data. MT uses Metamorphic Relations (MRs) to generate follow-up inputs from source test input, enabling detection of inconsistencies in model outputs without the need of expensive labelled data. LLMORPH is aimed at researchers and developers who want to evaluate the robustness of LLM-based NLP systems. In this paper, we detail the design, implementation, and practical usage of LLMORPH, demonstrating how it can be easily extended to any LLM, NLP task, and set of MRs. In our evaluation, we applied 36 MRs across four NLP benchmarks, testing three state-of-the-art LLMs: GPT-4, LLAMA3, and HERMES 2. This produced over 561,000 test executions. Results demonstrate LLMORPH's effectiveness in automatically exposing inconsistencies.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.23611",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T18:28:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Adrian de Wynter",
+            "Xun Wang",
+            "Alex Sokolov",
+            "Qilong Gu",
+            "Si-Qing Chen"
+          ],
+          "title": "An Evaluation on Large Language Model Outputs: Discourse and Memorization",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2304.08637",
+        "summary": "We present an empirical evaluation of various outputs generated by nine of the most widely-available large language models (LLMs). Our analysis is done with off-the-shelf, readily-available tools. We find a correlation between percentage of memorized text, percentage of unique text, and overall output quality, when measured with respect to output pathologies such as counterfactual and logically-flawed statements, and general failures like not staying on topic. Overall, 80.0% of the outputs evaluated contained memorized data, but outputs containing the most memorized content were also more likely to be considered of high quality. We discuss and evaluate mitigation strategies, showing that, in the models evaluated, the rate of memorized text being output is reduced. We conclude with a discussion on potential implications around what it means to learn, to memorize, and to evaluate quality text.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2304.08637",
+          "http_status": 200,
+          "pdf_sample_score": 0.1908,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T18:28:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jingruo Chen",
+            "TungYen Wang",
+            "Marie Williams",
+            "Natalia Jordan",
+            "Mingyi Shao",
+            "Linda Zhang",
+            "Susan R. Fussell"
+          ],
+          "title": "Examining the Impact of Label Detail and Content Stakes on User Perceptions of AI-Generated Images on Social Media",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.19024",
+        "summary": "AI-generated images are increasingly prevalent on social media, raising concerns about trust and authenticity. This study investigates how different levels of label detail (basic, moderate, maximum) and content stakes (high vs. low) influence user engagement with and perceptions of AI-generated images through a within-subjects experimental study with 105 participants. Our findings reveal that increasing label detail enhances user perceptions of label transparency but does not affect user engagement. However, content stakes significantly impact user engagement and perceptions, with users demonstrating higher engagement and trust in low-stakes images. These results suggest that social media platforms can adopt detailed labels to improve transparency without compromising user engagement, offering insights for effective labeling strategies for AI-generated content.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.19024",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-13T18:28:31Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"socrates: towards reliable automated evaluation of proactive llm media\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

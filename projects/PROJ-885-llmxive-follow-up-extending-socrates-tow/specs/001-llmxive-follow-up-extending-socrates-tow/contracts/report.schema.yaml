@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalReport"
+description: "Schema for the aggregated statistical report for a single LLM."
+type: "object"
+required:
+  - "llm_id"
+  - "comparison"
+  - "correction_applied"
+properties:
+  llm_id:
+    type: "string"
+    description: "Identifier of the LLM model."
+  comparison:
+    type: "object"
+    required:
+      - "mean_diff"
+      - "p_value"
+      - "is_significant"
+      - "effect_size"
+      - "test_type"
+    properties:
+      mean_diff:
+        type: "number"
+        description: "Mean difference in consensus gap closure (Adapter - Static)."
+      p_value:
+        type: "number"
+        description: "P-value from the statistical test."
+      is_significant:
+        type: "boolean"
+        description: "Whether the result is statistically significant (p < 0.05)."
+      effect_size:
+        type: "number"
+        description: "Effect size (Cohen's d or rank-biserial correlation)."
+      test_type:
+        type: "string"
+        enum:
+          - "t-test"
+          - "wilcoxon"
+        description: "Type of statistical test used."
+  correction_applied:
+    type: "boolean"
+    description: "Whether multiple-comparison correction (Holm-Bonferroni) was applied."

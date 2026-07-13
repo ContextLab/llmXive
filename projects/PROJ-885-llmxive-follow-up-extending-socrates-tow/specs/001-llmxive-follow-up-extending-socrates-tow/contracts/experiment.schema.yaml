@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExperimentRun"
+description: "Schema for a single experiment run (LLM inference on a trajectory)."
+type: "object"
+required:
+  - "run_id"
+  - "trajectory_id"
+  - "llm_id"
+  - "condition"
+  - "prompt"
+  - "output"
+  - "metrics"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run."
+  trajectory_id:
+    type: "string"
+    description: "Reference to the trajectory used."
+  llm_id:
+    type: "string"
+    description: "Identifier of the LLM model used."
+  condition:
+    type: "string"
+    enum:
+      - "static"
+      - "adapter"
+    description: "The experimental condition."
+  prompt:
+    type: "string"
+    description: "The full system prompt injected into the LLM."
+  output:
+    type: "string"
+    description: "The raw output from the LLM."
+  metrics:
+    type: "object"
+    required:
+      - "consensus_gap_score"
+      - "inference_time_ms"
+    properties:
+      consensus_gap_score:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Calculated consensus gap closure score."
+      inference_time_ms:
+        type: "integer"
+        minimum: 0
+        description: "Time taken for inference in milliseconds."

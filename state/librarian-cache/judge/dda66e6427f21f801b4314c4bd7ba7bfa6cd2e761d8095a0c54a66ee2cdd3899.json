@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.19024",
+  "judged_at": "2026-07-13T18:28:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"socrates: towards reliable automated evaluation of proactive llm media\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) by empirically measuring user perceptions and engagement (dependent variables) regarding AI-generated content on social media, which is the core domain of the user's question about \"reliable automated evaluation of proactive LLM media.\" Although the paper focuses on human perception rather than automated metrics, it provides the essential empirical baseline for the \"reliability\" and \"trust\" constructs that any automated evaluation system (like SoCRATES) ",
+  "relevant": true
+}

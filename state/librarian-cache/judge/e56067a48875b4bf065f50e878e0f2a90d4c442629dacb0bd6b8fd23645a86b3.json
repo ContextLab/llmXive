@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.12244",
+  "judged_at": "2026-07-13T18:28:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"socrates: towards reliable automated evaluation of proactive llm media\" computer science",
+  "rationale": "The paper focuses on the methodology of generating complex instruction data to improve LLM instruction-following capabilities, which does not address the user's specific question regarding the \"SoCRATES\" framework for the automated evaluation of proactive LLM media. While both involve LLMs, the candidate paper lacks the specific mechanism (proactive media evaluation), the domain (media reliability), or the canonical baseline for the \"SoCRATES\" follow-up research, failing to meet any of the inclu",
+  "relevant": false
+}
