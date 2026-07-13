@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BenchmarkResult"
+description: "Schema for evaluation results on R-Bench and PAI-Bench."
+type: "object"
+properties:
+  result_id:
+    type: "string"
+    format: "uuid"
+    description: "Unique identifier for the benchmark result."
+  model_id:
+    type: "string"
+    format: "uuid"
+    description: "Reference to the trained model."
+  r_bench_score:
+    type: "number"
+    description: "Physical consistency score on R-Bench."
+  pai_bench_score:
+    type: "number"
+    description: "Physical consistency score on PAI-Bench."
+  physics_consistency_score:
+    type: "number"
+    description: "Average physics consistency score of generated evaluation videos."
+  statistical_test:
+    type: "object"
+    properties:
+      test_type:
+        type: "string"
+        enum:
+          - "unpaired_t_test"
+          - "mann_whitney_u"
+          - "linear_mixed_model"
+        description: "Type of statistical test performed."
+      p_value:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "P-value from the statistical test."
+      comparability_flag:
+        type: "boolean"
+        description: "True if the performance gap is ≤ 15% and p-value ≥ 0.05."
+      batch_effect_variance:
+        type: "number"
+        description: "Variance attributed to batch effects in LMM."
+    required:
+      - "test_type"
+      - "p_value"
+      - "comparability_flag"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the evaluation."
+required:
+  - "result_id"
+  - "model_id"
+  - "r_bench_score"
+  - "pai_bench_score"
+  - "physics_consistency_score"
+  - "statistical_test"
+  - "timestamp"
+additionalProperties: false

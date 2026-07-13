@@ -1,0 +1,722 @@
+resolved_at: '2026-07-13T08:09:46.721805+00:00'
+datasets:
+- intent: Wan2
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/introvoyz041/wan2.1/resolve/main/data/LICENSE.txt
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 11357
+      parsed: true
+  - url: https://huggingface.co/datasets/Rapidata/text-2-video-human-preferences-wan2.1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/panopstor/wan21test/resolve/main/ff7_wan21_dataset01.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/introvoyz041/wan2.1/resolve/main/data/LICENSE.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/panopstor/wan21test/resolve/main/ff7_wan21_dataset01.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/Rapidata/text-2-video-human-preferences-wan2.1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/wan202101/suanming/8502f94ac5cff35419a95d61b5b90811c2e4ce69/all_details.json?%2Fdatasets%2Fwan202101%2Fsuanming%2Fresolve%2Fmain%2Fall_details.json=&etag=%2227270f5d0fac7609ceb2b4b4e4fc1bcf70f492ed%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/wan202101/suanming-ds/0330655273c2bdad6f65cd4e6a4199e421ad9492/all_details.json?%2Fdatasets%2Fwan202101%2Fsuanming-ds%2Fresolve%2Fmain%2Fall_details.json=&etag=%2227270f5d0fac7609ceb2b4b4e4fc1bcf70f492ed%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyopteris_ligulata_172732_/32859194
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyopteris_ligulata_172732_/32859194
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_cervicornis_172718_/32859191
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_cervicornis_172718_/32859191
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Colpomenia_sinuosa_172717_/32859185
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Colpomenia_sinuosa_172717_/32859185
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Sargassum_heterophyllum_172708_/32859182
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Sargassum_heterophyllum_172708_/32859182
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Iyengaria_stellata_172698_/32859179
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Iyengaria_stellata_172698_/32859179
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/20470785
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470728
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20466285
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20456663
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21156634
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470785
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470785
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470728
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470728
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-based
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Myriogloea_papenfussii_172788_/32859260
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Myriogloea_papenfussii_172788_/32859260
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Stypocaulon_funiculare_172783_/32859257
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Stypocaulon_funiculare_172783_/32859257
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Bifurcaria_brassiciformis_172782_/32859254
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Bifurcaria_brassiciformis_172782_/32859254
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Colpomenia_sinuosa_172780_/32859248
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Colpomenia_sinuosa_172780_/32859248
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Macrocystis_angustifolia_172779_/32859242
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Macrocystis_angustifolia_172779_/32859242
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/14811831
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12759131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12770771
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/33247
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21332999
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21332999
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21331161
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21331161
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21102176
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PyBullet
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pranjalipathre/pybullet_img2img/resolve/main/data/video_00.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bensprenger/gym_pybullet_drones/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 17241
+      parsed: true
+  - url: https://huggingface.co/datasets/xfu314/pybullet_ring_task/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16448
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pranjalipathre/pybullet_img2img/resolve/main/data/video_00.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/bensprenger/gym_pybullet_drones/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/xfu314/pybullet_ring_task/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/akl5062/pybullet_ring_task/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Anthophycus_longifolius_172865_/32859302
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Anthophycus_longifolius_172865_/32859302
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyopteris_ligulata_172864_/32859299
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyopteris_ligulata_172864_/32859299
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Sargassum_heterophyllum_172862_/32859293
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Sargassum_heterophyllum_172862_/32859293
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Sargassum_elegans_172861_/32859290
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Sargassum_elegans_172861_/32859290
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Sargassum_sp_172860_/32859287
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Sargassum_sp_172860_/32859287
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://ieeexplore.ieee.org/document/9431048/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15066474
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10159261
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20198748
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10966588
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21325216
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21325216
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18652306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18652306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234932
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Sargassum_sp_172946_/32859359
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Sargassum_sp_172946_/32859359
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/dataset/Data_from_Summer_warming_reduces_eukaryotic_phytoplanktonic_diversity_and_the_effect_is_independent_of_the_severity_of_algal_bloom/32972906
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyopteris_serrata_172945_/32859356
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyopteris_serrata_172945_/32859356
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Sargassum_crassifolium_172940_/32859353
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Sargassum_crassifolium_172940_/32859353
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Stypopodium_zonale_172938_/32859350
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Stypopodium_zonale_172938_/32859350
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21332999
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21332999
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18672026
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18672026
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21331161
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-tractable
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Macrocystis_laevis_BOL150033_/32874320
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Macrocystis_laevis_BOL150033_/32874320
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Macrocystis_laevis_BOL150032_/32874314
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Macrocystis_laevis_BOL150032_/32874314
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Macrocystis_laevis_BOL150031_/32874305
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Macrocystis_laevis_BOL150031_/32874305
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Cystophora_fibrosa_BOL150030_/32874299
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Cystophora_fibrosa_BOL150030_/32874299
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Cystophora_fibrosa_BOL150029_/32874293
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Cystophora_fibrosa_BOL150029_/32874293
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/5524642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15115020
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2510.01764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05104
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CuratedDataset
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AmarNagargoje/curated_dataset_LIMA/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 101649
+      parsed: true
+  - url: https://huggingface.co/datasets/Moodyspider266/curated_dataset_eng/resolve/main/curated_dataset_eng.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 202815
+      parsed: true
+  - url: https://huggingface.co/datasets/SriramSohan/curated-dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 37823
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/sudhanshusinghaiml/curated-dataset-for-summarization/8041d9d85eeff06cbe08a0cecf4cffa9c75c0b3a/curated_dataset_for_summarization.csv?%2Fdatasets%2Fsudhanshusinghaiml%2Fcurated-dataset-for-summarization%2Fresolve%2Fmain%2Fcurated_dataset_for_summarization.csv=&etag=%2281c77565e52355104e154d91df20ef7144e69d39%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/AmarNagargoje/curated_dataset_LIMA/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Moodyspider266/curated_dataset_eng/resolve/main/curated_dataset_eng.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/SriramSohan/curated-dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/Glaiver0/curated-dataset/e25263bb0b33d88cf53b12dcdb64ca19dbcbf67d/curated_file.json?%2Fdatasets%2FGlaiver0%2Fcurated-dataset%2Fresolve%2Fmain%2Fcurated_file.json=&etag=%22d8c0700a41f588fbc20ed8cb91350591516f5ab8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_beccariana_BOL0262980_/32874404
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_beccariana_BOL0262980_/32874404
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_acutiloba_BOL0262979_/32874395
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_acutiloba_BOL0262979_/32874395
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_acuminata_BOL0262978_/32874386
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_acuminata_BOL0262978_/32874386
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Saundersella_simplex_BOL0262615_/32874377
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Saundersella_simplex_BOL0262615_/32874377
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Asteronema_ferrugineum_BOL0255652_/32874371
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Asteronema_ferrugineum_BOL0255652_/32874371
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/20210564
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20210564
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VideoSamples
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_ciliolata_BOL0262986_/32874437
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_ciliolata_BOL0262986_/32874437
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_cervicornis_BOL0262985_/32874431
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_cervicornis_BOL0262985_/32874431
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_cervicornis_BOL0262984_/32874425
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_cervicornis_BOL0262984_/32874425
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_sp_BOL0262983_/32874422
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_sp_BOL0262983_/32874422
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_binghamiae_BOL0262982_/32874419
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_binghamiae_BOL0262982_/32874419
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+- intent: TrainedModel
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/MAnfaal/TrainedModel/resolve/main/trainer_log.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 4435
+      parsed: true
+  - url: https://huggingface.co/datasets/Natifick/trained_model_predictions/resolve/main/data/validation-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Delcastillo8/trained_model/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/MAnfaal/TrainedModel/resolve/main/trainer_log.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Natifick/trained_model_predictions/resolve/main/data/validation-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Delcastillo8/trained_model/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/aaljuhani/trained_models/resolve/main/exp_CPTAC_tumor_dx10_ix20_uni_x20_ua_attention_seed_0/TCGA_metrics.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_dentata_BOL0262989_/32874473
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_dentata_BOL0262989_/32874473
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_dentata_BOL0262988_/32874461
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_dentata_BOL0262988_/32874461
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_crenulata_BOL0262987_/32874449
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_crenulata_BOL0262987_/32874449
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_ciliolata_BOL0262986_/32874437
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_ciliolata_BOL0262986_/32874437
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Dictyota_cervicornis_BOL0262985_/32874431
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Dictyota_cervicornis_BOL0262985_/32874431
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/19351454
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13324399
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20476008
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19672952
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19790506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21273489
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21273489
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/116161
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieee-dataport.org/documents/mimo-noma-rl-benchmark-2026
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/TrainedModel/13633340
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
