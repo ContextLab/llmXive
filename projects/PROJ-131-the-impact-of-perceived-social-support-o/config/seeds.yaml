@@ -1,0 +1,4 @@
+# Configuration for reproducible seeds
+random_seed: 42
+bootstrap_seed: 12345
+# Other seeds for specific tasks can be added here

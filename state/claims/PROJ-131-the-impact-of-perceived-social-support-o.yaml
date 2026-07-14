@@ -1,0 +1,85 @@
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: GSS 2022 dataset URL
+  claim_id: c_eaede655
+  context: Task T012 description specifying the source for the GSS 2022 dataset.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'GSS 2022: https://gss.norc.org/files/stata/2022/2022_Stata.zip'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:02:37Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: study investigates research question using method
+  claim_id: c_7d19ad11
+  context: Rewritten passage describing the study's methodology and citation requirement.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_investigates_research_question_using_method
+  kind: entity_fact
+  raw_text: The study will investigate [Research Question] using [Method] (Citation).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:07:33Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Study investigates research question using specified method
+  claim_id: c_0118a59c
+  context: Rewritten passage describing the study's methodology and citation requirement.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_investigates_research_question_using_specified_method
+  kind: entity_fact
+  raw_text: The study will investigate [Research Question] using [Method] (Citation).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:11:58Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Fixed random seed employed for reproducibility of computational procedures
+  claim_id: c_5cec6d11
+  context: Rewritten passage regarding reproducibility in the study methodology.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixed_random_seed_employed_for_reproducibility_of_computatio
+  kind: entity_fact
+  raw_text: A fixed random seed will be employed to ensure reproducibility of the
+    computational procedures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:12:21Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 2
+  canonical: study investigates research question using method with citation
+  claim_id: c_921ce883
+  context: Rewritten passage describing the study methodology and citation requirement.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_investigates_research_question_using_method_with_citat
+  kind: entity_fact
+  raw_text: The study will investigate [Research Question] using [Method] (Citation).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:13:43Z'

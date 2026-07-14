@@ -1,0 +1,95 @@
+# Standard scoring weights for psychological scales used in the study.
+# Reference:
+#   CES-D: Radloff, L. S. (1977). The CES-D scale: A self-report depression scale for research in the general population.
+#   GAD-7: Spitzer, R. L., et al. (2006). A brief measure for assessing generalized anxiety disorder.
+#   PCL-5: Weathers, F. W., et al. (2013). The PTSD Checklist for DSM-5 (PCL-5).
+
+CES-D:
+  description: "Center for Epidemiologic Studies Depression Scale"
+  items:
+    - depressed1
+    - depressed2
+    - depressed3
+    - depressed4
+    - depressed5
+    - depressed6
+    - depressed7
+    - depressed8
+    - depressed9
+    - depressed10
+    - depressed11
+    - depressed12
+    - depressed13
+    - depressed14
+    - depressed15
+    - depressed16
+    - depressed17
+    - depressed18
+    - depressed19
+    - depressed20
+  reverse_items:
+    - depressed5
+    - depressed9
+    - depressed12
+    - depressed16
+    - depressed18
+  scoring:
+    min_per_item: 0
+    max_per_item: 3
+    total_min: 0
+    total_max: 60
+    note: "Items are scored 0-3. Reverse items (5, 9, 12, 16, 18) must be recoded before summing."
+
+GAD-7:
+  description: "Generalized Anxiety Disorder 7-item scale"
+  items:
+    - gad1
+    - gad2
+    - gad3
+    - gad4
+    - gad5
+    - gad6
+    - gad7
+  reverse_items: []
+  scoring:
+    min_per_item: 0
+    max_per_item: 3
+    total_min: 0
+    total_max: 21
+    note: "Items are scored 0-3. No reverse scoring required."
+
+PCL-5:
+  description: "PTSD Checklist for DSM-5"
+  items:
+    - pcl1
+    - pcl2
+    - pcl3
+    - pcl4
+    - pcl5
+    - pcl6
+    - pcl7
+    - pcl8
+    - pcl9
+    - pcl10
+    - pcl11
+    - pcl12
+    - pcl13
+    - pcl14
+    - pcl15
+    - pcl16
+    - pcl17
+    - pcl18
+    - pcl19
+    - pcl20
+    - pcl21
+    - pcl22
+    - pcl23
+    - pcl24
+    - pcl25
+  reverse_items: []
+  scoring:
+    min_per_item: 0
+    max_per_item: 4
+    total_min: 0
+    total_max: 100
+    note: "Items are scored 0-4. No reverse scoring required."

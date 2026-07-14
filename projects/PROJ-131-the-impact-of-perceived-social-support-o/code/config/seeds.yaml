@@ -1,0 +1,8 @@
+# Reproducibility Seeds Configuration
+# This file defines fixed random seeds for all stochastic processes in the pipeline.
+# These values are used by ingestion, preprocessing, cohort construction, and modeling tasks.
+
+random_seed: 42
+bootstrap_seed: 42
+imputation_seed: 42
+matching_seed: 42

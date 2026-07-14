@@ -1,0 +1,17 @@
+# Python 3.11+ dependencies for PROJ-131
+# The Impact of Perceived Social Support on Resilience to Online Harassment
+
+# Core Data Manipulation
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Machine Learning & Statistical Modeling
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+scipy>=1.11.0
+
+# Configuration & Utilities
+pyyaml>=6.0
+
+# Note: Execution environment assumes Python 3.11+
+# Additional dev tools (ruff, black) should be installed via separate mechanisms or T003

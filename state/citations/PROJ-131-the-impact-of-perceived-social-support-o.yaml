@@ -1,4 +1,4 @@
-- artifact_hash: b471ec86e2e9f0a7e2002fe89cfdec3ab71c9415852632f9ca482eda9eab6b10
+- artifact_hash: ff02ede919aa003eb3d4be7a03bc68c941de8f02f4355d7dd767cb1f621a09cd
   artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,15 +8,4 @@
   value: https://gss.norc.org/files/stata/2022/2022_Stata.zip`
   verification_status: pending
   verified_against_url: https://gss.norc.org/page-not-found.html
-  verified_at: '2026-07-13T19:07:23.355152Z'
-- artifact_hash: b471ec86e2e9f0a7e2002fe89cfdec3ab71c9415852632f9ca482eda9eab6b10
-  artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://raw.githubusercontent.com/selva86/datasets/master/Cyberbullying2021.csv`
-  verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/selva86/datasets/master/Cyberbullying2021.csv
-  verified_at: '2026-07-13T19:07:23.355152Z'
+  verified_at: '2026-07-14T07:48:22.340801Z'

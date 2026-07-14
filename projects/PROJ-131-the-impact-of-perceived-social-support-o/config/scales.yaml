@@ -1,0 +1,96 @@
+# Standard scoring weights for psychological assessment scales
+# Used by code/analysis/scales.py for computing CES-D, GAD-7, and PCL-5 scores
+
+CES-D:
+  # Center for Epidemiologic Studies Depression Scale (20 items)
+  # Range: 0-3 per item, Total: 0-60
+  items:
+    - depressed1
+    - depressed2
+    - depressed3
+    - depressed4
+    - depressed5
+    - depressed6
+    - depressed7
+    - depressed8
+    - depressed9
+    - depressed10
+    - depressed11
+    - depressed12
+    - depressed13
+    - depressed14
+    - depressed15
+    - depressed16
+    - depressed17
+    - depressed18
+    - depressed19
+    - depressed20
+  reverse_items:
+    - depressed5
+    - depressed9
+    - depressed12
+    - depressed16
+    - depressed18
+  scoring:
+    min_per_item: 0
+    max_per_item: 3
+    min_total: 0
+    max_total: 60
+    description: "Sum of item scores after reversing specified items"
+
+GAD-7:
+  # Generalized Anxiety Disorder 7-item scale
+  # Range: 0-3 per item, Total: 0-21
+  items:
+    - gad1
+    - gad2
+    - gad3
+    - gad4
+    - gad5
+    - gad6
+    - gad7
+  reverse_items: []
+  scoring:
+    min_per_item: 0
+    max_per_item: 3
+    min_total: 0
+    max_total: 21
+    description: "Sum of item scores"
+
+PCL-5:
+  # PTSD Checklist for DSM-5 (20 items)
+  # Range: 0-4 per item, Total: 0-100
+  items:
+    - pcl1
+    - pcl2
+    - pcl3
+    - pcl4
+    - pcl5
+    - pcl6
+    - pcl7
+    - pcl8
+    - pcl9
+    - pcl10
+    - pcl11
+    - pcl12
+    - pcl13
+    - pcl14
+    - pcl15
+    - pcl16
+    - pcl17
+    - pcl18
+    - pcl19
+    - pcl20
+    - pcl21
+    - pcl22
+    - pcl23
+    - pcl24
+    - pcl25
+  reverse_items: []
+  scoring:
+    min_per_item: 0
+    max_per_item: 4
+    min_total: 0
+    max_total: 100
+    description: "Sum of item scores"
+    note: "Standard PCL-5 has 20 items; this config includes 25 to accommodate potential extended datasets or specific research adaptations. Adjust if strict 20-item adherence is required."

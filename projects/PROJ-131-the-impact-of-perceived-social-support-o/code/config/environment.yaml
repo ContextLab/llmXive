@@ -1,0 +1,30 @@
+# Environment Configuration for Data Paths
+# This file defines root directories and data paths used across the pipeline.
+# Paths are relative to the project root unless specified as absolute.
+
+project_root: "."
+data:
+  raw: "data/raw"
+  processed: "data/processed"
+  results: "data/results"
+  figures: "figures"
+config: "code/config"
+code: "code"
+specs: "specs"
+
+# Dataset specific paths (placeholders until ingestion)
+datasets:
+  gss_2022:
+    source_url: "https://gss.norc.org/files/stata/2022/2022_Stata.zip"
+    local_filename: "GSS2022.dta"
+    checksum: null  # To be populated after download
+  cyberbullying_2021:
+    source_url: null  # URL to be specified when available
+    local_filename: "cyberbullying_2021.csv"
+    checksum: null
+
+# Logging configuration
+logging:
+  level: "INFO"
+  file: "logs/pipeline.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
