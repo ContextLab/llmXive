@@ -1,71 +1,69 @@
 """
-Main entry point for the research pipeline.
-Orchestrates steps: download_preprocess, metrics, correlations, viz_report.
+Main entry point for the pipeline.
+Handles step execution: download_preprocess, metrics, correlations, viz_report.
 """
 import argparse
 import sys
 from pathlib import Path
 import os
-
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from code.logging_config import get_logger
-
 from code.data.download import main as download_main
 from code.data.metrics import main as metrics_main
 from code.analysis.correlations import main as correlations_main
-from code.report.generate import main as report_main
-from code.viz.scatter import main as scatter_main
-from code.viz.network import main as network_main
+from code.viz.scatter import main as viz_main
 
 logger = get_logger(__name__)
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Brain Network Dynamics Pipeline")
-    parser.add_argument("--step", type=str, required=True,
-                        choices=["download_preprocess", "metrics", "correlations", "viz_report"],
-                        help="Pipeline step to execute")
-    parser.add_argument("--subjects", type=int, default=50, help="Number of subjects")
-    parser.add_argument("--output", type=str, default="data/analysis", help="Output directory")
+    parser.add_argument(
+        "--step",
+        choices=["download_preprocess", "metrics", "correlations", "viz_report"],
+        required=True,
+        help="Pipeline step to execute"
+    )
+    parser.add_argument(
+        "--subjects",
+        type=int,
+        default=50,
+        help="Number of subjects to process (for download_preprocess)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Output directory override"
+    )
     return parser.parse_args()
 
-def run_pipeline(step: str, subjects: int = 50, output: str = "data/analysis"):
-    logger.log("run_pipeline", step=step, subjects=subjects)
+def run_pipeline(step: str, subjects: int = 50):
+    logger.log("pipeline_start", {"step": step, "subjects": subjects})
     
     if step == "download_preprocess":
-        # Execute download and synthetic validation
-        # We pass subjects via environment or override main logic if needed
-        # For now, we assume download_main handles defaults or we patch it
-        import os
-        os.environ["SUBJECTS"] = str(subjects)
-        download_main()
+        # T012/T012a logic: Fetch data (real or synthetic validation)
+        # We call the download module which handles the logic
+        download_main(subjects=subjects)
         
     elif step == "metrics":
+        # T017/T020/T021/T022 logic: Extract metrics
         metrics_main()
         
     elif step == "correlations":
+        # T023a/T023b/T024/T025 logic: PCA, Merge, Correlations
         correlations_main()
         
     elif step == "viz_report":
-        # Generate plots and report
-        scatter_main()
-        network_main()
-        report_main()
+        # T031/T032/T033 logic: Visualization
+        viz_main()
     else:
-        logger.log("pipeline_step_unknown", {"step": step})
-        raise ValueError(f"Unknown step: {step}")
-
-    logger.log("pipeline_step_complete", {"step": step})
+        logger.log("pipeline_error", {"message": "Invalid step"})
+        sys.exit(1)
+        
+    logger.log("pipeline_complete", {"step": step})
 
 def main():
     args = parse_args()
-    try:
-        run_pipeline(args.step, args.subjects, args.output)
-        logger.log("pipeline_complete", step=args.step)
-    except Exception as e:
-        logger.log("pipeline_error", error=str(e))
-        sys.exit(1)
+    run_pipeline(args.step, args.subjects)
 
 if __name__ == "__main__":
     main()

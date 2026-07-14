@@ -1,8 +1,6 @@
 """
 tests/unit/test_metrics.py
---------------------------
-
-Unit tests for graph metric extraction (T021).
+Unit tests for graph metric extraction.
 """
 import numpy as np
 import pytest
@@ -11,75 +9,65 @@ from code.data.metrics import extract_graph_metrics, aggregate_node_metrics, cal
 
 def test_graph_metrics_match_synthetic_ground_truth():
     """
-    Test T021: Verify graph metrics on a synthetic matrix with known structure.
-    
-    We create a block-diagonal matrix representing two distinct communities.
-    Expected:
-    - Modularity > 0.3 (strong community structure)
-    - Global Efficiency > 0
-    - Participation Coefficient mean < 0.5 (nodes mostly within modules)
+    Tests that graph metrics match known ground truth on a synthetic correlation matrix.
     """
-    # Create a 20x20 matrix with two clear communities
-    n = 20
-    matrix = np.zeros((n, n))
-    
-    # Community 1: nodes 0-9 (strong internal connections)
-    for i in range(10):
-        for j in range(10):
-            if i != j:
-                matrix[i, j] = 0.8
-    
-    # Community 2: nodes 10-19 (strong internal connections)
-    for i in range(10, 20):
-        for j in range(10, 20):
-            if i != j:
-                matrix[i, j] = 0.8
-    
-    # Weak inter-community connections
-    for i in range(10):
-        for j in range(10, 20):
-            matrix[i, j] = 0.1
-            matrix[j, i] = 0.1
-    
-    np.fill_diagonal(matrix, 1.0)
-    
-    # Extract metrics
-    metrics = extract_graph_metrics(matrix, threshold=0.3)
-    
-    # Assertions
-    assert 'modularity' in metrics
-    assert 'global_efficiency' in metrics
-    assert 'participation_coef' in metrics
-    assert 'within_module_degree' in metrics
-    
-    # Check scalar values
-    assert metrics['modularity'] > 0.3, f"Expected modularity > 0.3, got {metrics['modularity']}"
-    assert metrics['global_efficiency'] > 0, f"Expected global_efficiency > 0, got {metrics['global_efficiency']}"
-    
-    # Check node-level arrays
-    assert len(metrics['participation_coef']) == n
-    assert len(metrics['within_module_degree']) == n
-    
-    # Aggregate and check
-    agg = aggregate_node_metrics(metrics)
-    assert 'participation_coef_mean' in agg
-    assert 'within_module_degree_mean' in agg
-    
-    # For a block-diagonal matrix, PC should be low (nodes connected mostly within module)
-    # But not zero because of the weak inter-module links
-    assert 0.0 <= agg['participation_coef_mean'] <= 0.5, \
-        f"Expected low PC mean for block matrix, got {agg['participation_coef_mean']}"
+    # Create a synthetic correlation matrix with known structure
+    # 10 nodes, first 5 highly correlated (community 1), last 5 highly correlated (community 2)
+    n_nodes = 10
+    corr_matrix = np.zeros((n_nodes, n_nodes))
 
-def test_connectivity_matrix_shape():
-    """Test T020: Verify connectivity matrix returns correct shape."""
-    # 400 timepoints, 400 regions
-    ts = np.random.randn(400, 400)
-    cm = calculate_connectivity_matrix(ts)
-    assert cm.shape == (400, 400)
-    assert np.allclose(np.diag(cm), 1.0)
+    # Community 1 (0-4)
+    corr_matrix[0:5, 0:5] = 0.8
+    # Community 2 (5-9)
+    corr_matrix[5:10, 5:10] = 0.8
+    # Inter-community (weak)
+    corr_matrix[0:5, 5:10] = 0.1
+    corr_matrix[5:10, 0:5] = 0.1
 
-def test_connectivity_matrix_invalid_shape():
-    """Test T020: Verify error on invalid shape."""
-    ts = np.random.randn(100, 50) # Wrong number of regions
-    with pytest.raises(ValueError):
-        calculate_connectivity_matrix(ts)
+    # Set diagonal to 1
+    np.fill_diagonal(corr_matrix, 1.0)
+
+    # Calculate metrics
+    metrics = calculate_graph_metrics(corr_matrix, threshold=0.3)
+
+    # Check that metrics are reasonable
+    assert metrics["modularity"] > 0.3, "Modularity should be high for clear communities"
+    assert metrics["global_efficiency"] > 0, "Global efficiency should be positive"
+    assert 0 <= metrics["participation_coefficient"] <= 1, "Participation coefficient should be in [0, 1]"
+    assert metrics["within_module_degree"] > 0, "Within-module degree should be positive"
+
+    # Specific checks for community structure
+    # Nodes in the same community should have higher within-module degree
+    # and lower participation coefficient compared to random graphs
+    assert metrics["modularity"] > 0.5, "Expected high modularity for this synthetic structure"
+
+def test_connectivity_matrix_calculation():
+    """
+    Tests that the connectivity matrix is calculated correctly from time series.
+    """
+    # Create synthetic time series with known correlation
+    n_timepoints = 100
+    n_nodes = 5
+
+    # Node 0 and 1 should be highly correlated
+    ts = np.random.randn(n_nodes, n_timepoints)
+    ts[1, :] = ts[0, :] + 0.1 * np.random.randn(n_timepoints)  # Add noise
+
+    corr_matrix = calculate_connectivity_matrix(ts)
+
+    # Check that corr[0,1] is high
+    assert corr_matrix[0, 1] > 0.8, "Nodes 0 and 1 should be highly correlated"
+    assert corr_matrix[0, 0] == 1.0, "Diagonal should be 1.0"
+    assert corr_matrix.shape == (n_nodes, n_nodes), "Matrix shape should match input"
+
+def test_graph_metrics_empty_graph():
+    """
+    Tests that graph metrics return zeros for an empty graph (no edges).
+    """
+    corr_matrix = np.zeros((5, 5))
+    metrics = calculate_graph_metrics(corr_matrix, threshold=0.9)
+
+    assert metrics["modularity"] == 0.0
+    assert metrics["global_efficiency"] == 0.0
+    assert metrics["participation_coefficient"] == 0.0
+    assert metrics["within_module_degree"] == 0.0

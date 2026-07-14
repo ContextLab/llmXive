@@ -1,17 +1,21 @@
 """
-Integration test for Report Generation (T030).
-
-Verifies that the report generator:
-1. Loads the template correctly.
-2. Injects dummy results into all required sections.
-3. Generates a valid Markdown file with all required sections.
-4. Includes the specific "Limitation Statement" and "Associational Relationship" phrases.
+Integration test for report generation (US3).
+Verifies that the report generator produces a valid Markdown file with all required sections
+and correct template injection, using dummy results.
 """
 import os
 import tempfile
+import unittest
 from pathlib import Path
-import pandas as pd
-import pytest
+
+# Ensure project root is in path for imports
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from code.report.generate import generate_report, load_template, format_correlation_table, format_power_analysis
+from code.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 # Import the actual implementation
 from code.report.generate import (
@@ -24,194 +28,183 @@ from code.report.generate import (
 )
 from code.logging_config import get_logger
 
-logger = get_logger(__name__)
+class TestReportGeneration(unittest.TestCase):
+    """Integration tests for the report generation module."""
 
-# Define paths relative to project root
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-TEMPLATES_DIR = PROJECT_ROOT / "templates"
-REPORT_TEMPLATE = TEMPLATES_DIR / "report_template.md"
-OUTPUT_DIR = PROJECT_ROOT / "data" / "analysis"
-OUTPUT_FILE = OUTPUT_DIR / "test_report_output.md"
-
-@pytest.fixture(scope="module")
-def dummy_correlation_data():
-    """Create dummy correlation data for testing."""
-    data = {
-        'metric_name': ['Modularity', 'Global Efficiency', 'Participation Coefficient', 'Within Module Degree'],
-        'r_value': [0.45, -0.32, 0.12, 0.05],
-        'p_value': [0.001, 0.02, 0.45, 0.78],
-        'q_value': [0.005, 0.04, 0.60, 0.85],
-        'significant': [True, True, False, False],
-        'covariate_controlled': [True, True, True, True]
-    }
-    return pd.DataFrame(data)
-
-@pytest.fixture(scope="module")
-def dummy_power_data():
-    """Create dummy power analysis data."""
-    data = {
-        'metric': ['Modularity', 'Global Efficiency'],
-        'n': [50, 50],
-        'detectable_r': [0.28, 0.28],
-        'power': [0.80, 0.80]
-    }
-    return pd.DataFrame(data)
-
-def test_report_generates_markdown_with_all_sections(dummy_correlation_data, dummy_power_data):
-    """
-    Integration test: Verify report generation with dummy results.
-    
-    Checks:
-    - Template loads successfully.
-    - All sections (Correlation Table, Power Analysis, Plots, Conclusion) are present.
-    - Specific required phrases are included.
-    - Output file is written to disk.
-    """
-    # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # 1. Verify template loading
-    try:
-        template_content = load_template(REPORT_TEMPLATE)
-        assert template_content is not None, "Template content should not be None"
-        assert len(template_content) > 0, "Template content should not be empty"
-    except Exception as e:
-        # If template doesn't exist, create a minimal one for the test
-        logger.log("template_missing", {"error": str(e)})
-        template_content = """
-        # Research Report
+    def setUp(self):
+        """Set up temporary directories and dummy data for testing."""
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.output_dir = Path(self.temp_dir.name)
         
-        ## Correlation Analysis
-        {{correlation_table}}
+        # Create dummy data files that the report generator expects
+        self.correlations_file = self.output_dir / "correlations.csv"
+        self.power_file = self.output_dir / "power_analysis.csv"
         
-        ## Power Analysis
-        {{power_analysis}}
-        
-        ## Visualization
-        {{plots}}
-        
-        ## Conclusion
-        {{conclusion}}
-        
-        ## Limitations
-        {{limitations}}
+        # Create minimal dummy correlation data
+        self.correlations_data = """metric_name,r,p,q,significant,covariate_controlled
+        Modularity,0.35,0.012,0.048,True,False
+        Global_Efficiency,0.28,0.045,0.089,True,False
+        Participation_Coeff,0.15,0.230,0.420,False,False
+        Within_Module_Degree,0.31,0.021,0.063,True,False
         """
-        # Write the minimal template to the expected location
-        REPORT_TEMPLATE.parent.mkdir(parents=True, exist_ok=True)
-        with open(REPORT_TEMPLATE, 'w') as f:
-            f.write(template_content)
-    
-    # 2. Format data sections
-    correlation_table_md = format_correlation_table(dummy_correlation_data)
-    power_analysis_md = format_power_analysis(dummy_power_data)
-    plots_md = "[Plots Section Placeholder]"
-    
-    # 3. Generate conclusion with specific required phrases
-    # The generate_conclusion function must include:
-    # - "Limitation Statement": "Motor Task Performance is a proxy for proprioceptive accuracy."
-    # - "Associational Relationship": "associational relationship" OR "correlational evidence"
-    conclusion_md = generate_conclusion(dummy_correlation_data, dummy_power_data)
-    
-    # 4. Generate the full report
-    full_report = generate_report(
-        correlation_table_md=correlation_table_md,
-        power_analysis_md=power_analysis_md,
-        plots_md=plots_md,
-        conclusion_md=conclusion_md,
-        limitations_md="Motor Task Performance is a proxy for proprioceptive accuracy."
-    )
-    
-    # 5. Write to disk
-    with open(OUTPUT_FILE, 'w') as f:
-        f.write(full_report)
-    
-    # 6. Verify file exists on disk
-    assert OUTPUT_FILE.exists(), f"Report file was not written to {OUTPUT_FILE}"
-    
-    # 7. Read back and verify content
-    with open(OUTPUT_FILE, 'r') as f:
-        content = f.read()
-    
-    # Verify all sections are present
-    assert "Correlation Analysis" in content, "Missing Correlation Analysis section"
-    assert "Power Analysis" in content, "Missing Power Analysis section"
-    assert "Visualization" in content, "Missing Visualization section"
-    assert "Conclusion" in content, "Missing Conclusion section"
-    assert "Limitations" in content, "Missing Limitations section"
-    
-    # Verify specific required phrases
-    assert "Motor Task Performance is a proxy for proprioceptive accuracy." in content, \
-        "Missing required Limitation Statement"
-    
-    # Check for associational relationship phrasing
-    has_assoc_phrase = (
-        "associational relationship" in content.lower() or 
-        "correlational evidence" in content.lower()
-    )
-    assert has_assoc_phrase, \
-        "Missing required 'associational relationship' or 'correlational evidence' phrase in conclusion"
-    
-    # Verify data injection (check for specific metric names from dummy data)
-    assert "Modularity" in content, "Metric names not injected correctly"
-    assert "Global Efficiency" in content, "Metric names not injected correctly"
-    
-    logger.log("report_test_passed", {
-        "output_file": str(OUTPUT_FILE),
-        "file_size_bytes": os.path.getsize(OUTPUT_FILE)
-    })
-    
-    # Clean up
-    if OUTPUT_FILE.exists():
-        OUTPUT_FILE.unlink()
+        
+        # Create minimal dummy power analysis data
+        self.power_data = """metric_name,detectable_effect_size,n_subjects,power,alpha
+        Modularity,0.35,50,0.80,0.05
+        Global_Efficiency,0.28,50,0.80,0.05
+        Participation_Coeff,0.15,50,0.80,0.05
+        Within_Module_Degree,0.31,50,0.80,0.05
+        """
+        
+        # Write dummy files
+        with open(self.correlations_file, "w") as f:
+            f.write(self.correlations_data)
+        
+        with open(self.power_file, "w") as f:
+            f.write(self.power_data)
 
-def test_main_function_execution():
-    """
-    Test the main entry point of the report generator.
-    Ensures it can be called as a script and produces output.
-    """
-    # Prepare dummy data files that main() expects
-    corr_file = OUTPUT_DIR / "correlations.csv"
-    power_file = OUTPUT_DIR / "power_analysis.csv"
-    
-    if not OUTPUT_DIR.exists():
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # Create dummy CSVs
-    pd.DataFrame({
-        'metric_name': ['Test'],
-        'r_value': [0.5],
-        'p_value': [0.01],
-        'q_value': [0.05],
-        'significant': [True]
-    }).to_csv(corr_file, index=False)
-    
-    pd.DataFrame({
-        'metric': ['Test'],
-        'n': [50],
-        'detectable_r': [0.3],
-        'power': [0.8]
-    }).to_csv(power_file, index=False)
-    
-    # Run main
-    try:
-        main()
-        # Check if report was generated (default output name)
-        # The main function should write to a specific location
-        # We verify by checking if any .md file was created in data/analysis
-        md_files = list(OUTPUT_DIR.glob("*.md"))
-        assert len(md_files) > 0, "main() should generate at least one markdown file"
-    except Exception as e:
-        logger.log("main_execution_failed", {"error": str(e)})
-        # If it fails, ensure we have a clean state
-        if corr_file.exists():
-            corr_file.unlink()
-        if power_file.exists():
-            power_file.unlink()
-        raise
-    finally:
-        # Cleanup
-        for f in [corr_file, power_file]:
-            if f.exists():
-                f.unlink()
-        for f in OUTPUT_DIR.glob("*.md"):
-            f.unlink()
+        # Ensure templates directory exists
+        self.templates_dir = PROJECT_ROOT / "templates"
+        self.templates_dir.mkdir(exist_ok=True)
+        
+        # Create a minimal report template if it doesn't exist
+        template_file = self.templates_dir / "report_template.md"
+        if not template_file.exists():
+            template_content = """# Brain Network Dynamics and Sensorimotor Performance Report
+
+## Executive Summary
+{{summary}}
+
+## Methods
+{{methods}}
+
+## Results
+
+### Correlation Analysis
+{{correlation_table}}
+
+### Power Analysis
+{{power_analysis}}
+
+### Visualizations
+{{plots}}
+
+## Discussion
+{{discussion}}
+
+## Limitations
+{{limitations}}
+
+## Conclusion
+{{conclusion}}
+"""
+            with open(template_file, "w") as f:
+                f.write(template_content)
+
+    def tearDown(self):
+        """Clean up temporary directories."""
+        self.temp_dir.cleanup()
+
+    def test_report_generates_markdown_with_all_sections(self):
+        """
+        Integration test: Verify that generate_report produces a valid Markdown file
+        containing all required sections with properly injected template variables.
+        """
+        # Define paths for report generation
+        report_output = self.output_dir / "final_report.md"
+        
+        # Prepare dummy data dictionaries
+        correlation_df = None
+        power_df = None
+        
+        # Load data manually for the test (mimicking what generate_report does internally)
+        import pandas as pd
+        correlation_df = pd.read_csv(self.correlations_file)
+        power_df = pd.read_csv(self.power_file)
+        
+        # Generate the report
+        try:
+            generate_report(
+                correlation_results=correlation_df,
+                power_analysis_results=power_df,
+                output_path=str(report_output),
+                template_path=str(self.templates_dir / "report_template.md")
+            )
+        except Exception as e:
+            self.fail(f"Report generation failed with error: {str(e)}")
+
+        # Verify the output file exists
+        self.assertTrue(report_output.exists(), "Report file was not created")
+        
+        # Read the generated report
+        with open(report_output, "r") as f:
+            report_content = f.read()
+
+        # Verify all required sections exist
+        required_sections = [
+            "## Executive Summary",
+            "## Methods",
+            "## Results",
+            "### Correlation Analysis",
+            "### Power Analysis",
+            "### Visualizations",
+            "## Discussion",
+            "## Limitations",
+            "## Conclusion"
+        ]
+        
+        for section in required_sections:
+            self.assertIn(section, report_content, f"Required section '{section}' missing from report")
+
+        # Verify template injection worked (check for actual data content)
+        self.assertIn("Modularity", report_content, "Correlation data not properly injected")
+        self.assertIn("0.35", report_content, "Correlation values not properly injected")
+        self.assertIn("detectable_effect_size", report_content, "Power analysis data not properly injected")
+
+        # Verify specific requirement from T033 (referenced by T030 context):
+        # The report must include "Limitation Statement" text
+        self.assertIn("Motor Task Performance is a proxy for proprioceptive accuracy", report_content, 
+                     "Required limitation statement missing")
+        
+        # Verify specific requirement: "Associational Relationship" phrase
+        self.assertTrue(
+            "associational relationship" in report_content.lower() or 
+            "correlational evidence" in report_content.lower(),
+            "Required 'associational relationship' or 'correlational evidence' phrase missing from conclusion"
+        )
+
+    def test_format_correlation_table(self):
+        """Test that correlation table formatting produces valid Markdown."""
+        import pandas as pd
+        df = pd.read_csv(self.correlations_file)
+        
+        formatted = format_correlation_table(df)
+        
+        self.assertIsInstance(formatted, str, "format_correlation_table should return a string")
+        self.assertIn("metric_name", formatted, "Table should contain column headers")
+        self.assertIn("Modularity", formatted, "Table should contain data rows")
+
+    def test_format_power_analysis(self):
+        """Test that power analysis formatting produces valid Markdown."""
+        import pandas as pd
+        df = pd.read_csv(self.power_file)
+        
+        formatted = format_power_analysis(df)
+        
+        self.assertIsInstance(formatted, str, "format_power_analysis should return a string")
+        self.assertIn("detectable_effect_size", formatted, "Table should contain column headers")
+        self.assertIn("Modularity", formatted, "Table should contain data rows")
+
+    def test_load_template(self):
+        """Test that template loading works correctly."""
+        template_path = self.templates_dir / "report_template.md"
+        
+        template = load_template(str(template_path))
+        
+        self.assertIsInstance(template, str, "load_template should return a string")
+        self.assertIn("{{correlation_table}}", template, "Template should contain placeholders")
+        self.assertIn("{{power_analysis}}", template, "Template should contain placeholders")
+
+
+if __name__ == "__main__":
+    unittest.main()

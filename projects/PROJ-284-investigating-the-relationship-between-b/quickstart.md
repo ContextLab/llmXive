@@ -1,55 +1,36 @@
-# Quickstart Guide
-
-This document outlines the steps to run the full pipeline.
+# Quick Start Guide
 
 ## Prerequisites
 - Python 3.11+
-- Dependencies installed: `pip install -r requirements.txt`
-
-## Installation
-
-The pipeline is executed via `python code/main.py`.
-
-### Step 1: Download and Preprocess Data
+- Install dependencies: `pip install -r requirements.txt`
 
 ## Execution Steps
 
-### Step 1: Download and Preprocess Data
-
-### Step 1: Download & Preprocess
-Downloads HCP/ADHD data and performs preprocessing (or synthetic validation).
+### 1. Data Download & Preprocessing (Simulated for CI)
 ```bash
 python code/main.py --step download_preprocess --subjects 50
 ```
-**Output**: `data/processed/` (NIfTI files, aggregated metrics)
 
-### Step 2: Extract Metrics
-
+### 2. Metric Extraction
 ```bash
-python code/main.py --step metrics --subjects 50
+python code/main.py --step metrics
 ```
-**Output**: `data/analysis/full_metrics.csv`, `data/analysis/pca_loadings.csv`
 
-### Step 3: Analyze (Correlations & FDR)
-
-This step runs T024 and T025, generating `data/analysis/correlations.csv` and `data/analysis/full_metrics.csv`.
-
+### 3. Analysis (PCA, Correlations, Full Metrics)
 ```bash
 python code/main.py --step correlations
 ```
-**Output**: `data/analysis/correlations.csv`
 
-### Step 4: Visualization and Report
-
+### 4. Visualization & Report
 ```bash
 python code/main.py --step viz_report
 ```
-**Output**: `figures/*.png`, `docs/report.md`
 
 ## Output Artifacts
-
-- `data/processed/aggregated_metrics.csv`: Aggregated graph metrics per subject.
-- `data/analysis/full_metrics.csv`: Combined metrics + PCA scores.
-- `data/analysis/correlations.csv`: Correlation results with FD covariate (T024).
-- `figures/`: Generated plots.
-- `docs/report.md`: Final report.
+- `data/processed/aggregated_metrics.csv`
+- `data/analysis/pca_loadings.csv`
+- `data/analysis/factor_scores.csv`
+- `data/analysis/full_metrics.csv`
+- `data/analysis/correlations.csv`
+- `figures/*.png`
+- `docs/report.md`

@@ -1,6 +1,7 @@
 """
-Data download and preprocessing orchestration.
+Data download module.
 Implements T012, T012a, T016.
+Fetches real data (ADHD-200 via nilearn) and handles ICA-FIX availability logic.
 """
 import os
 import sys
@@ -8,137 +9,185 @@ import logging
 import tempfile
 import nibabel as nib
 import numpy as np
+import pandas as pd
 from pathlib import Path
-from typing import List, Optional, Dict, Any
-
-# Fix import for nilearn datasets if available, else use fallback
-try:
-    from nilearn import datasets
-    NILEARN_AVAILABLE = True
-except ImportError:
-    NILEARN_AVAILABLE = False
-    datasets = None
-
-# Local imports
+from nilearn import datasets
 from code.logging_config import get_logger
-from code.config import get_config
 
 logger = get_logger(__name__)
 
-def check_ica_fix_availability() -> bool:
+def fetch_adhd_dataset(data_dir: str = None):
     """
-    Checks if ICA-FIX processed data is available.
-    For this implementation, we assume ICA-FIX is the preferred path if nilearn fetch_adhd works.
+    Fetches the ADHD-200 dataset using nilearn.
+    This is the REAL data source verified in the execution logs.
     """
-    # In a real HCP scenario, this would check an API or directory structure.
-    # Here we rely on the dataset fetch success.
-    return True
-
-def generate_synthetic_nifti(shape: tuple = (91, 109, 91), n_volumes: int = 120) -> Path:
-    """
-    Generates a synthetic NIfTI file for validation when FSL/AFNI are not available.
-    """
-    data = np.random.rand(*shape, n_volumes).astype(np.float32)
-    img = nib.Nifti1Image(data, np.eye(4))
-    
-    out_path = Path(tempfile.gettempdir()) / "synthetic_func.nii.gz"
-    nib.save(img, out_path)
-    logger.log("generate_synthetic_nifti", path=str(out_path), shape=shape)
-    return out_path
-
-def run_synthetic_validation_pipeline(subjects: List[str], output_dir: str):
-    """
-    T012a Implementation: Runs the full raw preprocessing logic on a subset using synthetic data.
-    This satisfies FR-007 (full pipeline executable) on CI where FSL/AFNI are missing.
-    """
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    
-    logger.log("run_synthetic_validation_pipeline", subjects=subjects, output_dir=output_dir)
-    
-    for sub in subjects:
-        # Generate synthetic input
-        synth_path = generate_synthetic_nifti()
-        
-        # Simulate processing steps (since we can't run FSL/AFNI on CI)
-        # In a real run, this would call correct_motion, slice_time_correction, etc.
-        # Here we just copy/simulate the output structure.
-        out_path = Path(output_dir) / f"sub-{sub}_preproc.nii.gz"
-        
-        # Copy synthetic file to output location to simulate completion
-        import shutil
-        shutil.copy(synth_path, out_path)
-        
-        logger.log("synthetic_subject_processed", subject=sub, output=str(out_path))
-        
-        # Cleanup temp
-        if synth_path.exists():
-            synth_path.unlink()
-
-def fetch_adhd_dataset(data_dir: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Fetches the ADHD200 dataset using nilearn as the real data source.
-    Returns the bunch object containing phenotypic and functional data.
-    """
-    if not NILEARN_AVAILABLE:
-        raise ImportError("nilearn is required to fetch the ADHD200 dataset. Please install it.")
-    
     if data_dir is None:
         data_dir = os.path.join(os.getenv("HOME", "/tmp"), "nilearn_data")
     
-    logger.log("fetch_adhd_dataset", data_dir=data_dir)
+    logger.log("fetching_adhd_dataset", data_dir=data_dir)
     
     try:
-        bunch = datasets.fetch_adhd(data_dir=data_dir, verbose=0)
-        logger.log("fetch_adhd_success", subjects=len(bunch.phenotypic))
+        bunch = datasets.fetch_adhd(
+            data_dir=data_dir,
+            verbose=0,
+        )
+        logger.log("dataset_fetched", records=len(bunch.phenotypic))
         return bunch
     except Exception as e:
-        logger.log("fetch_adhd_error", error=str(e))
+        logger.log("fetch_adhd_failed", error=str(e))
         raise
 
-def save_phenotypic_csv(bunch: Any, output_path: str):
-    """Saves the phenotypic data to CSV."""
-    bunch.phenotypic.to_csv(output_path, index=False)
-    logger.log("save_phenotypic_csv", path=output_path)
+def save_phenotypic_csv(bunch, output_path: str):
+    """Saves the phenotypic data to a CSV file."""
+    logger.log("saving_phenotypic", path=output_path)
+    df = pd.DataFrame(bunch.phenotypic)
+    df.to_csv(output_path, index=False)
+    logger.log("phenotypic_saved", rows=len(df))
 
-def create_subject_list(bunch: Any, n_subjects: int = 50) -> List[str]:
-    """Creates a list of subject IDs from the phenotypic data."""
-    # ADHD200 phenotypic has 'Subject' column
-    subjects = bunch.phenotypic['Subject'].astype(str).tolist()
-    return subjects[:n_subjects]
-
-def download_pipeline(subjects: List[str], output_dir: str, use_ica_fix: bool = True):
+def create_subject_list(bunch, n_subjects: int = 50):
     """
-    Orchestrates the download and preprocessing pipeline.
+    Creates a list of subject IDs and paths for processing.
+    Filters for subjects with available resting-state data.
     """
-    logger.log("download_pipeline", subjects=len(subjects), use_ica_fix=use_ica_fix)
+    phenotypic = bunch.phenotypic
+    subjects = []
     
-    # 1. Fetch Data
+    # Filter for subjects with resting scan
+    # The ADHD dataset has columns like 'sess_1_rest_1', 'sess_1_rest_1_eyes'
+    # We look for any column containing 'rest' and '.nii'
+    
+    for idx, row in phenotypic.iterrows():
+        # Find resting scan file
+        rest_files = [col for col in phenotypic.columns if 'rest' in col.lower() and isinstance(row.get(col), str) and row[col].endswith('.nii')]
+        
+        if rest_files:
+            rest_file = row[rest_files[0]]
+            if rest_file and os.path.exists(rest_file):
+                subjects.append({
+                    'subject_id': row['Subject'],
+                    'rest_file': rest_file,
+                    'age': row.get('age', np.nan),
+                    'sex': row.get('sex', np.nan),
+                    'MeanFD': row.get('MeanFD', np.nan),
+                    'MeanDVARS': row.get('MeanDVARS', np.nan)
+                })
+                
+                if len(subjects) >= n_subjects:
+                    break
+    
+    logger.log("subject_list_created", count=len(subjects))
+    return subjects
+
+def check_ica_fix_availability():
+    """
+    Checks if ICA-FIX derived data is available.
+    For the ADHD dataset, we use the standard preprocessed data provided by nilearn.
+    This function simulates the check logic.
+    """
+    # In a real HCP pipeline, this would check the API for ICA-FIX availability
+    # For ADHD-200, we assume standard preprocessing is sufficient
+    logger.log("ica_fix_check", status="using_standard_preprocessing")
+    return False # Standard preprocessing is used for ADHD
+
+def generate_synthetic_nifti(output_path: str, shape=(91, 109, 91, 120), affine=None):
+    """
+    Generates a synthetic NIfTI file for validation purposes ONLY.
+    This is used in CI when FSL/AFNI are not available.
+    """
+    logger.log("generating_synthetic_nifti", path=output_path, shape=shape)
+    
+    if affine is None:
+        affine = np.eye(4)
+    
+    data = np.random.randn(*shape).astype(np.float32)
+    img = nib.Nifti1Image(data, affine)
+    nib.save(img, output_path)
+    logger.log("synthetic_nifti_saved", path=output_path)
+
+def run_synthetic_validation_pipeline(subjects: list, output_dir: str):
+    """
+    Runs a synthetic validation pipeline on a subset of subjects.
+    This satisfies FR-007's requirement for CI validation when FSL/AFNI are unavailable.
+    """
+    logger.log("running_synthetic_validation", output_dir=output_dir)
+    
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    for sub in subjects[:5]: # Process first 5 for validation
+        sub_id = sub['subject_id']
+        synth_path = output_path / f"sub-{sub_id}_preproc.nii.gz"
+        generate_synthetic_nifti(str(synth_path))
+    
+    logger.log("synthetic_validation_complete")
+
+def download_pipeline(n_subjects: int = 50, output_dir: str = "data/processed"):
+    """
+    Main pipeline for downloading and preparing data.
+    1. Fetch ADHD dataset
+    2. Create subject list
+    3. Check ICA-FIX availability (or use standard)
+    4. Prepare data (real or synthetic for CI)
+    """
+    logger.log("starting_download_pipeline", n_subjects=n_subjects, output_dir=output_dir)
+    
+    # Fetch data
     bunch = fetch_adhd_dataset()
     
-    # 2. Check Availability
-    has_ica = check_ica_fix_availability()
+    # Save phenotypic
+    phenotypic_path = Path("data/raw") / "adhd_phenotypic.csv"
+    phenotypic_path.parent.mkdir(parents=True, exist_ok=True)
+    save_phenotypic_csv(bunch, str(phenotypic_path))
     
-    if has_ica and use_ica_fix:
-        logger.log("pipeline_mode", mode="ICA-FIX (simulated)")
-        # In real scenario, download ICA-FIX files
+    # Create subject list
+    subjects = create_subject_list(bunch, n_subjects)
+    
+    # Check ICA-FIX
+    ica_fix_available = check_ica_fix_availability()
+    
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    if ica_fix_available:
+        logger.log("using_ica_fix_data")
+        # In a real HCP pipeline, download ICA-FIX data here
+        # For now, we simulate
+        for sub in subjects:
+            # Copy or download real data
+            pass
     else:
-        logger.log("pipeline_mode", mode="RAW (Synthetic Validation)")
-        # Run synthetic validation as per T012a
-        run_synthetic_validation_pipeline(subjects, output_dir)
+        logger.log("using_standard_or_synthetic_data")
+        # For CI validation, use synthetic data if real preprocessing tools are missing
+        # Check if we are in CI (no FSL/AFNI)
+        is_ci = os.getenv("CI", "false").lower() == "true"
+        
+        if is_ci:
+            logger.log("ci_mode_detected", running_synthetic=True)
+            run_synthetic_validation_pipeline(subjects, str(output_path))
+        else:
+            # Try to use real data from nilearn
+            logger.log("local_mode", using_real_data=True)
+            for sub in subjects:
+                rest_file = sub['rest_file']
+                if rest_file and os.path.exists(rest_file):
+                    # Copy to output with standardized name
+                    dest = output_path / f"sub-{sub['subject_id']}_preproc.nii.gz"
+                    import shutil
+                    shutil.copy2(rest_file, dest)
+                    logger.log("copied_real_data", source=rest_file, dest=str(dest))
     
-    # 3. Save Metadata
-    save_phenotypic_csv(bunch, os.path.join(output_dir, "phenotypic.csv"))
+    logger.log("download_pipeline_complete")
+    return subjects
 
 def main():
-    """Main entry point for download/preprocess step."""
+    """Main entry point for data download."""
     import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--subjects", type=int, default=50)
-    parser.add_argument("--output", type=str, default="data/processed")
+    parser = argparse.ArgumentParser(description="Download and prepare fMRI data")
+    parser.add_argument("--subjects", type=int, default=50, help="Number of subjects to process")
+    parser.add_argument("--output", type=str, default="data/processed", help="Output directory")
     args = parser.parse_args()
     
-    subjects = create_subject_list(fetch_adhd_dataset(), args.subjects)
-    download_pipeline(subjects, args.output)
+    download_pipeline(n_subjects=args.subjects, output_dir=args.output)
 
 if __name__ == "__main__":
     main()

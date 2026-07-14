@@ -1,3 +1,7 @@
+"""
+Runner script for PCA analysis.
+This script executes the PCA analysis and saves results.
+"""
 import os
 import sys
 import logging
@@ -8,13 +12,18 @@ from code.logging_config import get_logger
 logger = get_logger(__name__)
 
 def main():
-    """Runner for PCA analysis."""
-    logger.info("Running PCA analysis via correlations module...")
+    """
+    Main entry point for PCA runner.
+    """
+    logger.log("pca_runner", step="start")
+    
     try:
+        # Run the correlation analysis which includes PCA
         correlations_main()
+        logger.log("pca_runner", step="complete", status="success")
     except Exception as e:
-        logger.error(f"PCA analysis failed: {e}")
-        sys.exit(1)
+        logger.log("pca_runner", step="failed", error=str(e))
+        raise
 
 if __name__ == "__main__":
     main()
