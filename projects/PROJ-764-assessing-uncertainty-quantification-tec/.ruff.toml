@@ -1,0 +1,3 @@
+# Extends pyproject.toml settings for specific overrides if needed,
+# but primarily serves as the entry point for ruff if invoked without --config.
+extend = "pyproject.toml"

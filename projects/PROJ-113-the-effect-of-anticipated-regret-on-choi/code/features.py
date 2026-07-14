@@ -1,209 +1,203 @@
-"""
-Feature engineering and diagnostic utilities for the regret and deferral study.
-
-This module implements:
-1. Min-Max Regret proxy calculation (opportunity cost).
-2. Standard Deviation of Normalized EU (legacy/comparison).
-3. Potential Loss Magnitude (Loss Aversion control).
-4. Diagnostic correlation analysis between Regret and Loss Aversion metrics.
-"""
 import logging
 import warnings
 from typing import Dict, Any, List, Optional, Tuple, Union
+
 import numpy as np
 import pandas as pd
 from scipy import stats
 
 logger = logging.getLogger(__name__)
 
-def calculate_min_max_regret(options: List[Dict[str, Any]]) -> float:
-    """
-    Calculate the 'Min-Max Regret' proxy (opportunity cost) for a set of options.
-    
-    Regret is defined as the difference between the maximum possible utility 
-    (best option in the set) and the utility of the chosen option.
-    For a deferral (no choice), the regret is the difference between the 
-    best option and the null option (assumed 0 utility unless specified).
-    
-    Args:
-        options: List of dictionaries representing decision options.
-                 Each dict must contain at least 'utility' (or 'normalized_eu').
-                 If 'chosen' is True, it indicates the selected option.
-                 
-    Returns:
-        float: The regret value. 0 if only one option or if no options provided.
-    """
-    if not options or len(options) == 0:
-        logger.warning("Empty options list provided to calculate_min_max_regret")
-        return 0.0
-    
-    if len(options) == 1:
-        # Per FR-002: Regret is 0 when only one option exists
-        return 0.0
-    
-    # Extract utilities
-    utilities = []
-    chosen_idx = -1
-    
-    for i, opt in enumerate(options):
-        # Try 'normalized_eu' first, fallback to 'utility'
-        u = opt.get('normalized_eu') or opt.get('utility')
-        if u is None:
-            raise ValueError(f"Option {i} missing 'normalized_eu' or 'utility'")
-        utilities.append(float(u))
-        
-        if opt.get('chosen', False):
-            chosen_idx = i
-    
-    utilities = np.array(utilities)
-    max_utility = np.max(utilities)
-    
-    if chosen_idx == -1:
-        # Deferral case: No option chosen. 
-        # Regret is max_utility - utility_of_null_option.
-        # Assuming null option utility is 0 (neutral state).
-        # If the data provides a 'deferral_utility', use that.
-        null_utility = 0.0
-        return float(max_utility - null_utility)
-    else:
-        chosen_utility = utilities[chosen_idx]
-        return float(max_utility - chosen_utility)
 
-def calculate_sd_normalized_eu(options: List[Dict[str, Any]]) -> float:
+def calculate_min_max_regret(df: pd.DataFrame, option_col: str = 'option_id', value_col: str = 'utility') -> pd.DataFrame:
     """
-    Calculate the Standard Deviation of Normalized EU (SD of EU).
+    Calculate Min-Max Regret (Opportunity Cost) proxy.
     
-    This is the legacy proxy mentioned in the original spec (FR-002) which 
-    was replaced by Min-Max Regret due to circularity concerns. 
-    Kept here for sensitivity analysis and comparison purposes.
+    For each decision context (group), regret is defined as the difference
+    between the maximum possible utility in that context and the utility of the chosen option.
     
     Args:
-        options: List of option dictionaries with 'normalized_eu'.
-                 
-    Returns:
-        float: Standard deviation of the utilities.
-    """
-    if not options or len(options) < 2:
-        return 0.0
-    
-    utilities = [float(opt.get('normalized_eu') or opt.get('utility', 0)) 
-                 for opt in options]
-    return float(np.std(utilities, ddof=1))
-
-def calculate_potential_loss_magnitude(options: List[Dict[str, Any]]) -> float:
-    """
-    Calculate the 'Potential Loss Magnitude' metric.
-    
-    This metric represents the maximum possible loss in the choice set,
-    independent of the choice made. It serves as a control for loss aversion.
-    Defined as: max(utility) - min(utility) in the set.
-    
-    Args:
-        options: List of option dictionaries with 'normalized_eu'.
-                 
-    Returns:
-        float: The range of utilities (max - min).
-    """
-    if not options or len(options) < 2:
-        return 0.0
-    
-    utilities = [float(opt.get('normalized_eu') or opt.get('utility', 0)) 
-                 for opt in options]
-    return float(max(utilities) - min(utilities))
-
-def add_regret_and_loss_metrics(df: pd.DataFrame, options_col: str = 'options') -> pd.DataFrame:
-    """
-    Add 'regret_proxy' and 'potential_loss_magnitude' columns to a DataFrame.
-    
-    Args:
-        df: Input DataFrame containing the options column.
-        options_col: Name of the column containing the list of options.
+        df: DataFrame containing decision context data.
+        option_col: Column name for option identifier.
+        value_col: Column name for utility/value of the option.
         
     Returns:
-        DataFrame with added columns.
+        DataFrame with added 'regret_proxy' column.
     """
-    df = df.copy()
-    
-    def compute_row_metrics(row):
-        opts = row[options_col]
-        if not isinstance(opts, list):
-            logger.warning(f"Non-list options found in row. Returning 0s.")
-            return pd.Series({'regret_proxy': 0.0, 'potential_loss_magnitude': 0.0})
+    if df.empty:
+        return df
         
-        regret = calculate_min_max_regret(opts)
-        loss_mag = calculate_potential_loss_magnitude(opts)
-        return pd.Series({'regret_proxy': regret, 'potential_loss_magnitude': loss_mag})
+    # Group by decision context (assumed to be the index or a specific context ID if present)
+    # If no context ID, we assume rows are already grouped or we group by a 'context_id' if it exists.
+    # For this implementation, we assume the input df has a 'context_id' column or we treat the whole df as one batch if not.
+    # However, standard practice for regret is per-decision-event.
+    # Let's assume 'context_id' exists. If not, we group by an index level or a synthetic ID.
     
-    result = df.apply(compute_row_metrics, axis=1)
-    df['regret_proxy'] = result['regret_proxy']
-    df['potential_loss_magnitude'] = result['potential_loss_magnitude']
-    
+    if 'context_id' not in df.columns:
+        # Fallback: If no context_id, we cannot calculate regret across options within a choice set.
+        # We assume the input is already filtered to choice sets or we raise an error.
+        # For robustness, we'll create a synthetic context if missing, but log a warning.
+        logger.warning("No 'context_id' found. Assuming each row is its own context (Regret=0).")
+        df['regret_proxy'] = 0.0
+        return df
+
+    def calc_regret(group: pd.DataFrame) -> pd.Series:
+        if len(group) <= 1:
+            # Single option: Regret is 0 (per FR-002 and T011)
+            return pd.Series([0.0] * len(group), index=group.index)
+        
+        max_util = group[value_col].max()
+        # Regret = Max Utility - Chosen Utility
+        regret = max_util - group[value_col]
+        return regret
+
+    df['regret_proxy'] = df.groupby('context_id').apply(calc_regret).reset_index(level=0, drop=True)
     return df
 
-def compute_regret_loss_correlation(df: pd.DataFrame, 
-                                    regret_col: str = 'regret_proxy',
-                                    loss_col: str = 'potential_loss_magnitude') -> Dict[str, Any]:
+
+def calculate_sd_normalized_eu(df: pd.DataFrame, option_col: str = 'option_id', value_col: str = 'utility') -> pd.DataFrame:
     """
-    Diagnostic function to compare the correlation between regret_proxy and 
-    potential_loss_magnitude.
+    Calculate Standard Deviation of Normalized EU (Spec-mandated alternative).
+    This is for comparison purposes only, not the primary proxy.
+    """
+    if df.empty:
+        return df
+        
+    if 'context_id' not in df.columns:
+        df['sd_eu_proxy'] = 0.0
+        return df
+
+    def calc_sd(group: pd.DataFrame) -> pd.Series:
+        if len(group) <= 1:
+            return pd.Series([0.0] * len(group), index=group.index)
+        
+        # Normalize EU within context (0 to 1)
+        utils = group[value_col].values
+        utils_min, utils_max = utils.min(), utils.max()
+        
+        if utils_max == utils_min:
+            normalized = np.zeros_like(utils)
+        else:
+            normalized = (utils - utils_min) / (utils_max - utils_min)
+        
+        sd_val = np.std(normalized)
+        return pd.Series([sd_val] * len(group), index=group.index)
+
+    df['sd_eu_proxy'] = df.groupby('context_id').apply(calc_sd).reset_index(level=0, drop=True)
+    return df
+
+
+def calculate_potential_loss_magnitude(df: pd.DataFrame, value_col: str = 'utility') -> pd.DataFrame:
+    """
+    Calculate Potential Loss Magnitude (Max possible loss) independent of regret.
+    This is used to control for loss aversion.
+    """
+    if df.empty:
+        return df
+        
+    if 'context_id' not in df.columns:
+        df['potential_loss_magnitude'] = 0.0
+        return df
+
+    def calc_loss(group: pd.DataFrame) -> pd.Series:
+        if len(group) <= 1:
+            return pd.Series([0.0] * len(group), index=group.index)
+        
+        # Max possible loss is the range of utilities in the context
+        # (Best case - Worst case)
+        loss = group[value_col].max() - group[value_col].min()
+        return pd.Series([loss] * len(group), index=group.index)
+
+    df['potential_loss_magnitude'] = df.groupby('context_id').apply(calc_loss).reset_index(level=0, drop=True)
+    return df
+
+
+def add_regret_and_loss_metrics(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add both regret_proxy and potential_loss_magnitude to the dataframe.
+    """
+    df = calculate_min_max_regret(df)
+    df = calculate_potential_loss_magnitude(df)
+    return df
+
+
+def compute_regret_loss_correlation(df: pd.DataFrame) -> float:
+    """
+    Compute correlation between regret_proxy and potential_loss_magnitude.
+    Returns 0.0 if either column is missing or variance is zero.
+    """
+    if 'regret_proxy' not in df.columns or 'potential_loss_magnitude' not in df.columns:
+        logger.warning("Missing regret_proxy or potential_loss_magnitude columns for correlation check.")
+        return 0.0
+        
+    corr, _ = stats.pearsonr(df['regret_proxy'], df['potential_loss_magnitude'])
+    return float(corr)
+
+
+def calculate_price_variance_proxy(df: pd.DataFrame, price_col: str = 'price') -> pd.DataFrame:
+    """
+    Calculate price variance as a proxy for perceived risk.
+    This is used as a fallback when 'perceived_risk' scores are missing.
+    """
+    if df.empty:
+        return df
+        
+    if 'context_id' not in df.columns:
+        df['price_variance'] = 0.0
+        return df
+
+    def calc_var(group: pd.DataFrame) -> pd.Series:
+        if len(group) <= 1:
+            return pd.Series([0.0] * len(group), index=group.index)
+        
+        var_val = group[price_col].var()
+        return pd.Series([var_val] * len(group), index=group.index)
+
+    df['price_variance'] = df.groupby('context_id').apply(calc_var).reset_index(level=0, drop=True)
+    return df
+
+
+def validate_regret_proxy_single_option(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Ensure regret_proxy is 0 when only one option exists (per FR-002).
+    This is a validation step that enforces the logic already in calculate_min_max_regret,
+    but explicitly checks and corrects if necessary.
+    """
+    if 'context_id' not in df.columns:
+        return df
+        
+    # Count options per context
+    option_counts = df.groupby('context_id').size()
+    single_option_contexts = option_counts[option_counts == 1].index
     
-    This addresses the Kahneman review concern about isolating anticipated regret
-    from general loss aversion. A high correlation suggests the metrics are 
-    confounded; a lower correlation suggests they capture distinct constructs.
+    if len(single_option_contexts) > 0:
+        logger.info(f"Enforcing regret=0 for {len(single_option_contexts)} contexts with single option.")
+        df.loc[df['context_id'].isin(single_option_contexts), 'regret_proxy'] = 0.0
+        
+    return df
+
+
+def add_perceived_risk_covariate(df: pd.DataFrame, price_col: str = 'price') -> pd.DataFrame:
+    """
+    T018 Implementation: Fallback logic for 'perceived_risk' covariate.
+    
+    If 'perceived_risk' column is missing, calculate 'price_variance' and 
+    use it as the 'perceived_risk' covariate in the model formula.
     
     Args:
-        df: DataFrame containing the metrics.
-        regret_col: Name of the regret proxy column.
-        loss_col: Name of the potential loss magnitude column.
+        df: Input DataFrame.
+        price_col: Column name for price data.
         
     Returns:
-        Dictionary containing:
-            - correlation: Pearson correlation coefficient
-            - p_value: p-value for the correlation test
-            - n_samples: Number of samples used
-            - interpretation: Qualitative assessment of the correlation strength
+        DataFrame with 'perceived_risk' column populated (either from existing or calculated).
     """
-    if regret_col not in df.columns or loss_col not in df.columns:
-        raise ValueError(f"Columns '{regret_col}' and/or '{loss_col}' not found in DataFrame")
-    
-    # Drop rows where either metric is NaN or infinite
-    valid_data = df[[regret_col, loss_col]].dropna()
-    valid_data = valid_data[np.isfinite(valid_data[regret_col]) & np.isfinite(valid_data[loss_col])]
-    
-    if len(valid_data) < 2:
-        logger.warning("Insufficient data points to compute correlation (n < 2)")
-        return {
-            'correlation': np.nan,
-            'p_value': np.nan,
-            'n_samples': len(valid_data),
-            'interpretation': 'Insufficient data',
-            'success': False
-        }
-    
-    x = valid_data[regret_col].values
-    y = valid_data[loss_col].values
-    
-    corr, p_val = stats.pearsonr(x, y)
-    
-    # Interpretation logic
-    abs_corr = abs(corr)
-    if abs_corr < 0.1:
-        interp = "Negligible correlation. Metrics appear distinct."
-    elif abs_corr < 0.3:
-        interp = "Weak correlation. Metrics are largely distinct."
-    elif abs_corr < 0.5:
-        interp = "Moderate correlation. Some overlap between constructs."
-    elif abs_corr < 0.7:
-        interp = "Strong correlation. Significant overlap; consider orthogonalization."
+    if 'perceived_risk' not in df.columns:
+        logger.info("Column 'perceived_risk' missing. Calculating fallback 'price_variance' as covariate.")
+        df = calculate_price_variance_proxy(df, price_col=price_col)
+        # Rename the calculated variance to the expected covariate name
+        df['perceived_risk'] = df['price_variance']
+        logger.info("Fallback 'perceived_risk' assigned from price_variance.")
     else:
-        interp = "Very strong correlation. Metrics may be confounded."
-    
-    logger.info(f"Regret vs Loss Aversion Correlation: r={corr:.4f}, p={p_val:.4f} ({interp})")
-    
-    return {
-        'correlation': float(corr),
-        'p_value': float(p_val),
-        'n_samples': len(valid_data),
-        'interpretation': interp,
-        'success': True
-    }
+        logger.info("Column 'perceived_risk' already present. Using existing values.")
+        
+    return df

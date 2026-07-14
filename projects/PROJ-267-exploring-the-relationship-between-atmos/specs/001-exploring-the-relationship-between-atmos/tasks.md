@@ -40,13 +40,13 @@
 
 - [X] T006 Initialize Python 3.11 project with dependencies in `projects/PROJ-267-exploring-the-relationship-between-atmos/code/requirements.txt` (pandas, numpy, scipy, statsmodels, requests, matplotlib, seaborn, pyyaml)
 - [X] T007 [P] Configure linting and formatting tools: create `.flake8` and `pyproject.toml` in `projects/PROJ-267-exploring-the-relationship-between-atmos/code/`
-- [ ] T008 [P] Create citation verification script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/00_verify_citations.py` that validates both URL reachability AND citation validation (title-token-overlap ≥ 0.7 against primary source [UNRESOLVED-CLAIM: c_9a9b033c — status=not_enough_info]) per Constitution Principle II before Phase 0 begins. Script must exit with error code if any citation fails verification.
+- [ ] T008 [P] Create citation verification script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/00_verify_citations.py` that validates both URL reachability AND citation validation (title-token-overlap ≥ 0.7 against primary source) per Constitution Principle II before Phase 0 begins. Script must exit with error code if any citation fails verification.
 - [ ] T009 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/quickstart.md` with installation, data sources, run commands, expected outputs per FR-007 documentation requirements
 - [ ] T010 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md` with entity definitions (AR Event, Gravity Anomaly, Correlation Result) per plan.md Phase 1 output
 - [ ] T011 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/docs/frame-of-reference.md` documenting gravity anomaly definition (geoid height at satellite altitude) per spec.md Assumptions section, explicitly distinguishing physical curvature from coordinate artifacts
 - [ ] T012 Create `projects/PROJ-267-exploring-the-relationship-between-atmos/state/projects/PROJ-267-exploring-the-relationship-between-atmos.yaml` with project metadata
-- [~] T013 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/contracts/dataset.schema.yaml` for merged CSV schema validation per US-1
-- [~] T014 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/contracts/output.schema.yaml` for correlation result schema validation per US-2
+- [ ] T013 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/contracts/dataset.schema.yaml` for merged CSV schema validation per US-1
+- [ ] T014 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/contracts/output.schema.yaml` for correlation result schema validation per US-2
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in priority order
 
@@ -54,15 +54,15 @@
 
 ## Phase 3: User Story 1 - Data Ingestion & Preprocessing (Priority: P1) 🎯 MVP
 
-**Goal**: Retrieve GRACE-FO mascon and NOAA AR catalog data, align to monthly resolution for West Coast NA region (35°N-50°N, 120°W-125°W [UNRESOLVED-CLAIM: c_3173fdb3 — status=not_enough_info]), apply GRACE-FO preprocessing
+**Goal**: Retrieve GRACE-FO mascon and NOAA AR catalog data, align to monthly resolution for West Coast NA region (35°N-50°N, 120°W-125°W), apply GRACE-FO preprocessing
 
-**Independent Test**: Can be fully tested by executing the data pipeline script and verifying the output contains a merged CSV with ≥ 90% of expected monthly rows [UNRESOLVED-CLAIM: c_4b8d4ca7 — status=not_enough_info] and no NaN values in the primary columns
+**Independent Test**: Can be fully tested by executing the data pipeline script and verifying the output contains a merged CSV with ≥ 90% of expected monthly rows and no NaN values in the primary columns
 
 **⚠️ DEPENDENCY**: T015 must complete before T016, T016 must complete before T017
 
 ### Implementation for User Story 1
 
-- [~] T015 [US1] Create data fetching script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/01_data_ingestion.py` that: (1) fetches GRACE-FO processed mascon solutions from ` Name or service not known)"))], (2) fetches NOAA CPC Atmospheric River Catalog data from `, (3) logs dataset version/release date per Constitution Principle VI, (4) implements region filtering for West Coast NA (35°N-50°N, 120°W-125°W [UNRESOLVED-CLAIM: c_3173fdb3 — status=not_enough_info]), (5) saves raw downloads to `data/raw/grace-fo/` and `data/raw/noaa-ar/` with checksums per Principle III <!-- FAILED: unspecified -->
+- [~] T015 [US1] Create data fetching script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/01_data_ingestion.py` that: (1) fetches GRACE-FO processed mascon solutions from ` Name or service not known)"))], (2) fetches NOAA CPC Atmospheric River Catalog data from `, (3) logs dataset version/release date per Constitution Principle VI, (4) implements region filtering for West Coast NA (35°N-50°N, 120°W-125°W), (5) saves raw downloads to `data/raw/grace-fo/` and `data/raw/noaa-ar/` with checksums per Principle III <!-- FAILED: unspecified -->
 - [~] T016 [US1] Create preprocessing script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/02_preprocessing.py` that: (1) applies GRACE-FO degree-1 coefficient correction, (2) applies GRACE-FO C20 coefficient replacement, (3) applies Gaussian smoothing at a suitable spatial scale, (4) implements monthly aggregation for GRACE-FO mascon values, (5) implements monthly aggregation for AR Integrated Water Vapor Transport, (6) handles missing months by logging warnings and skipping per edge cases, (7) excludes months with zero AR events from correlation calculation
 - [~] T017 [US1] Create merge output script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/03_merge_output.py` that: (1) merges preprocessed GRACE-FO and NOAA AR data into single CSV, (2) validates completeness (≥ 90% threshold) with warning logging, (3) ensures no NaN values in primary columns, (4) outputs merged CSV `projects/PROJ-267-exploring-the-relationship-between-atmos/data/processed/merged_monthly.csv`, (5) validates schema against `contracts/dataset.schema.yaml`
 - [~] T018 [US1] Create contract test `projects/PROJ-267-exploring-the-relationship-between-atmos/tests/contract/test_dataset_schema.py` for merged CSV schema validation
@@ -74,7 +74,7 @@
 
 ## Phase 4: User Story 2 - Statistical Correlation Analysis (Priority: P1)
 
-**Goal**: Compute Pearson correlation between AR intensity and gravity anomalies across lag windows 0-3 months, apply bootstrap resampling (1000 iterations, seed=42 [UNRESOLVED-CLAIM: c_51b1238f — status=not_enough_info]), multiple-comparison correction, and control region validation
+**Goal**: Compute Pearson correlation between AR intensity and gravity anomalies across lag windows 0-3 months, apply bootstrap resampling (1000 iterations, seed=42), multiple-comparison correction, and control region validation
 
 **Independent Test**: Can be tested by running the analysis module on a mock dataset and verifying the output includes correlation coefficients, p-values, corrected significance flags, bootstrap confidence intervals, and control region comparison results
 
@@ -82,9 +82,9 @@
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Create correlation computation script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/04_correlation.py` that: (1) computes Pearson correlation between AR intensity and gravity anomalies, (2) implements lag window analysis (across multiple lag intervals), (3) implements autocorrelation correction: AR(1) pre-whitening and Newey-West standard errors, (4) implements effective sample size calculation (n_eff = n × (1-ρ)/(1+ρ) [UNRESOLVED-CLAIM: c_44f0e752 — status=not_enough_info]), (5) does NOT pre-specify effect size threshold as success criteria per Constitution Principle VII; reports bootstrap CIs only
-- [~] T021 [US2] Create bootstrap correction script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/05_bootstrap_correction.py` that: (1) implements bootstrap resampling (1000 iterations, seed=42 [UNRESOLVED-CLAIM: c_51b1238f — status=not_enough_info]) for 95% confidence intervals, (2) {{claim:c_9476e82d}} ({{claim:c_0af1b0df}}, https://www.wikidata.org/wiki/Q385989) for p-values, (3) preserves SC-002 p < 0.05 threshold for significance testing only (not effect size), (4) creates Correlation Result output with region_type field (target/control)
-- [~] T022 [US2] Create control validation script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/06_control_validation.py` that: (1) implements control region selection (areas without significant AR activity), (2) implements control vs target region correlation comparison, (3) implements noise-floor calculation from GRACE-FO mascon uncertainty metadata, (4) implements signal magnitude comparison to GRACE-FO measurement noise floor (≥ 3σ threshold [UNRESOLVED-CLAIM: c_8065161c — status=not_enough_info] per FR-004), (5) handles null results (correlation < 0.1 [UNRESOLVED-CLAIM: c_ac8e8058 — status=not_enough_info]) by reporting with p-value and confidence intervals without forcing positive finding
+- [~] T020 [US2] Create correlation computation script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/04_correlation.py` that: (1) computes Pearson correlation between AR intensity and gravity anomalies, (2) implements lag window analysis (across multiple lag intervals), (3) implements autocorrelation correction: AR(1) pre-whitening and Newey-West standard errors, (4) implements effective sample size calculation (n_eff = n × (1-ρ)/(1+ρ)), (5) does NOT pre-specify effect size threshold as success criteria per Constitution Principle VII; reports bootstrap CIs only
+- [~] T021 [US2] Create bootstrap correction script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/05_bootstrap_correction.py` that: (1) implements bootstrap resampling (1000 iterations, seed=42) for 95% confidence intervals, (2) {{claim:c_9476e82d}} ({{claim:c_0af1b0df}}, https://www.wikidata.org/wiki/Q385989) for p-values, (3) preserves SC-002 p < 0.05 threshold for significance testing only (not effect size), (4) creates Correlation Result output with region_type field (target/control)
+- [~] T022 [US2] Create control validation script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/06_control_validation.py` that: (1) implements control region selection (areas without significant AR activity), (2) implements control vs target region correlation comparison, (3) implements noise-floor calculation from GRACE-FO mascon uncertainty metadata, (4) implements signal magnitude comparison to GRACE-FO measurement noise floor (≥ 3σ threshold per FR-004), (5) handles null results (correlation < 0.1) by reporting with p-value and confidence intervals without forcing positive finding
 - [~] T023 [US2] Create contract test `projects/PROJ-267-exploring-the-relationship-between-atmos/tests/contract/test_correlation_schema.py` for Correlation Result entity validation
 - [~] T024 [US2] Create integration test `projects/PROJ-267-exploring-the-relationship-between-atmos/tests/integration/test_correlation_pipeline.py` for correlation analysis with mock dataset
 
@@ -123,9 +123,9 @@
 - [ ] T032 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/README.md` with required sections: installation, data sources, run commands, expected outputs
 - [ ] T033 Run all contract tests to verify schema compliance
 - [ ] T034 Run all integration tests to verify pipeline end-to-end
-- [ ] T035 Measure 03_merge_output.py runtime to verify ≤ 6 hours on 2 CPU, 7 GB RAM [UNRESOLVED-CLAIM: c_e3d4fb48 — status=not_enough_info] (SC-004) using Python time module with assertion that fails if exceeded
-- [ ] T036 Measure 06_control_validation.py runtime to verify ≤ 6 hours on 2 CPU, 7 GB RAM [UNRESOLVED-CLAIM: c_e3d4fb48 — status=not_enough_info] (SC-004) using Python time module with assertion that fails if exceeded
-- [ ] T037 Measure 10_sensitivity_report.py runtime to verify ≤ 6 hours on 2 CPU, 7 GB RAM [UNRESOLVED-CLAIM: c_e3d4fb48 — status=not_enough_info] (SC-004) using Python time module with assertion that fails if exceeded
+- [ ] T035 Measure 03_merge_output.py runtime to verify ≤ 6 hours on 2 CPU, 7 GB RAM (SC-004) using Python time module with assertion that fails if exceeded
+- [ ] T036 Measure 06_control_validation.py runtime to verify ≤ 6 hours on 2 CPU, 7 GB RAM (SC-004) using Python time module with assertion that fails if exceeded
+- [ ] T037 Measure 10_sensitivity_report.py runtime to verify ≤ 6 hours on 2 CPU, 7 GB RAM (SC-004) using Python time module with assertion that fails if exceeded
 - [ ] T038 [P] Document checksums for all data files in `projects/PROJ-267-exploring-the-relationship-between-atmos/state/` per Principle III
 - [ ] T039 [P] Verify all dataset URLs are reachable and documented in `projects/PROJ-267-exploring-the-relationship-between-atmos/docs/methodology.md`
 - [ ] T040 [P] Update `projects/PROJ-267-exploring-the-relationship-between-atmos/state/projects/PROJ-267-exploring-the-relationship-between-atmos.yaml` with `updated_at` timestamp and content hashes per Principle V

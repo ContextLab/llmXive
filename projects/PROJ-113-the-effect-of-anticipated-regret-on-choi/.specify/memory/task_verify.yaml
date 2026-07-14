@@ -1,9 +1,6 @@
-? T002 Create `requirements.txt` based on plan.md dependencies (pandas, numpy, scikit-learn,
-  statsmodels, pyyaml, requests, datasets)
-: 1
-T003 [P] Configure linting (ruff) and formatting (black) tools: 1
-T004 Create data directories and schema for raw/processed files (`data/raw/`, `data/processed/`): 1
-? 'T005 Initialize base ingestion utilities: Create `code/ingest.py` with `load_and_checksum(url)`
-  function that outputs `data/raw/checksums.json`'
-: 1
-T006 [P] Setup logging infrastructure for data hygiene and PII scanning (`code/utils/logging.py`): 1
+T002: 1
+T003: 1
+T004: 1
+T005: 1
+T006: 1
+T044: 1

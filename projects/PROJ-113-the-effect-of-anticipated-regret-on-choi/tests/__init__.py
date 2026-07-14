@@ -1,3 +1,1 @@
-"""
-Tests package for the Anticipated Regret study.
-"""
+# Test package for PROJ-113

@@ -1,0 +1,22 @@
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults (common in dataclasses)
+]
+
+[lint.isort]
+known-first-party = ["config", "generators", "chaos_game", "topology", "analysis", "benchmarks", "checksums", "visualizer", "complex_dynamics_bridge", "ruliad_explorer"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

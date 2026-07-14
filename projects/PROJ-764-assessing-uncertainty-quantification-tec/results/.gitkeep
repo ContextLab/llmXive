@@ -1,1 +1,2 @@
-# Placeholder for result artifacts
+# This directory stores final results, predictions, and reports.
+# Ensure .gitkeep is present to track the directory in version control.

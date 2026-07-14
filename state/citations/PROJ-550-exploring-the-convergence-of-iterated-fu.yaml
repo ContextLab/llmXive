@@ -1,1 +1,11 @@
-[]
+- artifact_hash: f832e1073680f8b9950d3396211fa9773e00803cb89adf6561ba03c3e3c06665
+  artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Sturges - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q103833088
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q103833088
+  verified_at: '2026-07-14T10:19:07.258466Z'

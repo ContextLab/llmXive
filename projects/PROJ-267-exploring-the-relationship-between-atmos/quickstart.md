@@ -1,106 +1,105 @@
 # Quickstart Guide: Atmospheric River Gravity Correlation
 
-This guide provides instructions for installing dependencies, obtaining data sources, running the analysis pipeline, and verifying expected outputs for the PROJ-267 project.
+This guide provides instructions for installing dependencies, obtaining data sources, running the analysis pipeline, and verifying expected outputs for the **Atmospheric River Gravity Correlation** project.
+
+## Prerequisites
+
+- Python 3.11 or higher
+- pip (Python package installer)
+- Git (for cloning the repository)
+- Internet connection (to fetch external datasets)
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project root:
+1. **Navigate to the project root:**
  ```bash
  cd projects/PROJ-267-exploring-the-relationship-between-atmos
  ```
 
-2. **Create a virtual environment** (recommended):
+2. **Create and activate a virtual environment (recommended):**
  ```bash
- python3 -m venv venv
+ python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. **Install dependencies** from `code/requirements.txt`:
+3. **Install dependencies:**
  ```bash
  pip install -r code/requirements.txt
  ```
+ *Dependencies include: pandas, numpy, scipy, statsmodels, requests, matplotlib, seaborn, pyyaml, flake8.*
+
+4. **Verify citation integrity (Required before Phase 0):**
+ Run the citation verification script to ensure all external references are valid and reachable per Constitution Principle II.
+ ```bash
+ python code/00_verify_citations.py
+ ```
+ *This script will exit with a non-zero status code if any URL is unreachable or if title-token overlap is below 0.7.*
 
 ## Data Sources
 
-This project relies on two primary external datasets. The ingestion scripts (`code/01_data_ingestion.py`) will automatically fetch these if they are not present in `data/raw/`.
+The pipeline requires two primary external datasets. These are fetched automatically by the ingestion script, but manual inspection is available.
 
-### 1. GRACE-FO Mascon Solutions
-- **Source**: NASA JPL GRACE-FO Mascon Solutions (RL06)
-- **URL**: `
-- **Description**: Monthly gravity field solutions in mascon format.
-- **Local Path**: `data/raw/grace-fo/`
-- **Access**: The ingestion script uses the `requests` library to download netCDF or CSV exports. Ensure your environment has internet access.
+1. **GRACE-FO Mascon Solutions:**
+ - **Source:** NASA JPL RL06 GRACE-FO Mascon Solutions
+ - **Access:** Fetched via `requests` from the official NASA PO.DAAC API or direct FTP mirror.
+ - **Local Storage:** `data/raw/grace-fo/`
+ - **Format:** NetCDF/CSV (processed to monthly averages)
 
-### 2. NOAA CPC Atmospheric River Catalog
-- **Source**: NOAA Climate Prediction Center (CPC) AR Catalog
-- **URL**: `
-- **Description**: Daily atmospheric river event data including Integrated Water Vapor Transport (IWVT).
-- **Local Path**: `data/raw/noaa-ar/`
-- **Access**: The ingestion script fetches CSV archives directly from the NOAA server.
+2. **NOAA CPC Atmospheric River Catalog:**
+ - **Source:** NOAA Climate Prediction Center (CPC)
+ - **Access:** Fetched via HTTP from the NOAA CPC data archive.
+ - **Local Storage:** `data/raw/noaa-ar/`
+ - **Format:** CSV (Integrated Water Vapor Transport and AR event metadata)
 
-## Run Commands
+## Running the Pipeline
 
-Execute the pipeline in the following order to reproduce the analysis:
+Execute the scripts in the following order to reproduce the analysis.
 
-### Step 1: Verify Citations (Optional but Recommended)
-Validates that all external data sources and references are reachable and consistent.
-```bash
-python code/00_verify_citations.py
-```
-*Exits with code 1 if any citation fails.*
-
-### Step 2: Data Ingestion
-Downloads raw data and saves to `data/raw/`.
+### Step 1: Data Ingestion
+Fetches raw data from external sources and saves to `data/raw/`.
 ```bash
 python code/01_data_ingestion.py
 ```
-*Outputs*:
-- `data/raw/grace-fo/grace-fo-raw.csv` (or netCDF)
-- `data/raw/noaa-ar/noaa-ar-raw.csv`
+*Expected Output:* Raw data files in `data/raw/grace-fo/` and `data/raw/noaa-ar/` with accompanying checksums.
 
-### Step 3: Preprocessing
-Applies corrections (degree-1, C20), smoothing, and monthly aggregation.
+### Step 2: Preprocessing
+Applies GRACE-FO corrections (degree-1, C20), Gaussian smoothing, and monthly aggregation.
 ```bash
 python code/02_preprocessing.py
 ```
-*Outputs*:
-- `data/processed/grace-fo-preprocessed.csv`
-- `data/processed/noaa-ar-preprocessed.csv`
+*Expected Output:* Preprocessed CSVs in `data/processed/` (intermediate files).
 
-### Step 4: Merge Output
-Combines datasets into a single time-series.
+### Step 3: Merge Output
+Merges GRACE-FO and NOAA AR data into a single time-series.
 ```bash
 python code/03_merge_output.py
 ```
-*Outputs*:
-- `data/processed/merged_monthly.csv`
+*Expected Output:* `data/processed/merged_monthly.csv`
 
-### Step 5: Correlation Analysis
-Computes Pearson correlations with lag windows and bootstrap corrections.
+### Step 4: Correlation Analysis
+Computes Pearson correlations with lag windows, bootstrap resampling, and autocorrelation correction.
 ```bash
 python code/04_correlation.py
 python code/05_bootstrap_correction.py
 ```
-*Outputs*:
-- `data/processed/correlation_results.json`
+*Expected Output:* Correlation metrics and bootstrap confidence intervals printed to console and saved to `data/processed/correlation_results.json`.
 
-### Step 6: Control Validation
-Validates results against a control region and noise floor.
+### Step 5: Control Validation
+Compares target region correlations against control regions and validates signal against noise floor.
 ```bash
 python code/06_control_validation.py
 ```
-*Outputs*:
-- `data/processed/control_validation_report.md`
+*Expected Output:* Validation report in `data/processed/control_validation_results.json`.
 
-### Step 7: Visualization & Reporting
-Generates plots and the final sensitivity report.
+### Step 6: Visualization & Reporting
+Generates diagnostic plots and the final sensitivity report.
 ```bash
 python code/07_visualization_timeseries.py
 python code/08_visualization_scatter.py
 python code/09_visualization_spatial.py
 python code/10_sensitivity_report.py
 ```
-*Outputs*:
+*Expected Output:*
 - `output/timeseries_overlay.png`
 - `output/scatter_regression.png`
 - `output/spatial_anomaly_map.png`
@@ -108,27 +107,28 @@ python code/10_sensitivity_report.py
 
 ## Expected Outputs
 
-Upon successful completion of the full pipeline, the following artifacts must exist:
+Upon successful completion of the pipeline, the following artifacts should exist:
 
-| File Path | Description |
+| Path | Description |
 |:--- |:--- |
-| `data/processed/merged_monthly.csv` | Merged time-series of AR intensity and gravity anomalies. |
-| `data/processed/correlation_results.json` | Statistical results including p-values and confidence intervals. |
-| `output/timeseries_overlay.png` | Time-series plot of AR events vs. gravity anomalies. |
-| `output/scatter_regression.png` | Scatter plot with regression line. |
-| `output/spatial_anomaly_map.png` | Spatial map of gravity anomalies. |
-| `docs/sensitivity_report.md` | Final report with threshold stability analysis. |
+| `data/processed/merged_monthly.csv` | Merged dataset with ≥90% completeness, no NaN in primary columns. |
+| `data/processed/correlation_results.json` | Correlation coefficients, p-values, and bootstrap CIs. |
+| `data/processed/control_validation_results.json` | Control region comparison and noise floor validation. |
+| `output/timeseries_overlay.png` | Time-series overlay of AR intensity and gravity anomalies. |
+| `output/scatter_regression.png` | Scatter plot with regression line and confidence bands. |
+| `output/spatial_anomaly_map.png` | Spatial distribution of gravity anomalies. |
+| `docs/sensitivity_report.md` | Sensitivity analysis and causal language compliance check. |
 
-**Note**: If `data/raw/` is empty, the ingestion scripts will attempt to download data from the URLs listed above. If network access is restricted, download the datasets manually from the source URLs and place them in the corresponding `data/raw/` subdirectories.
+## Troubleshooting
+
+- **Network Errors:** Ensure internet connectivity is available for `01_data_ingestion.py`.
+- **Missing Data:** If `merged_monthly.csv` has <90% rows, check `logs/preprocessing.log` for skipped months.
+- **Citation Failures:** If `00_verify_citations.py` fails, update the `specs/citations.yaml` file with corrected URLs.
 
 ## Validation
 
-To verify the integrity of the output schema and language compliance:
+To validate the entire pipeline end-to-end:
 ```bash
-python -m pytest tests/contract/ -v
-```
-
-To run the full integration test:
-```bash
-python -m pytest tests/integration/ -v
+python code/10_sensitivity_report.py --validate
+pytest tests/contract/test_output_schema.py
 ```

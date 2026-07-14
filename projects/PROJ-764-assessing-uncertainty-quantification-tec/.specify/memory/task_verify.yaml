@@ -1,14 +1,6 @@
-T001 Create project structure per implementation plan: 1
-T002 Initialize Python project with pinned dependencies in `requirements.txt`: 1
-T003 [P] Configure linting (ruff) and formatting (black) tools: 1
-? T005 [P] Implement `code/data/download.py` to fetch the OQMD Formation Energy dataset
-  via HuggingFace (`datasets.load_dataset("oqmd/formation-energy")`) and save the
-  raw data to `data/raw/oqmd.parquet`.
-: 1
-? 'T006 [P] Implement `code/data/preprocess.py` to: 1) Read `code/config.yaml` for
-  `split_type` and `seed`, 2) Apply a **stratified random split** (train/validation/test)
-  based on the target variable if `split_type` is "stratified", 3) Apply PCA to reduce
-  features to **exactly 20 components**, 4) Exclude rows with missing critical features,
-  5) Output `data/processed/features_20pca.csv` and generate a JSON log `data/processed/exclusion_log.json`
-  with schema `{"excluded_count": int, "missing_columns": [str]}`.'
-: 1
+T001: 1
+T002: 1
+T003: 1
+T005: 1
+T006: 1
+T007: 1

@@ -8,7 +8,9 @@ import time
 from pathlib import Path
 
 # Configuration for citation verification
-CITATIONS_FILE = Path(__file__).parent.parent / "specs" / "001-atmospheric-river-gravity" / "citations.json"
+# Path adjusted to project root structure: projects/PROJ-267/...
+PROJECT_ROOT = Path(__file__).parent.parent
+CITATIONS_FILE = PROJECT_ROOT / "specs" / "001-atmospheric-river-gravity" / "citations.json"
 THRESHOLD_TOKEN_OVERLAP = 0.7
 TIMEOUT_SECONDS = 10
 
@@ -28,6 +30,8 @@ def calculate_token_overlap(title_a: str, title_b: str) -> float:
         return 0.0
     intersection = tokens_a.intersection(tokens_b)
     union = tokens_a.union(tokens_b)
+    if not union:
+        return 0.0
     return len(intersection) / len(union)
 
 def check_url_reachability(url: str) -> bool:
@@ -35,7 +39,9 @@ def check_url_reachability(url: str) -> bool:
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'llmXive-CitationVerifier/1.0'})
         with urllib.request.urlopen(req, timeout=TIMEOUT_SECONDS) as response:
-            return response.status == 200
+            # Check for successful HTTP status (2xx)
+            status = response.getcode()
+            return 200 <= status < 300
     except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, Exception):
         return False
 

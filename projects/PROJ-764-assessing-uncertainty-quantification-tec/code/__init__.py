@@ -1,2 +1,3 @@
-# llmXive Project: Assessing Uncertainty Quantification Techniques
-# Core package initialization
+"""
+Main source package for the UQ material properties project.
+"""

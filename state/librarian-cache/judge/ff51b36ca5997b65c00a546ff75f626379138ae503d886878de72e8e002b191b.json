@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1902.07351",
+  "judged_at": "2026-07-14T09:56:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of data resolution on simulated fluid turbulence physics",
+  "rationale": "This paper satisfies criterion (a) by quantitatively investigating the convergence (a proxy for resolution dependence) of a simulation method to the physical limit in a flow regime that includes \"unsteady fluctuations\" and \"moderately turbulent flows,\" directly addressing the mechanism of how simulation fidelity relates to physical turbulence. It also meets criterion (b) by measuring the accuracy of simulated fluid dynamics against analytic solutions and stability analyses, providing empirical d",
+  "relevant": true
+}

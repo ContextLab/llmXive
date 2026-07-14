@@ -1,1 +1,1 @@
-"""Tools package for project infrastructure and utilities."""
+"""Tools package for project utilities."""

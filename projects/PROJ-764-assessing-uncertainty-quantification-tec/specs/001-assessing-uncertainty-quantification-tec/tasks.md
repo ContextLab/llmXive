@@ -57,7 +57,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T004 [P] Implement `code/config.yaml` with the following exact keys and values: `seed` (int, default 42), `split_ratio` (list [0.8, 0.1, 0.1]), `split_type` (string, MUST be "stratified"), and `timeout_hours` (float, 5.0). Define exact keys: `seed`, `split_ratio`, `split_type`, `timeout_hours`. File path: `code/config.yaml`.
 - [ ] T005 [P] Implement `code/data/download.py` to fetch the OQMD Formation Energy dataset via HuggingFace (`datasets.load_dataset("oqmd/formation-energy")`) and save the raw data to `data/raw/oqmd.parquet`.
 - [ ] T006 [P] Implement `code/data/preprocess.py` to: 1) Read `code/config.yaml` for `split_type` and `seed`, 2) Apply a **stratified random split** (train/validation/test) based on the target variable if `split_type` is "stratified", 3) Apply PCA to reduce features to **exactly 20 components**, 4) Exclude rows with missing critical features, 5) Output `data/processed/features_20pca.csv` and generate a JSON log `data/processed/exclusion_log.json` with schema `{"excluded_count": int, "missing_columns": [str]}`.
-- [~] T007 [P] Implement `code/data/validation_report.json` generator script that consumes `data/processed/exclusion_log.json` and writes `data/validation_report.json` with the count of excluded rows and list of missing variables, adhering to the schema `{"excluded_count": int, "missing_columns": [str]}`.
+- [ ] T007 [P] Implement `code/data/validation_report.json` generator script that consumes `data/processed/exclusion_log.json` and writes `data/validation_report.json` with the count of excluded rows and list of missing variables, adhering to the schema `{"excluded_count": int, "missing_columns": [str]}`.
 - [~] T008 Implement global timeout wrapper in `code/main.py` to enforce 5-hour pipeline limit, exiting with code 1 on timeout.
 - [~] T009 Setup `code/contracts/` directory with `material_sample.schema.yaml` and `uq_prediction.schema.yaml`
 
@@ -100,19 +100,19 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for ECE calculation logic in `tests/unit/test_uq_metrics.py`
-- [ ] T020 [P] [US2] Unit test for Interval Score and Sharpness calculation in `tests/unit/test_uq_metrics.py`
+- [~] T019 [P] [US2] Unit test for ECE calculation logic in `tests/unit/test_uq_metrics.py`
+- [~] T020 [P] [US2] Unit test for Interval Score and Sharpness calculation in `tests/unit/test_uq_metrics.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `code/uq/metrics.py`: ECE (quantile binning), Interval Score, Sharpness.
-- [ ] T022a [US2] **REQUIRED**: Implement the calculation logic in `code/uq/metrics.py` to separate aleatoric and epistemic uncertainty: **Epistemic variance = variance of means across samples**, **Aleatoric variance = mean of predicted variances**. This task focuses strictly on the mathematical implementation.
-- [ ] T022b [US2] **REQUIRED**: Write the resulting `uncertainty_type` column to `results/uq_predictions.csv` and `results/calibration_report.csv` as required by FR-008. Also generate `results/uncertainty_decomposition.csv` with detailed breakdown including columns `aleatoric`, `epistemic`, and `total`. This task consumes the output of T022a.
-- [ ] T023 [US2] Generate reliability diagrams (PDF/PNG) for each method in `results/`.
-- [ ] T024 [US2] Compute final metrics and save to `results/calibration_report.csv`.
-- [ ] T025 [US2] Implement ranking logic to identify best-performing method based on ECE and Interval Score.
-- [ ] T025a [US2] **REQUIRED**: Run the full pipeline (data load -> train -> eval) exactly **3 times** with seeds **42, 43, 44** and aggregate the resulting ECE scores for each method into a temporary file `results/ece_scores_by_seed.json`.
-- [ ] T026 [US2] Compute Coefficient of Variation (CV) of ECE scores across the 3 runs from `results/ece_scores_by_seed.json`. **MUST** output `results/robustness_report.json` containing the CV value and a boolean `pass` (true if CV ≤ 0.05). **DO NOT exit with code 1** if `pass` is false; report the finding and continue.
+- [~] T021 [P] [US2] Implement `code/uq/metrics.py`: ECE (quantile binning), Interval Score, Sharpness.
+- [~] T022a [US2] **REQUIRED**: Implement the calculation logic in `code/uq/metrics.py` to separate aleatoric and epistemic uncertainty: **Epistemic variance = variance of means across samples**, **Aleatoric variance = mean of predicted variances**. This task focuses strictly on the mathematical implementation.
+- [~] T022b [US2] **REQUIRED**: Write the resulting `uncertainty_type` column to `results/uq_predictions.csv` and `results/calibration_report.csv` as required by FR-008. Also generate `results/uncertainty_decomposition.csv` with detailed breakdown including columns `aleatoric`, `epistemic`, and `total`. This task consumes the output of T022a.
+- [~] T023 [US2] Generate reliability diagrams (PDF/PNG) for each method in `results/`.
+- [~] T024 [US2] Compute final metrics and save to `results/calibration_report.csv`.
+- [~] T025 [US2] Implement ranking logic to identify best-performing method based on ECE and Interval Score.
+- [~] T025a [US2] **REQUIRED**: Run the full pipeline (data load -> train -> eval) exactly **3 times** with seeds **42, 43, 44** and aggregate the resulting ECE scores for each method into a temporary file `results/ece_scores_by_seed.json`.
+- [~] T026 [US2] Compute Coefficient of Variation (CV) of ECE scores across the 3 runs from `results/ece_scores_by_seed.json`. **MUST** output `results/robustness_report.json` containing the CV value and a boolean `pass` (true if CV ≤ 0.05). **DO NOT exit with code 1** if `pass` is false; report the finding and continue.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,7 +126,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Integration test for screening logic in `tests/integration/test_screening.py`
+- [~] T027 [P] [US3] Integration test for screening logic in `tests/integration/test_screening.py`
 
 ### Implementation for User Story 3
 

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2210.01621",
+  "judged_at": "2026-07-14T09:56:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of data resolution on simulated fluid turbulence physics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides direct numerical simulation (DNS) of turbulent channel flow, explicitly analyzing how physical variables (density, temperature, Reynolds stress) behave under specific simulation conditions, which serves as a canonical empirical baseline for studying fluid turbulence physics and the impact of modeling choices (analogous to resolution effects) on simulated outcomes.",
+  "relevant": true
+}

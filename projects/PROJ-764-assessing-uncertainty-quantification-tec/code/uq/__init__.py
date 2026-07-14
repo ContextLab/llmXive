@@ -1,1 +1,3 @@
-# Uncertainty Quantification module
+"""
+Uncertainty Quantification module.
+"""

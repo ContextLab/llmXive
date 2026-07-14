@@ -1,1 +1,3 @@
-# Data processing module
+"""
+Data processing module.
+"""

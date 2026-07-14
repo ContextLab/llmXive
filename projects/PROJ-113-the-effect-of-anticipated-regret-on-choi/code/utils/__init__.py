@@ -1,6 +1,13 @@
 """
-Utilities package for the PROJ-113 pipeline.
+Utilities package for the research pipeline.
 """
-from .logging import setup_logging, scan_for_pii, log_pii_scan, logger
 
-__all__ = ["setup_logging", "scan_for_pii", "log_pii_scan", "logger"]
+from .logging import setup_logging, scan_for_pii, log_pii_scan, logger, PII_PATTERNS
+
+__all__ = [
+    "setup_logging",
+    "scan_for_pii",
+    "log_pii_scan",
+    "logger",
+    "PII_PATTERNS"
+]

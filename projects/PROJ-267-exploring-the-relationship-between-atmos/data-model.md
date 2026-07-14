@@ -1,112 +1,118 @@
 # Data Model: Atmospheric River Gravity Correlation
 
-This document defines the core entities, attributes, and relationships used throughout the
-PROJ-267 automated science pipeline. It aligns with the project plan (Phase 1 output) and
-the user stories defined in `specs/001-atmospheric-river-gravity/spec.md`.
+This document defines the core entities, attributes, and relationships used throughout the `PROJ-267-exploring-the-relationship-between-atmos` project. It serves as the schema specification for data ingestion, preprocessing, analysis, and output artifacts.
 
 ## 1. Overview
 
-The project investigates the statistical relationship between Atmospheric River (AR) events
-and localized gravity anomalies measured by the GRACE-FO satellite mission. The data model
-is designed to support the ingestion of raw satellite and meteorological data, the
-preprocessing of these signals into monthly aggregates, and the statistical analysis of
-their correlation.
+The project investigates the statistical correlation between Atmospheric River (AR) intensity and local gravity anomalies measured by the GRACE-FO satellite mission. [UNRESOLVED-CLAIM: c_e56d1d0a — status=not_enough_info] The data flow transforms raw satellite and catalog data into a merged monthly time series, which is then subjected to correlation analysis.
 
-## 2. Core Entities
+The primary entities are:
+1. **AR Event**: A discrete atmospheric river occurrence from the NOAA CPC catalog.
+2. **Gravity Anomaly**: A processed mass change measurement from GRACE-FO mascon solutions.
+3. **Correlation Result**: The statistical output of the analysis comparing AR intensity and gravity anomalies.
 
-### 2.1. AR Event (Atmospheric River Event)
+## 2. Entity Definitions
 
-Represents a single detected atmospheric river event from the NOAA CPC catalog.
-This entity is the primary input for the "atmospheric" variable in the correlation study.
+### 2.1 AR Event (Raw & Aggregated)
 
-| Attribute | Type | Description | Source |
+Represents an individual atmospheric river event detected by NOAA CPC, and its aggregated monthly properties.
+
+**Source**: NOAA CPC Atmospheric River Catalog
+**Granularity**: Daily (Raw) -> Monthly (Aggregated)
+
+| Attribute | Type | Description | Constraints |
 |:--- |:--- |:--- |:--- |
-| `event_id` | string | Unique identifier for the event (e.g., from NOAA catalog). | NOAA CPC AR Catalog |
-| `start_time` | datetime | UTC timestamp of the event start. | NOAA CPC AR Catalog |
-| `end_time` | datetime | UTC timestamp of the event end. | NOAA CPC AR Catalog |
-| `max_iwvt` | float | Maximum Integrated Water Vapor Transport (kg m⁻¹ s⁻¹) during the event. | NOAA CPC AR Catalog |
-| `peak_time` | datetime | Timestamp of maximum IWVT. | Derived |
-| `region_code` | string | Identifier for the region where the AR occurred (e.g., `WC_NA` for West Coast NA). | Derived (see Section 3) |
-| `latitude` | float | Latitude of the event center (degrees North). | NOAA CPC AR Catalog |
-| `longitude` | float | Longitude of the event center (degrees West/East). | NOAA CPC AR Catalog |
+| `event_id` | string | Unique identifier for the AR event (from source) | Non-empty, unique per raw event |
+| `start_date` | date | Start date of the event (YYYY-MM-DD) | Valid ISO date |
+| `end_date` | date | End date of the event (YYYY-MM-DD) | >= start_date |
+| `max_iwt` | float | Maximum Integrated Water Vapor Transport (kg/m/s) | > 0 |
+| `max_iwt_direction` | float | Direction of max IWT (degrees) | [0, 360) |
+| `duration_days` | int | Duration of the event in days | >= 1 |
+| `region` | string | Geographic region code (e.g., "West_Coast") | Must match `region` in Gravity Anomaly |
+| `monthly_aggregate` | float | Sum of IWT or count of events for the month | Aggregated value |
 
-**Derived Attributes:**
-- `monthly_iwvt`: The sum or mean of `max_iwvt` for all events in a given month within a region. Used for monthly aggregation.
+**Aggregation Logic**:
+- Events are assigned to a month based on `start_date`.
+- For monthly aggregation, `monthly_aggregate` represents the **Integrated Water Vapor Transport (IWVT) Sum** for all events in that month within the target region (35°N-50°N, 120°W-125°W).
+- Months with zero events are excluded from correlation calculations but may be logged.
 
-### 2.2. Gravity Anomaly
+### 2.2 Gravity Anomaly
 
-Represents a processed gravity measurement from the GRACE-FO mission, aggregated to a
-specific region and time window. This entity represents the "gravity" variable.
+Represents the processed gravity field variation (mass change) derived from GRACE-FO mascon solutions.
 
-| Attribute | Type | Description | Source |
+**Source**: CSR/GRACE-FO Mascon Solutions (Level 3)
+**Granularity**: Monthly (Processed)
+
+| Attribute | Type | Description | Constraints |
 |:--- |:--- |:--- |:--- |
-| `anomaly_id` | string | Unique identifier for the anomaly record (e.g., `YYYY-MM_REGION`). | Derived |
-| `month` | datetime | The month of the measurement (YYYY-MM-01). | Derived from GRACE-FO |
-| `region_code` | string | Region identifier matching the AR Event (e.g., `WC_NA`). | Configuration |
-| `mascon_value` | float | Raw mascon solution value (Gaussian smoothed) in mm equivalent water height. | GRACE-FO RL06 |
-| `c20_corrected` | boolean | Flag indicating if the C20 coefficient was replaced per GRACE-FO standards. | Processing Flag |
-| `degree1_corrected` | boolean | Flag indicating if degree-1 coefficients were applied. | Processing Flag |
-| `smoothing_scale` | float | Spatial smoothing scale applied (e.g., 300 km). | Configuration |
-| `uncertainty` | float | Estimated measurement uncertainty (mm EWH) based on mascon metadata. | GRACE-FO Metadata |
-| `signal_to_noise` | float | Ratio of absolute anomaly value to uncertainty. | Derived |
+| `month` | date | Reference month (YYYY-MM-01) | Valid ISO month start |
+| `region` | string | Target region identifier (e.g., "West_Coast") | Matches AR Event region |
+| `mascon_id` | string | Identifier for the specific mascon grid cell | Unique per cell |
+| `lat` | float | Latitude of mascon center | [35.0, 50.0] for target region |
+| `lon` | float | Longitude of mascon center | [-125.0, -120.0] for target region |
+| `equivalent_water_height` | float | Equivalent Water Height (EWH) in mm | Unit: mm |
+| `uncertainty` | float | Measurement uncertainty (1-sigma) in mm | >= 0 |
+| `c20_corrected` | boolean | Flag indicating C20 coefficient replacement applied | True |
+| `degree_1_corrected` | boolean | Flag indicating Degree-1 correction applied | True |
+| `smoothed` | boolean | Flag indicating Gaussian smoothing applied | True |
+| `monthly_value` | float | Final aggregated monthly gravity anomaly value | Derived from EWH over region |
 
-**Note on Frame of Reference:**
-Consistent with the Einstein-simulated review (see `docs/frame-of-reference.md`), these values
-represent the geoid height anomaly (or equivalent water height) at the satellite altitude,
-processed to remove non-hydrological signals (atmosphere, ocean, tides) to isolate the
-terrestrial water storage change.
+**Preprocessing Steps**:
+1. **Degree-1 Correction**: Applied to account for center of mass motion.
+2. **C20 Replacement**: Replaced with values from SLR (Satellite Laser Ranging).
+3. **Gaussian Smoothing**: Applied to reduce noise (spatial scale ~300-500km).
+4. **Regional Aggregation**: Values are averaged or summed over the defined West Coast bounding box.
 
-### 2.3. Correlation Result
+### 2.3 Correlation Result
 
-Represents the outcome of the statistical analysis between the AR Event aggregates and
-Gravity Anomalies. This entity is the final output of the analysis pipeline.
+Represents the statistical outcome of comparing AR intensity and Gravity Anomalies.
 
-| Attribute | Type | Description | Source |
+**Source**: Analysis Pipeline (04_correlation.py, 05_bootstrap_correction.py)
+**Granularity**: Per Lag Window, Per Region Type
+
+| Attribute | Type | Description | Constraints |
 |:--- |:--- |:--- |:--- |
-| `result_id` | string | Unique identifier for the analysis result. | Derived |
-| `region_type` | string | Type of region analyzed (e.g., `target`, `control`). | Configuration |
-| `region_code` | string | The specific region code analyzed. | Configuration |
-| `lag_months` | int | Time lag applied to the AR data relative to gravity data (0 to 3). | Analysis Parameter |
-| `pearson_r` | float | Pearson correlation coefficient. | `scipy.stats.pearsonr` |
-| `p_value` | float | Two-tailed p-value for the correlation. | `scipy.stats.pearsonr` |
-| `p_corrected` | float | P-value after Bonferroni correction for multiple comparisons. | `code/05_bootstrap_correction.py` |
-| `is_significant` | boolean | True if `p_corrected` < 0.05 (per SC-002). | Derived |
-| `n_observations` | int | Number of data points (months) used in the calculation. | Derived |
-| `n_eff` | float | Effective sample size after autocorrelation correction (Newey-West). | `code/04_correlation.py` |
-| `ci_lower` | float | Lower bound of the 95% bootstrap confidence interval. | `code/05_bootstrap_correction.py` |
-| `ci_upper` | float | Upper bound of the 95% bootstrap confidence interval. | `code/05_bootstrap_correction.py` |
-| `methodology` | string | Description of the statistical method used (e.g., "Pearson with AR(1) pre-whitening"). | Configuration |
+| `analysis_id` | string | Unique identifier for the analysis run | UUID or hash |
+| `region_type` | string | "target" or "control" | Enum |
+| `lag_months` | int | Time lag between AR event and gravity response | [0, 3] |
+| `pearson_r` | float | Pearson correlation coefficient | [-1, 1] |
+| `p_value` | float | Raw p-value for correlation | [0, 1] |
+| `p_value_corrected` | float | Multiple-comparison corrected p-value | [0, 1] |
+| `significant` | boolean | Is p_value_corrected < 0.05? | Derived |
+| `ci_lower` | float | Lower bound of 95% Bootstrap CI | < pearson_r |
+| `ci_upper` | float | Upper bound of 95% Bootstrap CI | > pearson_r |
+| `n_effective` | int | Effective sample size after autocorrelation correction | >= 1 |
+| `noise_floor_sigma` | float | Noise floor threshold (3x uncertainty) | >= 0 |
+| `signal_magnitude` | float | Magnitude of the observed correlation signal | Derived |
 
-## 3. Geographic Regions
+## 3. Data Flow & File Artifacts
 
-The project focuses on specific geographic zones to ensure signal coherence.
+The entities map to specific files in the project structure:
 
-- **WC_NA (West Coast North America)**:
- - Latitude: 35°N to 50°N
- - Longitude: 120°W to 125°W (approximate coastal strip)
- - Purpose: Target region for AR activity and gravity anomaly correlation.
+1. **Raw Data**:
+ - `data/raw/grace-fo/`: GRACE-FO mascon NetCDF/CSV files.
+ - `data/raw/noaa-ar/`: NOAA CPC AR Catalog CSV files.
 
-- **Control Regions**:
- - Selected areas with minimal AR activity but similar climatic conditions to distinguish
- AR-specific signals from global noise or large-scale climate oscillations.
- - Examples: Interior North America, specific Pacific Ocean patches.
+2. **Processed Data**:
+ - `data/processed/merged_monthly.csv`:
+ - Combines `Gravity Anomaly` (monthly_value) and `AR Event` (monthly_aggregate).
+ - Columns: `month`, `region`, `gravity_anomaly_mm`, `ar_intensity_iwvt_sum`, `n_events`.
+ - Schema validated against `contracts/dataset.schema.yaml`.
 
-## 4. Data Flow and Relationships
+3. **Analysis Output**:
+ - `data/processed/correlation_results.csv` (or JSON):
+ - Contains `Correlation Result` entities.
+ - Schema validated against `contracts/output.schema.yaml`.
 
-1. **Ingestion**: Raw `AR Event` data is fetched from NOAA CPC; raw `Gravity Anomaly`
- data is fetched from GRACE-FO.
-2. **Preprocessing**:
- - `AR Event` records are aggregated into monthly bins (`monthly_iwvt`).
- - `Gravity Anomaly` records are corrected (C20, Degree-1) and smoothed.
-3. **Merge**: Preprocessed monthly data for a specific `region_code` is joined on `month`.
-4. **Analysis**: The merged dataset is used to compute `Correlation Result` entities
- across different `lag_months` and `region_type` values.
+## 4. Constraints & Edge Cases
 
-## 5. Schema Validation
+- **Missing Data**: If a month has no GRACE-FO data or no AR events, it is logged and excluded from correlation calculations (unless imputation is specified, which is currently not the case).
+- **Region Alignment**: Gravity anomalies are calculated only for mascons falling strictly within the West Coast bounding box (35°N-50°N, 120°W-125°W).
+- **Significance**: A result is considered "significant" only if the Bonferroni (or similar) corrected p-value is < 0.05.
+- **Null Results**: If the correlation coefficient is < 0.1 or not statistically significant, the result is still recorded as a `Correlation Result` with `significant=False`.
 
-All CSV outputs must conform to the schemas defined in:
-- `contracts/dataset.schema.yaml` (for merged monthly data)
-- `contracts/output.schema.yaml` (for correlation results)
+## 5. References
 
-These schemas enforce data types, required fields, and value ranges (e.g., no NaN in
-primary columns).
+- **GRACE-FO**: Saveen et al., "GRACE-FO Level 3 Mascon Solutions", CSR.
+- **NOAA AR Catalog**: Ralph et al., "Atmospheric River Tracking Method Intercomparison Project".
+- **Statistical Methods**: Newey-West standard errors, Bootstrap resampling (1000 iterations).

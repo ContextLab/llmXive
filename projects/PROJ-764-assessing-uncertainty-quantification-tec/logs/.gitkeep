@@ -1,1 +1,2 @@
-# Placeholder for log files
+# This directory stores pipeline execution logs.
+# Ensure .gitkeep is present to track the directory in version control.

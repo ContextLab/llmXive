@@ -804,3 +804,357 @@
   source_type: external
   status: verified
   updated_at: '2026-07-06T19:07:50Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md
+  attempts: 1
+  canonical: project investigates correlation between AR intensity and GRACE-FO gravity
+    anomalies
+  claim_id: c_e56d1d0a
+  context: The project investigates the statistical correlation between Atmospheric
+    River (AR) intensity and local gravity anomalies measured by the GRACE-FO satellite
+    mission. The data flow transforms raw satellite and catalog data into a merged
+    monthly time series, which is then subjected to correlation analysis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_investigates_correlation_between_AR_intensity_and_GR
+  kind: entity_fact
+  raw_text: The project investigates the statistical correlation between Atmospheric
+    River (AR) intensity and local gravity anomalies measured by the GRACE-FO satellite
+    mission.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:46:55Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md
+  attempts: 1
+  canonical: target region defined as 35N-50N 120W-125W
+  claim_id: c_da0b1ebc
+  context: "For monthly aggregation, monthly_aggregate represents the Integrated Water\
+    \ Vapor Transport (IWVT) Sum for all events in that month within the target region\
+    \ (35\xB0N-50\xB0N, 120\xB0W-125\xB0W). Months with zero events are excluded from\
+    \ correlation calculations but may be logged."
+  evidence:
+    entailment_evidence: Target region defined as 35N-50N 120W-125W
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Target_region_defined_as_35N-50N_120W-125W
+  kind: entity_fact
+  raw_text: "The target region for analysis is defined as 35\xB0N-50\xB0N, 120\xB0\
+    W-125\xB0W."
+  resolved_value: target region defined as 35N-50N 120W-125W
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T09:46:57Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md
+  attempts: 1
+  canonical: Gaussian smoothing applied with spatial scale 300-500km
+  claim_id: c_c2f8defd
+  context: 'Preprocessing Steps: 1. Degree-1 Correction: Applied to account for center
+    of mass motion. 2. C20 Replacement: Replaced with values from SLR (Satellite Laser
+    Ranging). 3. Gaussian Smoothing: Applied to reduce noise (spatial scale ~300-500km).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gaussian smoothing is applied to reduce noise with a spatial scale of
+    approximately 300-500km.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:47:25Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md
+  attempts: 1
+  canonical: result significant if corrected p-value < 0.05
+  claim_id: c_e8a61276
+  context: 'Significance: A result is considered ''significant'' only if the Bonferroni
+    (or similar) corrected p-value is < 0.05. Null Results: If the correlation coefficient
+    is < 0.1 or not statistically significant, the result is still recorded as a Correlation
+    Result with significant=False.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/result_significant_if_corrected_p-value_%3C_0.05
+  kind: magnitude
+  raw_text: A result is considered significant only if the Bonferroni (or similar)
+    corrected p-value is less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:48:13Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md
+  attempts: 1
+  canonical: Bootstrap resampling performed with 1000 iterations
+  claim_id: c_6e8d72a7
+  context: 'References: GRACE-FO: Saveen et al., ''GRACE-FO Level 3 Mascon Solutions'',
+    CSR. NOAA AR Catalog: Ralph et al., ''Atmospheric River Tracking Method Intercomparison
+    Project''. Statistical Methods: Newey-West standard errors, Bootstrap resampling
+    (1000 iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical methods include Bootstrap resampling with 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:48:40Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling 1000 iterations seed 42 95% confidence intervals
+  claim_id: c_a4bf5c5e
+  context: 'T021 [US2] Create bootstrap correction script... that: (1) implements
+    bootstrap resampling (1000 iterations, seed=42) for 95% confidence intervals'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must implement bootstrap resampling with 1000 iterations and
+    seed=42 for 95% confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:49:20Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: signal magnitude comparison GRACE-FO measurement noise floor 3 sigma
+    threshold
+  claim_id: c_42e87df2
+  context: "T022 [US2] Create control validation script... that: (4) implements signal\
+    \ magnitude comparison to GRACE-FO measurement noise floor (\u2265 3\u03C3 threshold\
+    \ per FR-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The signal magnitude comparison to GRACE-FO measurement noise floor must\
+    \ use a \u2265 3\u03C3 threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:49:20Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: merged CSV 90% expected monthly rows
+  claim_id: c_82f8907d
+  context: "Independent Test: Can be fully tested by executing the data pipeline script\
+    \ and verifying the output contains a merged CSV with \u2265 90% of expected monthly\
+    \ rows"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merged_CSV_90%25_expected_monthly_rows
+  kind: magnitude
+  raw_text: The merged CSV output must contain at least 90% of expected monthly rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:49:41Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: effective sample size formula n times 1 minus rho over 1 plus rho
+  claim_id: c_8f887f73
+  context: "T020 [US2] Create correlation computation script... that: (4) implements\
+    \ effective sample size calculation (n_eff = n \xD7 (1-\u03C1)/(1+\u03C1))"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The effective sample size is calculated as n_eff = n \xD7 (1-\u03C1)/(1+\u03C1\
+    )."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:50:13Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: West Coast NA region 35N to 50N 120W to 125W
+  claim_id: c_3c9e5652
+  context: "T015 [US1] Create data fetching script... that: (5) implements region\
+    \ filtering for West Coast NA (35\xB0N-50\xB0N, 120\xB0W-125\xB0W)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The region filtering is applied for West Coast NA defined as 35\xB0N-50\xB0\
+    N, 120\xB0W-125\xB0W."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:50:28Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: 03_merge_output.py runtime 6 hours 2 CPU 7 GB RAM
+  claim_id: c_d3c7c11d
+  context: "T035 Measure 03_merge_output.py runtime to verify \u2264 6 hours on 2\
+    \ CPU, 7 GB RAM (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The runtime for 03_merge_output.py must be verified to be \u2264 6 hours\
+    \ on 2 CPU and 7 GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:50:40Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: 06_control_validation.py runtime 6 hours 2 CPU 7 GB RAM
+  claim_id: c_b720b298
+  context: "T036 Measure 06_control_validation.py runtime to verify \u2264 6 hours\
+    \ on 2 CPU, 7 GB RAM (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The runtime for 06_control_validation.py must be verified to be \u2264\
+    \ 6 hours on 2 CPU and 7 GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:50:54Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: 10_sensitivity_report.py runtime 6 hours 2 CPU 7 GB RAM
+  claim_id: c_97dbb2e6
+  context: "T037 Measure 10_sensitivity_report.py runtime to verify \u2264 6 hours\
+    \ on 2 CPU, 7 GB RAM (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The runtime for 10_sensitivity_report.py must be verified to be \u2264\
+    \ 6 hours on 2 CPU and 7 GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:51:08Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: citation verification title token overlap 0.7 primary source
+  claim_id: c_a720829f
+  context: "T008 [P] Create citation verification script... that validates both URL\
+    \ reachability AND citation validation (title-token-overlap \u2265 0.7 against\
+    \ primary source)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The citation verification script validates title-token-overlap \u2265\
+    \ 0.7 against the primary source."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:51:09Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/docs/frame-of-reference.md
+  attempts: 1
+  canonical: GRACE-FO measures inter-satellite distance changes caused by gravitational
+    potential gradient
+  claim_id: c_ff97ba39
+  context: Physical Curvature (Invariant Quantity) - GRACE-FO measures the inter-satellite
+    distance changes caused by the gradient of this gravitational potential. This
+    is a physical observable.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_measures_inter-satellite_distance_changes_caused_by
+  kind: entity_fact
+  raw_text: GRACE-FO measures the inter-satellite distance changes caused by the gradient
+    of this gravitational potential.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:53:13Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/docs/frame-of-reference.md
+  attempts: 1
+  canonical: GRACE-FO measurements taken at 500 km altitude
+  claim_id: c_d8aaa627
+  context: Coordinate Artifacts (Representation Dependent) - The measurement is taken
+    at ~500 km altitude. The signal is attenuated compared to the surface signal due
+    to the inverse-square law and smoothing effects.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The measurement is taken at ~500 km altitude.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:54:30Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/docs/frame-of-reference.md
+  attempts: 1
+  canonical: GRACE Tellus and JPL Level-2 data products standardized as Equivalent
+    Water Height
+  claim_id: c_70a7e1ee
+  context: Justification for this Frame of Reference - The GRACE Tellus and JPL Level-2
+    data products are standardized in this format (Equivalent Water Height). Using
+    this frame ensures compatibility with established scientific literature and validation
+    datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GRACE Tellus and JPL Level-2 data products are standardized in this
+    format (Equivalent Water Height).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:54:51Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/docs/frame-of-reference.md
+  attempts: 1
+  canonical: Gravity anomaly defined as time-varying geoid height at GRACE-FO satellite
+    altitude
+  claim_id: c_9ffa345e
+  context: Conclusion - The gravity anomaly in this study is defined as the time-varying
+    component of the geoid height at the GRACE-FO satellite altitude.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gravity_anomaly_defined_as_time-varying_geoid_height_at_GRAC
+  kind: entity_fact
+  raw_text: The gravity anomaly in this study is defined as the time-varying component
+    of the geoid height at the GRACE-FO satellite altitude.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:55:24Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling 1000 iterations seed 42 for 95% confidence intervals
+  claim_id: c_e69b07de
+  context: 'Create bootstrap correction script... that: (1) implements bootstrap resampling
+    (1000 iterations, seed=42) for 95% confidence intervals, (2) {{claim:c_9476e82d}}...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script implements bootstrap resampling (1000 iterations, seed=42)
+    for 95% confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:55:43Z'

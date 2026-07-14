@@ -1,0 +1,613 @@
+{
+  "fetched_at": "2026-07-14T09:56:46Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence",
+      "target_n": 5
+    },
+    "duration_seconds": 50.467,
+    "ended_at": "2026-07-14T09:56:46Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Grid resolution effects on turbulent flow simulations"
+        ],
+        [
+          2,
+          "Numerical dissipation in high-resolution fluid dynamics"
+        ],
+        [
+          3,
+          "Mesh convergence study for turbulence modeling"
+        ],
+        [
+          4,
+          "Spatial discretization impact on Kolmogorov scales"
+        ],
+        [
+          5,
+          "Large Eddy Simulation resolution sensitivity"
+        ],
+        [
+          6,
+          "Direct Numerical Simulation grid requirements"
+        ],
+        [
+          7,
+          "Subgrid scale modeling resolution dependence"
+        ],
+        [
+          8,
+          "Finite volume method turbulence resolution errors"
+        ],
+        [
+          9,
+          "Spectral accuracy in turbulent flow computations"
+        ],
+        [
+          10,
+          "Computational cost vs. turbulence fidelity trade-offs"
+        ],
+        [
+          11,
+          "Vorticity dynamics at varying spatial resolutions"
+        ],
+        [
+          12,
+          "Energy cascade resolution in CFD simulations"
+        ],
+        [
+          13,
+          "Pseudo-spectral method resolution limits for turbulence"
+        ],
+        [
+          14,
+          "Adaptive mesh refinement for turbulent flows"
+        ],
+        [
+          15,
+          "Resolution-induced artifacts in fluid turbulence"
+        ],
+        [
+          16,
+          "Scale-resolving simulation grid sensitivity"
+        ],
+        [
+          17,
+          "Turbulent kinetic energy spectrum resolution effects"
+        ],
+        [
+          18,
+          "Under-resolved turbulence in numerical simulations"
+        ],
+        [
+          19,
+          "Grid independence verification for turbulent flows"
+        ],
+        [
+          20,
+          "Multiscale turbulence simulation resolution constraints"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Grid resolution effects on turbulent flow simulations": 5,
+        "Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "grid spacing numerical dissipation spectral fidelity",
+      "DNS LES Reynolds number resolution scaling",
+      "inertial range energy cascade Kolmogorov spectrum",
+      "convergence rate turbulence statistics error norms",
+      "subgrid modeling closure artificial viscosity dispersion"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2210.01621"
+      ]
+    },
+    "per_query_hit_count": {
+      "DNS LES Reynolds number resolution scaling": 3,
+      "Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics": 3,
+      "convergence rate turbulence statistics error norms": 3,
+      "grid spacing numerical dissipation spectral fidelity": 3,
+      "inertial range energy cascade Kolmogorov spectrum": 3,
+      "subgrid modeling closure artificial viscosity dispersion": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2410.13402",
+          "rationale": "The paper focuses on Monte Carlo simulations of gamma-ray detector responses for space missions, which is an astrophysics instrumentation problem entirely distinct from the user's question about fluid turbulence physics. It fails to address the mechanism, domain, or variables of fluid dynamics and represents a case of off-domain research sharing only the generic keyword \"simulation.\"",
+          "title": "Monte Carlo Simulation of Angular Response of GRID Detectors for GRID Mission"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-14T09:55:55Z",
+    "term_input": {
+      "normalized": "quantifying the impact of data resolution on simulated fluid turbulence physics",
+      "raw": "Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Elastoviscoplastic (EVP) fluid flows are driven by a non-trivial interplay between the elastic, viscous, and plastic properties, which under certain conditions can transition the otherwise laminar flow into complex flow instabilities with rich space-time-dependent dynamics. We discover that under elastic turbulence regimes, EVP fluids undergo dynamic jamming triggered by localised polymer stress deformations that facilitate the formation of solid regions trapped in local low-stress energy wells. Below the jamming transition $φ<φ_J$, the solid volume fraction $φ$ scales with $\\sqrt{Bi}$, where $Bi$ is the Bingham number characterizing the ratio of yield to viscous stresses, in direct agreement with theoretical approximations based on the laminar solution. The onset of this new dynamic jamming transition $φ\\geqφ_J$ is marked by a clear deviation from the scaling $φ\\sim \\sqrt{Bi}$, scaling as $φ\\sim \\exp{Bi}$. We show that this instability-induced jamming transition -- analogous to that in dense suspensions -- leads to slow, minimally diffusive, and rigid-like flows with finite deformability, highlighting a novel phase-change in elastic turbulence regimes of complex fluids.",
+          "claimed_authors": [
+            "Christopher S. From",
+            "Vedad Dzanic",
+            "Vahid Niasar",
+            "Emilie Sauret"
+          ],
+          "claimed_title": "Jamming of Elastoviscoplastic fluids in Elastic Turbulence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.13774"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Jamming of Elastoviscoplastic fluids in Elastic Turbulence')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A numerical study of the $d$-dimensional Eddy Damped Quasi-Normal Markovian equations is performed to investigate the dependence on spatial dimension of homogeneous isotropic fluid turbulence. Relationships between structure functions and energy and transfer spectra are derived for the $d$-dimensional case. Additionally, an equation for the $d$-dimensional enstrophy analogue is derived and related to the velocity derivative skewness. Comparisons are made to recent four dimensional direct numerical simulation results. Measured energy spectra show a magnified bottleneck effect which grows with dimension whilst transfer spectra show a varying peak in the non-linear energy transfer as the dimension is increased. These results are consistent with an increased forward energy transfer at higher dimensions, further evidenced by measurements of a larger asymptotic dissipation rate with growing dimension. The enstrophy production term, related to the velocity derivative skewness, is seen to reach a maximum at around five dimensions and may reach zero in the limit of infinite dimensions, raising interesting questions about the nature of turbulence in this limit.",
+          "claimed_authors": [
+            "Daniel Clark",
+            "Richard Ho",
+            "Arjun Berera"
+          ],
+          "claimed_title": "Effect of spatial dimension on a model of fluid turbulence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.05018"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Effect of spatial dimension on a model of fluid turbulence')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Hall-Vinen-Bekharevich-Khalatnikov (HVBK) model is widely used to numerically study quantum turbulence in superfluid helium. Based on the two-fluid model of Tisza and Landau, the HVBK model describes the normal (viscous) and superfluid (inviscid) components of the flow using two Navier-Stokes type equations, coupled through a mutual friction force term. This feature makes the HVBK model very appealing in applying statistical tools used in classical turbulence to study properties of quantum turbulence. A large body of literature used low-order statistics (spectra, or second-order structure functions in real space) to unravel exchanges between the two fluids at several levels. The novelty in this study is to use a theoretical approach based on first principles to derive transport equations for the third-order moments for each component of velocity.",
+          "claimed_authors": [
+            "Zhentong Zhang",
+            "Ionut Danaila",
+            "Emmanuel Lévêque",
+            "Luminita Danaila"
+          ],
+          "claimed_title": "Higher-order statistics and intermittency of a two-fluid HVBK quantum turbulent flow",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.06631"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Higher-order statistics and intermittency of a two-fluid HVBK quantum turbulent flow')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Gamma-Ray Integrated Detectors (GRID) are a space science mission that employs compact gamma-ray detectors mounted on NanoSats in low Earth orbit (LEO) to monitor the transient gamma-ray sky. Owing to the unpredictability of the time and location of gamma-ray bursts (GRBs), obtaining the photon responses of gamma-ray detectors at various incident angles is important for the scientific analysis of GRB data captured by GRID detectors. For this purpose, a dedicated Monte Carlo simulation framework has been developed for GRID detectors. By simulating each GRID detector and the NanoSat carrying it, the spectral energy response, detection efficiency, and other angular responses of each detector for photons with different incident angles and energies can be obtained within this framework. The accuracy of these simulations has been corroborated through on-ground calibration, and the derived angular responses have been successfully applied to the data analysis of recorded GRBs.",
+          "claimed_authors": [
+            "Qize Liu",
+            "Xiaofan Pan",
+            "Xutao Zheng",
+            "Huaizhong Gao",
+            "Longhao Li",
+            "Qidong Wang",
+            "Zirui Yang",
+            "Chenchong Tang",
+            "Wenxuan Wu",
+            "Jianping Cheng",
+            "Zhi Zeng",
+            "Ming Zeng",
+            "Hua Feng",
+            "Binbin Zhang",
+            "Zhonghai Wang",
+            "Rong Zhou",
+            "Yuanyuan Liu",
+            "Lin Lin",
+            "Jiayong Zhong",
+            "Jianyong Jiang",
+            "Wentao Han",
+            "Yang Tian",
+            "Benda Xu",
+            "GRID Collaboration"
+          ],
+          "claimed_title": "Monte Carlo Simulation of Angular Response of GRID Detectors for GRID Mission",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.13402"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Monte Carlo Simulation of Angular Response of GRID Detectors for GRID Mission')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random attacks that jointly minimize the amount of information acquired by the operator about the state of the grid and the probability of attack detection are presented. The attacks minimize the information acquired by the operator by minimizing the mutual information between the observations and the state variables describing the grid. Simultaneously, the attacker aims to minimize the probability of attack detection by minimizing the Kullback-Leibler (KL) divergence between the distribution when the attack is present and the distribution under normal operation. The resulting cost function is the weighted sum of the mutual information and the KL divergence mentioned above. The tradeoff between the probability of attack detection and the reduction of mutual information is governed by the weighting parameter on the KL divergence term in the cost function. The probability of attack detection is evaluated as a function of the weighting parameter. A sufficient condition on the weighting parameter is given for achieving an arbitrarily small probability of attack detection. The attack performance is numerically assessed on the IEEE 30-Bus and 118-Bus test systems.",
+          "claimed_authors": [
+            "Ke Sun",
+            "Iñaki Esnaola",
+            "Samir M. Perlaza",
+            "H. Vincent Poor"
+          ],
+          "claimed_title": "Stealth Attacks on the Smart Grid",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.04184"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Stealth Attacks on the Smart Grid')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The spectral behavior of the difference between the resolvents of two realizations $\\tilde A_1$ and $\\tilde A_2$ of a second-order strongly elliptic symmetric differential operator $A$, defined by different Robin conditions $νu=b_1γ_0u$ and $νu=b_2γ_0u$, can in the case where all coefficients are $C^\\infty$ be determined by use of a general result by the author in 1984 on singular Green operators. We here treat the problem for nonsmooth $b_i$. Using a Krein resolvent formula, we show that if $b_1$ and $b_2$ are in $L_\\infty$, the s-numbers $s_j$ of $(\\tilde A_1 -λ)^{-1}-(\\tilde A_2 -λ)^{-1}$ satisfy $s_j j^{3/(n-1)}\\le C$ for all $j$; this improves a recent result for $A=-Δ$ by Behrndt et al., that $\\sum_js_j ^p<\\infty$ for $p>(n-1)/3$. A sharper estimate is obtained when $b_1$ and $b_2$ are in $C^ε$ for some $ε>0$, with jumps at a smooth hypersurface, namely that $s_j j^{3/(n-1)}\\to c$ for $j\\to \\infty$, with a constant $c$ defined from the principal symbol of $A$ and $b_2-b_1$.\n  As an auxiliary result we show that the usual principal spectral asymptotic estimate for pseudodifferential operators of negative order on a closed manifold extends to products of pseudodifferential operators interspersed with piecewise continuous functions.",
+          "claimed_authors": [
+            "Gerd Grubb"
+          ],
+          "claimed_title": "Spectral asymptotics for Robin problems with a discontinuous coefficient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.0997"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Spectral asymptotics for Robin problems with a discontinuous coefficient')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to answer the following question: is the complexity of numerically solving the Poisson equation increasing or decreasing for very large simulations of incompressible flows? Physical and numerical arguments are combined to derive power-law scalings at very high Reynolds numbers. A theoretical convergence analysis for both Jacobi and multigrid solvers defines a two-dimensional phase space divided into two regions depending on whether the number of solver iterations tends to decrease or increase with the Reynolds number. Numerical results indicate that, for Navier-Stokes turbulence, the complexity decreases with increasing Reynolds number, whereas for the one-dimensional Burgers equation it follows the opposite trend. The proposed theoretical framework thus provides a unified perspective on how solver convergence scales with the Reynolds number and offers valuable guidance for the development of next-generation preconditioning and multigrid strategies for extreme-scale simulations.",
+          "claimed_authors": [
+            "F. Xavier Trias",
+            "Àdel Alsalti-Baldellou",
+            "Assensi Oliva"
+          ],
+          "claimed_title": "On the Reynolds-number scaling of Poisson solver complexity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.22644"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='On the Reynolds-number scaling of Poisson solver complexity')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As technological advances allow us to fabricate smaller autonomous self-propelled devices, it is clear that at some point directed propulsion could not come from pre-specified deterministic periodic deformation of the swimmer's body and we need to develop strategies to extract a net directed motion from a series of random transitions in the conformation space of the swimmer. We present a theoretical formulation to describe the \"stochastic motor\" that drives the motion of low Reynolds number swimmers based on this concept, and use it to study the propulsion of a simple low Reynolds number swimmer, namely, the three-sphere swimmer model. When the detailed-balanced is broken and the motor is driven out of equilibrium, it can propel the swimmer in the required direction. The formulation can be used to study optimal design strategies for molecular-scale low Reynolds number swimmers.",
+          "claimed_authors": [
+            "Ramin Golestanian",
+            "Armand Ajdari"
+          ],
+          "claimed_title": "Stochastic Low Reynolds Number Swimmers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0901.1624"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Stochastic Low Reynolds Number Swimmers')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work a simple problem on 2D optimal shape for body immersed in a viscous flow is analyzed. The body has geometrical constraints and its profile would be found in the class of cubics which satisfy those conditions. The optimal profile depends on the leading coefficient of these cubics and its relation with the Reynolds number of the system is found. The solution to the problem uses a method based on a suitable transformation rule for the cartesian reference.",
+          "claimed_authors": [
+            "Gianluca Argentini"
+          ],
+          "claimed_title": "Searching optimal shape in viscous flow: its dependence on Reynolds number",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0810.1679"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Searching optimal shape in viscous flow: its dependence on Reynolds number')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantum turbulence is numerically studied by solving the Gross-Pitaevskii equation. Introducing both the energy dissipation at small scales and the energy injection at large scales, we succeed in obtaining the steady turbulence made by the balance of the injection and the dissipation of the energy. The inertial range takes the Kolmogorov spectrum and the energy flux is consistent with the energy dissipation rate at small scales. These results confirm the properties of the inertial range of quantum turbulence, proposing a prototype of turbulence much simpler than conventional classical turbulence.",
+          "claimed_authors": [
+            "Makoto Tsubota",
+            "Michikazu Kobayashi"
+          ],
+          "claimed_title": "Inertial Range and the Kolmogorov Spectrum of Quantum Turbulenc",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "cond-mat/0507049"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Inertial Range and the Kolmogorov Spectrum of Quantum Turbulenc')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report results on the geometrical statistics of the vorticity vector obtained from experiments in electromagnetically forced rotating turbulence. A range of rotation rates $Ω$ is considered, from non-rotating to rapidly rotating turbulence with a maximum background rotation rate of $Ω=5$ rad/s (with Rossby number much smaller than unity). Typically, in our experiments ${\\rm{Re}}_λ\\approx 100$. The measurement volume is located in the centre of the fluid container above the bottom boundary layer, where the turbulent flow can be considered locally statistically isotropic and horizontally homogeneous for the non-rotating case, see van Bokhoven et al., Phys. Fluids 21, 096601 (2009). Based on the full set of velocity derivatives, measured in a Lagrangian way by 3D Particle Tracking Velocimetry, we have been able to quantify statistically the effect of system rotation on several flow properties. The experimental results show how the turbulence evolves from almost isotropic 3D turbulence ($Ω\\lesssim 0.2$ rad/s) to quasi-2D turbulence ($Ω\\approx 5.0$ rad/s) and how this is reflected by several statistical quantities. In particular, we have studied the orientation of the vorticity vector with respect to the three eigenvectors of the local strain rate tensor and with respect to the vortex stretching vector. Additionally, we have quantified the role of system rotation on the self-amplification terms of the enstrophy and strain rate equations and the direct contribution of the background rotation on these evolution equations. The main effect is the strong reduction of extreme events and related (strong) reduction of the skewness of PDFs of several quantities such as, for example, the intermediate eigenvalue of the strain rate tensor and the enstrophy self-amplification term.",
+          "claimed_authors": [
+            "Lorenzo Del Castello",
+            "Herman J. H. Clercx"
+          ],
+          "claimed_title": "Geometrical statistics of the vorticity vector and the strain rate tensor in rotating turbulence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1312.4941"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Geometrical statistics of the vorticity vector and the strain rate tensor in rotating turbulence')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide theoretical analysis of the statistical and computational properties of penalized $M$-estimators that can be formulated as the solution to a possibly nonconvex optimization problem. Many important estimators fall in this category, including least squares regression with nonconvex regularization, generalized linear models with nonconvex regularization and sparse elliptical random design regression. For these problems, it is intractable to calculate the global solution due to the nonconvex formulation. In this paper, we propose an approximate regularization path-following method for solving a variety of learning problems with nonconvex objective functions. Under a unified analytic framework, we simultaneously provide explicit statistical and computational rates of convergence for any local solution attained by the algorithm. Computationally, our algorithm attains a global geometric rate of convergence for calculating the full regularization path, which is optimal among all first-order algorithms. Unlike most existing methods that only attain geometric rates of convergence for one single regularization parameter, our algorithm calculates the full regularization path with the same iteration complexity. In particular, we provide a refined iteration complexity bound to sharply characterize the performance of each stage along the regularization path. Statistically, we provide sharp sample complexity analysis for all the approximate local solutions along the regularization path. In particular, our analysis improves upon existing results by providing a more refined sample complexity bound as well as an exact support recovery result for the final estimator. These results show that the final estimator attains an oracle statistical property due to the usage of nonconvex penalty.",
+          "claimed_authors": [
+            "Zhaoran Wang",
+            "Han Liu",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Optimal computational and statistical rates of convergence for sparse nonconvex learning problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1306.4960"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Optimal computational and statistical rates of convergence for sparse nonconvex learning problems')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An alternative first step approximation based on subgrid artificial viscosity modeling (SAV) is proposed for defect-deferred correction method (DDC) for incompresible Navier-Stokes equation at high Reynolds number. This new approach not only preserves all qualifications of the conventional artificial viscosity (AV) based DDC, such as unconditional stability, high order of accuracy and so on, it has also shown its superiority over choosing AV approximation in the predictor step. Both theory and computational results presented in this paper illustrate that this alternative approach indeed increases the efficiency of the DDC method.",
+          "claimed_authors": [
+            "Mustafa Aggul"
+          ],
+          "claimed_title": "Defect-Deferred Correction Method Based on a Subgrid Artificial Viscosity Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.00502"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Defect-Deferred Correction Method Based on a Subgrid Artificial Viscosity Modeling')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We address the question of parameterizing the subgrid scales in simulations of geophysical flows by applying stochastic mode reduction to the one-dimensional stochastically forced shallow water equations. The problem is formulated in physical space by defining resolved variables as local spatial averages over finite-volume cells and unresolved variables as corresponding residuals. Based on the assumption of a time-scale separation between the slow spatial averages and the fast residuals, the stochastic mode reduction procedure is used to obtain a low-resolution model for the spatial averages alone with local stochastic subgrid-scale parameterization coupling each resolved variable only to a few neighboring cells. The closure improves the results of the low-resolution model and outperforms two purely empirical stochastic parameterizations. It is shown that the largest benefit is in the representation of the energy spectrum. By adjusting only a single coefficient (the strength of the noise) we observe that there is a potential for improving the performance of the parameterization, if additional tuning of the coefficients is performed. In addition, the scale-awareness of the parameterizations is studied.",
+          "claimed_authors": [
+            "Matthias Zacharuk",
+            "Stamen I. Dolaptchiev",
+            "Ulrich Achatz",
+            "Ilya Timofeyev"
+          ],
+          "claimed_title": "Stochastic subgrid-scale parameterization for one-dimensional shallow water dynamics using stochastic mode reduction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.05467"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Stochastic subgrid-scale parameterization for one-dimensional shallow water dynamics using stochastic mode reduction')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We attempt to define what is necessary to construct an Artificial Scientist, explore and evaluate several approaches to artificial general intelligence (AGI) which may facilitate this, conclude that a unified or hybrid approach is necessary and explore two theories that satisfy this requirement to some degree.",
+          "claimed_authors": [
+            "Michael Timothy Bennett",
+            "Yoshihiro Maruyama"
+          ],
+          "claimed_title": "The Artificial Scientist: Logicist, Emergentist, and Universalist Approaches to Artificial General Intelligence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.01831"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='The Artificial Scientist: Logicist, Emergentist, and Universalist Approaches to Artificial General Intelligence')",
+        "failed_at": "2026-07-14T09:56:23Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Guiyu Cao",
+            "Yipeng Shi",
+            "Kun Xu",
+            "Shiyi Chen"
+          ],
+          "title": "Modeling and simulation in supersonic three-temperature carbon dioxide turbulent channel flow",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2210.01621",
+        "summary": "This paper pioneers the direct numerical simulation (DNS) and physical analysis in supersonic three-temperature carbon dioxide (CO2) turbulent channel flow. CO2 is a linear and symmetric triatomic molecular, with the thermal non-equilibrium three-temperature effects arising from the interactions among translational, rotational and vibrational modes under room temperature. Thus, the rotational and vibrational modes of CO2 are addressed. Thermal non-equilibrium effect of CO2 has been modeled in an extended three-temperature BGK-type model, with the calibrated translational, rotational and vibrational relaxation time. To solve the extended BGK-type equation accurately and robustly, non-equilibrium high-accuracy gas-kinetic scheme is proposed within the well-established two-stage fourth-order framework. Compared with the one-temperature supersonic turbulent channel flow, supersonic three-temperature CO2 turbulence enlarges the ensemble heat transfer of the wall by approximate 20%, and slightly decreases the ensemble frictional force. The ensemble density and temperature fields are greatly affected, and there is little change in Van Driest transformation of streamwise velocity. The thermal non-equilibrium three-temperature effects of CO2 also suppress the peak of normalized root-mean-square of density and temperature, normalized turbulent intensities and Reynolds stress. The vibrational modes of CO2 behave quite differently with rotational and translational modes. Compared with the vibrational temperature fields, the rotational temperature fields have the higher similarity with translational temperature fields, especially in temperature amplitude. Current thermal non-equilibrium models, high-accuracy DNS and physical analysis in supersonic CO2 turbulent flow can act as the benchmark for the long-term applicability of compressible CO2 turbulence.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2210.01621",
+          "http_status": 200,
+          "pdf_sample_score": 0.279,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T09:56:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "D. F. Abreu",
+            "C. Junqueira-Junior",
+            "E. T. Dauricio",
+            "J. L. F. Azevedo"
+          ],
+          "title": "Study on the Resolution of Large-Eddy Simulations for Supersonic Jet Flows",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2301.01582",
+        "summary": "The present study is concerned with large-eddy simulations (LES) of supersonic jet flows. The work addresses, in particular, the simulation of a perfectly expanded free jet flow with an exit Mach number of 1.4 and an exit temperature equal to the ambient temperature. Calculations are performed using a nodal discontinuous Galerkin method. The present effort studies the effects of mesh and polynomial refinement on the solution. The present calculations consider computational meshes and polynomial orders such that the number of degrees of freedom (DOFs) in the solution ranges from 50 to 410 million. Mean velocity results and root mean square (RMS) values of velocity fluctuations indicate a better agreement with experimental data as the resolution is increased. The generated data provide a good understanding of the effects of increasing the discretization refinement for LES calculations of jet flows. The present results can guide future simulations of similar flow configurations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2301.01582",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T09:56:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Baofang Song",
+            "Carlos Plana",
+            "Jose M. Lopez",
+            "Marc Avila"
+          ],
+          "title": "Phase-field simulation of core-annular pipe flow",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1902.07351",
+        "summary": "Phase-field methods have long been used to model the flow of immiscible fluids. Their ability to naturally capture interface topological changes is widely recognized, but their accuracy in simulating flows of real fluids in practical geometries is not established. We here quantitatively investigate the convergence of the phase-field method to the sharp-interface limit with simulations of two-phase pipe flow. We focus on core-annular flows, in which a highly viscous fluid is lubricated by a less viscous fluid, and validate our simulations with an analytic laminar solution, a formal linear stability analysis and also in the fully nonlinear regime. We demonstrate the ability of the phase-field method to accurately deal with non-rectangular geometry, strong advection, unsteady fluctuations and large viscosity contrast. We argue that phase-field methods are very promising for quantitatively studying moderately turbulent flows, especially at high concentrations of the disperse phase.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1902.07351",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T09:56:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pedro M. Milani",
+            "Ian E. Gunady",
+            "David S. Ching",
+            "Andrew J. Banko",
+            "Christopher J. Elkins",
+            "John K. Eaton"
+          ],
+          "title": "Enriching MRI mean flow data of inclined jets in crossflow with Large Eddy Simulations",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1908.03540",
+        "summary": "Measurement techniques such as Magnetic Resonance Velocimety (MRV) and Magnetic Resonance Concentration (MRC) are useful for obtaining 3D time-averaged flow quantities in complex turbulent flows, but cannot measure turbulent correlations or near-wall data. In this work, we use highly resolved Large Eddy Simulations (LES) to complement the experiments and bypass those limitations. Coupling LES and magnetic resonance experimental techniques is especially advantageous in complex non-homogeneous flows because the 3D data allow for extensive validation, creating confidence that the simulation results portray a physically realistic flow. As such we can treat the simulation as data, which \"enrich\" the original MRI mean flow results. This approach is demonstrated using a cylindrical and inclined jet in crossflow with three distinct velocity ratios, $r=1$, $r=1.5$, and $r=2$. The numerical mesh is highly refined in order for the subgrid scale models to have negligible contribution, and a systematic, iterative procedure is described to set inlet conditions. The validation of the mean flow data shows excellent agreement between simulation and experiments, which creates confidence that the LES data can be used to enrich the experiments with near-wall results and turbulent statistics. We also discuss some mean flow features and how they vary with velocity ratio, including wall concentration, the counter rotating vortex pair, and the in-hole velocity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1908.03540",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T09:56:31Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "quantifying the impact of data resolution on simulated fluid turbulence physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

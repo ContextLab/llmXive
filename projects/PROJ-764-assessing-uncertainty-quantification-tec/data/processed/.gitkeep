@@ -1,1 +1,2 @@
-# Placeholder for processed data
+# This directory stores preprocessed data artifacts.
+# Ensure .gitkeep is present to track the directory in version control.
