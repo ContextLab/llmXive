@@ -1,0 +1,9 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T008** — No code files or class definitions for Adsorbate, Adsorbent, or IsothermParameter were provided; the evidence contains no artifacts showing that these data entities were created. The required class implementations are missing.
+- **T009** — The `code/__init__.py` file only contains a short docstring and lacks any code for environment variable handling or setting up a logging infrastructure, which the task explicitly required. Implement the necessary logic (e.g., loading `.env` variables, configuring a logger with handlers/formatters) to satisfy the requirement.
+- **T010** — The submission contains only the task description and no files or directories such as a `pytest.ini`/`pyproject.toml` configuration or the required `tests/unit`, `tests/integration`, and `tests/contract` folders. Consequently, the pytest setup and test directory structure have not been provided.
+- **T011** — The `code/main.py` file is present and defines many helper functions, but it never invokes them (no `if __name__ == "__main__"` block or argparse logic) and therefore does not actually orchestrate a run that supports both synthetic and external data flows as required by US1‑US3. The orchestrator is incomplete and cannot be executed as‑is.
+- **T012** — No evidence of a `tests/contract/test_dataset_schema.py` file was provided, nor any content showing a contract test that validates the dataset schema. Without the actual test file present and containing appropriate assertions, the task requirement is not satisfied.

@@ -1,0 +1,13 @@
+# Model Output Schema Definition
+version: "1.0"
+description: Schema for model training outputs and evaluation metrics
+required_fields:
+  - model_name
+  - metrics
+  - hyperparameters
+  - feature_importance
+metrics:
+  - r2
+  - rmse
+  - mae
+output_format: json

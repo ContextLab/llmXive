@@ -1,0 +1,8 @@
+rdkit
+scikit-learn
+pandas
+numpy
+shap
+pyyaml
+pytest
+requests

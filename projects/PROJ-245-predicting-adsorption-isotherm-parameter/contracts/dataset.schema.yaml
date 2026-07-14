@@ -1,0 +1,35 @@
+# Dataset Schema Definition for Adsorption Isotherm Parameters
+version: "1.0"
+description: Schema for raw and processed adsorption dataset
+required_columns:
+  - material_id
+  - molecular_weight
+  - polar_surface_area
+  - polarizability
+  - h_bond_donors
+  - h_bond_acceptors
+  - van_der_waals_volume
+  - kinetic_diameter
+  - surface_area
+  - pore_volume
+  - langmuir_capacity
+  - henry_constant
+column_types:
+  material_id: string
+  molecular_weight: float
+  polar_surface_area: float
+  polarizability: float
+  h_bond_donors: integer
+  h_bond_acceptors: integer
+  van_der_waals_volume: float
+  kinetic_diameter: float
+  surface_area: float
+  pore_volume: float
+  langmuir_capacity: float
+  henry_constant: float
+constraints:
+  molecular_weight: {min: 0}
+  polarizability: {min: 0}
+  surface_area: {min: 0}
+  langmuir_capacity: {min: 0}
+  henry_constant: {min: 0}

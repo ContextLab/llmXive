@@ -1,0 +1,45 @@
+Project Directory Structure Manifest
+Generated: 2023-10-27
+----------------------------------------
+code/
+├── __init__.py
+├── main.py
+├── data/
+│   ├── __init__.py
+│   ├── descriptors.py
+│   ├── download.py
+│   ├── preprocess.py
+│   ├── synthetic_gen.py
+│   └── validate_schema.py
+├── models/
+│   ├── __init__.py
+│   └── entities.py
+├── interpret/
+│   └── __init__.py
+└── tests/
+    ├── __init__.py
+    ├── unit/
+    │   └── __init__.py
+    ├── integration/
+    │   └── __init__.py
+    └── contract/
+        └── __init__.py
+
+contracts/
+└── __init__.py
+
+data/
+├── raw/
+│   └── __init__.py
+├── processed/
+│   └── __init__.py
+├── external/
+│   └── __init__.py
+└── validation/
+    └── __init__.py
+
+This manifest confirms the existence of all required directories:
+- code/
+- data/ (with subdirectories: raw, processed, external, validation)
+- tests/ (with subdirectories: unit, integration, contract)
+- contracts/

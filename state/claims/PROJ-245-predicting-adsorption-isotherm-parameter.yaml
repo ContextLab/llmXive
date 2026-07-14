@@ -1,0 +1,16 @@
+- artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/specs/001-predicting-adsorption-isotherm-parameter/tasks.md
+  attempts: 1
+  canonical: generate 5000 synthetic data points with noise and random correlations
+  claim_id: c_0c7b38c3
+  context: T005 [P] [US1] Create `code/data/synthetic_gen.py` to generate raw synthetic
+    data (N=5000) with noise and random correlations
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate raw synthetic data (N=5000) with noise and random correlations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:24:41Z'

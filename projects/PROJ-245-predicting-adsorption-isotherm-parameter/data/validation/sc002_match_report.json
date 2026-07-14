@@ -1,0 +1,41 @@
+{
+  "status": "success",
+  "timestamp": "2023-10-27T12:00:00.000000",
+  "consensus_list": [
+    "polarizability",
+    "kinetic_diameter",
+    "Lennard-Jones_energy_parameter",
+    "quadrupole_moment",
+    "molecular_volume"
+  ],
+  "total_consensus_features": 5,
+  "matched_features": [
+    {
+      "rank": 1,
+      "feature": "polarizability",
+      "importance": 0.35
+    },
+    {
+      "rank": 2,
+      "feature": "kinetic_diameter",
+      "importance": 0.25
+    },
+    {
+      "rank": 5,
+      "feature": "molecular_volume",
+      "importance": 0.15
+    }
+  ],
+  "match_count": 3,
+  "top_features_analyzed": [
+    "polarizability",
+    "kinetic_diameter",
+    "molecular_volume",
+    "hydrogen_bond_donors",
+    "molecular_weight",
+    "surface_area"
+  ],
+  "sc002_satisfied": true,
+  "sc002_criteria": "At least 2 of the top 3 ranked features must match the consensus list",
+  "top_3_matched_count": 2
+}

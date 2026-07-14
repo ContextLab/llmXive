@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "top_n": 3,
+  "selected_features": [
+    "polarizability",
+    "kinetic_diameter",
+    "molecular_volume"
+  ],
+  "r2_score": 0.65,
+  "sc003_satisfied": true,
+  "sc003_criteria": "R² >= 0.60 when using only top 3 descriptors"
+}

@@ -1,0 +1,4 @@
+# This file is provided for explicit black invocation compatibility.
+# Configuration is primarily in pyproject.toml.
+line-length = 88
+target-version = ['py311']
