@@ -1,0 +1,448 @@
+{
+  "fetched_at": "2026-07-14T22:51:27Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Phase Transitions in Amorphous Solids Using Machine Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 63.288,
+    "ended_at": "2026-07-14T22:51:27Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning prediction of glass transition temperature"
+        ],
+        [
+          2,
+          "amorphous solid phase behavior prediction using neural networks"
+        ],
+        [
+          3,
+          "data-driven modeling of structural relaxation in glasses"
+        ],
+        [
+          4,
+          "machine learning for identifying dynamical heterogeneities in amorphous materials"
+        ],
+        [
+          5,
+          "predicting crystallization kinetics in amorphous systems with AI"
+        ],
+        [
+          6,
+          "deep learning approaches to glass-forming ability classification"
+        ],
+        [
+          7,
+          "machine learning potentials for simulating amorphous phase transitions"
+        ],
+        [
+          8,
+          "identifying precursors to glass transition via unsupervised learning"
+        ],
+        [
+          9,
+          "computational prediction of amorphous-to-crystalline transitions"
+        ],
+        [
+          10,
+          "machine learning analysis of order parameters in disordered solids"
+        ],
+        [
+          11,
+          "predicting thermal properties of amorphous materials using regression models"
+        ],
+        [
+          12,
+          "structural fingerprints of phase transitions in disordered matter"
+        ],
+        [
+          13,
+          "machine learning classification of solid-state amorphous transitions"
+        ],
+        [
+          14,
+          "data-driven discovery of glass transition mechanisms"
+        ],
+        [
+          15,
+          "predicting viscosity changes near the glass transition with ML"
+        ],
+        [
+          16,
+          "machine learning models for amorphous material stability prediction"
+        ],
+        [
+          17,
+          "identifying critical points in amorphous phase diagrams using AI"
+        ],
+        [
+          18,
+          "graph neural networks for predicting phase behavior in glasses"
+        ],
+        [
+          19,
+          "machine learning assisted simulation of amorphous solid dynamics"
+        ],
+        [
+          20,
+          "predicting the fragility of glass formers using machine learning"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistry": 0,
+        "machine learning prediction of glass transition temperature": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "structural glass transition ML",
+      "amorphous silica machine learning",
+      "radial distribution function order parameter",
+      "phase transition prediction accuracy benchmark",
+      "energy landscape ruggedness learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2211.01485"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistry": 3,
+      "amorphous silica machine learning": 1,
+      "energy landscape ruggedness learning": 3,
+      "phase transition prediction accuracy benchmark": 3,
+      "radial distribution function order parameter": 3,
+      "structural glass transition ML": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2208.10109",
+          "rationale": "The paper investigates phase transitions in magnetic spin systems (XY ferromagnets) using Monte Carlo simulations, which is a distinct physical domain from the user's question regarding amorphous solids and machine learning applications. It fails to address the specific mechanism (ML prediction), the material class (amorphous solids), or the methodology (machine learning) required for inclusion, falling under the \"off-domain entirely\" rejection rule.",
+          "title": "Monte Carlo study of the phase transitions in the classical XY ferromagnets with random anisotropy"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on \"learning curves\" as a tool for algorithm selection and resource management in machine learning, which is a distinct construct from the user's specific question about predicting physical phase transitions in amorphous solids. It fails to address the specific domain (amorphous solids), the physical mechanism (phase transitions), or the specific application of ML to materials science, falling under the rejection rule for \"Distinct construct sharing only homonym key",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on the risks of changing data sources in the context of official statistics and policy-making, which is an entirely different domain from the user's question about predicting phase transitions in amorphous solids using machine learning chemistry. It shares no measurable connection to the specific physical mechanisms, materials, or scientific variables (amorphous solids, phase transitions) required by the user's research question.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper is a methodological guideline for validating machine learning in biology, which is an off-domain application (biology vs. amorphous solids/chemistry) and does not address the specific physical mechanism of phase transitions or the domain-specific features required for the user's question. It fails to meet any inclusion criteria (a-f) as it offers general validation standards rather than evidence on the target mechanism, variables, or empirical population.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper is a general survey on active learning strategies for data streams and does not address the specific domain of amorphous solids, phase transitions, or the application of machine learning to predict these physical phenomena. It fails to meet any inclusion criteria as it lacks the necessary biological/physical mechanism, domain-specific variables, or empirical population required for the user's question.",
+          "title": "Active learning for data streams: a survey"
+        },
+        {
+          "primary_pointer": "2303.15563",
+          "rationale": "The paper focuses on privacy-preserving machine learning in the healthcare domain, which is entirely off-domain from the user's question regarding phase transitions in amorphous solids within materials science and chemistry. It shares only the generic keyword \"machine learning\" but addresses a distinct construct (data privacy) and population (medical data) with no measurable connection to the physical mechanisms or variables of the user's research.",
+          "title": "Privacy-preserving machine learning for healthcare: open challenges and future perspectives"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-14T22:50:24Z",
+    "term_input": {
+      "normalized": "predicting phase transitions in amorphous solids using machine learning chemistry",
+      "raw": "Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistr', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-07-14T22:50:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistr', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-07-14T22:50:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide here a brief perspective on the glass transition field. It is an assessment, written from the point of view of theory, of where the field is and where it seems to be heading. We first give an overview of the main phenomenological characteristics, or \"stylised facts\", of the glass transition problem, i.e. the central observations that a theory of the physics of glass formation should aim to explain in a unified manner. We describe recent developments, with a particular focus on real space properties, including dynamical heterogeneity and facilitation, the search for underlying spatial or structural correlations, and the relation between the thermal glass transition and athermal jamming. We then discuss briefly how competing theories of the glass transition have adapted and evolved to account for such real space issues. We consider in detail two conceptual and methodological approaches put forward recently, that aim to access the fundamental critical phenomenon underlying the glass transition, be it thermodynamic or dynamic in origin, by means of biasing of ensembles, of configurations in the thermodynamic case, or of trajectories in the dynamic case. We end with a short outlook.",
+          "claimed_authors": [
+            "Giulio Biroli",
+            "Juan P. Garrahan"
+          ],
+          "claimed_title": "Perspective: The Glass Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.3542"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistr', candidate_title='Perspective: The Glass Transition')",
+        "failed_at": "2026-07-14T22:50:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A universal theoretical framework has been proposed that the solid-to-liquid glass transition and macromolecular motion within the entire temperature range from Tg to Tm and the liquid flow are absolutely determined by the intrinsic 8 orders of transient 2-D mosaic geometric structures formed by exciting interfaces. Interface excitations are cross-coupled electron pairs, which attribute to the Van der Waals repulsion electron-electron pairs with 2-D self-avoiding closed loops existing in any random system at any temperature. An interface excitation state is a vector with 8 orders of additional restoring torque, 8 orders of relaxation times, quantized energies and extra volumes. Dynamics occurred by the slow inverse cascade generates the 8 orders of potential loop-flows while the fast cascade rearranges the structure. The delocalization mode is solitary wave along the 8 orders of geodesic. Solitary wave is derived from the balance between inverse cascade and cascade. Increasing temperature only increases the number of inverse cascade and cascade. This model provides a unified mechanism to interpret ripplon, reptation, Boson peak, Ising model, non-ergodic, free volume, hard-sphere, tunneling, cage, compacting cluster, jamming behaviors, breaking solid lattice, geometrical frustration, potential energy landscape, flow-percolation, thermo-disorder-induced localized energy, average energy of cooperative migration along one direction, critical entanglement chain length, and Reynolds number, solitary wave, heteroclinic orbit in hydrodynamics. This model also directly deduces the Lindemann ratio, the famous 3.4 power law of viscosity of entangled macromolecules and the well-known WLF equation and shows that the Clapeyron equation governing all first order phase transitions in thermodynamics only holds true in each subsystem, instead of the system in glass transition.",
+          "claimed_authors": [
+            "Jia-Lin Wu"
+          ],
+          "claimed_title": "Eight-order mosaic structure theory of the glass transition and macromolecular motion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1005.2143"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistr', candidate_title='Eight-order mosaic structure theory of the glass transition and macromolecular motion')",
+        "failed_at": "2026-07-14T22:50:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Most of the liquid-state theories, including glass-transition theories, are constructed on the basis of two-body density correlations. However, we have recently shown that many-body correlations, in particular bond orientational correlations, play a key role in both the glass transition and the crystallization transition. Here we show, with numerical simulations of supercooled polydisperse hard spheres systems, that the lengthscale associated with any two-point spatial correlation function does not increase toward the glass transition. A growing lengthscale is instead revealed by considering many-body correlation functions, such as correlators of orientational order, which follows the lengthscale of the dynamic heterogeneities. Despite the growing of crystal-like bond orientational order, we reveal that the stability against crystallization with increasing polydispersity is due to an increasing population of icosahedral arrangements of particles. Our results suggest that, for this type of systems, many-body correlations are a manifestation of the link between the vitrification and the crystallization phenomena. Whether a system is vitrified or crystallized can be controlled by the degree of frustration against crystallization, polydispersity in this case.",
+          "claimed_authors": [
+            "Mathieu Leocmach",
+            "John Russo",
+            "Hajime Tanaka"
+          ],
+          "claimed_title": "Importance of many-body correlations in glass transition: an example from polydisperse hard spheres",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.6819"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistr', candidate_title='Importance of many-body correlations in glass transition: an example from polydisperse hard spheres')",
+        "failed_at": "2026-07-14T22:50:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report on the results from the radial-velocity follow-up program performed to establish the planetary nature and to characterize the transiting candidates discovered by the space mission CoRoT. We use the SOPHIE at OHP, HARPS at ESO and the HIRES at Keck spectrographs to collect spectra and high- precision radial velocity (RV) measurements for several dozens dif- ferent candidates from CoRoT. We have measured the Rossiter- McLaughlin effect of several confirmed planets, especially CoRoT- 1b which revealed that it is another highly inclined system. Such high-precision RV data are necessary for the discovery of new tran- siting planets. Furthermore, several low mass planet candidates have emerged from our Keck and HARPS data.",
+          "claimed_authors": [
+            "A. Santerne",
+            "M. Endl",
+            "A. Hatzes",
+            "F. Bouchy",
+            "C. Moutou",
+            "M. Deleuil",
+            "the CoRoT radial velocity team"
+          ],
+          "claimed_title": "Radial velocity follow-up of CoRoT transiting exoplanets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1101.0463"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistr', candidate_title='Radial velocity follow-up of CoRoT transiting exoplanets')",
+        "failed_at": "2026-07-14T22:50:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the field of radial basis functions mathematicians have been endeavouring to find infinitely differentiable and compactly supported radial functions. This kind of functions is extremely important. One of the reasons is that its error bound will converge very fast. However there is hitherto no such function which can be expressed in a simple form. This is a famous question. The purpose of this paper is to answer this question.",
+          "claimed_authors": [
+            "Lin-Tian Luh"
+          ],
+          "claimed_title": "A New Radial Function",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "math/0601160"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistr', candidate_title='A New Radial Function')",
+        "failed_at": "2026-07-14T22:50:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Let $π$ be a cuspidal automorphic representation of $\\operatorname{GL}_2$ over a totally real number field $F$. Let $K$ be a totally imaginary quadratic extension of $F$. We estimate central values of the $\\operatorname{GL}_2 \\times \\operatorname{GL}_2$ Rankin-Selberg $L$-functions associated to $π$ times representations induced from Hecke characters of $K$ which are ramified only at a given prime ideal $\\mathfrak{p}$ of $F$. More specifically, we use spectral decompositions of shifted convolution sums and relations to Fourier-Whittaker coefficients of genuine and non-genuine metaplectic forms to obtain nonvanishing estimates, averaging over primitive ring class characters of a given exact order. When $π$ corresponds to a holomorphic Hilbert modular form of arithmetic weight $k \\geq 2$, we then derive finer results from the rationality theorems of Shimura, together with the existence of suitable $\\mathfrak{p}$-adic $L$-functions. This allows us to generalize the theorems of Rohrlich, Vatsal, and Cornut-Vatsal to this setting. Finally, in a self-contained appendix, we explain how to use these results to deduce bounds for Mordell-Weil ranks of the associated $\\operatorname{GL}_2$-type abelian varieties via existing Iwasawa main conjecture divisibilities.",
+          "claimed_authors": [
+            "Jeanine Van Order"
+          ],
+          "claimed_title": "Rankin-Selberg L-functions in cyclotomic towers, III",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.4915"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistr', candidate_title='Rankin-Selberg L-functions in cyclotomic towers, III')",
+        "failed_at": "2026-07-14T22:50:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The dynamical responses of XY ferromagnet driven by linearly polarised propagating and standing magnetic field wave have been studied by Monte Carlo simulation in three dimensions. In the case of propagating magnetic field wave (with specified amplitude, frequency and the wavelength), the low temperature dynamical mode is a propagating spin wave and the system becomes structureless (or random) in the high temperature. A dynamical symmetry breaking phase transition is observed at a finite (nonzero) temperature. This symmetry breaking is confirmed by studying the statistical distribution of the angle of the spin vector. The dynamic nonequilibrium transition temperature was found to decrease as the amplitude of the propagating magnetic field wave increased. A comprehensive phase boundary is drawn in the plane formed by temperature and amplitude of propagating field wave. The phase boundary was observed to shrink (in the low temperature side) for longer wavelength of the propagating magnetic wave. In the case of standing magnetic field wave, the low temperature excitation is a standing spin wave which becomes structureless (or random) in the high temperature. Here also, like the case of propagating magnetic wave, a dynamical symmetry breaking nonequilibrium phase transition was observed. A comprehensive phase boundary is drawn. Unlike the case of propagating magnetic wave, the phase boundary does not show any systematic variation with the wavelength of the standing magnetic field wave. In the limit of vanishingly small amplitude of the field, the phase boundaries approach the recent Monte Carlo estimate of equilibrium transition temperature.",
+          "claimed_authors": [
+            "Muktish Acharyya"
+          ],
+          "claimed_title": "Driven spin wave modes in XY ferromagnet: Nonequilibrium phase transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.01619"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistr', candidate_title='Driven spin wave modes in XY ferromagnet: Nonequilibrium phase transition')",
+        "failed_at": "2026-07-14T22:50:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the unitary matrix model with a topological term. We call the topological term the theta term. In the symmetric model there is the phase transition between the strong and weak coupling regime at $λ_{c}=2$. If the Wilson term is bigger than the theta term, there is the strong-weak coupling phase transition at the same $λ_{c}$. On the other hand, if the theta term is bigger than the Wilson term, there is only the strong coupling regime. So the topological phase transition disappears in this case.",
+          "claimed_authors": [
+            "Masato Hisakado"
+          ],
+          "claimed_title": "Unitary Matrix Models and Phase Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "hep-th/9705121"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistr', candidate_title='Unitary Matrix Models and Phase Transition')",
+        "failed_at": "2026-07-14T22:50:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistr', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-07-14T22:50:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistr', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-14T22:50:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We motivate Energy-Based Models (EBMs) as a promising model class for continual learning problems. Instead of tackling continual learning via the use of external memory, growing models, or regularization, EBMs change the underlying training objective to cause less interference with previously learned information. Our proposed version of EBMs for continual learning is simple, efficient, and outperforms baseline methods by a large margin on several benchmarks. Moreover, our proposed contrastive divergence-based training objective can be combined with other continual learning methods, resulting in substantial boosts in their performance. We further show that EBMs are adaptable to a more general continual learning setting where the data distribution changes without the notion of explicitly delineated tasks. These observations point towards EBMs as a useful building block for future continual learning methods.",
+          "claimed_authors": [
+            "Shuang Li",
+            "Yilun Du",
+            "Gido M. van de Ven",
+            "Igor Mordatch"
+          ],
+          "claimed_title": "Energy-Based Models for Continual Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.12216"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Phase Transitions in Amorphous Solids Using Machine Learning chemistr', candidate_title='Energy-Based Models for Continual Learning')",
+        "failed_at": "2026-07-14T22:50:57Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "R. Giampaoli",
+            "J. L. Figueiredo",
+            "J. D. Rodrigues",
+            "J. A. Rodrigues",
+            "H. Terças",
+            "J. T. Mendonça"
+          ],
+          "title": "Information compression at the turbulent-phase transition in cold atom gases",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2211.01485",
+        "summary": "The statistical properties of physical systems in thermal equilibrium are blatantly different from their far-from-equilibrium counterparts. In the latter, fluctuations often dominate the dynamics and might cluster in ordered patterns in the form of dissipative coherent structures. Here, we study the transition of a cold atomic cloud, driven close to a sharp electronic resonance, from a stable to a turbulent phase. From the atomic density distribution -- measured using a spatially-resolved pump-probe technique -- we have computed the Shannon entropy on two different basis sets. Information compression, corresponding to a minimum in the Shannon entropy, has been observed at criticality, where the system fluctuations organize into high-order (low-entropy) patterns. Being independent of the representation used, this feature is a property shared by a vast class of physical systems undergoing phase transitions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2211.01485",
+          "http_status": 200,
+          "pdf_sample_score": 0.2082,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T22:50:56Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting phase transitions in amorphous solids using machine learning chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

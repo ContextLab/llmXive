@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T13:37:08.118597Z'
-current_stage: flesh_out_in_progress
+current_stage: planned
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-203-predicting-phase-transitions-in-amorphou
-last_run_id: c5a72968-b55b-402e-8dbe-e22a70dcf0b0
+last_run_id: f6c09b8f-39b4-47b1-a46c-d2f882b74053
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou
 title: Predicting Phase Transitions in Amorphous Solids Using Machine Learning
-updated_at: '2026-06-13T18:08:41.781264Z'
+updated_at: '2026-07-14T23:30:55.591033Z'

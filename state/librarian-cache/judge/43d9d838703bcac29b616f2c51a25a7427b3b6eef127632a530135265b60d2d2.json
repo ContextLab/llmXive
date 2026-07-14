@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2208.10109",
+  "judged_at": "2026-07-14T22:51:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting phase transitions in amorphous solids using machine learning chemistry",
+  "rationale": "The paper investigates phase transitions in magnetic spin systems (XY ferromagnets) using Monte Carlo simulations, which is a distinct physical domain from the user's question regarding amorphous solids and machine learning applications. It fails to address the specific mechanism (ML prediction), the material class (amorphous solids), or the methodology (machine learning) required for inclusion, falling under the \"off-domain entirely\" rejection rule.",
+  "relevant": false
+}

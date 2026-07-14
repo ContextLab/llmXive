@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-07-14T22:51:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting phase transitions in amorphous solids using machine learning chemistry",
+  "rationale": "The paper focuses on the risks of changing data sources in the context of official statistics and policy-making, which is an entirely different domain from the user's question about predicting phase transitions in amorphous solids using machine learning chemistry. It shares no measurable connection to the specific physical mechanisms, materials, or scientific variables (amorphous solids, phase transitions) required by the user's research question.",
+  "relevant": false
+}

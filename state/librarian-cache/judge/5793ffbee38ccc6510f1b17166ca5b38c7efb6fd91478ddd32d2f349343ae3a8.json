@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.15563",
+  "judged_at": "2026-07-14T22:51:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting phase transitions in amorphous solids using machine learning chemistry",
+  "rationale": "The paper focuses on privacy-preserving machine learning in the healthcare domain, which is entirely off-domain from the user's question regarding phase transitions in amorphous solids within materials science and chemistry. It shares only the generic keyword \"machine learning\" but addresses a distinct construct (data privacy) and population (medical data) with no measurable connection to the physical mechanisms or variables of the user's research.",
+  "relevant": false
+}

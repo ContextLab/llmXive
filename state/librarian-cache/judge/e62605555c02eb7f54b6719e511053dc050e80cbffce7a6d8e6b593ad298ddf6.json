@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.01485",
+  "judged_at": "2026-07-14T22:51:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting phase transitions in amorphous solids using machine learning chemistry",
+  "rationale": "This paper satisfies criterion (a) by providing evidence of the same physical mechanism (information compression/entropy minimization) occurring at a phase transition, even though the specific system (cold atom gases) and state (turbulent vs. amorphous) differ. It also meets criterion (d) as a foundational reference for using information-theoretic metrics (Shannon entropy) to detect phase transitions in non-equilibrium physical systems, which is directly relevant to the user's goal of applying m",
+  "relevant": true
+}

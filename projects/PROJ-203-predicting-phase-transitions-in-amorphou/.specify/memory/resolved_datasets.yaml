@@ -1,0 +1,400 @@
+resolved_at: '2026-07-14T23:04:46.964395+00:00'
+datasets:
+- intent: RDF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ttss/rdf-triple-based-summarization/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ttss/rdf-query-based-summarization/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ttss/rdf-summarization/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ttss/rdf-triple-based-summarization/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ttss/rdf-query-based-summarization/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ttss/rdf-summarization/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ttss/rdf-summarization-b/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ttss/rdf-summarizaiton-c/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Bird_flu_H5N1_in_Australia_protect_Australian_species_from_bird_flu_virus/32983049
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Frailty_Trajectories_in_Men_Aged_71_Years_or_Older_Living_in_Western_Australia_Results_From_the_Health_in_Men_Study/32987999
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_b_Safety-Framed_Template_Reconstruction_in_GPT-5_6_b_b_An_Observational_Study_Using_Cel-Style_Images_as_Behavioral_Probes_b_/32957075
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Smart_Car_Parking_Management_System/32984585
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_Bengali_news_and_public_opinion_dataset_from_YouTube/32984588
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18877257
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7701523
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19099884
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17855119
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13689062
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26037/yareta:4vfmoahxhvcrpdvxtst6t5qkp4
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''yareta.unige.ch'',
+      port=443): Max retries exceeded with url: /archives/d34daff4-2ca3-4ca7-a18f-cc5d555d261d
+      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''yareta.unige.ch'', port=443)
+      at 0x7fa222525010>, ''Connection to yareta.unige.ch timed out. (connect timeout=20.0)''))'
+  - url: https://doi.org/10.26037/yareta:sqzdstdl4bfa5grctxolloywge
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''yareta.unige.ch'',
+      port=443): Max retries exceeded with url: /archives/6ebb726d-bc8a-4b80-a100-70bbbadcb45f
+      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''yareta.unige.ch'', port=443)
+      at 0x7fa22f684410>, ''Connection to yareta.unige.ch timed out. (connect timeout=20.0)''))'
+  - url: https://doi.org/10.26037/yareta:dbuzyt3izfgzpowzhqq77jfaim
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''yareta.unige.ch'',
+      port=443): Max retries exceeded with url: /archives/293506d7-78db-43e5-9f4e-5a3470102ff6
+      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''yareta.unige.ch'', port=443)
+      at 0x7fa222505590>, ''Connection to yareta.unige.ch timed out. (connect timeout=20.0)''))'
+  - url: https://doi.org/10.26037/yareta:ivi7kfy3czhgxfurmhpcjt3lhm
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''yareta.unige.ch'',
+      port=443): Max retries exceeded with url: /archives/88ba4182-dcb1-4c99-98da-f22f305e40e6
+      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''yareta.unige.ch'', port=443)
+      at 0x7fa22f68f4d0>, ''Connection to yareta.unige.ch timed out. (connect timeout=20.0)''))'
+  - url: https://doi.org/10.26037/yareta:bkswdtm4dzeqfk7hqi5j7m3p3m
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''yareta.unige.ch'',
+      port=443): Max retries exceeded with url: /archives/51ce1f8b-03dd-437a-820e-158a2afd7e11
+      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''yareta.unige.ch'', port=443)
+      at 0x7fa222520d10>, ''Connection to yareta.unige.ch timed out. (connect timeout=20.0)''))'
+- intent: RMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?Expires=1784073788&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY4ZWRkNDYyNTlmMTRmMjFjNjk4YWEyOC9mNDRmNzAzZWNkNTdkMWRkZmZhYjY4ZWExNjZkZmZjYjgxOGYwMmEwMjc0NTY2YWI0NjUxMjM5ZWQ4NWZmZmZmKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDA3Mzc4OH19fV19&Signature=MEUCIQDsm~8iPAEM7mfDR3uwU0k2HnXLTqew9bSFKtOW7LzoAwIgEUO3-x2iygU91AFZnCnWrZEd4SeCjp85Ox9ypm0wODQ_&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&response-content-type=application%2Fjson&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T230308Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=5264ad4eb66157d564bc53ea62671e6af4d9e2ae8afaf6cb548f59955b8b1721
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Structural_Drift_of_AI_Behavior_Across_Model_Evolution_An_Observational_Timeline/32721132
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Redeveloping_an_Undergraduate_Coach_Development_program_using_Human-Centred_Design/32980889
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Bird_flu_H5N1_in_Australia_protect_Australian_species_from_bird_flu_virus/32983049
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Frailty_Trajectories_in_Men_Aged_71_Years_or_Older_Living_in_Western_Australia_Results_From_the_Health_in_Men_Study/32987999
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_b_Safety-Framed_Template_Reconstruction_in_GPT-5_6_b_b_An_Observational_Study_Using_Cel-Style_Images_as_Behavioral_Probes_b_/32957075
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20325172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17593144
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17750460
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10972798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10867253
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21363345
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21363345
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19740921
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19740921
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Systematic_AQbD-based_development_of_a_stability-indicating_RP_UPLC_method_for_Olaparib_using_in_silico_chromatographic_modeling/32985434/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NIST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-59b-v1/resolve/main/2024-01-14T05-56-39.495831/details_harness|arc:challenge|25_2024-01-14T05-56-39.495831.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__bigdoc-c34b-instruct-tf32/resolve/main/2024-02-02T03-54-56.700611/details_harness|arc:challenge|25_2024-02-02T03-54-56.700611.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__BigCodeLlama-92b/resolve/main/2024-02-02T12-17-18.661697/details_harness|arc:challenge|25_2024-02-02T12-17-18.661697.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_nisten__shqiponja-15b-v1/resolve/main/2024-02-09T14-57-48.901535/details_harness|arc:challenge|25_2024-02-09T14-57-48.901535.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://dro.deakin.edu.au/articles/report/Global_survey_of_local_innovation_in_disinformation_response_Lessons_for_countering_violent_extremism/32414307
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Structural_Drift_of_AI_Behavior_Across_Model_Evolution_An_Observational_Timeline/32721132
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Redeveloping_an_Undergraduate_Coach_Development_program_using_Human-Centred_Design/32980889
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Bird_flu_H5N1_in_Australia_protect_Australian_species_from_bird_flu_virus/32983049
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Frailty_Trajectories_in_Men_Aged_71_Years_or_Older_Living_in_Western_Australia_Results_From_the_Health_in_Men_Study/32987999
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14189804
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6384789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7254581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6626065
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1162780
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21365521
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21365514
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21365514
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21365521
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21365314
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: WebBook
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Raziel1234/WebBooks-1/resolve/main/books_dataset.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/Raziel1234/WebBooks/2f2b00f8c5950b40699b2fb59087d4a39f0efa94/books.txt?%2Fdatasets%2FRaziel1234%2FWebBooks%2Fresolve%2Fmain%2Fbooks.txt=&etag=%2299b13804082c421d7085681ea02e6206286f0a1a%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Raziel1234/WebBooks-1/resolve/main/books_dataset.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/699de5cedc97b135d3781f71/22a41e641d0d956c4b0b5ccf28986e7f5bd434bf8454559404c641ec4613a389?Expires=1784073858&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY5OWRlNWNlZGM5N2IxMzVkMzc4MWY3MS8yMmE0MWU2NDFkMGQ5NTZjNGIwYjVjY2YyODk4NmU3ZjViZDQzNGJmODQ1NDU1OTQwNGM2NDFlYzQ2MTNhMzg5KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDA3Mzg1OH19fV19&Signature=MEUCICejsUkOqA-GxH5NpiDQbILjbqTyp0zeTdsUKQdGUoFTAiEAtwrQ-DAK-Z49krss7xRBLdAIrj9jTIGja98wF9SZQ4s_&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27books.txt%3B+filename%3D%22books.txt%22%3B&response-content-type=text%2Fplain&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T230418Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=ab5c503bedbe7903fdc6fd9a706b1e633531c3b637e8b370587350cc1e493e13
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/International_law_and_the_question_of_minorities_in_postcolonial_states_Past_present_and_future/32400483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/report/Global_survey_of_local_innovation_in_disinformation_response_Lessons_for_countering_violent_extremism/32414307
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Structural_Drift_of_AI_Behavior_Across_Model_Evolution_An_Observational_Timeline/32721132
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Redeveloping_an_Undergraduate_Coach_Development_program_using_Human-Centred_Design/32980889
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Bird_flu_H5N1_in_Australia_protect_Australian_species_from_bird_flu_virus/32983049
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17909312
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8132046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12786324
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18602435
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4157813
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20811485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20811485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19446323
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19446323
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20316418
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

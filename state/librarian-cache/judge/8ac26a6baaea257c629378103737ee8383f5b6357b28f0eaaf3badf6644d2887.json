@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-07-14T22:51:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting phase transitions in amorphous solids using machine learning chemistry",
+  "rationale": "The paper is a general survey on active learning strategies for data streams and does not address the specific domain of amorphous solids, phase transitions, or the application of machine learning to predict these physical phenomena. It fails to meet any inclusion criteria as it lacks the necessary biological/physical mechanism, domain-specific variables, or empirical population required for the user's question.",
+  "relevant": false
+}

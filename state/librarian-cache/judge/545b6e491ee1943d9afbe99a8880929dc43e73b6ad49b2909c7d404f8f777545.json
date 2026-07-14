@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-07-14T22:51:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting phase transitions in amorphous solids using machine learning chemistry",
+  "rationale": "The paper is a methodological guideline for validating machine learning in biology, which is an off-domain application (biology vs. amorphous solids/chemistry) and does not address the specific physical mechanism of phase transitions or the domain-specific features required for the user's question. It fails to meet any inclusion criteria (a-f) as it offers general validation standards rather than evidence on the target mechanism, variables, or empirical population.",
+  "relevant": false
+}
