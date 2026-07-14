@@ -61,3 +61,7 @@ validity_metrics:
   cronbach_alpha: 0.78
   factor_extraction: Principal Axis Factoring
   rotation: Varimax
+model_analysis:
+  status: failed
+  error: Engineered data not found at data/processed/engineered_data.csv. Run T020-T022
+    first.

@@ -1,12 +1,11 @@
-pandas
-statsmodels
-scikit-learn
-matplotlib
-pyyaml
-factor_analyzer
-evalues
-seaborn
-reportlab
-pillow
-numpy  # auto-added: imported by run-book but missing from venv
-scipy  # auto-added: imported by run-book but missing from venv
+pandas>=2.0.0
+statsmodels>=0.14.0
+scikit-learn>=1.3.0
+matplotlib>=3.8.0
+pyyaml>=6.0
+factor_analyzer>=0.4.0
+evalues>=0.1.0
+seaborn>=0.13.0
+numpy>=1.24.0
+scipy>=1.11.0
+reportlab  # auto-added: imported by run-book but missing from venv
