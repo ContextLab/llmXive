@@ -25,13 +25,13 @@ def run_script(script_name: str, args: List[str] = None) -> bool:
 def main():
     setup_logging("INFO")
     
-    # Step 1: Ensure data exists (T011)
-    logger.info("Ensuring dataset availability...")
+    # Step 1: Ensure data exists (T011) - Downloads UCI Shopper or HAR
+    logger.info("Ensuring dataset availability (T011)...")
     if not run_script("t011_ensure_data.py"):
         logger.error("Failed to ensure data availability.")
         sys.exit(1)
     
-    # Step 2: Run baseline analysis (T012)
+    # Step 2: Run baseline analysis (T012) -> Writes data/processed/baseline_metrics.json
     logger.info("Running baseline analysis (T012)...")
     if not run_script("t012_run_baseline_analysis.py"):
         logger.error("Pipeline failed at t012_run_baseline_analysis.py")
@@ -45,7 +45,7 @@ def main():
         sys.exit(1)
     logger.info("Pipeline step T022 completed successfully.")
 
-    # Step 4: Re-analyze cleaned variants (T023)
+    # Step 4: Re-analyze cleaned variants (T023) -> Writes data/processed/cleaned_metrics.json
     logger.info("Re-analyzing cleaned variants (T023)...")
     if not run_script("t023_reanalyze_cleaned_variants.py"):
         logger.error("Pipeline failed at t023_reanalyze_cleaned_variants.py")
@@ -88,7 +88,7 @@ def main():
         sys.exit(1)
     logger.info("Per-dataset reporting steps completed successfully.")
 
-    # Step 8: Generate Null FPR Metrics (T032)
+    # Step 8: Generate Null FPR Metrics (T032) -> Writes data/processed/null_fpr_metrics.json
     logger.info("Generating null FPR metrics (T032)...")
     if not run_script("t032_permutation_null_fpr.py"):
         logger.error("Pipeline failed at t032_permutation_null_fpr.py")

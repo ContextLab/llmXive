@@ -1,98 +1,79 @@
-# Quickstart Guide for PROJ-256-quantifying-the-impact-of-data-cleaning-
+# Quickstart Guide
 
-This guide walks you through the execution of the data cleaning impact analysis pipeline.
+This guide outlines the steps to run the full analysis pipeline.
 
 ## Prerequisites
 
 - Python 3.11+
 - Virtual environment activated
-- Dependencies installed (`pip install -r requirements.txt`)
 
-## Execution Steps
+## Setup
 
-Run the following commands in order to execute the full pipeline:
+```bash
+pip install -r requirements.txt
+```
 
-1. **Ensure Data Availability**
+## Run the Pipeline
+
+Execute the following scripts in order:
+
+1. **Ensure Data Exists** (Download datasets if missing)
  ```bash
  python code/t011_ensure_data.py
  ```
 
-2. **Run Baseline Analysis**
+2. **Run Baseline Analysis** (Analyze raw data)
  ```bash
  python code/t012_run_baseline_analysis.py
  ```
 
-3. **Save Cleaned Datasets**
+3. **Save Cleaned Datasets** (Apply cleaning strategies)
  ```bash
  python code/t022_save_cleaned_datasets.py
  ```
 
-4. **Re-analyze Cleaned Variants**
+4. **Reanalyze Cleaned Variants** (Analyze cleaned data)
  ```bash
  python code/t023_reanalyze_cleaned_variants.py
  ```
 
-5. **Run Comparison Analysis**
+5. **Run Comparison** (Compare baseline vs cleaned)
  ```bash
  python code/t027_run_comparison.py
  ```
 
-6. **Generate Sensitivity Analysis**
- ```bash
- python code/t030_dataset_size_sensitivity.py
- ```
-
-7. **Run Bootstrap Variance Estimation**
+6. **Bootstrap Variance** (Estimate variance of shifts)
  ```bash
  python code/t031_bootstrap_variance.py
  ```
 
-8. **Generate Permutation Null FPR**
+7. **Permutation Null FPR** (Estimate False Positive Rate)
  ```bash
  python code/t032_permutation_null_fpr.py
  ```
 
-9. **Run Outlier Threshold Sweep**
+8. **Outlier Threshold Sweep** (Sweep k values)
  ```bash
  python code/t033_outlier_threshold_sweep.py
  ```
 
-10. **Generate Visualizations**
+9. **Generate Visualizations**
  ```bash
  python code/t034_generate_forest_plot.py
  python code/t035_generate_ci_heatmap.py
  ```
 
-11. **Generate Reporting Metrics**
- ```bash
- python code/t036_pvalue_shift_reporting.py
- python code/t037_ci_width_reporting.py
- python code/t038_effect_size_reporting.py
- python code/t039_log_excluded_datasets.py
- ```
-
-12. **Create Comparison Report (T040)**
- ```bash
- python code/t040_create_comparison_report.py
- ```
-
-13. **Generate Final Report**
+10. **Generate Final Report**
  ```bash
  python code/t041_generate_final_report.py
  ```
 
 ## Output Artifacts
 
-After successful execution, the following artifacts will be available in `data/processed/`:
+All processed data and reports will be saved in `data/processed/`:
 - `baseline_metrics.json`
 - `cleaned_metrics.json`
-- `comparison_report.json`
 - `null_fpr_metrics.json`
-- `sensitivity_analysis.json`
-- Visualizations (PNGs) in `data/processed/figures/`
-
-## Troubleshooting
-
-- If you encounter "No such file or directory" errors, ensure the virtual environment is activated and you are running from the project root.
-- If data files are missing, run `python code/t011_ensure_data.py` first.
-- Check `logs/` directory for detailed execution logs.
+- `comparison_report.json`
+- `forest_plot.png`
+- `ci_heatmap.png`
