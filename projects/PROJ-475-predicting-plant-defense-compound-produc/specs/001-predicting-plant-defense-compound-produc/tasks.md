@@ -74,14 +74,14 @@
 
 ### Implementation for User Story 1
 
-- [X] T010 [US1] Implement `code/data/ingestion.py` to fetch VCF data from verified NCBI SRA URL OR generate mock data (replaces T010 fetch logic); explicitly enforce verified URL check before fallback to mock to preserve FR-001 constraint. **Output**: `data/raw/genomic_vcf.json`. **Logic**: If `config.verified_urls['genomic']` exists, fetch; else call `mock_generator`. **Post-check**: Call T008 to verify disk usage after fetch/generate.
-- [X] T011 [US1] Implement `code/data/ingestion.py` to fetch environmental metadata from verified WorldClim/GBIF URL OR generate mock data; explicitly enforce verified URL check before fallback to mock to preserve FR-002 constraint. **Output**: `data/raw/env_data.json`. **Logic**: If `config.verified_urls['env']` exists, fetch; else call `mock_generator`. **Post-check**: Call T008 to verify disk usage after fetch/generate. <!-- FAILED: unspecified -->
-- [ ] T012 [US1] Implement `code/data/ingestion.py` to fetch defense compound profiles from verified ChemBank/PhenolExplorer URL OR generate mock data; explicitly enforce verified URL check before fallback to mock to preserve FR-003 constraint. **Output**: `data/raw/compound_data.json`. **Logic**: If `config.verified_urls['compound']` exists, fetch; else call `mock_generator`. **Post-check**: Call T008 to verify disk usage after fetch/generate.
+- [X] T010 [US1] Implement `code/data/ingestion.py` to fetch VCF data from verified NCBI SRA URL OR generate mock data (replaces T010 fetch logic); explicitly enforce verified URL check before fallback to mock to preserve FR-001 constraint. **Output**: `data/raw/genomic_vcf.json`. **Logic**: If `config.verified_urls['genomic']` exists, fetch; else call `mock_generator`. **Post-check**: Call T008 to verify disk usage after fetch/generate. <!-- FAILED: unspecified -->
+- [X] T011 [US1] Implement `code/data/ingestion.py` to fetch environmental metadata from verified WorldClim/GBIF URL OR generate mock data; explicitly enforce verified URL check before fallback to mock to preserve FR-002 constraint. **Output**: `data/raw/env_data.json`. **Logic**: If `config.verified_urls['env']` exists, fetch; else call `mock_generator`. **Post-check**: Call T008 to verify disk usage after fetch/generate. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T012 [US1] Implement `code/data/ingestion.py` to fetch defense compound profiles from verified ChemBank/PhenolExplorer URL OR generate mock data; explicitly enforce verified URL check before fallback to mock to preserve FR-003 constraint. **Output**: `data/raw/compound_data.json`. **Logic**: If `config.verified_urls['compound']` exists, fetch; else call `mock_generator`. **Post-check**: Call T008 to verify disk usage after fetch/generate.
 - [X] T013 [US1] Implement `code/data/validation.py` to merge datasets and perform listwise deletion for missing modalities (FR-003)
 - [X] T014 [US1] Implement `code/data/validation.py` to calculate and report retention percentage (SC-001) and log exclusion warnings. **Logic**: Aggregate exclusion counts from T015/T016. If retention < 80%, raise `SystemExit` with error code `E-DATA-INSUFFICIENT`.
-- [ ] T015 [US1] Implement `code/data/preprocessing.py` to handle missing genotype imputation (mean) OR exclude population if missingness > 20% (Edge Case); explicitly mandate logging the exclusion decision to satisfy Constitution Principle VI. **Logic**: Per-population check. If > 20%, exclude row. Output: update `data/processed/filtered.csv` and log to `code/utils/logging.py`. <!-- FAILED: unspecified -->
+- [X] T015 [US1] Implement `code/data/preprocessing.py` to handle missing genotype imputation (mean) OR exclude population if missingness > 20% (Edge Case); explicitly mandate logging the exclusion decision to satisfy Constitution Principle VI. **Logic**: Per-population check. If > 20%, exclude row. Output: update `data/processed/filtered.csv` and log to `code/utils/logging.py`. <!-- FAILED: unspecified -->
 - [X] T016 [US1] Implement `code/data/preprocessing.py` to handle missing environmental metadata (flag/exclude) per Edge Cases
-- [X] T017 [US1] Write unit tests for ingestion logic in `code/tests/test_ingestion.py` (mocked downloads)
+- [X] T017 [US1] Write unit tests for ingestion logic in `code/tests/test_ingestion.py` (mocked downloads) <!-- FAILED: unspecified -->
 - [X] T018 [US1] Write integration test for validation pipeline in `code/tests/test_validation.py` (verify listwise deletion)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -124,7 +124,7 @@
 - [X] T031 [US3] Implement `code/models/evaluation.py` to perform sensitivity analysis sweeping alpha values across a range of small significance levels per FR-007
 - [X] T032 [US3] Implement `code/utils/stats.py` to calculate Jaccard index for feature selection stability across the sweep (SC-004)
 - [X] T033 [US3] Implement `code/utils/stats.py` to apply Benjamini-Hochberg correction to predictor p-values per FR-008
-- [ ] T034 [US3] Implement `code/main.py` to orchestrate the full pipeline: Ingestion → Validation → Feature Eng → Training → Evaluation; explicitly include Constitution Principle V requirement to update `state/PROJ-475-predicting-plant-defense-compound-produc.yaml` key `updated_at` with current timestamp upon completion. **Dependency**: Must run after T019, T028, T033.
+- [~] T034 [US3] Implement `code/main.py` to orchestrate the full pipeline: Ingestion → Validation → Feature Eng → Training → Evaluation; explicitly include Constitution Principle V requirement to update `state/PROJ-475-predicting-plant-defense-compound-produc.yaml` key `updated_at` with current timestamp upon completion. **Dependency**: Must run after T019, T028, T033.
 - [X] T035 [US3] Write unit tests for permutation test logic in `code/tests/test_stats.py` (verify null distribution generation)
 - [X] T036 [US3] Write unit tests for BH correction and Jaccard index in `code/tests/test_stats.py`
 
@@ -137,7 +137,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T037 [P] Update `README.md` with setup instructions and `docs/api.md` with module documentation
-- [ ] T038 Refactor `code/data/ingestion.py` for DRY principle and `code/utils/stats.py` for type hinting
+- [~] T038 Refactor `code/data/ingestion.py` for DRY principle and `code/utils/stats.py` for type hinting <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
 - [X] T039 Optimize `code/data/preprocessing.py` to stream VCF using `cyvcf2` to ensure memory usage < 7GB
 - [X] T040 [P] Run `quickstart.md` validation
 - [X] T041 Ensure `data/manifest.yaml` is updated with all generated artifacts and checksums

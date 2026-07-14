@@ -1,6 +1,5 @@
 """
-Data validation module for plant defense compound prediction pipeline.
-Merges datasets, performs listwise deletion, and validates data integrity.
+Data Validation and Merging Module.
 """
 import json
 import sys
@@ -9,210 +8,143 @@ from typing import Dict, List, Any, Tuple, Optional
 import pandas as pd
 import numpy as np
 
-from config import get_config
 from utils.logging import get_module_logger
-from utils.io import check_disk_space, DiskSpaceError
+from config import get_config
 
 logger = get_module_logger(__name__)
 
-def load_json_data(file_path: Path) -> pd.DataFrame:
-    """
-    Load JSON data into a pandas DataFrame.
-    
-    Args:
-        file_path: Path to JSON file.
-        
-    Returns:
-        DataFrame.
-    """
-    with open(file_path, 'r') as f:
-        data = json.load(f)
-    return pd.DataFrame(data)
+PROCESSED_DIR = Path("data/processed")
 
-def merge_datasets(
-    genomic_df: pd.DataFrame,
-    env_df: pd.DataFrame,
-    compound_df: pd.DataFrame
-) -> pd.DataFrame:
+def load_json_data(file_path: str) -> Optional[pd.DataFrame]:
+    """Loads a JSON file into a DataFrame."""
+    path = Path(file_path)
+    if not path.exists():
+        logger.warning(f"File not found: {file_path}")
+        return None
+    
+    with open(path, 'r') as f:
+        data = json.load(f)
+    
+    if isinstance(data, list):
+        return pd.DataFrame(data)
+    elif isinstance(data, dict):
+        return pd.DataFrame([data])
+    else:
+        logger.error(f"Unexpected data format in {file_path}")
+        return None
+
+def merge_datasets(genomic: pd.DataFrame, env_data: pd.DataFrame, compound: pd.DataFrame) -> pd.DataFrame:
     """
-    Merge genomic, environmental, and compound datasets.
-    
-    Args:
-        genomic_df: Genomic data DataFrame.
-        env_df: Environmental data DataFrame.
-        compound_df: Compound data DataFrame.
-        
-    Returns:
-        Merged DataFrame.
+    Merges genomic, environmental, and compound datasets.
+    Performs inner join on population_id, env_id, compound_id.
     """
-    logger.info("Merging datasets...")
+    # Ensure IDs are strings for consistent merging
+    for df in [genomic, env_data, compound]:
+        for col in ['population_id', 'env_id', 'compound_id']:
+            if col in df.columns:
+                df[col] = df[col].astype(str)
+
+    # Merge step-by-step
+    merged = genomic.merge(env_data, on=['population_id', 'env_id', 'compound_id'], how='inner')
+    merged = merged.merge(compound, on=['population_id', 'env_id', 'compound_id'], how='inner')
     
-    # Ensure all have population_id
-    for df_name, df in [('genomic', genomic_df), ('env', env_df), ('compound', compound_df)]:
-        if 'population_id' not in df.columns:
-            logger.error(f"{df_name} data missing 'population_id' column.")
-            raise ValueError(f"{df_name} data must contain 'population_id'")
-    
-    # Merge sequentially
-    merged = genomic_df.merge(env_df, on='population_id', how='inner')
-    merged = merged.merge(compound_df, on='population_id', how='inner')
-    
-    logger.info(f"Merged data shape: {merged.shape}")
+    logger.info(f"Merged dataset shape: {merged.shape}")
     return merged
 
-def perform_listwise_deletion(df: pd.DataFrame) -> pd.DataFrame:
+def perform_listwise_deletion(df: pd.DataFrame, required_cols: Optional[List[str]] = None) -> pd.DataFrame:
     """
-    Perform listwise deletion for missing modalities (FR-003).
-    
-    Removes rows with any missing values across key columns.
+    Performs listwise deletion (dropping rows with any NaN in specified columns).
     
     Args:
         df: Input DataFrame.
+        required_cols: Columns to check for NaN. If None, checks all columns.
         
     Returns:
-        DataFrame with complete cases only.
+        Cleaned DataFrame.
     """
-    logger.info("Performing listwise deletion...")
+    if required_cols is None:
+        required_cols = df.columns.tolist()
     
     initial_count = len(df)
-    df_clean = df.dropna()
+    df_clean = df.dropna(subset=required_cols)
     final_count = len(df_clean)
     
-    excluded = initial_count - final_count
-    logger.info(f"Excluded {excluded} rows ({excluded/initial_count*100:.1f}%) due to missing data.")
-    
+    dropped = initial_count - final_count
+    if dropped > 0:
+        logger.warning(f"Dropped {dropped} rows ({dropped/initial_count*100:.2f}%) due to missing values in required columns.")
+    else:
+        logger.info("No rows dropped due to missing values.")
+        
     return df_clean
 
 def validate_data_integrity(df: pd.DataFrame) -> bool:
-    """
-    Validate data integrity: check for required columns and non-null IDs.
-    
-    Args:
-        df: DataFrame to validate.
-        
-    Returns:
-        True if valid, False otherwise.
-    """
-    required_cols = ['population_id', 'env_id', 'compound_id']
-    for col in required_cols:
+    """Validates basic data integrity (non-null IDs)."""
+    id_cols = ['population_id', 'env_id', 'compound_id']
+    for col in id_cols:
         if col not in df.columns:
             logger.error(f"Missing required column: {col}")
             return False
-        if df[col].isnull().any():
-            logger.error(f"Column {col} contains null values.")
+        if df[col].isna().any():
+            logger.error(f"Null values found in required column: {col}")
             return False
-    
-    logger.info("Data integrity validation passed.")
     return True
 
-def calculate_retention_percentage(initial_count: int, final_count: int) -> float:
-    """
-    Calculate retention percentage after listwise deletion.
-    
-    Args:
-        initial_count: Initial number of rows.
-        final_count: Final number of rows.
-        
-    Returns:
-        Retention percentage.
-    """
-    if initial_count == 0:
+def calculate_retention_percentage(original_count: int, final_count: int) -> float:
+    """Calculates retention percentage."""
+    if original_count == 0:
         return 0.0
-    return (final_count / initial_count) * 100
+    return (final_count / original_count) * 100
 
-def run_validation_pipeline(config: Optional[Dict[str, Any]] = None) -> int:
+def run_validation_pipeline() -> pd.DataFrame:
     """
-    Run the full validation pipeline.
-    
-    Steps:
-    1. Load JSON data files.
-    2. Merge datasets.
-    3. Perform listwise deletion.
-    4. Validate integrity and calculate retention.
-    
-    Args:
-        config: Optional configuration dictionary.
-        
-    Returns:
-        0 on success, non-zero on failure.
+    Orchestrates the validation pipeline:
+    1. Load raw JSONs.
+    2. Merge.
+    3. Listwise deletion.
+    4. Save merged.csv.
     """
-    if config is None:
-        config = get_config()
-    
-    try:
-        logger.info("Starting validation pipeline...")
-        
-        raw_dir = Path(config.get('paths', {}).get('raw', 'data/raw'))
-        processed_dir = Path(config.get('paths', {}).get('processed', 'data/processed'))
-        processed_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Load data
-        genomic_path = raw_dir / 'genomic_vcf.json'
-        env_path = raw_dir / 'env_data.json'
-        compound_path = raw_dir / 'compound_data.json'
-        
-        if not all([genomic_path.exists(), env_path.exists(), compound_path.exists()]):
-            logger.error("Raw data files not found. Run ingestion first.")
-            return 1
-        
-        genomic_df = load_json_data(genomic_path)
-        env_df = load_json_data(env_path)
-        compound_df = load_json_data(compound_path)
-        
-        # Merge
-        merged_df = merge_datasets(genomic_df, env_df, compound_df)
-        
-        initial_count = len(merged_df)
-        
-        # Listwise deletion
-        clean_df = perform_listwise_deletion(merged_df)
-        final_count = len(clean_df)
-        
-        retention = calculate_retention_percentage(initial_count, final_count)
-        logger.info(f"Retention percentage: {retention:.1f}%")
-        
-        # Validate integrity
-        if not validate_data_integrity(clean_df):
-            logger.error("Data integrity validation failed.")
-            return 1
-        
-        # Save filtered data
-        filtered_path = processed_dir / 'filtered.csv'
-        clean_df.to_csv(filtered_path, index=False)
-        logger.info(f"Filtered data saved to {filtered_path}")
-        
-        # Check retention threshold (SC-001)
-        if retention < 80:
-            logger.warning(f"Retention ({retention:.1f}%) is below 80% threshold.")
-            # Do not raise SystemExit here; let T014 handle it if needed
-        
-        check_disk_space(filtered_path.stat().st_size)
-        
-        return 0
-        
-    except DiskSpaceError as e:
-        logger.error(f"Validation failed due to disk space: {e}")
-        return 2
-    except Exception as e:
-        logger.error(f"Validation pipeline failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
+    logger.info("Starting validation pipeline (T013/T014).")
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-def main(*args, **kwargs) -> int:
-    """
-    Main entry point for validation module.
-    """
+    # Load data
+    genomic = load_json_data("data/raw/genomic_vcf.json")
+    env_data = load_json_data("data/raw/env_data.json")
+    compound = load_json_data("data/raw/compound_data.json")
+
+    if genomic is None or env_data is None or compound is None:
+        raise FileNotFoundError("Missing required raw data files for validation.")
+
+    # Merge
+    merged = merge_datasets(genomic, env_data, compound)
+    
+    if not validate_data_integrity(merged):
+        raise ValueError("Data integrity validation failed.")
+
+    # Listwise deletion
+    cleaned = perform_listwise_deletion(merged)
+    
+    retention = calculate_retention_percentage(len(merged), len(cleaned))
+    logger.info(f"Retention percentage: {retention:.2f}%")
+    
+    if retention < 80:
+        logger.error(f"Retention ({retention:.2f}%) is below 80% threshold. Raising SystemExit.")
+        # T014 requirement: raise SystemExit if < 80%
+        # Note: In a real pipeline, this might be handled by the orchestrator, 
+        # but per task spec, we raise here.
+        raise SystemExit("E-DATA-INSUFFICIENT: Retention below 80%")
+
+    # Save
+    merged_path = PROCESSED_DIR / "merged.csv"
+    cleaned.to_csv(merged_path, index=False)
+    logger.info(f"Saved merged/cleaned data to {merged_path}")
+
+    return cleaned
+
+def main():
+    """Entry point for validation script."""
     from utils.logging import configure_root_logger
     configure_root_logger()
-    
-    config = get_config()
-    if args and isinstance(args[0], dict):
-        config = args[0]
-    elif 'config' in kwargs:
-        config = kwargs['config']
-    
-    return run_validation_pipeline(config)
+    run_validation_pipeline()
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

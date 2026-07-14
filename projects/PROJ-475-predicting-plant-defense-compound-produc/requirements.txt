@@ -6,4 +6,4 @@ requests
 pyyaml
 scipy
 pytest
-# No new dependencies needed for manifest updating; uses stdlib and existing utils.
+statsmodels

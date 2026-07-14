@@ -1,46 +1,58 @@
-# Quickstart Guide for Plant Defense Compound Prediction Pipeline
+# Quickstart Guide
 
-This guide provides the commands to run the full pipeline end-to-end.
+This guide validates the pipeline execution and artifact generation.
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip install -r requirements.txt`
+- Dependencies installed: `pip install -r requirements.txt`
 
-## Running the Pipeline
+## Execution Steps
 
-The full pipeline is orchestrated by `code/main.py`. It executes:
-1. Ingestion (T010-T012)
-2. Validation (T013-T014)
-3. Preprocessing (T015-T016, T019-T020, T026)
-4. Training (T022-T025)
-5. Evaluation (T029-T033)
-6. Manifest and state update
+1. **Generate Mock Data** (if real data is not available or for CI):
+ ```bash
+ python code/scripts/generate_mock_data.py
+ ```
+ This creates:
+ - `data/raw/genomic_vcf.json`
+ - `data/raw/env_data.json`
+ - `data/raw/compound_data.json`
 
-```bash
-cd code
-python main.py
-```
+2. **Run Validation Pipeline**:
+ ```bash
+ python code/data/validation.py
+ ```
+ This merges datasets and produces `data/processed/merged.csv`.
 
-## Expected Outputs
+3. **Run Preprocessing Pipeline** (Imputation, Filtering, VIF):
+ ```bash
+ python code/data/preprocessing.py
+ ```
+ This produces:
+ - `data/processed/filtered.csv`
+ - `data/processed/features_vif.csv`
 
-After successful execution, the following files should exist:
+4. **Run Model Training**:
+ ```bash
+ python code/models/training.py
+ ```
 
+5. **Run Evaluation**:
+ ```bash
+ python code/models/evaluation.py
+ ```
+
+6. **Run Full Pipeline**:
+ ```bash
+ python code/main.py
+ ```
+
+## Verification
+
+Ensure the following files exist after execution:
 - `data/raw/genomic_vcf.json`
 - `data/raw/env_data.json`
 - `data/raw/compound_data.json`
 - `data/processed/filtered.csv`
 - `data/processed/features_vif.csv`
-- `data/processed/aggregated.csv`
 - `state/PROJ-475-predicting-plant-defense-compound-produc.yaml`
-- `data/manifest.yaml`
-
-## Verification
-
-To verify the pipeline ran correctly:
-
-```bash
-python scripts/validate_quickstart.py
-```
-
-This script checks for the presence of all expected artifacts and their checksums.
