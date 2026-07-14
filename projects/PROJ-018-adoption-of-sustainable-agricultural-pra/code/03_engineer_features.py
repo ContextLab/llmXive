@@ -1,15 +1,10 @@
-"""
-Feature Engineering Module for Sustainable Agriculture Study (US2)
+"""Feature engineering module for sustainable agriculture adoption study.
 
-This module implements:
-1. Creation of binary adoption indicator
-2. Construction of community engagement score
-3. Reliability analysis (Cronbach's Alpha)
-4. Exploratory Factor Analysis (EFA) with Principal Axis Factoring, Varimax rotation
-5. Convergent validity checks
-6. Serialization of metrics to results/validity_metrics.yaml
+This module creates:
+1. adoption_binary: Binary indicator for sustainable practice adoption
+2. engagement_score: Composite index for community engagement intensity
+3. Reliability and validity metrics (Cronbach's alpha, EFA, convergent validity)
 """
-
 from __future__ import annotations
 
 import logging
@@ -17,398 +12,455 @@ import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-
-import numpy as np
 import pandas as pd
-import yaml
+import numpy as np
 from factor_analyzer import FactorAnalyzer
 from scipy import stats
+import yaml
 
-# Local imports
-from config import get_config
-from logging_config import get_logger, log_operation, update_log_section
-
-# Configure logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    logger.addHandler(handler)
+# Import from local modules
+from config import load_config, get_config, get_processed_data_path, get_results_path
+from logging_config import log_operation, update_log_section, initialize_modeling_log
 
 
 class FeatureEngineeringError(Exception):
-    """Custom exception for feature engineering failures."""
+    """Custom exception for feature engineering errors."""
     pass
 
 
-def get_logger_instance() -> logging.Logger:
-    """Return the configured logger instance."""
-    return logger
-
-
-def load_config() -> Dict[str, Any]:
+@log_operation("load_config_wrapper")
+def load_config_wrapper() -> Dict[str, Any]:
     """Load configuration from config.yaml."""
-    config_path = Path("code/config.yaml")
-    if not config_path.exists():
-        # Fallback to default paths if config missing
-        return {
-            "data": {
-                "raw_path": "data/raw/survey_data.csv",
-                "cleaned_path": "data/processed/cleaned_data.csv",
-                "engineered_path": "data/processed/engineered_data.csv"
-            },
-            "results": {
-                "validity_metrics_path": "results/validity_metrics.yaml",
-                "modeling_log_path": "modeling_log.yaml"
-            },
-            "engagement": {
-                "proxies": ["membership", "extension", "collective_action", "knowledge_exchange"],
-                "weights": [0.4, 0.3, 0.2, 0.1]
-            }
-        }
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
+    config = load_config()
+    return {
+        "processed_data_path": config.get("processed_data_path", "data/processed"),
+        "results_path": config.get("results_path", "data/results"),
+        "random_seed": config.get("random_seed", 42)
+    }
 
 
+@log_operation("load_cleaned_data")
 def load_cleaned_data() -> pd.DataFrame:
     """Load the cleaned dataset."""
-    config = load_config()
-    path = Path(config["data"]["cleaned_path"])
-    if not path.exists():
-        raise FeatureEngineeringError(f"Cleaned data not found at {path}. Run T014 first.")
-    return pd.read_csv(path)
+    config = get_config()
+    input_path = Path(config.get("processed_data_path", "data/processed")) / "cleaned_data.csv"
+
+    if not input_path.exists():
+        raise FileNotFoundError(f"Cleaned data not found at {input_path}. Run 02_clean_data.py first.")
+
+    df = pd.read_csv(input_path)
+    logging.info(f"Loaded cleaned data with {len(df)} rows and {len(df.columns)} columns")
+    return df
 
 
+@log_operation("identify_practice_columns")
 def identify_practice_columns(df: pd.DataFrame) -> List[str]:
-    """Identify columns related to sustainable practices."""
-    practice_keywords = ['organic', 'conservation', 'agroforestry', 'irrigation_efficient', 
-                       'crop_rotation', 'integrated_pest', 'soil_test', 'cover_crop']
-    practice_cols = [col for col in df.columns if any(kw in col.lower() for kw in practice_keywords)]
+    """Identify columns related to sustainable agricultural practices.
+
+    Expected columns contain keywords like: 'practice', 'sustainable', 'organic',
+    'conservation', 'irrigation', 'fertilizer', 'pesticide'.
+    """
+    practice_keywords = ['practice', 'sustainable', 'organic', 'conservation',
+                       'irrigation', 'fertilizer', 'pesticide', 'crop_rotation',
+                       'cover_crop', 'integrated_pest', 'drought_resistant']
+
+    practice_cols = []
+    for col in df.columns:
+        col_lower = col.lower()
+        if any(keyword in col_lower for keyword in practice_keywords):
+            practice_cols.append(col)
+
+    logging.info(f"Identified {len(practice_cols)} practice columns: {practice_cols}")
     return practice_cols
 
 
-def create_adoption_binary(df: pd.DataFrame) -> pd.DataFrame:
+@log_operation("create_adoption_binary")
+def create_adoption_binary(df: pd.DataFrame, practice_cols: List[str]) -> pd.DataFrame:
+    """Create binary adoption indicator.
+
+    adoption_binary = 1 if any sustainable practice is reported (value > 0 or True)
+    adoption_binary = 0 otherwise
     """
-    Create adoption_binary column:
-    1 if ANY sustainable practice is reported (value > 0 or True), else 0.
-    """
-    practice_cols = identify_practice_columns(df)
     if not practice_cols:
-        logger.warning("No practice columns found. Creating adoption_binary as 0.")
-        df["adoption_binary"] = 0
-    else:
-        # Check if any practice column has a positive value (or True)
-        # Assuming binary/ordinal scales where >0 indicates adoption
-        mask = df[practice_cols].gt(0).any(axis=1)
-        df["adoption_binary"] = mask.astype(int)
-    
-    logger.info(f"Created adoption_binary: {df['adoption_binary'].sum()} adopters out of {len(df)}")
-    return df
-
-
-def select_engagement_proxies(df: pd.DataFrame) -> List[str]:
-    """
-    Select engagement proxy columns from the dataset.
-    Priority: membership, extension, collective_action, knowledge_exchange
-    Fallback: any column containing 'engagement', 'community', 'social'
-    """
-    config = load_config()
-    priority_proxies = config.get("engagement", {}).get("proxies", 
-        ["membership", "extension", "collective_action", "knowledge_exchange"])
-    
-    available_proxies = [col for col in priority_proxies if col in df.columns]
-    
-    if not available_proxies:
-        # Fallback: search for generic engagement columns
-        fallback_keywords = ['engagement', 'community', 'social', 'participation', 'group']
-        available_proxies = [col for col in df.columns if any(kw in col.lower() for kw in fallback_keywords)]
-    
-    if not available_proxies:
-        logger.warning("No engagement proxies found in dataset.")
-        return []
-    
-    logger.info(f"Selected engagement proxies: {available_proxies}")
-    return available_proxies
-
-
-def create_engagement_score(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Construct engagement_score using weighted sum or equal-weight average.
-    If top-priority proxies are absent, use fallback proxies with equal weights.
-    """
-    proxies = select_engagement_proxies(df)
-    if not proxies:
-        logger.warning("No engagement proxies found. Creating dummy score of 0.")
-        df["engagement_score"] = 0.0
+        logging.warning("No practice columns found. Creating adoption_binary as all zeros.")
+        df['adoption_binary'] = 0
         return df
 
-    config = load_config()
-    weights = config.get("engagement", {}).get("weights", [])
-    
-    # Ensure we have enough weights
-    if len(weights) < len(proxies):
-        # Use equal weights if specific weights are missing
-        weights = [1.0 / len(proxies)] * len(proxies)
-        logger.info(f"Using equal weights for {len(proxies)} proxies.")
-    else:
-        weights = weights[:len(proxies)]
-    
-    # Normalize weights to sum to 1
-    weight_sum = sum(weights)
-    if weight_sum > 0:
-        weights = [w / weight_sum for w in weights]
-    else:
-        weights = [1.0 / len(proxies)] * len(proxies)
+    # Check for any positive adoption in practice columns
+    adoption_mask = df[practice_cols].applymap(lambda x: 1 if pd.notna(x) and x > 0 and x != 'No' and x != 'no' and x != '0' else 0).sum(axis=1) > 0
+    df['adoption_binary'] = adoption_mask.astype(int)
 
-    # Calculate weighted score
-    # Handle missing values by filling with 0 for calculation, or dropping rows
-    # Strategy: Fill NaN with 0 for the score calculation (conservative approach)
-    score_series = pd.Series(0.0, index=df.index)
-    
-    for i, proxy in enumerate(proxies):
-        col_data = df[proxy].fillna(0)
-        score_series += col_data * weights[i]
-    
-    df["engagement_score"] = score_series
-    logger.info(f"Created engagement_score using {len(proxies)} proxies.")
+    adoption_rate = df['adoption_binary'].mean()
+    logging.info(f"Adoption rate: {adoption_rate:.2%} ({df['adoption_binary'].sum()} / {len(df)})")
+
     return df
 
 
-def calculate_cronbach_alpha(df: pd.DataFrame, items: List[str]) -> float:
+@log_operation("select_engagement_proxies")
+def select_engagement_proxies(df: pd.DataFrame) -> List[str]:
+    """Select proxy variables for community engagement.
+
+    Expected proxies: membership, extension, collective_action, knowledge_exchange
     """
-    Calculate Cronbach's Alpha for a set of items.
-    Formula: alpha = (k / (k-1)) * (1 - sum(var_i) / var_total)
-    """
-    if len(items) < 2:
-        logger.warning("Need at least 2 items for Cronbach's Alpha.")
-        return 0.0
-    
-    item_data = df[items].dropna(axis=0, how='any')
-    if item_data.empty:
-        logger.warning("No valid data for Cronbach's Alpha calculation.")
-        return 0.0
-    
-    k = len(items)
-    variances = item_data.var(axis=0)
-    total_variance = item_data.sum(axis=1).var()
-    
-    if total_variance == 0:
-        return 0.0
-    
-    alpha = (k / (k - 1)) * (1 - variances.sum() / total_variance)
-    return float(alpha)
+    proxy_keywords = ['membership', 'extension', 'collective', 'knowledge',
+                    'exchange', 'community', 'group', 'training', 'advisor']
+
+    proxy_cols = []
+    for col in df.columns:
+        col_lower = col.lower()
+        if any(keyword in col_lower for keyword in proxy_keywords):
+            proxy_cols.append(col)
+
+    logging.info(f"Selected {len(proxy_cols)} engagement proxy columns: {proxy_cols}")
+    return proxy_cols
 
 
-def perform_efa(df: pd.DataFrame, items: List[str], min_factors: int = 1) -> Dict[str, Any]:
+@log_operation("create_engagement_score")
+def create_engagement_score(df: pd.DataFrame, proxy_cols: List[str]) -> pd.DataFrame:
+    """Create composite engagement score.
+
+    Uses equal-weight average of normalized proxy variables.
+    Handles missing values by imputing with median or dropping if >50% missing.
     """
-    Perform Exploratory Factor Analysis (EFA).
-    Extraction: Principal Axis Factoring (PAF)
-    Rotation: Varimax
-    Retention: Kaiser's rule (eigenvalues > 1)
-    
+    if not proxy_cols:
+        logging.warning("No engagement proxy columns found. Creating dummy score of 0.")
+        df['engagement_score'] = 0.0
+        return df
+
+    # Select only numeric proxy columns
+    numeric_proxies = []
+    for col in proxy_cols:
+        if pd.api.types.is_numeric_dtype(df[col]):
+            numeric_proxies.append(col)
+
+    if not numeric_proxies:
+        logging.warning("No numeric engagement proxy columns found. Creating dummy score of 0.")
+        df['engagement_score'] = 0.0
+        return df
+
+    # Calculate median for each proxy to handle missing values
+    medians = df[numeric_proxies].median()
+
+    # Impute missing values with median
+    df_imputed = df[numeric_proxies].copy()
+    for col in numeric_proxies:
+        if df_imputed[col].isna().any():
+            df_imputed[col] = df_imputed[col].fillna(medians[col])
+
+    # Normalize each column to 0-1 range
+    df_normalized = (df_imputed - df_imputed.min()) / (df_imputed.max() - df_imputed.min() + 1e-8)
+
+    # Calculate engagement score as mean of normalized proxies
+    df['engagement_score'] = df_normalized.mean(axis=1)
+
+    logging.info(f"Engagement score created from {len(numeric_proxies)} proxies. "
+                f"Range: [{df['engagement_score'].min():.3f}, {df['engagement_score'].max():.3f}]")
+
+    return df
+
+
+@log_operation("calculate_cronbach_alpha")
+def calculate_cronbach_alpha(df: pd.DataFrame, item_cols: List[str]) -> Optional[float]:
+    """Calculate Cronbach's alpha for reliability assessment.
+
+    Args:
+        df: DataFrame with item columns
+        item_cols: List of column names to use for alpha calculation
+
     Returns:
-        Dictionary with factor loadings, eigenvalues, number of factors retained.
+        Cronbach's alpha value or None if calculation fails
     """
-    if len(items) < 2:
-        logger.warning("Need at least 2 items for EFA.")
-        return {"loadings": {}, "eigenvalues": [], "n_factors": 0}
-    
-    item_data = df[items].dropna(axis=0, how='any')
-    if item_data.empty:
-        logger.warning("No valid data for EFA.")
-        return {"loadings": {}, "eigenvalues": [], "n_factors": 0}
-    
-    # Determine number of factors using Kaiser's rule (eigenvalues > 1)
-    # We'll try a range and pick the one that satisfies Kaiser's rule
-    # FactorAnalyzer can estimate the number of factors automatically if we set n_factors=None
-    # but we need to extract eigenvalues to apply Kaiser's rule explicitly.
-    
-    # Step 1: Fit with max possible factors to get eigenvalues
-    max_f = min(len(items) - 1, 10)  # Reasonable upper bound
-    fa = FactorAnalyzer(n_factors=max_f, rotation=None, method='pa')
-    fa.fit(item_data)
-    
-    eigenvalues = fa.get_eigenvalues()
-    # eigenvalues[0] is the array of eigenvalues
-    n_factors_kaiser = sum(ev > 1 for ev in eigenvalues[0])
-    
-    # Ensure at least min_factors
-    n_factors = max(n_factors_kaiser, min_factors)
-    if n_factors == 0:
-        n_factors = 1
-    
-    logger.info(f"EFA: {n_factors} factors retained (Kaiser's rule: eigenvalues > 1).")
-    
-    # Step 2: Fit with determined number of factors and Varimax rotation
-    fa_final = FactorAnalyzer(n_factors=n_factors, rotation='varimax', method='pa')
-    fa_final.fit(item_data)
-    
-    loadings = fa_final.loadings
-    # Convert to dictionary for serialization
-    loadings_dict = {}
-    for i, item in enumerate(items):
-        loadings_dict[item] = {f"Factor_{j+1}": float(loadings[i, j]) for j in range(n_factors)}
-    
-    return {
-        "loadings": loadings_dict,
-        "eigenvalues": [float(ev) for ev in eigenvalues[0]],
-        "n_factors": n_factors
-    }
+    if len(item_cols) < 2:
+        logging.warning(f"Need at least 2 items for Cronbach's alpha, got {len(item_cols)}")
+        return None
+
+    # Select numeric items only
+    numeric_items = []
+    for col in item_cols:
+        if pd.api.types.is_numeric_dtype(df[col]):
+            numeric_items.append(col)
+
+    if len(numeric_items) < 2:
+        logging.warning(f"Need at least 2 numeric items for Cronbach's alpha, got {len(numeric_items)}")
+        return None
+
+    # Remove rows with any missing values in item columns
+    item_data = df[numeric_items].dropna()
+
+    if len(item_data) < 3:
+        logging.warning("Not enough complete cases for Cronbach's alpha calculation")
+        return None
+
+    try:
+        # Calculate Cronbach's alpha
+        from factor_analyzer import calculate_cronbach_alpha as fa_cronbach
+        alpha, _ = fa_cronbach(item_data)
+        logging.info(f"Cronbach's alpha: {alpha:.3f}")
+        return alpha
+    except Exception as e:
+        logging.warning(f"Could not calculate Cronbach's alpha: {e}")
+        return None
 
 
-def check_convergent_validity(df: pd.DataFrame, engagement_score_col: str = "engagement_score") -> Dict[str, float]:
-    """
-    Perform convergent validity check by correlating engagement_score with 
-    theoretically related constructs (e.g., adoption_binary, knowledge_score, 
-    or other positive indicators).
-    
+@log_operation("perform_efa")
+def perform_efa(df: pd.DataFrame, item_cols: List[str], n_factors: Optional[int] = None) -> Dict[str, Any]:
+    """Perform Exploratory Factor Analysis (EFA).
+
+    Uses Principal Axis Factoring extraction, Varimax rotation,
+    and Kaiser's rule (eigenvalues > 1) for factor retention.
+
+    Args:
+        df: DataFrame with item columns
+        item_cols: List of column names for EFA
+        n_factors: Number of factors to extract (None for automatic)
+
     Returns:
-        Dictionary of correlations with related constructs.
+        Dictionary with EFA results
     """
-    correlations = {}
-    
-    # Candidate related constructs
-    related_constructs = ["adoption_binary", "knowledge_score", "farm_income", "years_farming"]
-    
-    for construct in related_constructs:
-        if construct in df.columns:
-            # Calculate Pearson correlation
-            valid_data = df[[engagement_score_col, construct]].dropna()
-            if len(valid_data) > 10:  # Minimum sample size for correlation
-                corr, p_value = stats.pearsonr(valid_data[engagement_score_col], valid_data[construct])
-                correlations[construct] = {
-                    "correlation": float(corr),
-                    "p_value": float(p_value)
-                }
-                logger.info(f"Convergent validity: {engagement_score_col} vs {construct} = {corr:.3f} (p={p_value:.3f})")
-            else:
-                logger.warning(f"Insufficient data for correlation: {construct}")
-        else:
-            logger.debug(f"Related construct '{construct}' not found in dataset.")
-    
-    if not correlations:
-        logger.warning("No convergent validity checks performed (no related constructs found).")
-    
-    return correlations
+    if len(item_cols) < 3:
+        logging.warning(f"Need at least 3 items for EFA, got {len(item_cols)}")
+        return {"factors_retained": 0, "loadings": None, "eigenvalues": []}
+
+    # Select numeric items only
+    numeric_items = []
+    for col in item_cols:
+        if pd.api.types.is_numeric_dtype(df[col]):
+            numeric_items.append(col)
+
+    if len(numeric_items) < 3:
+        logging.warning(f"Need at least 3 numeric items for EFA, got {len(numeric_items)}")
+        return {"factors_retained": 0, "loadings": None, "eigenvalues": []}
+
+    # Remove rows with any missing values
+    item_data = df[numeric_items].dropna()
+
+    if len(item_data) < 10:
+        logging.warning("Not enough complete cases for EFA (need at least 10)")
+        return {"factors_retained": 0, "loadings": None, "eigenvalues": []}
+
+    try:
+        # Determine number of factors using Kaiser's rule (eigenvalues > 1)
+        fa = FactorAnalyzer(n_factors=None, method='principal', rotation=None)
+        fa.fit(item_data)
+        eigenvalues = fa.get_eigenvalues()[0]
+
+        # Kaiser's rule: retain factors with eigenvalues > 1
+        n_factors_auto = sum(eigenvalues > 1)
+
+        if n_factors is None:
+            n_factors = max(1, n_factors_auto)
+
+        logging.info(f"EFA: {len(eigenvalues)} factors considered, {n_factors} retained (Kaiser's rule)")
+
+        # Fit EFA with specified number of factors using Principal Axis Factoring and Varimax rotation
+        fa = FactorAnalyzer(n_factors=n_factors, method='principal', rotation='varimax')
+        fa.fit(item_data)
+
+        loadings = fa.get_loadings()
+        communalities = fa.get_communalities()
+
+        # Calculate variance explained
+        variance_explained = fa.get_factor_variance()[0]
+
+        efa_results = {
+            "factors_retained": n_factors,
+            "extraction": "Principal Axis Factoring",
+            "rotation": "Varimax",
+            "loadings": loadings.tolist(),
+            "eigenvalues": eigenvalues.tolist(),
+            "variance_explained": variance_explained.tolist(),
+            "communalities": communalities.tolist()
+        }
+
+        logging.info(f"EFA completed. Factors retained: {n_factors}")
+        logging.info(f"Total variance explained: {sum(variance_explained):.2%}")
+
+        return efa_results
+
+    except Exception as e:
+        logging.warning(f"Could not perform EFA: {e}")
+        return {"factors_retained": 0, "loadings": None, "eigenvalues": [], "error": str(e)}
 
 
-def calculate_reliability_and_validity(df: pd.DataFrame) -> Dict[str, Any]:
+@log_operation("check_convergent_validity")
+def check_convergent_validity(df: pd.DataFrame, engagement_score_col: str = 'engagement_score',
+                             adoption_col: str = 'adoption_binary') -> Dict[str, Any]:
+    """Perform convergent validity check.
+
+    Tests correlation between engagement score and theoretically related constructs.
+    Expected: Positive correlation between engagement and adoption.
+
+    Returns:
+        Dictionary with correlation results and validity status
     """
-    Main orchestrator for reliability and validity analysis.
-    1. Calculate Cronbach's Alpha for engagement proxies.
-    2. Perform EFA on engagement proxies.
-    3. Check convergent validity.
+    if engagement_score_col not in df.columns or adoption_col not in df.columns:
+        logging.warning(f"Required columns not found for convergent validity check")
+        return {"convergent_validity": False, "correlation": None, "p_value": None}
+
+    # Remove rows with missing values in both columns
+    valid_data = df[[engagement_score_col, adoption_col]].dropna()
+
+    if len(valid_data) < 10:
+        logging.warning("Not enough complete cases for convergent validity check")
+        return {"convergent_validity": False, "correlation": None, "p_value": None}
+
+    try:
+        # Calculate correlation (point-biserial for binary outcome)
+        correlation, p_value = stats.pointbiserialr(
+            valid_data[adoption_col],
+            valid_data[engagement_score_col]
+        )
+
+        # Convergent validity is supported if correlation is positive and significant
+        is_valid = (correlation > 0) and (p_value < 0.05)
+
+        logging.info(f"Convergent validity check: r = {correlation:.3f}, p = {p_value:.4f}")
+        logging.info(f"Validity status: {'PASSED' if is_valid else 'FAILED'}")
+
+        return {
+            "convergent_validity": is_valid,
+            "correlation": correlation,
+            "p_value": p_value,
+            "interpretation": "Positive correlation between engagement and adoption" if is_valid else "No significant positive correlation"
+        }
+
+    except Exception as e:
+        logging.warning(f"Could not calculate convergent validity: {e}")
+        return {"convergent_validity": False, "correlation": None, "p_value": None, "error": str(e)}
+
+
+@log_operation("calculate_reliability_and_validity")
+def calculate_reliability_and_validity(df: pd.DataFrame, proxy_cols: List[str]) -> Dict[str, Any]:
+    """Calculate all reliability and validity metrics.
+
+    Returns:
+        Dictionary with all metrics
     """
-    config = load_config()
-    proxies = select_engagement_proxies(df)
-    
-    results = {
-        "cronbach_alpha": None,
-        "efa": {},
-        "convergent_validity": {}
-    }
-    
-    # 1. Cronbach's Alpha
-    if len(proxies) >= 2:
-        alpha = calculate_cronbach_alpha(df, proxies)
-        results["cronbach_alpha"] = alpha
-        logger.info(f"Cronbach's Alpha for engagement score: {alpha:.3f}")
-    else:
-        logger.warning("Cannot calculate Cronbach's Alpha: fewer than 2 proxies.")
-    
-    # 2. EFA
-    if len(proxies) >= 2:
-        efa_results = perform_efa(df, proxies)
-        results["efa"] = efa_results
-    else:
-        logger.warning("Cannot perform EFA: fewer than 2 proxies.")
-    
-    # 3. Convergent Validity
-    if "engagement_score" in df.columns:
-        conv_validity = check_convergent_validity(df, "engagement_score")
-        results["convergent_validity"] = conv_validity
-    
-    return results
+    metrics = {}
+
+    # Cronbach's Alpha
+    alpha = calculate_cronbach_alpha(df, proxy_cols)
+    metrics['cronbach_alpha'] = alpha
+
+    # EFA
+    efa_results = perform_efa(df, proxy_cols)
+    metrics['efa'] = efa_results
+
+    # Convergent Validity
+    conv_valid = check_convergent_validity(df)
+    metrics['convergent_validity'] = conv_valid['convergent_validity']
+    metrics['convergent_correlation'] = conv_valid.get('correlation')
+    metrics['convergent_p_value'] = conv_valid.get('p_value')
+
+    return metrics
 
 
-def save_validity_metrics(metrics: Dict[str, Any], output_path: str) -> None:
-    """Serialize validity metrics to YAML file."""
+@log_operation("save_validity_metrics")
+def save_validity_metrics(metrics: Dict[str, Any], output_path: str = "results/validity_metrics.yaml") -> None:
+    """Save validity metrics to YAML file."""
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    
+
+    # Convert numpy types to Python types for YAML serialization
+    def convert_for_yaml(obj):
+        if isinstance(obj, (np.integer, np.int64)):
+            return int(obj)
+        elif isinstance(obj, (np.floating, np.float64)):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, dict):
+            return {k: convert_for_yaml(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_for_yaml(i) for i in obj]
+        return obj
+
+    clean_metrics = convert_for_yaml(metrics)
+
     with open(path, 'w') as f:
-        yaml.dump(metrics, f, default_flow_style=False, sort_keys=False)
-    
-    logger.info(f"Validity metrics saved to {output_path}")
+        yaml.dump(clean_metrics, f, default_flow_style=False, allow_unicode=True)
+
+    logging.info(f"Validity metrics saved to {output_path}")
 
 
-def update_modeling_log(log_path: str, convergent_validity_status: str) -> None:
-    """Update modeling_log.yaml with convergent validity status."""
-    log_path = Path(log_path)
-    
-    # Load existing log or create new
-    if log_path.exists():
-        with open(log_path, 'r') as f:
-            log_data = yaml.safe_load(f) or {}
-    else:
-        log_data = {}
-    
-    # Update the specific section
-    if "validity_analysis" not in log_data:
-        log_data["validity_analysis"] = {}
-    
-    log_data["validity_analysis"]["convergent_validity_status"] = convergent_validity_status
-    log_data["validity_analysis"]["timestamp"] = str(pd.Timestamp.now())
-    
-    with open(log_path, 'w') as f:
-        yaml.dump(log_data, f, default_flow_style=False, sort_keys=False)
-    
-    logger.info(f"Modeling log updated with convergent_validity_status: {convergent_validity_status}")
+@log_operation("update_modeling_log")
+def update_modeling_log(metrics: Dict[str, Any]) -> None:
+    """Update modeling_log.yaml with validity analysis results."""
+    log_data = {
+        "validity_analysis": {
+            "cronbach_alpha": metrics.get('cronbach_alpha'),
+            "efa": {
+                "factors_retained": metrics.get('efa', {}).get('factors_retained'),
+                "extraction": metrics.get('efa', {}).get('extraction'),
+                "rotation": metrics.get('efa', {}).get('rotation')
+            },
+            "convergent_validity_status": "passed" if metrics.get('convergent_validity') else "failed",
+            "convergent_correlation": metrics.get('convergent_correlation'),
+            "convergent_p_value": metrics.get('convergent_p_value')
+        }
+    }
+
+    update_log_section("validity_analysis", log_data["validity_analysis"])
+    logging.info("Modeling log updated with validity analysis results")
 
 
-@log_operation("engineer_features_main")
+@log_operation("save_engineered_data")
+def save_engineered_data(df: pd.DataFrame, output_path: str = "data/processed/engineered_data.csv") -> None:
+    """Save the engineered dataset."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    df.to_csv(path, index=False)
+    logging.info(f"Engineered data saved to {output_path}")
+
+
+@log_operation("main")
 def main() -> None:
-    """Main execution for User Story 2: Feature Engineering."""
-    logger.info("Starting feature engineering (US2)...")
-    
+    """Main function to run feature engineering pipeline."""
+    # Initialize logging
+    initialize_modeling_log()
+
+    # Load configuration
+    config = load_config_wrapper()
+    random_seed = config['random_seed']
+    np.random.seed(random_seed)
+
+    logging.info("Starting feature engineering pipeline")
+    logging.info(f"Random seed: {random_seed}")
+
     try:
-        # Load config
-        config = load_config()
-        data_path = Path(config["data"]["cleaned_path"])
-        output_path = Path(config["data"]["engineered_path"])
-        validity_metrics_path = Path(config["results"]["validity_metrics_path"])
-        modeling_log_path = Path(config["results"]["modeling_log_path"])
-        
         # Load cleaned data
         df = load_cleaned_data()
-        logger.info(f"Loaded {len(df)} records from {data_path}")
-        
-        # 1. Create adoption_binary
-        df = create_adoption_binary(df)
-        
-        # 2. Create engagement_score
-        df = create_engagement_score(df)
-        
-        # 3. Calculate reliability and validity metrics
-        validity_results = calculate_reliability_and_validity(df)
-        
-        # 4. Save validity metrics
-        save_validity_metrics(validity_results, str(validity_metrics_path))
-        
-        # 5. Update modeling log
-        conv_status = "completed" if validity_results.get("convergent_validity") else "incomplete"
-        update_modeling_log(str(modeling_log_path), conv_status)
-        
-        # 6. Save engineered dataset
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        df.to_csv(output_path, index=False)
-        logger.info(f"Engineered data saved to {output_path}")
-        
-        logger.info("Feature engineering completed successfully.")
-        
+
+        # Identify practice columns and create adoption binary
+        practice_cols = identify_practice_columns(df)
+        df = create_adoption_binary(df, practice_cols)
+
+        # Select engagement proxies and create score
+        proxy_cols = select_engagement_proxies(df)
+        df = create_engagement_score(df, proxy_cols)
+
+        # Calculate reliability and validity metrics
+        logging.info("Calculating reliability and validity metrics...")
+        metrics = calculate_reliability_and_validity(df, proxy_cols)
+
+        # Save metrics
+        results_path = get_results_path()
+        metrics_path = Path(results_path) / "validity_metrics.yaml"
+        save_validity_metrics(metrics, str(metrics_path))
+
+        # Update modeling log
+        update_modeling_log(metrics)
+
+        # Save engineered data
+        processed_path = get_processed_data_path()
+        output_path = Path(processed_path) / "engineered_data.csv"
+        save_engineered_data(df, str(output_path))
+
+        logging.info("Feature engineering pipeline completed successfully")
+
     except Exception as e:
-        logger.error(f"Feature engineering failed: {str(e)}")
+        logging.error(f"Feature engineering failed: {str(e)}")
         update_log_section("feature_engineering", {"status": "failed", "error": str(e)})
         raise FeatureEngineeringError(f"Feature engineering failed: {str(e)}") from e
 

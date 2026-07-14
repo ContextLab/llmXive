@@ -1,44 +1,26 @@
-# Project Metadata and Data Provenance
 project_id: PROJ-018-adoption-of-sustainable-agricultural-pra
-created_at: "2023-10-27T10:00:00Z"
-last_updated: "2026-07-14T05:22:00Z"
-
+created_at: '2023-10-27T10:00:00Z'
+last_updated: '2026-07-14T05:22:00Z'
 data_sources:
-  - name: "Synthetic Survey Generator (Fallback)"
-    type: "synthetic"
-    description: "Fallback generator used due to API unavailability (FR-001, FR-002)"
-    path: "data/raw/survey_data.csv"
-    limitations:
-      - "Real World Bank LSMS/FAO FIES data could not be fetched programmatically due to API restrictions. Synthetic data used as fallback."
-      - "Synthetic data approximates distributions but lacks real-world noise."
-      - "Results based on synthetic data are for methodological validation only."
-
+- name: Synthetic Survey Generator (Fallback)
+  type: synthetic
+  description: Fallback generator used due to API unavailability (FR-001, FR-002)
+  path: data/raw/survey_data.csv
+  limitations:
+  - Real World Bank LSMS/FAO FIES data could not be fetched programmatically due
+    to API restrictions. Synthetic data used as fallback.
+  - Synthetic data approximates distributions but lacks real-world noise.
+  - Results based on synthetic data are for methodological validation only.
 limitations:
-  - "Real data fetch failed; synthetic data used as fallback per FR-001."
-  - "Real World Bank LSMS/FAO FIES data could not be fetched programmatically due to API restrictions."
-
+- Real data fetch failed; synthetic data used as fallback per FR-001.
+- Real World Bank LSMS/FAO FIES data could not be fetched programmatically due
+  to API restrictions.
 processing_steps:
-  - step: "01_download"
-    script: "code/01_download_data.py"
-    output: "data/raw/survey_data.csv"
-    status: "completed"
-    source_used: "synthetic"
-  - step: "02_clean"
-    script: "code/02_clean_data.py"
-    output: "data/processed/cleaned_data.csv"
-  - step: "03_engineer"
-    script: "code/03_engineer_features.py"
-    output: "data/processed/engineered_data.csv"
-  - step: "04_model"
-    script: "code/04_model_analysis.py"
-    output: "results/model_results.yaml"
-  - step: "05_report"
-    script: "code/05_generate_report.py"
-    output: "results/report.pdf"
-  - step: "06_finalize"
-    script: "code/06_finalize_results.py"
-    output: "results/results_manifest.yaml"
-
+- step: '01_download'
+  script: code/01_download_data.py
+  output: data/raw/survey_data.csv
+  status: completed
+  source_used: synthetic
 constitutional_compliance:
-  - "IV: Reproducibility ensured via seed recording in modeling_log.yaml"
-  - "VII: Transparency ensured via detailed metadata and limitation logging"
+- 'IV: Reproducibility ensured via seed recording in modeling_log.yaml'
+- 'VII: Transparency ensured via detailed metadata and limitation logging'

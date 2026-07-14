@@ -6,6 +6,8 @@ import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any
+from pathlib import Path
+import yaml
 
 
 @dataclass
@@ -73,75 +75,55 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def initialize_modeling_log(log_path: str, initial_data: dict | None = None) -> None:
-    """Initialize the modeling_log.yaml file with optional initial data."""
-    import yaml
-    from pathlib import Path
-
+def initialize_modeling_log(log_path: str = "modeling_log.yaml") -> None:
+    """Initialize the modeling log file if it doesn't exist."""
     path = Path(log_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    data = initial_data or {}
-    data.setdefault("modeling_start", datetime.utcnow().isoformat())
-
-    with open(path, "w", encoding="utf-8") as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w") as f:
+            yaml.dump({"pipeline": {}, "power_analysis": {}}, f)
 
 
 def update_log_section(section_name: str, data: dict, log_path: str = "modeling_log.yaml") -> None:
-    """Update a specific section in the modeling log YAML file."""
-    import yaml
-    from pathlib import Path
-
+    """Update a specific section in the modeling log."""
     path = Path(log_path)
     if not path.exists():
-        # If file doesn't exist, create it with just this section
-        with open(path, "w", encoding="utf-8") as f:
-            yaml.dump({section_name: data}, f, default_flow_style=False, sort_keys=False)
-        return
+        initialize_modeling_log(log_path)
 
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r") as f:
         try:
-            content = yaml.safe_load(f) or {}
+            log_data = yaml.safe_load(f) or {}
         except yaml.YAMLError:
-            content = {}
+            log_data = {}
 
-    if not isinstance(content, dict):
-        content = {}
+    if section_name not in log_data:
+        log_data[section_name] = {}
 
-    content[section_name] = data
+    log_data[section_name].update(data)
 
-    with open(path, "w", encoding="utf-8") as f:
-        yaml.dump(content, f, default_flow_style=False, sort_keys=False)
+    with open(path, "w") as f:
+        yaml.dump(log_data, f, default_flow_style=False)
 
 
 def append_log_entry(section_name: str, entry: dict, log_path: str = "modeling_log.yaml") -> None:
-    """Append an entry to a list within a specific section of the modeling log."""
-    import yaml
-    from pathlib import Path
-
+    """Append an entry to a list in the modeling log."""
     path = Path(log_path)
     if not path.exists():
-        with open(path, "w", encoding="utf-8") as f:
-            yaml.dump({section_name: [entry]}, f, default_flow_style=False, sort_keys=False)
-        return
+        initialize_modeling_log(log_path)
 
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r") as f:
         try:
-            content = yaml.safe_load(f) or {}
+            log_data = yaml.safe_load(f) or {}
         except yaml.YAMLError:
-            content = {}
+            log_data = {}
 
-    if not isinstance(content, dict):
-        content = {}
+    if section_name not in log_data:
+        log_data[section_name] = []
 
-    if section_name not in content:
-        content[section_name] = []
+    if not isinstance(log_data[section_name], list):
+        log_data[section_name] = []
 
-    if not isinstance(content[section_name], list):
-        content[section_name] = []
+    log_data[section_name].append(entry)
 
-    content[section_name].append(entry)
-
-    with open(path, "w", encoding="utf-8") as f:
-        yaml.dump(content, f, default_flow_style=False, sort_keys=False)
+    with open(path, "w") as f:
+        yaml.dump(log_data, f, default_flow_style=False)

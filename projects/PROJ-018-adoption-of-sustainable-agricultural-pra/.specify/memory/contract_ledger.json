@@ -1,5 +1,9 @@
 [
   {
+    "symbol": "get",
+    "owner": "Config"
+  },
+  {
     "symbol": "update_log_section",
     "owner": null
   }

@@ -51,6 +51,9 @@ sections:
     message: Raw data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/raw/survey_data.csv.
       Run 01_download_data.py first.
     updated_at: '2026-07-14T05:22:13.749214'
+  feature_engineering:
+    error: '''Config'' object has no attribute ''get'''
+    status: failed
 seeds:
   global_random_seed: 42
 validity_metrics:

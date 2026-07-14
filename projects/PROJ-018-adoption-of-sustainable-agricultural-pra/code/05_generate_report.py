@@ -1,6 +1,14 @@
 """
-T042: Generate PDF report containing descriptives, regression table, VIF diagnostics,
-ROC plot, mediation results, sensitivity analysis, and validity metrics.
+Report Generation Module for PROJ-018
+
+Generates a comprehensive PDF report containing:
+- Descriptive statistics
+- Regression table
+- VIF diagnostics
+- ROC plot
+- Mediation results
+- Sensitivity analysis
+- Validity metrics
 """
 from __future__ import annotations
 
@@ -9,456 +17,466 @@ import sys
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-import json
+from datetime import datetime
+
 import pandas as pd
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for headless execution
 import matplotlib.pyplot as plt
 import seaborn as sns
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.stats.multitest import multipletests
 
-# Attempt to import reportlab components
-try:
-    from reportlab.lib import colors
-    from reportlab.lib.pagesizes import letter, A4
-    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, PageBreak
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.units import inch
-    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
-    REPORTLAB_AVAILABLE = True
-except ImportError:
-    REPORTLAB_AVAILABLE = False
-    print("WARNING: reportlab not installed. PDF generation will be skipped. Install with: pip install reportlab")
+# Report generation
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image as ReportLabImage
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
-import yaml
+# Local imports (matching API surface)
+from config import get_config
+from logging_config import log_operation, get_logger
 
-# Import from sibling modules as per API surface
-# Note: We assume the environment has these modules in the path (code/)
-# We use a dynamic import approach or direct import if path is set correctly.
-# For this script, we assume it is run from the project root with code/ in sys.path
-# or we add it.
-try:
-    # Try to import from the package structure if configured
-    from config import get_config, get_data_path
-except ImportError:
-    # Fallback if running as script directly
-    sys.path.insert(0, str(Path(__file__).parent))
-    from config import get_config, get_data_path
+logger = get_logger("report_generation")
 
-def load_cleaned_data() -> pd.DataFrame:
-    """Load cleaned data from data/processed/cleaned_data.csv."""
-    config = get_config()
-    path = Path(config.get("paths", {}).get("cleaned_data", "data/processed/cleaned_data.csv"))
+# --------------------------------------------------------------------------
+# Data Loading Helpers
+# --------------------------------------------------------------------------
+
+def load_cleaned_data(config: Dict[str, Any]) -> Optional[pd.DataFrame]:
+    """Load cleaned data from the processed directory."""
+    path = Path(config["paths"]["processed_data"]) / "cleaned_data.csv"
     if not path.exists():
-        raise FileNotFoundError(f"Cleaned data not found at {path}. Run T014 first.")
+        logger.log("error", f"Cleaned data not found at {path}")
+        return None
     return pd.read_csv(path)
 
-def load_engineered_data() -> pd.DataFrame:
-    """Load engineered data from data/processed/engineered_data.csv."""
-    config = get_config()
-    path = Path(config.get("paths", {}).get("engineered_data", "data/processed/engineered_data.csv"))
+def load_engineered_data(config: Dict[str, Any]) -> Optional[pd.DataFrame]:
+    """Load engineered data from the processed directory."""
+    path = Path(config["paths"]["processed_data"]) / "engineered_data.csv"
     if not path.exists():
-        raise FileNotFoundError(f"Engineered data not found at {path}. Run T022 first.")
+        logger.log("error", f"Engineered data not found at {path}")
+        return None
     return pd.read_csv(path)
 
-def load_model_results() -> Dict[str, Any]:
-    """Load model results from results/model_results.yaml."""
-    config = get_config()
-    path = Path(config.get("paths", {}).get("model_results", "results/model_results.yaml"))
+def load_model_results(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Load model results from the results directory."""
+    path = Path(config["paths"]["results"]) / "model_results.yaml"
     if not path.exists():
-        raise FileNotFoundError(f"Model results not found at {path}. Run T040 first.")
+        logger.log("error", f"Model results not found at {path}")
+        return None
+    import yaml
     with open(path, 'r') as f:
         return yaml.safe_load(f)
 
-def load_validity_metrics() -> Dict[str, Any]:
-    """Load validity metrics from results/validity_metrics.yaml."""
-    config = get_config()
-    path = Path(config.get("paths", {}).get("validity_metrics", "results/validity_metrics.yaml"))
+def load_validity_metrics(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Load validity metrics from the results directory."""
+    path = Path(config["paths"]["results"]) / "validity_metrics.yaml"
     if not path.exists():
-        raise FileNotFoundError(f"Validity metrics not found at {path}. Run T022 first.")
+        logger.log("error", f"Validity metrics not found at {path}")
+        return None
+    import yaml
     with open(path, 'r') as f:
         return yaml.safe_load(f)
 
-def load_modeling_log() -> Dict[str, Any]:
-    """Load modeling log from modeling_log.yaml."""
-    config = get_config()
-    path = Path(config.get("paths", {}).get("modeling_log", "modeling_log.yaml"))
+def load_modeling_log(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Load the modeling log."""
+    path = Path(config["paths"]["logs"]) / "modeling_log.yaml"
     if not path.exists():
-        raise FileNotFoundError(f"Modeling log not found at {path}.")
+        logger.log("error", f"Modeling log not found at {path}")
+        return None
+    import yaml
     with open(path, 'r') as f:
         return yaml.safe_load(f)
 
-def generate_report_header() -> List[Paragraph]:
+# --------------------------------------------------------------------------
+# Report Content Generators
+# --------------------------------------------------------------------------
+
+def generate_report_header(styles: Dict[str, Any]) -> List[Any]:
     """Generate the report header."""
-    styles = getSampleStyleSheet()
+    story = styles['Normal']
     title_style = ParagraphStyle(
         'CustomTitle',
-        parent=styles['Heading1'],
+        parent=story,
         fontSize=24,
+        textColor='#003366',
         spaceAfter=30,
-        alignment=TA_CENTER
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold'
     )
     subtitle_style = ParagraphStyle(
         'CustomSubtitle',
-        parent=styles['Heading2'],
-        fontSize=16,
-        spaceAfter=20,
-        alignment=TA_CENTER
-    )
-    author_style = ParagraphStyle(
-        'CustomAuthor',
-        parent=styles['Normal'],
-        fontSize=12,
+        parent=story,
+        fontSize=14,
+        textColor='#666666',
         spaceAfter=20,
         alignment=TA_CENTER
     )
 
-    title = Paragraph("Adoption of Sustainable Agricultural Practices in Low-Income Areas", title_style)
-    subtitle = Paragraph("Impact of Community Engagement: A Statistical Analysis", subtitle_style)
-    author = Paragraph("Generated by llmXive Automated Science Pipeline", author_style)
-    return [title, subtitle, author]
+    elements = []
+    elements.append(Paragraph("Adoption of Sustainable Agricultural Practices", title_style))
+    elements.append(Paragraph("Analysis of Community Engagement in Low-Income Areas", subtitle_style))
+    elements.append(Spacer(1, 20))
+    return elements
 
-def generate_descriptive_stats(df: pd.DataFrame) -> List[Any]:
+def generate_descriptive_stats(df: pd.DataFrame, styles: Dict[str, Any]) -> List[Any]:
     """Generate descriptive statistics section."""
-    if not REPORTLAB_AVAILABLE:
-        return []
-    
-    styles = getSampleStyleSheet()
-    section_title = Paragraph("1. Descriptive Statistics", styles['Heading2'])
-    
-    # Calculate basic stats
+    elements = []
+    story = styles['Normal']
+
+    elements.append(Paragraph("1. Descriptive Statistics", styles['Heading2']))
+    elements.append(Spacer(1, 12))
+
+    if df is None:
+        elements.append(Paragraph("No data available for descriptive statistics.", story))
+        return elements
+
+    # Basic stats
     numeric_cols = df.select_dtypes(include=[np.number]).columns
-    stats_data = []
-    headers = ["Variable", "Mean", "Std Dev", "Min", "Max", "N"]
-    stats_data.append(headers)
-    
+    desc_table_data = [["Variable", "Mean", "Std Dev", "Min", "Max"]]
+
     for col in numeric_cols:
-        if col in ['engagement_score', 'adoption_binary']:
-            # Skip derived variables in basic descriptives or include them specifically
-            continue
+        if col in ['adoption_binary']:
+            continue  # Skip binary for mean description
         row = [
             col,
-            f"{df[col].mean():.3f}",
-            f"{df[col].std():.3f}",
-            f"{df[col].min():.3f}",
-            f"{df[col].max():.3f}",
-            str(len(df))
+            f"{df[col].mean():.2f}",
+            f"{df[col].std():.2f}",
+            f"{df[col].min():.2f}",
+            f"{df[col].max():.2f}"
         ]
-        stats_data.append(row)
-    
-    # Add adoption_binary specific stats
-    if 'adoption_binary' in df.columns:
-        adoption_rate = df['adoption_binary'].mean() * 100
-        stats_data.append(["---", "---", "---", "---", "---", "---"])
-        stats_data.append(["Adoption Rate (%)", f"{adoption_rate:.2f}", "---", "---", "---", "---"])
+        desc_table_data.append(row)
 
-    table = Table(stats_data, colWidths=[2*inch, 0.8*inch, 0.8*inch, 0.8*inch, 0.8*inch, 0.8*inch])
+    table = Table(desc_table_data, colWidths=[2*inch, 1*inch, 1*inch, 1*inch, 1*inch])
     table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('BACKGROUND', (0, 0), (-1, 0), '#eeeeee'),
+        ('TEXTCOLOR', (0, 0), (-1, 0), '#000000'),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, 0), 10),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BACKGROUND', (0, 1), (-1, -1), '#ffffff'),
+        ('GRID', (0, 0), (-1, -1), 1, '#dddddd'),
     ]))
+    elements.append(table)
+    elements.append(Spacer(1, 20))
+    return elements
 
-    return [section_title, Spacer(1, 0.2*inch), table]
+def generate_regression_table(results: Dict[str, Any], styles: Dict[str, Any]) -> List[Any]:
+    """Generate regression results table."""
+    elements = []
+    story = styles['Normal']
 
-def generate_regression_table(results: Dict[str, Any]) -> List[Any]:
-    """Generate regression table section."""
-    if not REPORTLAB_AVAILABLE:
-        return []
+    elements.append(Paragraph("2. Logistic Regression Results", styles['Heading2']))
+    elements.append(Spacer(1, 12))
 
-    styles = getSampleStyleSheet()
-    section_title = Paragraph("2. Logistic Regression Results", styles['Heading2'])
-    
-    # Extract coefficients
-    coef_data = []
-    headers = ["Variable", "Coefficient", "Std Error", "Z-value", "P-value", "Significance"]
-    coef_data.append(headers)
-    
-    if 'coefficients' in results:
-        coefs = results['coefficients']
-        for var, stats in coefs.items():
-            sig = "***" if stats.get('pvalue', 1.0) < 0.01 else ("**" if stats.get('pvalue', 1.0) < 0.05 else ("*" if stats.get('pvalue', 1.0) < 0.1 else ""))
-            row = [
-                var,
-                f"{stats.get('coef', 0):.4f}",
-                f"{stats.get('std_err', 0):.4f}",
-                f"{stats.get('z', 0):.4f}",
-                f"{stats.get('pvalue', 0):.4f}",
-                sig
-            ]
-            coef_data.append(row)
-    
-    # Add AUC
-    if 'auc' in results:
-        coef_data.append(["---", "---", "---", "---", "---", "---"])
-        coef_data.append(["AUC", f"{results['auc']:.4f}", "---", "---", "---", "---"])
+    if not results or 'regression' not in results:
+        elements.append(Paragraph("No regression results available.", story))
+        return elements
 
-    table = Table(coef_data, colWidths=[2*inch, 0.9*inch, 0.9*inch, 0.9*inch, 0.9*inch, 0.6*inch])
+    reg_data = results['regression']
+    coef_data = reg_data.get('coefficients', [])
+
+    if not coef_data:
+        elements.append(Paragraph("No coefficients found.", story))
+        return elements
+
+    table_data = [["Variable", "Coefficient", "Std Error", "Z-Value", "P-Value", "Sig"]]
+    for row in coef_data:
+        var_name = row.get('variable', 'Unknown')
+        coef = row.get('coef', 0)
+        std_err = row.get('std_err', 0)
+        z_val = row.get('z', 0)
+        p_val = row.get('pvalue', 1)
+        sig = "***" if p_val < 0.001 else "**" if p_val < 0.01 else "*" if p_val < 0.05 else ""
+
+        table_data.append([
+            str(var_name),
+            f"{coef:.4f}",
+            f"{std_err:.4f}",
+            f"{z_val:.4f}",
+            f"{p_val:.4f}",
+            sig
+        ])
+
+    table = Table(table_data, colWidths=[2*inch, 0.8*inch, 0.8*inch, 0.8*inch, 0.8*inch, 0.4*inch])
     table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('BACKGROUND', (0, 0), (-1, 0), '#eeeeee'),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 9),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('GRID', (0, 0), (-1, -1), 1, '#dddddd'),
     ]))
+    elements.append(table)
+    elements.append(Spacer(1, 10))
+    elements.append(Paragraph("* p<0.05, ** p<0.01, *** p<0.001", story))
+    elements.append(Spacer(1, 20))
+    return elements
 
-    note = Paragraph(
-        "* p < 0.10, ** p < 0.05, *** p < 0.01. <br/>"
-        "FDR correction applied (q ≤ 0.10).",
-        styles['Normal']
-    )
-
-    return [section_title, Spacer(1, 0.2*inch), table, Spacer(1, 0.2*inch), note]
-
-def generate_vif_section(results: Dict[str, Any]) -> List[Any]:
+def generate_vif_section(results: Dict[str, Any], styles: Dict[str, Any]) -> List[Any]:
     """Generate VIF diagnostics section."""
-    if not REPORTLAB_AVAILABLE:
-        return []
+    elements = []
+    story = styles['Normal']
 
-    styles = getSampleStyleSheet()
-    section_title = Paragraph("3. Multicollinearity Diagnostics (VIF)", styles['Heading2'])
-    
-    vif_data = []
-    headers = ["Variable", "VIF Score", "Status"]
-    vif_data.append(headers)
-    
-    if 'vif' in results:
-        vif_dict = results['vif']
-        for var, score in vif_dict.items():
-            status = "OK" if score < 5 else ("WARNING" if score < 10 else "CRITICAL")
-            row = [var, f"{score:.2f}", status]
-            vif_data.append(row)
-    
-    table = Table(vif_data, colWidths=[2*inch, 1.5*inch, 1.5*inch])
+    elements.append(Paragraph("3. Multicollinearity Diagnostics (VIF)", styles['Heading2']))
+    elements.append(Spacer(1, 12))
+
+    if not results or 'vif' not in results:
+        elements.append(Paragraph("VIF diagnostics not available.", story))
+        return elements
+
+    vif_data = results['vif']
+    table_data = [["Variable", "VIF", "Status"]]
+    for row in vif_data:
+        var_name = row.get('variable', 'Unknown')
+        vif_val = row.get('vif', 0)
+        status = "OK" if vif_val < 5 else "WARNING" if vif_val < 10 else "CRITICAL"
+        table_data.append([str(var_name), f"{vif_val:.2f}", status])
+
+    table = Table(table_data, colWidths=[2.5*inch, 1.5*inch, 1.5*inch])
     table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('BACKGROUND', (0, 0), (-1, 0), '#eeeeee'),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('GRID', (0, 0), (-1, -1), 1, '#dddddd'),
     ]))
+    elements.append(table)
+    elements.append(Spacer(1, 20))
+    return elements
 
-    return [section_title, Spacer(1, 0.2*inch), table]
+def generate_roc_section(results: Dict[str, Any], config: Dict[str, Any], styles: Dict[str, Any]) -> List[Any]:
+    """Generate ROC curve section with embedded image."""
+    elements = []
+    story = styles['Normal']
+    results_dir = Path(config["paths"]["results"])
 
-def generate_roc_section(results: Dict[str, Any], plot_path: str) -> List[Any]:
-    """Generate ROC curve section."""
-    if not REPORTLAB_AVAILABLE:
-        return []
+    elements.append(Paragraph("4. Model Performance (ROC Curve)", styles['Heading2']))
+    elements.append(Spacer(1, 12))
 
-    styles = getSampleStyleSheet()
-    section_title = Paragraph("4. Model Performance (ROC Curve)", styles['Heading2'])
-    
-    # Add image if exists
-    if os.path.exists(plot_path):
-        img = Image(plot_path, width=4*inch, height=3*inch)
-        return [section_title, Spacer(1, 0.2*inch), img]
+    if not results or 'roc' not in results:
+        elements.append(Paragraph("ROC metrics not available.", story))
+        return elements
+
+    auc_val = results['roc'].get('auc', 0)
+    elements.append(Paragraph(f"AUC: {auc_val:.4f}", story))
+    elements.append(Spacer(1, 10))
+
+    # Check if ROC plot exists
+    roc_path = results_dir / "roc_curve.png"
+    if roc_path.exists():
+        try:
+            elements.append(ReportLabImage(str(roc_path), width=4*inch, height=3*inch))
+        except Exception as e:
+            elements.append(Paragraph(f"Could not load ROC image: {e}", story))
     else:
-        return [section_title, Paragraph("ROC plot not generated.", styles['Normal'])]
+        elements.append(Paragraph("ROC curve image not found.", story))
 
-def generate_mediation_section(results: Dict[str, Any]) -> List[Any]:
+    elements.append(Spacer(1, 20))
+    return elements
+
+def generate_mediation_section(results: Dict[str, Any], styles: Dict[str, Any]) -> List[Any]:
     """Generate mediation analysis section."""
-    if not REPORTLAB_AVAILABLE:
-        return []
+    elements = []
+    story = styles['Normal']
 
-    styles = getSampleStyleSheet()
-    section_title = Paragraph("5. Mediation Analysis (Baron & Kenny)", styles['Heading2'])
-    
-    text_content = []
-    text_content.append(Paragraph("Mediation analysis was performed to assess indirect effects.", styles['Normal']))
-    text_content.append(Spacer(1, 0.2*inch))
-    
-    if 'mediation' in results:
-        med = results['mediation']
-        # Format bootstrap CI
-        ci_low = med.get('ci_low', 'N/A')
-        ci_high = med.get('ci_high', 'N/A')
-        indirect_eff = med.get('indirect_effect', 'N/A')
-        
-        p = Paragraph(
-            f"Indirect Effect: {indirect_eff:.4f} <br/>"
-            f"95% Bootstrap CI: [{ci_low:.4f}, {ci_high:.4f}] <br/>"
-            f"Interpretation: {'Significant' if ci_low * ci_high > 0 else 'Not Significant'}",
-            styles['Normal']
-        )
-        text_content.append(p)
-    else:
-        text_content.append(Paragraph("Mediation results not available.", styles['Normal']))
+    elements.append(Paragraph("5. Mediation Analysis", styles['Heading2']))
+    elements.append(Spacer(1, 12))
 
-    return text_content
+    if not results or 'mediation' not in results:
+        elements.append(Paragraph("Mediation analysis not available.", story))
+        return elements
 
-def generate_sensitivity_section(results: Dict[str, Any]) -> List[Any]:
-    """Generate sensitivity analysis section."""
-    if not REPORTLAB_AVAILABLE:
-        return []
+    med_data = results['mediation']
+    elements.append(Paragraph("Indirect Effects (Bootstrap 1000 resamples):", story))
+    elements.append(Spacer(1, 5))
 
-    styles = getSampleStyleSheet()
-    section_title = Paragraph("6. Sensitivity Analysis", styles['Heading2'])
-    
-    text_content = []
-    text_content.append(Paragraph("E-values and Rosenbaum bounds were calculated to assess robustness to unmeasured confounding.", styles['Normal']))
-    text_content.append(Spacer(1, 0.2*inch))
+    table_data = [["Path", "Effect", "SE", "95% CI Lower", "95% CI Upper"]]
+    if 'indirect_effects' in med_data:
+        for eff in med_data['indirect_effects']:
+            table_data.append([
+                eff.get('path', 'N/A'),
+                f"{eff.get('effect', 0):.4f}",
+                f"{eff.get('se', 0):.4f}",
+                f"{eff.get('ci_lower', 0):.4f}",
+                f"{eff.get('ci_upper', 0):.4f}"
+            ])
 
-    if 'sensitivity' in results:
-        sens = results['sensitivity']
-        evalue = sens.get('evalue', 'N/A')
-        rosenbaum_gamma = sens.get('rosenbaum_gamma', 'N/A')
-        
-        p = Paragraph(
-            f"E-value: {evalue:.4f} <br/>"
-            f"Rosenbaum Bounds (Gamma): {rosenbaum_gamma} <br/>"
-            f"Interpretation: Results are robust to unmeasured confounding up to an E-value of {evalue:.2f}.",
-            styles['Normal']
-        )
-        text_content.append(p)
-    else:
-        text_content.append(Paragraph("Sensitivity results not available.", styles['Normal']))
+    if len(table_data) > 1:
+        table = Table(table_data, colWidths=[2*inch, 0.8*inch, 0.8*inch, 0.8*inch, 0.8*inch])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), '#eeeeee'),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 1, '#dddddd'),
+        ]))
+        elements.append(table)
 
-    return text_content
+    elements.append(Spacer(1, 10))
+    elements.append(Paragraph("Note: Mediation analysis is exploratory.", story))
+    elements.append(Spacer(1, 20))
+    return elements
 
-def generate_validity_section(validity_metrics: Dict[str, Any]) -> List[Any]:
+def generate_sensitivity_section(results: Dict[str, Any], styles: Dict[str, Any]) -> List[Any]:
+    """Generate sensitivity analysis section (E-values)."""
+    elements = []
+    story = styles['Normal']
+
+    elements.append(Paragraph("6. Sensitivity Analysis", styles['Heading2']))
+    elements.append(Spacer(1, 12))
+
+    if not results or 'sensitivity' not in results:
+        elements.append(Paragraph("Sensitivity analysis not available.", story))
+        return elements
+
+    sens_data = results['sensitivity']
+
+    elements.append(Paragraph("E-Values:", story))
+    if 'evalues' in sens_data:
+        for ev in sens_data['evalues']:
+            elements.append(Paragraph(
+                f"- {ev.get('variable', 'Unknown')}: E-value = {ev.get('evalue', 0):.2f} "
+                f"(95% CI: {ev.get('ci_lower', 0):.2f} - {ev.get('ci_upper', 0):.2f})",
+                story
+            ))
+
+    elements.append(Spacer(1, 10))
+    elements.append(Paragraph("Rosenbaum Bounds (Gamma sensitivity):", story))
+    if 'rosenbaum' in sens_data:
+        for rb in sens_data['rosenbaum']:
+            elements.append(Paragraph(
+                f"- Gamma = {rb.get('gamma', 0):.1f}: Significant = {rb.get('significant', False)}",
+                story
+            ))
+
+    elements.append(Spacer(1, 20))
+    return elements
+
+def generate_validity_section(validity_metrics: Dict[str, Any], styles: Dict[str, Any]) -> List[Any]:
     """Generate validity metrics section."""
-    if not REPORTLAB_AVAILABLE:
-        return []
+    elements = []
+    story = styles['Normal']
 
-    styles = getSampleStyleSheet()
-    section_title = Paragraph("7. Validity and Reliability Metrics", styles['Heading2'])
-    
-    text_content = []
-    
+    elements.append(Paragraph("7. Reliability and Validity Metrics", styles['Heading2']))
+    elements.append(Spacer(1, 12))
+
+    if not validity_metrics:
+        elements.append(Paragraph("Validity metrics not available.", story))
+        return elements
+
+    # Cronbach's Alpha
     if 'cronbach_alpha' in validity_metrics:
-        alpha = validity_metrics['cronbach_alpha']
-        text_content.append(Paragraph(f"Cronbach's Alpha: {alpha:.4f}", styles['Normal']))
-    
-    if 'efa_factors' in validity_metrics:
-        text_content.append(Spacer(1, 0.2*inch))
-        text_content.append(Paragraph("Exploratory Factor Analysis (EFA):", styles['Normal']))
-        factors = validity_metrics['efa_factors']
-        text_content.append(Paragraph(f"Number of factors retained (Kaiser's rule): {factors.get('num_factors', 'N/A')}", styles['Normal']))
-    
-    if 'convergent_validity' in validity_metrics:
-       text_content.append(Spacer(1, 0.2*inch))
-       text_content.append(Paragraph("Convergent Validity:", styles['Normal']))
-       cv = validity_metrics['convergent_validity']
-       text_content.append(Paragraph(f"Status: {cv.get('status', 'N/A')}", styles['Normal']))
-       if 'correlation' in cv:
-           text_content.append(Paragraph(f"Correlation: {cv['correlation']:.4f}", styles['Normal']))
+        alpha_val = validity_metrics['cronbach_alpha']
+        elements.append(Paragraph(f"Cronbach's Alpha: {alpha_val:.3f}", story))
+        if alpha_val >= 0.7:
+            elements.append(Paragraph("Interpretation: Acceptable internal consistency.", story))
+        else:
+            elements.append(Paragraph("Interpretation: Low internal consistency.", story))
 
-    return text_content
+    elements.append(Spacer(1, 10))
 
-def plot_roc_curve(df: pd.DataFrame, results: Dict[str, Any], output_path: str):
-    """Generate ROC curve plot and save to disk."""
-    plt.figure(figsize=(8, 6))
-    
-    # If we have predicted probabilities from the model results
-    if 'predicted_probabilities' in results and 'adoption_binary' in df:
-        y_true = df['adoption_binary']
-        y_scores = results['predicted_probabilities']
-        
-        from sklearn.metrics import roc_curve, auc
-        fpr, tpr, thresholds = roc_curve(y_true, y_scores)
-        roc_auc = auc(fpr, tpr)
-        
-        plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
-        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-        plt.xlim([0.0, 1.0])
-        plt.ylim([0.0, 1.05])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('Receiver Operating Characteristic (ROC) Curve')
-        plt.legend(loc="lower right")
-        plt.grid(True)
-    else:
-        # Fallback if no predictions available (should not happen if T040 ran)
-        plt.text(0.5, 0.5, 'No predictions available', ha='center', va='center')
-        plt.title('ROC Curve (Data Missing)')
+    # EFA
+    if 'efa' in validity_metrics:
+        elements.append(Paragraph("Exploratory Factor Analysis (Varimax Rotation):", story))
+        if 'factors' in validity_metrics['efa']:
+            for i, factor in enumerate(validity_metrics['efa']['factors']):
+                elements.append(Paragraph(f"Factor {i+1} (Eigenvalue: {factor.get('eigenvalue', 0):.2f}):", story))
+                for var, loading in factor.get('loadings', {}).items():
+                    elements.append(Paragraph(f"  - {var}: {loading:.3f}", story))
 
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    elements.append(Spacer(1, 20))
+    return elements
+
+# --------------------------------------------------------------------------
+# Main Report Generation
+# --------------------------------------------------------------------------
+
+def plot_roc_curve(results: Dict[str, Any], output_path: Path) -> bool:
+    """Plot and save ROC curve to disk."""
+    if not results or 'roc' not in results:
+        return False
+
+    fpr = results['roc'].get('fpr', [])
+    tpr = results['roc'].get('tpr', [])
+    auc_val = results['roc'].get('auc', 0)
+
+    plt.figure(figsize=(6, 5))
+    plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {auc_val:.2f})')
+    plt.plot([0, 1], [0, 1], 'k--', label='Random Classifier')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic')
+    plt.legend(loc='lower right')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150)
     plt.close()
+    return True
 
-def generate_pdf_report(output_path: str):
-    """Assemble all sections into a PDF report."""
-    if not REPORTLAB_AVAILABLE:
-        print("ERROR: reportlab is not installed. Cannot generate PDF.")
-        # Create a dummy file to satisfy the "file must exist" constraint if needed, 
-        # but strictly speaking we should fail or skip.
-        # Per constraint 8, we must produce real outputs. If we can't produce PDF, 
-        # we might produce a text summary or fail. 
-        # However, the task is to implement the script. If dependencies are missing, 
-        # we log and exit.
-        return
+def generate_pdf_report(config: Dict[str, Any]) -> bool:
+    """Generate the full PDF report."""
+    logger.log("report_generation_start", {"status": "starting"})
 
     # Load data
-    df_clean = load_cleaned_data()
-    df_eng = load_engineered_data()
-    results = load_model_results()
-    validity = load_validity_metrics()
-    log_data = load_modeling_log()
+    cleaned_df = load_cleaned_data(config)
+    engineered_df = load_engineered_data(config)
+    model_results = load_model_results(config)
+    validity_metrics = load_validity_metrics(config)
+    modeling_log = load_modeling_log(config)
 
-    # Ensure output directories exist
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # Prepare styles
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(
+        name='Heading2',
+        parent=styles['Heading2'],
+        fontSize=16,
+        textColor='#003366',
+        spaceAfter=12,
+        spaceBefore=12,
+        fontName='Helvetica-Bold'
+    ))
 
-    # Generate ROC plot first
-    roc_plot_path = os.path.join(os.path.dirname(output_path), "roc_curve.png")
-    plot_roc_curve(df_clean, results, roc_plot_path)
+    # Build elements
+    elements = []
+    elements.extend(generate_report_header(styles))
+    elements.extend(generate_descriptive_stats(cleaned_df, styles))
+    elements.extend(generate_regression_table(model_results, styles))
+    elements.extend(generate_vif_section(model_results, styles))
+    elements.extend(generate_roc_section(model_results, config, styles))
+    elements.extend(generate_mediation_section(model_results, styles))
+    elements.extend(generate_sensitivity_section(model_results, styles))
+    elements.extend(generate_validity_section(validity_metrics, styles))
 
-    # Build PDF
-    doc = SimpleDocTemplate(output_path, pagesize=A4)
-    story = []
-    
-    # Header
-    story.extend(generate_report_header())
-    story.append(PageBreak())
+    # Finalize
+    elements.append(Spacer(1, 20))
+    elements.append(Paragraph(
+        f"Report generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        styles['Normal']
+    ))
 
-    # Sections
-    story.extend(generate_descriptive_stats(df_clean))
-    story.append(PageBreak())
-    
-    story.extend(generate_regression_table(results))
-    story.append(PageBreak())
-    
-    story.extend(generate_vif_section(results))
-    story.append(PageBreak())
-    
-    story.extend(generate_roc_section(results, roc_plot_path))
-    story.append(PageBreak())
-    
-    story.extend(generate_mediation_section(results))
-    story.append(PageBreak())
-    
-    story.extend(generate_sensitivity_section(results))
-    story.append(PageBreak())
-    
-    story.extend(generate_validity_section(validity))
+    # Write PDF
+    output_path = Path(config["paths"]["results"]) / "final_report.pdf"
+    try:
+        doc = SimpleDocTemplate(str(output_path), pagesize=A4)
+        doc.build(elements)
+        logger.log("report_generation_complete", {"output_file": str(output_path)})
+        return True
+    except Exception as e:
+        logger.log("report_generation_failed", {"error": str(e)})
+        return False
 
-    # Build
-    doc.build(story)
-    print(f"PDF report successfully generated at: {output_path}")
-
+@log_operation("generate_report_main")
 def main():
     """Main entry point for report generation."""
     config = get_config()
-    output_path = config.get("paths", {}).get("report_output", "results/analysis_report.pdf")
-    
-    try:
-        generate_pdf_report(output_path)
-    except FileNotFoundError as e:
-        print(f"ERROR: Missing required data file: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"ERROR: Failed to generate report: {e}")
-        import traceback
-        traceback.print_exc()
+    success = generate_pdf_report(config)
+    if success:
+        print("Report generated successfully.")
+    else:
+        print("Report generation failed.")
         sys.exit(1)
 
 if __name__ == "__main__":
