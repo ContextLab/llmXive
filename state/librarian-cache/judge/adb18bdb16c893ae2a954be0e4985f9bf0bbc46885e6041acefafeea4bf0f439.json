@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1806.09998",
+  "judged_at": "2026-07-14T07:04:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"liveedit: towards real-time diffusion-based streaming video editing\" computer science",
+  "rationale": "The paper focuses on industrial motor fault diagnosis using LabVIEW and signal processing, which is entirely off-domain from the user's question regarding real-time diffusion-based video editing in computer science. It shares only the generic keyword \"real-time\" but addresses a distinct construct with no measurable connection to the user's mechanism, domain, or variables.",
+  "relevant": false
+}

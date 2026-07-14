@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.17599",
+  "judged_at": "2026-07-14T07:03:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"liveedit: towards real-time diffusion-based streaming video editing\" computer science",
+  "rationale": "This paper belongs in the literature review as it addresses the same core mechanism (diffusion-based video editing) and domain (real-time or streaming video editing) as the user's question, satisfying criteria (a) and (b) by providing foundational work on zero-shot video editing using image diffusion models, which is the direct technical precursor to the \"LiveEdit\" system mentioned.",
+  "relevant": true
+}

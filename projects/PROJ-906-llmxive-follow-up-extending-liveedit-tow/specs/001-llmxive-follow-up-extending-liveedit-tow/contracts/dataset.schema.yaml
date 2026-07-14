@@ -1,0 +1,51 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: VideoClip Dataset Schema
+description: Schema for the input video clips used in the experiment.
+type: object
+properties:
+  clip_id:
+    type: string
+    description: Unique identifier for the video clip.
+  source_path:
+    type: string
+    description: Relative path to the raw video file.
+  motion_category:
+    type: string
+    enum:
+      - static
+      - slow_rigid
+      - fast_non_rigid
+    description: Stratification category based on motion complexity.
+  duration_sec:
+    type: number
+    description: Duration of the video in seconds.
+  frame_count:
+    type: integer
+    description: Total number of frames in the video.
+  resolution:
+    type: array
+    items:
+      type: integer
+    minItems: 2
+    maxItems: 2
+    description: Video resolution as [height, width].
+  mask_path:
+    type: string
+    description: Relative path to the synthetic editing mask.
+  flow_path:
+    type: string
+    description: Relative path to the pre-computed optical flow field.
+  invalid_flow_count:
+    type: integer
+    description: Number of frames with invalid flow vectors.
+required:
+  - clip_id
+  - source_path
+  - motion_category
+  - duration_sec
+  - frame_count
+  - resolution
+  - mask_path
+  - flow_path
+  - invalid_flow_count
+additionalProperties: false

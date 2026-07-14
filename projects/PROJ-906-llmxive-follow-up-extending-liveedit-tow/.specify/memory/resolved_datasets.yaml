@@ -1,0 +1,571 @@
+resolved_at: '2026-07-14T07:19:38.029907+00:00'
+datasets:
+- intent: CPU-optimized
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_An_atlas_of_sarbecovirus_infectivity_across_diverse_ACE2_orthologs_b_/32981705
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Lead_generation_company_in_Hyderabad/32981720
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://figshare.com/articles/dataset/EEG-fNIRS_Dataset_for_Visual_Imagery/30958199
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/_b_Forum_Open_Indonesia_2026_b_Membangun_Literasi_Digital_dan_Riset_Terbuka/32981696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Improving_the_Biocompatibility_and_Energy_Performance_of_a_Microbial_Bioanode_with_Black_Phosphorus_and_Polypyrrole_Nanocomposites/32981717
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/803257
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1136109
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1331998
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05920
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.17390
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.10615
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.10044
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.09835
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LiveEdit
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_An_atlas_of_sarbecovirus_infectivity_across_diverse_ACE2_orthologs_b_/32981705
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Lead_generation_company_in_Hyderabad/32981720
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://figshare.com/articles/dataset/EEG-fNIRS_Dataset_for_Visual_Imagery/30958199
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/_b_Forum_Open_Indonesia_2026_b_Membangun_Literasi_Digital_dan_Riset_Terbuka/32981696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Improving_the_Biocompatibility_and_Energy_Performance_of_a_Microbial_Bioanode_with_Black_Phosphorus_and_Polypyrrole_Nanocomposites/32981717
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.26740
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2411.15432
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SSIM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Hemabhushan/capstone_sakuga_preproc_ssim/resolve/main/sample_subset/train-00000-of-00060.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/FastVideo/ssim-reference-videos/resolve/main/reference_videos/default/L40S_reference_videos/TurboWan2.2-I2V-A14B-Diffusers/SLA_ATTN/steps4_An
+      astronaut hatching from an egg, on the surface of the moon, the darkness and
+      depth of space reali_ssim.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 872
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Hemabhushan/capstone_sakuga_preproc_ssim/resolve/main/sample_subset/train-00000-of-00060.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/FastVideo/ssim-reference-videos/resolve/main/reference_videos/default/L40S_reference_videos/TurboWan2.2-I2V-A14B-Diffusers/SLA_ATTN/steps4_An
+      astronaut hatching from an egg, on the surface of the moon, the darkness and
+      depth of space reali_ssim.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/_b_An_atlas_of_sarbecovirus_infectivity_across_diverse_ACE2_orthologs_b_/32981705
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Lead_generation_company_in_Hyderabad/32981720
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://figshare.com/articles/dataset/EEG-fNIRS_Dataset_for_Visual_Imagery/30958199
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/_b_Forum_Open_Indonesia_2026_b_Membangun_Literasi_Digital_dan_Riset_Terbuka/32981696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Improving_the_Biocompatibility_and_Energy_Performance_of_a_Microbial_Bioanode_with_Black_Phosphorus_and_Polypyrrole_Nanocomposites/32981717
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950300
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10793339
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4274935
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5569195
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.ijtsrd.com/engineering/electronics-and-communication-engineering/15634/an-image-quality-assessment-of-multi-exposure-image-fusion-by-improving-ssim/sushmitha-cm
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02585
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2505.24421
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.11104
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.10898
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.10489
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DAVIS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Davis/Swahili-tweet-sentiment/resolve/main/swahili-twitter-sentiment-analysis.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 255595
+      parsed: true
+  - url: https://huggingface.co/datasets/coref-data/davis_wsc_raw/resolve/main/wsc273/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 23835
+      parsed: true
+  - url: https://huggingface.co/datasets/coref-data/davis_pdp_raw/resolve/main/davis_pdp/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 14796
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Davis/Swahili-tweet-sentiment/resolve/main/swahili-twitter-sentiment-analysis.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/davisalex22/autotrain-data-reglamentos_quito/resolve/main/raw/datasert_final
+      0rd1.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/coref-data/davis_wsc_raw/resolve/main/wsc273/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/coref-data/davis_pdp_raw/resolve/main/davis_pdp/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_An_atlas_of_sarbecovirus_infectivity_across_diverse_ACE2_orthologs_b_/32981705
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Lead_generation_company_in_Hyderabad/32981720
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://figshare.com/articles/dataset/EEG-fNIRS_Dataset_for_Visual_Imagery/30958199
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/_b_Forum_Open_Indonesia_2026_b_Membangun_Literasi_Digital_dan_Riset_Terbuka/32981696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Improving_the_Biocompatibility_and_Energy_Performance_of_a_Microbial_Bioanode_with_Black_Phosphorus_and_Polypyrrole_Nanocomposites/32981717
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5130349
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6220626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11339468
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6054718
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2682438
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21350314
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21350314
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21349245
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21349245
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26180/14964882.v1
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/From_organizational_employment_to_self-employment_women_managers_gendered_organizations_and_the_influence_of_mid-life/14964882/1
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+- intent: YouTube
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/PleIAs/YouTube-Commons/resolve/main/cctube_0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/JosJenn/nasa-artemis-ii-live-chat-youtube-comments/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/community-datasets/youtube_caption_corrections/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/PleIAs/YouTube-Commons/resolve/main/cctube_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JosJenn/nasa-artemis-ii-live-chat-youtube-comments/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/community-datasets/youtube_caption_corrections/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jonatli/youtube-sponsor/resolve/main/data.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/krandiash/youtubemix/resolve/main/youtube_mix.zip
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/dataset/_b_An_atlas_of_sarbecovirus_infectivity_across_diverse_ACE2_orthologs_b_/32981705
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Lead_generation_company_in_Hyderabad/32981720
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://figshare.com/articles/dataset/EEG-fNIRS_Dataset_for_Visual_Imagery/30958199
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/_b_Forum_Open_Indonesia_2026_b_Membangun_Literasi_Digital_dan_Riset_Terbuka/32981696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Improving_the_Biocompatibility_and_Energy_Performance_of_a_Microbial_Bioanode_with_Black_Phosphorus_and_Polypyrrole_Nanocomposites/32981717
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3871306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cyberleninka.ru/article/n/voprosy-yaponovedeniya-poisk-puti-retsenziya-na-kollektivnuyu-monografiyu-yaponiya-tsivilizatsiya-kultura-yazyk-2022
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13322415
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10425923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10423761
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21350314
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21350314
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21350909
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21350909
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21350489
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.openml.org/data/get_csv/21230449/youtube.csv
+    source: openml
+    status: verified
+    format: csv
+  - url: https://www.openml.org/data/get_csv/21241903/youtube.csv
+    source: openml
+    status: verified
+    format: csv
+- intent: VOS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lshowway/wikipedia.VOS/resolve/main/data/train-00000-of-00014-4045948518da9280.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lshowway/wikipedia.reorder.VOS/resolve/main/data/train-00000-of-00009-a220fa2293f21db6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lshowway/wikipedia.reorder.vos.fr/resolve/main/data/train-00000-of-00002-f0da6fe74c9f0ed2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lshowway/wikipedia.VOS/resolve/main/data/train-00000-of-00014-4045948518da9280.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lshowway/wikipedia.reorder.VOS/resolve/main/data/train-00000-of-00009-a220fa2293f21db6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lshowway/wikipedia.reorder.vos.fr/resolve/main/data/train-00000-of-00002-f0da6fe74c9f0ed2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lshowway/wikipedia.reorder.vos.pl/resolve/main/data/train-00000-of-00004-d842fd07a0cb8f72.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_An_atlas_of_sarbecovirus_infectivity_across_diverse_ACE2_orthologs_b_/32981705
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Lead_generation_company_in_Hyderabad/32981720
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://figshare.com/articles/dataset/EEG-fNIRS_Dataset_for_Visual_Imagery/30958199
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/_b_Forum_Open_Indonesia_2026_b_Membangun_Literasi_Digital_dan_Riset_Terbuka/32981696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Improving_the_Biocompatibility_and_Energy_Performance_of_a_Microbial_Bioanode_with_Black_Phosphorus_and_Polypyrrole_Nanocomposites/32981717
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8333436
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20374637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4973485
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7021910
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7022427
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://boris-portal.unibe.ch/entities/publication/9dad3490-eaaa-4494-8ff9-368c57c044aa
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/t25wd/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.23801
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.11845
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.10595
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RAFT-small
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_An_atlas_of_sarbecovirus_infectivity_across_diverse_ACE2_orthologs_b_/32981705
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Lead_generation_company_in_Hyderabad/32981720
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://figshare.com/articles/dataset/EEG-fNIRS_Dataset_for_Visual_Imagery/30958199
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/_b_Forum_Open_Indonesia_2026_b_Membangun_Literasi_Digital_dan_Riset_Terbuka/32981696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Improving_the_Biocompatibility_and_Energy_Performance_of_a_Microbial_Bioanode_with_Black_Phosphorus_and_Polypyrrole_Nanocomposites/32981717
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14807735
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18338063
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18329229
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3575646
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10512596
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/52309
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/60609
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/53724
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/101666
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/53203
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,74 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MetricRecord Schema
+description: Schema for the output metrics of the inference pipeline.
+type: object
+properties:
+  record_id:
+    type: string
+    description: Unique identifier for the metric record.
+  clip_id:
+    type: string
+    description: Foreign key to the VideoClip.
+  model_variant:
+    type: string
+    enum:
+      - baseline
+      - flow_coherence
+    description: The model variant used for inference.
+  peak_memory_mb:
+    type: number
+    description: Peak RAM usage in Megabytes.
+  avg_fps:
+    type: number
+    description: Average frames per second during inference.
+  total_inference_time_sec:
+    type: number
+    description: Total time taken to process the clip.
+  ssim_mean:
+    type: number
+    description: Mean SSIM between consecutive frames (t, t-1).
+  ssim_std:
+    type: number
+    description: Standard deviation of SSIM.
+  bss_mean:
+    type: number
+    description: Mean Background Stability Score (BSS) - SSIM of background vs original background.
+  bss_std:
+    type: number
+    description: Standard deviation of BSS.
+  flow_normalized_ssim_mean:
+    type: number
+    description: Mean Flow-Normalized SSIM (SSIM drop / flow magnitude).
+  temporal_gradient_variance:
+    type: number
+    description: Variance of temporal gradients in background regions.
+  flow_magnitude_mean:
+    type: number
+    description: Mean optical flow magnitude for the clip.
+  flow_magnitude_max:
+    type: number
+    description: Maximum optical flow magnitude for the clip.
+  invalid_flow_flag:
+    type: boolean
+    description: True if any frame had invalid flow vectors.
+  artifact_rate:
+    type: number
+    description: Estimated rate of flickering artifacts.
+required:
+  - record_id
+  - clip_id
+  - model_variant
+  - peak_memory_mb
+  - avg_fps
+  - total_inference_time_sec
+  - ssim_mean
+  - ssim_std
+  - bss_mean
+  - bss_std
+  - flow_normalized_ssim_mean
+  - temporal_gradient_variance
+  - flow_magnitude_mean
+  - flow_magnitude_max
+  - invalid_flow_flag
+  - artifact_rate
+additionalProperties: false

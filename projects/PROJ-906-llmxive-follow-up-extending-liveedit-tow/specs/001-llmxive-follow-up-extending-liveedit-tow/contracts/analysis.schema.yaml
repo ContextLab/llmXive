@@ -1,0 +1,44 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AnalysisResult Schema
+description: Schema for the aggregated statistical analysis results.
+type: object
+properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for the analysis run.
+  test_type:
+    type: string
+    enum:
+      - piecewise_regression
+      - ks_test
+      - sensitivity
+    description: Type of statistical test performed.
+  p_value:
+    type: number
+    description: P-value from the statistical test.
+  threshold_value:
+    type: number
+    description: Identified flow-magnitude threshold.
+  change_point:
+    type: number
+    description: The identified change-point value from piecewise regression.
+  significance_level:
+    type: number
+    description: Alpha level used for significance testing.
+  regression_coefficients:
+    type: object
+    description: Dictionary of regression coefficients.
+    additionalProperties:
+      type: number
+  sensitivity_table:
+    type: object
+    description: Table of cutoffs vs. artifact rates.
+    additionalProperties:
+      type: number
+required:
+  - analysis_id
+  - test_type
+  - p_value
+  - significance_level
+  - threshold_value
+additionalProperties: false
