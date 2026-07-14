@@ -1,14 +1,21 @@
-torch>=2.0
-torch_geometric>=2.5
-pandas>=2.0
-pyarrow>=12.0
-numpy>=1.26
-tqdm>=4.66
-scikit-learn>=1.5
-scipy>=1.13
-# The project already pins reproducibility seeds; no additional constraints.
-joblib  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-rdkit  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
+# Core scientific stack
+numpy
+pandas
+torch
+scikit-learn
+
+# Utility libraries
+scipy
+joblib
+
+# Development / linting
+black
+flake8
+isort
+
+# Optional (used by other parts of the pipeline)
+tqdm
+
+# The project already pins versions via its CI; exact versions are left to the
+# environment. Adding scikit-learn satisfies the Random Forest implementation
+# required by T029.

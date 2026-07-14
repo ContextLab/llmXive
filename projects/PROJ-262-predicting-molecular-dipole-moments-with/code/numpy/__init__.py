@@ -1,30 +1,22 @@
 """
-Compatibility shim for the real NumPy package.
+Shim module to expose the real NumPy implementation.
 
-The project inadvertently included a top‑level ``numpy`` package that shadowed the
-genuine NumPy installation, causing import errors in libraries such as pandas
-and scipy (e.g. ``module 'numpy' has no attribute '__version__'``).
-
-This ``__init__`` forwards all attributes of the genuine NumPy library (installed
-in the environment) to the shadowed package, making ``import numpy`` behave as
-expected throughout the code‑base.
+The project previously introduced a custom ``code/numpy`` package that attempted
+to import a ``numpy_real`` helper, which caused a circular import and broke any
+downstream ``import numpy as np`` statements.  This file now simply forwards all
+attributes to the genuine NumPy package from the Python environment, ensuring
+that the rest of the codebase works without modification.
 """
+
 import importlib
 import sys
 
-# Import the real NumPy implementation from the helper module.
-# ``numpy_real`` lives in ``code/numpy_real.py`` and simply does:
-#     import numpy as _real_numpy
-# exposing the real NumPy object as ``_real_numpy``.
-_real_numpy_module = importlib.import_module('numpy_real')
-_real_numpy = getattr(_real_numpy_module, '_real_numpy', None)
+# Load the real NumPy implementation from the environment.
+_real_numpy = importlib.import_module('numpy')
 
-if _real_numpy is None:
-    raise ImportError("Failed to locate the real NumPy implementation via numpy_real.")
-
-# Populate the current module's globals with everything from the real NumPy.
+# Populate the current module's globals with NumPy's public attributes.
 globals().update(_real_numpy.__dict__)
 
-# Ensure that subsequent ``import numpy`` statements resolve to this shim which
-# now contains the full NumPy API.
-sys.modules.setdefault('numpy', _real_numpy)
+# Replace the entry in ``sys.modules`` so subsequent ``import numpy`` statements
+# receive the genuine NumPy module rather than this shim.
+sys.modules[__name__] = _real_numpy

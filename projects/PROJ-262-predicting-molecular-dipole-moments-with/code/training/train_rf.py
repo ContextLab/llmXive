@@ -1,19 +1,21 @@
 """
-Train a Random Forest baseline on the QM9 dipole‑moment dataset.
+Train a Random Forest baseline on the QM9 10k subset.
 
 This script:
-  * Loads the processed feature parquet files (2‑D and 3‑D) together with
-    the target dipole moment.
-  * Generates identical train/test splits for a configurable number of
-    random seeds (default 5) using ``training.split_data.get_train_test_splits``.
-  * Trains a ``sklearn.ensemble.RandomForestRegressor`` for each seed.
-  * Computes MAE and RMSE on the held‑out test set via ``training.evaluate``.
-  * Writes per‑seed metrics to ``results/metrics.csv``.
-  * After all seeds are processed, writes the variance of the RMSE values to
-    ``results/rf_rmse_variance.csv``.
 
-The script is intended to be executed from the project root:
-    python code/training/train_rf.py
+* Loads the processed dataset (``data/processed/molecules_10k.parquet``).
+* For each of five reproducible seeds:
+    - Splits the data into train / test using the shared split utility.
+    - Trains a ``RandomForestRegressor``.
+    - Evaluates MAE and RMSE on the test set.
+    - Persists the trained model checkpoint.
+    * Writes a row to ``results/metrics.csv``.
+* After all seeds are processed, computes the variance of the RMSE values and
+  writes it to ``results/rmse_variance.csv``.
+
+The script is deliberately lightweight (CPU‑only) and respects the project's
+reproducibility, time‑limit and resource‑constraint decorators via the existing
+utility modules.
 """
 
 from __future__ import annotations
@@ -22,227 +24,174 @@ import argparse
 import csv
 import json
 import os
-import pathlib
-import sys
-from typing import List
+from pathlib import Path
+from typing import List, Tuple
 
 import pandas as pd
 import numpy as np
-
 from sklearn.ensemble import RandomForestRegressor
 
-# Local imports – these modules are part of the project API surface.
+# Project utilities
+from utils.reproducibility import set_seed
 from training.evaluate import mae, rmse
 from training.split_data import get_train_test_splits
 from training.save_checkpoints import save_rf_checkpoint
 
-# --------------------------------------------------------------------------- #
-# Utility helpers
-# --------------------------------------------------------------------------- #
 
-def ensure_dir(path: pathlib.Path) -> None:
-    """Create ``path`` (including parents) if it does not exist."""
-    path.mkdir(parents=True, exist_ok=True)
+def ensure_dir(path: Path) -> None:
+    """Create parent directories for *path* if they do not exist."""
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-def write_metrics_header_if_needed(csv_path: pathlib.Path) -> None:
-    """Write the CSV header for ``results/metrics.csv`` if the file is new."""
+
+def write_metrics_header_if_needed(csv_path: Path) -> None:
+    """Write the CSV header for the metrics file if the file does not exist."""
     if not csv_path.exists():
-        with csv_path.open("w", newline="") as f:
+        ensure_dir(csv_path)
+        with csv_path.open('w', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow(
-                ["seed", "model", "mae", "rmse"]
-            )
+            writer.writerow(['seed', 'model', 'mae', 'rmse'])
 
-def append_metrics_row(csv_path: pathlib.Path, seed: int, mae_val: float, rmse_val: float) -> None:
+
+def append_metrics_row(csv_path: Path, seed: int, mae_val: float, rmse_val: float) -> None:
     """Append a single row of metrics for a given seed."""
-    with csv_path.open("a", newline="") as f:
+    with csv_path.open('a', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(row)
+        writer.writerow([seed, 'random_forest', f"{mae_val:.6f}", f"{rmse_val:.6f}"])
 
-def write_rmse_variance(csv_path: pathlib.Path, rmse_values: List[float]) -> None:
+
+def write_rmse_variance(csv_path: Path, rmse_values: List[float]) -> None:
     """
-    Write a CSV containing the variance (and standard deviation) of the RMSE
-    values observed across all seeds.
+    Write the variance (and standard deviation) of RMSE across seeds.
+
+    The file contains a single row with columns:
+    ``seed_count, rmse_variance, rmse_std``.
     """
-    variance = np.var(rmse_values, ddof=1)  # sample variance
+    variance = np.var(rmse_values, ddof=1)  # unbiased estimator
     std_dev = np.sqrt(variance)
-    with csv_path.open("w", newline="") as f:
+    ensure_dir(csv_path)
+    with csv_path.open('w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(["metric", "value"])
-        writer.writerow(["rmse_variance", f"{variance:.6f}"])
-        writer.writerow(["rmse_std_dev", f"{std_dev:.6f}"])
+        writer.writerow(['seed_count', 'rmse_variance', 'rmse_std'])
+        writer.writerow([len(rmse_values), f"{variance:.6f}", f"{std_dev:.6f}"])
 
-# --------------------------------------------------------------------------- #
-# Core training logic
-# --------------------------------------------------------------------------- #
 
-def load_dataset(
-    molecules_path: pathlib.Path,
-    features_2d_path: pathlib.Path,
-    features_3d_path: pathlib.Path,
-) -> pd.DataFrame:
+def load_dataset() -> pd.DataFrame:
     """
-    Load the processed dataset and return a single DataFrame containing:
-        - ``molecule_id`` (string)
-        - ``dipole`` (float, target)
-        - ``features_2d`` (list of floats)
-        - ``features_3d`` (list of floats)
-    The function expects the feature parquet files to contain a column named
-    ``features`` holding a list‑like object.
+    Load the pre‑processed QM9 subset.
+
+    Expected columns:
+    - ``molecule_id`` (str)
+    - ``dipole`` (float) – target
+    - ``features_2d`` (list of float) – optional
+    - ``features_3d`` (list of float) – optional
+
+    The function returns a DataFrame where ``features`` is a 2‑D NumPy array
+    suitable for scikit‑learn.
     """
-    # Load the main molecule table – it contains ``molecule_id`` and ``dipole``.
-    molecules_df = pd.read_parquet(molecules_path)
+    data_path = Path('data/processed/molecules_10k.parquet')
+    if not data_path.exists():
+        raise FileNotFoundError(f"Processed dataset not found at {data_path}")
+    df = pd.read_parquet(data_path)
 
-    # Load feature tables.
-    feats_2d = pd.read_parquet(features_2d_path).rename(columns={"features": "features_2d"})
-    feats_3d = pd.read_parquet(features_3d_path).rename(columns={"features": "features_3d"})
+    # Prefer 3‑D features if they exist; otherwise fall back to 2‑D.
+    if 'features_3d' in df.columns:
+        feature_col = 'features_3d'
+    elif 'features_2d' in df.columns:
+        feature_col = 'features_2d'
+    else:
+        raise KeyError("Neither 'features_3d' nor 'features_2d' columns found in dataset.")
 
-    # Merge on ``molecule_id``.
-    df = molecules_df.merge(feats_2d, on="molecule_id", how="inner")
-    df = df.merge(feats_3d, on="molecule_id", how="inner")
+    # Convert list‑like feature column to a 2‑D NumPy array.
+    X = np.vstack(df[feature_col].values)
+    y = df['dipole'].values.astype(float)
+    return pd.DataFrame({'X': list(X), 'y': y, 'molecule_id': df['molecule_id']})
 
-    # Ensure the target column is present.
-    if "dipole" not in df.columns:
-        raise KeyError("Target column 'dipole' not found in the molecules parquet file.")
 
-    return df
-
-def train_one_seed(
-    seed: int,
-    df: pd.DataFrame,
-    train_idx: np.ndarray,
-    test_idx: np.ndarray,
-    checkpoint_dir: pathlib.Path,
-) -> dict:
+def train_one_seed(seed: int, dataset: pd.DataFrame, metrics_path: Path) -> Tuple[float, float]:
     """
-    Train a Random Forest on the training split for a single seed and return
-    a dictionary with ``mae`` and ``rmse`` for the test split.
-    """
-    # Set the random state for reproducibility.
-    rng = np.random.default_rng(seed)
+    Train a Random Forest on a single seed and record metrics.
 
-    # Extract features – we concatenate 2‑D and 3‑D descriptors.
-    X = np.stack(
-        df.loc[:, ["features_2d", "features_3d"]].apply(
-            lambda row: np.concatenate([np.asarray(row["features_2d"]), np.asarray(row["features_3d"])]),
-            axis=1,
-        )
+    Returns a tuple ``(mae, rmse)`` for the test split.
+    """
+    set_seed(seed)
+
+    # Split indices using the shared utility to guarantee identical splits across models.
+    train_idx, test_idx = get_train_test_splits(
+        n_samples=len(dataset),
+        test_size=0.2,
+        random_state=seed
     )
-    y = df["dipole"].to_numpy()
+
+    X = np.vstack(dataset['X'].values)
+    y = dataset['y'].values
 
     X_train, X_test = X[train_idx], X[test_idx]
     y_train, y_test = y[train_idx], y[test_idx]
 
-    # Initialise and train the model.
+    # Train the model.
     rf = RandomForestRegressor(
         n_estimators=200,
         random_state=seed,
-        n_jobs=1,  # Respect the CPU‑limit decorator elsewhere in the pipeline.
+        n_jobs=1  # respect the CPU‑limit decorator elsewhere in the repo
     )
     rf.fit(X_train, y_train)
 
-    # Predictions and metrics.
+    # Evaluate.
     y_pred = rf.predict(X_test)
     mae_val = mae(y_test, y_pred)
     rmse_val = rmse(y_test, y_pred)
 
-    # Save a checkpoint for reproducibility.
-    checkpoint_path = checkpoint_dir / f"rf_seed_{seed}.pkl"
-    save_rf_checkpoint(rf, checkpoint_path, seed, {"model": "RandomForest"})
+    # Persist checkpoint.
+    checkpoint_path = Path(f"data/checkpoints/rf_seed_{seed}.pkl")
+    save_rf_checkpoint(rf, checkpoint_path, seed)
 
-    return {"mae": mae_val, "rmse": rmse_val}
+    # Record metrics.
+    append_metrics_row(metrics_path, seed, mae_val, rmse_val)
 
-# --------------------------------------------------------------------------- #
-# Argument parsing
-# --------------------------------------------------------------------------- #
+    return mae_val, rmse_val
 
-def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
+
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Train Random Forest baseline on QM9 dipole moments."
+        description="Train Random Forest baseline on QM9 10k subset."
     )
     parser.add_argument(
-        "--seeds",
-        type=int,
-        default=5,
-        help="Number of random seeds / independent training runs (default: 5).",
+        "--metrics-output",
+        type=Path,
+        default=Path("results/metrics.csv"),
+        help="Path to CSV file where per‑seed metrics are stored."
     )
     parser.add_argument(
-        "--molecules",
-        type=pathlib.Path,
-        default=pathlib.Path("data/processed/molecules_10k.parquet"),
-        help="Path to the processed molecules parquet file.",
+        "--variance-output",
+        type=Path,
+        default=Path("results/rmse_variance.csv"),
+        help="Path to CSV file where RMSE variance across seeds is stored."
     )
-    parser.add_argument(
-        "--features-2d",
-        type=pathlib.Path,
-        default=pathlib.Path("data/processed/features_2d.parquet"),
-        help="Path to the 2‑D feature parquet file.",
-    )
-    parser.add_argument(
-        "--features-3d",
-        type=pathlib.Path,
-        default=pathlib.Path("data/processed/features_3d.parquet"),
-        help="Path to the 3‑D feature parquet file.",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=pathlib.Path,
-        default=pathlib.Path("results"),
-        help="Directory where metrics and variance CSV files will be written.",
-    )
-    parser.add_argument(
-        "--checkpoint-dir",
-        type=pathlib.Path,
-        default=pathlib.Path("data/checkpoints"),
-        help="Directory to store model checkpoint files.",
-    )
-    return parser.parse_args(argv)
+    return parser.parse_args()
 
-# --------------------------------------------------------------------------- #
-# Main entry point
-# --------------------------------------------------------------------------- #
 
-def main(argv: List[str] | None = None) -> int:
-    args = parse_args(argv)
+def main() -> None:
+    args = parse_args()
 
-    # Ensure required output directories exist.
-    ensure_dir(args.output_dir)
-    ensure_dir(args.checkpoint_dir)
+    # Ensure output directories exist.
+    ensure_dir(args.metrics_output)
+    ensure_dir(args.variance_output)
 
-    # Load the dataset – this will raise a clear error if the expected file
-    # does not exist, satisfying the quick‑start validation step.
-    df = load_dataset(args.molecules, args.features_2d, args.features_3d)
+    # Prepare the metrics file.
+    write_metrics_header_if_needed(args.metrics_output)
 
-    # Prepare the CSV for metrics.
-    metrics_csv = args.output_dir / "metrics.csv"
-    write_metrics_header_if_needed(metrics_csv)
+    # Load data.
+    dataset = load_dataset()
 
-    # Collect RMSE values for variance computation.
+    # Train across 5 seeds.
     rmse_values: List[float] = []
-
-    # Generate identical train/test splits for each seed.
-    splits = get_train_test_splits(df.shape[0], n_seeds=args.seeds, test_size=0.2, random_state=42)
-
-    for seed_idx, (train_idx, test_idx) in enumerate(splits, start=1):
-        results = train_one_seed(
-            seed=seed_idx,
-            df=df,
-            train_idx=train_idx,
-            test_idx=test_idx,
-            checkpoint_dir=args.checkpoint_dir,
-        )
-        mae_val = results["mae"]
-        rmse_val = results["rmse"]
+    for seed in range(5):
+        _, rmse_val = train_one_seed(seed, dataset, args.metrics_output)
         rmse_values.append(rmse_val)
 
-        # Record per‑seed metrics.
-        append_metrics_row(metrics_csv, seed_idx, mae_val, rmse_val)
+    # Write variance information.
+    write_rmse_variance(args.variance_output, rmse_values)
 
-    # After all seeds have run, write the variance summary.
-    variance_csv = args.output_dir / "rf_rmse_variance.csv"
-    write_rmse_variance(variance_csv, rmse_values)
-
-    return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

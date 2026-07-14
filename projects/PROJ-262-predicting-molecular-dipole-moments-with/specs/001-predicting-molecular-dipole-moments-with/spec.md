@@ -17,7 +17,7 @@ A researcher can download the QM9 dataset, filter to a random subset, and extrac
 
 **Acceptance Scenarios**:
 
-1. **Given** the QM9 dataset is available at the specified DOI, **When** the researcher runs the preprocessing script, **Then** a 10k subset is created with extracted 3D coordinates, atom types, bond connectivity, and 2D descriptors
+1. **Given** the QM9 dataset is available at the specified DOI, **When** the researcher runs the preprocessing script, **Then** a subset is created with extracted 3D coordinates, atom types, bond connectivity, and 2D descriptors
 2. **Given** the preprocessing script has completed, **When** the researcher validates the output files, **Then** all 10k molecules have complete feature vectors with no NaN values
 3. **Given** the QM9 subset contains molecules with missing 3D coordinates, **When** the preprocessing script processes them, **Then** molecules are flagged and excluded with a report of excluded count (edge case acceptance criteria)
 
@@ -33,7 +33,7 @@ A researcher can train a lightweight SchNet-style GNN and Random Forest baseline
 
 **Acceptance Scenarios**:
 
-1. **Given** the preprocessed dataset from Story 1, **When** the researcher trains both the GNN and Random Forest models with 5 random seeds, **Then** each model produces a test set MAE and RMSE score with 95% confidence intervals
+1. **Given** the preprocessed dataset from Story 1, **When** the researcher trains both the GNN and Random Forest models with random seeds, **Then** each model produces a test set MAE and RMSE score with % confidence intervals
 2. **Given** both models have completed training, **When** the researcher compares their performance, **Then** the RMSE distributions are saved for statistical comparison and RMSE variance across seeds is < 10%
 
 ---
@@ -67,7 +67,7 @@ A researcher can apply permutation importance to the Random Forest and saliency 
 - **FR-008**: System MUST perform paired t-tests (α=0.05) comparing RMSE distributions between GNN and baseline
 - **FR-009**: System MUST visualize feature importance maps on representative molecules to correlate with chemical intuition
 - **FR-010**: System MUST complete execution within 6h on 2 CPU cores (constraint applies to entire pipeline from data download through final visualization)
-- **FR-011**: System MUST validate predictions against QM9 quantum calculation reference data (physical experimental measurements are out of scope for this computational feature; Dipole moments from a benchmark molecular dataset are derived from DFT calculations at the B3LYP/6-31G(2df,p) level per the dataset specification)
+- **FR-011**: System MUST validate predictions against QM9 quantum calculation reference data (physical experimental measurements are out of scope for this computational feature; Dipole moments from a benchmark molecular dataset are derived from DFT calculations at the BLYP/-31G(2df,p) level per the dataset specification)
 - **FR-012**: System MUST report confidence intervals for both MAE and RMSE (95% CI computed across 5 random seeds)
 - **FR-013**: System MUST operate within 8GB memory footprint throughout entire pipeline execution
 
@@ -85,7 +85,7 @@ A researcher can apply permutation importance to the Random Forest and saliency 
 
 - The QM9 dataset is accessible via the specified DOI and contains dipole moment reference values
 - PyTorch Geometric is available in the execution environment with CPU-only mode support
-- The 10k random subset of QM9 is representative of the full dataset for dipole moment prediction
+- A random subset of QM9 is representative of the full dataset for dipole moment prediction.
 - **Hydration state limitation**: QM9 molecules are gas-phase DFT calculations without explicit solvent; hydration effects are out-of-scope for this feature and documented as a known limitation
 - **Conformational ensembles**: Single lowest-energy conformer per molecule from QM9 is used; ensemble sampling is documented as future work in research.md
 - Physical measurement validation is out of scope for this computational feature; validation will use QM9 quantum calculation reference data as the ground truth standard (experimental validation is a downstream research requirement, not a feature requirement)

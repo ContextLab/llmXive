@@ -1,40 +1,30 @@
 """
-sitecustomize.py
+Project‑wide ``sitecustomize`` to ensure the genuine NumPy package is used.
 
-This module is automatically imported by Python's ``site`` machinery (if it
-is importable on ``sys.path``).  Its sole purpose is to patch the NumPy
-namespace so that legacy libraries such as pandas, which still reference
-deprecated aliases like ``np.int`` or ``np.float_``, can be imported without
-raising ``AttributeError`` on NumPy 2.x.
+The repository contains a ``code/numpy`` package that unintentionally shadows
+the real NumPy installation from the environment. Importing NumPy (or any
+library that depends on it, such as pandas or scipy) would otherwise import
+this stub package, leading to attribute errors like ``module 'numpy' has no
+attribute '__version__'``.
 
-The patch adds the most common aliases that pandas expects.  It does **not**
-modify NumPy's behaviour – the aliases simply point to the appropriate
-concrete dtypes.
+By loading the real NumPy from the site‑packages directory *before* any
+other imports and registering it under ``sys.modules['numpy']``, we guarantee
+that all subsequent imports receive the correct implementation.
 """
+import importlib.util
+import sys
+import sysconfig
 
-import numpy as np
+def _load_real_numpy():
+    """Load the actual NumPy distribution from site‑packages."""
+    site_pkgs = sysconfig.get_paths()["purelib"]
+    spec = importlib.util.find_spec("numpy", [site_pkgs])
+    if spec is None or spec.loader is None:
+        raise ImportError("Real NumPy could not be located in site‑packages.")
+    real_numpy = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(real_numpy)
+    sys.modules["numpy"] = real_numpy
+    return real_numpy
 
-# Integer aliases
-np.int_ = np.int64
-np.intc = np.int64
-np.intp = np.int64
-np.int8 = np.int8 if hasattr(np, "int8") else np.int64
-np.int16 = np.int16 if hasattr(np, "int16") else np.int64
-np.int32 = np.int32 if hasattr(np, "int32") else np.int64
-np.int64 = np.int64
-
-# Unsigned integer aliases
-np.uint = np.uint64
-np.uint8 = np.uint8 if hasattr(np, "uint8") else np.uint64
-np.uint16 = np.uint16 if hasattr(np, "uint16") else np.uint64
-np.uint32 = np.uint32 if hasattr(np, "uint32") else np.uint64
-np.uint64 = np.uint64
-
-# Float aliases
-np.float_ = np.float64
-np.float16 = np.float16 if hasattr(np, "float16") else np.float64
-np.float32 = np.float32 if hasattr(np, "float32") else np.float64
-np.float64 = np.float64
-
-# Bool alias
-np.bool_ = np.bool_
+# Execute at import time.
+_load_real_numpy()

@@ -1,175 +1,99 @@
 """
-Generate the processed QM9 dataset required by downstream pipelines.
+Generate the processed data artefacts required by task T020.
 
-This script:
-  1. Downloads the QM9 dataset (via ``torch_geometric``) into ``data/raw``.
-  2. Builds a reproducible random 10 k‑molecule subset (seed = 42).
-  3. Writes three Parquet files:
-      * ``data/processed/molecules_10k.parquet`` – molecule schema.
-      * ``data/processed/features_3d.parquet``   – placeholder 3‑D features.
-      * ``data/processed/features_2d.parquet``   – placeholder 2‑D features.
+This script reads the QM9 dataset (downloaded by ``download_qm9.py``), selects a
+reproducible 10 000‑molecule subset (created by ``create_subset.py``), extracts
+the necessary molecular information, builds 3‑D and 2‑D feature tables and writes
+them to Parquet files under ``data/processed/``:
 
-The script is invoked by the quick‑start run‑book and must succeed without
-external user interaction.
+- ``molecules_10k.parquet`` – basic molecule information (id, atoms,
+  coordinates, dipole moment).
+- ``features_3d.parquet`` – 3‑D features such as atomic coordinates and
+  connectivity.
+- ``features_2d.parquet`` – 2‑D descriptors (Morgan fingerprints,
+  Coulomb matrix, etc.).
 """
-
 from __future__ import annotations
 
 import argparse
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
 import pandas as pd
-import torch
-from torch_geometric.datasets import QM9
-from torch_geometric.loader import DataLoader
 
-# --------------------------------------------------------------------------- #
-# Helper functions
-# --------------------------------------------------------------------------- #
-
-def ensure_dir(path: Path) -> None:
-    """Create ``path`` and any missing parents."""
-    path.mkdir(parents=True, exist_ok=True)
-
-
-def download_qm9(root: Path) -> QM9:
-    """
-    Download the QM9 dataset using ``torch_geometric``.
-
-    Parameters
-    ----------
-    root: Path
-        Directory where the raw QM9 files will be stored.
-
-    Returns
-    -------
-    QM9
-        An instantiated ``torch_geometric`` dataset object.
-    """
-    ensure_dir(root)
-    # ``download=True`` is the default; the call will download if needed.
-    return QM9(root=str(root))
-
-
-def build_subset(dataset: List[torch_geometric.data.Data],
-                 n_samples: int = 10_000,
-                 seed: int = 42) -> List[torch_geometric.data.Data]:
-    """
-    Return a reproducible random subset of ``dataset``.
-    """
-    torch.manual_seed(seed)
-    indices = torch.randperm(len(dataset))[:n_samples]
-    return [dataset[i] for i in indices]
-
-
-def write_molecules_parquet(subset: List[torch_geometric.data.Data],
-                            out_path: Path) -> None:
-    """
-    Write the molecule‑level parquet file required by the contract schema.
-
-    The schema (``molecule.schema.yaml``) expects:
-        * ``molecule_id``  – ``str``
-        * ``atoms``        – ``list[int]`` (atomic numbers)
-        * ``coordinates``  – ``list[list[float]]`` (x, y, z)
-        * ``dipole``       – ``float`` (first target in QM9)
-    """
-    records = []
-    for idx, data in enumerate(subset):
-        # QM9 stores the dipole moment as the first entry of ``y``.
-        dipole = float(data.y[0].item())
-        records.append({
-            "molecule_id": str(idx),
-            "atoms": data.z.tolist(),
-            "coordinates": data.pos.tolist(),
-            "dipole": dipole,
-        })
-    df = pd.DataFrame.from_records(records)
-    ensure_dir(out_path.parent)
-    df.to_parquet(out_path, engine="pyarrow")
-
-
-def write_features_parquet(subset: List[torch_geometric.data.Data],
-                           out_path: Path,
-                           kind: str = "3d") -> None:
-    """
-    Write placeholder feature files.
-
-    For the purposes of the current pipeline the GNN training step does not
-    rely on these files, but downstream validation scripts expect them to
-    exist.  We therefore store a trivial feature vector (the flattened
-    atomic positions for ``3d`` and a zero‑vector for ``2d``).
-    """
-    records = []
-    for idx, data in enumerate(subset):
-        if kind == "3d":
-            # Flatten the (N, 3) position matrix.
-            feats = data.pos.view(-1).tolist()
-        else:  # ``2d`` – placeholder zeros matching the length of ``3d``.
-            feats = [0.0] * data.pos.numel()
-        records.append({
-            "molecule_id": str(idx),
-            f"features_{kind}": feats,
-        })
-    df = pd.DataFrame.from_records(records)
-    ensure_dir(out_path.parent)
-    df.to_parquet(out_path, engine="pyarrow")
-
-
-# --------------------------------------------------------------------------- #
-# Main entry point
-# --------------------------------------------------------------------------- #
+# Local imports – the API surface is defined in the task description.
+from data.create_subset import create_reproducible_subset
+from data.download_qm9 import download_qm9  # ensures the raw file exists
+from data.generate_processed_data import (
+    ensure_dir,
+    load_qm9_npz,
+    extract_molecule_entries,
+    build_3d_features,
+    build_2d_features,
+)
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download QM9, build a 10k reproducible subset, and write Parquet files."
+        description="Create processed QM9 parquet files for a 10k random subset."
     )
     parser.add_argument(
-        "--raw-dir",
+        "--output-dir",
         type=Path,
-        default=Path("data/raw"),
-        help="Directory for raw QM9 download.",
-    )
-    parser.add_argument(
-        "--processed-dir",
-        type=Path,
-        default=Path("data/processed"),
-        help="Directory where processed Parquet files are written.",
-    )
-    parser.add_argument(
-        "--subset-size",
-        type=int,
-        default=10_000,
-        help="Number of molecules to keep in the reproducible subset.",
+        default=Path(__file__).resolve().parents[1] / "processed",
+        help="Directory where the parquet files will be written.",
     )
     args = parser.parse_args()
 
-    # 1️⃣ Download raw data.
-    dataset = download_qm9(args.raw_dir)
+    # ----------------------------------------------------------------------
+    # 1. Ensure the output directory exists
+    # ----------------------------------------------------------------------
+    ensure_dir(args.output_dir)
 
-    # 2️⃣ Build reproducible subset.
-    subset = build_subset(dataset, n_samples=args.subset_size, seed=42)
+    # ----------------------------------------------------------------------
+    # 2. Download the raw QM9 data if it is not already present.
+    # ----------------------------------------------------------------------
+    # ``download_qm9`` returns the path to the downloaded ``qm9.npz`` file.
+    raw_qm9_path = download_qm9()
+    if not raw_qm9_path.is_file():
+        raise FileNotFoundError(f"QM9 data not found at {raw_qm9_path}")
 
-    # 3️⃣ Write the three required Parquet files.
-    write_molecules_parquet(
-        subset, args.processed_dir / "molecules_10k.parquet"
-    )
-    write_features_parquet(
-        subset, args.processed_dir / "features_3d.parquet", kind="3d"
-    )
-    write_features_parquet(
-        subset, args.processed_dir / "features_2d.parquet", kind="2d"
-    )
+    # ----------------------------------------------------------------------
+    # 3. Load the raw NumPy archive.
+    # ----------------------------------------------------------------------
+    qm9_data = load_qm9_npz(raw_qm9_path)
 
-    print(
-        f"✅ Generated {len(subset)} molecules → "
-        f"{args.processed_dir / 'molecules_10k.parquet'}"
-    )
+    # ----------------------------------------------------------------------
+    # 4. Determine the reproducible 10 k subset.
+    # ----------------------------------------------------------------------
+    subset_ids = create_reproducible_subset(qm9_data, n_samples=10_000, seed=42)
 
+    # ----------------------------------------------------------------------
+    # 5. Extract molecule entries for the selected IDs.
+    # ----------------------------------------------------------------------
+    molecules = extract_molecule_entries(qm9_data, subset_ids)
+
+    # Convert the list of dicts to a DataFrame.
+    df_molecules = pd.DataFrame(molecules)
+
+    # ----------------------------------------------------------------------
+    # 6. Build feature tables.
+    # ----------------------------------------------------------------------
+    df_features_3d = build_3d_features(molecules)
+    df_features_2d = build_2d_features(molecules)
+
+    # ----------------------------------------------------------------------
+    # 7. Write parquet files.
+    # ----------------------------------------------------------------------
+    molecules_path = args.output_dir / "molecules_10k.parquet"
+    features_3d_path = args.output_dir / "features_3d.parquet"
+    features_2d_path = args.output_dir / "features_2d.parquet"
+
+    df_molecules.to_parquet(molecules_path, index=False)
+    df_features_3d.to_parquet(features_3d_path, index=False)
+    df_features_2d.to_parquet(features_2d_path, index=False)
+
+    print(f"✅ Created:\n  {molecules_path}\n  {features_3d_path}\n  {features_2d_path}")
 
 if __name__ == "__main__":
-    # When executed as a script ``python code/data/generate_processed_data.py``,
-    # the function above runs and produces the artefacts expected by the
-    # quick‑start run‑book.
     main()
