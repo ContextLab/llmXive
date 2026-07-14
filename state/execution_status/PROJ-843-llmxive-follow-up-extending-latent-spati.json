@@ -4,12 +4,12 @@
   "reason": "4 command(s) failed: python code/main.py --phase data_prepare (rc=1); python code/main.py --phase extract_features (rc=1); python code/main.py --phase compute_geometry (rc=1); 2 declared deliverable(s) absent: data/raw/dense_baseline_frames.npy; data/results/sparse_warped_frames.npy",
   "artifacts": [],
   "failures": [
-    "python code/main.py --phase data_prepare -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 30, in <module>\n    from data import download as download_mod\nImportError: cannot import name 'download' from 'data' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/__init__.py)",
-    "python code/main.py --phase extract_features -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 30, in <module>\n    from data import download as download_mod\nImportError: cannot import name 'download' from 'data' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/__init__.py)",
-    "python code/main.py --phase compute_geometry -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 30, in <module>\n    from data import download as download_mod\nImportError: cannot import name 'download' from 'data' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/__init__.py)",
-    "python code/main.py --phase evaluate -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 30, in <module>\n    from data import download as download_mod\nImportError: cannot import name 'download' from 'data' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/__init__.py)"
+    "python code/main.py --phase data_prepare -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 16, in <module>\n    from data.setup_data import main as setup_data_main\nModuleNotFoundError: No module named 'data.setup_data'",
+    "python code/main.py --phase extract_features -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 16, in <module>\n    from data.setup_data import main as setup_data_main\nModuleNotFoundError: No module named 'data.setup_data'",
+    "python code/main.py --phase compute_geometry -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 16, in <module>\n    from data.setup_data import main as setup_data_main\nModuleNotFoundError: No module named 'data.setup_data'",
+    "python code/main.py --phase evaluate -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 16, in <module>\n    from data.setup_data import main as setup_data_main\nModuleNotFoundError: No module named 'data.setup_data'"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 6,
   "model_tier": 0,
-  "updated_at": "2026-07-14T08:44:43Z"
+  "updated_at": "2026-07-14T09:40:00Z"
 }

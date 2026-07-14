@@ -8,29 +8,55 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py --phase data_prepare -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 30, in <module>
-    from data import download as download_mod
-ImportError: cannot import name 'download' from 'data' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 16, in <module>
+    from data.setup_data import main as setup_data_main
+ModuleNotFoundError: No module named 'data.setup_data'
 - python code/main.py --phase extract_features -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 30, in <module>
-    from data import download as download_mod
-ImportError: cannot import name 'download' from 'data' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 16, in <module>
+    from data.setup_data import main as setup_data_main
+ModuleNotFoundError: No module named 'data.setup_data'
 - python code/main.py --phase compute_geometry -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 30, in <module>
-    from data import download as download_mod
-ImportError: cannot import name 'download' from 'data' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 16, in <module>
+    from data.setup_data import main as setup_data_main
+ModuleNotFoundError: No module named 'data.setup_data'
 - python code/main.py --phase evaluate -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 30, in <module>
-    from data import download as download_mod
-ImportError: cannot import name 'download' from 'data' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 16, in <module>
+    from data.setup_data import main as setup_data_main
+ModuleNotFoundError: No module named 'data.setup_data'
 
 ## Declared deliverables still missing
 
 - data/raw/dense_baseline_frames.npy
 - data/results/sparse_warped_frames.npy
+
+## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
+
+One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
+
+**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
+
+**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
+
+### class `MemoryMonitor` (in `code/utils/memory_monitor.py`) — accessed via method/attribute names this round: `start`
+
+`MemoryMonitor` is used like a logger: different scripts call DIFFERENT method names on it, and the set grows every round. Adding only the name(s) above will fail next round on the NEXT name. Make the class tolerant of ANY method name **without removing the ones it already has**, by either:
+  1. defining the full method set explicitly (keep existing methods like the ones already in `code/utils/memory_monitor.py` AND add the missing ones), or
+  2. adding a permissive fallback so unknown attributes resolve to a no-op callable, e.g.:
+
+     ```python
+     def __getattr__(self, name):
+         # any logger-style call (.info/.debug/.warning/.error/...) becomes a tolerant no-op
+         def _noop(*args, **kwargs):
+             return None
+         return _noop
+     ```
+
+Whichever you choose, every call site of `MemoryMonitor` across the codebase must stop raising `AttributeError`/`TypeError`.
+
+`MemoryMonitor.start` call sites (0):
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -40,10 +66,12 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data/schemas.py` — NOT invoked by the run-book
     - `code/eval/download_dense_baseline.py` — NOT invoked by the run-book
     - `code/eval/quickstart_validator.py` — NOT invoked by the run-book
+    - `code/eval/run_dense_baseline.py` — NOT invoked by the run-book
     - `code/eval/sensitivity.py` — NOT invoked by the run-book
     - `code/eval/metrics.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/dense_baseline_frames.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/results/sparse_warped_frames.npy` is declared but was NOT written. Scripts referencing it:
+    - `code/geometry/run_pipeline.py` — NOT invoked by the run-book
     - `code/geometry/aggregate_warps.py` — NOT invoked by the run-book
     - `code/data/schemas.py` — NOT invoked by the run-book
     - `code/eval/quickstart_validator.py` — NOT invoked by the run-book

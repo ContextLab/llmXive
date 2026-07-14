@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "symbol": "start",
+    "owner": "MemoryMonitor"
+  }
+]
