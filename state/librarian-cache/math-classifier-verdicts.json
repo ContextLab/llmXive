@@ -1299,6 +1299,10 @@
     "classified_at": "2026-07-13T23:44:37Z",
     "verdict": false
   },
+  "PROJ-897-llmxive-follow-up-extending-swe-explore::1.6.0": {
+    "classified_at": "2026-07-14T00:14:35Z",
+    "verdict": false
+  },
   "PROJ-899-llmxive-follow-up-extending-evalverse-pi::1.6.0": {
     "classified_at": "2026-07-05T00:58:56Z",
     "verdict": false

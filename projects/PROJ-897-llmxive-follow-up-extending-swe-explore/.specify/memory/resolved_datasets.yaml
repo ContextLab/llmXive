@@ -1,0 +1,152 @@
+resolved_at: '2026-07-14T00:22:23.457857+00:00'
+datasets:
+- intent: SWE-Explore
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/SWE-Explore-Bench/SWE-Explore-Bench/resolve/main/bench.final.public.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SWE-Explore-Bench/SWE-Explore-Bench/resolve/main/bench.final.public.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Rhema_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978990
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Wellspring_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978981
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Redeemer_s_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978978
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Novena_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978975
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Lead_City_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10401650
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10377253
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16043466
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10405177
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10406497
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/udqpa/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/reflections-swedish-version-arthritis-self-efficacy-scale-persons-hip-andor
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/smallest-worthwhile-effect-physiotherapy-neck-shoulder-and-low-back-pain-how
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repositories.lib.utexas.edu/handle/2152/136750
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.19303609
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Oduduwa_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978996
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Rhema_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978990
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Wellspring_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978981
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Redeemer_s_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978978
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Novena_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978975
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieee-dataport.org/documents/coolantcpu-measurement-data-thermoelectric-cooling-12x-utx6-24-f1-5555-integrated-desktop
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21346845
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344750
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344750
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21343954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

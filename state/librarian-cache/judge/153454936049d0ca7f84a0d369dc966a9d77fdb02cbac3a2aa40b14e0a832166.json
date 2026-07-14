@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2204.06033",
+  "judged_at": "2026-07-14T00:15:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"swe-explore: benchmarking how coding agents explore repositories\" computer science",
+  "rationale": "The paper investigates bibliometric factors (metadata characteristics) driving citations in software engineering literature, which is a distinct construct from the user's question about how coding agents explore code repositories. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (sharing \"software engineering\" and \"articles/papers\" but addressing scientific impact rather than agent behavior or repository traversal mechanisms).",
+  "relevant": false
+}

@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CuratedDatasetSchema"
+description: "Schema for the curated 'hard', 'easy', and 'synthetic' issues derived from SWE-Explore."
+type: "object"
+properties:
+  issue_id:
+    type: "string"
+    description: "Unique identifier for the issue."
+  type:
+    type: "string"
+    enum:
+      - "hard"
+      - "synthetic"
+      - "easy"
+    description: "Classification of the issue."
+  original_issue_id:
+    type: "string"
+    description: "Reference to the original issue (only for synthetic)."
+    nullable: true
+  problem_statement:
+    type: "string"
+    description: "The text description of the coding task."
+  code_context:
+    type: "string"
+    description: "The code snippet or full file content relevant to the issue."
+  ground_truth_lines:
+    type: "array"
+    items:
+      type: "integer"
+    description: "List of line numbers in the ground truth solution."
+  mutation_applied:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of obfuscation techniques applied (e.g., 'var_rename')."
+  complexity_score:
+    type: "number"
+    description: "Cyclomatic complexity or lines of code metric used for selection."
+required:
+  - issue_id
+  - type
+  - problem_statement
+  - code_context
+  - ground_truth_lines
+  - complexity_score
+additionalProperties: false

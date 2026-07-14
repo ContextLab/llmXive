@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1707.03869",
+  "judged_at": "2026-07-14T00:14:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"swe-explore: benchmarking how coding agents explore repositories\" computer science",
+  "rationale": "The paper focuses on human cognitive biases in software engineering, which is a distinct construct from the user's question about the technical behavior and repository exploration mechanisms of LLM-based coding agents. While both relate to software engineering, the paper does not measure the same mechanism, variables, or empirical population (human vs. autonomous agents) required for inclusion under the provided criteria.",
+  "relevant": false
+}

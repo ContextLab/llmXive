@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResultSchema"
+description: "Schema for the aggregated statistical results."
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    description: "Name of the metric tested (e.g., 'coverage_score')."
+  test_type:
+    type: "string"
+    enum:
+      - "wilcoxon"
+      - "cox_regression"
+      - "permutation"
+    description: "Type of statistical test used."
+  statistic:
+    type: "number"
+    description: "The test statistic value."
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value from the test."
+  adjusted_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni corrected p-value."
+  significant:
+    type: "boolean"
+    description: "True if adjusted p-value < 0.05."
+  effect_size:
+    type: "number"
+    description: "Magnitude of the effect (e.g., r or hazard ratio)."
+required:
+  - metric_name
+  - test_type
+  - statistic
+  - p_value
+  - adjusted_p_value
+  - significant
+  - effect_size
+additionalProperties: false

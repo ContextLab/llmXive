@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AgentRunLogSchema"
+description: "Schema for the execution log of an agent run (static_multi or iterative)."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    format: "uuid"
+    description: "Unique identifier for the run."
+  issue_id:
+    type: "string"
+    description: "Reference to the issue being solved."
+  strategy:
+    type: "string"
+    enum:
+      - "static_multi"
+      - "iterative"
+    description: "The agent strategy used."
+  start_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO8601 timestamp of start."
+  end_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO8601 timestamp of end."
+  total_turns:
+    type: "integer"
+    minimum: 1
+    description: "Number of turns executed."
+  success:
+    type: "boolean"
+    description: "Whether the solution was found (derived from coverage)."
+  turn_logs:
+    type: "array"
+    description: "Sequence of turns in the exploration loop."
+    items:
+      type: "object"
+      properties:
+        turn_number:
+          type: "integer"
+        query:
+          type: "string"
+        retrieved_context:
+          type: "string"
+        static_analysis_output:
+          type: "string"
+          description: "Output from pylint or ast."
+        reformulation_reason:
+          type: "string"
+          description: "Reason for the next turn query."
+      required:
+        - turn_number
+        - query
+        - retrieved_context
+        - static_analysis_output
+        - reformulation_reason
+required:
+  - run_id
+  - issue_id
+  - strategy
+  - start_time
+  - end_time
+  - total_turns
+  - turn_logs
+additionalProperties: false

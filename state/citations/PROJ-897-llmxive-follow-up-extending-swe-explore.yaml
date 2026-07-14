@@ -1,0 +1,11 @@
+- artifact_hash: a9fc3547306f3e1acdff5571ba97df211e4baad137374b92ead4d2612d826dc7
+  artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: bench.final.public.jsonl
+  kind: url
+  value: https://huggingface.co/datasets/SWE-Explore-Bench/SWE-Explore-Bench/resolve/main/bench.final.public.jsonl`
+  verification_status: verified
+  verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/69fc64cba0322de6ab5c04c5/0584e192733594a79c6924fd57538f9324b2389476dc4f0a966f8a145f780ddb?Expires=1783992794&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY5ZmM2NGNiYTAzMjJkZTZhYjVjMDRjNS8wNTg0ZTE5MjczMzU5NGE3OWM2OTI0ZmQ1NzUzOGY5MzI0YjIzODk0NzZkYzRmMGE5NjZmOGExNDVmNzgwZGRiKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk5Mjc5NH19fV19&Signature=RDh5E4eETP9PppCDx3jbdF9rbxPnS2SDCejAeEZGFw3ioIFoVLydpagM5aAolDN2ywI5tYlynI4SWg5Q7zmV24ANp7nXbMMZGloVbhXOzEi8vteyK9It2l6XGPwAJL%7E6kw-DEEtlxKc6oe7na%7Ewc2sE4g0gtGIPExkPZXVhfnrOfAUoPV5hoC%7EbgP09h51AQH0l2YsgpmuKy9b9frPgQk%7Ey5sv4KsQuT2fgB3OM4DmU8bH6Fc0cnO19rkJuRRE%7EPV0TGz2-4-PM1KiUQ4JQRFEuc4qbrz2bo0zuRfNPCLHRl7pEdALUqsQzixqVP88coeQYTIeNWfD7CKv1kQs%7Ee0w__&Key-Pair-Id=K2L8F4GPSG1IFC&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27bench.final.public.jsonl%3B+filename%3D%22bench.final.public.jsonl%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T003314Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=37d73c34346471a11299bac9904a147b846ddecf3be16ef2ef5378f6adabf4a5
+  verified_at: '2026-07-14T00:33:14.800346Z'
