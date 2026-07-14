@@ -161,8 +161,8 @@ expected alphabetic or numeric character, but found '*'
 - [X] T044 [P] Refactor `code/metrics.py` to reduce cyclomatic complexity to a lower, manageable level and ensure every public function has a comprehensive docstring.
 - [X] T045 [P] Refactor `code/analysis.py` to enforce function length < 50 lines and add type hints throughout.
 - [X] T045 [P] Performance optimization: add memory profiling in `code/main.py` to ensure peak RAM < 4 GB (SC‑003).
-- [ ] T046 [P] Run quickstart validation script to ensure end‑to‑end execution from a fresh clone.
-- [ ] T047 [P] Verify runtime logging in `code/main.py` targets < 4 hours on a 2 vCPU runner (SC‑002).
+- [X] T046 [P] Run quickstart validation script to ensure end‑to‑end execution from a fresh clone.
+- [X] T047 [P] Verify runtime logging in `code/main.py` targets < 4 hours on a 2 vCPU runner (SC‑002).
 
 ---
 
