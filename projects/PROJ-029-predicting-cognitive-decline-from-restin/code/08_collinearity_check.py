@@ -24,7 +24,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root / "code"))
 
 from utils.logger import get_logger
-from utils.io import ensure_dir, load_dataframe
+from utils.io import ensure_dir
 
 logger = get_logger("08_collinearity_check")
 
