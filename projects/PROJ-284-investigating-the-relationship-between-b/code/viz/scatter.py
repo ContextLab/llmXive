@@ -1,157 +1,109 @@
-"""
-Visualization module for generating scatter plots of network metrics vs. sensorimotor performance.
-
-Task: T031 (Implementation of the function tested by T029)
-Generates publication-quality scatter plots with regression lines and statistical annotations.
-"""
+"""Scatter plot generation for correlation results."""
 import os
-import logging
-import numpy as np
-import pandas as pd
-import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for headless execution
-import matplotlib.pyplot as plt
+import sys
 from pathlib import Path
-from scipy import stats
+from typing import Optional
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from logging_config import get_logger
 
 logger = get_logger(__name__)
 
+
 def generate_scatter_plot(
-    input_data: str,
-    x_col: str,
-    y_col: str,
-    x_label: str,
-    y_label: str,
-    output_path: str,
-    title: str = "Correlation Analysis"
-) -> str:
-    """
-    Generate a scatter plot with regression line and statistical annotations.
-    
-    Args:
-        input_data: Path to CSV file containing the data.
-        x_col: Name of the column for the X-axis (network metric).
-        y_col: Name of the column for the Y-axis (sensorimotor score).
-        x_label: Label for the X-axis.
-        y_label: Label for the Y-axis.
-        output_path: Path where the PNG file will be saved.
-        title: Title of the plot.
-        
-    Returns:
-        Path to the generated PNG file.
-        
-    Raises:
-        FileNotFoundError: If input CSV does not exist.
-        ValueError: If specified columns are not found in the data.
-    """
-    input_path = Path(input_data)
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input data file not found: {input_data}")
-    
-    df = pd.read_csv(input_data)
-    
-    # Validate columns
-    required_cols = [x_col, y_col]
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in input data: {missing_cols}")
-    
-    # Prepare data: Drop rows where either X or Y is NaN to ensure alignment
-    valid_df = df[[x_col, y_col]].dropna()
-    x = valid_df[x_col]
-    y = valid_df[y_col]
-    
-    if len(x) < 3:
-        logger.warning(f"Insufficient data points ({len(x)}) for regression analysis.")
-        # Still generate plot but without regression line if too few points
-        plot_regression = False
-    else:
-        plot_regression = True
-    
-    # Calculate statistics
-    if plot_regression:
-        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
-        r_squared = r_value ** 2
-    else:
-        slope = intercept = r_value = p_value = std_err = r_squared = np.nan
-    
-    # Create the plot
-    plt.figure(figsize=(10, 8))
-    plt.scatter(x, y, alpha=0.7, edgecolors='k', s=60, label='Subjects')
-    
-    if plot_regression:
-        # Plot regression line
-        x_line = np.linspace(x.min(), x.max(), 100)
-        y_line = slope * x_line + intercept
-        plt.plot(x_line, y_line, 'r-', linewidth=2, label=f'Regression (r={r_value:.3f})')
-    
-    # Annotations
-    annotation_text = (
-        f"n = {len(x)}\n"
-        f"r = {r_value:.3f}\n"
-        f"p = {p_value:.3g}"
-    )
-    
-    plt.title(title, fontsize=16, fontweight='bold')
-    plt.xlabel(x_label, fontsize=12)
-    plt.ylabel(y_label, fontsize=12)
-    plt.grid(True, linestyle='--', alpha=0.6)
-    plt.legend(loc='best')
-    
-    # Add statistical text box
-    plt.text(
-        0.05, 0.95, annotation_text,
-        transform=plt.gca().transAxes,
-        fontsize=11,
-        verticalalignment='top',
-        bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-    )
-    
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Save the plot
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    input_csv: Optional[str] = None,
+    x: Optional[str] = None,
+    y: Optional[str] = None,
+    output: Optional[str] = None,
+    x_label: Optional[str] = None,
+    y_label: Optional[str] = None,
+    title: Optional[str] = None
+) -> None:
+    """Generate scatter plot from correlation results."""
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from scipy import stats
+
+    if input_csv is None or x is None or y is None or output is None:
+        logger.warning("Missing required arguments for scatter plot")
+        return
+
+    if not os.path.exists(input_csv):
+        logger.error(f"Input file not found: {input_csv}")
+        return
+
+    # Load data
+    df = pd.read_csv(input_csv)
+
+    if x not in df.columns or y not in df.columns:
+        logger.error(f"Columns {x} or {y} not found in {input_csv}")
+        return
+
+    # Create scatter plot
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    x_data = df[x].values
+    y_data = df[y].values
+
+    # Remove NaN values
+    valid_idx = ~(np.isnan(x_data) | np.isnan(y_data))
+    x_clean = x_data[valid_idx]
+    y_clean = y_data[valid_idx]
+
+    ax.scatter(x_clean, y_clean, alpha=0.6, s=50)
+
+    # Add regression line
+    if len(x_clean) > 2:
+        z = np.polyfit(x_clean, y_clean, 1)
+        p = np.poly1d(z)
+        x_line = np.linspace(x_clean.min(), x_clean.max(), 100)
+        ax.plot(x_line, p(x_line), "r--", alpha=0.8, label="Linear fit")
+
+        # Calculate correlation
+        r, p_val = stats.pearsonr(x_clean, y_clean)
+        ax.text(0.05, 0.95, f"r={r:.3f}\np={p_val:.3e}", 
+               transform=ax.transAxes, verticalalignment='top',
+               bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+
+    ax.set_xlabel(x_label or x)
+    ax.set_ylabel(y_label or y)
+    ax.set_title(title or f"{x} vs {y}")
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+
+    # Save figure
+    os.makedirs(os.path.dirname(output), exist_ok=True)
+    plt.savefig(output, dpi=300, bbox_inches='tight')
+    logger.info(f"Saved scatter plot to {output}")
     plt.close()
-    
-    logger.info(f"Scatter plot saved to: {output_path}")
-    return str(output_path)
+
 
 def main():
-    """
-    Entry point for command-line execution.
-    Example usage:
-    python code/viz/scatter.py --input data/analysis/full_metrics.csv --x col_x --y col_y --output figures/scatter.png
-    """
+    """Main entry point."""
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Generate scatter plot of network metrics vs performance.")
-    parser.add_argument("--input", required=True, help="Path to input CSV file.")
-    parser.add_argument("--x", required=True, help="Column name for X-axis.")
-    parser.add_argument("--y", required=True, help="Column name for Y-axis.")
-    parser.add_argument("--x-label", default="Network Metric", help="Label for X-axis.")
-    parser.add_argument("--y-label", default="Sensorimotor Performance", help="Label for Y-axis.")
-    parser.add_argument("--output", required=True, help="Path to output PNG file.")
-    parser.add_argument("--title", default="Correlation Analysis", help="Plot title.")
-    
+    parser = argparse.ArgumentParser(description="Generate scatter plots")
+    parser.add_argument("--input", required=True, help="Input CSV file")
+    parser.add_argument("--x", required=True, help="X-axis column")
+    parser.add_argument("--y", required=True, help="Y-axis column")
+    parser.add_argument("--x-label", help="X-axis label")
+    parser.add_argument("--y-label", help="Y-axis label")
+    parser.add_argument("--output", required=True, help="Output PNG file")
+    parser.add_argument("--title", help="Plot title")
+
     args = parser.parse_args()
-    
-    from logging_config import setup_logging
-    setup_logging()
+
     generate_scatter_plot(
-        input_data=args.input,
-        x_col=args.x,
-        y_col=args.y,
+        input_csv=args.input,
+        x=args.x,
+        y=args.y,
+        output=args.output,
         x_label=args.x_label,
         y_label=args.y_label,
-        output_path=args.output,
         title=args.title
     )
 
+
 if __name__ == "__main__":
-    from logging_config import setup_logging
-    setup_logging()
     main()

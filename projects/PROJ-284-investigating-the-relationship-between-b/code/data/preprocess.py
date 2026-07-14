@@ -1,7 +1,3 @@
-"""
-Preprocessing pipeline (Mock/Synthetic for CI, Real for Local).
-Implements T013a-T013c with dynamic batch sizing.
-"""
 import os
 import subprocess
 import sys
@@ -9,167 +5,232 @@ import tempfile
 import shutil
 import logging
 from pathlib import Path
-from typing import List, Optional, NamedTuple
-import numpy as np
-import nibabel as nib
-
+from typing import Optional, NamedTuple
 from code.logging_config import get_logger
-from code.utils.memory_monitor import calculate_batch_size
+
 
 logger = get_logger(__name__)
 
+
 class PreprocessingResult(NamedTuple):
-    """Result of preprocessing a subject."""
     subject_id: str
-    motion_corrected: Optional[str]
-    normalized: Optional[str]
-    smoothed: Optional[str]
-    tsnr: Optional[float]
-    motion_param: Optional[float]
+    success: bool
+    motion_corrected_path: Optional[str] = None
+    normalized_path: Optional[str] = None
+    preprocessed_path: Optional[str] = None
+    tsnr: Optional[float] = None
+    motion_valid: bool = False
+    error: Optional[str] = None
 
-def get_fsl_tool_path() -> Optional[str]:
-    return os.getenv("FSLDIR")
 
-def get_afni_tool_path() -> Optional[str]:
-    return os.getenv("AFNI_HOME")
+def get_fsl_tool_path(tool_name: str) -> Optional[str]:
+    """Get path to FSL tool."""
+    fsl_home = os.getenv('FSLDIR')
+    if fsl_home:
+        return os.path.join(fsl_home, 'bin', tool_name)
+    return None
 
-def correct_motion(input_path: str, output_path: str) -> str:
-    """
-    Motion correction (Mock for CI, FSL mcflirt for Local).
-    """
-    logger.log("correct_motion", input=input_path, output=output_path)
-    
-    # Check if FSL is available
-    fsl_path = get_fsl_tool_path()
-    if fsl_path and os.path.exists(fsl_path):
-        # Real FSL execution
-        cmd = ["mcflirt", "-in", input_path, "-out", output_path]
-        subprocess.run(cmd, check=True)
-    else:
-        # Mock execution for CI (synthetic data path)
-        # Create a dummy NIfTI file to simulate output
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        data = np.random.rand(10, 10, 10, 50).astype(np.float32)
-        img = nib.Nifti1Image(data, np.eye(4))
-        nib.save(img, output_path)
-        
-    return output_path
 
-def slice_time_correction_and_normalization(input_path: str, output_path: str) -> str:
-    """
-    Slice-time correction and normalization (Mock for CI, AFNI for Local).
-    """
-    logger.log("slice_time_correction", input=input_path, output=output_path)
-    
-    afni_path = get_afni_tool_path()
-    if afni_path and os.path.exists(afni_path):
-        # Real AFNI execution
-        cmd = ["3dTshift", "-prefix", output_path, input_path]
-        subprocess.run(cmd, check=True)
-    else:
-        # Mock execution
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        # Simulate normalized data
-        data = np.random.rand(10, 10, 10, 50).astype(np.float32)
-        img = nib.Nifti1Image(data, np.eye(4))
-        nib.save(img, output_path)
-        
-    return output_path
+def get_afni_tool_path(tool_name: str) -> Optional[str]:
+    """Get path to AFNI tool."""
+    afni_home = os.getenv('AFNIDIR')
+    if afni_home:
+        return os.path.join(afni_home, tool_name)
+    return None
 
-def smooth_image(input_path: str, output_path: str, fwhm: float = 6.0) -> str:
-    """
-    Smoothing (Mock for CI, FSL fslmaths for Local).
-    """
-    logger.log("smooth_image", input=input_path, output=output_path, fwhm=fwhm)
-    
-    fsl_path = get_fsl_tool_path()
-    if fsl_path and os.path.exists(fsl_path):
-        # Real FSL execution
-        cmd = ["fslmaths", input_path, "-s", str(fwhm/2.35), output_path]
-        subprocess.run(cmd, check=True)
-    else:
-        # Mock execution
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        data = np.random.rand(10, 10, 10, 50).astype(np.float32)
-        img = nib.Nifti1Image(data, np.eye(4))
-        nib.save(img, output_path)
-        
-    return output_path
 
-def calculate_tsnr(input_path: str) -> float:
-    """
-    Calculate tSNR (mean / std) excluding initial volumes.
-    """
-    logger.log("calculate_tsnr", input=input_path)
-    
-    if not os.path.exists(input_path):
-        return 0.0
-        
+def correct_motion(nifti_path: str, output_path: str) -> bool:
+    """Apply motion correction using FSL mcflirt."""
     try:
-        img = nib.load(input_path)
-        data = img.get_fdata()
-        if data.ndim == 4:
-            # Exclude first 5 volumes
-            data = data[:, :, :, 5:]
-            mean_val = np.mean(data, axis=3)
-            std_val = np.std(data, axis=3)
-            std_val[std_val == 0] = 1e-6 # Avoid div by zero
-            tsnr = np.mean(mean_val / std_val)
-            return float(tsnr)
-        return 0.0
+        mcflirt = get_fsl_tool_path('mcflirt')
+        if not mcflirt or not os.path.exists(mcflirt):
+            logger.warning("FSL mcflirt not available; skipping motion correction")
+            return False
+        
+        cmd = [mcflirt, '-in', nifti_path, '-out', output_path]
+        result = subprocess.run(cmd, capture_output=True, timeout=300)
+        
+        if result.returncode == 0:
+            logger.info(f"Motion correction successful for {nifti_path}")
+            return True
+        else:
+            logger.error(f"Motion correction failed: {result.stderr.decode()}")
+            return False
+            
     except Exception as e:
-        logger.log("tsnr_calculation_failed", error=str(e))
-        return 0.0
+        logger.error(f"Motion correction error: {e}")
+        return False
 
-def validate_motion_parameters(motion_file: str) -> float:
-    """
-    Validate motion parameters (threshold < 0.5mm).
-    Returns max motion in mm.
-    """
-    logger.log("validate_motion", file=motion_file)
-    
-    # Mock validation for CI
-    return 0.3
 
-def preprocess_subject_batch(subject_ids: List[str], batch_size: int = None) -> List[PreprocessingResult]:
-    """
-    Preprocess a batch of subjects with dynamic sizing.
-    """
-    if batch_size is None:
-        batch_size = calculate_batch_size(target_memory_gb=7.0)
+def slice_time_correction_and_normalization(motion_corrected_path: str, output_path: str) -> bool:
+    """Apply slice-time correction and normalization using AFNI."""
+    try:
+        tshift = get_afni_tool_path('3dTshift')
+        qwarp = get_afni_tool_path('3dQwarp')
         
-    logger.log("preprocess_batch", count=len(subject_ids), batch_size=batch_size)
-    
+        if not tshift or not qwarp:
+            logger.warning("AFNI tools not available; skipping slice-time correction")
+            return False
+        
+        # Placeholder for actual AFNI commands
+        logger.info(f"Slice-time correction and normalization for {motion_corrected_path}")
+        return False
+        
+    except Exception as e:
+        logger.error(f"Slice-time correction error: {e}")
+        return False
+
+
+def smooth_image(normalized_path: str, output_path: str, fwhm_mm: float = 6.0) -> bool:
+    """Apply smoothing using FSL fslmaths."""
+    try:
+        fslmaths = get_fsl_tool_path('fslmaths')
+        if not fslmaths or not os.path.exists(fslmaths):
+            logger.warning("FSL fslmaths not available; skipping smoothing")
+            return False
+        
+        cmd = [fslmaths, normalized_path, '-s', str(fwhm_mm), output_path]
+        result = subprocess.run(cmd, capture_output=True, timeout=300)
+        
+        if result.returncode == 0:
+            logger.info(f"Smoothing successful for {normalized_path}")
+            return True
+        else:
+            logger.error(f"Smoothing failed: {result.stderr.decode()}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Smoothing error: {e}")
+        return False
+
+
+def calculate_tsnr(nifti_path: str) -> Optional[float]:
+    """Calculate temporal signal-to-noise ratio."""
+    try:
+        import nibabel as nib
+        img = nib.load(nifti_path)
+        data = img.get_fdata()
+        
+        if data.ndim != 4:
+            logger.warning(f"Expected 4D data, got {data.ndim}D")
+            return None
+        
+        # Skip first few volumes (typically 5-10)
+        skip_vols = 5
+        data_clean = data[:, :, :, skip_vols:]
+        
+        # Calculate mean and std across time
+        mean_signal = np.mean(data_clean, axis=3)
+        std_signal = np.std(data_clean, axis=3)
+        
+        # tSNR = mean / std (excluding zero voxels)
+        mask = mean_signal > 0
+        tsnr = np.mean(mean_signal[mask] / std_signal[mask])
+        
+        return float(tsnr)
+        
+    except Exception as e:
+        logger.error(f"tSNR calculation error: {e}")
+        return None
+
+
+def validate_motion_parameters(motion_params_path: str, threshold_mm: float = 0.5) -> bool:
+    """Validate motion parameters are below threshold."""
+    try:
+        import numpy as np
+        motion_params = np.loadtxt(motion_params_path)
+        
+        if motion_params.ndim == 1:
+            motion_params = motion_params.reshape(-1, 1)
+        
+        # Check if all motion parameters are below threshold
+        max_motion = np.max(np.abs(motion_params))
+        
+        if max_motion < threshold_mm:
+            logger.info(f"Motion validation passed: max={max_motion:.4f}mm < {threshold_mm}mm")
+            return True
+        else:
+            logger.warning(f"Motion validation failed: max={max_motion:.4f}mm >= {threshold_mm}mm")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Motion validation error: {e}")
+        return False
+
+
+def preprocess_subject_batch(subject_ids: list, input_dir: str, output_dir: str) -> list:
+    """Preprocess a batch of subjects."""
     results = []
-    for sid in subject_ids:
-        # Mock file paths for CI
-        mc_path = f"data/processed/sub-{sid}_motion_corrected.nii.gz"
-        norm_path = f"data/processed/sub-{sid}_normalized.nii.gz"
-        smooth_path = f"data/processed/sub-{sid}_preproc.nii.gz"
+    
+    for subject_id in subject_ids:
+        nifti_path = os.path.join(input_dir, f"{subject_id}_bold.nii.gz")
         
-        # Run mock pipeline
-        correct_motion(f"data/raw/sub-{sid}.nii.gz", mc_path)
-        slice_time_correction_and_normalization(mc_path, norm_path)
-        smooth_image(norm_path, smooth_path)
+        if not os.path.exists(nifti_path):
+            results.append(PreprocessingResult(
+                subject_id=subject_id,
+                success=False,
+                error=f"NIfTI file not found: {nifti_path}"
+            ))
+            continue
         
-        tsnr = calculate_tsnr(smooth_path)
-        motion = validate_motion_parameters(mc_path)
+        # Motion correction
+        motion_corrected = os.path.join(output_dir, f"{subject_id}_motion_corrected.nii.gz")
+        if not correct_motion(nifti_path, motion_corrected):
+            results.append(PreprocessingResult(
+                subject_id=subject_id,
+                success=False,
+                error="Motion correction failed"
+            ))
+            continue
         
-        results.append(PreprocessingResult(sid, mc_path, norm_path, smooth_path, tsnr, motion))
+        # Slice-time correction and normalization
+        normalized = os.path.join(output_dir, f"{subject_id}_normalized.nii.gz")
+        if not slice_time_correction_and_normalization(motion_corrected, normalized):
+            results.append(PreprocessingResult(
+                subject_id=subject_id,
+                success=False,
+                motion_corrected_path=motion_corrected,
+                error="Normalization failed"
+            ))
+            continue
         
+        # Smoothing
+        smoothed = os.path.join(output_dir, f"{subject_id}_preproc.nii.gz")
+        if not smooth_image(normalized, smoothed):
+            results.append(PreprocessingResult(
+                subject_id=subject_id,
+                success=False,
+                motion_corrected_path=motion_corrected,
+                normalized_path=normalized,
+                error="Smoothing failed"
+            ))
+            continue
+        
+        # Calculate tSNR
+        tsnr = calculate_tsnr(smoothed)
+        
+        # Validate motion
+        motion_params_path = os.path.join(output_dir, f"{subject_id}_motion.par")
+        motion_valid = validate_motion_parameters(motion_params_path) if os.path.exists(motion_params_path) else False
+        
+        results.append(PreprocessingResult(
+            subject_id=subject_id,
+            success=True,
+            motion_corrected_path=motion_corrected,
+            normalized_path=normalized,
+            preprocessed_path=smoothed,
+            tsnr=tsnr,
+            motion_valid=motion_valid
+        ))
+    
     return results
+
 
 def main():
-    """CLI entry point for preprocessing."""
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--subjects", type=int, default=5)
-    args = parser.parse_args()
-    
-    subject_ids = [str(i) for i in range(1, args.subjects + 1)]
-    results = preprocess_subject_batch(subject_ids)
-    print(f"Preprocessed {len(results)} subjects.")
-    return results
+    """Main preprocessing entry point."""
+    logger.info("Preprocessing pipeline started")
+
 
 if __name__ == "__main__":
+    import numpy as np
     main()
