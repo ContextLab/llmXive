@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+properties:
+  variant_id:
+    type: "string"
+    description: "Unique identifier for the variant"
+  scenario_id:
+    type: "string"
+    description: "Foreign key to the Scenario"
+  salience_level:
+    type: "string"
+    enum: ["Low", "Medium", "High"]
+    description: "Categorical value for salience level"
+  manipulated_image_path:
+    type: "string"
+    description: "Path to the manipulated image file"
+  contrast_change:
+    type: "number"
+    description: "RMS contrast change in the target region (percentage)"
+  semantic_similarity:
+    type: "number"
+    description: "CLIP cosine similarity between original and manipulated image"
+  manipulation_valid:
+    type: "boolean"
+    description: "Boolean indicating if the manipulation was successful"
+required:
+  - variant_id
+  - scenario_id
+  - salience_level
+  - manipulated_image_path
+  - contrast_change
+  - semantic_similarity
+  - manipulation_valid
+additionalProperties: false

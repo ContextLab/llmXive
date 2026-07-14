@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+properties:
+  scenario_id:
+    type: "string"
+    description: "Unique identifier for the scenario"
+  original_image_path:
+    type: "string"
+    description: "Path to the original image file"
+  metadata:
+    type: "object"
+    description: "Dictionary containing image metadata"
+  ambiguity_score:
+    type: "number"
+    description: "Mean score from human coding (1-5 Likert scale)"
+  ambiguity_label:
+    type: "boolean"
+    description: "Boolean indicating if the scenario is morally ambiguous"
+required:
+  - scenario_id
+  - original_image_path
+  - metadata
+  - ambiguity_score
+  - ambiguity_label
+additionalProperties: false

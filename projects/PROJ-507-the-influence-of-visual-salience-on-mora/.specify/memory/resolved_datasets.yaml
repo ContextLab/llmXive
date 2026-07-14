@@ -1,81 +1,297 @@
-resolved_at: '2026-07-12T11:02:47.939892+00:00'
+resolved_at: '2026-07-14T19:15:24.119809+00:00'
 datasets:
-- intent: ANOVA
+- intent: RMS
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+  - url: https://huggingface.co/datasets/Dahoas/rm-single-context/resolve/main/data/test-00000-of-00001-11779007d75cd608.parquet
     source: huggingface
-    format: json
-    relevance: 1.0
+    format: parquet
+    relevance: 0.0
     sample_check:
-      downloaded_bytes: 16586
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Dahoas/rm-static/resolve/main/data/test-00000-of-00001-8c7c51afc6d45980.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Dahoas/rm-synthetic-hh/resolve/main/data/test-00000-of-00001-6680d7187ad5afa0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+  - url: https://huggingface.co/datasets/RMSnow/SpeechJudge-Data/resolve/main/dev-00000-of-00006.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/Dahoas/rm-single-context/resolve/main/data/test-00000-of-00001-11779007d75cd608.parquet
     source: huggingface
     status: verified
-    format: json
-  - url: https://figshare.com/articles/dataset/Research_Data_deposit_citation_and_linking_Option_C_/32968259
+    format: parquet
+  - url: https://huggingface.co/datasets/Dahoas/rm-static/resolve/main/data/test-00000-of-00001-8c7c51afc6d45980.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Dahoas/rm-synthetic-hh/resolve/main/data/test-00000-of-00001-6680d7187ad5afa0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/liswei/rm-static-zhTW/resolve/main/data/test-00000-of-00001-f1ad0d8cdf705874.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/dataset/Formal_Verification-Integrated_Reinforcement_Learning_for_Automated_ORM_Schema_Synthesis/30071260
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Vacuum_Unified_Solitonic_Condensate_Theory/32968268
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_Bayesian_design_with_efficient_backfilling_and_expansion_to_accelerate_phase_I_II_trials_accommodating_late-onset_competing_risk_outcomes/32987642
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Integrating_Technology_in_Training_Translation_Students_at_a_University_Level_Assessment_of_Students_Performances_with_and_without_the_Use_of_Artificial_Intelligence_in_the_Translation_of_Poetry/32968256
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Generalized_Corresponding-State_Equation_for_Accurate_Correlation_and_Reliable_Extrapolation_of_Vaporization_Enthalpy/32987639
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/U_S_Water_Quality_Home_Safety_Data_by_ZIP_Code/31939155
+  - url: https://acs.figshare.com/articles/journal_contribution/Disentangling_Complex_UV-Induced_Relaxation_Dynamics_of_2_-Deoxyadenosine_from_30_fs_to_10_ps/32987633
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/IMPLEMENTASI_INTRUSION_DETECTION_SYSTEM_MENGGUNAKAN_ALGORITMA_RANDOM_FOREST_UNTUK_DETEKSI_ANOMALI_TRAFIK_JARINGAN_PADA_SISTEM_INFORMASI_AKADEMIK_BERDASARKAN_ISO_IEC_27005/32968223
+  - url: https://asha.figshare.com/articles/online_resource/Psychosocial_risk_in_cochlear_implant_users_Castellanos_et_al_2026_/32913569
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15804920
+  - url: https://zenodo.org/records/820150
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10437571
+  - url: https://zenodo.org/records/8282213
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/1255322
+  - url: https://zenodo.org/records/18326854
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10437571
+  - url: https://zenodo.org/records/10295171
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14242875
+  - url: https://zenodo.org/records/20845824
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10011805
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://fair.unifg.it//handle/11369/363316
+  - url: https://zenodo.org/records/21363084
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21320734
+  - url: https://zenodo.org/records/21363084
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21320734
+  - url: https://unige.iris.cineca.it/handle/11567/945784
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21304518
+  - url: https://zenodo.org/records/21360564
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21304518
+  - url: https://zenodo.org/records/21360564
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/andyyang/stable_diffusion_prompts_2m/resolve/main/sd_top5000.keywords.tsv
+    source: huggingface
+    format: tsv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 94934
+      parsed: true
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/andyyang/stable_diffusion_prompts_2m/resolve/main/sd_top5000.keywords.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/nilq/baby-python-and-lua/resolve/main/data/train-00000-of-00009.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Formal_Verification-Integrated_Reinforcement_Learning_for_Automated_ORM_Schema_Synthesis/30071260
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_Bayesian_design_with_efficient_backfilling_and_expansion_to_accelerate_phase_I_II_trials_accommodating_late-onset_competing_risk_outcomes/32987642
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Generalized_Corresponding-State_Equation_for_Accurate_Correlation_and_Reliable_Extrapolation_of_Vaporization_Enthalpy/32987639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Disentangling_Complex_UV-Induced_Relaxation_Dynamics_of_2_-Deoxyadenosine_from_30_fs_to_10_ps/32987633
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/online_resource/Psychosocial_risk_in_cochlear_implant_users_Castellanos_et_al_2026_/32913569
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01977446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7714657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336157
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3365578
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3367816
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LMM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lmms-lab/POPE/resolve/main/Full/adversarial-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lmms-lab/RefCOCO/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lmms-lab/MP-DocVQA/resolve/main/data/test-00000-of-00023.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lmms-lab/POPE/resolve/main/Full/adversarial-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/RefCOCO/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/MP-DocVQA/resolve/main/data/test-00000-of-00023.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/66cd7bbefc6f503213a054e7/b50ee8d0e692c40048fe7d430b6c2a89382883828c3426dc37f1f6d0d5875790?Expires=1784060013&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2Y2Q3YmJlZmM2ZjUwMzIxM2EwNTRlNy9iNTBlZThkMGU2OTJjNDAwNDhmZTdkNDMwYjZjMmE4OTM4Mjg4MzgyOGMzNDI2ZGMzN2YxZjZkMGQ1ODc1NzkwKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDA2MDAxM319fV19&Signature=MEQCIBmYk8moCm7vmzik7UJGiaUaniEfIjlwNLycusH1me19AiAzLLvR4P1Kirn4k1qRb0zHCNP~bzGj~x128xoknHGADA__&Key-Pair-Id=K3EPXBYC3CKDRZ&response-content-disposition=inline%3B+filename*%3DUTF-8%27%270_30_s_academic_mc_v0_1_qa_processed.json%3B+filename%3D%220_30_s_academic_mc_v0_1_qa_processed.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T191333Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=963c5744c894aaaef3a6bc99357f62a4a3fe575792df9f4ced971c03828c1a47
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/mjahmadi/Cataract-LMM/resolve/main/1_Phase_Recognition/annotations_full_video/PH_0001_2931_S2.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/dataset/Formal_Verification-Integrated_Reinforcement_Learning_for_Automated_ORM_Schema_Synthesis/30071260
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_Bayesian_design_with_efficient_backfilling_and_expansion_to_accelerate_phase_I_II_trials_accommodating_late-onset_competing_risk_outcomes/32987642
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Generalized_Corresponding-State_Equation_for_Accurate_Correlation_and_Reliable_Extrapolation_of_Vaporization_Enthalpy/32987639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Disentangling_Complex_UV-Induced_Relaxation_Dynamics_of_2_-Deoxyadenosine_from_30_fs_to_10_ps/32987633
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/online_resource/Psychosocial_risk_in_cochlear_implant_users_Castellanos_et_al_2026_/32913569
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6657148
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4053698
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17361190
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11166211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ojs.uc.cl/index.php/ijanr/article/view/36711
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://iris.uniupo.it//handle/11579/46198
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://espace.library.uq.edu.au/view/UQ:2ebdb5a
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://arxiv.org/abs/2503.13184
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/53396
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.v41ns1s9q
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -120,23 +336,23 @@ datasets:
     source: huggingface
     status: verified
     format: gzip
-  - url: https://figshare.com/articles/dataset/Research_Data_deposit_citation_and_linking_Option_C_/32968259
+  - url: https://figshare.com/articles/dataset/Formal_Verification-Integrated_Reinforcement_Learning_for_Automated_ORM_Schema_Synthesis/30071260
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Vacuum_Unified_Solitonic_Condensate_Theory/32968268
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_Bayesian_design_with_efficient_backfilling_and_expansion_to_accelerate_phase_I_II_trials_accommodating_late-onset_competing_risk_outcomes/32987642
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Integrating_Technology_in_Training_Translation_Students_at_a_University_Level_Assessment_of_Students_Performances_with_and_without_the_Use_of_Artificial_Intelligence_in_the_Translation_of_Poetry/32968256
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Generalized_Corresponding-State_Equation_for_Accurate_Correlation_and_Reliable_Extrapolation_of_Vaporization_Enthalpy/32987639
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/U_S_Water_Quality_Home_Safety_Data_by_ZIP_Code/31939155
+  - url: https://acs.figshare.com/articles/journal_contribution/Disentangling_Complex_UV-Induced_Relaxation_Dynamics_of_2_-Deoxyadenosine_from_30_fs_to_10_ps/32987633
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/IMPLEMENTASI_INTRUSION_DETECTION_SYSTEM_MENGGUNAKAN_ALGORITMA_RANDOM_FOREST_UNTUK_DETEKSI_ANOMALI_TRAFIK_JARINGAN_PADA_SISTEM_INFORMASI_AKADEMIK_BERDASARKAN_ISO_IEC_27005/32968223
+  - url: https://asha.figshare.com/articles/online_resource/Psychosocial_risk_in_cochlear_implant_users_Castellanos_et_al_2026_/32913569
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -144,15 +360,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/1435755
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: http://audiovisual-art.knukim.edu.ua/article/view/185691
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7347780
+  - url: https://zenodo.org/records/1435755
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -160,23 +372,131 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21318247
+  - url: https://zenodo.org/records/7347780
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21363368
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21318247
+  - url: https://zenodo.org/records/21363368
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21318216
+  - url: https://zenodo.org/records/21363169
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21318216
+  - url: https://zenodo.org/records/21363169
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21317282
+  - url: https://borealisdata.ca/dataset.xhtml?persistentId=doi:10.5683/SP4/RCIZ4H
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ROI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Chaymaa/roi_donut/resolve/main/data/test-00000-of-00001-5bc4803f5339d8ed.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Chaymaa/roi_counters/resolve/main/data/test-00000-of-00001-2fbc0f95fa10338e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/dragosnicolae555/RoITD/resolve/main/final_dataset_clean.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/dragosnicolae555/RoITD/resolve/main/final_dataset_clean.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Chaymaa/roi_donut/resolve/main/data/test-00000-of-00001-5bc4803f5339d8ed.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Chaymaa/roi_counters/resolve/main/data/test-00000-of-00001-2fbc0f95fa10338e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROIM/temporal-alignment-qa/resolve/main/data/dev.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/Formal_Verification-Integrated_Reinforcement_Learning_for_Automated_ORM_Schema_Synthesis/30071260
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_Bayesian_design_with_efficient_backfilling_and_expansion_to_accelerate_phase_I_II_trials_accommodating_late-onset_competing_risk_outcomes/32987642
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Generalized_Corresponding-State_Equation_for_Accurate_Correlation_and_Reliable_Extrapolation_of_Vaporization_Enthalpy/32987639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Disentangling_Complex_UV-Induced_Relaxation_Dynamics_of_2_-Deoxyadenosine_from_30_fs_to_10_ps/32987633
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://asha.figshare.com/articles/online_resource/Psychosocial_risk_in_cochlear_implant_users_Castellanos_et_al_2026_/32913569
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/ijphs.v14i3.25981
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://doi.org/10.11591/ijphs.v13i3.23744
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://doi.org/10.31866/2410-1176.49.2023.293297
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: HTTPConnectionPool(host=''arts-series-knukim.pp.ua'',
+      port=80): Max retries exceeded with url: /article/view/293297 (Caused by NameResolutionError("HTTPConnection(host=''arts-series-knukim.pp.ua'',
+      port=80): Failed to resolve ''arts-series-knukim.pp.ua'' ([Errno -2] Name or
+      service not known)"))'
+  - url: https://zenodo.org/records/14027304
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14287862
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Spatial_metabolomics_data_of_ileal_organoids_with_complementary_bright-field_and_immunofluorescence_microscopy/32979014/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21361219
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21361219
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1149468
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1123615
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -195,42 +515,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Research_Data_deposit_citation_and_linking_Option_C_/32968259
+  - url: https://asha.figshare.com/articles/online_resource/Predictors_of_word_learning_Leonard_et_al_2026_/32914790
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Vacuum_Unified_Solitonic_Condensate_Theory/32968268
+  - url: https://figshare.com/articles/dataset/Formal_Verification-Integrated_Reinforcement_Learning_for_Automated_ORM_Schema_Synthesis/30071260
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Integrating_Technology_in_Training_Translation_Students_at_a_University_Level_Assessment_of_Students_Performances_with_and_without_the_Use_of_Artificial_Intelligence_in_the_Translation_of_Poetry/32968256
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_Bayesian_design_with_efficient_backfilling_and_expansion_to_accelerate_phase_I_II_trials_accommodating_late-onset_competing_risk_outcomes/32987642
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/U_S_Water_Quality_Home_Safety_Data_by_ZIP_Code/31939155
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Generalized_Corresponding-State_Equation_for_Accurate_Correlation_and_Reliable_Extrapolation_of_Vaporization_Enthalpy/32987639
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/IMPLEMENTASI_INTRUSION_DETECTION_SYSTEM_MENGGUNAKAN_ALGORITMA_RANDOM_FOREST_UNTUK_DETEKSI_ANOMALI_TRAFIK_JARINGAN_PADA_SISTEM_INFORMASI_AKADEMIK_BERDASARKAN_ISO_IEC_27005/32968223
+  - url: https://acs.figshare.com/articles/journal_contribution/Disentangling_Complex_UV-Induced_Relaxation_Dynamics_of_2_-Deoxyadenosine_from_30_fs_to_10_ps/32987633
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://beei.org/index.php/EEI/article/view/1972
+  - url: https://doi.org/10.11591/eei.v9i2.1972
     source: zenodo
     status: unreachable
-    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''beei.org'',
-      port=443): Max retries exceeded with url: /index.php/EEI/article/view/1972 (Caused
-      by ConnectTimeoutError(<HTTPSConnection(host=''beei.org'', port=443) at 0x7ff794cb3550>,
-      ''Connection to beei.org timed out. (connect timeout=20.0)''))'
+    reason: 'reachability failed: HTTP 415'
   - url: https://zenodo.org/records/14352943
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6127654
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -238,23 +547,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/929442
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21363368
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21320347
+  - url: https://zenodo.org/records/21363368
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21320347
+  - url: https://zenodo.org/records/21357525
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21319002
+  - url: https://zenodo.org/records/21357525
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21319002
+  - url: https://zenodo.org/records/21357518
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

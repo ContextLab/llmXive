@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/raw/`, `data/processed/`, `data/survey/`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scipy, statsmodels, Pillow, requests, matplotlib, seaborn, opencv-python-headless, streamlit)
+- [ ] T002 Initialize Python project with `requirements.txt` (numpy, pandas, scipy, statsmodels, Pillow, requests, matplotlib, seaborn, opencv-python-headless, streamlit, torch, transformers, diffusers)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -55,10 +55,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Setup random seed configuration module (`code/config.py`) to ensure reproducibility across all scripts
+- [ ] T004 [P] Setup random seed configuration module (`code/config.py`) to ensure reproducibility across all scripts. **Mechanism**: Define `seed_everything(seed=42)` function that sets seeds for `numpy`, `random`, and `torch` at module import.
 - [ ] T005 [P] Create data directory structure and checksum verification script (`code/verify_data_integrity.py`)
 - [ ] T006 [P] Implement basic logging infrastructure (`code/logging_config.py`)
-- [ ] T007 [P] Create base data models/entities in `code/models.py`: Define `Scenario` (id, image_path, ambiguity_label), `StimulusVariant` (id, scenario_id, salience_level, image_path), `Response` (id, participant_id, stimulus_id, rating, timestamp), and `Participant` (id, status) classes with explicit attributes per spec.
+- [ ] T007 [P] Create base data models/entities in `code/models.py`: Define `Scenario` (id, image_path, ambiguity_label), `StimulusVariant` (id, scenario_id, salience_level, image_path), `Response` (id, participant_id, stimulus_id, rating, timestamp), and `Participant` (id, status) classes with explicit attributes per spec. **Reproducibility**: Any stochastic operations within these models (e.g., default initialization) MUST explicitly call `seed_everything()` with a fixed seed to ensure reproducibility as per the Constitution.
 - [ ] T008 [P] Setup environment variable management for dataset paths and API keys
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -73,14 +73,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement dataset ingestion and URL verification in `code/data_prep.py` (Target: Visual Genome or verified alternative)
+- [ ] T013 [P] [US1] Implement dataset ingestion and URL verification in `code/data_prep.py` (Target: Visual Genome or verified alternative). **Constraint**: MUST fetch from `https://visualgenome.org/api/` or verified HuggingFace mirror.
 - [ ] T014 [US1] Implement metadata filtering for 'social'/'conflict' tags in `code/data_prep.py`
-- [ ] T015 [US1] Implement human coding workflow script (`code/human_coding.py`) to calculate Cohen's κ from annotations, apply the ≥0.8 threshold, and **exclude** scenarios failing the threshold. Output the filtered list of valid scenarios to `data/processed/valid_scenarios.csv`.
-- [ ] T015a [US1] Implement Human Coding Interface: Create a Streamlit app (`code/human_coding_ui.py`) to allow ≥2 independent annotators to upload labels for candidate images. The app MUST enforce the ≥2 annotator requirement. **CRITICAL**: If ≥2 human annotators are not available, this task is BLOCKED and marked as 'Deferred'. Do NOT generate synthetic annotations. Output a CSV (`data/processed/human_coding_annotations.csv`) compatible with T015.
+- [ ] T015a [US1] Implement Human Coding Interface: Create a Streamlit app (`code/human_coding_ui.py`) to allow ≥3 independent annotators to upload labels for candidate images. The app MUST enforce the ≥3 annotator requirement. **Logic**: If <3 annotators are available, the task is BLOCKED. If 3 annotators disagree, use majority vote to resolve. If no majority (e.g., 1-1-1), exclude scenario. Output a CSV (`data/processed/human_coding_annotations.csv`) compatible with T015.
+- [ ] T015 [US1] Implement human coding workflow script (`code/human_coding.py`) to calculate Cohen's κ from annotations (input from T015a), apply the ≥0.6 threshold as required by FR-008, and **exclude** scenarios failing the threshold. If κ < 0.6, block and log failure. Output the filtered list of valid scenarios to `data/processed/valid_scenarios.csv`.
 - [ ] T016 [US1] Implement salience manipulation function (low/med/high luminance) in `code/data_prep.py` ensuring no semantic change
-- [ ] T017 [US1] Implement semantic preservation verification (object detection/IoU) in `code/validation.py`. **MUST** use YOLOv8n (CPU) and verify IoU > 0.95 between original and manipulated regions.
-- [ ] T017b [US1] Memory Constraint Verification: Add a unit test in `tests/unit/test_memory.py` to verify that YOLOv8n inference on the target image subset stays under a manageable amount of RAM.
+- [ ] T017 [US1] Implement semantic preservation verification in `code/validation.py`. **MUST** use CLIP (default precision, CPU) to compute embeddings. **Logic**: Crop target region using bounding box from metadata. Compute CLIP embedding for ROI and full original image. Verify cosine similarity ≥ 0.95. **DO NOT** use YOLO or IoU.
+- [ ] T017b [US1] Implement unit test for memory constraints regarding CLIP inference in `tests/unit/test_manipulation.py`. **Logic**: Verify that CLIP inference on a single image stays within 2GB RAM limit on CPU.
 - [ ] T018 [US1] Implement failure logging and exclusion logic for unmanipulatable images in `code/data_prep.py`
+- [ ] T019 [US1] Implement Pilot Human Manipulation Check in `code/manipulation_check.py`. **Logic**: Present manipulated images to a separate coder panel. Calculate agreement as (number of coders agreeing on narrative preservation) / (total coders). If agreement < 0.80, flag scenario as failed. Output results to `data/processed/narrative_check.csv`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,16 +96,16 @@
 ### Implementation for User Story 2
 
 - [ ] T022 [P] [US2] Implement survey randomization engine (within-subject design) in `code/survey_sim.py` to generate sequences where no scenario appears twice with the same salience level for a participant.
-- [ ] T023 [US2] Implement survey deployment interface using Streamlit in `code/survey_deploy.py`. **MUST** enforce the 'never the same one twice' constraint by implementing a `SessionState` dictionary to track `seen_scenarios` per participant. Before rendering an image, check `session_state['seen_scenarios'][participant_id]`; if the current scenario is present, skip to the next available salience level from the randomization engine (T022). **Scope Note: This task implements the Pilot/Simulation interface only. Real data collection (FR-002/003) is deferred to a future phase.** Output schema: `participant_id`, `image_id`, `salience_level`, `rating`, `timestamp`. **Dependencies**: Requires completion of T016/T017 (Stimuli Generation) before execution.
+- [ ] T023 [US2] Implement survey deployment interface using Streamlit in `code/survey_deploy.py`. **MUST** enforce the 'never the same one twice' constraint by implementing a `SessionState` dictionary. **Algorithm**: Use Latin Square randomization for within-subject design to ensure balanced order across participants. Check `session_state['seen_scenarios'][participant_id]`; if present, skip to next available salience level. Output schema: `participant_id`, `image_id`, `salience_level`, `rating`, `timestamp`. **Dependencies**: Requires completion of T016/T017 (Stimuli Generation) before execution.
 - [ ] T023a [US2] Document Scope Limitation: Update `docs/paper_draft.md` under section **3.1 'Scope of Pilot Phase'**. Explicitly state that FR-002 and FR-003 are implemented as a *simulation* using `code/survey_sim.py` and local Streamlit, and that real participant recruitment is deferred.
 - [ ] T024 [US2] Implement data collection handler to log responses to `data/survey/pilot_responses.csv`
 - [ ] T026 [US2] Implement pilot data simulation script (`code/survey_sim.py`) to generate synthetic data for pipeline validation (strictly for testing logic, not empirical claims)
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 2 (Restored) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for randomization logic (within-subject constraint) in `tests/unit/test_survey_logic.py`
-- [ ] T020 [P] [US2] Unit test for data schema validation (participant_id, image_id, salience, rating) in `tests/unit/test_data_schema.py`
-- [ ] T021 [P] [US2] Integration test for pilot data collection flow in `tests/integration/test_survey_flow.py`
+- [ ] T020 [P] [US2] Unit test for randomization logic (within-subject constraint) in `tests/unit/test_survey_logic.py`
+- [ ] T021 [P] [US2] Unit test for data schema validation (participant_id, image_id, salience, rating) in `tests/unit/test_data_schema.py`
+- [ ] T022 [P] [US2] Integration test for pilot data collection flow in `tests/integration/test_survey_flow.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -112,26 +113,26 @@
 
 ## Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority: P3)
 
-**Goal**: Perform Repeated-Measures ANOVA (per FR-004) as primary analysis, apply corrections, and generate reports. LMM is secondary validation.
+**Goal**: Perform Linear Mixed-Effects Model (LMM) analysis (Primary) and Repeated-Measures ANOVA (Secondary) to test for salience effects, apply corrections, and generate reports.
 
 **Independent Test**: Run analysis on synthetic datasets with known effects; verify F-statistics, p-values, effect sizes, and confidence intervals.
 
 ### Implementation for User Story 3
 
-- [ ] T029a [US3] Document Methodological Alignment: Update `docs/paper_draft.md` under section **3.2 'Statistical Analysis'**. Explicitly state that **Repeated-Measures ANOVA** is the primary method per FR-004. Document that Linear Mixed-Effects Model (LMM) is used as a secondary validation step to check robustness, consistent with the plan's "Critical Methodological Update" but prioritizing the spec's mandate.
-- [ ] T030a [US3] Implement Primary Analysis: Implement the Repeated-Measures ANOVA (`Rating ~ Salience + Error(Subject/Salience)`) in `code/analysis.py` using `statsmodels` (per FR-004). **MUST** include Mauchly's test for sphericity and apply Greenhouse-Geisser or Huynh-Feldt corrections if violated. This is the PRIMARY analysis method.
-- [ ] T031a [US3] Implement Secondary Validation: Implement the Linear Mixed-Effects Model (`Rating ~ Salience + (1|Participant) + (1|Scenario)`) in `code/analysis.py` using `statsmodels` (per plan.md update). This is the SECONDARY analysis method for robustness checking.
-- [ ] T033 [US3] Implement ANOVA assumption checks (normality, homogeneity of variance) in `code/analysis.py`.
-- [ ] T034 [US3] Implement Bonferroni-corrected pairwise comparisons (Low vs Med, Med vs High, Low vs High) in `code/analysis.py`
-- [ ] T035 [US3] Implement effect size (partial eta-squared) and 95% CI calculation in `code/analysis.py`
-- [ ] T045 [US3] Execute Data Cleaning: Run the straight-lining detection routine on `data/survey/pilot_responses.csv` to exclude participants with identical ratings across all items; output cleaned dataset `data/processed/cleaned_responses.csv`. **MUST** run before T030a/T031a.
-- [ ] T046 [US3] Implement Precision Threshold Check: In `code/config.py`, set `MIN_PRECISION = 0.1`. In `code/analysis.py`, calculate the 95% CI width for the main effect. Compare `CI_width` against `MIN_PRECISION`. Log the result (Pass/Fail) in `data/analysis/results.json`. **Do not use placeholder values; use the concrete constant.**
-- [ ] T036 [US3] Implement pipeline validation script (Positive Control/Negative Control) in `code/validation.py`
-- [ ] T037 [US3] Implement report generator to output `data/analysis/results.json` and console summary, explicitly documenting the ANOVA primary vs LMM secondary distinction.
+- [ ] T036 [US3] Implement pipeline validation script (Positive Control/Negative Control) in `code/validation.py`. **Logic**: Run synthetic data injection to verify LMM/ANOVA logic BEFORE processing real data. **Dependency**: MUST run before T030/T031.
+- [ ] T045 [US3] Execute Data Cleaning: Run the straight-lining detection routine on `data/survey/pilot_responses.csv` to exclude participants with identical ratings across all items; output cleaned dataset `data/processed/cleaned_responses.csv`. **Logic**: Exclude if variance < 0.1 OR >90% identical ratings. **Dependency**: MUST run before T030/T031.
+- [ ] T030 [US3] Implement Primary Analysis: Implement the Linear Mixed-Effects Model (`Rating ~ Salience + (1|Participant) + (1|Scenario)`) in `code/analysis.py` using `statsmodels` (per FR-004). **MUST** include random intercepts for Participant and Scenario. This is the PRIMARY analysis method.
+- [ ] T031 [US3] Implement Secondary Validation: Implement the Repeated-Measures ANOVA (`Rating ~ Salience + Error(Subject/Salience)`) in `code/analysis.py` using `statsmodels`. This is the SECONDARY analysis method for robustness checking.
+- [ ] T032 [US3] Implement ANOVA/LMM assumption checks (normality, homogeneity of variance) in `code/analysis.py`. **Logic**: Run Shapiro-Wilk test on residuals. If p < 0.05, switch to robust alternative: LMM with ordinal link function OR non-parametric bootstrap with a sufficient number of iterations to ensure robust resampling.
+- [ ] T034 [US3] Implement pairwise comparisons in `code/analysis.py`. **Logic**: If normality holds, perform pairwise t-tests with Bonferroni correction. If normality violated, perform Wilcoxon signed-rank test with Bonferroni correction.
+- [ ] T035 [US3] Implement effect size (partial eta-squared) and % CI calculation in `code/analysis.py` using Type III Sums of Squares.
+- [ ] T046 [US3] Implement Precision Threshold Check: In `code/config.py`, set `MIN_PRECISION = 0.3`. In `code/analysis.py`, calculate the 95% CI width for the main effect. Compare `CI_width` against `MIN_PRECISION`. If `CI_width > 0.3`, log failure and set `precision_adequate=false` in `data/analysis/results.json`. **Do not use placeholder values; use the concrete constant.**
+- [ ] T047 [US3] Implement Post-Hoc Power Analysis in `code/power_analysis.py`. **Logic**: Use observed effect size to calculate power. If calculated power < 0.80, write a warning to the report and set `power_adequate=false` in `data/analysis/results.json`.
+- [ ] T037 [US3] Implement report generator to output `data/analysis/results.json` and console summary, explicitly documenting the LMM primary vs ANOVA secondary distinction.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for ANOVA model fitting (Positive/Negative control) in `tests/unit/test_analysis.py`
+- [ ] T027 [P] [US3] Unit test for LMM model fitting (Positive/Negative control) in `tests/unit/test_analysis.py`
 - [ ] T028 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/test_corrections.py`
 - [ ] T029 [P] [US3] Unit test for effect size (partial eta-squared) calculation in `tests/unit/test_metrics.py`
 - [ ] T030 [P] [US3] Integration test for full analysis pipeline on synthetic data in `tests/integration/test_analysis_pipeline.py`
@@ -144,8 +145,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038a [P] Documentation updates: Add section **3.1 'Methods'** to `docs/paper_draft.md` describing the ANOVA model specification, data cleaning procedure, and Bonferroni correction.
-- [ ] T038b [P] Documentation updates: Add section **4.1 'Results'** to `docs/paper_draft.md` with placeholders for ANOVA tables, effect sizes, and CI widths.
+- [ ] T038a [P] Documentation updates: Add section **3.1 'Methods'** to `docs/paper_draft.md` describing the LMM model specification, data cleaning procedure, and Bonferroni correction.
+- [ ] T038b [P] Documentation updates: Add section **4.1 'Results'** to `docs/paper_draft.md` with placeholders for LMM tables, effect sizes, and CI widths.
 - [ ] T039a [P] Code cleanup: Refactor `code/data_prep.py` to reduce cyclomatic complexity < 10. Verify with `ruff`.
 - [ ] T039b [P] Code cleanup: Refactor `code/analysis.py` to separate model fitting from result reporting. Verify with `ruff`.
 - [ ] T050 [P] Add profiling script to measure runtime of the full pipeline (`code/profile_pipeline.py`)
@@ -189,6 +190,22 @@
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
+### Critical Execution Order (Phase 5)
+
+The following order is **MANDATORY** for Phase 5 tasks:
+1. **T036** (Pipeline Validation) - MUST run first to verify logic.
+2. **T045** (Data Cleaning) - MUST run before analysis.
+3. **T030** (Primary LMM) - MUST run on cleaned data.
+4. **T031** (Secondary ANOVA) - MUST run on cleaned data.
+5. **T032** (Assumption Checks) - Can run in parallel with T030/T031 or after.
+6. **T034** (Pairwise Comparisons) - Depends on T030/T031 results.
+7. **T035** (Effect Sizes) - Depends on T030/T031 results.
+8. **T046** (Precision Check) - Depends on T035.
+9. **T047** (Power Analysis) - Depends on T035.
+10. **T037** (Report Generation) - Depends on all above.
+
+**Note**: T030/T031 DEPEND ON T045 completion. T030/T031 DEPEND ON T036 completion.
+
 ---
 
 ## Parallel Example: User Story 1
@@ -196,7 +213,7 @@
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Unit test for metadata filtering logic in tests/unit/test_data_prep.py"
-Task: "Unit test for luminance manipulation (SSIM/IoU check) in tests/unit/test_manipulation.py"
+Task: "Unit test for luminance manipulation (CLIP check) in tests/unit/test_manipulation.py"
 
 # Launch all models for User Story 1 together:
 Task: "Implement dataset ingestion and URL verification in code/data_prep.py"
@@ -245,6 +262,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **FR-004 Compliance**: Repeated-Measures ANOVA is the PRIMARY analysis method. LMM is secondary.
-- **FR-008 Compliance**: Human coding interface is required; synthetic data is for unit tests only. If humans are unavailable, the task is BLOCKED.
+- **FR-004 Compliance**: Linear Mixed-Effects Model (LMM) is the PRIMARY analysis method. Repeated-Measures ANOVA is secondary.
+- **FR-008 Compliance**: Human coding interface requires ≥3 annotators. Majority vote resolution is mandatory. κ ≥ 0.6 is the threshold.
 - **FR-002/003 Compliance**: Current phase is Pilot/Simulation; real deployment is deferred.
+- **Plan vs Spec**: Tasks follow Spec.md (Visual Genome ingestion) over Plan.md (Manual Curation).

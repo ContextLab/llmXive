@@ -1,6 +1,4 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Survey Response Schema"
-description: "Schema for participant blame ratings and metadata"
 type: "object"
 properties:
   response_id:
@@ -8,34 +6,28 @@ properties:
     description: "Unique identifier for the response"
   participant_id:
     type: "string"
-    description: "Foreign key to the participant"
+    description: "Foreign key to the Participant"
   variant_id:
     type: "string"
-    description: "Foreign key to the stimulus variant"
+    description: "Foreign key to the Stimulus Variant"
   blame_rating:
-    type: integer
+    type: "integer"
     minimum: 1
     maximum: 7
-    description: "Blame rating on 1-7 Likert scale"
+    description: "Integer value (1-7 Likert scale)"
   timestamp:
     type: "string"
     format: "date-time"
-    description: "Response timestamp"
-  is_straight_lined:
-    type: "boolean"
-    description: "Flagged if participant provided identical ratings across all items"
+    description: "Timestamp of the response"
+  salience_level:
+    type: "string"
+    enum: ["Low", "Medium", "High"]
+    description: "Categorical value for salience level"
 required:
-  - "response_id"
-  - "participant_id"
-  - "variant_id"
-  - "blame_rating"
-  - "timestamp"
-  - "is_straight_lined"
+  - response_id
+  - participant_id
+  - variant_id
+  - blame_rating
+  - timestamp
+  - salience_level
 additionalProperties: false
-examples:
-  - response_id: "RESP-001"
-    participant_id: "PART-ABC123"
-    variant_id: "STIM-001-M"
-    blame_rating: 5
-    timestamp: "2024-05-21T14:30:00Z"
-    is_straight_lined: false

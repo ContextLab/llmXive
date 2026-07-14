@@ -2,142 +2,75 @@
 
 ## Overview
 
-This document defines the data structures for the project, including raw datasets, processed stimuli, survey responses, and analysis outputs. All data follows the project's data hygiene principles (checksummed, no in-place modifications, PII-free).
+This document describes the data model for the project, including the structure of raw data, processed data, and analysis results. The data model ensures consistency, reproducibility, and traceability throughout the project lifecycle.
 
-## Entity-Relationship Diagram
+## Entities
 
-```mermaid
-erDiagram
-    Scenario ||--|{ StimulusVariant : "has"
-    StimulusVariant ||--|{ Response : "elicits"
-    Participant ||--|{ Response : "provides"
-    Scenario {
-        string scenario_id "PK"
-        string image_path "original image"
-        string metadata_tags "social/conflict"
-        float ambiguity_score "human-coded"
-    }
-    StimulusVariant {
-        string variant_id "PK"
-        string scenario_id "FK"
-        string salience_level "low/medium/high"
-        string manipulated_image_path
-        float semantic_similarity "CLIP score"
-        float ssim_score "SSIM on non-target regions"
-        float contrast_change "Pixel-level contrast change (%)"
-        bool is_valid "true if CLIP ≥0.95 AND SSIM ≥0.90"
-    }
-    Participant {
-        string participant_id "PK"
-        string recruitment_source "e.g., Prolific"
-        datetime enrollment_date
-    }
-    Response {
-        string response_id "PK"
-        string participant_id "FK"
-        string variant_id "FK"
-        int blame_rating "1-7"
-        datetime timestamp
-        bool is_straight_lined "flagged"
-    }
-```
+### Scenario
 
-## Data Schemas
+A morally ambiguous visual situation identified from the source dataset.
 
-### 1. Scenario Metadata
+**Attributes**:
+- `scenario_id`: Unique identifier for the scenario.
+- `narrative_text`: The text description of the moral scenario (curated manually).
+- `original_image_path`: Path to the original image file (generated or selected).
+- `ambiguity_score`: Mean score from human coding (1-5 Likert scale).
+- `ambiguity_label`: Boolean indicating if the scenario is morally ambiguous (mean ≥ 3.5 AND Cohen's κ ≥ 0.6).
+- `annotator_ids`: List of IDs of the ≥3 independent annotators who rated this scenario.
 
-**File**: `data/interim/scenarios.csv`  
-**Purpose**: Store morally ambiguous scenarios identified via two-stage filtering.
+### Stimulus Variant
 
-| Column | Type | Description | Constraints |
-|--------|------|-------------|-------------|
-| `scenario_id` | string | Unique identifier | PK, non-null |
-| `image_path` | string | Path to original image | non-null, relative to `data/raw/` |
-| `metadata_tags` | string | Comma-separated tags (e.g., "social,conflict") | non-null |
-| `ambiguity_score` | float | Human-coded ambiguity score (1-7) | nullable, 1≤x≤7 |
-| `is_ambiguous` | boolean | True if ≥2 annotators agree (κ ≥0.6) | non-null, default false |
+A specific manipulated version of a Scenario (low/medium/high salience).
 
-**Validation**: `ambiguity_score` must be in range 1-7; `is_ambiguous=true` only if κ ≥0.6.
+**Attributes**:
+- `variant_id`: Unique identifier for the variant.
+- `scenario_id`: Foreign key to the Scenario.
+- `salience_level`: Categorical value (Low, Medium, High).
+- `manipulated_image_path`: Path to the manipulated image file.
+- `contrast_change`: RMS contrast change in the target region (percentage).
+- `semantic_similarity`: CLIP cosine similarity between original and manipulated image.
+- `ssim_score`: Structural Similarity Index Score for non-target regions.
+- `manipulation_valid`: Boolean indicating if the manipulation was successful (contrast ≥ 15% AND similarity ≥ 0.95 AND ssim ≥ 0.90).
+- `narrative_preserved`: Boolean indicating if the separate coder panel confirmed narrative preservation (≥80% agreement).
 
-### 2. Stimulus Variants
+### Response
 
-**File**: `data/processed/stimuli.csv`  
-**Purpose**: Store manipulated image variants with salience levels.
+A single data point linking a Participant to a Stimulus Variant.
 
-| Column | Type | Description | Constraints |
-|--------|------|-------------|-------------|
-| `variant_id` | string | Unique identifier | PK, non-null |
-| `scenario_id` | string | FK to scenarios | non-null, FK |
-| `salience_level` | string | "low", "medium", or "high" | non-null, enum |
-| `manipulated_image_path` | string | Path to manipulated image | non-null, relative to `data/processed/stimuli/` |
-| `semantic_similarity` | float | CLIP cosine similarity | non-null, ≥0.95 required |
-| `ssim_score` | float | SSIM on non-target regions | non-null, ≥0.90 required |
-| `is_valid` | boolean | True if CLIP ≥0.95 AND SSIM ≥0.90 | non-null, default false |
-| `contrast_change` | float | Pixel-level contrast change (%) | non-null |
+**Attributes**:
+- `response_id`: Unique identifier for the response.
+- `participant_id`: Foreign key to the Participant.
+- `variant_id`: Foreign key to the Stimulus Variant.
+- `blame_rating`: Integer value (1-7 Likert scale).
+- `timestamp`: Timestamp of the response.
+- `salience_level`: Categorical value (Low, Medium, High) for convenience.
 
-**Validation**: `semantic_similarity` ≥0.95 AND `ssim_score` ≥0.90 for `is_valid=true`; `salience_level` must be one of ["low", "medium", "high"].
+### Participant
 
-### 3. Participant Data
+An individual completing the survey.
 
-**File**: `data/processed/participants.csv`  
-**Purpose**: Store participant metadata (anonymized).
-
-| Column | Type | Description | Constraints |
-|--------|------|-------------|-------------|
-| `participant_id` | string | Unique anonymized ID | PK, non-null |
-| `recruitment_source` | string | e.g., "Prolific", "University Pool" | non-null |
-| `enrollment_date` | datetime | Date of enrollment | non-null |
-
-**Validation**: No PII; `participant_id` is random UUID.
-
-### 4. Survey Responses
-
-**File**: `data/processed/responses.csv`  
-**Purpose**: Store blame ratings and metadata.
-
-| Column | Type | Description | Constraints |
-|--------|------|-------------|-------------|
-| `response_id` | string | Unique identifier | PK, non-null |
-| `participant_id` | string | FK to participants | non-null, FK |
-| `variant_id` | string | FK to stimuli | non-null, FK |
-| `blame_rating` | integer | 1-7 Likert scale | non-null, 1≤x≤7 |
-| `timestamp` | datetime | Response timestamp | non-null |
-| `is_straight_lined` | boolean | Flagged if all ratings identical | non-null, default false |
-
-**Validation**: `blame_rating` integer between 1 and 7; `is_straight_lined` set by `07_data_cleaning.py`.
-
-### 5. Analysis Outputs
-
-**File**: `data/processed/analysis_results.json`  
-**Purpose**: Store statistical analysis results (LMM).
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `model_type` | string | "Linear_Mixed_Effects_Model" |
-| `fixed_effects` | object | Dictionary of fixed effect coefficients |
-| `random_effects_variance` | object | Dictionary of random effect variances |
-| `p_value` | number | Raw p-value for salience effect |
-| `p_value_corrected` | number | Bonferroni-corrected p-value |
-| `effect_size` | object | Dictionary containing marginal_r_squared, conditional_r_squared, ci_95_lower, ci_95_upper |
-| `post_hoc_tests` | array | Array of pairwise comparison results |
-| `exclusion_rate` | number | Proportion of straight-liners excluded |
-| `sample_size` | integer | Final N after exclusions |
-| `convergence_status` | string | "converged", "warning", or "failed" |
-
-**Validation**: All fields non-null; `post_hoc_tests` includes corrected p-values.
+**Attributes**:
+- `participant_id`: Unique identifier for the participant.
+- `start_time`: Timestamp of survey start.
+- `end_time`: Timestamp of survey end.
+- `total_responses`: Number of responses provided.
+- `exclusion_flag`: Boolean indicating if the participant was excluded (straight-lining or other criteria).
+- `exclusion_reason`: String describing the reason for exclusion (if applicable).
 
 ## Data Flow
 
-1. **Raw Data**: `data/raw/visual_genome_subset/` (original images + metadata).
-2. **Interim**: `data/interim/scenarios.csv` (filtered candidates, human coding results).
-3. **Processed**: 
-   - `data/processed/stimuli.csv` + `data/processed/stimuli/` (manipulated images).
-   - `data/processed/participants.csv` + `data/processed/responses.csv` (survey data).
-4. **Outputs**: `data/processed/analysis_results.json` (statistical results).
+1. **Raw Data**: Curated text narratives and source images are stored in `data/raw`.
+2. **Processed Data**:
+   - Scenarios are identified and coded for ambiguity.
+   - Stimulus variants are generated and validated.
+   - Validation metrics (CLIP, RMS, SSIM, narrative_preserved) are stored in `data/processed/stimuli/stimuli_manifest.csv`.
+   - Processed data is stored in `data/processed` with checksums.
+3. **Survey Data**: Responses are collected and stored in `data/processed/responses.csv`.
+4. **Analysis Results**: Statistical analysis outputs (LMM tables, R², confidence intervals, power analysis) are stored in `data/results`.
 
-## Data Hygiene
+## Data Integrity
 
-- **Checksums**: All files in `data/` checksummed; recorded in `state/projects/PROJ-507-...yaml`.
-- **No In-Place Modification**: Raw data preserved; derivations write new files.
-- **PII-Free**: Participant IDs anonymized; no names/emails stored.
-- **Versioning**: Content hashes updated on artifact changes by `09_versioning_update.py`.
+- **Checksums**: All files in `data/` are checksummed and recorded in `state/projects/PROJ-507-the-influence-of-visual-salience-on-mora.yaml`.
+- **Versioning**: **Any change to the data model entities (Scenario, Stimulus Variant, Response) or their attributes triggers a state file update.** Each artifact carries a content hash. Changes to artifacts update the `updated_at` timestamp.
+- **Traceability**: Every figure and statistic in the final report traces back to exactly one row in `data/results` and one block in `code/`.
+- **Validation Metrics**: The `stimuli_manifest.csv` file serves as the Single Source of Truth for stimulus validity, containing all validation metrics (CLIP, RMS, SSIM, narrative_preserved) as required by Constitution Principle III and IV.

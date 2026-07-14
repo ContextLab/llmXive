@@ -1,11 +1,11 @@
-- artifact_hash: 500a9c6ff700216e0814d23125abde0cccb66f034bb01da8b1b47d2b8c535d16
+- artifact_hash: b51a3c8c4996034a7f7f31308bc1862510cabb9252b0820617161d17d097dae9
   artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/visual_genome`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/visual_genome/datasets
-  verified_at: '2026-07-12T10:27:16.651882Z'
+  value: https://huggingface.co/runwayml/stable-diffusion-v1-5
+  verification_status: pending
+  verified_against_url: https://huggingface.co/runwayml/stable-diffusion-v1-5
+  verified_at: '2026-07-14T19:44:59.251060Z'

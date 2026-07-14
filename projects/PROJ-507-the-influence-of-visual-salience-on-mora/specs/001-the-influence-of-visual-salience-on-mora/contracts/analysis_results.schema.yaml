@@ -29,8 +29,10 @@ properties:
     properties:
       marginal_r_squared:
         type: "number"
+        description: "Marginal R² (variance explained by fixed effects)."
       conditional_r_squared:
         type: "number"
+        description: "Conditional R² (variance explained by fixed + random effects)."
       ci_95_lower:
         type: "number"
       ci_95_upper:
@@ -71,6 +73,33 @@ properties:
       - "converged"
       - "warning"
       - "failed"
+  power_analysis:
+    type: "object"
+    properties:
+      observed_power:
+        type: "number"
+      power_flag:
+        type: "boolean"
+        description: "True if observed_power < 0.80."
+      precision_check:
+        type: "object"
+        properties:
+          ci_width:
+            type: "number"
+          threshold:
+            type: "number"
+            description: "Pre-registered threshold (0.3)."
+          flag:
+            type: "boolean"
+            description: "True if ci_width > threshold."
+        required:
+          - "ci_width"
+          - "threshold"
+          - "flag"
+    required:
+      - "observed_power"
+      - "power_flag"
+      - "precision_check"
 required:
   - "model_type"
   - "fixed_effects"
@@ -82,6 +111,7 @@ required:
   - "exclusion_rate"
   - "sample_size"
   - "convergence_status"
+  - "power_analysis"
 additionalProperties: false
 examples:
   - model_type: "Linear_Mixed_Effects_Model"
@@ -111,3 +141,10 @@ examples:
     exclusion_rate: 0.05
     sample_size: 190
     convergence_status: "converged"
+    power_analysis:
+      observed_power: 0.85
+      power_flag: false
+      precision_check:
+        ci_width: 0.14
+        threshold: 0.3
+        flag: false
