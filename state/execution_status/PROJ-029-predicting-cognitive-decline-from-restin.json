@@ -1,19 +1,22 @@
 {
   "project_id": "PROJ-029-predicting-cognitive-decline-from-restin",
   "ok": false,
-  "reason": "8 command(s) failed: python code/01_download_and_filter.py (rc=2); python code/02_preprocess_and_parcellate.py (rc=1); python code/03_compute_graph_metrics.py (rc=1); 5 declared deliverable(s) absent: data/processed/eligible_subjects.csv; data/processed/graph_metrics.csv; data/processed/performance_report.json",
-  "artifacts": [],
-  "failures": [
-    "python code/01_download_and_filter.py -> rc=2\n    ",
-    "python code/02_preprocess_and_parcellate.py -> rc=1\n    ",
-    "python code/03_compute_graph_metrics.py -> rc=1\n    ",
-    "python code/04_train_model.py -> rc=1\n    ",
-    "python code/05_evaluate_model.py -> rc=1\n    ",
-    "python code/06_permutation_test.py -> rc=1\n    ",
-    "python code/07_sensitivity_analysis.py -> rc=1\n    ",
-    "python code/08_collinearity_check.py -> rc=1\n    "
+  "reason": "8 command(s) failed: python code/01_download_and_filter.py (rc=2); python code/02_preprocess_and_parcellate.py (rc=1); python code/03_compute_graph_metrics.py (rc=1); 3 declared deliverable(s) absent: data/processed/eligible_subjects.csv; data/processed/graph_metrics.csv; data/processed/performance_report.json",
+  "artifacts": [
+    "data/raw/ds000246/dataset_description.json",
+    "data/raw/ds000246/participants.tsv"
   ],
-  "fix_rounds": 2,
+  "failures": [
+    "python code/01_download_and_filter.py -> rc=2\n    2026-07-14 02:11:23,723 - __main__ - INFO - Attempting to download ds000246 to data/raw\n2026-07-14 02:11:23,723 - __main__ - INFO - Downloading dataset_description.json from https://openneuro.org/datasets/ds000246/files/dataset_description.json\n2026-07-14 02:11:23,920 - __main__ - INFO - Successfully downloaded dataset_description.json\n2026-07-14 02:11:23,920 - __main__ - INFO - Downloading participants.tsv from https://openneuro.org/datasets/ds000246/files/participants.tsv\n2026-07-14 02:11:24,022 - __main__ - INFO - Successfully downloaded par",
+    "python code/02_preprocess_and_parcellate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/02_preprocess_and_parcellate.py\", line 11, in <module>\n    from nilearn.input_data import NiftiLabelsMasker\nModuleNotFoundError: No module named 'nilearn.input_data'",
+    "python code/03_compute_graph_metrics.py -> rc=1\n    2026-07-14 02:11:25,828 - graph_metrics - INFO - Starting graph metrics computation (T035 Refactored)\n2026-07-14 02:11:25,828 - graph_metrics - ERROR - Eligible subjects file not found: data/processed/eligible_subjects.csv",
+    "python code/04_train_model.py -> rc=1\n    2026-07-14 02:11:26,945 - __main__ - INFO - Starting model training (T023).\n2026-07-14 02:11:26,945 - __main__ - ERROR - Graph metrics file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/graph_metrics.csv\n2026-07-14 02:11:26,945 - __main__ - ERROR - Please run code/03_compute_graph_metrics.py first.",
+    "python code/05_evaluate_model.py -> rc=1\n    Evaluation failed: get_logger() got an unexpected keyword argument 'log_file'",
+    "python code/06_permutation_test.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/06_permutation_test.py\", line 26, in <module>\n    from code_04_train_model import inner_cv_pipeline, define_decline_label\nModuleNotFoundError: No module named 'code_04_train_model'",
+    "python code/07_sensitivity_analysis.py -> rc=1\n    2026-07-14 02:11:30,234 - __main__ - INFO - Starting Sensitivity Analysis (Part 1: Threshold Sweep)\n2026-07-14 02:11:30,234 - __main__ - INFO - Loading model and data...\n2026-07-14 02:11:30,234 - __main__ - ERROR - Model file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/model.pkl. Run T023 first.\n2026-07-14 02:11:30,234 - __main__ - ERROR - Analysis failed: Model file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/",
+    "python code/08_collinearity_check.py -> rc=1\n    2026-07-14 02:11:31,202 - 08_collinearity_check - ERROR - Input file not found: data/processed/graph_metrics.csv\n2026-07-14 02:11:31,202 - 08_collinearity_check - ERROR - This script requires 'data/processed/graph_metrics.csv' to be generated first by code/03_compute_graph_metrics.py."
+  ],
+  "fix_rounds": 4,
   "model_tier": 0,
-  "updated_at": "2026-07-13T23:38:38Z"
+  "updated_at": "2026-07-14T02:11:32Z"
 }

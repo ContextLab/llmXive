@@ -1,346 +1,437 @@
 """
-T018: Preprocess and Parcellate rs-fMRI Data
+Task T018: Preprocess rs-fMRI data and generate connectivity matrices.
 
-This script loads raw BIDS data, performs motion correction (FSL mcflirt),
-normalizes to MNI space (nilearn), applies the AAL atlas, and generates
-90x90 connectivity matrices for each eligible subject.
+This script performs:
+1. Motion correction using FSL's mcflirt
+2. Normalization to MNI space using nilearn
+3. Parcellation using the AAL atlas (90 regions)
+4. Extraction of 90x90 connectivity matrices for each subject
 
-Input:
-    data/raw/ds000246/ (BIDS dataset from T017)
-    data/processed/eligible_subjects.csv (from T017)
-
-Output:
-    data/processed/connectivity_matrices/ (NIfTI files per subject)
-    data/processed/preprocessing_log.csv (metadata on processing)
+Output: data/processed/connectivity_matrices/ directory containing .npy files.
 """
-
 import os
 import sys
 import subprocess
 import time
 import shutil
-from pathlib import Path
-import json
 import logging
-import pandas as pd
 import numpy as np
 import nibabel as nib
-from nilearn import image, input_data, masking
-from nilearn._utils import check_niimg
-from nilearn.datasets import fetch_atlas_aal
-import tempfile
-import glob
+from pathlib import Path
+from typing import Optional, List, Tuple
 
-# Project root
-ROOT_DIR = Path(__file__).resolve().parent.parent
-DATA_RAW = ROOT_DIR / "data" / "raw" / "ds000246"
-DATA_PROCESSED = ROOT_DIR / "data" / "processed"
-ELIGIBLE_FILE = DATA_PROCESSED / "eligible_subjects.csv"
-OUTPUT_DIR = DATA_PROCESSED / "connectivity_matrices"
-LOG_FILE = DATA_PROCESSED / "preprocessing_log.csv"
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent))
 
-# Ensure dependencies
-try:
-    import fsl  # type: ignore
-except ImportError:
-    # FSL might not be installed in the env, but we try to call mcflirt via subprocess
-    pass
+from utils.logger import get_logger
+from utils.io import ensure_dir, load_bids_subject_data
+from utils.atlas import load_aal_atlas_mask, validate_atlas_shape
+from config import get_config
 
-# Setup logging
-def get_logger_wrapper():
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-    return logger
+# --- Configuration ---
+CONFIG = get_config()
+RANDOM_SEED = CONFIG.get('random_seed', 42)
+DATA_RAW_DIR = Path(CONFIG.get('data_raw_dir', 'data/raw'))
+DATA_PROCESSED_DIR = Path(CONFIG.get('data_processed_dir', 'data/processed'))
+CONNECTIVITY_DIR = DATA_PROCESSED_DIR / 'connectivity_matrices'
+ELIGIBLE_SUBJECTS_FILE = DATA_PROCESSED_DIR / 'eligible_subjects.csv'
 
-logger = get_logger_wrapper()
+# FSL path configuration - typically set in environment or config
+FSL_DIR = os.environ.get('FSLDIR', '/usr/share/fsl')
+if FSL_DIR:
+    os.environ['PATH'] = f"{FSL_DIR}/bin:{os.environ.get('PATH', '')}"
 
-def run_command(cmd, check=True):
-    """Run a shell command and return result."""
-    logger.info(f"Running: {' '.join(cmd)}")
-    try:
-        result = subprocess.run(cmd, check=check, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        if result.stdout:
-            logger.debug(result.stdout)
-        if result.stderr:
-            logger.debug(result.stderr)
-        return result
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Command failed: {' '.join(cmd)}")
-        logger.error(f"stderr: {e.stderr}")
-        raise
+logger = get_logger('preprocess_parcellate')
 
-def perform_motion_correction(input_nii, output_dir):
+def get_logger_wrapper(name: str) -> logging.Logger:
+    """Get a logger with the specified name."""
+    return logging.getLogger(name)
+
+def run_command(cmd: List[str], cwd: Optional[str] = None) -> Tuple[int, str, str]:
     """
-    Perform motion correction using FSL mcflirt.
-    If FSL is not available, fall back to nilearn's realignment simulation
-    or skip if the data is already preprocessed (common in small OpenNeuro datasets).
-    """
-    output_path = Path(output_dir) / f"mcflirt_{Path(input_nii).name}"
+    Run a shell command and return exit code, stdout, stderr.
     
-    # Check if FSL mcflirt is available
-    try:
-        run_command(["which", "mcflirt"])
-        mcflirt_available = True
-    except subprocess.CalledProcessError:
-        mcflirt_available = False
-        logger.warning("FSL mcflirt not found. Skipping motion correction or using fallback.")
-
-    if mcflirt_available:
-        # mcflirt -in input -out output -refref (reference first volume)
-        cmd = [
-            "mcflirt",
-            "-in", str(input_nii),
-            "-out", str(output_path.with_suffix('')), # mcflirt adds suffix
-            "-ref", "0", # Reference first volume
-            "-dof", "6",
-            "-mats", "-plots", "-rmsdiff"
-        ]
-        try:
-            run_command(cmd)
-            # mcflirt outputs a 4D file with the motion corrected volumes
-            # We need to find the actual output file
-            # Usually it's input_name_mcflirt.nii.gz
-            actual_out = Path(str(output_path.with_suffix('')) + ".nii.gz")
-            if not actual_out.exists():
-                # Try to find the generated file
-                matches = glob.glob(str(Path(output_dir) / f"{input_nii.stem}_mcflirt*.nii*"))
-                if matches:
-                    actual_out = Path(matches[0])
-            return actual_out
-        except Exception as e:
-            logger.warning(f"mcflirt failed: {e}. Proceeding with original file.")
-            return input_nii
-    else:
-        # Fallback: Use nilearn's image realignment if available, or just copy
-        # For the purpose of this pipeline on OpenNeuro ds000246 (often already preprocessed),
-        # we might just return the input if motion correction is not strictly enforced by the data provider.
-        logger.info("Using original image as motion correction skipped.")
-        return input_nii
-
-def normalize_to_mni(input_nii, output_dir):
-    """
-    Normalize to MNI space using nilearn.
-    This uses the standard MNI152 template.
-    """
-    output_path = Path(output_dir) / f"mni_{Path(input_nii).name}"
-    
-    # nilearn's resample_to_img or smooth_img can be used, but for normalization
-    # we typically need a transformation matrix. Since we don't have T1w for registration here,
-    # and many OpenNeuro rs-fMRI datasets are already in MNI space, we attempt to detect.
-    # If not, we use a standard affine resampling to 2mm MNI space as a proxy.
-    
-    try:
-        # Attempt to load and check affine
-        img = check_niimg(input_nii)
-        affine = img.affine
+    Args:
+        cmd: Command as a list of strings
+        cwd: Working directory
         
-        # Heuristic: If affine is close to MNI 2mm, skip transformation
-        # MNI152 2mm standard affine is roughly:
-        # [[ -2.  0.  0.  90.],
-        #  [  0.  2.  0. -126.],
-        #  [  0.  0.  2. -72.],
-        #  [  0.  0.  0.   1.]]
-        is_mni = (
-            np.isclose(affine[0, 0], -2, atol=0.1) and 
-            np.isclose(affine[1, 1], 2, atol=0.1) and 
-            np.isclose(affine[2, 2], 2, atol=0.1) and
-            np.isclose(affine[0, 3], 90, atol=10)
+    Returns:
+        Tuple of (return_code, stdout, stderr)
+    """
+    try:
+        result = subprocess.run(
+            cmd,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        return result.returncode, result.stdout, result.stderr
+    except Exception as e:
+        logger.error(f"Command execution failed: {e}")
+        return 1, "", str(e)
+
+def perform_motion_correction(nifti_path: Path, output_dir: Path) -> Optional[Path]:
+    """
+    Perform motion correction using FSL's mcflirt.
+    
+    Args:
+        nifti_path: Path to input 4D NIfTI file
+        output_dir: Directory to save corrected output
+        
+    Returns:
+        Path to corrected NIfTI file, or None if failed
+    """
+    if not nifti_path.exists():
+        logger.error(f"Input file not found: {nifti_path}")
+        return None
+        
+    base_name = nifti_path.stem
+    output_path = output_dir / f"{base_name}_mcflirt.nii.gz"
+    
+    cmd = [
+        'mcflirt',
+        '-in', str(nifti_path),
+        '-out', str(output_path),
+        '-refvol', '0',
+        '-sinc',
+        '-mats',
+        '-rmsrel', '0.1',
+        '-rmsabs', '0.2'
+    ]
+    
+    logger.info(f"Running motion correction for {base_name}...")
+    start_time = time.time()
+    return_code, stdout, stderr = run_command(cmd)
+    elapsed = time.time() - start_time
+    
+    if return_code != 0:
+        logger.error(f"mcflirt failed for {base_name}: {stderr}")
+        return None
+        
+    if not output_path.exists():
+        logger.error(f"mcflirt output not found: {output_path}")
+        return None
+        
+    logger.info(f"Motion correction completed in {elapsed:.2f}s: {output_path}")
+    return output_path
+
+def normalize_to_mni(nifti_path: Path, output_dir: Path) -> Optional[Path]:
+    """
+    Normalize to MNI space using nilearn's resampling.
+    
+    Note: Since we don't have structural images for all subjects in this dataset,
+    we use affine transformation to MNI152 space as a proxy.
+    
+    Args:
+        nifti_path: Path to motion-corrected NIfTI
+        output_dir: Directory to save normalized output
+        
+    Returns:
+        Path to normalized NIfTI file, or None if failed
+    """
+    if not nifti_path.exists():
+        logger.error(f"Input file not found: {nifti_path}")
+        return None
+        
+    from nilearn import image
+    from nilearn.image import resample_to_img
+    from nilearn.datasets import load_mni152_template
+    
+    base_name = nifti_path.stem
+    output_path = output_dir / f"{base_name}_mni.nii.gz"
+    
+    try:
+        logger.info(f"Normalizing to MNI space for {base_name}...")
+        start_time = time.time()
+        
+        # Load the functional image
+        func_img = image.load_img(nifti_path)
+        
+        # Load MNI152 template
+        mni_img = load_mni152_template()
+        
+        # Resample functional to MNI space (2mm isotropic)
+        # Using resample_to_img which handles the transformation
+        normalized_img = resample_to_img(
+            func_img, 
+            mni_img, 
+            interpolation='continuous',
+            copy_header=True
         )
         
-        if is_mni:
-            logger.info(f"Image {input_nii} appears to be already in MNI space. Skipping normalization.")
-            shutil.copy(input_nii, output_path)
-            return output_path
+        # Save the result
+        image.save_img(normalized_img, output_path)
         
-        # If not MNI, we would normally register T1w to MNI and apply to fMRI.
-        # Without T1w, we cannot do accurate normalization. 
-        # For this task, we assume the dataset is either already MNI or we proceed with the
-        # raw data and apply the atlas in native space (if atlas is in native space).
-        # However, the task requires "normalization using nilearn".
-        # We will use nilearn's standardization to MNI152 if possible, but without a T1w,
-        # we fall back to resampling to the MNI grid.
-        
-        logger.info("Resampling to MNI 2mm grid (approximate normalization).")
-        # Create a target MNI image
-        from nilearn.image import new_img_like, resample_to_img
-        from nilearn.datasets import load_mni152_template
-        
-        template = load_mni152_template(resolution=2)
-        resampled_img = resample_to_img(img, template, interpolation='continuous')
-        resampled_img.to_filename(str(output_path))
+        elapsed = time.time() - start_time
+        logger.info(f"Normalization completed in {elapsed:.2f}s: {output_path}")
         return output_path
         
     except Exception as e:
-        logger.error(f"Normalization failed: {e}")
-        # Fallback to copy
-        shutil.copy(input_nii, output_path)
-        return output_path
-
-def extract_timeseries_from_atlas(nii_file, atlas_mask):
-    """
-    Extract the mean time series for each region in the atlas.
-    """
-    # Use NiftiLabelsMasker
-    masker = input_data.NiftiLabelsMasker(
-        labels_img=atlas_mask,
-        standardize=True,
-        detrend=True,
-        low_pass=0.1,
-        high_pass=0.01,
-        t_r=2.0, # Assume 2s TR if not in metadata
-        memory="nilearn_cache",
-        memory_level=1,
-        verbose=0
-    )
-    try:
-        time_series = masker.fit_transform(nii_file)
-        return time_series
-    except Exception as e:
-        logger.error(f"Failed to extract timeseries: {e}")
-        raise
-
-def compute_connectivity_matrix(time_series, method='correlation'):
-    """
-    Compute the 90x90 connectivity matrix from the time series.
-    """
-    if method == 'correlation':
-        # Pearson correlation
-        corr_matrix = np.corrcoef(time_series.T)
-        # Handle NaNs
-        corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
-        return corr_matrix
-    else:
-        raise ValueError(f"Method {method} not supported")
-
-def process_subject(subject_id, bids_root, output_dir):
-    """
-    Process a single subject:
-    1. Find functional run
-    2. Motion correction
-    3. Normalization
-    4. Atlas extraction
-    5. Connectivity matrix
-    6. Save matrix
-    """
-    logger.info(f"Processing subject: {subject_id}")
-    
-    # Find functional files
-    # BIDS structure: sub-<label>/func/sub-<label>_task-rest_run-<int>_bold.nii.gz
-    func_pattern = str(bids_root / "sub-" + subject_id / "func" / f"sub-{subject_id}_task-*_bold.nii.gz")
-    func_files = glob.glob(func_pattern)
-    
-    if not func_files:
-        logger.warning(f"No functional files found for {subject_id}")
+        logger.error(f"Normalization failed for {base_name}: {e}")
         return None
-    
-    # Take the first run
-    func_file = func_files[0]
-    logger.info(f"Found functional file: {func_file}")
-    
-    # Create temp dir for intermediate steps
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # 1. Motion Correction
-        mcflirt_out = perform_motion_correction(func_file, tmpdir)
-        
-        # 2. Normalization
-        mni_out = normalize_to_mni(mcflirt_out, tmpdir)
-        
-        # 3. Load Atlas (AAL)
-        # Fetch AAL atlas if not cached
-        try:
-            atlas_data = fetch_atlas_aal()
-            atlas_mask = atlas_data.maps
-            logger.info(f"AAL Atlas loaded: {atlas_mask.shape}")
-        except Exception as e:
-            logger.error(f"Failed to load AAL atlas: {e}")
-            return None
-        
-        # 4. Extract Timeseries
-        ts = extract_timeseries_from_atlas(mni_out, atlas_mask)
-        
-        # 5. Compute Connectivity
-        conn_mat = compute_connectivity_matrix(ts)
-        
-        # 6. Save Matrix
-        # Save as .npy and also as a simple text for verification
-        matrix_file = output_dir / f"sub-{subject_id}_connectivity.npy"
-        np.save(str(matrix_file), conn_mat)
-        
-        logger.info(f"Saved connectivity matrix for {subject_id} to {matrix_file}")
-        return matrix_file
 
-def write_outputs(subjects_processed, log_file):
+def extract_timeseries_from_atlas(nifti_path: Path, atlas_mask_path: Path) -> Optional[np.ndarray]:
     """
-    Write a CSV log of processing results.
-    """
-    data = []
-    for sub_id, matrix_path in subjects_processed:
-        data.append({
-            "subject_id": sub_id,
-            "matrix_path": str(matrix_path) if matrix_path else "FAILED",
-            "status": "SUCCESS" if matrix_path else "FAILED"
-        })
+    Extract mean time series from each atlas region.
     
-    df = pd.DataFrame(data)
-    df.to_csv(log_file, index=False)
-    logger.info(f"Written processing log to {log_file}")
+    Args:
+        nifti_path: Path to normalized NIfTI file
+        atlas_mask_path: Path to AAL atlas mask
+        
+    Returns:
+        2D array of shape (n_timepoints, n_regions), or None if failed
+    """
+    if not nifti_path.exists():
+        logger.error(f"Functional image not found: {nifti_path}")
+        return None
+    if not atlas_mask_path.exists():
+        logger.error(f"Atlas mask not found: {atlas_mask_path}")
+        return None
+        
+    from nilearn.input_data import NiftiLabelsMasker
+    
+    base_name = nifti_path.stem
+    
+    try:
+        logger.info(f"Extracting timeseries for {base_name}...")
+        start_time = time.time()
+        
+        # Load the atlas mask
+        atlas_img = nib.load(atlas_mask_path)
+        
+        # Create masker
+        masker = NiftiLabelsMasker(
+            labels_img=atlas_img,
+            standardize=True,
+            detrend=True,
+            low_pass=0.1,
+            high_pass=0.01,
+            t_r=2.0,  # Approximate TR for this dataset
+            memory='nilearn_cache',
+            memory_level=1,
+            verbose=0
+        )
+        
+        # Extract timeseries
+        timeseries = masker.fit_transform(nifti_path)
+        
+        elapsed = time.time() - start_time
+        logger.info(f"Timeseries extraction completed in {elapsed:.2f}s: shape {timeseries.shape}")
+        return timeseries
+        
+    except Exception as e:
+        logger.error(f"Timeseries extraction failed for {base_name}: {e}")
+        return None
+
+def compute_connectivity_matrix(timeseries: np.ndarray) -> np.ndarray:
+    """
+    Compute Pearson correlation matrix from timeseries.
+    
+    Args:
+        timeseries: 2D array of shape (n_timepoints, n_regions)
+        
+    Returns:
+        2D correlation matrix of shape (n_regions, n_regions)
+    """
+    from scipy.stats import pearsonr
+    
+    n_regions = timeseries.shape[1]
+    corr_matrix = np.zeros((n_regions, n_regions))
+    
+    # Compute correlation for each pair
+    for i in range(n_regions):
+        for j in range(i, n_regions):
+            if i == j:
+                corr_matrix[i, j] = 1.0
+            else:
+                # Compute Pearson correlation
+                corr, _ = pearsonr(timeseries[:, i], timeseries[:, j])
+                corr_matrix[i, j] = corr
+                corr_matrix[j, i] = corr
+                
+    return corr_matrix
+
+def process_subject(subject_id: str, bids_data_dir: Path, temp_dir: Path) -> Optional[np.ndarray]:
+    """
+    Process a single subject: motion correction -> normalization -> parcellation.
+    
+    Args:
+        subject_id: Subject identifier
+        bids_data_dir: Path to BIDS dataset root
+        temp_dir: Directory for intermediate files
+        
+    Returns:
+        Connectivity matrix (90x90), or None if failed
+    """
+    # Load AAL atlas (load once per subject to avoid repeated I/O)
+    atlas_mask_path = load_aal_atlas_mask()
+    if not atlas_mask_path:
+        logger.error("Failed to load AAL atlas mask")
+        return None
+        
+    # Find functional image for this subject
+    func_files = list(bids_data_dir.glob(f"sub-{subject_id}/**/func/*task-rest*bold.nii.gz"))
+    if not func_files:
+        logger.warning(f"No resting-state fMRI found for subject {subject_id}")
+        return None
+        
+    func_path = func_files[0]
+    logger.info(f"Processing subject {subject_id} with file: {func_path}")
+    
+    # Create subject-specific temp directory
+    subject_temp_dir = temp_dir / subject_id
+    ensure_dir(subject_temp_dir)
+    
+    # Step 1: Motion correction
+    mc_path = perform_motion_correction(func_path, subject_temp_dir)
+    if not mc_path:
+        logger.error(f"Motion correction failed for {subject_id}")
+        return None
+        
+    # Step 2: Normalization to MNI
+    mni_path = normalize_to_mni(mc_path, subject_temp_dir)
+    if not mni_path:
+        logger.error(f"Normalization failed for {subject_id}")
+        return None
+        
+    # Step 3: Extract timeseries using AAL atlas
+    timeseries = extract_timeseries_from_atlas(mni_path, atlas_mask_path)
+    if timeseries is None:
+        logger.error(f"Timeseries extraction failed for {subject_id}")
+        return None
+        
+    # Step 4: Compute connectivity matrix
+    corr_matrix = compute_connectivity_matrix(timeseries)
+    
+    logger.info(f"Successfully processed subject {subject_id}: {corr_matrix.shape}")
+    return corr_matrix
+
+def write_outputs(subject_id: str, corr_matrix: np.ndarray, output_dir: Path) -> bool:
+    """
+    Save connectivity matrix to disk.
+    
+    Args:
+        subject_id: Subject identifier
+        corr_matrix: 90x90 correlation matrix
+        output_dir: Output directory
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    ensure_dir(output_dir)
+    output_path = output_dir / f"sub-{subject_id}_connectivity.npy"
+    
+    try:
+        np.save(output_path, corr_matrix)
+        logger.info(f"Saved connectivity matrix for {subject_id} to {output_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to save connectivity matrix for {subject_id}: {e}")
+        return False
+
+def load_eligible_subjects(file_path: Path) -> List[str]:
+    """
+    Load list of eligible subjects from CSV.
+    
+    Args:
+        file_path: Path to eligible_subjects.csv
+        
+    Returns:
+        List of subject IDs
+    """
+    import pandas as pd
+    
+    if not file_path.exists():
+        logger.error(f"Eligible subjects file not found: {file_path}")
+        return []
+        
+    try:
+        df = pd.read_csv(file_path)
+        if 'subject_id' not in df.columns:
+            logger.error(f"'subject_id' column not found in {file_path}")
+            return []
+            
+        subjects = df['subject_id'].tolist()
+        logger.info(f"Loaded {len(subjects)} eligible subjects from {file_path}")
+        return subjects
+    except Exception as e:
+        logger.error(f"Failed to load eligible subjects: {e}")
+        return []
 
 def main():
-    logger.info("Starting preprocessing and parcellation pipeline.")
-    
-    # Check inputs
-    if not DATA_RAW.exists():
-        logger.error(f"Raw data directory not found: {DATA_RAW}")
-        sys.exit(1)
-    
-    if not ELIGIBLE_FILE.exists():
-        logger.error(f"Eligible subjects file not found: {ELIGIBLE_FILE}")
-        sys.exit(1)
-    
-    # Load eligible subjects
-    df_eligible = pd.read_csv(ELIGIBLE_FILE)
-    # Assuming the CSV has a 'subject_id' column from T017
-    if 'subject_id' not in df_eligible.columns:
-        # Fallback if column name is different (e.g., 'sub_id' or just index)
-        # Try to infer from T017 output structure if known, but here we assume 'subject_id'
-        # If T017 output format is unknown, we might need to adapt.
-        # Based on T017 description: "Output data/processed/eligible_subjects.csv"
-        # We assume it has 'subject_id'.
-        logger.error("Expected 'subject_id' column in eligible_subjects.csv")
-        sys.exit(1)
-    
-    eligible_ids = df_eligible['subject_id'].tolist()
-    logger.info(f"Found {len(eligible_ids)} eligible subjects.")
+    """Main entry point for preprocessing and parcellation."""
+    logger.info("Starting preprocessing and parcellation pipeline (T018)")
+    start_time = time.time()
     
     # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    ensure_dir(CONNECTIVITY_DIR)
     
-    processed = []
-    for sub_id in eligible_ids:
-        try:
-            result = process_subject(sub_id, DATA_RAW, OUTPUT_DIR)
-            if result:
-                processed.append((sub_id, result))
-            else:
-                processed.append((sub_id, None))
-        except Exception as e:
-            logger.error(f"Error processing {sub_id}: {e}")
-            processed.append((sub_id, None))
-    
-    # Write log
-    write_outputs(processed, LOG_FILE)
-    
-    # Check if any succeeded
-    if len(processed) == 0:
-        logger.error("No subjects processed successfully.")
+    # Load eligible subjects
+    if not ELIGIBLE_SUBJECTS_FILE.exists():
+        logger.error(f"Eligible subjects file not found: {ELIGIBLE_SUBJECTS_FILE}")
+        logger.error("Please run code/01_download_and_filter.py first to generate eligible_subjects.csv")
         sys.exit(1)
+        
+    subjects = load_eligible_subjects(ELIGIBLE_SUBJECTS_FILE)
+    if not subjects:
+        logger.error("No eligible subjects found. Exiting.")
+        sys.exit(1)
+        
+    # Create temporary directory for intermediate files
+    temp_dir = DATA_PROCESSED_DIR / 'temp_preprocessing'
+    ensure_dir(temp_dir)
     
-    logger.info(f"Pipeline complete. {len(processed)} subjects processed.")
+    processed_count = 0
+    failed_count = 0
+    
+    for subject_id in subjects:
+        try:
+            corr_matrix = process_subject(subject_id, DATA_RAW_DIR, temp_dir)
+            if corr_matrix is not None:
+                if write_outputs(subject_id, corr_matrix, CONNECTIVITY_DIR):
+                    processed_count += 1
+                else:
+                    failed_count += 1
+            else:
+                failed_count += 1
+        except Exception as e:
+            logger.error(f"Unexpected error processing {subject_id}: {e}")
+            failed_count += 1
+    
+    # Clean up temporary files
+    try:
+        shutil.rmtree(temp_dir)
+        logger.info("Cleaned up temporary directory")
+    except Exception as e:
+        logger.warning(f"Failed to clean up temporary directory: {e}")
+    
+    elapsed = time.time() - start_time
+    logger.info(f"Pipeline completed in {elapsed:.2f}s")
+    logger.info(f"Successfully processed: {processed_count}/{len(subjects)} subjects")
+    if failed_count > 0:
+        logger.warning(f"Failed to process: {failed_count} subjects")
+        
+    # Write a summary log
+    summary_path = CONNECTIVITY_DIR / 'processing_summary.json'
+    import json
+    summary = {
+        'total_subjects': len(subjects),
+        'processed': processed_count,
+        'failed': failed_count,
+        'elapsed_seconds': elapsed,
+        'output_directory': str(CONNECTIVITY_DIR)
+    }
+    with open(summary_path, 'w') as f:
+        json.dump(summary, f, indent=2)
+    logger.info(f"Summary written to {summary_path}")
+    
+    if processed_count == 0:
+        logger.error("No subjects were successfully processed. Exiting with error.")
+        sys.exit(1)
+        
+    logger.info("Preprocessing and parcellation pipeline completed successfully")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
