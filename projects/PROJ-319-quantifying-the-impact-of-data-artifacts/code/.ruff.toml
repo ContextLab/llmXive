@@ -1,0 +1,24 @@
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in data loading)
+    "C901", # too complex (allow initial complexity in analysis modules)
+]
+
+[lint.per-file-ignores]
+"code/main.py" = ["T20"] # allow print statements in entry point
+"tests/*" = ["S101", "ARG"] # allow asserts and unused args in tests
+
+[format]
+line-length = 88
+indent-style = "space"
+quote-style = "double"
