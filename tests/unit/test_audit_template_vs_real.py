@@ -449,3 +449,97 @@ def test_genuine_unfilled_placeholders_still_template(tmp_path):
     p.write_text(dm, encoding="utf-8")
     classification, rules = classify(p, templates_dir=Path(".specify/templates"))
     assert classification == "template", [r.rule_id for r in rules]
+
+
+# --- the bracket heuristic must not flag the agent's OWN annotations -------------
+#
+# `unfilled_bracket_density` counted ANY multi-word bracket, so it classified 8 real,
+# fully-written specs as "unfilled templates" and failed the `audit` workflow on them
+# — while contributing ZERO true positives (the one genuinely-unfilled artifact fired
+# the SSoT rule, `literal_template_phrases>=3`). A gate that cries wolf 8 times out of
+# 9 teaches everyone to ignore it, which is worse than having no gate.
+#
+# Every string below is REAL content the agents legitimately emit. Note that
+# FILLED_TASK_REF_RE could not even see most of them: it required `\bT\d{2,4}\b`, so a
+# SUFFIXED task id (`T029a`, `T012b`, `T006_run`) never matched — the trailing word
+# character killed the boundary.
+_AGENT_AUTHORED = [
+    "[Requires: T029a]", "[Dep: T006_run]", "[BLOCKED UNTIL T012a PASSES]",
+    "[MUST run after T001a-T001q]", "[User Story 1]", "[SPEC UPDATE]",
+    "[Note: DEAP-EMG is a derived subset, not a standalone HF repo]",
+    "[Preserve existing citations verbatim]",
+]
+
+
+def test_agent_authored_brackets_are_not_unfilled_placeholders(tmp_path) -> None:
+    doc = tmp_path / "tasks.md"
+    doc.write_text(
+        "# Tasks — Predicting Cognitive Decline from Resting-State fMRI\n\n"
+        "These tasks implement the pre-registered analysis described in spec.md.\n\n"
+        + "\n".join(
+            f"- [X] T{i:03d} Implement the real analysis step {b}"
+            for i, b in enumerate(_AGENT_AUTHORED)
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    classification, rules = classify(doc, templates_dir=Path(".specify/templates"))
+    assert classification != "template", (
+        f"real, fully-written content misclassified as a template: "
+        f"{[r.rule_id for r in rules]}"
+    )
+
+
+def test_a_genuinely_unfilled_template_is_still_caught(tmp_path) -> None:
+    """The real signal must survive: an artifact still carrying the TEMPLATE's own
+    placeholders is a template."""
+    doc = tmp_path / "spec.md"
+    doc.write_text(
+        "# [FEATURE NAME]\n\n**Date**: [DATE]\n\n## [Brief Title]\n\n"
+        "[Link to spec.md or relevant documentation]\n\n"
+        "- [Category 1]\n- [Category 2]\n",
+        encoding="utf-8",
+    )
+    classification, rules = classify(doc, templates_dir=Path(".specify/templates"))
+    assert classification == "template", [r.rule_id for r in rules]
+
+
+def test_scaffold_is_not_a_defect_before_its_author_runs(tmp_path) -> None:
+    """`/speckit-specify` SCAFFOLDS every artifact from the templates; each is filled
+    in later at its own stage. A project at project_initialized therefore has a
+    spec.md that is STILL the raw template — the Specifier has not run yet. Failing
+    the audit on it makes the gate red for queue depth, not for a real problem
+    (PROJ-834). Once the project reaches `specified`, the same file IS judged."""
+    from llmxive.audit.template_vs_real import audit
+
+    repo = tmp_path
+    pid = "PROJ-834-x"
+    spec = repo / "projects" / pid / "specs" / "001-x" / "spec.md"
+    spec.parent.mkdir(parents=True)
+    spec.write_text(
+        "# Feature Specification: [FEATURE NAME]\n\n"
+        "**Created**: [DATE]\n**Input**: \"$ARGUMENTS\"\n\n"
+        "## Overview\n[Brief description of the feature]\n"
+        "[List the functional requirements here]\n[Describe the user scenarios]\n"
+        "[Add acceptance criteria]\n[Define the success metrics]\n",
+        encoding="utf-8",
+    )
+    tmpl = repo / "templates"
+    tmpl.mkdir()
+    (tmpl / "spec-template.md").write_text(spec.read_text(encoding="utf-8"), encoding="utf-8")
+    state = repo / "state" / "projects"
+    state.mkdir(parents=True)
+    stage_file = state / f"{pid}.yaml"
+
+    stage_file.write_text("current_stage: project_initialized\n", encoding="utf-8")
+    m = audit(projects_dir=repo / "projects", templates_dir=tmpl, repo_root=repo)
+    assert [i for i in m["items"] if i["classification"] == "template"] == [], (
+        "a scaffold was failed before its authoring agent ever ran"
+    )
+
+    # Once the Specifier HAS run, the very same unfilled file IS a defect.
+    stage_file.write_text("current_stage: specified\n", encoding="utf-8")
+    m = audit(projects_dir=repo / "projects", templates_dir=tmpl, repo_root=repo)
+    assert [i for i in m["items"] if i["classification"] == "template"], (
+        "an unfilled spec at `specified` must still be caught"
+    )

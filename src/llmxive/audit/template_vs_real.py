@@ -37,7 +37,17 @@ STRUCTURAL_LABEL_RE = re.compile(r"^\[(Story\??|US\d+|TaskID|ID|P\??)\]$")
 #     on every FR/SC (specifier.md mandates citing the story each serves); the
 #     live PROJ-530/PROJ-118 spec refusals (sample=['[See US-1]', '[See US-2]']).
 # Both name a concrete id (T### / US-#), so neither is a fill-in-the-blank slot.
-FILLED_TASK_REF_RE = re.compile(r"\bT\d{2,4}\b|\bUS-?\d+\b")
+#
+# The id may carry a SUFFIX — the tasker routinely emits `T029a`, `T012b`,
+# `T006_run`, `PT005C`. The old pattern `\bT\d{2,4}\b` could not see ANY of them: the
+# trailing word character kills the word boundary, so `[Requires: T029a]`,
+# `[Dep: T006_run]` and `[BLOCKED UNTIL T012a PASSES]` were all read as unfilled
+# placeholders and their (fully-written) specs were failed as "templates".
+FILLED_TASK_REF_RE = re.compile(r"\bP?T\d{1,4}[A-Za-z0-9_]*\b|\bUS-?\d+\b")
+# "[Note: …]", "[Dep: …]", "[Requires: …]" — a `Key: value` gloss NAMES a concrete
+# thing, so it is the agent annotating its own content, not a fill-in-the-blank slot.
+# (A template placeholder has no referent; it IS the missing referent.)
+ANNOTATION_GLOSS_RE = re.compile(r"^\[[A-Za-z][\w /-]{0,24}:\s*\S")
 # Claims-layer quality markers — ``[UNRESOLVED-CLAIM: <id> — <reason>]`` (specs
 # 016-020; the prefix is claims.gate.CLAIM_MARKER_PREFIX) and the legacy
 # citation-guard ``[UNVERIFIED: <ref> — <reason>]`` — are INTENTIONAL filled
@@ -178,6 +188,23 @@ def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[R
     # catches from the learned set, OR LLM-emitted labels/annotations
     # ("[P]", "[US1]", "[REVISION]", "[X]") that legitimately appear in a real
     # tasks.md and must not be mistaken for unfilled placeholders.
+    # This rule flagged 8 fully-written specs as "unfilled templates" — on
+    # `[Requires: T029a]`, `[Dep: T006_run]`, `[BLOCKED UNTIL T012a PASSES]`,
+    # `[User Story 1]`, `[SPEC UPDATE]`, `[Note: DEAP-EMG is a derived subset…]`,
+    # `[Preserve existing citations verbatim]` — while contributing ZERO true
+    # positives, and failed the `audit` workflow on those 8 false alarms out of 9.
+    # Every one of them is content the AGENT authored. Two things separate a real
+    # fill-in slot from an agent's annotation:
+    #
+    #   1. An annotation names something CONCRETE — a task id (now matched even when
+    #      suffixed: T029a / T006_run) or a `Key: value` gloss (`[Note: …]`,
+    #      `[Dep: …]`). A placeholder has no referent; it IS the missing referent.
+    #   2. Real templates are DIVERSE — every slot asks for something different
+    #      ([Brief description of the feature], [List the functional requirements],
+    #      [Define the success metrics]…). An agent's marker REPEATS: `[SPEC UPDATE]`
+    #      appeared 7x and `[User Story 1]` 31x in the same file. So the density must
+    #      count DISTINCT placeholders, not occurrences — 7 copies of one marker is
+    #      not a saturated template, it is one annotation used 7 times.
     brackets = [
         b for b in PLACEHOLDER_BRACKET_RE.findall(scan)
         if not STRUCTURAL_LABEL_RE.match(b)
@@ -185,12 +212,17 @@ def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[R
         and not FILLED_TASK_REF_RE.search(b)  # "[DEPENDS ON: T011]" is filled, not a placeholder
         and not CLAIM_MARKER_RE.match(b)  # "[UNRESOLVED-CLAIM: …]" is a filled quality marker
         and not CONST_REF_RE.match(b)  # "[Const VII]" is a filled constitution-principle label
+        and not ANNOTATION_GLOSS_RE.match(b)  # "[Note: …]" / "[Dep: …]" names a concrete thing
     ]
-    if brackets and len(brackets) >= 6:
-        # treat >=6 unfilled multi-word bracket placeholders as template
+    distinct = sorted({b.casefold() for b in brackets})
+    if len(distinct) >= 6:
+        # >=6 DISTINCT unfilled multi-word placeholders = a saturated template
         rules.append(RuleFired(
             rule_id="unfilled_bracket_density",
-            evidence_snippet=f"{len(brackets)} bracket markers; sample={brackets[:3]}",
+            evidence_snippet=(
+                f"{len(distinct)} distinct bracket placeholders "
+                f"({len(brackets)} occurrences); sample={brackets[:3]}"
+            ),
         ))
         return "template", rules
 
@@ -266,6 +298,59 @@ def _strip_md(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+#: The stage that AUTHORS each speckit artifact. Until the project has reached it,
+#: the file is still the scaffold `/speckit-specify` laid down from the template and
+#: is not expected to be filled. Anything not listed is judged whenever it exists.
+_AUTHORED_AT: dict[str, str] = {
+    "spec.md": "specified",
+    "plan.md": "planned",
+    "research.md": "planned",
+    "data-model.md": "planned",
+    "quickstart.md": "planned",
+    "tasks.md": "tasked",
+}
+
+#: Pipeline order, used ONLY to answer "has the project passed stage X yet?".
+_STAGE_ORDER: tuple[str, ...] = (
+    "brainstormed", "validated", "project_initialized", "flesh_out_in_progress",
+    "flesh_out_complete", "specified", "clarified", "planned", "analyzed",
+    "tasked", "in_progress", "research_complete", "research_review",
+    "research_accepted",
+)
+
+
+def _project_stage(project_dir_name: str, *, repo_root: Path) -> str | None:
+    f = repo_root / "state" / "projects" / f"{project_dir_name}.yaml"
+    if not f.is_file():
+        return None
+    try:
+        import yaml as _yaml
+
+        return (_yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("current_stage")
+    except Exception:
+        return None
+
+
+def _is_expected_filled(artifact: Path, *, repo_root: Path) -> bool:
+    """Whether the agent that writes ``artifact`` has actually run yet.
+
+    An unfilled scaffold is only a DEFECT once its authoring stage has passed;
+    before that it is simply the template waiting for its turn. Unknown project or
+    unknown stage → judge it (fail closed: never silently skip a real artifact).
+    """
+    needed = _AUTHORED_AT.get(artifact.name)
+    if needed is None:
+        return True
+    try:
+        proj = next(p for p in artifact.parents if p.name.startswith("PROJ-"))
+    except StopIteration:
+        return True
+    stage = _project_stage(proj.name, repo_root=repo_root)
+    if stage is None or stage not in _STAGE_ORDER or needed not in _STAGE_ORDER:
+        return True
+    return _STAGE_ORDER.index(stage) >= _STAGE_ORDER.index(needed)
+
+
 def audit(*, projects_dir: Path | str, templates_dir: Path | str, repo_root: Path | str = ".", **_: Any) -> dict[str, Any]:
     repo_root = Path(repo_root).resolve()
     projects_dir = Path(projects_dir).resolve()
@@ -282,6 +367,15 @@ def audit(*, projects_dir: Path | str, templates_dir: Path | str, repo_root: Pat
         + [p.resolve() for p in projects_dir.glob("PROJ-*/specs/**/*.yaml")]
         + [p.resolve() for p in projects_dir.glob("PROJ-*/specs/**/*.yml")]
     )
+    # STAGE AWARENESS: `/speckit-specify` SCAFFOLDS the artifact set from the
+    # templates and the authoring agent fills each file in later, at its own stage.
+    # A project sitting at project_initialized therefore has a spec.md that is still
+    # the raw template — literally "# Feature Specification: [FEATURE NAME]" with
+    # `$ARGUMENTS` in it — because the Specifier has NOT RUN YET. That is not a
+    # defect, it is a project waiting its turn; failing the audit on it makes the
+    # gate red for a queue depth rather than for a real problem (PROJ-834).
+    # Judge an artifact only once the stage that AUTHORS it has run.
+    artifacts = [p for p in artifacts if _is_expected_filled(p, repo_root=repo_root)]
 
     def _rel(p: Path) -> str:
         try:
