@@ -1,2 +1,2 @@
-# Extracted sparse features (SIFT/ORB)
-# Files will be saved as .npy
+# This file ensures the data/features directory is tracked by git.
+# Extracted sparse features (SIFT/ORB) will be placed here.

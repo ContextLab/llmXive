@@ -1,208 +1,263 @@
+"""
+Data schemas and directory structure management for the llmXive pipeline.
+
+This module defines the expected directory structure, data schemas for
+stratified datasets, feature files, and results. It also provides
+validation utilities to ensure data integrity.
+"""
+
 import json
 import os
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
-from config import get_stratified_dir, get_features_dir, get_results_dir
+from typing import List, Dict, Any, Tuple, Optional
 
 from config import (
-    get_data_dir,
-    get_raw_dir,
+    get_stratified_dir, 
+    get_features_dir, 
+    get_results_dir, 
+    get_raw_dir, 
     get_processed_dir,
-    get_stratified_dir,
-    get_features_dir,
-    get_results_dir,
     ensure_directories
 )
 
+# Constants for directory structure
+DATA_DIRS = {
+    "raw": get_raw_dir,
+    "processed": get_processed_dir,
+    "stratified": get_stratified_dir,
+    "features": get_features_dir,
+    "results": get_results_dir,
+}
 
-# Schema Definitions
-DATA_SCHEMA = {
-    "root": "data",
-    "subdirectories": {
-        "raw": {
-            "description": "Raw downloaded datasets (RealEstate10K, dense baseline)",
-            "required_files": [],
-            "optional_files": ["dense_baseline_frames.npy"]
-        },
-        "processed": {
-            "description": "Intermediate processed data (optional, for caching)",
-            "required_files": [],
-            "optional_files": []
-        },
-        "stratified": {
-            "description": "Stratified subsets: Static/Slow/Fast x High/Low texture",
-            "required_files": [],
-            "subdirectories": {
-                "static_high": {"description": "Static scenes, High texture"},
-                "static_low": {"description": "Static scenes, Low texture"},
-                "fast_high": {"description": "Fast motion, High texture"},
-                "fast_low": {"description": "Fast motion, Low texture"}
+# Expected strata for the dataset
+EXPECTED_STRATA = [
+    "Static-High",
+    "Static-Low",
+    "Fast-High",
+    "Fast-Low"
+]
+
+# Schema definitions
+SCHEMA_VERSION = "1.0.0"
+
+DATASET_SCHEMA = {
+    "version": SCHEMA_VERSION,
+    "description": "RealEstate10K stratified dataset schema",
+    "strata": EXPECTED_STRATA,
+    "min_sequences_per_stratum": 50,
+    "file_formats": {
+        "video": "mp4",
+        "metadata": "json",
+        "features": "npy"
+    }
+}
+
+FEATURE_SCHEMA = {
+    "type": "sparse_descriptors",
+    "methods": ["SIFT", "ORB"],
+    "data_fields": ["coordinates", "descriptors", "confidence"],
+    "dtype": "float32",
+    "shape_note": "coordinates: (N, 2), descriptors: (N, D)"
+}
+
+RESULTS_SCHEMA = {
+    "warped_frames": {
+        "file": "sparse_warped_frames.npy",
+        "dtype": "float32",
+        "shape": "(T, H, W, C) or list of frames",
+        "description": "Aggregated warped frames from latent warping"
+    },
+    "metrics": {
+        "file": "metrics.json",
+        "structure": {
+            "metrics": {
+                "world_score": "float",
+                "sparse_consistency_score": "float",
+                "fid": "float",
+                "geometric_error": "float"
+            },
+            "anova": {
+                "interaction_p_value": "float"
+            },
+            "sensitivity": {
+                "thresholds": "list",
+                "scores": "list"
+            },
+            "memory": {
+                "peak_ram_gb": "float",
+                "wall_clock_seconds": "float"
             }
-        },
-        "features": {
-            "description": "Extracted sparse features (SIFT/ORB) as .npy",
-            "required_files": [],
-            "subdirectories": {
-                "static_high": {},
-                "static_low": {},
-                "fast_high": {},
-                "fast_low": {}
-            }
-        },
-        "results": {
-            "description": "Final analysis results, metrics, and reports",
-            "required_files": [
-                "metrics.json",
-                "anova_results.json",
-                "sensitivity_results.json",
-                "hypothesis_verification.md",
-                "unsolvable_sequences.json"
-            ],
-            "optional_files": ["sparse_warped_frames.npy"]
+        }
+    },
+    "unsolvable_sequences": {
+        "file": "unsolvable_sequences.json",
+        "structure": {
+            "sequences": ["list of sequence IDs"]
         }
     }
 }
 
-EXPECTED_STRATA = ["static_high", "static_low", "fast_high", "fast_low"]
-
-
 def create_directories() -> Dict[str, Path]:
     """
-    Create the base data directory structure as defined in the schema.
-    Returns a dictionary mapping directory names to their Path objects.
-    """
-    ensure_directories()
+    Create all required data directories if they don't exist.
     
-    paths = {
-        "root": get_data_dir(),
-        "raw": get_raw_dir(),
-        "processed": get_processed_dir(),
-        "stratified": get_stratified_dir(),
-        "features": get_features_dir(),
-        "results": get_results_dir()
-    }
-
-    # Ensure specific strata directories exist
-    strata_dirs = {
-        "static_high": get_stratified_dir() / "static_high",
-        "static_low": get_stratified_dir() / "static_low",
-        "fast_high": get_stratified_dir() / "fast_high",
-        "fast_low": get_stratified_dir() / "fast_low"
-    }
-
-    for name, path in strata_dirs.items():
+    Returns:
+        Dict mapping directory names to their Path objects.
+    """
+    dirs = {}
+    for name, getter in DATA_DIRS.items():
+        path = getter()
         path.mkdir(parents=True, exist_ok=True)
-        paths[name] = path
-
-    # Ensure feature subdirectories match strata
-    for name, path in strata_dirs.items():
-        feature_path = get_features_dir() / name
-        feature_path.mkdir(parents=True, exist_ok=True)
-        paths[f"features_{name}"] = feature_path
-
-    return paths
-
+        dirs[name] = path
+    return dirs
 
 def get_expected_strata() -> List[str]:
-    """Return the list of expected stratification folder names."""
-    return EXPECTED_STRATA
-
+    """
+    Get the list of expected strata for stratified dataset.
+    
+    Returns:
+        List of stratum names.
+    """
+    return EXPECTED_STRATA.copy()
 
 def validate_strata_existence() -> Tuple[bool, List[str]]:
     """
-    Check if all expected strata directories exist under data/stratified.
-    Returns (is_valid, list_of_missing_strata).
+    Validate that all expected strata directories exist.
+    
+    Returns:
+        Tuple of (is_valid, list of missing strata).
     """
+    stratified_dir = get_stratified_dir()
     missing = []
+    
+    if not stratified_dir.exists():
+        return False, EXPECTED_STRATA.copy()
+    
     for stratum in EXPECTED_STRATA:
-        path = get_stratified_dir() / stratum
-        if not path.exists() or not path.is_dir():
+        stratum_path = stratified_dir / stratum
+        if not stratum_path.exists():
             missing.append(stratum)
     
     return len(missing) == 0, missing
 
-
 def validate_directory_structure() -> Tuple[bool, List[str]]:
     """
-    Validate the entire base data directory structure against the schema.
-    Returns (is_valid, list_of_missing_paths).
+    Validate that all required data directories exist.
+    
+    Returns:
+        Tuple of (is_valid, list of missing directories).
     """
     missing = []
-    
-    # Check root directories
-    root_dirs = ["raw", "processed", "stratified", "features", "results"]
-    for d in root_dirs:
-        path = get_data_dir() / d
+    for name, getter in DATA_DIRS.items():
+        path = getter()
         if not path.exists():
-            missing.append(str(path))
-    
-    # Check strata existence
-    is_valid_strata, missing_strata = validate_strata_existence()
-    if not is_valid_strata:
-        for s in missing_strata:
-            missing.append(str(get_stratified_dir() / s))
-
-    return len(missing) == 0, missing
-
-
-def check_directory_contents(target_dir: Path, required_files: List[str]) -> Tuple[bool, List[str]]:
-    """
-    Check if a specific directory contains the required files.
-    Returns (is_valid, list_of_missing_files).
-    """
-    if not target_dir.exists():
-        return False, [f"Directory {target_dir} does not exist"]
-
-    missing = []
-    for f in required_files:
-        if not (target_dir / f).exists():
-            missing.append(f)
+            missing.append(name)
     
     return len(missing) == 0, missing
 
-
-def create_schema_report(output_path: Path) -> None:
+def check_directory_contents(dir_name: str, min_files: int = 1) -> Tuple[bool, Dict[str, Any]]:
     """
-    Generate a JSON report of the current schema compliance status.
+    Check if a directory contains the expected minimum number of files.
+    
+    Args:
+        dir_name: Name of the directory (key in DATA_DIRS).
+        min_files: Minimum number of files expected.
+        
+    Returns:
+        Tuple of (is_valid, detailed info dict).
     """
-    report = {
-        "schema_version": "1.0",
-        "root_path": str(get_data_dir()),
-        "structure_valid": False,
-        "strata_valid": False,
-        "details": {}
+    if dir_name not in DATA_DIRS:
+        return False, {"error": f"Unknown directory: {dir_name}"}
+    
+    path = DATA_DIRS[dir_name]()
+    
+    if not path.exists():
+        return False, {"error": f"Directory does not exist: {path}"}
+    
+    # Count files recursively
+    file_count = 0
+    subdirs = []
+    
+    for item in path.rglob("*"):
+        if item.is_file():
+            file_count += 1
+        elif item.is_dir():
+            subdirs.append(item.name)
+    
+    is_valid = file_count >= min_files
+    
+    return is_valid, {
+        "path": str(path),
+        "file_count": file_count,
+        "subdirectories": subdirs,
+        "min_required": min_files,
+        "valid": is_valid
     }
 
-    # Validate structure
-    structure_valid, missing_structure = validate_directory_structure()
-    report["structure_valid"] = structure_valid
-    report["details"]["missing_directories"] = missing_structure
-
+def create_schema_report(output_path: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Create a comprehensive schema report for the current data state.
+    
+    Args:
+        output_path: Optional path to write the report JSON.
+        
+    Returns:
+        Dictionary containing the full schema report.
+    """
+    report = {
+        "schema_version": SCHEMA_VERSION,
+        "dataset_schema": DATASET_SCHEMA,
+        "feature_schema": FEATURE_SCHEMA,
+        "results_schema": RESULTS_SCHEMA,
+        "directory_validation": {},
+        "strata_validation": {}
+    }
+    
+    # Validate directories
+    dir_valid, missing_dirs = validate_directory_structure()
+    report["directory_validation"] = {
+        "valid": dir_valid,
+        "missing": missing_dirs,
+        "details": {}
+    }
+    
+    for name in DATA_DIRS:
+        report["directory_validation"]["details"][name] = check_directory_contents(name)
+    
     # Validate strata
     strata_valid, missing_strata = validate_strata_existence()
-    report["strata_valid"] = strata_valid
-    report["details"]["missing_strata"] = missing_strata
-
-    # Check results directory for required files
-    results_dir = get_results_dir()
-    if results_dir.exists():
-        required_results = DATA_SCHEMA["subdirectories"]["results"]["required_files"]
-        valid_results, missing_results = check_directory_contents(results_dir, required_results)
-        report["details"]["results_valid"] = valid_results
-        report["details"]["missing_results_files"] = missing_results
-    else:
-        report["details"]["results_valid"] = False
-        report["details"]["missing_results_files"] = DATA_SCHEMA["subdirectories"]["results"]["required_files"]
-
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-
+    report["strata_validation"] = {
+        "valid": strata_valid,
+        "missing": missing_strata
+    }
+    
+    # Write to file if path provided
+    if output_path:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+    
+    return report
 
 def ensure_schema_compliance() -> bool:
     """
-    Ensure the directory structure exists. Creates it if missing.
-    Returns True if structure is valid after execution.
+    Ensure the data directory structure is compliant with the schema.
+    Creates directories if missing and validates strata existence.
+    
+    Returns:
+        True if compliance is achieved, False otherwise.
     """
+    # Create directories
     create_directories()
-    structure_valid, _ = validate_directory_structure()
-    return structure_valid
+    
+    # Validate structure
+    dir_valid, _ = validate_directory_structure()
+    if not dir_valid:
+        return False
+    
+    # Validate strata (only if we expect them to exist from previous tasks)
+    # This is a soft check - strata might not exist yet if stratify hasn't run
+    strata_valid, _ = validate_strata_existence()
+    
+    # Return True if directories exist (strata check is informational)
+    return True

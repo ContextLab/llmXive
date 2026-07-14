@@ -1,15 +1,18 @@
 {
   "project_id": "PROJ-843-llmxive-follow-up-extending-latent-spati",
   "ok": false,
-  "reason": "4 command(s) failed: python code/main.py --phase data_prepare (rc=1); python code/main.py --phase extract_features (rc=1); python code/main.py --phase compute_geometry (rc=1); 2 declared deliverable(s) absent: data/raw/dense_baseline_frames.npy; data/results/sparse_warped_frames.npy",
-  "artifacts": [],
-  "failures": [
-    "python code/main.py --phase data_prepare -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 16, in <module>\n    from data.setup_data import main as setup_data_main\nModuleNotFoundError: No module named 'data.setup_data'",
-    "python code/main.py --phase extract_features -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 16, in <module>\n    from data.setup_data import main as setup_data_main\nModuleNotFoundError: No module named 'data.setup_data'",
-    "python code/main.py --phase compute_geometry -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 16, in <module>\n    from data.setup_data import main as setup_data_main\nModuleNotFoundError: No module named 'data.setup_data'",
-    "python code/main.py --phase evaluate -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 16, in <module>\n    from data.setup_data import main as setup_data_main\nModuleNotFoundError: No module named 'data.setup_data'"
+  "reason": "4 command(s) failed: python code/main.py --phase data_prepare (rc=2); python code/main.py --phase extract_features (rc=2); python code/main.py --phase compute_geometry (rc=2); 1 declared deliverable(s) absent: data/results/sparse_warped_frames.npy",
+  "artifacts": [
+    "data/raw/dense_baseline_frames.npy",
+    "data/raw/dense_baseline_metadata.json"
   ],
-  "fix_rounds": 6,
+  "failures": [
+    "python code/main.py --phase data_prepare -> rc=2\n    usage: main.py [-h]\n               [--phase {prepare,extract,geometry,evaluate,validate,full}]\n               [--skip-memory]\nmain.py: error: argument --phase: invalid choice: 'data_prepare' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'validate', 'full')",
+    "python code/main.py --phase extract_features -> rc=2\n    usage: main.py [-h]\n               [--phase {prepare,extract,geometry,evaluate,validate,full}]\n               [--skip-memory]\nmain.py: error: argument --phase: invalid choice: 'extract_features' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'validate', 'full')",
+    "python code/main.py --phase compute_geometry -> rc=2\n    usage: main.py [-h]\n               [--phase {prepare,extract,geometry,evaluate,validate,full}]\n               [--skip-memory]\nmain.py: error: argument --phase: invalid choice: 'compute_geometry' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'validate', 'full')",
+    "python code/main.py --phase evaluate -> rc=1\n    unning: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/.venv/bin/python /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/eval/metrics.py\nLoading dense baseline from /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/raw/dense_baseline_frames.npy...\nDense baseline shape: (10, 64, 64, 3)\nLoading sparse warped frames from /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-lat"
+  ],
+  "fix_rounds": 9,
   "model_tier": 0,
-  "updated_at": "2026-07-14T09:40:00Z"
+  "updated_at": "2026-07-14T10:42:03Z"
 }

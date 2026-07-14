@@ -1,1 +1,2 @@
-# Intermediate processed data (e.g., optical flow maps)
+# This file ensures the data/processed directory is tracked by git.
+# Processed intermediate data will be placed here.

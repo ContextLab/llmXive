@@ -1,6 +1,2 @@
-# Stratified subsets of the dataset
-# Expected subdirectories:
-# - Static-High
-# - Static-Low
-# - Fast-High
-# - Fast-Low
+# This file ensures the data/stratified directory is tracked by git.
+# Stratified subsets (Static-High, Static-Low, Fast-High, Fast-Low) will be placed here.

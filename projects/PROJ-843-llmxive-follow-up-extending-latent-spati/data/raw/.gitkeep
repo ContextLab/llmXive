@@ -1,1 +1,2 @@
-# Raw downloaded datasets and external benchmarks
+# This file ensures the data/raw directory is tracked by git.
+# Raw downloaded datasets will be placed here by download.py.

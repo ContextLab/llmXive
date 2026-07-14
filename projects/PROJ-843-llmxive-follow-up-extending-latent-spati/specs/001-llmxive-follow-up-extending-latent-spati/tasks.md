@@ -57,8 +57,8 @@
 
 - [X] T003 [P] Implement `code/utils/seeds.py` to pin all random seeds for reproducibility
 - [X] T004 [P] Create `code/config.py` defining paths (`data/raw`, `data/stratified`, `data/results`), thresholds, and memory limits
-- [X] T005 [P] Implement `code/utils/memory_monitor.py` to log peak RAM and wall-clock time via `memory_profiler`
-- [X] T006 Create base data schemas and directory structure (`data/raw`, `data/processed`, `data/stratified`, `data/features`, `data/results`) <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+- [ ] T005 [P] Implement `code/utils/memory_monitor.py` to log peak RAM and wall-clock time via `memory_profiler`
+- [ ] T006 Create base data schemas and directory structure (`data/raw`, `data/processed`, `data/stratified`, `data/features`, `data/results`) <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
@@ -136,7 +136,7 @@
  - **Strictly download** the pre-computed dense baseline from external source (e.g., HuggingFace `realestate10k/dense_baseline_v1` or official URL)
  - **DO NOT generate** or infer the baseline; if unavailable, **ABORT** with error
  - Validate checksum and save to `data/raw/dense_baseline_frames.npy`
-- [X] T017 [US3] Implement `code/eval/metrics.py` to:
+- [ ] T017 [US3] Implement `code/eval/metrics.py` to:
  - **Compute WorldScore** for the dense baseline by reading `data/raw/dense_baseline_frames.npy` and applying the topological fidelity metric defined in spec.md
  - **Compute Sparse-Consistency Score** for the sparse method using the re-projection error defined in spec.md, reading `data/results/sparse_warped_frames.npy`
  - **Calculate Fréchet Inception Distance (FID)** by comparing the **distribution** of sparse warped frames against the **distribution** of dense baseline frames (using Inception-v3) to quantify the relative pixel-level reconstruction quality trade-off (SC-002)
@@ -155,7 +155,7 @@
 
 **Purpose**: Chain the pipeline and synthesize final reports
 
-- [X] T020 [US3] Implement `code/main.py` orchestrator to:
+- [ ] T020 [US3] Implement `code/main.py` orchestrator to:
  - **Consume completed artifacts** from phases T007-T019 (do not re-execute logic)
  - **Parse raw `memory_profiler` logs** from T005 and **aggregate them** into the final `data/results/metrics.json` following the `MetricReport` schema (FR-007)
  - Aggregate results from both sparse and dense paths

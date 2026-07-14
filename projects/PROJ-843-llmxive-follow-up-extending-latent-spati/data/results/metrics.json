@@ -1,13 +1,20 @@
 {
-  "world_score": 0.85,
-  "sparse_consistency_score": 0.92,
-  "fid": 12.4,
-  "unified_geometric_error": 0.03,
-  "inference_time_sparse_seconds": 45.2,
-  "inference_time_dense_seconds": 78.5,
-  "inference_time_reduction_percent": 42.4,
-  "memory_peak_sparse_gb": 6.2,
-  "memory_peak_dense_gb": 8.5,
-  "threshold_pass": true,
-  "threshold_value": 40.0
+  "timings_seconds": {
+    "run_dense_baseline": 1.0397021770477295,
+    "metrics": 3.2088887691497803,
+    "anova": 1.3896756172180176,
+    "sensitivity": 3.0953845977783203
+  },
+  "memory": {
+    "peak_ram_gb": 0.0,
+    "wall_time_s": 0.0
+  },
+  "sparse": {
+    "world_score": null,
+    "sparse_consistency_score": null,
+    "fid": null
+  },
+  "dense": {
+    "world_score": null
+  }
 }

@@ -1,8 +1,2 @@
-# Final evaluation results and reports
-# Expected files:
-# - metrics.json
-# - anova_results.json
-# - sensitivity_results.json
-# - unsolvable_sequences.json
-# - sparse_warped_frames.npy
-# - hypothesis_verification.md
+# This file ensures the data/results directory is tracked by git.
+# Final results, metrics, and reports will be placed here.
