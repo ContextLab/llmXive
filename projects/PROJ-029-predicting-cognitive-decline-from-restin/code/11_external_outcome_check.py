@@ -1,201 +1,160 @@
-"""
-Task T025: External Outcome Check for MCI Conversion Data.
+"""Check for external outcome data (MCI conversion) in the OpenNeuro dataset.
 
-This script checks whether the OpenNeuro dataset ds000246 contains any
-information related to Mild Cognitive Impairment (MCI) conversion. If such
-data cannot be found, a limitation note is written to
-`data/artifacts/limitations.txt` so that the final report can transparently
-communicate this shortcoming.
+This script inspects the BIDS participants.tsv file for a column that would
+indicate conversion from mild cognitive impairment (MCI) to dementia.  If such
+a column is missing or contains no data, a limitation note is written to
+``data/artifacts/limitations.txt`` so that downstream reporting can include it.
 
-The implementation is robust to missing raw data: if the dataset directory
-does not exist (e.g., because the download step failed), the script will
-still generate the limitation note rather than exiting with an error.
+The script is deliberately lightweight – it does not attempt to download or
+preprocess any imaging data.  Its sole purpose is to verify the presence of
+an external outcome variable required by the research question.
 """
 
-import sys
+from __future__ import annotations
+
+import csv
 from pathlib import Path
-
-# Ensure the project root is on the import path for utils
-sys.path.insert(0, str(Path(__file__).parent))
+from typing import Iterable, List
 
 from utils.logger import get_logger
-from utils.io import load_json, ensure_dir
+from utils.io import ensure_dir
 
 # ----------------------------------------------------------------------
-# Constants
+# Configuration
 # ----------------------------------------------------------------------
+# Relative to the project root.  The BIDS dataset is expected to be present
+# under ``data/raw/ds000246`` after the ``01_download_and_filter`` step.
+PARTICIPANTS_TSV = Path("data/raw/ds000246/participants.tsv")
 LIMITATIONS_FILE = Path("data/artifacts/limitations.txt")
-MCI_KEYWORDS = [
-    "mci",
-    "conversion",
-    "longitudinal_mci",
-    "mci_status",
-    "mci_convert",
+
+# Column name that would contain the MCI conversion label.  The exact name
+# may differ across datasets; we check a few common variants.
+MCI_COLUMNS = [
+    "MCI_conversion",       # Preferred canonical name
+    "MCI_Conversion",       # Capitalised variant
+    "conversion_status",    # Generic variant
+    "diagnosis_change",     # Generic variant
 ]
 
-
-def _log_info(logger, message: str) -> None:
-    """Helper to call the appropriate logging method safely."""
-    try:
-        logger.info(message)
-    except Exception:  # pragma: no cover
-        # The logger may be a very tolerant stub; ignore failures.
-        pass
-
-
-def check_mci_availability(data_dir: Path, logger) -> bool:
-    """
-    Determine whether MCI conversion information is present in the dataset.
-
-    The check proceeds in three inexpensive steps:
-    1. Scan ``dataset_description.json`` for any of the MCI keywords.
-    2. Look for columns containing MCI keywords in ``participants.tsv``.
-    3. Perform a shallow scan of up to 50 JSON side‑car files for the same
-       keywords.
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _read_participants_tsv(path: Path) -> List[dict]:
+    """Read a BIDS participants.tsv file into a list of dictionaries.
 
     Parameters
     ----------
-    data_dir: Path
-        Path to the root of the ds000246 BIDS dataset.
-    logger: ReproducibilityLogger or compatible object
-        Used for informational messages.
+    path: Path
+        Path to the TSV file.
 
     Returns
-    -------
-    bool
-        ``True`` if any MCI‑related indicator is found, ``False`` otherwise.
+    ----------
+    List[dict]
+        Each row as a dictionary keyed by column names.
     """
-    _log_info(logger, "Checking for MCI conversion data availability...")
+    if not path.is_file():
+        raise FileNotFoundError(f"participants.tsv not found at {path}")
 
-    # ------------------------------------------------------------------
-    # 1. dataset_description.json
-    # ------------------------------------------------------------------
-    ds_desc_path = data_dir / "dataset_description.json"
-    if ds_desc_path.is_file():
-        try:
-            ds_data = load_json(ds_desc_path)
-            ds_text = json.dumps(ds_data).lower()
-            if any(keyword in ds_text for keyword in MCI_KEYWORDS):
-                _log_info(
-                    logger,
-                    "Found MCI indicator in dataset_description.json.",
-                )
-                return True
-        except Exception as exc:  # pragma: no cover
-            _log_info(logger, f"Failed to parse dataset_description.json: {exc}")
+    with path.open(newline="") as f:
+        reader = csv.DictReader(f, delimiter="\t")
+        return list(reader)
 
-    # ------------------------------------------------------------------
-    # 2. participants.tsv
-    # ------------------------------------------------------------------
-    participants_path = data_dir / "participants.tsv"
-    if participants_path.is_file():
-        try:
-            import pandas as pd
+def check_mci_availability(participants: Iterable[dict]) -> bool:
+    """Return ``True`` if the dataset contains any non‑empty MCI conversion data.
 
-            df = pd.read_csv(participants_path, sep="\t")
-            cols = [str(c).lower() for c in df.columns]
-            if any(any(keyword in col for keyword in MCI_KEYWORDS) for col in cols):
-                _log_info(
-                    logger,
-                    "Found MCI‑related column in participants.tsv.",
-                )
-                return True
-        except Exception as exc:  # pragma: no cover
-            _log_info(logger, f"Failed to parse participants.tsv: {exc}")
+    The function looks for any of the column names listed in ``MCI_COLUMNS``.
+    If a column is found, it checks whether at least one row has a non‑empty
+    value (ignoring whitespace).
 
-    # ------------------------------------------------------------------
-    # 3. Scan a sample of JSON side‑cars
-    # ------------------------------------------------------------------
-    json_files = list(data_dir.rglob("*.json"))[:50]  # limit to first 50
-    for json_file in json_files:
-        if "dataset" in json_file.name or "participants" in json_file.name:
-            continue  # already examined
-        try:
-            with json_file.open("r", encoding="utf-8") as f:
-                content = f.read().lower()
-                if any(keyword in content for keyword in MCI_KEYWORDS):
-                    _log_info(
-                        logger,
-                        f"Found MCI indicator in side‑car {json_file.name}.",
-                    )
-                    return True
-        except Exception:
-            continue  # ignore unreadable files
+    Parameters
+    ----------
+    participants: Iterable[dict]
+        Rows from ``participants.tsv``.
 
-    _log_info(logger, "No MCI conversion data found in dataset.")
+    Returns
+    ----------
+    bool
+        ``True`` if usable MCI conversion data is present, else ``False``.
+    """
+    logger = get_logger("external_outcome_check")
+    logger.debug("Checking for MCI conversion columns in participants.tsv")
+
+    # Identify which column (if any) is present
+    available_columns = set(participants[0].keys()) if participants else set()
+    mci_column = None
+    for col in MCI_COLUMNS:
+        if col in available_columns:
+            mci_column = col
+            break
+
+    if not mci_column:
+        logger.info("No MCI conversion column found in participants.tsv")
+        return False
+
+    logger.info(f"Found MCI conversion column: {mci_column}")
+
+    # Check for at least one non‑empty entry
+    for row in participants:
+        value = row.get(mci_column, "").strip()
+        if value:
+            logger.info("MCI conversion data is present for at least one subject")
+            return True
+
+    logger.info("MCI conversion column exists but contains no data")
     return False
 
-
-def write_limitation_note(output_path: Path, logger) -> None:
-    """
-    Write a human‑readable limitation note to ``output_path``.
-
-    The note explains that the predictive model is limited to cognitive‑
-    decline defined by MMSE/MOCA score drops because explicit MCI outcome
-    data are unavailable.
-    """
-    ensure_dir(output_path.parent)
-    note = """
-Limitation Note: External Outcome Data (MCI Conversion)
--------------------------------------------------------
-The dataset ds000246 (Constitution VI, FR-001) was examined for
-MCI‑conversion labels (e.g., 'mci_status', 'conversion'). No explicit
-MCI conversion outcomes were found in the dataset metadata or participant
-files.
-
-Consequently, the predictive model in this study is trained to predict
-cognitive decline defined strictly by the drop in MMSE/MOCA scores (≥ 3
-points) between longitudinal timepoints, as defined in Task T023. The
-model does NOT predict clinical MCI conversion status.
-
-This limitation should be noted when interpreting the clinical relevance
-of the model's predictions regarding progression to MCI.
-""".strip()
-
-    with output_path.open("w", encoding="utf-8") as f:
+def write_limitation_note(path: Path, note: str) -> None:
+    """Write a limitation note to ``path``, creating parent directories as needed."""
+    logger = get_logger("external_outcome_check")
+    ensure_dir(path.parent)
+    logger.debug(f"Writing limitation note to {path}")
+    with path.open("w", encoding="utf-8") as f:
         f.write(note + "\n")
+    logger.info(f"Limitation note written to {path}")
 
-    _log_info(logger, f"Limitation note written to {output_path}")
-
-
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
 def main() -> int:
-    """
-    Entry point for the external outcome check.
+    """Execute the external outcome check.
 
     Returns
     -------
     int
-        Exit code (0 for success, non‑zero for fatal errors).
+        Exit code (0 for success, 1 for unexpected error).
     """
     logger = get_logger("external_outcome_check")
+    logger.info("Starting external outcome (MCI conversion) check")
 
-    # Resolve paths relative to the project root
-    project_root = Path(__file__).resolve().parents[1]
-    data_raw_dir = project_root / "data" / "raw" / "ds000246"
-    limitations_path = project_root / LIMITATIONS_FILE
-
-    # If the raw dataset directory is missing we cannot perform a thorough
-    # search, but the absence itself is a strong indicator that MCI data are
-    # unavailable. In this situation we still generate the limitation note
-    # rather than aborting.
-    if not data_raw_dir.is_dir():
-        _log_info(
-            logger,
-            f"Dataset directory not found: {data_raw_dir}. Assuming MCI data are unavailable.",
+    try:
+        participants = _read_participants_tsv(PARTICIPANTS_TSV)
+    except FileNotFoundError as exc:
+        logger.error(str(exc))
+        # If the participants file itself is missing, we treat this as a
+        # limitation – the dataset is incomplete for our purposes.
+        note = (
+            "Limitation: participants.tsv not found; unable to verify MCI conversion data. "
+            "External outcome analysis omitted."
         )
-        write_limitation_note(limitations_path, logger)
+        write_limitation_note(LIMITATIONS_FILE, note)
         return 0
+    except Exception as exc:  # pragma: no cover – defensive
+        logger.error(f"Unexpected error while reading participants.tsv: {exc}")
+        return 1
 
-    mci_found = check_mci_availability(data_raw_dir, logger)
+    has_mci = check_mci_availability(participants)
 
-    if not mci_found:
-        write_limitation_note(limitations_path, logger)
-        _log_info(logger, "External outcome check completed. Limitation note generated.")
+    if not has_mci:
+        note = (
+            "Limitation: MCI conversion data not available in the dataset. "
+            "External outcome analysis omitted."
+        )
+        write_limitation_note(LIMITATIONS_FILE, note)
     else:
-        _log_info(logger, "MCI conversion data found. No limitation note needed.")
+        logger.info("MCI conversion data available – no limitation note needed.")
 
+    logger.info("External outcome check completed")
     return 0
 
-
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

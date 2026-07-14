@@ -1,43 +1,49 @@
-"""
-Unit tests for nested CV grid-search logic.
-"""
-import pytest
+"""Unit tests for the nested‑CV logic in ``code/04_train_model.py``."""
+
+import pandas as pd
 import numpy as np
-from sklearn.model_selection import GridSearchCV, StratifiedKFold
-from sklearn.ensemble import RandomForestClassifier
-from utils.stats import check_collinearity
+import pytest
 
-def test_grid_search_params():
-    """Test that grid search parameters match the specification."""
-    param_grid = {
-        'n_estimators': [50, 100, 200],
-        'max_depth': [5, 10, None]
-    }
-    
-    # Verify the grid contains the required base parameters
-    assert 100 in param_grid['n_estimators']
-    assert None in param_grid['max_depth']
+from code import _04_train_model as train_mod
 
-def test_inner_cv_pipeline_structure():
-    """Test the structure of the inner CV pipeline logic."""
-    # This is a structural test. We simulate the logic without running full training.
-    X = np.random.rand(20, 5)
-    y = np.array([0, 1] * 10)
-    
-    # Mock the inner CV loop
-    outer_cv = StratifiedKFold(n_splits=2, shuffle=True, random_state=42)
-    inner_cv = StratifiedKFold(n_splits=2, shuffle=True, random_state=42)
-    
-    clf = RandomForestClassifier(random_state=42)
-    param_grid = {
-        'n_estimators': [10], # Small number for speed
-        'max_depth': [None]
-    }
-    
-    grid = GridSearchCV(clf, param_grid, cv=inner_cv, scoring='roc_auc')
-    
-    # Just ensure it runs without error
-    for train_idx, test_idx in outer_cv.split(X, y):
-        grid.fit(X[train_idx], y[train_idx])
-    
-    assert grid.best_estimator_ is not None
+@pytest.fixture
+def synthetic_data(tmp_path):
+    """Create a tiny synthetic dataset that mimics the expected schema."""
+    # 30 subjects, 25 graph‑metric features
+    rng = np.random.default_rng(42)
+    X = pd.DataFrame(rng.normal(size=(30, 25)),
+                     columns=[f"metric_{i}" for i in range(25)])
+    # Add a subject_id column
+    X.insert(0, "subject_id", [f"sub-{i:03d}" for i in range(30)])
+
+    # Simulate baseline/follow‑up scores with a modest decline in ~30% of subjects
+    scores = pd.DataFrame({
+        "subject_id": X["subject_id"],
+        "mmse_baseline": rng.integers(28, 30, size=30),
+        "mmse_followup": rng.integers(24, 30, size=30),
+    })
+
+    # Write to the expected locations
+    (tmp_path / "data" / "processed").mkdir(parents=True, exist_ok=True)
+    X_path = tmp_path / "data" / "processed" / "graph_metrics.csv"
+    scores_path = tmp_path / "data" / "processed" / "eligible_subjects.csv"
+    X.to_csv(X_path, index=False)
+    scores.to_csv(scores_path, index=False)
+    return tmp_path
+
+def test_train_and_evaluate_nested_cv(monkeypatch, synthetic_data):
+    """Run the full pipeline on the synthetic data and check outputs."""
+    # Patch Path objects inside the module to point at the temporary directory
+    monkeypatch.setattr(train_mod, "Path", lambda *p: synthetic_data / Path(*p))
+
+    # Execute main – it should return 0 and produce the two artefacts
+    assert train_mod.main() == 0
+    # Verify model file exists
+    model_path = synthetic_data / "data" / "processed" / "model.pkl"
+    assert model_path.is_file()
+    # Verify performance report exists and contains expected keys
+    report_path = synthetic_data / "data" / "processed" / "performance_report.json"
+    assert report_path.is_file()
+    report = pd.read_json(report_path, typ="series")
+    assert "mean_roc_auc" in report
+    assert "best_params" in report

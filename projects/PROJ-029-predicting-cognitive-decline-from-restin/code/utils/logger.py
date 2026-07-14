@@ -28,9 +28,9 @@ class ReproducibilityLogger:
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.entries: list = []
+        self.entries: list[LogEntry] = []
 
-    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+    def log(self, *args: Any, **kwargs: Any) -> LogEntry:
         op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
@@ -43,10 +43,11 @@ class ReproducibilityLogger:
         return _noop
 
 
-_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+_GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
-def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
+    """Return a singleton logger. Accept any arguments for compatibility."""
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)

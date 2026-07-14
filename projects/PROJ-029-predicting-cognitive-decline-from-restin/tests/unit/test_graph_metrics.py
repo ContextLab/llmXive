@@ -1,63 +1,74 @@
-"""Unit tests for the graph‑metric computation helpers."""
+"""Unit tests for the graph‑metric computation utilities used by ``03_compute_graph_metrics.py``.\n\nThese tests exercise the metric functions in ``utils.graph`` on a tiny synthetic network.\n"""
+
+from pathlib import Path
 
 import numpy as np
 import pytest
 
 from utils.graph import (
+    create_graph_from_adjacency,
+    calculate_degree_centrality,
     calculate_global_efficiency,
     calculate_clustering_coefficient,
-    calculate_degree_centrality,
     calculate_shortest_path_length,
-    create_graph_from_adjacency,
 )
 
 
 @pytest.fixture
-def simple_matrix():
-    """A tiny 3‑node fully‑connected weighted adjacency matrix."""
+def tiny_adj_matrix() -> np.ndarray:
+    """
+    A simple 3‑node fully‑connected weighted graph:\n
+    node 0‑1 weight 1,\n
+    node 0‑2 weight 2,\n
+    node 1‑2 weight 3.\n
+    The diagonal is zero.
+    """
     return np.array(
         [
-            [0.0, 1.0, 0.5],
-            [1.0, 0.0, 0.2],
-            [0.5, 0.2, 0.0],
-        ]
+            [0, 1, 2],
+            [1, 0, 3],
+            [2, 3, 0],
+        ],
+        dtype=float,
     )
 
 
-def test_create_graph(simple_matrix):
-    G = create_graph_from_adjacency(simple_matrix)
+def test_create_graph_from_adjacency(tiny_adj_matrix):
+    G = create_graph_from_adjacency(tiny_adj_matrix)
     assert G.number_of_nodes() == 3
-    # Fully connected undirected graph => 3 edges
+    # Undirected graph – each edge appears once.
     assert G.number_of_edges() == 3
+    # Verify an edge weight.
+    assert G[0][1]["weight"] == 1.0
 
 
-def test_degree_centrality(simple_matrix):
-    G = create_graph_from_adjacency(simple_matrix)
+def test_calculate_degree_centrality(tiny_adj_matrix):
+    G = create_graph_from_adjacency(tiny_adj_matrix)
     deg = calculate_degree_centrality(G)
-    # Degree centrality for undirected graph = degree / (n-1)
-    expected = {0: 2 / 2, 1: 2 / 2, 2: 2 / 2}
-    for n in deg:
-        assert pytest.approx(deg[n]) == expected[n]
+    # Degree = sum of incident weights.
+    assert pytest.approx(deg[0]) == 3.0  # 1 + 2
+    assert pytest.approx(deg[1]) == 4.0  # 1 + 3
+    assert pytest.approx(deg[2]) == 5.0  # 2 + 3
 
 
-def test_global_efficiency(simple_matrix):
-    G = create_graph_from_adjacency(simple_matrix)
+def test_calculate_global_efficiency(tiny_adj_matrix):
+    G = create_graph_from_adjacency(tiny_adj_matrix)
     eff = calculate_global_efficiency(G)
-    # For a fully connected 3‑node graph, global efficiency = 1.0
-    assert pytest.approx(eff) == 1.0
+    # For a fully connected 3‑node graph the global efficiency is 1.
+    assert pytest.approx(eff, rel=1e-6) == 1.0
 
 
-def test_clustering_coefficient(simple_matrix):
-    G = create_graph_from_adjacency(simple_matrix)
-    clust = calculate_clustering_coefficient(G)
-    # Fully connected triangle => clustering coefficient 1 for each node
-    for v in clust.values():
-        assert pytest.approx(v) == 1.0
+def test_calculate_clustering_coefficient(tiny_adj_matrix):
+    G = create_graph_from_adjacency(tiny_adj_matrix)
+    clustering = calculate_clustering_coefficient(G)
+    # In a triangle each node has clustering coefficient 1.
+    for val in clustering.values():
+        assert pytest.approx(val) == 1.0
 
 
-def test_shortest_path_length(simple_matrix):
-    G = create_graph_from_adjacency(simple_matrix)
-    spl = calculate_shortest_path_length(G)
-    # Direct connections => shortest path = 1 for each pair
-    for v in spl.values():
-        assert pytest.approx(v) == 1.0
+def test_calculate_shortest_path_length(tiny_adj_matrix):
+    G = create_graph_from_adjacency(tiny_adj_matrix)
+    avg_len = calculate_shortest_path_length(G)
+    # In a triangle the shortest path between any two distinct nodes is 1.
+    # Average over 3 unordered pairs => 1.0
+    assert pytest.approx(avg_len) == 1.0

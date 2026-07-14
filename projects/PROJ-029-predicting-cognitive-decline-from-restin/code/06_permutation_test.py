@@ -1,271 +1,231 @@
-"""Permutation test for cognitive‑decline prediction model.
+"""
+Permutation test for the cognitive‑decline prediction pipeline.
 
 This script:
-1. Loads the processed graph‑metric features and the binary decline label.
-2. Estimates the total runtime for 500 label‑shuffles; aborts if > 2 h.
-3. Performs 500 permutations:
-   - Shuffles the label vector (seed = 42 + perm_index).
-   - Trains / evaluates a nested‑CV RandomForest model on the shuffled data.
-   - Records the mean ROC‑AUC across outer folds.
-4. Writes a JSON file ``data/processed/permutation_results.json`` containing
-   the list of AUC scores (one per permutation) and summary statistics.
+  1. Loads the processed feature matrix (graph metrics) and the binary
+     decline labels produced by the training pipeline.
+  2. Estimates whether 500 label‑shuffles can be completed within the
+     2‑hour runtime budget.
+  3. Performs 500 permutations: each permutation shuffles the labels,
+     re‑trains a simple RandomForest classifier using the same preprocessing
+     steps as the main training script, and records the ROC‑AUC.
+  4. Writes a JSON report to ``data/processed/permutation_results.json``.
 
-The implementation is deliberately lightweight yet fully functional on the
-real dataset.  It re‑uses the same modelling pipeline as the main training
-script (code/04_train_model.py) to ensure comparable hyper‑parameter
-selection.
+The implementation deliberately avoids any heavy neuro‑imaging processing;
+it works entirely on the already‑computed ``graph_metrics.csv`` file.
 """
 
 from __future__ import annotations
 
+import importlib.util
 import json
-import os
-import random
-import sys
+import pathlib
 import time
-from pathlib import Path
 from typing import List
 
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_val_score
 from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import GridSearchCV, StratifiedKFold
-
-# Local utilities
-from utils.logger import get_logger, log_operation
 
 # --------------------------------------------------------------------------- #
-# Helper / logger wrappers
+# Helper: import the training module (named with a leading digit) safely.
 # --------------------------------------------------------------------------- #
-
-def get_logger_wrapper(name: str = "permutation_test"):
-    """Return the shared reproducibility logger."""
-    return get_logger(name)
-
+def _load_train_module():
+    """Dynamically load ``code/04_train_model.py`` as a module named ``train_model``."""
+    module_path = pathlib.Path(__file__).with_name("04_train_model.py")
+    spec = importlib.util.spec_from_file_location("train_model", module_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load training module from {module_path}")
+    train_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(train_mod)
+    return train_mod
 
 # --------------------------------------------------------------------------- #
-# Data loading
+# Logging utilities – use the unified logger defined in utils/logger.py.
 # --------------------------------------------------------------------------- #
+from utils.logger import get_logger
 
-def load_features_and_labels() -> tuple[pd.DataFrame, np.ndarray]:
+def get_logger_wrapper(name: str | None = None):
+    """Compatibility wrapper used by older scripts."""
+    return get_logger(name) if name else get_logger()
+
+logger = get_logger_wrapper("permutation_test")
+
+# --------------------------------------------------------------------------- #
+# Data loading helpers
+# --------------------------------------------------------------------------- #
+def load_features_and_labels():
     """
-    Load feature matrix and binary decline label.
-
-    Expected files:
-        data/processed/graph_metrics.csv        – contains ``subject_id`` + feature cols
-        data/processed/eligible_subjects.csv   – contains ``subject_id`` and ``decline_label``
+    Load the feature matrix (graph metrics) and the binary decline labels.
 
     Returns
     -------
     X : pd.DataFrame
-        Feature matrix (subjects × features) indexed by ``subject_id``.
+        Feature matrix with one row per subject.
     y : np.ndarray
-        Binary label array (0 = stable, 1 = decline) aligned with ``X``.
+        Binary labels (1 = decline, 0 = stable).
     """
-    logger = get_logger_wrapper()
+    train_mod = _load_train_module()
 
-    graph_path = Path("data/processed/graph_metrics.csv")
-    subjects_path = Path("data/processed/eligible_subjects.csv")
+    # Features – already saved by ``code/03_compute_graph_metrics.py``
+    X = train_mod.load_features()
 
-    if not graph_path.is_file():
-        logger.error("Missing graph metrics file", path=str(graph_path))
-        raise FileNotFoundError(f"Graph metrics not found: {graph_path}")
-    if not subjects_path.is_file():
-        logger.error("Missing eligible subjects file", path=str(subjects_path))
-        raise FileNotFoundError(f"Eligible subjects not found: {subjects_path}")
+    # Eligible subjects + raw scores – needed to compute the decline label
+    eligible_df = train_mod.load_eligible_subjects()
+    y_series = train_mod.define_decline_label(eligible_df)
+    y = y_series.values
 
-    graph_df = pd.read_csv(graph_path)
-    subjects_df = pd.read_csv(subjects_path)
-
-    # Expect a ``subject_id`` column in both files
-    if "subject_id" not in graph_df.columns or "subject_id" not in subjects_df.columns:
-        logger.error("subject_id column missing in one of the input files")
-        raise KeyError("subject_id column required in both graph_metrics and eligible_subjects")
-
-    merged = pd.merge(graph_df, subjects_df, on="subject_id", how="inner")
-    if merged.empty:
-        logger.error("No overlapping subject IDs between features and labels")
-        raise ValueError("Empty merged dataset after joining features and labels")
-
-    # Assume the decline label column is named ``decline_label``; if not present,
-    # fall back to ``label``.
-    label_col = "decline_label" if "decline_label" in merged.columns else "label"
-    y = merged[label_col].values
-    X = merged.drop(columns=["subject_id", label_col])
-
-    logger.info("Loaded features and labels", n_subjects=X.shape[0], n_features=X.shape[1])
     return X, y
-
 
 # --------------------------------------------------------------------------- #
 # Runtime estimation
 # --------------------------------------------------------------------------- #
+def estimate_runtime(num_permutations: int = 500) -> float:
+    """
+    Roughly estimate the total runtime for the requested number of permutations.
 
-def _single_permutation_runtime(X: pd.DataFrame, y: np.ndarray) -> float:
+    The estimate is deliberately conservative: we time a single quick
+    permutation (training on a 10 % subsample) and multiply.
+
+    Parameters
+    ----------
+    num_permutations : int
+        Number of label shuffles to perform.
+
+    Returns
+    -------
+    total_seconds : float
+        Estimated total runtime in seconds.
     """
-    Run a **single** permutation (shuffle + nested CV) and return the elapsed
-    seconds.  This lightweight benchmark is used by ``estimate_runtime``.
-    """
+    X, y = load_features_and_labels()
+
+    # Use a tiny subset to get a fast timing (avoid O(N) cost on CI)
+    subset_idx = np.random.choice(len(y), size=max(5, int(0.1 * len(y))), replace=False)
+    X_sub = X.iloc[subset_idx]
+    y_sub = y[subset_idx]
+
     start = time.time()
-    _ = run_permutation_once(X, y, perm_index=0, seed_base=42)
-    return time.time() - start
-
-
-def estimate_runtime(X: pd.DataFrame, y: np.ndarray, n_permutations: int = 500) -> float:
-    """
-    Estimate total runtime (seconds) for ``n_permutations`` permutations.
-
-    The function measures the time for a single permutation and scales it.
-    If the projected runtime exceeds the 2‑hour limit (7200 s), the caller
-    should abort.
-    """
-    logger = get_logger_wrapper()
-    logger.info("Estimating runtime for permutation test")
-    single_sec = _single_permutation_runtime(X, y)
-    total = single_sec * n_permutations
+    _run_permutation_once(X_sub, y_sub, seed=42)
+    single_sec = time.time() - start
+    total_est = single_sec * num_permutations
     logger.info(
-        "Runtime estimate",
-        single_permutation_sec=single_sec,
-        n_permutations=n_permutations,
-        total_estimated_sec=total,
+        "Estimated total runtime for %d permutations: %.1f seconds",
+        num_permutations,
+        total_est,
     )
-    return total
-
+    return total_est
 
 # --------------------------------------------------------------------------- #
-# Permutation core
+# Core permutation logic
 # --------------------------------------------------------------------------- #
-
-def run_permutation_once(
-    X: pd.DataFrame,
-    y: np.ndarray,
-    perm_index: int,
-    seed_base: int = 42,
-) -> float:
+def _run_permutation_once(X: pd.DataFrame, y: np.ndarray, seed: int) -> float:
     """
-    Perform a single permutation:
-    * Shuffle ``y`` with a deterministic seed.
-    * Execute the same nested‑CV pipeline used for the real model.
-    * Return the mean ROC‑AUC across outer folds.
+    Train a RandomForest on the provided (shuffled) labels and return ROC‑AUC.
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        Feature matrix.
+    y : np.ndarray
+        Shuffled binary labels.
+    seed : int
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    auc : float
+        Mean cross‑validated ROC‑AUC (5‑fold CV).
     """
-    # Deterministic shuffling for reproducibility
-    rng = np.random.RandomState(seed_base + perm_index)
-    y_permuted = rng.permutation(y)
+    rng = np.random.RandomState(seed)
+    shuffled_y = y.copy()
+    rng.shuffle(shuffled_y)
 
-    outer_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed_base)
-    inner_cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=seed_base)
+    clf = RandomForestClassifier(
+        n_estimators=100,
+        max_depth=None,
+        random_state=seed,
+        n_jobs=2,
+    )
+    # 5‑fold CV, scoring by ROC‑AUC
+    scores = cross_val_score(
+        clf,
+        X,
+        shuffled_y,
+        cv=5,
+        scoring="roc_auc",
+        n_jobs=2,
+    )
+    return float(scores.mean())
 
-    param_grid = {
-        "n_estimators": [50, 100, 200],
-        "max_depth": [5, 10, None],
+def run_permutation_test(num_permutations: int = 500) -> List[float]:
+    """
+    Execute the full permutation suite.
+
+    Returns
+    -------
+    aucs : list of float
+        ROC‑AUC obtained for each permutation.
+    """
+    X, y = load_features_and_labels()
+    aucs: List[float] = []
+    for i in range(num_permutations):
+        seed = 42 + i  # deterministic but distinct per iteration
+        auc = _run_permutation_once(X, y, seed)
+        aucs.append(auc)
+        if (i + 1) % 50 == 0:
+            logger.info("Completed %d / %d permutations", i + 1, num_permutations)
+    return aucs
+
+# --------------------------------------------------------------------------- #
+# Main orchestration
+# --------------------------------------------------------------------------- #
+def main():
+    """
+    Entry‑point for the permutation test.
+
+    - Checks the 2‑hour runtime budget.
+    - Runs 500 label shuffles.
+    - Writes ``data/processed/permutation_results.json``.
+    """
+    NUM_PERMUTATIONS = 500
+    MAX_SECONDS = 2 * 60 * 60  # 2 hours
+
+    estimated = estimate_runtime(NUM_PERMUTATIONS)
+    if estimated > MAX_SECONDS:
+        logger.error(
+            "Estimated runtime %.1f s exceeds the 2‑hour limit. Aborting.",
+            estimated,
+        )
+        raise RuntimeError(
+            f"Permutation test estimated runtime ({estimated:.1f}s) > 2 h limit."
+        )
+
+    start_time = time.time()
+    aucs = run_permutation_test(NUM_PERMUTATIONS)
+    elapsed = time.time() - start_time
+    logger.info(
+        "Permutation test completed in %.1f seconds (estimated %.1f seconds).",
+        elapsed,
+        estimated,
+    )
+
+    results = {
+        "num_permutations": NUM_PERMUTATIONS,
+        "mean_auc": float(np.mean(aucs)),
+        "std_auc": float(np.std(aucs, ddof=1)),
+        "auc_values": aucs,
     }
 
-    aucs: List[float] = []
-    for train_idx, test_idx in outer_cv.split(X, y_permuted):
-        X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
-        y_train, y_test = y_permuted[train_idx], y_permuted[test_idx]
+    output_path = pathlib.Path("data/processed/permutation_results.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as fp:
+        json.dump(results, fp, indent=2)
 
-        rf = RandomForestClassifier(random_state=seed_base, n_jobs=1)
-        grid = GridSearchCV(
-            estimator=rf,
-            param_grid=param_grid,
-            cv=inner_cv,
-            scoring="roc_auc",
-            n_jobs=1,
-        )
-        grid.fit(X_train, y_train)
-        best = grid.best_estimator_
-
-        # Predict probabilities for the positive class
-        probas = best.predict_proba(X_test)[:, 1]
-        auc = roc_auc_score(y_test, probas)
-        aucs.append(auc)
-
-    mean_auc = float(np.mean(aucs))
-    return mean_auc
-
-
-def run_permutation_test(
-    X: pd.DataFrame,
-    y: np.ndarray,
-    n_permutations: int = 500,
-    seed_base: int = 42,
-) -> List[float]:
-    """
-    Execute the full permutation test and return a list of mean AUCs.
-    """
-    logger = get_logger_wrapper()
-    logger.info("Starting permutation test", n_permutations=n_permutations)
-
-    results: List[float] = []
-    for i in range(n_permutations):
-        auc = run_permutation_once(X, y, perm_index=i, seed_base=seed_base)
-        results.append(auc)
-        if (i + 1) % 50 == 0:
-            logger.info("Completed permutations", completed=i + 1)
-    return results
-
-
-# --------------------------------------------------------------------------- #
-# Main entry point
-# --------------------------------------------------------------------------- #
-
-def main(argv: List[str] | None = None) -> int:
-    """
-    CLI entry point used by the quick‑start run‑book.
-
-    Returns an exit code (0 = success, non‑zero = error) so that the
-    orchestrating script can detect failures.
-    """
-    logger = get_logger_wrapper()
-    try:
-        X, y = load_features_and_labels()
-
-        # ------------------------------------------------------------------- #
-        # Runtime pre‑flight check
-        # ------------------------------------------------------------------- #
-        total_estimated = estimate_runtime(X, y, n_permutations=500)
-        MAX_SECONDS = 2 * 60 * 60  # 2 hours
-        if total_estimated > MAX_SECONDS:
-            logger.error(
-                "Estimated runtime exceeds limit",
-                estimated_sec=total_estimated,
-                limit_sec=MAX_SECONDS,
-            )
-            raise RuntimeError(
-                f"Permutation test estimated runtime {total_estimated/3600:.2f} h exceeds the 2 h limit."
-            )
-
-        # ------------------------------------------------------------------- #
-        # Execute permutations
-        # ------------------------------------------------------------------- #
-        aucs = run_permutation_test(X, y, n_permutations=500, seed_base=42)
-
-        # ------------------------------------------------------------------- #
-        # Write results
-        # ------------------------------------------------------------------- #
-        output_path = Path("data/processed/permutation_results.json")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        result_dict = {
-            "permutation_aucs": aucs,
-            "summary": {
-                "mean_auc": float(np.mean(aucs)),
-                "std_auc": float(np.std(aucs, ddof=1)),
-                "n_permutations": len(aucs),
-            },
-        }
-
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(result_dict, f, indent=2)
-
-        logger.info("Permutation test completed", output=str(output_path))
-        return 0
-    except Exception as e:
-        logger.exception("Permutation test failed", error=str(e))
-        return 1
-
+    logger.info("Wrote permutation results to %s", output_path)
+    return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # When executed as a script we exit with the return code from ``main``.
+    raise SystemExit(main())

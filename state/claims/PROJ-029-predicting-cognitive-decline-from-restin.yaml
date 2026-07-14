@@ -1904,3 +1904,386 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T10:42:13Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: AAL atlas contains 90 regions
+  claim_id: c_6eb8be91
+  context: "During preprocessing, the pipeline applies a 90\u2011region AAL atlas\
+    \ to the fMRI data and creates 90\xD790 connectivity matrices per subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "apply 90\u2011region AAL atlas, generate 90\xD790 connectivity matrices\
+    \ for each subject."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:05:06Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 contains rs-fMRI and longitudinal MMSE/MOCA scores
+  claim_id: c_20a4d4e1
+  context: T004c implements code/00_data_gate.py to verify OpenNeuro ds000246 (Constitution
+    VI, FR-001) availability. Parse metadata to ensure rs-fMRI and longitudinal MMSE/MOCA
+    scores exist.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_contains_rs-fMRI_and_longitudinal_MMSE/MO
+  kind: entity_fact
+  raw_text: Verify OpenNeuro ds000246 availability and ensure rs-fMRI and longitudinal
+    MMSE/MOCA scores exist.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:10:55Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: AAL atlas has 90 regions, producing 90x90 connectivity matrices per subject
+  claim_id: c_9c2059b1
+  context: "T018 loads raw BIDS data, performs motion correction, normalization, and\
+    \ applies 90\u2011region AAL atlas, generating 90\xD790 connectivity matrices\
+    \ for each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply 90\u2011region AAL atlas, generating 90\xD790 connectivity matrices\
+    \ for each subject."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:11:56Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: AAL atlas contains 90 regions
+  claim_id: c_bf2fb8b7
+  context: "Implement `code/02_preprocess_and_parcellate.py`: ... apply 90\u2011region\
+    \ AAL atlas, generate 90\xD790 connectivity matrices for each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "apply 90\u2011region AAL atlas"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:15:25Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: process subject-by-subject within 7 GB RAM limit
+  claim_id: c_8d2c3c7b
+  context: 'Implement code/03_compute_graph_metrics.py: Calculate node degree, global
+    efficiency, clustering coefficient, and path length for every subject; output
+    to data/processed/graph_metrics.csv. Process subject-by-subject to stay within
+    7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Process subject-by-subject to stay within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:21:46Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: nested CV training completes within 30 minutes on CPU-only runner
+  claim_id: c_a2e4b55b
+  context: 'Verify runtime: Ensure nested-CV training completes within 30 minutes
+    on the CPU-only runner (use joblib with n_jobs=2 and monitor elapsed time).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure nested-CV training completes within 30 minutes on the CPU-only
+    runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:22:20Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: process limited to at most 100 subjects
+  claim_id: c_5d9b7bcc
+  context: "Implement `code/01_download_and_filter.py`: Download ds000246, parse BIDS\
+    \ metadata, filter for subjects with non\u2011null MMSE/MOCA at both timepoints,\
+    \ limit to N = min(100, available_eligible), fail if zero eligible subjects."
+  evidence:
+    entailment_evidence: Process limited to at most 100 subjects
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Process_limited_to_at_most_100_subjects
+  kind: magnitude
+  raw_text: limit to N = min(100, available_eligible)
+  resolved_value: process limited to at most 100 subjects
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T11:22:51Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: graph metric calculation stays within 7 GB RAM
+  claim_id: c_e1e181af
+  context: "Process subject-by-subject to stay within 7\u202FGB RAM. Add validation:\
+    \ Verify memory usage during graph metric calculation stays within the 7\u202F\
+    GB RAM limit on a 2\u2011core runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Process subject-by-subject to stay within 7\u202FGB RAM"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:23:23Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: nested CV training completes within 30 minutes
+  claim_id: c_9d620347
+  context: "Verify runtime: Ensure nested\u2011CV training completes within 30\u202F\
+    minutes on the CPU\u2011only runner (use joblib with n_jobs=2 and monitor elapsed\
+    \ time)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure nested\u2011CV training completes within 30\u202Fminutes on the\
+    \ CPU\u2011only runner (use joblib with n_jobs=2 and monitor elapsed time)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:23:55Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: permutation test performs 500 label shuffles
+  claim_id: c_54ad9f00
+  context: "Shuffle labels 500 times (seed\u202F=\u202F42), re\u2011train/re\u2011\
+    evaluate the model for each permutation, and record ROC\u2011AUC."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Shuffle labels 500 times (seed\u202F=\u202F42)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:24:36Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: permutation test aborts if runtime exceeds 2 hours
+  claim_id: c_93193856
+  context: "Pre\u2011flight Check: Estimate runtime for 500 permutations; if > 2 hours,\
+    \ abort with error."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Pre\u2011flight Check: Estimate runtime for 500 permutations; if > 2\
+    \ hours, abort with error"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:25:05Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: "use 90\u2011region AAL atlas producing 90x90 connectivity matrices"
+  claim_id: c_4fd8186c
+  context: "Load raw BIDS data, perform motion correction, normalization, apply 90\u2011\
+    region AAL atlas, generate 90\xD790 connectivity matrices for each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply 90\u2011region AAL atlas, generate 90\xD790 connectivity matrices\
+    \ for each subject"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:25:06Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: collinearity filter drops one of a pair of features when Pearson correlation
+    > 0.95
+  claim_id: c_89b7d210
+  context: "Unit test verifying that the collinearity filter correctly drops one of\
+    \ a pair of features with Pearson\u202F>\u202F0.95."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "collinearity filter correctly drops one of a pair of features with Pearson\u202F\
+    >\u202F0.95"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:25:29Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: graph metrics script runtime target less than 30 minutes for 100 subjects
+  claim_id: c_a30e6f51
+  context: "Refactor `code/03_compute_graph_metrics.py` to use `joblib.Parallel(n_jobs=2)`\
+    \ and verify runtime reduction (target\u202F<\u202F30\u202Fmin for 100 subjects)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Graph_metrics_script_runtime_target_less_than_30_minutes_for
+  kind: magnitude
+  raw_text: "target\u202F<\u202F30\u202Fmin for 100 subjects using joblib with 2 cores"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:25:47Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: AAL atlas consists of 90 regions
+  claim_id: c_1b02a053
+  context: "Task T018 loads raw BIDS data, performs preprocessing, and applies a 90\u2011\
+    region AAL atlas to generate connectivity matrices."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply 90\u2011region AAL atlas"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:27:36Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 includes rs-fMRI and longitudinal MMSE/MOCA scores
+  claim_id: c_10025541
+  context: "T004c implements a verification step for OpenNeuro ds000246, parsing metadata\
+    \ to ensure resting\u2011state fMRI and longitudinal MMSE/MOCA scores are present."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_includes_rs-fMRI_and_longitudinal_MMSE/MO
+  kind: entity_fact
+  raw_text: Verify OpenNeuro ds000246 availability and ensure rs-fMRI and longitudinal
+    MMSE/MOCA scores exist.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:31:11Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: 90-region AAL atlas used to produce 90x90 connectivity matrices per subject
+  claim_id: c_82e66ffb
+  context: "T018 preprocesses raw BIDS data, performs motion correction and normalization,\
+    \ then applies the 90\u2011region AAL atlas to create 90\xD790 connectivity matrices\
+    \ for each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply the 90\u2011region AAL atlas to generate 90\xD790 connectivity\
+    \ matrices for each subject."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:31:11Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline produces graph_metrics.csv from single batch without ML training
+  claim_id: c_0ff093b2
+  context: "Phase 3: User Story 1 \u2013 Independent Test: The pipeline can be run\
+    \ on a single batch of data to produce `data/processed/graph_metrics.csv` containing\
+    \ subject IDs and calculated graph metrics without any machine learning training."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_graph_metrics.csv_from_single_batch_withou
+  kind: entity_fact
+  raw_text: The pipeline can be run on a single batch of data to produce `data/processed/graph_metrics.csv`
+    containing subject IDs and calculated graph metrics without any machine learning
+    training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:33:59Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline outputs model.pkl and performance_report.json with ROC-AUC and
+    F1-score for nested CV
+  claim_id: c_31003918
+  context: "Phase 4: User Story 2 \u2013 Independent Test: The pipeline can be executed\
+    \ to output `data/processed/model.pkl` and `data/processed/performance_report.json`\
+    \ containing ROC\u2011AUC and F1\u2011score for nested CV, without running the\
+    \ permutation test."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_model.pkl_and_performance_report.json_with
+  kind: entity_fact
+  raw_text: "The pipeline can be executed to output `data/processed/model.pkl` and\
+    \ `data/processed/performance_report.json` containing ROC\u2011AUC and F1\u2011\
+    score for nested CV, without running the permutation test."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:34:35Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline runs permutation test and outputs permutation_results.json and
+    sensitivity_report.json
+  claim_id: c_38414399
+  context: "Phase 5: User Story 3 \u2013 Independent Test: The pipeline can take an\
+    \ existing model and performance metric, run the permutation test, and output\
+    \ `data/processed/permutation_results.json` and `data/processed/sensitivity_report.json`."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runs_permutation_test_and_outputs_permutation_resul
+  kind: entity_fact
+  raw_text: The pipeline can take an existing model and performance metric, run the
+    permutation test, and output `data/processed/permutation_results.json` and `data/processed/sensitivity_report.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:35:06Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: integration test runs permutation pipeline on 5 subjects and 20 permutations
+  claim_id: c_5f43e439
+  context: "Phase 5: User Story 3 \u2013 Tests: Add integration test that runs the\
+    \ full permutation pipeline on a mini\u2011subset (e.g., 5 subjects, 20 permutations)\
+    \ to ensure end\u2011to\u2011end correctness without exceeding CI limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The integration test runs the full permutation pipeline on a mini\u2011\
+    subset (e.g., 5 subjects, 20 permutations) to ensure end\u2011to\u2011end correctness\
+    \ without exceeding CI limits."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:35:33Z'

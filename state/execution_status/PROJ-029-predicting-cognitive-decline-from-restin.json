@@ -6,14 +6,14 @@
     "data/processed/collinearity_report.json"
   ],
   "failures": [
-    "python code/01_download_and_filter.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py\", line 251, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py\", line 227, in main\n    raise FileNotFoundError(f\"participants.tsv not found at {participants_path}\")\nFileNotFoundError: participants.tsv not found at /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-co",
-    "python code/03_compute_graph_metrics.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/03_compute_graph_metrics.py\", line 169, in <module>\n    @log_operation(\"compute_graph_metrics\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
-    "python code/04_train_model.py -> rc=1\n    ",
-    "python code/05_evaluate_model.py -> rc=1\n    ",
+    "python code/01_download_and_filter.py -> rc=1\n    ons.HTTPError: 404 Client Error: Not Found for url: https://openneuro.org/crn/datasets/ds000246/download?format=zip\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py\", line 208, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py\", line 185, in main\n    datase",
+    "python code/03_compute_graph_metrics.py -> rc=1\n    ",
+    "python code/04_train_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py\", line 232, in <module>\n    @log_operation(\"train_model\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
+    "python code/05_evaluate_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py\", line 178, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py\", line 167, in main\n    X, y = load_features_and_labels()\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code",
     "python code/06_permutation_test.py -> rc=1\n    ",
-    "python code/07_sensitivity_analysis.py -> rc=1\n    part1_decision_threshold_sweep()\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py\", line 194, in part1_decision_threshold_sweep\n    X = load_features()\n        ^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py\", line 66, in load_features\n    df = load_csv(features_path)\n         ^^^^^^^^^^^^^^^^^^^^^^^\n  File"
+    "python code/07_sensitivity_analysis.py -> rc=1\n    _sensitivity_analysis.py\", line 178, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py\", line 174, in main\n    part1_decision_threshold_sweep()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/logger.py\", line 69, in _wrapper\n    return func(*a, **k)\n           ^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/cod"
   ],
-  "fix_rounds": 5,
+  "fix_rounds": 6,
   "model_tier": 1,
-  "updated_at": "2026-07-14T10:40:50Z"
+  "updated_at": "2026-07-14T11:18:56Z"
 }

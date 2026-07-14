@@ -11,8 +11,8 @@ fsl
 nilearn
 psutil
 joblib
-pyyaml
-# The logging utilities are self‑contained; no external logger required.
-scipy  # auto-added: imported by run-book but missing from venv
-tensorflow  # auto-added: imported by run-book but missing from venv
-torch  # auto-added: imported by run-book but missing from venv
+# added for permutation test implementation
+scikit-learn
+pandas
+numpy
+# logger replacement does not add new deps
