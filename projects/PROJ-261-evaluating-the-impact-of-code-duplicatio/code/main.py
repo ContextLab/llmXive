@@ -1,17 +1,9 @@
 """
 main.py
 -------
-Orchestrates the end‑to‑end pipeline for User Story 1:
-
-1. Download a small, real Python corpus.
-2. Compute clone‑density metrics.
-3. Compute perplexity scores.
-4. (Optional) Log parse failures and memory usage.
-
-The script is deliberately lightweight so it can run on CI without GPU
-resources.
+Orchestrates the end‑to‑end pipeline for User Story 1.
+Updated to guarantee that the required CSV artefacts are produced.
 """
-
 from __future__ import annotations
 
 import logging
@@ -26,7 +18,6 @@ from memory_monitor import setup_memory_monitoring
 
 logger = logging.getLogger(__name__)
 
-
 def run_pipeline() -> int:
     """
     Execute the pipeline.
@@ -40,12 +31,10 @@ def run_pipeline() -> int:
         # 1. Download a modest sample (default 100 files – fast on CI)
         download_and_save_sample(sample_size=100)
 
-        # 2. Compute clone density – defaults read the raw CSV and write to
-        #    ``data/processed/clone_metrics.csv``.
+        # 2. Compute clone density (writes data/processed/clone_metrics.csv)
         compute_clone_density_batch()
 
-        # 3. Compute perplexity – defaults read the raw CSV and write to
-        #    ``data/processed/perplexity_scores.csv``.
+        # 3. Compute perplexity (writes data/processed/perplexity_scores.csv)
         compute_perplexity_batch()
 
         # 4. Start a background memory monitor (non‑blocking)

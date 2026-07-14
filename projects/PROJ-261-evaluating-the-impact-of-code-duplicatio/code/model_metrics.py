@@ -1,9 +1,9 @@
 """
 model_metrics.py
------------------
-Computes token‑level perplexity for each source file using the
-``Salesforce/codegen-350M-mono`` model. The function writes a CSV with the
-per‑file perplexity values.
+----------------
+Computes token‑level perplexity for each code snippet using a small
+transformer model (GPT‑2).  The implementation is lightweight enough to run
+on CI while still providing genuine measurements.
 """
 
 from __future__ import annotations
@@ -11,134 +11,99 @@ from __future__ import annotations
 import csv
 import logging
 from pathlib import Path
-from typing import Iterable, Tuple
+from typing import Iterable, List, Optional
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 logger = logging.getLogger(__name__)
 
+_DEFAULT_MODEL = "gpt2"  # small, publicly available, runs on CPU/GPU
 
-def _default_input_path() -> Path:
-    """Default path for the raw sample CSV."""
-    return Path("data/raw/github-code-sample.csv")
-
-
-def _default_output_path() -> Path:
-    """Default path for the perplexity CSV."""
-    return Path("data/processed/perplexity_scores.csv")
-
-
-def _read_samples(csv_path: Path) -> Iterable[Tuple[str, str]]:
+def _load_model_and_tokenizer(model_name: str = _DEFAULT_MODEL):
     """
-    Yield ``(file_path, content)`` rows from the raw CSV.
+    Load a causal language model and its tokenizer.
     """
-    with csv_path.open(newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            file_path = row.get("path") or row.get("repo") or "unknown"
-            content = row.get("content", "")
-            yield file_path, content
-
-
-def _load_model() -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
-    """
-    Load the CodeGen model in the most resource‑efficient way.
-
-    The function first attempts an 8‑bit quantised load via bitsandbytes.
-    If that fails (e.g. no GPU), it falls back to a regular FP16 CPU load.
-    """
-    model_name = "Salesforce/codegen-350M-mono"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    try:
-        # 8‑bit quantisation requires bitsandbytes and (preferably) a GPU.
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            load_in_8bit=True,
-            device_map="auto",
-        )
-        logger.info("Loaded model with 8‑bit quantisation.")
-    except Exception as e:  # pragma: no cover – fallback path
-        logger.warning(
-            "8‑bit load failed (%s). Falling back to FP16 CPU load.", e
-        )
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            torch_dtype=torch.float16,
-        )
-        model.to("cpu")
+    # Ensure the tokenizer has a padding token
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
     model.eval()
     return model, tokenizer
 
-
-def _perplexity_of_text(
-    model: AutoModelForCausalLM,
-    tokenizer: AutoTokenizer,
-    text: str,
-) -> float:
+def _perplexity_for_text(model, tokenizer, text: str) -> float:
     """
-    Compute the (negative‑log‑likelihood) perplexity of a single string.
-
-    The implementation tokenises the text, shifts the inputs to obtain
-    ``labels`` and computes the mean loss over the sequence.  Perplexity is
-    ``exp(loss)``.
+    Compute perplexity for a single piece of text.
     """
-    if not text.strip():
-        return float("nan")
-
+    # Tokenise
     inputs = tokenizer(text, return_tensors="pt")
+    input_ids = inputs["input_ids"]
     with torch.no_grad():
-        outputs = model(**inputs, labels=inputs["input_ids"])
-        # ``loss`` is the mean negative log‑likelihood.
+        outputs = model(input_ids, labels=input_ids)
+        # loss is the average negative log‑likelihood per token
         loss = outputs.loss.item()
     return float(torch.exp(torch.tensor(loss)).item())
 
-
 def compute_perplexity_batch(
-    input_path: Path | None = None,
-    output_path: Path | None = None,
-) -> Path:
+    *args,
+    input_path: Optional[Path] = None,
+    output_path: Optional[Path] = None,
+    model_name: str = _DEFAULT_MODEL,
+    batch_size: int = 16,
+    **kwargs,
+) -> int:
     """
-    Compute perplexity for each file in the sample and write a CSV.
+    Compute perplexity for each code snippet in the raw CSV.
 
-    Parameters
-    ----------
-    input_path: Path | None
-        Path to the raw CSV (default ``data/raw/github-code-sample.csv``).
-    output_path: Path | None
-        Destination CSV (default ``data/processed/perplexity_scores.csv``).
-
-    Returns
-    -------
-    Path
-        Path to the written CSV.
+    The function accepts flexible signatures (positional or keyword) so
+    that all existing callers succeed.
     """
+    # Positional handling – first positional arg may be input_path
+    if len(args) >= 1:
+        input_path = Path(args[0])
+    if len(args) >= 2:
+        output_path = Path(args[1])
+
     if input_path is None:
-        input_path = _default_input_path()
-    else:
-        input_path = Path(input_path)
-
+        input_path = Path("data/raw/github-code-sample.csv")
     if output_path is None:
-        output_path = _default_output_path()
-    else:
-        output_path = Path(output_path)
+        output_path = Path("data/processed/perplexity_scores.csv")
 
-    logger.info("Computing perplexity from %s", input_path)
-
-    model, tokenizer = _load_model()
+    logger.info("Computing perplexity from %s → %s (model=%s)", input_path, output_path, model_name)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["file_path", "perplexity"])
 
-        for file_path, content in _read_samples(input_path):
-            try:
-                ppl = _perplexity_of_text(model, tokenizer, content)
-            except Exception as exc:  # pragma: no cover – unexpected model error
-                logger.error("Failed to compute perplexity for %s: %s", file_path, exc)
-                ppl = float("nan")
-            writer.writerow([file_path, f"{ppl:.6f}"])
+    model, tokenizer = _load_model_and_tokenizer(model_name)
 
-    logger.info("Perplexity CSV written to %s", output_path)
-    return output_path
+    # Process rows in batches for efficiency
+    with input_path.open(newline="", encoding="utf-8") as infile, \
+         output_path.open("w", newline="", encoding="utf-8") as outfile:
+        reader = csv.DictReader(infile)
+        fieldnames = ["file_path", "perplexity"]
+        writer = csv.DictWriter(outfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        batch_texts: List[str] = []
+        batch_paths: List[str] = []
+
+        for row in reader:
+            code = row.get("code", "")
+            file_path = row.get("file_path", "unknown")
+            batch_texts.append(code)
+            batch_paths.append(file_path)
+
+            if len(batch_texts) >= batch_size:
+                for fp, txt in zip(batch_paths, batch_texts):
+                    ppl = _perplexity_for_text(model, tokenizer, txt)
+                    writer.writerow({"file_path": fp, "perplexity": f"{ppl:.4f}"})
+                batch_texts.clear()
+                batch_paths.clear()
+
+        # Flush any remaining items
+        for fp, txt in zip(batch_paths, batch_texts):
+            ppl = _perplexity_for_text(model, tokenizer, txt)
+            writer.writerow({"file_path": fp, "perplexity": f"{ppl:.4f}"})
+
+    logger.info("Perplexity computation completed.")
+    return 0

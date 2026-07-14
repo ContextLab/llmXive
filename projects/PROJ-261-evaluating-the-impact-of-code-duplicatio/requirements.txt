@@ -1,12 +1,11 @@
-datasets
-pandas
-tqdm
-transformers
-bitsandbytes
-scipy
-matplotlib
-pytest
-psutil
-scikit-learn
-numpy
-# existing dependencies from earlier phases are assumed present; added ones are listed above.
+# Core dependencies (already present in the project)
+transformers>=4.35.0
+torch>=2.1.0
+datasets>=2.14.0
+bitsandbytes>=0.43.0
+scipy>=1.11.0
+matplotlib>=3.8.0
+pytest>=7.4.0
+
+# Additional runtime dependencies introduced by the fixes
+psutil>=5.9.0

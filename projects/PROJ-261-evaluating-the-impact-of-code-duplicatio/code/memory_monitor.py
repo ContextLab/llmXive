@@ -1,69 +1,74 @@
 """
 memory_monitor.py
 -----------------
-Simple background monitor that periodically checks the process's memory
-consumption.  If the usage exceeds the configured limit (in MB) a warning
-is logged.  The function ``setup_memory_monitoring`` accepts any call
-signature (no‑arg, positional, keyword) to satisfy the contract.
+Provides a lightweight background thread that periodically checks the
+process's memory usage against a configurable limit.  The public helper
+``setup_memory_monitoring`` accepts either a full configuration object (as
+defined in ``config.py``) or no arguments at all, making it compatible with
+legacy calls.
 """
 from __future__ import annotations
 
 import logging
 import threading
 import time
-from typing import Optional
+from typing import Any, Optional
 
 import psutil
 
-from config import get_all_config
+from config import (
+    get_memory_limit_mb,
+    get_max_runtime_seconds,
+    get_all_config,
+)
 
 logger = logging.getLogger(__name__)
 
-
 class MemoryMonitor(threading.Thread):
     """
-    Daemon thread that polls ``psutil`` at regular intervals.
+    Background thread that monitors memory consumption.  It runs as a daemon
+    so it does not block interpreter shutdown.
     """
-
-    def __init__(self, limit_mb: int, interval: float = 5.0):
+    def __init__(self, limit_mb: int, check_interval: float = 1.0) -> None:
         super().__init__(daemon=True)
         self.limit_mb = limit_mb
-        self.interval = interval
+        self.check_interval = check_interval
         self._stop_event = threading.Event()
 
-    def run(self) -> None:  # pragma: no cover – exercised indirectly
-        logger.info("Memory monitor started (limit=%d MB)", self.limit_mb)
+    def run(self) -> None:
+        logger.info("Memory monitor started (limit %d MB)", self.limit_mb)
         while not self._stop_event.is_set():
-            mem = psutil.Process().memory_info().rss / (1024 * 1024)  # MB
+            mem = psutil.Process().memory_info().rss / (1024 * 1024)
             if mem > self.limit_mb:
                 logger.warning(
-                    "Memory usage exceeded limit: %.2f MB > %d MB", mem, self.limit_mb
+                    "Memory usage %.2f MB exceeds limit of %d MB",
+                    mem,
+                    self.limit_mb,
                 )
-            time.sleep(self.interval)
+            time.sleep(self.check_interval)
 
     def stop(self) -> None:
         self._stop_event.set()
 
-
-def setup_memory_monitoring(
-    limit_mb: Optional[int] = None, *, interval: float = 5.0
-) -> MemoryMonitor:
+def _resolve_config(*args, **kwargs) -> dict[str, Any]:
     """
-    Initialise and start a :class:`MemoryMonitor` daemon thread.
-
-    The function is deliberately permissive:
-    * ``setup_memory_monitoring()`` – uses config defaults.
-    * ``setup_memory_monitoring(2048)`` – positional memory limit.
-    * ``setup_memory_monitoring(limit_mb=2048, interval=2.0)`` – keyword args.
-
-    Returns
-    -------
-    MemoryMonitor
-        The started daemon thread (callers may ignore the return value).
+    Resolve a configuration mapping from the flexible calling conventions.
     """
-    cfg = get_all_config()
-    limit_mb = limit_mb if limit_mb is not None else cfg.get("memory_limit_mb", 4096)
+    if args:
+        # Assume first positional argument is a config dict‑like object
+        return dict(args[0])
+    if kwargs:
+        return dict(kwargs)
+    # Fallback to the global config
+    return get_all_config()
 
-    monitor = MemoryMonitor(limit_mb=limit_mb, interval=interval)
+def setup_memory_monitoring(*args, **kwargs) -> MemoryMonitor:
+    """
+    Starts the memory monitor.  Accepts an optional configuration object
+    (positional or keyword) or no arguments.
+    """
+    cfg = _resolve_config(*args, **kwargs)
+    limit_mb = cfg.get("memory_limit_mb", get_memory_limit_mb())
+    monitor = MemoryMonitor(limit_mb=limit_mb)
     monitor.start()
     return monitor
