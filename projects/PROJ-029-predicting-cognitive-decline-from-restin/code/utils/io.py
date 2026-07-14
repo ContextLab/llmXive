@@ -1,6 +1,5 @@
 """
-I/O utilities for file handling.
-Ensures compatibility with all callers (T017, T019, etc.).
+I/O utilities for loading and saving various data formats.
 """
 from __future__ import annotations
 
@@ -9,70 +8,94 @@ import json
 import os
 import pickle
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence, Union
+from typing import Any, Dict, List, Optional, Union
 
-from utils.logger import get_logger
-
-logger = get_logger("io_utils")
-
-
-def ensure_dir(path: Union[str, Path]) -> None:
-    """Ensure the directory of the given path exists."""
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
+import numpy as np
+import pandas as pd
 
 
-def load_csv(path: Union[str, Path]) -> list[dict]:
-    """Load a CSV file into a list of dictionaries."""
-    with open(path, 'r', encoding='utf-8') as f:
+def ensure_dir(directory: Union[str, Path]) -> Path:
+    """Ensure a directory exists, creating it if necessary."""
+    path = Path(directory)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def load_csv(file_path: Union[str, Path]) -> List[Dict[str, Any]]:
+    """Load a CSV file and return as a list of dictionaries."""
+    with open(file_path, "r", newline="") as f:
         reader = csv.DictReader(f)
         return list(reader)
 
 
-def save_csv(data: Iterable[Mapping[str, Any]], path: Union[str, Path]) -> None:
+def save_csv(file_path: Union[str, Path], data: List[Dict[str, Any]], fieldnames: Optional[List[str]] = None) -> None:
     """Save a list of dictionaries to a CSV file."""
-    ensure_dir(path)
+    file_path = Path(file_path)
+    ensure_dir(file_path.parent)
+    
     if not data:
-        # Write empty file with no headers if data is empty
-        with open(path, 'w', encoding='utf-8') as f:
-            pass
+        # Create empty file with headers if fieldnames provided
+        with open(file_path, "w", newline="") as f:
+            if fieldnames:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
         return
-
-    fieldnames = list(data[0].keys())
-    with open(path, 'w', newline='', encoding='utf-8') as f:
+    
+    if fieldnames is None:
+        fieldnames = list(data[0].keys())
+    
+    with open(file_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
 
 
-def load_json(path: Union[str, Path]) -> Any:
-    """Load a JSON file."""
-    with open(path, 'r', encoding='utf-8') as f:
+def load_json(file_path: Union[str, Path]) -> Any:
+    """Load a JSON file and return its contents."""
+    with open(file_path, "r") as f:
         return json.load(f)
 
 
-def save_json(data: Any, path: Union[str, Path]) -> None:
+def save_json(file_path: Union[str, Path], data: Any, indent: int = 2) -> None:
     """Save data to a JSON file."""
-    ensure_dir(path)
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, default=str)
+    file_path = Path(file_path)
+    ensure_dir(file_path.parent)
+    
+    with open(file_path, "w") as f:
+        json.dump(data, f, indent=indent, default=str)
 
 
-def load_pickle(path: Union[str, Path]) -> Any:
-    """Load a pickle file."""
-    with open(path, 'rb') as f:
+def load_pickle(file_path: Union[str, Path]) -> Any:
+    """Load a pickle file and return its contents."""
+    with open(file_path, "rb") as f:
         return pickle.load(f)
 
 
-def save_pickle(data: Any, path: Union[str, Path]) -> None:
+def save_pickle(file_path: Union[str, Path], data: Any) -> None:
     """Save data to a pickle file."""
-    ensure_dir(path)
-    with open(path, 'wb') as f:
+    file_path = Path(file_path)
+    ensure_dir(file_path.parent)
+    
+    with open(file_path, "wb") as f:
         pickle.dump(data, f)
 
 
-def save_text(text: str, path: Union[str, Path]) -> None:
+def save_text(file_path: Union[str, Path], text: str) -> None:
     """Save text to a file."""
-    ensure_dir(path)
-    with open(path, 'w', encoding='utf-8') as f:
+    file_path = Path(file_path)
+    ensure_dir(file_path.parent)
+    
+    with open(file_path, "w") as f:
         f.write(text)
+
+
+def load_numpy(file_path: Union[str, Path]) -> np.ndarray:
+    """Load a NumPy .npy file."""
+    return np.load(file_path)
+
+
+def save_numpy(file_path: Union[str, Path], data: np.ndarray) -> None:
+    """Save a NumPy array to a .npy file."""
+    file_path = Path(file_path)
+    ensure_dir(file_path.parent)
+    np.save(file_path, data)

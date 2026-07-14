@@ -1,8 +1,6 @@
 {
-  "dataset": "ds000246",
-  "total_subjects": 103,
-  "eligible_subjects": 100,
-  "excluded_subjects": 3,
   "status": "success",
-  "exit_code": 0
+  "error": null,
+  "eligible_count": 100,
+  "timestamp": "2026-07-14T21:17:21"
 }

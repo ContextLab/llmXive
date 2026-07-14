@@ -1,61 +1,38 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
+## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
 
-The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
+These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
 
-1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
-2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
-3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
-
-- code/01_download_and_filter.py: synthetic/fake INPUT data not authorized by the spec — “…# Create a realistic mock dataset based on ds000246 struct…”
-- code/01_download_and_filter.py: synthetic/fake INPUT data not authorized by the spec — “…# Write the mock data to the participants file…”
+- `python code/02_preprocess_and_parcellate.py`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/01_download_and_filter.py: synthetic/fake INPUT data not authorized by the spec — “…# Create a realistic mock dataset based on ds000246 struct…”; code/01_download_and_filter.py: synthetic/fake INPUT data not authorized by the spec — “…# Write the mock data to the participants file…”; 6 command(s) failed: python code/01_download_and_filter.py (rc=1); python code/03_compute_graph_metrics.py (rc=1); python code/04_train_model.py (rc=1); 3 declared deliverable(s) absent: data/processed/graph_metrics.csv; data/processed/performance_report.json; data/processed/permutation_results.json
+**Summary**: 7 command(s) failed: python code/01_download_and_filter.py (rc=1); python code/02_preprocess_and_parcellate.py (rc=1); python code/03_compute_graph_metrics.py (rc=1); 6 declared deliverable(s) absent: data/processed/cv_results.json; data/processed/eligible_subjects.csv; data/processed/graph_metrics.csv
 
 ## Failing / missing run-book commands
 
 - python code/01_download_and_filter.py -> rc=1
-    line-from-restin/code/01_download_and_filter.py", line 331, in main
-    write_status(status, status_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py", line 235, in write_status
-    save_json(status, path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/io.py", line 40, in save_json
-    ensure_dir(path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/io.py", line 11, in ensure_dir
-    p = Path(path)
-        ^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/pathlib.py", line 871, in __new__
-    self = cls._from_parts(args)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/pathlib.py", line 509, in _from_parts
-    drv, root, parts = self._parse_args(args)
-                       ^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/pathlib.py", line 493, in _parse_args
-    a = os.fspath(a)
-        ^^^^^^^^^^^^
-TypeError: expected str, bytes or os.PathLike object, not dict
-- python code/03_compute_graph_metrics.py -> rc=1
+    
+- python code/02_preprocess_and_parcellate.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/03_compute_graph_metrics.py", line 226, in <module>
-    @log_operation("compute_graph_metrics")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: 'LogEntry' object is not callable
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/02_preprocess_and_parcellate.py", line 25, in <module>
+    from nilearn import image, input_data
+ImportError: cannot import name 'input_data' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/.venv/lib/python3.11/site-packages/nilearn/__init__.py)
+- python code/03_compute_graph_metrics.py -> rc=1
+    
 - python code/04_train_model.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 351, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 323, in main
-    X, y, feature_names = load_features()
-                          ^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 78, in load_features
-    raise FileNotFoundError(f"Graph metrics file not found: {GRAPH_METRICS_PATH}")
-FileNotFoundError: Graph metrics file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/graph_metrics.csv
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 372, in <module>
+    @log_operation("train_model")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'LogEntry' object is not callable
 - python code/05_evaluate_model.py -> rc=1
-    Error: Required graph metrics data not found: data/processed/graph_metrics.csv
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py", line 225, in <module>
+    @log_operation("evaluate_model_main")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'LogEntry' object is not callable
 - python code/06_permutation_test.py -> rc=1
     
 - python code/08_collinearity_check.py -> rc=1
@@ -67,7 +44,10 @@ TypeError: 'LogEntry' object is not callable
 
 ## Declared deliverables still missing
 
+- data/processed/cv_results.json
+- data/processed/eligible_subjects.csv
 - data/processed/graph_metrics.csv
+- data/processed/model_params.json
 - data/processed/performance_report.json
 - data/processed/permutation_results.json
 
@@ -79,7 +59,7 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_logger` — defined in `code/11_external_outcome_check.py`; called 14 way(s):
+### `get_logger` — defined in `code/11_external_outcome_check.py`; called 16 way(s):
 
 - code/12_memory_profiler.py: logger = get_logger("memory_profiler")
 - code/06_permutation_test.py: logger = get_logger("permutation_test")
@@ -95,6 +75,7 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 - code/05_evaluate_model.py: logger = get_logger("evaluate_model")
 - code/02_preprocess_and_parcellate.py: logger = get_logger("preprocess_and_parcellate")
 - code/utils/logger.py: return get_logger().log(op, **kwargs)
+- code/utils/io.py: logger = get_logger("io_utils")
 - code/utils/memory_profiler.py: logger = get_logger(__name__)
 
 Make `get_logger` in `code/11_external_outcome_check.py` accept ALL of the above.
@@ -183,20 +164,35 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/processed/cv_results.json` is declared but was NOT written. Scripts referencing it:
+    - `code/04_train_model.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/cv_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/eligible_subjects.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/06_permutation_test.py` — IS a run-book command
+    - `code/01_download_and_filter.py` — IS a run-book command
+    - `code/code_04_train_model_wrapper.py` — NOT invoked by the run-book
+    - `code/03_compute_graph_metrics.py` — IS a run-book command
+    - `code/04_train_model.py` — IS a run-book command
+    - `code/05_evaluate_model.py` — IS a run-book command
+    - `code/validate_quickstart.py` — NOT invoked by the run-book
+    - `code/02_preprocess_and_parcellate.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/eligible_subjects.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/graph_metrics.csv` is declared but was NOT written. Scripts referencing it:
     - `code/12_memory_profiler.py` — NOT invoked by the run-book
+    - `code/06_permutation_test.py` — IS a run-book command
     - `code/08_collinearity_check.py` — IS a run-book command
     - `code/15_run_ci_memory_profile.py` — NOT invoked by the run-book
     - `code/15_ci_memory_profiler.py` — NOT invoked by the run-book
     - `code/code_04_train_model_wrapper.py` — NOT invoked by the run-book
     - `code/14_ci_memory_profiler.py` — NOT invoked by the run-book
     - `code/03_compute_graph_metrics.py` — IS a run-book command
-    - `code/04_train_model.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/graph_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/model_params.json` is declared but was NOT written. Scripts referencing it:
+    - `code/04_train_model.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/model_params.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/performance_report.json` is declared but was NOT written. Scripts referencing it:
     - `code/10_verify_success_criteria.py` — NOT invoked by the run-book
     - `code/09_generate_report.py` — IS a run-book command
-    - `code/04_train_model.py` — IS a run-book command
     - `code/05_evaluate_model.py` — IS a run-book command
     - `code/validate_quickstart.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/performance_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
@@ -217,40 +213,45 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 - ACTUAL columns/keys the producer wrote: `(file not on disk this run)`
 - REQUIRED by the consumer(s): `[data]`
-- PRODUCER(s) to edit: `code/08_collinearity_check.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/validate_quickstart.py`
-- CONSUMER(s) that read it: `code/08_collinearity_check.py`, `code/code_04_train_model_wrapper.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
+- PRODUCER(s) to edit: `code/06_permutation_test.py`, `code/08_collinearity_check.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
+- CONSUMER(s) that read it: `code/06_permutation_test.py`, `code/08_collinearity_check.py`, `code/code_04_train_model_wrapper.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
   → Edit the producer so every required name [data] is in `data/processed/graph_metrics.csv`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
 
 ### `graph_metrics.csv`
 
 - ACTUAL columns/keys the producer wrote: `(file not on disk this run)`
 - REQUIRED by the consumer(s): `[data]`
-- PRODUCER(s) to edit: `code/08_collinearity_check.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/validate_quickstart.py`
-- CONSUMER(s) that read it: `code/08_collinearity_check.py`, `code/code_04_train_model_wrapper.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
+- PRODUCER(s) to edit: `code/06_permutation_test.py`, `code/08_collinearity_check.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
+- CONSUMER(s) that read it: `code/06_permutation_test.py`, `code/08_collinearity_check.py`, `code/code_04_train_model_wrapper.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
   → Edit the producer so every required name [data] is in `graph_metrics.csv`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
 
 ### `model.pkl`
 
 - ACTUAL columns/keys the producer wrote: `(file not on disk this run)`
 - REQUIRED by the consumer(s): `[data]`
-- PRODUCER(s) to edit: `code/04_train_model.py`, `code/validate_quickstart.py`
-- CONSUMER(s) that read it: `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
+- PRODUCER(s) to edit: `code/06_permutation_test.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
+- CONSUMER(s) that read it: `code/06_permutation_test.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
   → Edit the producer so every required name [data] is in `model.pkl`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
+
+### `data/processed/eligible_subjects.csv`
+
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/06_permutation_test.py`, `code/01_download_and_filter.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`, `code/02_preprocess_and_parcellate.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/eligible_subjects.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/06_permutation_test.py`, `code/01_download_and_filter.py`, `code/code_04_train_model_wrapper.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`, `code/02_preprocess_and_parcellate.py`.
 
 ### `data/processed/model.pkl`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/04_train_model.py`, `code/validate_quickstart.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/model.pkl`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/06_permutation_test.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/model.pkl`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/06_permutation_test.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`.
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/graph_metrics.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/08_collinearity_check.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/validate_quickstart.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/graph_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/08_collinearity_check.py`, `code/code_04_train_model_wrapper.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/06_permutation_test.py`, `code/08_collinearity_check.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/graph_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/06_permutation_test.py`, `code/08_collinearity_check.py`, `code/code_04_train_model_wrapper.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`.
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/model.pkl`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/04_train_model.py`, `code/validate_quickstart.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/model.pkl`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/06_permutation_test.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/model.pkl`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/06_permutation_test.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`.
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/raw/ds000246/participants.tsv`
 

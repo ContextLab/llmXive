@@ -1,10 +1,11 @@
 """
-T017: Download ds000246, parse BIDS metadata, filter for longitudinal MMSE/MOCA,
-limit to N=100, and output eligible/excluded lists and status JSON.
+T017: Download and filter ds000246 (Constitution VI) for longitudinal cognitive scores.
 
-This script does NOT fabricate data. It attempts to fetch metadata from OpenNeuro.
-If the dataset is unavailable or the environment lacks network access, it fails
-with a clear error (Exit Code 1) rather than generating fake rows.
+This script:
+1. Downloads metadata for OpenNeuro ds000246.
+2. Parses the participants.tsv to identify subjects with non-null MMSE/MOCA scores at two timepoints.
+3. Limits the cohort to N=min(100, eligible).
+4. Writes eligible_subjects.csv, excluded_subjects.log, and data_gate_status.json.
 """
 from __future__ import annotations
 
@@ -13,300 +14,298 @@ import json
 import os
 import sys
 import time
+import shutil
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Dict, Any, Optional
 
-# Import from project utilities (as per API surface)
+# Add project root to path for imports if running as script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from utils.logger import get_logger, log_operation
-from utils.io import ensure_dir, save_json, save_text
+from utils.io import ensure_dir, save_json
+
+logger = get_logger("download_and_filter")
 
 # Constants
 DATASET_ID = "ds000246"
-BASE_URL = "https://api.openneuro.org"
-MAX_ELIGIBLE = 100
+DATASET_URL = f"https://api.openneuro.org/datasets/{DATASET_ID}"
+PARTICIPANTS_FILE = "participants.tsv"
+MAX_SUBJECTS = 100
 EXIT_CODE_NO_LABELS = 2
 EXIT_CODE_SUCCESS = 0
-EXIT_CODE_FAILURE = 1
+EXIT_CODE_ERROR = 1
 
-# Paths (relative to project root)
-DATA_RAW_DIR = Path("data/raw") / DATASET_ID
-DATA_PROCESSED_DIR = Path("data/processed")
-DATA_ARTIFACTS_DIR = Path("data/artifacts")
+# Output paths
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw" / DATASET_ID
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+DATA_ARTIFACTS_DIR = PROJECT_ROOT / "data" / "artifacts"
 
 ELIGIBLE_CSV = DATA_PROCESSED_DIR / "eligible_subjects.csv"
 EXCLUDED_LOG = DATA_PROCESSED_DIR / "excluded_subjects.log"
 STATUS_JSON = DATA_ARTIFACTS_DIR / "data_gate_status.json"
 
-logger = get_logger("download_and_filter")
-
 
 def ensure_directory(path: Path) -> None:
-    """Ensure a directory exists."""
-    ensure_dir(str(path))
+    """Ensure directory exists."""
+    ensure_dir(path)
 
 
-def download_dataset_metadata() -> Optional[Dict[str, Any]]:
+def download_dataset_metadata() -> Dict[str, Any]:
     """
     Fetch dataset metadata from OpenNeuro API.
-    Returns the parsed JSON or None if fetch fails.
+    Returns JSON content.
     """
-    url = f"{BASE_URL}/ds/{DATASET_ID}/dataset/dataset_description"
-    logger.log("fetch_metadata", url=url)
+    logger.log("download_metadata", url=DATASET_URL)
     try:
-        # Note: In a real CI environment without network, this will fail.
-        # We use urllib.request to avoid external dependencies if possible,
-        # but requests is listed in requirements.txt.
+        import requests
+        response = requests.get(DATASET_URL, timeout=30)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        logger.log("download_metadata_error", error=str(e))
+        raise RuntimeError(f"Failed to download metadata from {DATASET_URL}: {e}")
+
+
+def download_participants_file() -> Path:
+    """
+    Download the participants.tsv file from OpenNeuro.
+    OpenNeuro datasets are typically accessed via git-annex or direct tarball.
+    For this implementation, we attempt to fetch the raw file from the dataset's
+    public URL structure if available, or a fallback tarball.
+    
+    Since OpenNeuro API doesn't provide direct file content in the metadata endpoint,
+    we construct the URL for the raw file.
+    """
+    # OpenNeuro raw file URL pattern: https://openneuro.org/datasets/{id}/versions/{version}/file-display/{file}
+    # However, for programmatic access without git-annex, we often need to download a tarball or use the public S3.
+    # A common public URL for ds000246 participants.tsv is:
+    # https://s3.amazonaws.com/openneuro.org/datasets/{id}/versions/{version}/participants.tsv
+    
+    # We will try to fetch the latest version's participants.tsv directly.
+    # Fallback: If direct fetch fails, we might need to download a small tarball.
+    # For robustness in this script, we will attempt the direct S3-like URL first.
+    
+    base_url = "https://openneuro.org/datasets"
+    # We need the version. Let's try a common pattern or fetch the latest.
+    # Simplified approach: Use the public download link for the specific file.
+    # ds000246 is a well-known dataset.
+    
+    # Constructing a direct download link for the latest version's participants.tsv
+    # Note: OpenNeuro URLs can be tricky. We will try the standard public endpoint.
+    file_url = f"https://openneuro.org/datasets/{DATASET_ID}/versions/latest/file-display/participants.tsv"
+    
+    # If that fails, we try the S3 path which is often stable for older versions
+    # s3://openneuro.org/datasets/ds000246/versions/1.0.0/participants.tsv
+    # We can access this via https://openneuro.s3.amazonaws.com/...
+    # But let's try the direct OpenNeuro file API first.
+    
+    # Alternative: Download the dataset tarball (if small) or just the file.
+    # Given the constraints, we will simulate the download logic by fetching the file
+    # if it exists, otherwise we raise an error.
+    
+    # For this specific task, we will assume the dataset is accessible via a standard
+    # public endpoint or we will use a fallback to a known good URL if the dynamic one fails.
+    # Since we cannot rely on dynamic version discovery without more API calls,
+    # we will try a few known patterns.
+    
+    urls_to_try = [
+        f"https://openneuro.org/datasets/{DATASET_ID}/versions/latest/file-display/participants.tsv",
+        f"https://openneuro.org/datasets/{DATASET_ID}/versions/1.0.0/file-display/participants.tsv",
+        # Fallback to a direct S3-like URL if OpenNeuro blocks direct HTML fetches
+        f"https://openneuro.s3.amazonaws.com/datasets/{DATASET_ID}/versions/1.0.0/participants.tsv"
+    ]
+    
+    last_error = None
+    for url in urls_to_try:
         try:
+            logger.log("attempt_download", url=url)
             import requests
             resp = requests.get(url, timeout=30)
             if resp.status_code == 200:
-                return resp.json()
-            else:
-                logger.log("fetch_failed", status=resp.status_code)
-                return None
-        except ImportError:
-            import urllib.request
-            import json as stdlib_json
-            with urllib.request.urlopen(url, timeout=30) as f:
-                data = f.read()
-                return stdlib_json.loads(data)
-    except Exception as e:
-        logger.log("fetch_error", error=str(e))
-        return None
-
-
-def download_participants_file() -> Optional[Path]:
-    """
-    Download the participants.tsv file from OpenNeuro.
-    Returns the path to the downloaded file or None.
-    """
-    ensure_directory(DATA_RAW_DIR)
-    url = f"https://openneuro.org/datasets/{DATASET_ID}/file-display/{DATASET_ID}:participants.tsv"
-    # OpenNeuro often serves files via a specific CDN or direct link.
-    # If the direct link fails, we might need to scrape the file list.
-    # For robustness, we try a direct fetch first.
-    output_path = DATA_RAW_DIR / "participants.tsv"
-    
-    logger.log("fetch_participants", url=url, output=str(output_path))
-    
-    try:
-        import requests
-        resp = requests.get(url, timeout=60)
-        if resp.status_code == 200:
-            with open(output_path, 'wb') as f:
-                f.write(resp.content)
-            return output_path
-        else:
-            # Fallback: try the git-annex style link or a different format
-            # OpenNeuro often has a JSON index.
-            logger.log("fetch_participants_failed", status=resp.status_code)
-            return None
-    except ImportError:
-        try:
-            import urllib.request
-            urllib.request.urlretrieve(url, str(output_path))
-            if output_path.exists():
+                output_path = DATA_RAW_DIR / PARTICIPANTS_FILE
+                ensure_directory(DATA_RAW_DIR)
+                with open(output_path, 'wb') as f:
+                    f.write(resp.content)
+                logger.log("download_success", path=str(output_path))
                 return output_path
-        except Exception:
-            pass
-        return None
-    except Exception as e:
-        logger.log("fetch_participants_error", error=str(e))
-        return None
+            last_error = f"Status {resp.status_code}"
+        except Exception as e:
+            last_error = str(e)
+            continue
+    
+    raise RuntimeError(f"Failed to download participants.tsv from any URL. Last error: {last_error}")
 
 
-def read_participants_tsv(path: Path) -> List[Dict[str, str]]:
-    """Read a TSV file into a list of dictionaries."""
-    if not path.exists():
-        return []
-    with open(path, 'r', encoding='utf-8') as f:
+def read_participants_tsv(file_path: Path) -> List[Dict[str, str]]:
+    """Read TSV file and return list of dicts."""
+    rows = []
+    with open(file_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f, delimiter='\t')
-        return list(reader)
+        for row in reader:
+            rows.append(row)
+    return rows
 
 
-def has_valid_score(row: Dict[str, str], score_col: str) -> bool:
-    """Check if a score column exists and is not null/empty."""
-    val = row.get(score_col, "")
-    if val is None or val.strip() == "":
-        return False
-    try:
-        float(val)
-        return True
-    except ValueError:
-        return False
+def has_valid_score(row: Dict[str, str], score_cols: List[str]) -> bool:
+    """Check if any of the score columns have a valid non-null value."""
+    for col in score_cols:
+        if col in row and row[col] and row[col].strip().lower() not in ('nan', 'null', 'na', ''):
+            try:
+                float(row[col])
+                return True
+            except ValueError:
+                continue
+    return False
 
 
-def is_eligible(row: Dict[str, str]) -> Tuple[bool, str]:
+def is_eligible(row: Dict[str, str]) -> bool:
     """
-    Determine if a subject is eligible.
-    Eligibility: Has non-null MMSE or MOCA at BOTH timepoints.
-    Assumes columns like 'MMSE_t1', 'MMSE_t2', 'MOCA_t1', 'MOCA_t2'.
-    Returns (is_eligible, reason).
+    Check if a subject has non-null MMSE or MOCA scores at BOTH timepoints.
+    We assume columns are named like 'MMSE_t1', 'MMSE_t2', 'MOCA_t1', 'MOCA_t2'
+    or similar. We look for pairs.
     """
-    # Check for MMSE at both timepoints
-    has_mmse = has_valid_score(row, 'MMSE_t1') and has_valid_score(row, 'MMSE_t2')
-    # Check for MOCA at both timepoints
-    has_moca = has_valid_score(row, 'MOCA_t1') and has_valid_score(row, 'MOCA_t2')
+    # Identify timepoint columns
+    t1_cols = [c for c in row.keys() if c.endswith('_t1') or c.endswith('_1')]
+    t2_cols = [c for c in row.keys() if c.endswith('_t2') or c.endswith('_2')]
     
-    if has_mmse or has_moca:
-        return True, "longitudinal_score_available"
+    # We need at least one valid score in t1 AND one valid score in t2.
+    # The task says "non-null MMSE/MOCA at both timepoints".
+    # This implies we need a score at T1 and a score at T2.
     
-    reasons = []
-    if not has_mmse and not has_moca:
-        reasons.append("no_longitudinal_cognitive_scores")
-    elif not (has_valid_score(row, 'MMSE_t1') and has_valid_score(row, 'MMSE_t2')):
-        reasons.append("incomplete_mmse")
-    elif not (has_valid_score(row, 'MOCA_t1') and has_valid_score(row, 'MOCA_t2')):
-        reasons.append("incomplete_moca")
-        
-    return False, "; ".join(reasons) if reasons else "unknown"
+    score_t1 = False
+    score_t2 = False
+    
+    # Check T1
+    for col in t1_cols:
+        if has_valid_score(row, [col]):
+            score_t1 = True
+            break
+    
+    # Check T2
+    for col in t2_cols:
+        if has_valid_score(row, [col]):
+            score_t2 = True
+            break
+    
+    return score_t1 and score_t2
 
 
-def filter_eligible_subjects(rows: List[Dict[str, str]]) -> Tuple[List[Dict[str, str]], List[Dict[str, str]]]:
+def filter_eligible_subjects(rows: List[Dict[str, str]]) -> tuple[List[Dict[str, str]], List[Dict[str, str]]]:
     """Separate eligible and excluded subjects."""
     eligible = []
     excluded = []
     for row in rows:
-        is_elig, reason = is_eligible(row)
-        if is_elig:
+        if is_eligible(row):
             eligible.append(row)
         else:
-            row['exclusion_reason'] = reason
             excluded.append(row)
     return eligible, excluded
 
 
-def limit_subjects(subjects: List[Dict[str, str]], limit: int) -> List[Dict[str, str]]:
+def limit_subjects(rows: List[Dict[str, str]], limit: int) -> List[Dict[str, str]]:
     """Limit the number of subjects to N."""
-    if len(subjects) <= limit:
-        return subjects
-    return subjects[:limit]
+    if len(rows) <= limit:
+        return rows
+    return rows[:limit]
 
 
-def write_eligible_csv(subjects: List[Dict[str, str]], path: Path) -> None:
+def write_eligible_csv(rows: List[Dict[str, str]], output_path: Path) -> None:
     """Write eligible subjects to CSV."""
-    ensure_directory(path.parent)
-    if not subjects:
-        # Write empty file with headers if we can infer them, or just touch it
-        with open(path, 'w', newline='', encoding='utf-8') as f:
-            f.write("subject_id\n") # Minimal header
+    ensure_directory(output_path.parent)
+    if not rows:
+        # Write empty file with headers if possible
+        headers = ["participant_id"]
+        # Try to infer headers from first row if available, else default
+        if rows:
+            headers = list(rows[0].keys())
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=headers)
+            writer.writeheader()
         return
 
-    fieldnames = list(subjects[0].keys())
-    with open(path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    headers = list(rows[0].keys())
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=headers)
         writer.writeheader()
-        writer.writerows(subjects)
+        writer.writerows(rows)
 
 
-def write_excluded_log(subjects: List[Dict[str, str]], path: Path) -> None:
-    """Write excluded subjects to a log file."""
-    ensure_directory(path.parent)
-    with open(path, 'w', encoding='utf-8') as f:
-        f.write(f"# Excluded Subjects Log - {len(subjects)} subjects\n")
-        f.write("# Format: subject_id | reason\n")
-        for sub in subjects:
-            sub_id = sub.get('participant_id', sub.get('subject_id', 'unknown'))
-            reason = sub.get('exclusion_reason', 'unknown')
-            f.write(f"{sub_id} | {reason}\n")
+def write_excluded_log(rows: List[Dict[str, str]], output_path: Path) -> None:
+    """Write excluded subjects to log file."""
+    ensure_directory(output_path.parent)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write("Excluded Subjects (Reason: Missing longitudinal scores)\n")
+        f.write("-" * 50 + "\n")
+        for row in rows:
+            sub_id = row.get('participant_id', 'unknown')
+            f.write(f"{sub_id}\n")
 
 
-def write_status(status: Dict[str, Any], path: Path) -> None:
-    """Write the status JSON file."""
-    ensure_directory(path.parent)
-    save_json(status, str(path))
+def write_status(eligible_count: int, excluded_count: int, status: str = "success", error: Optional[str] = None) -> None:
+    """Write status JSON."""
+    ensure_directory(STATUS_JSON.parent)
+    status_data = {
+        "status": status,
+        "error": error,
+        "eligible_count": eligible_count,
+        "excluded_count": excluded_count,
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S")
+    }
+    save_json(status_data, STATUS_JSON)
 
 
 def main() -> int:
     """Main entry point."""
-    logger.log("start_task", task_id="T017")
-    
-    # 1. Attempt to download metadata (optional but good for verification)
-    metadata = download_dataset_metadata()
-    if metadata:
-        logger.log("metadata_fetched", id=metadata.get('id', DATASET_ID))
-    else:
-        logger.log("metadata_fetch_failed", note="Proceeding without metadata")
+    logger.log("start_download_and_filter")
+    try:
+        # 1. Ensure directories
+        ensure_directory(DATA_RAW_DIR)
+        ensure_directory(DATA_PROCESSED_DIR)
+        ensure_directory(DATA_ARTIFACTS_DIR)
 
-    # 2. Download participants.tsv
-    participants_path = download_participants_file()
-    if not participants_path:
-        logger.log("fatal_error", msg="Could not download participants.tsv from OpenNeuro")
-        # In a real environment, this might be a network issue.
-        # We cannot fabricate data.
-        status = {
-            "dataset": DATASET_ID,
-            "total_subjects": 0,
-            "eligible_subjects": 0,
-            "excluded_subjects": 0,
-            "status": "failed",
-            "exit_code": EXIT_CODE_FAILURE,
-            "error": "Download failed: participants.tsv not found"
-        }
-        write_status(status, STATUS_JSON)
-        return EXIT_CODE_FAILURE
+        # 2. Download participants file
+        logger.log("downloading_participants")
+        participants_path = download_participants_file()
 
-    # 3. Parse TSV
-    rows = read_participants_tsv(participants_path)
-    total_subjects = len(rows)
-    logger.log("parsed_participants", count=total_subjects)
+        # 3. Read data
+        logger.log("parsing_metadata")
+        rows = read_participants_tsv(participants_path)
+        logger.log("parsed_rows", count=len(rows))
 
-    if total_subjects == 0:
-        logger.log("fatal_error", msg="No subjects found in participants.tsv")
-        status = {
-            "dataset": DATASET_ID,
-            "total_subjects": 0,
-            "eligible_subjects": 0,
-            "excluded_subjects": 0,
-            "status": "failed",
-            "exit_code": EXIT_CODE_FAILURE,
-            "error": "Empty participants.tsv"
-        }
-        write_status(status, STATUS_JSON)
-        return EXIT_CODE_FAILURE
+        if not rows:
+            logger.log("no_rows_found")
+            write_status(0, 0, "failure", "No participants found in dataset")
+            return EXIT_CODE_NO_LABELS
 
-    # 4. Filter
-    eligible, excluded = filter_eligible_subjects(rows)
-    logger.log("filtering_complete", eligible=len(eligible), excluded=len(excluded))
+        # 4. Filter eligible
+        eligible, excluded = filter_eligible_subjects(rows)
+        logger.log("filtering_complete", eligible=len(eligible), excluded=len(excluded))
 
-    # 5. Limit
-    limited_eligible = limit_subjects(eligible, MAX_ELIGIBLE)
-    if len(limited_eligible) < len(eligible):
-        logger.log("limit_applied", original=len(eligible), limited=len(limited_eligible))
+        if not eligible:
+            logger.log("no_eligible_subjects")
+            write_eligible_csv([], ELIGIBLE_CSV)
+            write_excluded_log(excluded, EXCLUDED_LOG)
+            write_status(0, len(excluded), "failure", "No eligible subjects found with longitudinal scores")
+            return EXIT_CODE_NO_LABELS
 
-    # 6. Check for zero eligible
-    if len(limited_eligible) == 0:
-        logger.log("fatal_error", msg="Zero eligible subjects found")
-        status = {
-            "dataset": DATASET_ID,
-            "total_subjects": total_subjects,
-            "eligible_subjects": 0,
-            "excluded_subjects": len(excluded),
-            "status": "failed",
-            "exit_code": EXIT_CODE_NO_LABELS,
-            "error": "No eligible subjects with longitudinal scores"
-        }
-        write_status(status, STATUS_JSON)
-        write_eligible_csv([], ELIGIBLE_CSV)
+        # 5. Limit subjects
+        limited_eligible = limit_subjects(eligible, MAX_SUBJECTS)
+        logger.log("limiting_subjects", original=len(eligible), limited=len(limited_eligible))
+
+        # 6. Write outputs
+        write_eligible_csv(limited_eligible, ELIGIBLE_CSV)
         write_excluded_log(excluded, EXCLUDED_LOG)
-        return EXIT_CODE_NO_LABELS
+        write_status(len(limited_eligible), len(excluded))
 
-    # 7. Write outputs
-    write_eligible_csv(limited_eligible, ELIGIBLE_CSV)
-    write_excluded_log(excluded, EXCLUDED_LOG)
+        logger.log("success", count=len(limited_eligible))
+        return EXIT_CODE_SUCCESS
 
-    status = {
-        "dataset": DATASET_ID,
-        "total_subjects": total_subjects,
-        "eligible_subjects": len(limited_eligible),
-        "excluded_subjects": len(excluded),
-        "status": "success",
-        "exit_code": EXIT_CODE_SUCCESS
-    }
-    write_status(status, STATUS_JSON)
-
-    logger.log("task_complete", status="success")
-    return EXIT_CODE_SUCCESS
+    except Exception as e:
+        logger.log("error", error=str(e))
+        write_status(0, 0, "error", str(e))
+        return EXIT_CODE_ERROR
 
 
 if __name__ == "__main__":
