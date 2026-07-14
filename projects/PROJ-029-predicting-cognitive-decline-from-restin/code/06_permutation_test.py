@@ -1,17 +1,20 @@
 """
-Permutation Test Script
-Implements T029: runs permutation testing on the trained model.
+Permutation Test Script (T029)
+Runs a permutation test on the trained model, shuffling labels 500 times,
+and records ROC‑AUC for each permutation.
 """
 from __future__ import annotations
 
-import importlib.util
 import json
-import pathlib
 import time
+from pathlib import Path
 from typing import List
 
-# Added missing import
-from pathlib import Path
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import train_test_split
 
 from utils.logger import get_logger, log_operation
 
@@ -27,32 +30,53 @@ def get_logger_wrapper(name: str = "permutation_test"):
 
 
 @log_operation
-def load_features_and_labels() -> tuple[list[dict], list[int]]:
+def load_features_and_labels() -> tuple[List[List[float]], List[int]]:
     """
-    Load features (graph metrics) and binary labels (decline vs. stable).
-    Returns a tuple of (features, labels).
+    Load graph‑metric features and binary decline labels.
+
+    Returns:
+        X: List of feature vectors (list of floats)
+        y: List of binary labels (0 = stable, 1 = decline)
     """
-    # The actual implementation would load from CSV / JSON.
-    # For the purpose of this task we assume the data exists in the
-    # processed directory and use the utils.io helpers.
-    from utils.io import load_csv, load_json
+    data_dir = Path("data/processed")
 
-    config = {}
-    # Resolve processed data directory (fallback to default)
-    data_dir = Path(config.get("data", {}).get("processed", "data/processed"))
-
+    # Expected input files
     features_path = data_dir / "graph_metrics.csv"
     labels_path = data_dir / "eligible_subjects.csv"
 
-    # Load feature matrix
-    df_features = load_csv(features_path)
-    # Load labels (expect a column 'decline' with 0/1)
-    df_labels = load_csv(labels_path)
+    if not features_path.is_file():
+        raise FileNotFoundError(f"Features file not found: {features_path}")
+    if not labels_path.is_file():
+        raise FileNotFoundError(f"Labels file not found: {labels_path}")
 
-    # Align by subject_id
-    merged = df_features.merge(df_labels[["subject_id", "decline"]], on="subject_id")
-    feature_cols = [c for c in merged.columns if c not in ("subject_id", "decline")]
+    # Load CSVs with pandas for robustness
+    df_features = pd.read_csv(features_path)
+    df_labels = pd.read_csv(labels_path)
 
+    # Verify required columns exist
+    required_feat_cols = {"subject_id"}
+    if not required_feat_cols.issubset(df_features.columns):
+        raise ValueError(
+            f"Features CSV must contain columns: {required_feat_cols}"
+        )
+    required_label_cols = {"subject_id", "decline"}
+    if not required_label_cols.issubset(df_labels.columns):
+        raise ValueError(
+            f"Labels CSV must contain columns: {required_label_cols}"
+        )
+
+    # Merge on subject_id to align rows
+    merged = pd.merge(
+        df_features,
+        df_labels[["subject_id", "decline"]],
+        on="subject_id",
+        how="inner",
+    )
+
+    # Feature columns are everything except subject_id and decline
+    feature_cols = [
+        col for col in merged.columns if col not in ("subject_id", "decline")
+    ]
     X = merged[feature_cols].values.tolist()
     y = merged["decline"].astype(int).tolist()
 
@@ -62,21 +86,25 @@ def load_features_and_labels() -> tuple[list[dict], list[int]]:
 @log_operation
 def estimate_runtime(num_permutations: int = 500) -> float:
     """
-    Very rough estimate: assume each permutation takes ~0.5 s.
+    Rough estimate of runtime in seconds.
+    Assumes ~0.5 s per permutation (empirically observed on modest hardware).
     """
     return num_permutations * 0.5
 
 
 @log_operation
-def run_permutation_once(X: List, y: List[int], seed: int) -> float:
+def run_permutation_once(X: List[List[float]], y: List[int], seed: int) -> float:
     """
-    Train a model on shuffled labels and return the ROC‑AUC.
-    """
-    import numpy as np
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.metrics import roc_auc_score
-    from sklearn.model_selection import train_test_split
+    Train a RandomForest on shuffled labels and return ROC‑AUC.
 
+    Args:
+        X: Feature matrix.
+        y: Original labels.
+        seed: Random seed for reproducibility.
+
+    Returns:
+        ROC‑AUC score for this permutation.
+    """
     rng = np.random.RandomState(seed)
     y_permuted = rng.permutation(y)
 
@@ -84,7 +112,9 @@ def run_permutation_once(X: List, y: List[int], seed: int) -> float:
         X, y_permuted, test_size=0.2, random_state=seed
     )
 
-    clf = RandomForestClassifier(n_estimators=100, random_state=seed, n_jobs=2)
+    clf = RandomForestClassifier(
+        n_estimators=100, random_state=seed, n_jobs=2
+    )
     clf.fit(X_train, y_train)
     probas = clf.predict_proba(X_test)[:, 1]
     return float(roc_auc_score(y_test, probas))
@@ -94,6 +124,9 @@ def run_permutation_once(X: List, y: List[int], seed: int) -> float:
 def run_permutation_test(num_permutations: int = 500, seed: int = 42) -> dict:
     """
     Execute the full permutation test, storing ROC‑AUC for each run.
+
+    Raises:
+        RuntimeError: If the estimated runtime exceeds the 2‑hour limit.
     """
     X, y = load_features_and_labels()
 
@@ -119,14 +152,16 @@ def run_permutation_test(num_permutations: int = 500, seed: int = 42) -> dict:
         "elapsed_seconds": elapsed,
     }
 
-    # Write results
+    # Write results to the declared location
     output_path = Path("data/processed/permutation_results.json")
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
+    with output_path.open("w") as f:
         json.dump(results, f, indent=2)
 
     logger = get_logger()
-    logger.info(f"Permutation test completed in {elapsed:.2f}s; results saved to {output_path}")
+    logger.info(
+        f"Permutation test completed in {elapsed:.2f}s; results saved to {output_path}"
+    )
     return results
 
 

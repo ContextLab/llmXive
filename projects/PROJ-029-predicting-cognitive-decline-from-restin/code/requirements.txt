@@ -11,8 +11,8 @@ fsl
 nilearn
 psutil
 joblib
-# Added for permutation test implementation
 scipy
-# Ensure compatibility with the logger replacement
-# (no additional packages needed)
+# Added for robustness
+tqdm
+# End of requirements
 torch  # auto-added: imported by run-book but missing from venv
