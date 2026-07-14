@@ -4,6 +4,10 @@
     "required": []
   },
   {
+    "data_file": "raw.githubusercontent.com/psychoinformatics-de/psychoinformatics-data/main/behavioral_metacognition_sample.csv",
+    "required": []
+  },
+  {
     "data_file": "raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv",
     "required": []
   },

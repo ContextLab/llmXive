@@ -1,119 +1,64 @@
-# Quickstart Guide for PROJ-179
+# Quickstart Guide: The Influence of Metacognitive Awareness on Reality Testing
 
-This guide outlines the steps to run the full analysis pipeline for the project "The Influence of Metacognitive Awareness on Reality Testing".
+This guide provides the commands to run the full analysis pipeline for PROJ-179.
+Ensure all dependencies are installed and the project structure is correct before running.
 
 ## Prerequisites
 
-- Python 3.8+
-- Required packages listed in `requirements.txt`
-
-## Installation
-
-1. Clone the repository.
+1. Python 3.9+
 2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-## Data Availability
+## Execution Flow
 
-**Important**: The project requires a valid behavioral dataset with `confidence_rating` and `source_label` fields.
-The pipeline will check for this in T004. If no valid dataset is found, the project is blocked.
+The pipeline consists of the following steps executed in order:
 
-## Execution Steps
+1. **Data Availability Check (T004)**: Validates that a real behavioral dataset is available.
+2. **Data Download (T005)**: Downloads the dataset if not present.
+3. **Data Validation (T006)**: Checks for required columns (`confidence_rating`, `source_label`).
+4. **Preprocessing (T012)**: Extracts trial-level data.
+5. **Correlation Analysis (T014)**: Computes Hold-Out correlation (Type-2 AUC vs d').
+6. **Bootstrap (T015)**: Generates 95% confidence intervals.
+7. **Regression (T020)**: Hierarchical regression with covariates.
+8. **Filter (T026)**: Splits data by stimulus modality.
+9. **Robustness (T027)**: Modality-specific analysis.
+10. **Report Generation (T016, T022, T028)**: Generates final JSON reports.
 
-Run the following commands in order to execute the full pipeline:
+## Running the Pipeline
 
-1. **Check Data Availability** (T004)
- ```bash
- python code/data/validate_data_availability.py
- ```
+Execute the main analysis script which orchestrates all steps:
 
-2. **Download Dataset** (T005)
- ```bash
- python code/data/download.py
- ```
+```bash
+python code/analysis.py
+```
 
-3. **Validate Dataset** (T006)
- ```bash
- python code/data/validate_data.py
- ```
-
-4. **Preprocess Data** (T012)
- ```bash
- python code/data/preprocess.py
- ```
-
-5. **Run Correlation Analysis** (T014)
- ```bash
- python code/src/analysis/correlation.py
- ```
-
-6. **Run Bootstrap Analysis** (T015)
- ```bash
- python code/src/analysis/bootstrap.py
- ```
-
-7. **Generate Primary Analysis Report** (T016)
- ```bash
- python code/src/report/generate.py
- ```
-
-8. **Run Regression Analysis** (T020)
- ```bash
- python code/src/analysis/regression.py
- ```
-
-9. **Run Diagnostics** (T021)
- ```bash
- python code/src/analysis/diagnostics.py
- ```
-
-10. **Update Regression Report** (T022)
- ```bash
- python code/src/report/generate.py
- ```
-
-11. **Filter by Modality** (T026)
- ```bash
- python code/src/analysis/filter.py
- ```
-
-12. **Run Robustness Analysis** (T027)
- ```bash
- python code/src/analysis/robustness.py
- ```
-
-13. **Update Robustness Report** (T028)
- ```bash
- python code/src/report/generate.py
- ```
-
-14. **Run Quickstart Validator** (Optional)
- ```bash
- python code/quickstart_validator.py
- ```
+This single command runs the full sequence:
+`validate_data_availability` -> `download` -> `validate_data` -> `preprocess` -> `correlation` -> `bootstrap` -> `regression` -> `filter` -> `robustness` -> `generate_report`.
 
 ## Output Artifacts
 
-After successful execution, the following files should be present:
+Upon successful completion, the following files will be generated:
 
-- `data/derived/trial_data.csv`
-- `data/derived/visual_trials.csv`
-- `data/derived/auditory_trials.csv`
-- `data/results/bootstrap_config.json`
-- `data/results/primary_analysis.json`
-- `data/results/regression_analysis.json`
-- `data/results/robustness_analysis.json`
+- `data/derived/trial_data.csv`: Preprocessed trial data.
+- `data/derived/visual_trials.csv`: Visual modality subset.
+- `data/derived/auditory_trials.csv`: Auditory modality subset.
+- `data/results/bootstrap_config.json`: Bootstrap configuration and counts.
+- `data/results/primary_analysis.json`: Primary correlation results.
+- `data/results/regression_analysis.json`: Regression coefficients and diagnostics.
+- `data/results/robustness_analysis.json`: Modality-specific results with corrections.
 
 ## Troubleshooting
 
-- If T004 fails, the project is blocked. Check the log for details.
-- If any step fails, review the logs and ensure all prerequisites are met.
-- For data issues, refer to the `data/validate_data_availability.py` script.
+- **Data Download Failed**: Check network connectivity and ensure the dataset URL in `code/data/download.py` is accessible.
+- **Validation Failed**: Ensure the downloaded dataset contains `confidence_rating` and `source_label` columns.
+- **Runtime Errors**: Check logs for specific traceback details.
 
-## Notes
+## Validation
 
-- This pipeline is designed to run sequentially.
-- Ensure sufficient computational resources for bootstrap and regression analyses.
-- The project uses a Hold-Out Accuracy design for correlation analysis.
+To verify the outputs:
+
+```bash
+python code/quickstart_validator.py
+```

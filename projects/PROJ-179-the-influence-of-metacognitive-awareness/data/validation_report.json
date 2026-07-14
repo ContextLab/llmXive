@@ -1,9 +1,11 @@
 {
   "task_id": "T006",
   "status": "FAIL",
-  "message": "Could not find downloaded dataset. Expected one of: ['data/ds003386_behavioral.csv', 'data/downloaded/ds003386_behavioral.csv', 'data/behavioral_data.csv']",
+  "message": "Could not find downloaded dataset. Expected one of: ['data/behavioral_data.csv', 'data/downloaded/behavioral_data.csv', 'data/ds003386_behavioral.csv', 'data/downloaded/ds003386_behavioral.csv']",
+  "dataset_path": null,
   "required_fields": [
     "confidence_rating",
     "source_label"
-  ]
+  ],
+  "timestamp": "2026-07-14T00:16:48.475119"
 }
