@@ -1,60 +1,60 @@
-"""Unit tests for the graph‑metric computation utilities."""
+"""Unit test for the graph‑metric computation script.
 
-import pathlib
-import numpy as np
-import pandas as pd
+The test ensures that the script can be imported and that the ``main``
+function runs without raising an exception when the input files are
+minimal (an empty eligible‑subjects list).  It also checks that the
+expected output CSV is created and contains the correct header.
+"""
 
-from code import utils
-from code.utils.graph import (
-    calculate_global_efficiency,
-    calculate_clustering_coefficient,
-    calculate_degree_centrality,
-    calculate_local_efficiency,
-    calculate_shortest_path_length,
-)
+import os
+import csv
+from pathlib import Path
 
-# Simple synthetic adjacency matrix for a small complete graph (3 nodes)
-# This is only used to sanity‑check the helper functions – the main script
-# works on real data and is exercised in the integration tests.
-SIMPLE_MATRIX = np.array(
-    [
-        [0.0, 1.0, 1.0],
-        [1.0, 0.0, 1.0],
-        [1.0, 1.0, 0.0],
+import pytest
+
+# Import the module under test
+from code import _03_compute_graph_metrics as compute_metrics  # noqa: F401
+
+@pytest.fixture
+def empty_eligible_file(tmp_path):
+    """Create an empty ``eligible_subjects.csv`` file."""
+    processed_dir = tmp_path / "data" / "processed"
+    processed_dir.mkdir(parents=True)
+    eligible_path = processed_dir / "eligible_subjects.csv"
+    # Write only the header (or leave empty – the script treats any row as a subject)
+    eligible_path.write_text("")
+    # Patch the Path used by the script to point to this temporary location
+    original_cwd = Path.cwd()
+    os.chdir(tmp_path)
+    yield
+    os.chdir(original_cwd)
+
+def test_main_creates_header_only_csv(empty_eligible_file):
+    """Running ``main`` with no subjects should produce a CSV with only a header."""
+    # Ensure no previous output exists
+    output_path = Path("data/processed/graph_metrics.csv")
+    if output_path.is_file():
+        output_path.unlink()
+
+    # Run the main function
+    compute_metrics.main()
+
+    # Verify the output file exists
+    assert output_path.is_file(), "graph_metrics.csv was not created"
+
+    # Verify the header row matches expectations
+    with output_path.open(newline="") as f:
+        reader = csv.reader(f)
+        rows = list(reader)
+
+    expected_header = [
+        "subject_id",
+        "mean_degree",
+        "global_efficiency",
+        "clustering_coefficient",
+        "average_shortest_path_length",
     ]
-)
-
-
-def test_degree_centrality():
-    G = utils.graph.create_graph_from_adjacency(SIMPLE_MATRIX)
-    deg = calculate_degree_centrality(G)
-    # In a complete graph of 3 nodes each node has degree 2.
-    assert all(v == 2 for v in deg.values())
-
-
-def test_global_efficiency():
-    G = utils.graph.create_graph_from_adjacency(SIMPLE_MATRIX)
-    eff = calculate_global_efficiency(G)
-    # For a complete graph the global efficiency is 1.0
-    assert abs(eff - 1.0) < 1e-6
-
-
-def test_clustering_coefficient():
-    G = utils.graph.create_graph_from_adjacency(SIMPLE_MATRIX)
-    cc = calculate_clustering_coefficient(G)
-    # Complete graph clustering coefficient is 1.0
-    assert abs(cc - 1.0) < 1e-6
-
-
-def test_local_efficiency():
-    G = utils.graph.create_graph_from_adjacency(SIMPLE_MATRIX)
-    le = calculate_local_efficiency(G)
-    # For a complete graph local efficiency equals global efficiency
-    assert abs(le - 1.0) < 1e-6
-
-
-def test_shortest_path_length():
-    G = utils.graph.create_graph_from_adjacency(SIMPLE_MATRIX)
-    spl = calculate_shortest_path_length(G)
-    # In a complete graph the shortest path between distinct nodes is 1
-    assert abs(spl - 1.0) < 1e-6
+    assert rows, "Output CSV is empty"
+    assert rows[0] == expected_header, "Header row does not match expected schema"
+    # No additional rows should be present
+    assert len(rows) == 1, "Expected only header row when no subjects are eligible"

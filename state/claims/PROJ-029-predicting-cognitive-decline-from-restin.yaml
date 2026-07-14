@@ -2318,4 +2318,276 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T14:12:44Z'
+  updated_at: '2026-07-14T13:53:17Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline runs permutation test and outputs permutation_results.json and
+    sensitivity_report.json
+  claim_id: c_8eef7eea
+  context: 'Goal: Validate model significance via permutation test and assess robustness
+    via threshold sensitivity. The pipeline can take an existing model and performance
+    metric, run the permutation test, and output `data/processed/permutation_results.json`
+    and `data/processed/sensitivity_report.json`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runs_permutation_test_and_outputs_permutation_resul
+  kind: entity_fact
+  raw_text: The pipeline can take an existing model and performance metric, run the
+    permutation test, and output `data/processed/permutation_results.json` and `data/processed/sensitivity_report.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T13:53:31Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 includes rs-fMRI and longitudinal MMSE/MOCA scores
+  claim_id: c_f6202bee
+  context: 'Implement `code/00_data_gate.py`: Verify OpenNeuro ds000246 (Constitution
+    VI, FR-001) availability. Parse metadata to ensure rs-fMRI and longitudinal MMSE/MOCA
+    scores exist.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_includes_rs-fMRI_and_longitudinal_MMSE/MO
+  kind: entity_fact
+  raw_text: OpenNeuro ds000246 contains rs-fMRI and longitudinal MMSE/MOCA scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T13:55:23Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline produces graph_metrics.csv from single batch without ML training
+  claim_id: c_26b47a75
+  context: 'Independent Test for User Story 1: The pipeline can be run on a single
+    batch of data to produce data/processed/graph_metrics.csv containing subject IDs
+    and calculated graph metrics without any machine learning training.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_graph_metrics.csv_from_single_batch_withou
+  kind: entity_fact
+  raw_text: The pipeline can be run on a single batch of data to produce data/processed/graph_metrics.csv
+    containing subject IDs and calculated graph metrics without any machine learning
+    training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T13:59:49Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: "pipeline outputs model.pkl and performance_report.json with ROC\u2011\
+    AUC and F1\u2011score for nested CV"
+  claim_id: c_9610cf02
+  context: "Independent Test for User Story 2: The pipeline can be executed to output\
+    \ data/processed/model.pkl and data/processed/performance_report.json containing\
+    \ ROC\u2011AUC and F1\u2011score for nested CV, without running the permutation\
+    \ test."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_model.pkl_and_performance_report.json_with
+  kind: entity_fact
+  raw_text: "The pipeline can be executed to output data/processed/model.pkl and data/processed/performance_report.json\
+    \ containing ROC\u2011AUC and F1\u2011score for nested CV, without running the\
+    \ permutation test."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T13:59:51Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline runs permutation test on existing model and outputs permutation_results.json
+    and sensitivity_report.json
+  claim_id: c_0c292ace
+  context: 'Independent Test for User Story 3: The pipeline can take an existing model
+    and performance metric, run the permutation test, and output data/processed/permutation_results.json
+    and data/processed/sensitivity_report.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runs_permutation_test_on_existing_model_and_outputs
+  kind: entity_fact
+  raw_text: The pipeline can take an existing model and performance metric, run the
+    permutation test, and output data/processed/permutation_results.json and data/processed/sensitivity_report.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T13:59:53Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 contains rs-fMRI and longitudinal MMSE MOCA scores
+  claim_id: c_1ee4e45d
+  context: 'Implement code/00_data_gate.py: Verify OpenNeuro ds000246 availability
+    and parse metadata to ensure rs-fMRI and longitudinal MMSE/MOCA scores exist.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_contains_rs-fMRI_and_longitudinal_MMSE_MO
+  kind: entity_fact
+  raw_text: OpenNeuro ds000246 contains rs-fMRI and longitudinal MMSE/MOCA scores
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:02:21Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline produces graph_metrics.csv from single batch without ML training
+  claim_id: c_29c71a07
+  context: 'Independent Test: The pipeline can be run on a single batch of data to
+    produce data/processed/graph_metrics.csv containing subject IDs and calculated
+    graph metrics without any machine learning training.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_graph_metrics.csv_from_single_batch_withou
+  kind: entity_fact
+  raw_text: The pipeline can be run on a single batch of data to produce data/processed/graph_metrics.csv
+    containing subject IDs and calculated graph metrics without any machine learning
+    training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:04:02Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline outputs model.pkl and performance_report.json with ROC-AUC and
+    F1-score for nested CV
+  claim_id: c_1880df5d
+  context: "Independent Test: The pipeline can be executed to output data/processed/model.pkl\
+    \ and data/processed/performance_report.json containing ROC\u2011AUC and F1\u2011\
+    score for nested CV, without running the permutation test."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_model.pkl_and_performance_report.json_with
+  kind: entity_fact
+  raw_text: "The pipeline can be executed to output data/processed/model.pkl and data/processed/performance_report.json\
+    \ containing ROC\u2011AUC and F1\u2011score for nested CV, without running the\
+    \ permutation test."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:04:04Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline runs permutation test and outputs permutation_results.json and
+    sensitivity_report.json
+  claim_id: c_b2cc4d39
+  context: 'Independent Test: The pipeline can take an existing model and performance
+    metric, run the permutation test, and output data/processed/permutation_results.json
+    and data/processed/sensitivity_report.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runs_permutation_test_and_outputs_permutation_resul
+  kind: entity_fact
+  raw_text: The pipeline can take an existing model and performance metric, run the
+    permutation test, and output data/processed/permutation_results.json and data/processed/sensitivity_report.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:04:06Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline produces graph_metrics.csv from single batch without training
+  claim_id: c_d5cfd53b
+  context: 'Phase 3: User Story 1 - Independent Test: The pipeline can be run on a
+    single batch of data to produce `data/processed/graph_metrics.csv` containing
+    subject IDs and calculated graph metrics without any machine learning training.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_graph_metrics.csv_from_single_batch_withou
+  kind: entity_fact
+  raw_text: The pipeline can be run on a single batch of data to produce `data/processed/graph_metrics.csv`
+    containing subject IDs and calculated graph metrics without any machine learning
+    training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:06:35Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline outputs model.pkl and performance_report.json with ROC-AUC and
+    F1-score for nested CV
+  claim_id: c_af1f24da
+  context: "Phase 4: User Story 2 - Independent Test: The pipeline can be executed\
+    \ to output `data/processed/model.pkl` and `data/processed/performance_report.json`\
+    \ containing ROC\u2011AUC and F1\u2011score for nested CV, without running the\
+    \ permutation test."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_model.pkl_and_performance_report.json_with
+  kind: entity_fact
+  raw_text: "The pipeline can be executed to output `data/processed/model.pkl` and\
+    \ `data/processed/performance_report.json` containing ROC\u2011AUC and F1\u2011\
+    score for nested CV, without running the permutation test."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:06:37Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline runs permutation test and outputs permutation_results.json and
+    sensitivity_report.json
+  claim_id: c_f96ee74f
+  context: 'Phase 5: User Story 3 - Independent Test: The pipeline can take an existing
+    model and performance metric, run the permutation test, and output `data/processed/permutation_results.json`
+    and `data/processed/sensitivity_report.json`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runs_permutation_test_and_outputs_permutation_resul
+  kind: entity_fact
+  raw_text: The pipeline can take an existing model and performance metric, run the
+    permutation test, and output `data/processed/permutation_results.json` and `data/processed/sensitivity_report.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:06:39Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 contains rs-fMRI and longitudinal MMSE/MOCA scores
+  claim_id: c_980164bb
+  context: Task T004c implements code/00_data_gate.py to verify OpenNeuro ds000246
+    availability and to parse metadata for rs-fMRI and longitudinal MMSE/MOCA scores.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_contains_rs-fMRI_and_longitudinal_MMSE/MO
+  kind: entity_fact
+  raw_text: Verify OpenNeuro ds000246 availability. Parse metadata to ensure rs-fMRI
+    and longitudinal MMSE/MOCA scores exist.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:28:18Z'
