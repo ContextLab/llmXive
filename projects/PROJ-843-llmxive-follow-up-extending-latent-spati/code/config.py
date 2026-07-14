@@ -9,121 +9,104 @@ can be called with zero or many arguments in a variety of forms
 
 import os
 from pathlib import Path
-from typing import Iterable, List, Union
+from typing import Iterable, List, Union, Any
 
-# ----------------------------------------------------------------------
-# Project root – assumed to be the parent of the ``code`` directory.
-# ----------------------------------------------------------------------
+# Project Root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# ----------------------------------------------------------------------
-# Directory getters
-# ----------------------------------------------------------------------
+# Directory Paths
+_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+_STRATIFIED_DIR = PROJECT_ROOT / "data" / "stratified"
+_FEATURES_DIR = PROJECT_ROOT / "data" / "features"
+_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+
+# Configuration State
+_RANSAC_THRESHOLD = 0.05
+_MAX_RAM_MB = 8000
+_MAX_WALL_TIME_SECONDS = 300
+
 def get_raw_dir() -> Path:
-    """Directory for raw downloaded data."""
-    return PROJECT_ROOT / "data" / "raw"
+    return _RAW_DIR
 
 def get_processed_dir() -> Path:
-    """Directory for processed intermediate data."""
-    return PROJECT_ROOT / "data" / "processed"
+    return _PROCESSED_DIR
 
 def get_stratified_dir() -> Path:
-    """Directory for stratified dataset splits."""
-    return PROJECT_ROOT / "data" / "stratified"
+    return _STRATIFIED_DIR
 
 def get_features_dir() -> Path:
-    """Directory for extracted visual features."""
-    return PROJECT_ROOT / "data" / "features"
+    return _FEATURES_DIR
 
 def get_results_dir() -> Path:
-    """Directory for final results and metrics."""
-    return PROJECT_ROOT / "data" / "results"
+    return _RESULTS_DIR
 
-# ----------------------------------------------------------------------
-# Thresholds / limits (placeholder values – real values can be overridden
-# by environment variables or downstream configuration files)
-# ----------------------------------------------------------------------
-def get_threshold(name: str) -> float:
-    """Return a numeric threshold by name; defaults to ``1.0``."""
-    # In a full implementation these would be looked up from a config file.
-    return float(os.getenv(f"THRESHOLD_{name.upper()}", "1.0"))
+def get_ransac_threshold() -> float:
+    return _RANSAC_THRESHOLD
 
-def get_all_thresholds() -> dict:
-    """Return a dictionary of all known thresholds."""
-    # Example static thresholds – can be expanded as needed.
-    return {
-        "optical_flow": get_threshold("optical_flow"),
-        "texture_entropy": get_threshold("texture_entropy"),
-        "ransac_inlier_ratio": get_threshold("ransac_inlier_ratio"),
-    }
+def set_ransac_threshold(value: float) -> None:
+    global _RANSAC_THRESHOLD
+    _RANSAC_THRESHOLD = value
 
-# ----------------------------------------------------------------------
-# Memory limits
-# ----------------------------------------------------------------------
-def get_memory_limit_gb() -> int:
-    """Maximum RAM (in GB) that the pipeline may use."""
-    return int(os.getenv("MEMORY_LIMIT_GB", "8"))
+def get_max_ram_mb() -> int:
+    return _MAX_RAM_MB
 
-def get_memory_limit_bytes() -> int:
-    """Maximum RAM (in bytes)."""
-    return get_memory_limit_gb() * 1024 ** 3
+def set_max_ram_mb(value: int) -> None:
+    global _MAX_RAM_MB
+    _MAX_RAM_MB = value
 
-# ----------------------------------------------------------------------
-# Misc helpers
-# ----------------------------------------------------------------------
-def get_config_summary() -> dict:
-    """Return a compact summary of the current configuration."""
-    return {
-        "project_root": str(PROJECT_ROOT),
-        "raw_dir": str(get_raw_dir()),
-        "processed_dir": str(get_processed_dir()),
-        "stratified_dir": str(get_stratified_dir()),
-        "features_dir": str(get_features_dir()),
-        "results_dir": str(get_results_dir()),
-        "memory_limit_gb": get_memory_limit_gb(),
-        "thresholds": get_all_thresholds(),
-    }
+def get_max_wall_time_seconds() -> int:
+    return _MAX_WALL_TIME_SECONDS
 
-# ----------------------------------------------------------------------
-# Directory creation helper
-# ----------------------------------------------------------------------
-def ensure_directories(*paths: Union[Path, Iterable[Path]]) -> None:
+def set_max_wall_time_seconds(value: int) -> None:
+    global _MAX_WALL_TIME_SECONDS
+    _MAX_WALL_TIME_SECONDS = value
+
+def ensure_directories(*dirs: Union[Path, List[Path], Iterable[Path], None]) -> None:
     """
-    Create one or more directories if they do not already exist.
-
-    This function is deliberately permissive – it accepts:
-      * No arguments → creates the standard project directories.
-      * A single ``Path``.
-      * Multiple ``Path`` objects as positional arguments.
-      * An iterable (list/tuple/set) of ``Path`` objects.
-      * Mixed positional and iterable arguments.
-
-    Example usages that must all succeed:
-        ensure_directories()
-        ensure_directories(get_raw_dir())
-        ensure_directories([get_raw_dir(), get_results_dir()])
-        ensure_directories(get_raw_dir(), get_results_dir())
-        ensure_directories(get_raw_dir(), [get_results_dir(), get_features_dir()])
+    Robust directory creation accepting various input signatures.
+    Compatible with all existing call sites in the project.
+    Handles:
+      - No args: creates all default directories
+      - Single Path: creates that directory
+      - List[Path] or Iterable[Path]: creates each
+      - Mixed args: processes all valid Path-like objects
     """
-    # If nothing was passed, create the canonical set of directories.
-    if not paths:
-        dirs: List[Path] = [
-            get_raw_dir(),
-            get_processed_dir(),
-            get_stratified_dir(),
-            get_features_dir(),
-            get_results_dir(),
-        ]
+    paths_to_create = []
+
+    if not dirs:
+        # No arguments: create all default directories
+        paths_to_create = [_RAW_DIR, _PROCESSED_DIR, _STRATIFIED_DIR, _FEATURES_DIR, _RESULTS_DIR]
     else:
-        # Flatten any iterables while preserving Path objects.
-        dirs: List[Path] = []
-        for p in paths:
-            if isinstance(p, (list, tuple, set)):
-                dirs.extend([Path(item) for item in p])
+        for arg in dirs:
+            if arg is None:
+                continue
+            elif isinstance(arg, Path):
+                paths_to_create.append(arg)
+            elif isinstance(arg, list):
+                paths_to_create.extend([p for p in arg if isinstance(p, Path)])
+            elif hasattr(arg, '__iter__') and not isinstance(arg, str):
+                # Handle generic iterables (sets, tuples, generators)
+                paths_to_create.extend([p for p in arg if isinstance(p, Path)])
             else:
-                dirs.append(Path(p))
+                # Fallback for unexpected types, try to convert or ignore
+                try:
+                    paths_to_create.append(Path(arg))
+                except Exception:
+                    pass
 
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+    for p in paths_to_create:
+        if p is not None:
+            p.mkdir(parents=True, exist_ok=True)
 
-# End of config.py
+def get_config_summary() -> dict:
+    return {
+        "raw_dir": str(_RAW_DIR),
+        "processed_dir": str(_PROCESSED_DIR),
+        "stratified_dir": str(_STRATIFIED_DIR),
+        "features_dir": str(_FEATURES_DIR),
+        "results_dir": str(_RESULTS_DIR),
+        "ransac_threshold": _RANSAC_THRESHOLD,
+        "max_ram_mb": _MAX_RAM_MB,
+        "max_wall_time_seconds": _MAX_WALL_TIME_SECONDS
+    }

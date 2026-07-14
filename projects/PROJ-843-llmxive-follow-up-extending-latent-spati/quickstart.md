@@ -1,38 +1,61 @@
-# Quickstart for llmXive Follow‑up Project
+# llmXive Quickstart Guide
 
-This document describes the commands needed to run the full research pipeline on a
-CPU‑only environment. Run each command from the repository root.
+This guide describes how to run the full research pipeline for the "Latent Spatial Memory for Video World Models" extension.
+
+## Prerequisites
+
+- Python 3.11+
+- `pip install -r requirements.txt`
+
+## Running the Pipeline
+
+The pipeline is executed via `code/main.py`. You can run specific phases or the entire workflow.
+
+### Full Execution
+
+To run the entire pipeline (Data Preparation -> Feature Extraction -> Geometry -> Evaluation):
 
 ## 1️⃣ Prepare data & download resources
 ```bash
-python code/data/download.py # RealEstate10K download
-python code/eval/download_dense_baseline.py # Dense baseline frames
+cd code
+python main.py --phase all
 ```
 
-## 2️⃣ Stratify & extract features
-```bash
-python code/data/stratify.py
-python code/data/extract_features.py
-```
+### Individual Phases
 
-## 3️⃣ Geometry pipeline (solver + warp)
-```bash
-python code/geometry/run_pipeline.py
-```
+- **Data Preparation** (Downloads baseline and RE10K, stratifies):
+ ```bash
+ python main.py --phase data_prepare
+ ```
+ *This phase ensures `data/raw/dense_baseline_frames.npy` is created.*
 
-## 4️⃣ Evaluation
-```bash
-python code/eval/metrics.py # Compute WorldScore, Sparse‑Consistency, FID, etc.
-python code/eval/anova.py # Two‑Way ANOVA
-python code/eval/report.py # Final verification report
-```
+- **Feature Extraction** (Extracts SIFT/ORB):
+ ```bash
+ python main.py --phase extract_features
+ ```
 
-## 5️⃣ End‑to‑end orchestration (optional)
-```bash
-python code/main.py --phase evaluate # Runs the full evaluation phase
-```
+- **Geometry** (Solves epipolar, warps, aggregates):
+ ```bash
+ python main.py --phase compute_geometry
+ ```
 
-After the pipeline finishes, you will find:
-- `data/results/metrics.json` – all computed metrics.
-- `data/results/metrics.json` will be consumed by `code/eval/report.py` to
- generate `data/results/hypothesis_verification.md`.
+- **Evaluation** (Computes metrics, ANOVA, report):
+ ```bash
+ python main.py --phase evaluate
+ ```
+
+## Expected Artifacts
+
+Upon successful completion, the following files should exist:
+
+- `data/raw/dense_baseline_frames.npy` (Dense baseline depth maps)
+- `data/stratified/` (Stratified sequence folders)
+- `data/features/` (Sparse feature files)
+- `data/results/sparse_warped_frames.npy` (Aggregated warped frames)
+- `data/results/metrics.json` (Final metrics)
+- `data/results/hypothesis_verification.md` (Final report)
+
+## Troubleshooting
+
+- **Missing `dense_baseline_frames.npy`**: Ensure `data_prepare` phase completes successfully. It attempts to download from HuggingFace and falls back to MiDaS generation.
+- **Import Errors**: Ensure you are running from the project root or `code/` directory and `requirements.txt` is installed.

@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-843-llmxive-follow-up-extending-latent-spati
-last_run_id: 20d3b0e1-2c69-4551-b332-625b8112ff7c
+last_run_id: 0476830a-d5a0-42f5-9068-6e8cd07160b4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati
 title: 'llmXive follow-up: extending "Latent Spatial Memory for Video World Models"'
-updated_at: '2026-07-12T18:15:41.776537Z'
+updated_at: '2026-07-14T16:45:23.406046Z'

@@ -1,268 +1,250 @@
 """
-Sensitivity analysis for RANSAC threshold values.
+Sensitivity Analysis for RANSAC Thresholds.
 
-This script sweeps a set of RANSAC reprojection error thresholds,
-recomputes the two key evaluation metrics (WorldScore and Sparse‑Consistency
-Score) for each threshold, and writes the aggregated results to a JSON file.
-
-The heavy‑lifting (geometry solving & warping) is performed by the existing
-pipeline; this script simply re‑uses the already‑generated result artefacts.
-Because the geometry solver writes its output to ``data/results/sparse_warped_frames.npy``,
-the metrics are recomputed on that file for every threshold value.
+Re-executes the geometry solver (T010) for specific RANSAC thresholds
+and reports the variation in WorldScore and Sparse-Consistency Score.
 """
 
 import argparse
 import json
+import sys
+import os
 from pathlib import Path
-from typing import Dict, List, Tuple, Iterable, Union
-
+from typing import List, Dict, Any, Optional
 import numpy as np
-import cv2
 
-from config import get_results_dir, ensure_directories
-from eval.metrics import (
-    calculate_world_score,
-    calculate_sparse_consistency_score,
+# Local imports
+from config import (
+    get_results_dir,
+    get_features_dir,
+    get_ransac_threshold,
+    set_ransac_threshold,
+    ensure_directories,
+    get_config_summary
 )
+from geometry.solver import run_solver
+from geometry.warp import run_warp_pipeline
+from geometry.aggregate_warps import aggregate_warped_frames, load_unsolvable_list
+from eval.metrics import calculate_world_score, calculate_sparse_consistency_score
+from utils.memory_monitor import MemoryMonitor
+from utils.seeds import set_global_seed
 
-# ----------------------------------------------------------------------
-# Helper utilities
-# ----------------------------------------------------------------------
-DENSE_PATH = Path("data") / "raw" / "dense_baseline_frames.npy"
-SPARSE_WARPED_PATH = Path("data") / "results" / "sparse_warped_frames.npy"
-
-
-def _create_dense_baseline_if_missing() -> None:
-    """
-    Build a minimal dense baseline from a handful of real frames if the
-    expected ``dense_baseline_frames.npy`` file is absent.
-
-    The baseline consists of the first few RGB images found under the
-    stratified dataset. This provides *real* data without requiring an
-    external download, satisfying the fabrication guard.
-    """
-    if DENSE_PATH.is_file():
-        return
-
-    # Search for image files (common extensions) under the stratified folder.
-    image_extensions = ("*.png", "*.jpg", "*.jpeg", "*.bmp")
-    image_paths: List[Path] = []
-    for ext in image_extensions:
-        image_paths.extend(Path("data") / "stratified".glob(f"**/{ext}"))
-
-    if not image_paths:
-        raise FileNotFoundError(
-            f"No image files found under {Path('data') / 'stratified'} to build a dense baseline."
-        )
-
-    # Limit to a small, manageable number of frames (e.g., 10).
-    selected_paths = image_paths[:10]
-
-    frames: List[np.ndarray] = []
-    for img_path in selected_paths:
-        img = cv2.imread(str(img_path))
-        if img is None:
-            continue
-        # Convert BGR (OpenCV default) to RGB for consistency with downstream metrics.
-        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        frames.append(img_rgb)
-
-    if not frames:
-        raise RuntimeError("Failed to load any images for the dense baseline.")
-
-    dense_array = np.stack(frames)  # Shape: (N, H, W, C)
-    DENSE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    np.save(DENSE_PATH, dense_array)
-    print(f"Dense baseline generated with {len(frames)} frames at {DENSE_PATH}")
-
-
-def _load_dense_baseline() -> np.ndarray:
-    """Load the dense baseline frames from the standard location."""
-    if not DENSE_PATH.is_file():
-        raise FileNotFoundError(f"Dense baseline not found at {DENSE_PATH}")
-    return np.load(DENSE_PATH, allow_pickle=False)
-
-
-def _load_sparse_warped() -> np.ndarray:
-    """Load the sparse warped frames produced by the geometry pipeline."""
-    if not SPARSE_WARPED_PATH.is_file():
-        raise FileNotFoundError(f"Sparse warped frames not found at {SPARSE_WARPED_PATH}")
-    return np.load(SPARSE_WARPED_PATH, allow_pickle=False)
-
-
-# ----------------------------------------------------------------------
-# Core pipeline runner
-# ----------------------------------------------------------------------
-def _run_geometry_pipeline(ransac_threshold: float) -> None:
-    """
-    Return a sensible default list of RANSAC thresholds to sweep.
-    These thresholds correspond to the maximum allowed reprojection error
-    (in pixels) during the RANSAC fundamental‑matrix estimation step.
-    """
-    return [0.5, 1.0, 1.5, 2.0, 3.0]
-
+# Thresholds to sweep as per task description
+RANSAC_THRESHOLDS = [0.01, 0.05, 0.1]
+OUTPUT_FILE = "sensitivity_analysis.json"
 
 def run_ransac_sweep(
     thresholds: List[float],
-    output_path: Path,
-    verbose: bool = False,
-) -> None:
+    output_dir: Optional[Path] = None
+) -> Dict[str, Any]:
     """
-    Execute the sensitivity sweep.
+    Re-execute the solver and warp pipeline for each threshold.
 
-    Parameters
-    ----------
-    thresholds: List[float]
-        A list of RANSAC reprojection‑error thresholds to evaluate.
-    output_path: Path
-        Destination JSON file where the aggregated results will be stored.
-    verbose: bool
-        If True, print per‑threshold progress information.
+    Args:
+        thresholds: List of RANSAC thresholds to test.
+        output_dir: Directory to write intermediate results for this sweep.
+
+    Returns:
+        Dictionary containing results for each threshold.
     """
-    # Ensure a dense baseline exists – create a minimal one if needed.
-    _create_dense_baseline_if_missing()
+    results = {}
+    features_dir = get_features_dir()
+    results_base = get_results_dir() if output_dir is None else output_dir
 
-    # WorldScore does not depend on the RANSAC threshold, so we load it once.
-    dense_frames = _load_dense_baseline()
-    world_score = calculate_world_score(dense_frames)
+    # Ensure output directory exists
+    ensure_directories(results_base)
 
-    # Paths to the artefacts required by the metric functions.
-    dense_baseline_path = get_raw_dir() / "dense_baseline_frames.npy"
-    warped_frames_path = get_results_dir() / "sparse_warped_frames.npy"
+    print(f"Starting RANSAC Threshold Sweep: {thresholds}")
+    print(f"Features directory: {features_dir}")
+    print(f"Results directory: {results_base}")
 
-    # Verify that the required files exist; abort with a clear message otherwise.
-    if not dense_baseline_path.is_file():
-        raise FileNotFoundError(
-            f"Dense baseline file not found at {dense_baseline_path}. "
-            "Run the dense‑baseline download step before executing sensitivity analysis."
-        )
-    if not warped_frames_path.is_file():
-        raise FileNotFoundError(
-            f"Sparse warped frames not found at {warped_frames_path}. "
-            "Run the geometry pipeline before executing sensitivity analysis."
-        )
+    # Check if features exist
+    if not features_dir.exists():
+        raise FileNotFoundError(f"Features directory not found: {features_dir}. "
+                                "Run T009 (extract_features) first.")
 
-    results: List[Dict[str, Any]] = []
+    # Check for existing features
+    feature_files = list(features_dir.glob("*.npy"))
+    if not feature_files:
+        # Try json as well
+        feature_files = list(features_dir.glob("*.json"))
 
-    for thr in thresholds:
-        if verbose:
-            print(f"Evaluating threshold {thr} ...")
+    if not feature_files:
+        raise FileNotFoundError(f"No feature files found in {features_dir}. "
+                                "Run T009 (extract_features) first.")
 
-        # NOTE:
-        # The existing metric functions do **not** take the RANSAC threshold
-        # as an argument – they operate on the artefacts that were produced
-        # using whatever threshold the geometry pipeline employed.
-        # To keep the implementation faithful to the original research
-        # intent while still providing a functional script, we compute the
-        # metrics once and repeat the same values for each threshold.
-        # This yields a valid, real‑data‑driven JSON file without fabricating
-        # synthetic numbers.
-        world_score = calculate_world_score(dense_baseline_path, warped_frames_path)
-        sparse_score = calculate_sparse_consistency_score(warped_frames_path)
+    print(f"Found {len(feature_files)} feature files.")
 
-        results.append(
-            {
-                "ransac_threshold": thr,
-                "world_score": world_score,
-                "sparse_consistency_score": sparse_score,
+    # Store original threshold to restore later
+    original_threshold = get_ransac_threshold()
+
+    try:
+        for threshold in thresholds:
+            print(f"\n{'='*40}")
+            print(f"Processing Threshold: {threshold}")
+            print(f"{'='*40}")
+
+            # Update global config for this run
+            set_ransac_threshold(threshold)
+
+            # Create a temporary results subdirectory for this threshold
+            # to avoid overwriting previous results until complete
+            threshold_dir = results_base / f"threshold_{threshold}"
+            ensure_directories(threshold_dir)
+
+            # 1. Run Solver
+            print("Running Solver...")
+            # We need to pass the specific directory to solver to avoid global state issues
+            # However, run_solver uses global config for paths. We assume it respects the
+            # set_ransac_threshold call.
+            try:
+                unsolvable_path = solver_main_output = run_solver(
+                    features_dir=features_dir,
+                    output_dir=threshold_dir
+                )
+                print(f"Solver complete. Unsolvable list: {unsolvable_path}")
+            except Exception as e:
+                print(f"Solver failed for threshold {threshold}: {e}")
+                # If solver fails completely (e.g. no inliers), record as failure
+                results[threshold] = {
+                    "status": "failed",
+                    "error": str(e),
+                    "world_score": None,
+                    "sparse_consistency_score": None
+                }
+                continue
+
+            # 2. Run Warp
+            print("Running Warp...")
+            try:
+                warp_output = run_warp_pipeline(
+                    features_dir=features_dir,
+                    output_dir=threshold_dir
+                )
+                print(f"Warp complete. Output: {warp_output}")
+            except Exception as e:
+                print(f"Warp failed for threshold {threshold}: {e}")
+                results[threshold] = {
+                    "status": "failed",
+                    "error": str(e),
+                    "world_score": None,
+                    "sparse_consistency_score": None
+                }
+                continue
+
+            # 3. Aggregate Warped Frames
+            print("Aggregating Warped Frames...")
+            try:
+                # load_unsolvable_list expects a path, aggregate_warped_frames writes to output
+                unsolvable_list = load_unsolvable_list(
+                    unsolvable_path=threshold_dir / "unsolvable_sequences.json"
+                )
+                print(f"Loaded {len(unsolvable_list)} unsolvable sequences.")
+
+                aggregated_path = aggregate_warped_frames(
+                    warped_frames_dir=threshold_dir / "warped_frames",
+                    unsolvable_list=unsolvable_list,
+                    output_path=threshold_dir / "sparse_warped_frames.npy"
+                )
+                print(f"Aggregation complete. Output: {aggregated_path}")
+            except Exception as e:
+                print(f"Aggregation failed for threshold {threshold}: {e}")
+                results[threshold] = {
+                    "status": "failed",
+                    "error": str(e),
+                    "world_score": None,
+                    "sparse_consistency_score": None
+                }
+                continue
+
+            # 4. Compute Metrics
+            print("Computing Metrics...")
+            metrics = {
+                "status": "success",
+                "threshold": threshold
             }
-        )
 
-    # Write the aggregated results.
-    with output_path.open("w", encoding="utf-8") as f:
-        json.dump({"sensitivity_sweep": results}, f, indent=2)
+            # Load dense baseline for WorldScore comparison
+            dense_baseline_path = Path("data/raw/dense_baseline_frames.npy")
+            if not dense_baseline_path.exists():
+                print(f"Warning: Dense baseline not found at {dense_baseline_path}. "
+                      "Skipping WorldScore calculation.")
+                metrics["world_score"] = None
+            else:
+                try:
+                    ws = calculate_world_score(
+                        sparse_warped_path=aggregated_path,
+                        dense_baseline_path=dense_baseline_path
+                    )
+                    metrics["world_score"] = float(ws)
+                    print(f"WorldScore: {ws:.4f}")
+                except Exception as e:
+                    print(f"WorldScore calculation failed: {e}")
+                    metrics["world_score"] = None
 
+            # Compute Sparse-Consistency Score
+            try:
+                scs = calculate_sparse_consistency_score(
+                    warped_frames_path=aggregated_path
+                )
+                metrics["sparse_consistency_score"] = float(scs)
+                print(f"Sparse-Consistency Score: {scs:.4f}")
+            except Exception as e:
+                print(f"Sparse-Consistency Score calculation failed: {e}")
+                metrics["sparse_consistency_score"] = None
 
-def calculate_metrics_for_threshold(
-    threshold: float,
-    world_score: float,
-    sparse_score: float,
-) -> Dict[str, float]:
-    """Package metrics for a single threshold into a serialisable dict."""
-    return {
-        "ransac_threshold": threshold,
-        "world_score": world_score,
-        "sparse_consistency_score": sparse_score,
-    }
+            results[threshold] = metrics
 
+    finally:
+        # Restore original threshold
+        set_ransac_threshold(original_threshold)
 
-def run_sensitivity_sweep() -> List[Dict[str, float]]:
-    """
-    Orchestrates the full sweep and returns a list of metric dictionaries.
-    """
-    # Define a reasonable range of RANSAC thresholds (inlier pixel distance)
-    thresholds = [0.5, 1.0, 1.5, 2.0, 2.5]
-    raw_results = run_ransac_sweep(thresholds)
+    return results
 
-    return [
-        calculate_metrics_for_threshold(thr, ws, ss)
-        for (thr, ws, ss) in raw_results
-    ]
-
-
-def save_sensitivity_results(results: List[Dict[str, float]]) -> Path:
-    """
-    Write the sweep results to ``data/results/sensitivity.json``.
-    Returns the path to the written file.
-    """
-    results_dir = get_results_dir()
-    # ``ensure_directories`` tolerates being called without arguments,
-    # but we also explicitly guarantee the results directory exists.
-    ensure_directories(results_dir)
-    out_path = results_dir / "sensitivity.json"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    with out_path.open("w") as f:
+def save_sensitivity_results(results: Dict[str, Any], output_path: Path) -> None:
+    """Save sensitivity analysis results to JSON."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-    print(f"Sensitivity results saved to {out_path}")
-    return out_path
+    print(f"Sensitivity results saved to {output_path}")
 
-
-# ----------------------------------------------------------------------
-# CLI entry point
-# ----------------------------------------------------------------------
-
-
-def save_sensitivity_results(
-    results_path: Path,
-    thresholds: List[float],
-    verbose: bool = False,
-) -> None:
-    """
-    Convenience wrapper used by external callers (e.g., unit tests) to
-    trigger the sweep and persist the JSON results.
-    """
-    run_ransac_sweep(thresholds, results_path, verbose=verbose)
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Sweep RANSAC thresholds and record metric variation."
-    )
-    parser.add_argument(
-        "--thresholds",
-        type=float,
-        nargs="+",
-        default=_default_thresholds(),
-        help="Space‑separated list of RANSAC thresholds to evaluate.",
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=get_results_dir() / "sensitivity.json",
-        help="Path to the JSON file that will contain the sweep results.",
-    )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Print progress information while sweeping.",
-    )
+def main():
+    parser = argparse.ArgumentParser(description="Run RANSAC threshold sensitivity analysis.")
+    parser.add_argument("--output", type=str, default=None,
+                        help="Output directory for results. Defaults to data/results/")
     args = parser.parse_args()
 
-    # Ensure the output directory exists before running the sweep.
-    ensure_directories(args.output.parent)
+    # Set seed for reproducibility
+    set_global_seed(42)
 
-    run_ransac_sweep(args.thresholds, args.output, verbose=args.verbose)
+    output_dir = Path(args.output) if args.output else get_results_dir()
+    ensure_directories(output_dir)
 
+    try:
+        results = run_ransac_sweep(RANSAC_THRESHOLDS, output_dir)
+        output_file = output_dir / OUTPUT_FILE
+        save_sensitivity_results(results, output_file)
+
+        # Print summary
+        print("\n" + "="*50)
+        print("SENSITIVITY ANALYSIS SUMMARY")
+        print("="*50)
+        print(f"{'Threshold':<15} {'WorldScore':<20} {'Sparse-Consistency':<20} {'Status'}")
+        print("-"*75)
+        for threshold, data in results.items():
+            ws = data.get("world_score", "N/A")
+            scs = data.get("sparse_consistency_score", "N/A")
+            status = data.get("status", "unknown")
+            if isinstance(ws, float): ws = f"{ws:.4f}"
+            if isinstance(scs, float): scs = f"{scs:.4f}"
+            print(f"{threshold:<15} {str(ws):<20} {str(scs):<20} {status}")
+        print("="*50)
+
+    except Exception as e:
+        print(f"Error in sensitivity analysis: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

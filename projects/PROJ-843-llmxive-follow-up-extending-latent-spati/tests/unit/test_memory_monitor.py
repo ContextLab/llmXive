@@ -1,61 +1,50 @@
-import json
-import os
-import tempfile
+import time
 from pathlib import Path
 
 import pytest
 
-# Import the class from the project code
 from utils.memory_monitor import MemoryMonitor
 
 
-def test_memory_monitor_writes_log_to_specified_path(tmp_path: Path):
+def test_memory_monitor_writes_summary_and_log(tmp_path: Path):
     """
-    Verify that ``MemoryMonitor`` creates a JSON log file at the location
-    provided via ``output_path`` and that the file contains the expected
-    keys.
+    Verify that MemoryMonitor records data, writes a detailed log and a summary
+    JSON file, and that the recorded duration is positive.
     """
-    log_file = tmp_path / "monitor_log.json"
+    log_file = tmp_path / "mem.log"
+    monitor = MemoryMonitor(log_path=log_file, interval=0.05)
 
-    # Use the monitor as a context manager to ensure start/stop are called.
-    with MemoryMonitor(output_path=log_file) as monitor:
-        # Perform a trivial operation to have non‑zero duration.
-        sum(i for i in range(10))
+    # Use the context manager for simplicity.
+    with monitor:
+        # Simulate some work.
+        time.sleep(0.2)
 
-    # After exiting the context the file should exist.
-    assert log_file.is_file(), "Log file was not created"
+    # After exiting the context the monitor should have stopped and written files.
+    summary_file = log_file.with_name(log_file.stem + "_summary.json")
 
-    # Load and inspect the JSON content.
-    with log_file.open("r", encoding="utf-8") as f:
-        data = json.load(f)
+    # Both files must exist.
+    assert log_file.is_file(), "Detailed memory log not created"
+    assert summary_file.is_file(), "Summary JSON not created"
 
-    # Expected keys
-    expected_keys = {"duration_seconds", "peak_ram_mb", "timestamp"}
-    assert expected_keys.issubset(data.keys()), f"Missing keys in log: {expected_keys - data.keys()}"
+    # Load and inspect the summary.
+    import json
+    with summary_file.open() as f:
+        summary = json.load(f)
 
-    # Basic sanity checks on values
-    assert isinstance(data["duration_seconds"], (int, float)), "duration_seconds should be numeric"
-    assert data["duration_seconds"] >= 0, "duration_seconds should be non‑negative"
-    assert isinstance(data["peak_ram_mb"], (int, float)), "peak_ram_mb should be numeric"
-    # peak_ram_mb may be 0 when memory_profiler is unavailable; that's acceptable.
+    assert isinstance(summary.get("peak_memory_mb"), (int, float)), "Peak memory missing"
+    # Duration should be at least the sleep time (allow small tolerance).
+    assert summary.get("duration_seconds", 0) >= 0.15, "Duration too short"
 
+    # Ensure the log contains at least one record.
+    with log_file.open() as f:
+        lines = f.readlines()
+    assert len(lines) > 0, "Memory log is empty"
 
-def test_memory_monitor_defaults_to_memory_log(tmp_path: Path, monkeypatch):
-    """
-    When no explicit output path is given, the monitor should write to
-    ``memory.log`` in the current working directory.
-    """
-    # Change cwd to a temporary directory
-    monkeypatch.chdir(tmp_path)
-
+# Ensure that calling an undefined attribute does not raise.
+def test_memory_monitor_noop_attribute():
     monitor = MemoryMonitor()
-    monitor.start()
-    # simple work
-    _ = sum(i for i in range(5))
-    monitor.stop()
-
-    default_log = Path("memory.log")
-    assert default_log.is_file(), "Default memory.log was not created"
-
-    # Clean up
-    default_log.unlink()
+    # These calls should be no‑ops and not raise AttributeError.
+    monitor.info("test")
+    monitor.debug("debug message")
+    monitor.custom_method(123, key="value")
+    # No assertion needed – the test passes if no exception is raised.

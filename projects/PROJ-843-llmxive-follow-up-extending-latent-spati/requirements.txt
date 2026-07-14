@@ -11,4 +11,5 @@ pytest
 memory_profiler
 scikit-image
 huggingface_hub
-tqdm
+pillow
+transformers

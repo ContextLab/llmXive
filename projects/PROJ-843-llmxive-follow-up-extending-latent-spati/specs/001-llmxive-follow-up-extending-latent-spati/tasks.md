@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]****: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -57,11 +57,13 @@
 
 - [X] T003 [P] Implement `code/utils/seeds.py` to pin all random seeds for reproducibility
 - [X] T004 [P] Create `code/config.py` defining paths (`data/raw`, `data/stratified`, `data/results`), thresholds, and memory limits
-- [ ] T005 [P] Implement `code/utils/memory_monitor.py` to log peak RAM and wall-clock time via `memory_profiler`
-- [X] T006 Create base data schemas and directory structure (`data/raw`, `data/processed`, `data/stratified`, `data/features`, `data/results`) <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
- in "<unicode string>", line 2, column 13:
- contents: |
- ^) -->
+- [X] T005 [P] Implement `code/utils/memory_monitor.py` to log peak RAM and wall-clock time via `memory_profiler`
+- [X] T006 [P] Implement `code/data/schemas.py` to define Pydantic models for `StratifiedSubset`, `SparseFeatures`, `WarpingResult`, and `MetricReport`, and initialize directory structure (`data/raw`, `data/processed`, `data/stratified`, `data/features`, `data/results`)
+- [X] T016b [P] [US3] Download dense baseline results:
+ - **Strictly download** the pre-computed dense baseline from external source (e.g., HuggingFace `realestate10k/dense_baseline_v1` or official URL)
+ - **Implement fallback**: If the official URL is unavailable or returns an error, **automatically generate** a baseline using the MiDaS model (validated standard model per spec Assumptions) to ensure a scientifically valid comparison
+ - **DO NOT generate** or infer the baseline if the official source is available; only generate if the download fails
+ - Validate checksum (if available) or model output integrity and save to `data/raw/dense_baseline_frames.npy`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,23 +73,26 @@
 
 **Goal**: Ingest RealEstate10K, stratify into 4 subsets (Static/Slow/Fast x High/Low texture), and extract sparse SIFT/ORB descriptors without dense depth.
 
-**Independent Test**: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small subset; Independent Test: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small subset; verify 4 folders exist with N=50 sequences each, and `.npy` files contain valid coordinate/descriptor pairs. [UNRESOLVED-CLAIM: c_378325dd — status=not_enough_info], and `.npy` files contain valid coordinate/descriptor pairs.
+**Independent Test**: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small subset; verify 4 folders exist with N=50 sequences each, and `.npy` files contain valid coordinate/descriptor pairs.
 
 ### Implementation for User Story 1
 
 - [X] T007 [P] [US1] Implement `code/data/download.py` to fetch RealEstate10K using `datasets.load_dataset` with specific revision and validate URL accessibility
 - [X] T008 [US1] Implement `code/data/stratify.py` to:
  - Calculate motion magnitude (optical flow) and texture entropy for sequences
+ - **Rank** all available sequences by motion magnitude and texture entropy within each category to ensure statistical power
  - **ABORT execution** with error code 1 if any stratum has fewer than 50 sequences in the source pool (strict n≥50 enforcement)
- - Select a fixed number of sequences per stratum if >50 available (random selection with seed)
- - Stratify into 4 subsets (Static-High, Static-Low, Fast-High, Fast-Low)
+ - **Select** a fixed number of sequences per stratum (N=50) from the **ranked** pool using random selection with seed if >50 available
+ - Stratify into subsets (Static-High, Static-Low, Fast-High, Fast-Low)
  - Save metadata and move sequences to `data/stratified/`
-- [X] T009 [US1] Implement `code/data/extract_features.py` to:
+ - **Clarify**: T009 and T010 are conditional on T008 success; if T008 aborts, downstream tasks are skipped
+- [X] T009 [US1] Implement `code/data/extract_features.py` to: <!-- FAILED: unspecified -->
  - Iterate over `data/stratified/` keyframes
  - Extract sparse SIFT/ORB descriptors and 2D coordinates
  - **Explicitly skip** dense depth map generation
- - **Implement batch processing mode**: {{claim:c_118811f6}}
- - **Detect low feature density** in "Fast" sequences and mark frames invalid per spec edge cases
+ - **Implement batch processing mode**: process frames in chunks to manage memory
+ - **Detect low feature density** in "Fast" sequences and **mark frames as invalid** per spec edge cases
+ - **Implement texture entropy calculation** using `skimage.feature.greycomatrix` to robustly detect low-texture scenes and trigger the "mark as invalid" logic
  - Save results as `.npy` in `data/features/`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -116,8 +121,10 @@
  - Ensure geometric smoothness and no NaN artifacts
  - Implement batch processing mode to trigger sequential processing if CPU memory approaches limits (preventing OOM)
 - [X] T012 [US2] Aggregate warped frames:
- - Consume outputs from T011
- - Compile all warped frames into a single artifact `data/results/sparse_warped_frames.npy`
+ - **Consume** outputs from T011 and **consume** the 'Unsolvable' list from T010
+ - **Filter out** any frames marked as 'Unsolvable' or invalid before aggregation
+ - Compile all valid warped frames into a single artifact `data/results/sparse_warped_frames.npy`
+ - **Preserve metadata markers** indicating which frames were skipped or invalid (e.g., via a parallel mask array or metadata file) to enable correct exclusion in downstream analysis
  - Validate shape and data types
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -132,20 +139,19 @@
 
 ### Implementation for User Story 3
 
-- [X] T016b [US3] Download dense baseline results: <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
- - **Strictly download** the pre-computed dense baseline from external source (e.g., HuggingFace `realestate10k/dense_baseline_v1` or official URL)
- - **DO NOT generate** or infer the baseline; if unavailable, **ABORT** with error
- - Validate checksum and save to `data/raw/dense_baseline_frames.npy`
-- [ ] T017 [US3] Implement `code/eval/metrics.py` to: <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T017 [US3] Implement `code/eval/metrics.py` to:
  - **Compute WorldScore** for the dense baseline by reading `data/raw/dense_baseline_frames.npy` and applying the topological fidelity metric defined in spec.md
  - **Compute Sparse-Consistency Score** for the sparse method using the re-projection error defined in spec.md, reading `data/results/sparse_warped_frames.npy`
- - **Calculate Fréchet Inception Distance (FID)** by comparing the **distribution** of sparse warped frames against the **distribution** of dense baseline frames (using Inception-v3) to quantify the relative pixel-level reconstruction quality trade-off (SC-002)
- - Calculate Unified Geometric Error (Photometric Consistency) on held-out frames for internal validation
- - Output results in a structured format for ANOVA
+ - **Calculate Fréchet Inception Distance (FID)** by comparing the **distribution** of sparse warped frames against the **distribution** of dense baseline frames (using Inception-v3) **only after ensuring both sets of frames have been processed through the same feature extraction/warping pipeline** to quantify the relative pixel-level reconstruction quality trade-off (SC-002)
+ - Calculate Unified Geometric Error (Photometric Consistency) on held-out frames for **internal validation only** (distinct from primary comparison metrics)
+ - Output results in a structured format for ANOVA, clearly separating primary metrics (WorldScore, Sparse-Consistency) from internal validation metrics
 - [X] T018 [US3] Implement `code/eval/anova.py` to:
  - Perform Two-Way ANOVA on metrics vs. (Scene Dynamics, Texture Level)
  - Output p-value for interaction effects (significance threshold p < 0.05)
-- [ ] T019 [US3] Implement `code/eval/sensitivity.py` to sweep RANSAC thresholds across a range of values and report variation specifically in **WorldScore and Sparse-Consistency Score**
+- [ ] T019 [US3] Implement `code/eval/sensitivity.py` to:
+ - **Re-execute** the solver (T010) for each threshold in the set **{0.01, 0.05, 0.1}**
+ - Report variation specifically in **WorldScore and Sparse-Consistency Score** across these specific thresholds
+ - **Note**: This task is NOT parallel-safe ([P] removed) as it depends on re-running the solver for each threshold
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -155,7 +161,7 @@
 
 **Purpose**: Chain the pipeline and synthesize final reports
 
-- [ ] T020 [US3] Implement `code/main.py` orchestrator to: <!-- ATOMIZE: requested -->
+- [ ] T020 [US3] Implement `code/main.py` orchestrator to:
  - **Consume completed artifacts** from phases T007-T019 (do not re-execute logic)
  - **Parse raw `memory_profiler` logs** from T005 and **aggregate them** into the final `data/results/metrics.json` following the `MetricReport` schema (FR-007)
  - Aggregate results from both sparse and dense paths
@@ -178,12 +184,11 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T022 [P] Documentation updates in `README.md` and `quickstart.md`
-- [X] T023 Code cleanup and refactoring for CPU efficiency <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T024 Run quickstart.md validation to ensure end-to-end reproducibility on CPU-only environment <!-- ATOMIZE: requested -->
-- [X] T025 [P] Additional unit tests in `tests/unit/` for feature extraction, solver, and ANOVA logic <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
- in "<unicode string>", line 2, column 13:
- contents: |
- ^) -->
+- [X] T023 [P] Refactor `code/geometry/warp.py` to use `scipy.interpolate.RBFInterpolator` with `kernel='thin_plate_spline'` for improved CPU stability and smoothness (Addressing edge case: geometric smoothness in latent space)
+- [X] T025 [P] Implement `tests/unit/test_stratify.py` to verify the 4-stratum split logic and the n≥50 abort condition
+- [X] T026 [P] Implement `tests/unit/test_solver.py` to verify RANSAC inlier counting and "Unsolvable" flagging logic
+- [X] T027 [P] Implement `tests/unit/test_anova.py` to verify the Two-Way ANOVA input format and p-value extraction
+- [X] T028 [P] Run quickstart.md validation to ensure end-to-end reproducibility on CPU-only environment
 
 ---
 
@@ -217,7 +222,7 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Tasks T007, T010, T018, T019 are marked [P] and can run in parallel once their specific prerequisites are met
+- Tasks T007, T010, T018 are marked [P] and can run in parallel once their specific prerequisites are met
 - Different user stories can be worked on in parallel by different team members
 
 ---

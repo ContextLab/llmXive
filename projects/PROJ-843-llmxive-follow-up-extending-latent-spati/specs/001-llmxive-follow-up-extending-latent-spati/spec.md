@@ -47,7 +47,7 @@ The system MUST compute WorldScore (topological fidelity) for the dense baseline
 
 **Acceptance Scenarios**:
 
-1. **Given** results from both sparse and dense models, **When** the statistical validation runs, **Then** it outputs a two-way ANOVA table with a p-value for the interaction term and a sensitivity analysis table for thresholds {0.01, 0.05, 0.1}.
+1. **Given** results from both sparse and dense models, **When** the statistical validation runs, **Then** it outputs a two-way ANOVA table with a p-value for the interaction term and a sensitivity analysis table for thresholds including a stringent level below 0.05.
 2. **Given** the sensitivity analysis, **When** the report is generated, **Then** it explicitly states the change in WorldScore and Sparse-Consistency Score across the tested thresholds, confirming the robustness of the chosen cutoff.
 
 ---

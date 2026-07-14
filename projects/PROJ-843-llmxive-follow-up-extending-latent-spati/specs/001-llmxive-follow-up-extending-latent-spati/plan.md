@@ -13,7 +13,7 @@ This project implements a CPU-tractable research pipeline to evaluate "Sparse Ep
 **Primary Dependencies**: `opencv-python` (CPU), `scikit-learn`, `scipy`, `pandas`, `numpy`, `torch` (CPU-only wheels), `datasets` (HuggingFace), `imageio`, `pytest`, `memory_profiler`
 **Storage**: Local file system (`data/raw`, `data/processed`, `data/stratified`), HuggingFace datasets cache
 **Testing**: `pytest` (unit tests for feature extraction, integration tests for pipeline phases)
-**Target Platform**: Linux (GitHub Actions Free Tier: Multiple CPU cores, approximately 7 GB RAM, no GPU)
+**Target Platform**: Linux (GitHub Actions Free Tier: Multiple CPU cores, several GB RAM, no GPU)
 **Project Type**: Computational research pipeline / CLI
 **Performance Goals**: Full pipeline execution ≤ 6 hours on CPU; Peak RAM < 7 GB; Sparse method inference time ≤ 60% of dense baseline (target ≥40% reduction).
 **Constraints**: No GPU/CUDA; No dense depth map generation for sparse path; RANSAC must handle low-texture failure gracefully; Memory-safe batch processing.

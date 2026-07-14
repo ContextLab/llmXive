@@ -1,14 +1,18 @@
 {
   "project_id": "PROJ-843-llmxive-follow-up-extending-latent-spati",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/config.py: self-declared fabricated metric \u2014 \u201c\u2026Thresholds / memory limits \u2013 placeholder values (real values are defined # e\u2026\u201d; 1 command(s) failed: python code/main.py --phase evaluate (rc=1); 1 declared deliverable(s) absent: data/raw/dense_baseline_frames.npy",
+  "reason": "5 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/eval/download_dense_baseline.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026For this pipeline, we generate a synthetic but structurally valid\u2026\u201d; code/eval/download_dense_baseline.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026milar.         # We will generate a synthetic baseline that passes the\u2026\u201d; code/eval/download_dense_baseline.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026dataset is to          # generate synthetic depth maps that follow t\u2026\u201d; 3 command(s) failed: python code/main.py --phase extract_features (rc=1); python code/main.py --phase compute_geometry (rc=1); python code/main.py --phase evaluate (rc=1)",
   "artifacts": [
-    "data/results/sparse_warped_frames.npy"
+    "data/features/all_features.json",
+    "data/raw/dense_baseline_frames.npy",
+    "data/results/memory_log.json"
   ],
   "failures": [
-    "python code/main.py --phase evaluate -> rc=1\n    ine frames...\n\n[download_dense_baseline] Failed to download from HF Hub: 401 Client Error. (Request ID: Root=1-6a566072-14d33021312cc764498f10c3;6746a3b4-e705-4ee0-9123-2bc3a5e9250e)\n\nRepository Not Found for url: https://huggingface.co/realestate10k/dense_baseline_v1/resolve/main/dense_baseline_frames.npy.\nPlease make sure you specified the correct `repo_id` and `repo_type`.\nIf you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.\nFor more details, see https://huggingface."
+    "python code/main.py --phase extract_features -> rc=1\n    Starting Phase: Extract Features\nRunning: Extract Sparse Features\nProcessing sequences from /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/stratified...\n\nCompleted. Aggregated results saved to /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/features/all_features.json\nTotal sequences processed: 0\nERROR: Feature extraction failed.\nPhase extract_features finished in 0.00s\nFAILED",
+    "python code/main.py --phase compute_geometry -> rc=1\n    Starting Phase: Compute Geometry\nRunning: Geometry Solver\nStarting Geometry Pipeline (Solver -> Warp -> Aggregate)\nRunning Solver...\nRunning solver...\nSolver complete.\nRunning Warp...\nRunning warp pipeline...\nWarp complete.\nAggregating Warped Frames...\nAggregating warped frames...\nWarped frames directory: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/warped_frames\nUnsolvable list: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/r",
+    "python code/main.py --phase evaluate -> rc=1\n    Starting Phase: Evaluation\nRunning: Compute Metrics\nError in metrics computation: Shape mismatch: dense (50, 256, 256) vs sparse (0,)\nPhase evaluate finished in 0.00s\nFAILED"
   ],
-  "fix_rounds": 12,
-  "model_tier": 1,
-  "updated_at": "2026-07-14T16:14:45Z"
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "updated_at": "2026-07-14T16:54:36Z"
 }

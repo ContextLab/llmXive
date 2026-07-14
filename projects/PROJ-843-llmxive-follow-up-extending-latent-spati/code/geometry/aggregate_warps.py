@@ -1,84 +1,126 @@
 """
-Utilities for aggregating warped frame results.
-
-Public API:
-  * ``scan_warped_frames`` – locate all ``*.npy`` files in the results dir.
-  * ``load_warped_frame`` – load a single warped frame array.
-  * ``validate_aggregated_data`` – sanity‑check the collected frames.
-  * ``aggregate_warped_frames`` – stack frames and write the consolidated file.
-  * ``main`` – entry‑point used by the geometry pipeline.
+Aggregate warped frames into a single artifact.
+Filters out unsolvable sequences and compiles results.
 """
 
 import json
 import os
+import sys
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 
 from config import get_results_dir, ensure_directories
 
-# ----------------------------------------------------------------------
-def _ensure_path(p: Union[str, Path]) -> Path:
-    """Utility to coerce ``str`` or ``Path`` to a ``Path`` instance."""
-    return p if isinstance(p, Path) else Path(p)
+def scan_warped_frames(warped_dir: Path) -> List[Path]:
+    """Scan for warped frame files."""
+    return list(warped_dir.glob("*.png")) + list(warped_dir.glob("*.npy"))
 
-# ----------------------------------------------------------------------
-def scan_warped_frames(results_dir: Union[str, Path]) -> List[Path]:
-    """
-    Return a list of all ``*.npy`` files inside ``results_dir``.
-    """
-    results_path = _ensure_path(results_dir)
-    return sorted(results_path.glob("*.npy"))
+def load_warped_frame(frame_path: Path) -> np.ndarray:
+    """Load a single warped frame."""
+    if frame_path.suffix == '.png':
+        img = cv2.imread(str(frame_path))
+        if img is None:
+            raise ValueError(f"Could not read image: {frame_path}")
+        return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    elif frame_path.suffix == '.npy':
+        return np.load(frame_path)
+    else:
+        raise ValueError(f"Unsupported format: {frame_path}")
 
-# ----------------------------------------------------------------------
-def load_warped_frame(npy_path: Union[str, Path]) -> np.ndarray:
-    """
-    Load a single warped frame stored as a NumPy ``.npy`` file.
-    """
-    path = _ensure_path(npy_path)
-    return np.load(path)
+def load_unsolvable_list(unsolvable_path: Path) -> List[str]:
+    """Load list of unsolvable sequences."""
+    if not unsolvable_path.exists():
+        return []
+    with open(unsolvable_path, 'r') as f:
+        return json.load(f)
 
-# ----------------------------------------------------------------------
-def validate_aggregated_data(frames: List[np.ndarray]) -> None:
-    """
-    Basic validation – raises ``ValueError`` if the list is empty or if any
-    frame has an unexpected shape.
-    """
+def validate_aggregated_data(frames: List[np.ndarray]) -> bool:
+    """Validate aggregated data."""
     if not frames:
-        raise ValueError("No warped frames found to aggregate.")
-    # Ensure all frames share the same shape.
-    first_shape = frames[0].shape
-    for i, arr in enumerate(frames):
-        if arr.shape != first_shape:
-            raise ValueError(
-                f"Frame {i} shape {arr.shape} differs from expected {first_shape}"
-            )
+        return False
+    # Check for NaNs
+    for i, f in enumerate(frames):
+        if np.any(np.isnan(f)):
+            print(f"NaN detected in frame {i}")
+            return False
+    return True
 
-# ----------------------------------------------------------------------
-def aggregate_warped_frames() -> None:
+def aggregate_warped_frames(
+    warped_frames_dir: Path,
+    unsolvable_list: List[str],
+    output_path: Path
+) -> Path:
     """
-    Load all warped ``.npy`` files from the results directory, validate
-    them, and write a single stacked array to
-    ``data/results/sparse_warped_frames.npy``.
+    Aggregate warped frames into a single numpy array.
     """
+    ensure_directories(output_path.parent)
+
+    # Scan frames
+    frame_files = scan_warped_frames(warped_frames_dir)
+    if not frame_files:
+        raise FileNotFoundError(f"No warped frames found in {warped_frames_dir}")
+
+    # Filter based on unsolvable list?
+    # The unsolvable list contains sequence names. We need to map frame names to sequences.
+    # Assuming frame names are {seq_name}_warped.png
+    valid_frames = []
+    valid_sequences = []
+
+    for f_path in frame_files:
+        seq_name = f_path.stem.replace("_warped", "")
+        if seq_name not in unsolvable_list:
+            try:
+                frame = load_warped_frame(f_path)
+                valid_frames.append(frame)
+                valid_sequences.append(seq_name)
+            except Exception as e:
+                print(f"Skipping {f_path}: {e}")
+
+    if not valid_frames:
+        raise ValueError("No valid frames to aggregate after filtering.")
+
+    # Stack frames
+    # Ensure all frames are same shape
+    shapes = [f.shape for f in valid_frames]
+    if len(set(shapes)) > 1:
+        # Resize or pad? For now, take the first shape and resize others
+        target_shape = shapes[0]
+        resized_frames = []
+        for f in valid_frames:
+            if f.shape != target_shape:
+                f = cv2.resize(f, (target_shape[1], target_shape[0]))
+            resized_frames.append(f)
+        valid_frames = resized_frames
+
+    stacked = np.stack(valid_frames, axis=0)
+
+    # Save
+    np.save(output_path, stacked)
+    print(f"Aggregated {len(valid_frames)} frames to {output_path}")
+
+    # Save metadata
+    metadata = {
+        "total_frames": len(valid_frames),
+        "sequences": valid_sequences,
+        "excluded_sequences": unsolvable_list,
+        "shape": list(stacked.shape)
+    }
+    meta_path = output_path.with_suffix('.json')
+    with open(meta_path, 'w') as f:
+        json.dump(metadata, f)
+
+    return output_path
+
+def main():
+    """CLI entry point."""
     results_dir = get_results_dir()
-    ensure_directories(results_dir)
+    unsolvable_path = results_dir / "unsolvable_sequences.json"
+    warped_dir = results_dir / "warped_frames"
+    output_path = results_dir / "sparse_warped_frames.npy"
 
-    warped_paths = scan_warped_frames(results_dir)
-    frames = [load_warped_frame(p) for p in warped_paths]
+    unsolvable_list = load_unsolvable_list(unsolvable_path)
+    aggregate_warped_frames(warped_dir, unsolvable_list, output_path)
 
-    validate_aggregated_data(frames)
-
-    # Stack along a new first axis (frame index).
-    aggregated = np.stack(frames, axis=0)
-
-    out_path = results_dir / "sparse_warped_frames.npy"
-    np.save(out_path, aggregated)
-    print(f"[aggregate_warps] Aggregated {len(frames)} frames → {out_path}")
-
-# ----------------------------------------------------------------------
-def main() -> None:
-    """
-    Entry‑point used by ``code/geometry/run_pipeline.py``.
-    """
-    aggregate_warped_frames()
+if __name__ == "__main__":
+    main()
