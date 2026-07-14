@@ -4,422 +4,287 @@ import logging
 import pandas as pd
 import numpy as np
 from datetime import datetime
-from typing import List, Dict, Any, Optional, Tuple, Union
 from scipy import stats
-import statsmodels.api as sm
-from statsmodels.formula.api import ols
+from sklearn.linear_model import LinearRegression
+from typing import List, Dict, Any, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
-def identify_numerical_columns(df: Union[pd.DataFrame, str]) -> List[str]:
-    """
-    Identify numerical columns in a DataFrame.
-    
-    Handles both DataFrame objects and file paths (strings).
-    If a string is passed, it attempts to load the CSV first.
-    """
-    if isinstance(df, str):
-        logger.info(f"Loading DataFrame from file path: {df}")
-        try:
-            df = pd.read_csv(df)
-        except Exception as e:
-            logger.error(f"Failed to load CSV from {df}: {e}")
-            return []
-    
-    if not isinstance(df, pd.DataFrame):
-        logger.error(f"Expected DataFrame or file path, got {type(df)}")
-        return []
-    
+def identify_numerical_columns(df: pd.DataFrame) -> List[str]:
+    """Identify all numerical columns in a DataFrame."""
     return df.select_dtypes(include=[np.number]).columns.tolist()
 
-def identify_categorical_columns(df: Union[pd.DataFrame, str]) -> List[str]:
-    """
-    Identify categorical columns in a DataFrame.
-    
-    Handles both DataFrame objects and file paths (strings).
-    """
-    if isinstance(df, str):
-        logger.info(f"Loading DataFrame from file path: {df}")
-        try:
-            df = pd.read_csv(df)
-        except Exception as e:
-            logger.error(f"Failed to load CSV from {df}: {e}")
-            return []
-    
-    if not isinstance(df, pd.DataFrame):
-        logger.error(f"Expected DataFrame or file path, got {type(df)}")
-        return []
-    
-    return df.select_dtypes(include=['object', 'category', 'bool']).columns.tolist()
+def identify_categorical_columns(df: pd.DataFrame) -> List[str]:
+    """Identify all categorical (object/string) columns in a DataFrame."""
+    return df.select_dtypes(include=['object', 'category']).columns.tolist()
 
-def run_t_test(df: pd.DataFrame, outcome_col: str, group_col: str) -> Optional[Dict[str, Any]]:
+def run_t_test(df: pd.DataFrame, outcome_col: str, group_col: str) -> Optional[Dict[str, float]]:
     """
-    Run an independent samples t-test.
-    
-    Returns dict with p_value, t_statistic, ci_lower, ci_upper, significant.
+    Perform an independent samples t-test.
+    Assumes group_col has exactly 2 unique values.
+    Returns p-value, confidence interval, and t-statistic.
     """
     try:
-        # Group data
-        groups = df.groupby(group_col)[outcome_col]
-        
-        if len(groups) < 2:
-            logger.warning(f"Not enough groups for t-test in {group_col}")
+        if df[group_col].nunique() != 2:
+            logger.warning(f"Group column '{group_col}' does not have exactly 2 unique values.")
             return None
-        
-        # Get group data
-        group_data = [g.dropna().values for g in groups]
-        
-        if len(group_data) < 2:
-            logger.warning("Less than 2 groups with data for t-test")
+
+        group1_val, group2_val = df[group_col].unique()
+        group1 = df[df[group_col] == group1_val][outcome_col].dropna()
+        group2 = df[df[group_col] == group2_val][outcome_col].dropna()
+
+        if len(group1) < 2 or len(group2) < 2:
+            logger.warning(f"Insufficient data for t-test in groups of '{group_col}'.")
             return None
+
+        # Welch's t-test (does not assume equal variance)
+        t_stat, p_val = stats.ttest_ind(group1, group2, equal_var=False)
+
+        # Calculate 95% CI for the difference in means
+        mean1, mean2 = group1.mean(), group2.mean()
+        std1, std2 = group1.std(), group2.std()
+        n1, n2 = len(group1), len(group2)
+
+        # Standard error of the difference
+        se_diff = np.sqrt((std1**2 / n1) + (std2**2 / n2))
+        # Degrees of freedom (Welch-Satterthwaite equation)
+        df_welch = ((std1**2 / n1) + (std2**2 / n2))**2 / \
+                   ((std1**2 / n1)**2 / (n1 - 1) + (std2**2 / n2)**2 / (n2 - 1))
         
-        # Run t-test (assuming equal variance for simplicity)
-        t_stat, p_val = stats.ttest_ind(group_data[0], group_data[1], equal_var=True)
-        
-        # Calculate 95% CI for difference in means
-        mean1, mean2 = np.mean(group_data[0]), np.mean(group_data[1])
-        std1, std2 = np.std(group_data[0], ddof=1), np.std(group_data[1], ddof=1)
-        n1, n2 = len(group_data[0]), len(group_data[1])
-        
-        se = np.sqrt((std1**2 / n1) + (std2**2 / n2))
-        ci_margin = stats.t.ppf(0.975, min(n1, n2) - 1) * se
-        
-        ci_lower = (mean1 - mean2) - ci_margin
-        ci_upper = (mean1 - mean2) + ci_margin
-        
+        # Critical t-value for 95% CI
+        t_crit = stats.t.ppf(0.975, df_welch)
+        ci_lower = (mean1 - mean2) - t_crit * se_diff
+        ci_upper = (mean1 - mean2) + t_crit * se_diff
+
+        # Validation
+        if not (0 < p_val < 1):
+            logger.warning(f"Invalid p-value {p_val} for t-test.")
+            return None
+        if not (np.isfinite(ci_lower) and np.isfinite(ci_upper)):
+            logger.warning(f"Non-finite CI bounds for t-test.")
+            return None
+
         return {
-            "p_value": float(p_val),
-            "t_statistic": float(t_stat),
-            "ci_lower": float(ci_lower),
-            "ci_upper": float(ci_upper),
-            "significant": bool(p_val < 0.05),
-            "method": "independent_t_test"
+            "p_value": p_val,
+            "ci_lower": ci_lower,
+            "ci_upper": ci_upper,
+            "statistic": t_stat,
+            "mean_diff": mean1 - mean2
         }
     except Exception as e:
-        logger.error(f"Error running t-test: {e}", exc_info=True)
+        logger.error(f"Error running t-test: {e}")
         return None
 
-def run_linear_regression(df: pd.DataFrame, outcome_col: str, group_col: str) -> Optional[Dict[str, Any]]:
+def compute_effect_size_cohen_d(df: pd.DataFrame, outcome_col: str, group_col: str) -> Optional[float]:
     """
-    Run a linear regression with group_col as predictor.
-    
-    Returns dict with r_squared, f_statistic, p_value, coefficients, significant.
+    Compute Cohen's d effect size for two groups.
     """
     try:
-        # Encode categorical group_col if necessary
-        if df[group_col].dtype == 'object' or df[group_col].dtype.name == 'category':
-            # One-hot encode or label encode
-            df_encoded = pd.get_dummies(df, columns=[group_col], drop_first=True)
-            # Find the encoded columns
-            encoded_cols = [col for col in df_encoded.columns if col.startswith(f"{group_col}_")]
-            
-            if not encoded_cols:
-                logger.warning("Could not encode group column for regression")
-                return None
-            
-            # Use first encoded column as predictor for simplicity
-            predictor_col = encoded_cols[0]
-            X = df_encoded[[predictor_col]]
-            y = df_encoded[outcome_col]
-            
-            # Add constant
-            X = sm.add_constant(X)
-            
-            # Fit model
-            model = ols(f"{outcome_col} ~ {predictor_col}", data=df_encoded).fit()
-            
-            return {
-                "r_squared": float(model.rsquared),
-                "f_statistic": float(model.fvalue),
-                "p_value": float(model.f_pvalue),
-                "coefficients": [float(c) for c in model.params],
-                "significant": bool(model.f_pvalue < 0.05)
-            }
-        else:
-            # Numerical predictor
-            X = df[[group_col]]
-            y = df[outcome_col]
-            
-            # Add constant
-            X = sm.add_constant(X)
-            
-            # Fit model
-            model = sm.OLS(y, X).fit()
-            
-            return {
-                "r_squared": float(model.rsquared),
-                "f_statistic": float(model.fvalue),
-                "p_value": float(model.f_pvalue),
-                "coefficients": [float(c) for c in model.params],
-                "significant": bool(model.f_pvalue < 0.05)
-            }
-    except Exception as e:
-        logger.error(f"Error running linear regression: {e}", exc_info=True)
-        return None
+        if df[group_col].nunique() != 2:
+            return None
 
-def compute_effect_size_cohen_d(df: pd.DataFrame, outcome_col: str, group_col: str) -> Optional[Dict[str, Any]]:
-    """
-    Compute Cohen's d effect size for the difference between groups.
-    """
-    try:
-        groups = df.groupby(group_col)[outcome_col]
-        
-        if len(groups) < 2:
+        group1_val, group2_val = df[group_col].unique()
+        group1 = df[df[group_col] == group1_val][outcome_col].dropna()
+        group2 = df[df[group_col] == group2_val][outcome_col].dropna()
+
+        if len(group1) < 2 or len(group2) < 2:
             return None
-        
-        group_data = [g.dropna().values for g in groups]
-        
-        if len(group_data) < 2:
-            return None
-        
-        mean1, mean2 = np.mean(group_data[0]), np.mean(group_data[1])
-        std1, std2 = np.std(group_data[0], ddof=1), np.std(group_data[1], ddof=1)
-        n1, n2 = len(group_data[0]), len(group_data[1])
-        
+
+        mean1, mean2 = group1.mean(), group2.mean()
+        std1, std2 = group1.std(), group2.std()
+        n1, n2 = len(group1), len(group2)
+
         # Pooled standard deviation
         pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
-        
+
         if pooled_std == 0:
-            return None
-        
-        cohen_d = (mean1 - mean2) / pooled_std
-        
-        return {
-            "cohen_d": float(cohen_d)
-        }
+            return 0.0
+
+        return (mean1 - mean2) / pooled_std
     except Exception as e:
-        logger.error(f"Error computing Cohen's d: {e}", exc_info=True)
+        logger.error(f"Error computing Cohen's d: {e}")
         return None
 
-def load_datasets_from_raw(raw_dir: str) -> List[Dict[str, Any]]:
+def run_linear_regression(df: pd.DataFrame, outcome_col: str, predictor_col: str) -> Optional[Dict[str, Any]]:
     """
-    Load datasets from the raw data directory.
-    Returns list of dicts with dataset info.
-    """
-    datasets = []
-    
-    if not os.path.exists(raw_dir):
-        logger.warning(f"Raw data directory does not exist: {raw_dir}")
-        return datasets
-    
-    for filename in os.listdir(raw_dir):
-        if filename.endswith('.csv'):
-            filepath = os.path.join(raw_dir, filename)
-            try:
-                df = pd.read_csv(filepath)
-                datasets.append({
-                    "filepath": filepath,
-                    "filename": filename,
-                    "dataset_name": filename.replace('.csv', ''),
-                    "n_rows": len(df),
-                    "n_columns": len(df.columns)
-                })
-            except Exception as e:
-                logger.error(f"Failed to load {filepath}: {e}")
-    
-    return datasets
-
-def analyze_dataset(
-    df: Union[pd.DataFrame, str],
-    dataset_name: str,
-    outcome_col: str,
-    group_col: str
-) -> Optional[Dict[str, Any]]:
-    """
-    Run full analysis on a dataset: t-test, regression, effect size.
-    
-    Handles both DataFrame objects and file paths (strings).
-    """
-    logger.info(f"Analyzing dataset: {dataset_name}")
-    
-    # Load if string
-    if isinstance(df, str):
-        try:
-            df = pd.read_csv(df)
-        except Exception as e:
-            logger.error(f"Failed to load dataset from {df}: {e}")
-            return None
-    
-    if not isinstance(df, pd.DataFrame):
-        logger.error(f"Expected DataFrame, got {type(df)}")
-        return None
-    
-    # Validate columns exist
-    if outcome_col not in df.columns:
-        logger.error(f"Outcome column '{outcome_col}' not found in dataset")
-        return None
-    
-    if group_col not in df.columns:
-        logger.error(f"Group column '{group_col}' not found in dataset")
-        return None
-    
-    # Run analyses
-    t_test_result = run_t_test(df, outcome_col, group_col)
-    regression_result = run_linear_regression(df, outcome_col, group_col)
-    effect_size_result = compute_effect_size_cohen_d(df, outcome_col, group_col)
-    
-    if not t_test_result and not regression_result:
-        logger.warning(f"No valid analysis results for {dataset_name}")
-        return None
-    
-    return {
-        "dataset_name": dataset_name,
-        "t_test": t_test_result,
-        "regression": regression_result,
-        "effect_size": effect_size_result
-    }
-
-def save_json_file(filepath: str, data: Dict[str, Any]) -> bool:
-    """
-    Save data to a JSON file.
+    Perform a simple linear regression.
+    Returns p-value, CI, R-squared, and coefficients.
     """
     try:
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        with open(filepath, 'w') as f:
-            json.dump(data, f, indent=2)
-        logger.info(f"Saved JSON to {filepath}")
-        return True
+        # Ensure numerical
+        if not pd.api.types.is_numeric_dtype(df[outcome_col]) or not pd.api.types.is_numeric_dtype(df[predictor_col]):
+            logger.warning(f"Columns for regression must be numerical.")
+            return None
+
+        # Drop rows with missing values in relevant columns
+        clean_df = df[[outcome_col, predictor_col]].dropna()
+        if len(clean_df) < 3:
+            logger.warning("Insufficient data for linear regression.")
+            return None
+
+        X = clean_df[predictor_col].values.reshape(-1, 1)
+        y = clean_df[outcome_col].values
+
+        model = LinearRegression()
+        model.fit(X, y)
+
+        # Calculate R-squared
+        r_squared = model.score(X, y)
+
+        # Calculate p-value for the slope using scipy
+        # Correlation test is equivalent for simple linear regression
+        corr, p_val = stats.pearsonr(clean_df[predictor_col], clean_df[outcome_col])
+
+        # Calculate CI for the slope (coefficient)
+        # Standard error of the slope
+        n = len(clean_df)
+        x_mean = X.mean()
+        ss_x = np.sum((X - x_mean)**2)
+        y_pred = model.predict(X)
+        mse = np.sum((y - y_pred)**2) / (n - 2)
+        se_slope = np.sqrt(mse / ss_x)
+
+        t_crit = stats.t.ppf(0.975, n - 2)
+        slope = model.coef_[0]
+        ci_lower = slope - t_crit * se_slope
+        ci_upper = slope + t_crit * se_slope
+
+        # Validation
+        if not (0 < p_val < 1):
+            logger.warning(f"Invalid p-value {p_val} for regression.")
+            return None
+        if not (np.isfinite(ci_lower) and np.isfinite(ci_upper)):
+            logger.warning(f"Non-finite CI bounds for regression.")
+            return None
+
+        return {
+            "p_value": p_val,
+            "ci_lower": ci_lower,
+            "ci_upper": ci_upper,
+            "r_squared": r_squared,
+            "coefficients": [model.intercept_, slope]
+        }
     except Exception as e:
-        logger.error(f"Failed to save JSON to {filepath}: {e}")
+        logger.error(f"Error running linear regression: {e}")
+        return None
+
+def load_datasets_from_raw(raw_dir: str) -> List[pd.DataFrame]:
+    """Load all CSV files from a raw data directory."""
+    if not os.path.exists(raw_dir):
+        logger.error(f"Raw directory {raw_dir} does not exist.")
+        return []
+    
+    datasets = []
+    for file in os.listdir(raw_dir):
+        if file.endswith('.csv'):
+            try:
+                df = pd.read_csv(os.path.join(raw_dir, file))
+                datasets.append(df)
+                logger.info(f"Loaded dataset: {file}")
+            except Exception as e:
+                logger.error(f"Failed to load {file}: {e}")
+    return datasets
+
+def analyze_dataset(df: pd.DataFrame, dataset_name: str, config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Perform full analysis on a dataset: identify columns, run t-tests and regressions.
+    """
+    outcome_col = config.get("outcome_col")
+    group_col = config.get("group_col")
+    
+    result = {
+        "dataset_name": dataset_name,
+        "timestamp": datetime.now().isoformat(),
+        "numerical_columns": identify_numerical_columns(df),
+        "categorical_columns": identify_categorical_columns(df),
+        "analysis": {}
+    }
+
+    # T-Test
+    if group_col and group_col in df.columns:
+        t_res = run_t_test(df, outcome_col, group_col)
+        if t_res:
+            result["analysis"]["t_test"] = t_res
+            result["analysis"]["t_test"]["effect_size_cohen_d"] = compute_effect_size_cohen_d(df, outcome_col, group_col)
+
+    # Linear Regression
+    # Try to find a numerical predictor if group_col isn't one
+    predictor = group_col if (group_col and pd.api.types.is_numeric_dtype(df[group_col])) else None
+    if not predictor:
+        nums = identify_numerical_columns(df)
+        if len(nums) >= 2:
+            predictor = nums[0] # Use first numerical as predictor
+            if outcome_col not in nums:
+                outcome_col = nums[-1] # Use last as outcome
+
+    if predictor and predictor in df.columns and outcome_col in df.columns:
+        reg_res = run_linear_regression(df, outcome_col, predictor)
+        if reg_res:
+            result["analysis"]["linear_regression"] = reg_res
+
+    return result
+
+def run_baseline_analysis(raw_dir: str, output_file: str, config: Optional[Dict[str, Any]] = None, dataset_name: Optional[str] = None) -> bool:
+    """
+    Run baseline analysis on datasets in raw_dir and save to output_file.
+    Handles both single dataset paths and directories.
+    """
+    if config is None:
+        config = {}
+    
+    logger.info(f"Running baseline analysis on {raw_dir}")
+    
+    # Determine if raw_dir is a file or directory
+    if os.path.isfile(raw_dir):
+        datasets = [pd.read_csv(raw_dir)]
+        names = [os.path.basename(raw_dir)]
+    elif os.path.isdir(raw_dir):
+        datasets = load_datasets_from_raw(raw_dir)
+        names = [os.path.basename(f) for f in os.listdir(raw_dir) if f.endswith('.csv')]
+    else:
+        logger.error(f"Path {raw_dir} is not a valid file or directory.")
         return False
 
-def run_baseline_analysis(
-    raw_dir_or_df: Union[str, pd.DataFrame],
-    output_file_or_name: Optional[str] = None,
-    config: Optional[Dict[str, Any]] = None
-) -> Union[bool, Dict[str, Any]]:
-    """
-    Run baseline analysis on datasets.
-    
-    Flexible signature to handle multiple call patterns:
-    1. run_baseline_analysis(raw_dir, output_file, config) -> writes file, returns bool
-    2. run_baseline_analysis(df, dataset_name=..., config=config) -> returns dict
-    3. run_baseline_analysis(dataset_path, temp_output, config={}) -> writes file, returns bool
-    4. run_baseline_analysis(df, dataset_name=...) -> returns dict
-    
-    Args:
-        raw_dir_or_df: Either a directory path (str), a single file path (str), or a DataFrame
-        output_file_or_name: Either an output file path (str), a dataset name (str), or None
-        config: Configuration dict with outcome_col, group_col, etc.
-    
-    Returns:
-        bool if writing to file, dict if returning results
-    """
-    logger = logging.getLogger(__name__)
-    logger.info("Running baseline analysis with flexible signature")
-    
-    # Determine what was passed
-    if isinstance(raw_dir_or_df, pd.DataFrame):
-        # Case 2 or 4: DataFrame passed
-        df = raw_dir_or_df
-        dataset_name = output_file_or_name if isinstance(output_file_or_name, str) else "unknown"
-        
-        # Get columns from config or defaults
-        outcome_col = config.get("outcome_col") if config else None
-        group_col = config.get("group_col") if config else None
-        
-        # Infer if not provided
-        if not outcome_col:
-            categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
-            outcome_col = categorical_cols[0] if categorical_cols else df.columns[0]
-        
-        if not group_col:
-            categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
-            if len(categorical_cols) > 1:
-                group_col = categorical_cols[1]
-            else:
-                numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-                group_col = numeric_cols[0] if numeric_cols else df.columns[1] if len(df.columns) > 1 else df.columns[0]
-        
-        result = analyze_dataset(df, dataset_name, outcome_col, group_col)
-        return result if result else {"status": "error", "message": "Analysis failed"}
-    
-    elif isinstance(raw_dir_or_df, str):
-        # Case 1 or 3: String passed (could be dir or file)
-        if os.path.isdir(raw_dir_or_df):
-            # Case 1: Directory
-            datasets = load_datasets_from_raw(raw_dir_or_df)
-            all_results = []
-            
-            for ds in datasets:
-                df = pd.read_csv(ds["filepath"])
-                outcome_col = config.get("outcome_col") if config else None
-                group_col = config.get("group_col") if config else None
-                
-                if not outcome_col:
-                    categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
-                    outcome_col = categorical_cols[0] if categorical_cols else df.columns[0]
-                
-                if not group_col:
-                    categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
-                    if len(categorical_cols) > 1:
-                        group_col = categorical_cols[1]
-                    else:
-                        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-                        group_col = numeric_cols[0] if numeric_cols else df.columns[1] if len(df.columns) > 1 else df.columns[0]
-                
-                result = analyze_dataset(df, ds["dataset_name"], outcome_col, group_col)
-                if result:
-                    all_results.append(result)
-            
-            if output_file_or_name:
-                output_data = {
-                    "status": "success",
-                    "total_datasets_analyzed": len(all_results),
-                    "datasets": all_results,
-                    "generated_at": datetime.now().isoformat()
-                }
-                success = save_json_file(output_file_or_name, output_data)
-                return success
-            else:
-                return {"status": "success", "datasets": all_results}
-        
-        else:
-            # Case 3: Single file
-            try:
-                df = pd.read_csv(raw_dir_or_df)
-                dataset_name = os.path.basename(raw_dir_or_df).replace('.csv', '')
-                
-                outcome_col = config.get("outcome_col") if config else None
-                group_col = config.get("group_col") if config else None
-                
-                if not outcome_col:
-                    categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
-                    outcome_col = categorical_cols[0] if categorical_cols else df.columns[0]
-                
-                if not group_col:
-                    categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
-                    if len(categorical_cols) > 1:
-                        group_col = categorical_cols[1]
-                    else:
-                        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-                        group_col = numeric_cols[0] if numeric_cols else df.columns[1] if len(df.columns) > 1 else df.columns[0]
-                
-                result = analyze_dataset(df, dataset_name, outcome_col, group_col)
-                
-                if output_file_or_name and result:
-                    output_data = {
-                        "status": "success",
-                        "datasets": [result],
-                        "generated_at": datetime.now().isoformat()
-                    }
-                    success = save_json_file(output_file_or_name, output_data)
-                    return success
-                
-                return result if result else {"status": "error"}
-            except Exception as e:
-                logger.error(f"Failed to process file {raw_dir_or_df}: {e}")
-                return False
-    else:
-        logger.error(f"Unsupported input type: {type(raw_dir_or_df)}")
+    if not datasets:
+        logger.warning("No datasets found to analyze.")
         return False
+
+    results = []
+    for i, df in enumerate(datasets):
+        name = names[i] if i < len(names) else f"dataset_{i}"
+        # Override name if provided
+        if dataset_name:
+            name = dataset_name
+        
+        res = analyze_dataset(df, name, config)
+        results.append(res)
+
+    report = {
+        "datasets": results,
+        "metadata": {
+            "timestamp": datetime.now().isoformat(),
+            "source_dir": raw_dir,
+            "config": config
+        }
+    }
+
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    with open(output_file, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Baseline analysis saved to {output_file}")
+    return True
 
 def main():
-    """
-    Main entry point for analysis module.
-    """
-    logger.info("Analysis module loaded")
-    return 0
+    """Entry point for direct execution."""
+    logger.info("Running analysis module directly.")
+    # Example usage
+    config = {
+        "outcome_col": "target",
+        "group_col": "group"
+    }
+    # This would typically be called by a task script
+    # run_baseline_analysis("data/raw", "data/processed/baseline_test.json", config)
 
 if __name__ == "__main__":
     import sys

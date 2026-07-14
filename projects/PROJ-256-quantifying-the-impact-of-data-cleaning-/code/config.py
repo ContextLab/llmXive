@@ -6,152 +6,63 @@ import logging
 # Load environment variables from .env file if it exists
 load_dotenv()
 
+logger = logging.getLogger(__name__)
+
 class Config:
     """
-    Configuration class for the project.
+    Configuration manager for the project.
     Provides access to environment variables and default values.
     """
-    
-    # Default values
-    _defaults = {
-        "DATASET_URLS": "https://archive.ics.uci.edu/ml/machine-learning-databases/",
-        "OUTPUT_PATH": "data/processed",
-        "RANDOM_SEED": 42,
-        "BOOTSTRAP_ITERATIONS": 1000,
-        "RAW_DATA_PATH": "data/raw",
-        "PROCESSED_DATA_PATH": "data/processed",
-        "FIGURES_PATH": "figures",
-        "LOG_LEVEL": "INFO",
-        "outcome_col": None,
-        "group_col": None
-    }
-    
     def __init__(self):
-        self._config = {}
-        self._load_config()
+        self._config = {
+            "DATASET_URLS": os.getenv("DATASET_URLS", "https://archive.ics.uci.edu/ml/machine-learning-databases/"),
+            "OUTPUT_PATH": os.getenv("OUTPUT_PATH", "data/processed"),
+            "RANDOM_SEED": int(os.getenv("RANDOM_SEED", "42")),
+            "BOOTSTRAP_ITERATIONS": int(os.getenv("BOOTSTRAP_ITERATIONS", "1000")),
+            "RAW_DATA_PATH": os.getenv("RAW_DATA_PATH", "data/raw"),
+            "PROCESSED_DATA_PATH": os.getenv("PROCESSED_DATA_PATH", "data/processed"),
+            "CLEANED_METRICS_PATH": os.getenv("CLEANED_METRICS_PATH", "data/processed/cleaned_metrics.json"),
+            "BASELINE_METRICS_PATH": os.getenv("BASELINE_METRICS_PATH", "data/processed/baseline_metrics.json"),
+            "outcome_col": os.getenv("outcome_col", "target"),
+            "group_col": os.getenv("group_col", "group"),
+        }
     
-    def _load_config(self):
-        """Load configuration from environment variables and defaults."""
-        for key, default_value in self._defaults.items():
-            env_value = os.getenv(key)
-            if env_value is not None:
-                # Try to convert to appropriate type
-                if isinstance(default_value, int):
-                    try:
-                        self._config[key] = int(env_value)
-                    except ValueError:
-                        self._config[key] = default_value
-                elif isinstance(default_value, bool):
-                    self._config[key] = env_value.lower() in ('true', '1', 'yes')
-                else:
-                    self._config[key] = env_value
-            else:
-                self._config[key] = default_value
-    
-    def get(self, key: str, default: Optional[Any] = None) -> Any:
-        """
-        Get a configuration value.
-        
-        Args:
-            key: Configuration key
-            default: Default value if key not found
-        
-        Returns:
-            Configuration value or default
-        """
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get a configuration value by key."""
         return self._config.get(key, default)
     
     def set(self, key: str, value: Any) -> None:
-        """
-        Set a configuration value.
-        
-        Args:
-            key: Configuration key
-            value: Value to set
-        """
+        """Set a configuration value."""
         self._config[key] = value
     
-    def __getitem__(self, key: str) -> Any:
-        """Allow dictionary-style access."""
-        return self._config[key]
-    
-    def __contains__(self, key: str) -> bool:
-        """Allow 'in' operator."""
-        return key in self._config
-    
-    def keys(self):
-        """Return all keys."""
-        return self._config.keys()
-    
-    def values(self):
-        """Return all values."""
-        return self._config.values()
-    
-    def items(self):
-        """Return all items."""
-        return self._config.items()
-    
-    # Logger-style methods for compatibility
-    def info(self, *args, **kwargs):
-        """No-op for logger-style calls."""
-        pass
-    
-    def debug(self, *args, **kwargs):
-        """No-op for logger-style calls."""
-        pass
-    
-    def warning(self, *args, **kwargs):
-        """No-op for logger-style calls."""
-        pass
-    
-    def error(self, *args, **kwargs):
-        """No-op for logger-style calls."""
-        pass
-    
-    def critical(self, *args, **kwargs):
-        """No-op for logger-style calls."""
-        pass
-    
-    def exception(self, *args, **kwargs):
-        """No-op for logger-style calls."""
-        pass
+    def __getattr__(self, name: str) -> Any:
+        """Allow attribute access for known keys."""
+        if name in self._config:
+            return self._config[name]
+        raise AttributeError(f"Configuration key '{name}' not found.")
 
-# Global config instance
+# Singleton instance
 _config_instance = None
 
 def get_config() -> Config:
-    """
-    Get the global configuration instance.
-    
-    Returns:
-        Config instance
-    """
+    """Get the global configuration instance."""
     global _config_instance
     if _config_instance is None:
         _config_instance = Config()
     return _config_instance
 
 def reload_config() -> Config:
-    """
-    Reload the global configuration instance.
-    
-    Returns:
-        New Config instance
-    """
+    """Reload configuration from environment variables."""
     global _config_instance
+    load_dotenv(override=True)
     _config_instance = Config()
     return _config_instance
 
 def main():
-    """
-    Main entry point for config module.
-    """
-    logger = logging.getLogger(__name__)
-    logger.info("Config module loaded")
-    config = get_config()
-    logger.info(f"Config keys: {list(config.keys())}")
-    return 0
+    """Test configuration loading."""
+    cfg = get_config()
+    logger.info(f"Output Path: {cfg.get('OUTPUT_PATH')}")
+    logger.info(f"Random Seed: {cfg.get('RANDOM_SEED')}")
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

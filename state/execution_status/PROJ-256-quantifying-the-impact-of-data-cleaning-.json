@@ -1,15 +1,19 @@
 {
   "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
   "ok": false,
-  "reason": "1 command(s) failed: python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/null_fpr_metrics.json",
+  "reason": "1 command(s) failed: python code/main.py (rc=1)",
   "artifacts": [
+    "data/processed/baseline_metrics.json",
+    "data/processed/bootstrap_variance_report.json",
+    "data/processed/cleaned_metrics.json",
+    "data/processed/size_sensitivity_analysis.json",
     "data/raw/shopper.csv",
     "data/raw/uci_har.csv"
   ],
   "failures": [
-    "python code/main.py -> rc=1\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/analysis.py\", line 345, in run_baseline_analysis\n    result = analyze_dataset(df, dataset_name, outcome_col, group_col)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/analysis.py\", line 274, in analyze_dataset\n    numerical_cols = identify_numerical_columns(df)\n                     ^^^^^^^^^^^^^"
+    "python code/main.py -> rc=1\n    oading baseline metrics from data/processed/baseline_metrics.json\n2026-07-14 07:30:15 - llmXive - INFO - Loading cleaned metrics from data/processed/cleaned_metrics.json\n2026-07-14 07:30:15 - llmXive - INFO - Running bootstrap analysis with 1000 resamples (seed=42)\n2026-07-14 07:30:15 - llmXive - WARNING - No data found for shift calculation: p_value_shift\n2026-07-14 07:30:15 - llmXive - WARNING - No data found for shift calculation: ci_width_shift\n2026-07-14 07:30:15 - llmXive - WARNING - No data found for shift calculation: effect_size_shift\n2026-07-14 07:30:1"
   ],
   "fix_rounds": 11,
   "model_tier": 0,
-  "updated_at": "2026-07-14T07:34:48Z"
+  "updated_at": "2026-07-14T07:30:17Z"
 }

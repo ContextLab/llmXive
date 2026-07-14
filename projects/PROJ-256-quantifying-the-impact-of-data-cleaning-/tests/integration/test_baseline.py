@@ -18,6 +18,7 @@ def sample_raw_dir():
     """Create a temporary directory with sample CSV data."""
     with tempfile.TemporaryDirectory() as tmpdir:
         # Create a sample dataset with known properties
+        # Using real-world-like structure: group (categorical) and continuous values
         np.random.seed(42)
         n = 100
         df = pd.DataFrame({
