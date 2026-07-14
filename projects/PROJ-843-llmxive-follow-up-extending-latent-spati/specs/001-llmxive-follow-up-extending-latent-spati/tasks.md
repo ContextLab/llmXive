@@ -56,8 +56,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T003 [P] Implement `code/utils/seeds.py` to pin all random seeds for reproducibility
-- [X] T004 [P] Create `code/config.py` defining paths (`data/raw`, `data/stratified`, `data/results`), thresholds, and memory limits
-- [X] T005 [P] Implement `code/utils/memory_monitor.py` to log peak RAM and wall-clock time via `memory_profiler`
+- [ ] T004 [P] Create `code/config.py` defining paths (`data/raw`, `data/stratified`, `data/results`), thresholds, and memory limits
+- [ ] T005 [P] Implement `code/utils/memory_monitor.py` to log peak RAM and wall-clock time via `memory_profiler`
 - [X] T006 Create base data schemas and directory structure (`data/raw`, `data/processed`, `data/stratified`, `data/features`, `data/results`) <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
@@ -71,7 +71,7 @@
 
 **Goal**: Ingest RealEstate10K, stratify into 4 subsets (Static/Slow/Fast x High/Low texture), and extract sparse SIFT/ORB descriptors without dense depth.
 
-**Independent Test**: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small subset; verify 4 folders exist with N=50 sequences each [UNRESOLVED-CLAIM: c_052e0b28 — status=not_enough_info], and `.npy` files contain valid coordinate/descriptor pairs.
+**Independent Test**: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small subset; verify 4 folders exist with N=50 sequences each [UNRESOLVED-CLAIM: c_3855f0d5 — status=not_enough_info], and `.npy` files contain valid coordinate/descriptor pairs.
 
 ### Implementation for User Story 1
 
@@ -86,7 +86,7 @@
  - Iterate over `data/stratified/` keyframes
  - Extract sparse SIFT/ORB descriptors and 2D coordinates
  - **Explicitly skip** dense depth map generation
- - **Implement batch processing mode**: trigger sequential frame processing if RAM usage > 6GB to prevent OOM
+ - **Implement batch processing mode**: {{claim:c_118811f6}}
  - **Detect low feature density** in "Fast" sequences and mark frames invalid per spec edge cases
  - Save results as `.npy` in `data/features/`
 
@@ -136,7 +136,7 @@
  - **Strictly download** the pre-computed dense baseline from external source (e.g., HuggingFace `realestate10k/dense_baseline_v1` or official URL)
  - **DO NOT generate** or infer the baseline; if unavailable, **ABORT** with error
  - Validate checksum and save to `data/raw/dense_baseline_frames.npy`
-- [X] T017 [US3] Implement `code/eval/metrics.py` to: <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T017 [US3] Implement `code/eval/metrics.py` to: <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Compute WorldScore** for the dense baseline by reading `data/raw/dense_baseline_frames.npy` and applying the topological fidelity metric defined in spec.md
  - **Compute Sparse-Consistency Score** for the sparse method using the re-projection error defined in spec.md, reading `data/results/sparse_warped_frames.npy`
  - **Calculate Fréchet Inception Distance (FID)** by comparing the **distribution** of sparse warped frames against the **distribution** of dense baseline frames (using Inception-v3) to quantify the relative pixel-level reconstruction quality trade-off (SC-002)
@@ -145,7 +145,7 @@
 - [X] T018 [US3] Implement `code/eval/anova.py` to:
  - Perform Two-Way ANOVA on metrics vs. (Scene Dynamics, Texture Level)
  - Output p-value for interaction effects (significance threshold p < 0.05)
-- [X] T019 [US3] Implement `code/eval/sensitivity.py` to sweep RANSAC thresholds across a range of values and report variation specifically in **WorldScore and Sparse-Consistency Score**
+- [ ] T019 [US3] Implement `code/eval/sensitivity.py` to sweep RANSAC thresholds across a range of values and report variation specifically in **WorldScore and Sparse-Consistency Score**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -155,7 +155,7 @@
 
 **Purpose**: Chain the pipeline and synthesize final reports
 
-- [X] T020 [US3] Implement `code/main.py` orchestrator to: <!-- ATOMIZE: requested -->
+- [ ] T020 [US3] Implement `code/main.py` orchestrator to: <!-- ATOMIZE: requested -->
  - **Consume completed artifacts** from phases T007-T019 (do not re-execute logic)
  - **Parse raw `memory_profiler` logs** from T005 and **aggregate them** into the final `data/results/metrics.json` following the `MetricReport` schema (FR-007)
  - Aggregate results from both sparse and dense paths

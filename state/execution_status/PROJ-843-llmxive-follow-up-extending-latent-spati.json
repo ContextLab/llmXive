@@ -1,15 +1,15 @@
 {
   "project_id": "PROJ-843-llmxive-follow-up-extending-latent-spati",
   "ok": false,
-  "reason": "4 command(s) failed: python code/main.py --phase data_prepare (rc=2); python code/main.py --phase extract_features (rc=2); python code/main.py --phase compute_geometry (rc=2); 1 declared deliverable(s) absent: data/raw/dense_baseline_frames.npy",
+  "reason": "4 command(s) failed: python code/main.py --phase data_prepare (rc=1); python code/main.py --phase extract_features (rc=1); python code/main.py --phase compute_geometry (rc=1); 1 declared deliverable(s) absent: data/raw/dense_baseline_frames.npy",
   "artifacts": [],
   "failures": [
-    "python code/main.py --phase data_prepare -> rc=2\n    usage: main.py [-h] [--phase {prepare,extract,geometry,evaluate,all}]\nmain.py: error: argument --phase: invalid choice: 'data_prepare' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'all')",
-    "python code/main.py --phase extract_features -> rc=2\n    usage: main.py [-h] [--phase {prepare,extract,geometry,evaluate,all}]\nmain.py: error: argument --phase: invalid choice: 'extract_features' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'all')",
-    "python code/main.py --phase compute_geometry -> rc=2\n    usage: main.py [-h] [--phase {prepare,extract,geometry,evaluate,all}]\nmain.py: error: argument --phase: invalid choice: 'compute_geometry' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'all')",
-    "python code/main.py --phase evaluate -> rc=1\n    0k/dense_baseline_v1/resolve/main/dense_baseline_frames.npy\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 173, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 166, in main\n    phase_evaluate()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 68, in phase_evaluate\n    _run_"
+    "python code/main.py --phase data_prepare -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 32, in <module>\n    from config import (\nImportError: cannot import name 'get_raw_dir' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/config.py)",
+    "python code/main.py --phase extract_features -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 32, in <module>\n    from config import (\nImportError: cannot import name 'get_raw_dir' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/config.py)",
+    "python code/main.py --phase compute_geometry -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 32, in <module>\n    from config import (\nImportError: cannot import name 'get_raw_dir' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/config.py)",
+    "python code/main.py --phase evaluate -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 32, in <module>\n    from config import (\nImportError: cannot import name 'get_raw_dir' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/config.py)"
   ],
-  "fix_rounds": 9,
+  "fix_rounds": 12,
   "model_tier": 1,
-  "updated_at": "2026-07-14T14:35:28Z"
+  "updated_at": "2026-07-14T15:46:28Z"
 }

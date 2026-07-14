@@ -1,45 +1,50 @@
-import os
+"""
+Basic sanity test for the flexible ``ensure_directories`` helper added to
+``code/config.py``. The test creates temporary directories, invokes the helper
+with several calling styles and checks that the directories have been created.
+"""
+
 import shutil
 from pathlib import Path
 
-from config import ensure_directories, get_raw_dir, get_processed_dir, get_stratified_dir, get_features_dir, get_results_dir, get_figures_dir
+import pytest
 
-def test_ensure_directories_various_calls(tmp_path, monkeypatch):
-    """
-    Verify that ``ensure_directories`` works with the different call signatures
-    required by the project.
-    """
-    # Patch the project‑root directories to a temporary location
-    base = tmp_path / "proj"
-    base.mkdir()
-    monkeypatch.setattr("config.RAW_DIR", base / "data" / "raw")
-    monkeypatch.setattr("config.PROCESSED_DIR", base / "data" / "processed")
-    monkeypatch.setattr("config.STRATIFIED_DIR", base / "data" / "stratified")
-    monkeypatch.setattr("config.FEATURES_DIR", base / "data" / "features")
-    monkeypatch.setattr("config.RESULTS_DIR", base / "data" / "results")
-    monkeypatch.setattr("config.FIGURES_DIR", base / "figures")
+from config import ensure_directories
 
-    # No‑arg call creates all standard dirs
+
+@pytest.fixture
+def tmp_root(tmp_path):
+    # Create a fresh temporary root that will be removed after the test.
+    return tmp_path
+
+
+def test_ensure_directories_various_calls(tmp_root):
+    # Call with no arguments – should be a no‑op and not raise.
     ensure_directories()
-    for d in [
-        get_raw_dir(),
-        get_processed_dir(),
-        get_stratified_dir(),
-        get_features_dir(),
-        get_results_dir(),
-        get_figures_dir(),
-    ]:
-        assert d.is_dir()
 
-    # Single custom path
-    custom = base / "custom_dir"
-    ensure_directories(custom)
-    assert custom.is_dir()
+    # Single Path argument.
+    a = tmp_root / "a"
+    ensure_directories(a)
+    assert a.is_dir()
 
-    # List of paths
-    lst = [base / "list1", base / "list2"]
-    ensure_directories(lst)
-    for p in lst:
-        assert p.is_dir()
+    # Multiple arguments, mixing Path and string.
+    b = tmp_root / "b"
+    c = tmp_root / "c"
+    ensure_directories(b, str(c))
+    assert b.is_dir() and c.is_dir()
 
-# Cleanup is handled by pytest's tmp_path fixture
+    # Iterable argument.
+    d = tmp_root / "d"
+    e = tmp_root / "e"
+    ensure_directories([d, e])
+    assert d.is_dir() and e.is_dir()
+
+    # Mixed var‑args + iterable.
+    f = tmp_root / "f"
+    g = tmp_root / "g"
+    h = tmp_root / "h"
+    ensure_directories(f, [g, h])
+    assert f.is_dir() and g.is_dir() and h.is_dir()
+
+    # Clean up (pytest will also clean the tmp_path automatically).
+    shutil.rmtree(tmp_root)

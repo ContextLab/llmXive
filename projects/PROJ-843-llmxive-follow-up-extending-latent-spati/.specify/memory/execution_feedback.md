@@ -1,42 +1,31 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
-
-These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
-
-- `python code/main.py --phase compute_geometry`
-- `python code/main.py --phase data_prepare`
-- `python code/main.py --phase extract_features`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 command(s) failed: python code/main.py --phase data_prepare (rc=2); python code/main.py --phase extract_features (rc=2); python code/main.py --phase compute_geometry (rc=2); 1 declared deliverable(s) absent: data/raw/dense_baseline_frames.npy
+**Summary**: 4 command(s) failed: python code/main.py --phase data_prepare (rc=1); python code/main.py --phase extract_features (rc=1); python code/main.py --phase compute_geometry (rc=1); 1 declared deliverable(s) absent: data/raw/dense_baseline_frames.npy
 
 ## Failing / missing run-book commands
 
-- python code/main.py --phase data_prepare -> rc=2
-    usage: main.py [-h] [--phase {prepare,extract,geometry,evaluate,all}]
-main.py: error: argument --phase: invalid choice: 'data_prepare' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'all')
-- python code/main.py --phase extract_features -> rc=2
-    usage: main.py [-h] [--phase {prepare,extract,geometry,evaluate,all}]
-main.py: error: argument --phase: invalid choice: 'extract_features' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'all')
-- python code/main.py --phase compute_geometry -> rc=2
-    usage: main.py [-h] [--phase {prepare,extract,geometry,evaluate,all}]
-main.py: error: argument --phase: invalid choice: 'compute_geometry' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'all')
+- python code/main.py --phase data_prepare -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 32, in <module>
+    from config import (
+ImportError: cannot import name 'get_raw_dir' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/config.py)
+- python code/main.py --phase extract_features -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 32, in <module>
+    from config import (
+ImportError: cannot import name 'get_raw_dir' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/config.py)
+- python code/main.py --phase compute_geometry -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 32, in <module>
+    from config import (
+ImportError: cannot import name 'get_raw_dir' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/config.py)
 - python code/main.py --phase evaluate -> rc=1
-    0k/dense_baseline_v1/resolve/main/dense_baseline_frames.npy
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 173, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 166, in main
-    phase_evaluate()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 68, in phase_evaluate
-    _run_subprocess(Path("code/eval/download_dense_baseline.py"))
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 27, in _run_subprocess
-    subprocess.run([sys.executable, str(script_path)], check=True)
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/subprocess.py", line 571, in run
-    raise CalledProcessError(retcode, process.args,
-subprocess.CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/.venv/bin/python', 'code/eval/download_dense_baseline.py']' returned non-zero exit status 1.
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 32, in <module>
+    from config import (
+ImportError: cannot import name 'get_raw_dir' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/config.py)
 
 ## Declared deliverables still missing
 
@@ -50,25 +39,24 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `ensure_directories` — defined in `code/config.py`; called 17 way(s):
+### `ensure_directories` — defined in `code/config.py`; called 16 way(s):
 
-- code/config.py: - ensure_directories()                           -> creates all standard project dirs
-- code/config.py: - ensure_directories(some_path)                  -> creates a single custom directory
-- code/config.py: - ensure_directories([path1, path2, ...])        -> creates a list of directories
+- code/config.py: - ensure_directories()
+- code/config.py: - ensure_directories(Path(...))
+- code/config.py: - ensure_directories([Path(...), Path(...), ...])
+- code/config.py: - ensure_directories(Path(...), Path(...), ...)
 - code/main.py: ensure_directories()
-- code/main.py: ensure_directories(results_dir)
 - code/validate_quickstart.py: ensure_directories()
 - code/geometry/run_pipeline.py: ensure_directories()
 - code/geometry/aggregate_warps.py: ensure_directories([results_dir])
 - code/data/schemas.py: ensure_directories()
-- code/eval/download_dense_baseline.py: ensure_directories()  # make sure ``data/raw`` exists
+- code/eval/download_dense_baseline.py: ensure_directories(raw_dir)
 - code/eval/quickstart_validator.py: ensure_directories()
 - code/eval/run_dense_baseline.py: ensure_directories()
 - code/eval/anova.py: ensure_directories()
-- code/eval/sensitivity.py: ensure_directories(dense_path.parent)
 - code/eval/sensitivity.py: ensure_directories(output_path.parent)
-- code/eval/metrics.py: ensure_directories()  # creates the standard project dirs
-- code/eval/metrics.py: ensure_directories(get_results_dir())  # ensure results dir exists
+- code/eval/sensitivity.py: ensure_directories(get_results_dir())
+- code/eval/metrics.py: ensure_directories([raw_dir, results_dir])
 
 Make `ensure_directories` in `code/config.py` accept ALL of the above.
 
@@ -117,5 +105,5 @@ Consumers waiting on it: `code/main.py`, `code/eval/download_dense_baseline.py`,
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/sensitivity.py`, `code/eval/metrics.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/geometry/run_pipeline.py`, `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/sensitivity.py`, `code/eval/metrics.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/main.py`, `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/sensitivity.py`, `code/eval/metrics.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/main.py`, `code/geometry/run_pipeline.py`, `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/sensitivity.py`, `code/eval/metrics.py`.
