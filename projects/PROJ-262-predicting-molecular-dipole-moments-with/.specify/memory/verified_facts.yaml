@@ -1,5 +1,10 @@
-'|appear attribution distinct feature json least result three top verify':
-  quote: 'P31: YouTube channel'
-  source_id: Q126592664
-  url: https://www.wikidata.org/wiki/Q126592664
-  value: '3'
+'|appear attribution contribution distinct feature json least rank result structural three top verify':
+  quote: 'P3879: 764'
+  source_id: Q113128099
+  url: https://www.wikidata.org/wiki/Q113128099
+  value: '764'
+'|manual numpy pin random seed torch':
+  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+  source_id: pi
+  url: https://en.wikipedia.org/wiki/Pi
+  value: '3.141592653589793'

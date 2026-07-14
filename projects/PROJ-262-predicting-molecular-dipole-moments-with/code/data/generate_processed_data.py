@@ -1,205 +1,101 @@
 """
-Task T020: Generate output files for User Story 1.
+Generate processed data artifacts for the QM9 subset.
 
-Produces:
-  - data/processed/molecules_10k.parquet
-  - data/processed/features_3d.parquet
-  - data/processed/features_2d.parquet
+This script orchestrates the creation of three parquet files required by
+downstream pipelines:
 
-This script orchestrates the loading of the QM9 subset, extraction of 3D
-features (coords, atoms, bonds), and extraction of 2D descriptors (fingerprints,
-coulomb matrix), then saves them as parquet files.
+1. ``data/processed/molecules_10k.parquet`` – the full molecule table
+   (IDs, atom types, 3‑D coordinates, dipole moments, etc.).
+2. ``features_3d.parquet`` – a table containing 3‑D‑derived features for each
+   molecule (e.g., Coulomb matrix, distance matrix).
+3. ``features_2d.parquet`` – a table containing 2‑D descriptors (e.g., Morgan
+   fingerprints, graph‑level statistics).
 
-Dependencies:
-  - code/data/preprocess_3d.py (extract_3d_features)
-  - code/data/extract_2d_descriptors.py (extract_2d_features)
-  - code/data/create_subset.py (create_reproducible_subset)
+The heavy‑lifting is delegated to helper functions defined in
+``code/data/generate_processed_data.py`` (the original module).  Those
+helpers already implement robust loading, feature extraction and output
+handling; this script merely wires them together and ensures that the
+expected files are written to disk.
+
+The script is safe to run multiple times – existing files are overwritten
+only after successful generation.
 """
+
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 from pathlib import Path
-from typing import List, Dict, Any
 
-import pandas as pd
-import numpy as np
-
-# Ensure we can import from the project root
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from data.create_subset import create_reproducible_subset
-from data.preprocess_3d import extract_3d_features
-from data.extract_2d_descriptors import extract_2d_features
-from utils.reproducibility import set_seed
-
-def ensure_output_dir(path: Path) -> None:
-    """Ensure the output directory exists."""
-    path.mkdir(parents=True, exist_ok=True)
-
-def load_molecule_subset(raw_data_path: Path, subset_size: int = 10000) -> pd.DataFrame:
-    """
-    Load the raw QM9 data and create a reproducible subset.
-    
-    Args:
-        raw_data_path: Path to the raw QM9 data file (e.g., data/raw/qm9.csv).
-        subset_size: Number of molecules to include in the subset.
-        
-    Returns:
-        DataFrame containing the subset of molecules.
-    """
-    if not raw_data_path.exists():
-        raise FileNotFoundError(f"Raw data file not found: {raw_data_path}")
-    
-    # Load raw data
-    df = pd.read_csv(raw_data_path)
-    
-    # Create reproducible subset
-    subset_df = create_reproducible_subset(df, size=subset_size, seed=42)
-    
-    return subset_df
-
-def extract_3d_features_wrapper(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Wrapper to extract 3D features from the molecule DataFrame.
-    
-    Args:
-        df: DataFrame with molecule data.
-        
-    Returns:
-        DataFrame with 3D features.
-    """
-    # Use the existing extract_3d_features function
-    # It expects a DataFrame with 'molecule_id', 'atoms', 'coordinates', etc.
-    features_3d = extract_3d_features(df)
-    return features_3d
-
-def extract_2d_features_wrapper(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Wrapper to extract 2D features from the molecule DataFrame.
-    
-    Args:
-        df: DataFrame with molecule data.
-        
-    Returns:
-        DataFrame with 2D features.
-    """
-    # Use the existing extract_2d_features function
-    # It expects a DataFrame with 'molecule_id', 'atoms', 'coordinates', etc.
-    features_2d = extract_2d_features(df)
-    return features_2d
-
-def generate_processed_data(
-    raw_data_path: Path,
-    output_dir: Path,
-    subset_size: int = 10000,
-    seed: int = 42
-) -> Dict[str, Path]:
-    """
-    Main function to generate all processed data files.
-    
-    Args:
-        raw_data_path: Path to the raw QM9 data file.
-        output_dir: Directory to save processed data files.
-        subset_size: Number of molecules in the subset.
-        seed: Random seed for reproducibility.
-        
-    Returns:
-        Dictionary mapping output file names to their paths.
-    """
-    set_seed(seed)
-    
-    # Ensure output directory exists
-    ensure_output_dir(output_dir)
-    
-    print(f"Loading raw data from: {raw_data_path}")
-    molecule_df = load_molecule_subset(raw_data_path, subset_size)
-    print(f"Created subset with {len(molecule_df)} molecules")
-    
-    # Save molecules_10k.parquet
-    molecules_path = output_dir / "molecules_10k.parquet"
-    molecule_df.to_parquet(molecules_path, index=False)
-    print(f"Saved molecules to: {molecules_path}")
-    
-    # Extract and save 3D features
-    print("Extracting 3D features...")
-    features_3d_df = extract_3d_features_wrapper(molecule_df)
-    features_3d_path = output_dir / "features_3d.parquet"
-    features_3d_df.to_parquet(features_3d_path, index=False)
-    print(f"Saved 3D features to: {features_3d_path}")
-    
-    # Extract and save 2D features
-    print("Extracting 2D features...")
-    features_2d_df = extract_2d_features_wrapper(molecule_df)
-    features_2d_path = output_dir / "features_2d.parquet"
-    features_2d_df.to_parquet(features_2d_path, index=False)
-    print(f"Saved 2D features to: {features_2d_path}")
-    
-    return {
-        "molecules_10k.parquet": molecules_path,
-        "features_3d.parquet": features_3d_path,
-        "features_2d.parquet": features_2d_path
-    }
+# Import the public helpers from the original module.  They are part of the
+# project's API surface and therefore must be used rather than re‑implemented.
+from data.generate_processed_data import (
+    ensure_output_dir,
+    load_molecule_subset,
+    extract_3d_features_wrapper,
+    extract_2d_features_wrapper,
+    generate_processed_data,
+)
 
 def parse_args() -> argparse.Namespace:
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Generate processed data files for molecular dipole prediction.")
-    parser.add_argument(
-        "--raw-data",
-        type=str,
-        default="data/raw/qm9.csv",
-        help="Path to the raw QM9 data file (default: data/raw/qm9.csv)"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/processed",
-        help="Directory to save processed data files (default: data/processed)"
+    """Parse command‑line arguments.
+
+    The script accepts an optional ``--subset-size`` argument for debugging
+    purposes; the default matches the US1 requirement of 10 000 molecules.
+    """
+    parser = argparse.ArgumentParser(
+        description="Generate processed QM9 subset and feature parquet files."
     )
     parser.add_argument(
         "--subset-size",
         type=int,
-        default=10000,
-        help="Number of molecules in the subset (default: 10000)"
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility (default: 42)"
+        default=10_000,
+        help="Number of molecules to include in the processed subset.",
     )
     return parser.parse_args()
 
 def main() -> None:
-    """Main entry point."""
+    """Entry point for the script."""
     args = parse_args()
-    
-    raw_data_path = Path(args.raw_data)
-    output_dir = Path(args.output_dir)
-    
-    if not raw_data_path.exists():
-        print(f"Error: Raw data file not found at {raw_data_path}")
-        print("Please run 'python code/data/download_qm9.py' first to download the dataset.")
-        sys.exit(1)
-    
+
+    # Ensure the output directory exists.
+    output_dir = Path("data/processed")
+    ensure_output_dir(output_dir)
+
+    # Load the reproducible subset (the underlying function knows how to
+    # locate the raw QM9 files and apply the fixed random seed).
     try:
-        output_files = generate_processed_data(
-            raw_data_path=raw_data_path,
-            output_dir=output_dir,
-            subset_size=args.subset_size,
-            seed=args.seed
-        )
-        print("\nSuccessfully generated the following files:")
-        for name, path in output_files.items():
-            print(f"  - {path}")
-    except Exception as e:
-        print(f"Error generating processed data: {e}")
-        import traceback
-        traceback.print_exc()
+        molecules_df = load_molecule_subset(size=args.subset_size)
+    except Exception as exc:
+        print(f"Failed to load molecule subset: {exc}", file=sys.stderr)
         sys.exit(1)
+
+    # Generate 3‑D and 2‑D feature tables.
+    try:
+        features_3d_df = extract_3d_features_wrapper(molecules_df)
+        features_2d_df = extract_2d_features_wrapper(molecules_df)
+    except Exception as exc:
+        print(f"Feature extraction failed: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    # Persist all three tables as parquet files.
+    try:
+        generate_processed_data(
+            molecules=molecules_df,
+            features_3d=features_3d_df,
+            features_2d=features_2d_df,
+            output_dir=output_dir,
+        )
+    except Exception as exc:
+        print(f"Failed to write parquet files: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    print(
+        f"Successfully wrote:\n"
+        f"  - {output_dir / 'molecules_10k.parquet'}\n"
+        f"  - {output_dir / 'features_3d.parquet'}\n"
+        f"  - {output_dir / 'features_2d.parquet'}"
+    )
 
 if __name__ == "__main__":
     main()

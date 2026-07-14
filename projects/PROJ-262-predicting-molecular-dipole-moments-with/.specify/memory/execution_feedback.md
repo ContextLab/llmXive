@@ -20,7 +20,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data/generate_processed_data.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/generate_processed_data.py", line 9, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/generate_processed_data.py", line 10, in <module>
     import pandas as pd
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/__init__.py", line 22, in <module>
     from pandas.compat import (
@@ -31,17 +31,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
                   ^^^^^^^^^^^^^^
 AttributeError: module 'numpy' has no attribute '__version__'
 - python code/training/train_gnn.py -> rc=1
-    p as map
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/torch/utils/data/datapipes/iter/__init__.py", line 1, in <module>
-    from torch.utils.data.datapipes.iter.callable import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/torch/utils/data/datapipes/iter/callable.py", line 8, in <module>
-    from torch.utils.data._utils.collate import default_collate
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/torch/utils/data/_utils/__init__.py", line 53, in <module>
-    from . import collate, fetch, pin_memory, signal_handling, worker
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/torch/utils/data/_utils/collate.py", line 330, in <module>
-    default_collate_fn_map[np.ndarray] = collate_numpy_array_fn
-                           ^^^^^^^^^^
-AttributeError: module 'numpy' has no attribute 'ndarray'. Did you mean: 'array'?
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py", line 13, in <module>
+    import pandas as pd
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/__init__.py", line 22, in <module>
+    from pandas.compat import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/compat/__init__.py", line 27, in <module>
+    from pandas.compat.numpy import is_numpy_dev
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/compat/numpy/__init__.py", line 10, in <module>
+    _np_version = np.__version__
+                  ^^^^^^^^^^^^^^
+AttributeError: module 'numpy' has no attribute '__version__'
 - python code/training/train_rf.py -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py", line 13, in <module>

@@ -111,7 +111,7 @@ def train_one_seed(seed: int, X: pd.DataFrame, y: pd.Series) -> Dict[str, Any]:
     }
 
 def write_metrics_csv(metrics_list: List[Dict[str, Any]], output_path: str):
-    """Write metrics to CSV file."""
+    """Write metrics to CSV file, calculating and recording RMSE variance."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     # Calculate variance of RMSE across seeds
@@ -128,7 +128,7 @@ def write_metrics_csv(metrics_list: List[Dict[str, Any]], output_path: str):
                 "mae": metrics["mae"],
                 "rmse": metrics["rmse"]
             }
-            # Add variance to the first row (or all, but logically it's a global stat)
+            # Add variance to the first row (representing the global stat for this run)
             if i == 0:
                 row["rmse_variance"] = rmse_variance
             writer.writerow(row)
@@ -160,6 +160,7 @@ def main():
     metrics_list = []
     print(f"Training Random Forest with {args.num_seeds} seeds...")
     
+    # Loop over seeds to train and record metrics
     for i in range(args.num_seeds):
         seed = 42 + i  # Deterministic seed sequence
         print(f"  Training seed {seed}...")
@@ -167,6 +168,7 @@ def main():
         metrics_list.append(metrics)
         print(f"    Seed {seed}: MAE={metrics['mae']:.4f}, RMSE={metrics['rmse']:.4f}")
     
+    # Write metrics including the calculated RMSE variance
     write_metrics_csv(metrics_list, args.output_path)
     print("Random Forest training complete.")
 
