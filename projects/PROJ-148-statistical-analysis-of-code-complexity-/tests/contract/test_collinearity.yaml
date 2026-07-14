@@ -1,35 +1,8 @@
-# Contract schema for collinearity diagnostics output
-#
-# The collinearity diagnostics step (code/modeling/collinearity.py) should
-# produce a tabular report where each row corresponds to a metric (feature)
-# and contains the Variance Inflation Factor (VIF) for that feature.
-#
-# This YAML file defines the expected schema that downstream contract
-# tests will validate against.
-#
-# The schema follows a simplified JSON‑Schema style:
-# - The top‑level object must have a key `vif_report` whose value is a list.
-# - Each list item is an object with exactly two required fields:
-#     * `feature` – the name of the metric/column (string)
-#     * `vif`     – the computed VIF value (non‑negative number)
-#
-# Any additional fields are allowed but will be ignored by the validator.
-type: object
-required:
-  - vif_report
-properties:
-  vif_report:
-    type: array
-    items:
-      type: object
-      required:
-        - feature
-        - vif
-      properties:
-        feature:
-          type: string
-          description: Name of the metric/column for which VIF was computed.
-        vif:
-          type: number
-          minimum: 0
-          description: Variance Inflation Factor (VIF) value; must be >= 0.
+# Contract definition for collinearity diagnostics
+# This file defines the expected structure of the VIF output
+required_columns:
+  - feature_name
+  - vif_score
+thresholds:
+  max_vif: 5.0
+description: "VIF scores must be present for all features; features with VIF > 5.0 should be flagged."

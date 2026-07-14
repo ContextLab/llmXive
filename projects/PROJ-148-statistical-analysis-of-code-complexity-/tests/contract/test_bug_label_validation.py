@@ -1,99 +1,156 @@
 """
-Contract test for the bug‑label reliability validation script.
+Contract test for bug-label reliability validation script.
 
-The test creates a tiny synthetic dataset, writes it to a temporary CSV
-file, invokes :func:`code.data.validate_bug_labels.validate_bug_labels`,
-and checks that the returned dictionary conforms to the expected contract:
-
-* It must be a ``dict``.
-* It must contain the keys ``precision``, ``recall`` and ``f1_score``.
-* All values must be ``float`` objects in the range ``[0.0, 1.0]``.
-* The numeric values must match the manually computed metrics.
+This test verifies that the `validate_bug_labels` function in
+`code/data/validate_bug_labels.py` correctly computes precision
+against a provided ground truth and enforces the minimum precision
+threshold (>= 85%) as required by the project specification.
 """
-
-import math
-import pandas as pd
 import pytest
+import pandas as pd
+import sys
+from pathlib import Path
 
-from code.data.validate_bug_labels import validate_bug_labels
+# Ensure the code directory is in the path for imports
+code_root = Path(__file__).parent.parent.parent / "code"
+sys.path.insert(0, str(code_root))
+
+from data.validate_bug_labels import validate_bug_labels
 
 
-@pytest.mark.parametrize(
-    "true_labels,pred_labels,expected",
-    [
-        # Simple case with some TP, FP, FN
-        (
-            [1, 0, 1, 0, 1],
-            [1, 0, 0, 0, 1],
-            {
-                "precision": 2 / (2 + 0),  # TP=2, FP=0
-                "recall": 2 / (2 + 1),    # TP=2, FN=1
-            },
-        ),
-        # All correct
-        (
-            [0, 1, 0, 1],
-            [0, 1, 0, 1],
-            {"precision": 1.0, "recall": 1.0},
-        ),
-        # No positives predicted
-        (
-            [1, 1, 0, 0],
-            [0, 0, 0, 0],
-            {"precision": 0.0, "recall": 0.0},
-        ),
-    ],
-)
-def test_validate_bug_labels_contract(tmp_path, true_labels, pred_labels, expected):
-    # Build a DataFrame with the required columns
-    df = pd.DataFrame(
-        {"bug_label": true_labels, "predicted_label": pred_labels}
-    )
-    csv_path = tmp_path / "labels.csv"
-    df.to_csv(csv_path, index=False)
+class TestBugLabelValidation:
+    """
+    Contract tests for bug label validation logic.
+    """
 
-    # Run the validation script
-    result = validate_bug_labels(str(csv_path))
+    def test_precision_above_threshold(self):
+        """
+        Verify that validation passes (precision >= 0.85) when the
+        predicted labels match the ground truth with high accuracy.
+        """
+        # Create a synthetic dataset with high precision
+        # 90% correct, 10% incorrect -> Precision = 0.90
+        data = {
+            "predicted_bug": [1, 1, 1, 1, 1, 1, 1, 1, 1, 0] * 10,
+            "actual_bug":    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0] * 9 + [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            "file_path": [f"file_{i}.java" for i in range(100)],
+            "commit_hash": [f"hash_{i}" for i in range(100)]
+        }
+        # Adjust to ensure 90 predicted positives, 81 true positives
+        # Let's construct explicitly:
+        # 90 rows where predicted=1. Of these, 81 are actual=1 (TP), 9 are actual=0 (FP).
+        # 10 rows where predicted=0.
+        rows = []
+        for i in range(81):
+            rows.append({"predicted_bug": 1, "actual_bug": 1, "file_path": f"f{i}.java", "commit_hash": f"h{i}"})
+        for i in range(81, 90):
+            rows.append({"predicted_bug": 1, "actual_bug": 0, "file_path": f"f{i}.java", "commit_hash": f"h{i}"})
+        for i in range(90, 100):
+            rows.append({"predicted_bug": 0, "actual_bug": 0, "file_path": f"f{i}.java", "commit_hash": f"h{i}"})
+        
+        df = pd.DataFrame(rows)
 
-    # Basic contract checks
-    assert isinstance(result, dict), "Result must be a dict"
-    for key in ("precision", "recall", "f1_score"):
-        assert key in result, f"Missing key '{key}' in result"
-        value = result[key]
-        assert isinstance(value, float), f"Value for '{key}' must be float"
-        assert 0.0 <= value <= 1.0, f"Value for '{key}' out of range [0, 1]"
+        result = validate_bug_labels(df, precision_threshold=0.85)
 
-    # Compute expected precision/recall manually
-    tp = sum(
-        1
-        for t, p in zip(true_labels, pred_labels)
-        if t == 1 and p == 1
-    )
-    fp = sum(
-        1
-        for t, p in zip(true_labels, pred_labels)
-        if t == 0 and p == 1
-    )
-    fn = sum(
-        1
-        for t, p in zip(true_labels, pred_labels)
-        if t == 1 and p == 0
-    )
-    exp_precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-    exp_recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    exp_f1 = (
-        (2 * exp_precision * exp_recall) / (exp_precision + exp_recall)
-        if (exp_precision + exp_recall) > 0
-        else 0.0
-    )
+        assert result["passed"] is True, f"Expected pass, got precision: {result.get('precision')}"
+        assert result["precision"] >= 0.85
 
-    # Verify numeric values against expected ones (allow tiny tolerance)
-    assert math.isclose(
-        result["precision"], exp_precision, rel_tol=1e-9
-    ), "Precision does not match expected value"
-    assert math.isclose(
-        result["recall"], exp_recall, rel_tol=1e-9
-    ), "Recall does not match expected value"
-    assert math.isclose(
-        result["f1_score"], exp_f1, rel_tol=1e-9
-    ), "F1 score does not match expected value"
+    def test_precision_below_threshold_fails(self):
+        """
+        Verify that validation fails (precision < 0.85) when accuracy is low.
+        """
+        # 50% precision: 50 predicted positives, 25 true positives
+        rows = []
+        for i in range(25):
+            rows.append({"predicted_bug": 1, "actual_bug": 1, "file_path": f"f{i}.java", "commit_hash": f"h{i}"})
+        for i in range(25, 50):
+            rows.append({"predicted_bug": 1, "actual_bug": 0, "file_path": f"f{i}.java", "commit_hash": f"h{i}"})
+        for i in range(50, 100):
+            rows.append({"predicted_bug": 0, "actual_bug": 0, "file_path": f"f{i}.java", "commit_hash": f"h{i}"})
+        
+        df = pd.DataFrame(rows)
+
+        result = validate_bug_labels(df, precision_threshold=0.85)
+
+        assert result["passed"] is False
+        assert result["precision"] < 0.85
+        assert result["precision"] == 0.50
+
+    def test_empty_predicted_positives(self):
+        """
+        Verify behavior when there are no predicted bug fixes (precision undefined or 0).
+        """
+        df = pd.DataFrame({
+            "predicted_bug": [0] * 100,
+            "actual_bug": [1] * 100,
+            "file_path": [f"f{i}.java" for i in range(100)],
+            "commit_hash": [f"h{i}" for i in range(100)]
+        })
+
+        result = validate_bug_labels(df, precision_threshold=0.85)
+
+        # If no positives predicted, precision is technically undefined or 0 depending on convention.
+        # The function should handle this gracefully and fail the threshold.
+        assert result["passed"] is False
+
+    def test_invalid_column_names(self):
+        """
+        Verify that the function raises an error or returns a failure if required columns are missing.
+        """
+        df = pd.DataFrame({
+            "wrong_column_name": [1, 0, 1],
+            "another_column": [1, 0, 1]
+        })
+
+        with pytest.raises(KeyError):
+            validate_bug_labels(df, precision_threshold=0.85)
+
+    def test_integration_with_realistic_distribution(self):
+        """
+        Test with a distribution that mimics a realistic bug-fix scenario
+        (imbalanced classes).
+        """
+        # 1000 samples, 100 actual bugs.
+        # Predicted 110 bugs: 90 true positives, 20 false positives.
+        # Precision = 90 / 110 = ~0.818 -> Should fail 0.85 threshold.
+        rows = []
+        # 90 TP
+        for i in range(90):
+            rows.append({"predicted_bug": 1, "actual_bug": 1, "file_path": f"f{i}.java", "commit_hash": f"h{i}"})
+        # 20 FP
+        for i in range(90, 110):
+            rows.append({"predicted_bug": 1, "actual_bug": 0, "file_path": f"f{i}.java", "commit_hash": f"h{i}"})
+        # 10 FN (actual bug, predicted 0)
+        for i in range(110, 120):
+            rows.append({"predicted_bug": 0, "actual_bug": 1, "file_path": f"f{i}.java", "commit_hash": f"h{i}"})
+        # 880 TN
+        for i in range(120, 1000):
+            rows.append({"predicted_bug": 0, "actual_bug": 0, "file_path": f"f{i}.java", "commit_hash": f"h{i}"})
+        
+        df = pd.DataFrame(rows)
+
+        result = validate_bug_labels(df, precision_threshold=0.85)
+
+        expected_precision = 90 / 110
+        assert abs(result["precision"] - expected_precision) < 1e-6
+        assert result["passed"] is False
+
+    def test_exact_threshold_boundary(self):
+        """
+        Verify that exactly 85% precision passes the threshold.
+        """
+        # 100 predicted positives, 85 true positives -> 0.85
+        rows = []
+        for i in range(85):
+            rows.append({"predicted_bug": 1, "actual_bug": 1, "file_path": f"f{i}.java", "commit_hash": f"h{i}"})
+        for i in range(85, 100):
+            rows.append({"predicted_bug": 1, "actual_bug": 0, "file_path": f"f{i}.java", "commit_hash": f"h{i}"})
+        for i in range(100, 200):
+            rows.append({"predicted_bug": 0, "actual_bug": 0, "file_path": f"f{i}.java", "commit_hash": f"h{i}"})
+        
+        df = pd.DataFrame(rows)
+
+        result = validate_bug_labels(df, precision_threshold=0.85)
+
+        assert result["passed"] is True
+        assert result["precision"] == 0.85

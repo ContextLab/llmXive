@@ -1,63 +1,97 @@
-# Dataset contract schema for the statistical analysis of code complexity
-# Defines the required structure of the processed dataset used throughout the project.
-# The schema follows JSON Schema draft-07 syntax expressed in YAML.
-
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Code Complexity Dataset"
-description: "Schema for the processed dataset containing code complexity metrics and bug labels."
+title: "Code Complexity Dataset Schema"
+description: "Schema for the dataset containing code complexity metrics and bug labels derived from Java projects."
 type: object
-additionalProperties: false
-
 required:
-  - project_id
-  - file_path
-  - cyclomatic_complexity
-  - loc
-  - token_count
-  - nesting_depth
-  - halstead_volume
-  - bug_label
-
+  - columns
+  - rows
+  - metadata
 properties:
-  project_id:
-    type: string
-    description: "Unique identifier for the source project (e.g., GitHub repository name)."
-  file_path:
-    type: string
-    description: "Relative path to the source file within the project."
-  cyclomatic_complexity:
-    type: number
-    description: "Cyclomatic complexity metric as computed by lizard."
-  loc:
-    type: integer
-    description: "Lines of code in the source unit."
-  token_count:
-    type: integer
-    description: "Number of lexical tokens in the source unit."
-  nesting_depth:
-    type: integer
-    description: "Maximum nesting depth of control structures."
-  halstead_volume:
-    type: number
-    description: "Halstead volume metric."
-  bug_label:
-    type: boolean
-    description: "Binary label indicating whether the code unit is associated with a bug‑fix commit."
-
-# Optional metadata fields that may be present in the dataset
-definitions:
+  columns:
+    type: array
+    description: "List of column definitions matching the expected dataset structure."
+    items:
+      type: object
+      required:
+        - name
+        - type
+        - description
+      properties:
+        name:
+          type: string
+          description: "Column name (e.g., 'cyclomatic_complexity', 'bug_label')."
+        type:
+          type: string
+          enum:
+            - integer
+            - float
+            - string
+            - boolean
+          description: "Data type of the column."
+        description:
+          type: string
+          description: "Human-readable description of the metric or label."
+        nullable:
+          type: boolean
+          default: false
+          description: "Whether the column allows null values."
+    minItems: 8
+    examples:
+      - [
+          { "name": "project_id", "type": "string", "description": "Unique identifier for the source project." },
+          { "name": "file_path", "type": "string", "description": "Relative path to the source file." },
+          { "name": "function_name", "type": "string", "description": "Name of the code unit (function/method)." },
+          { "name": "loc", "type": "integer", "description": "Lines of Code." },
+          { "name": "cyclomatic_complexity", "type": "integer", "description": "Cyclomatic complexity metric." },
+          { "name": "token_count", "type": "integer", "description": "Total number of tokens in the function." },
+          { "name": "max_nesting_depth", "type": "integer", "description": "Maximum nesting depth of control structures." },
+          { "name": "halstead_volume", "type": "float", "description": "Halstead volume metric." },
+          { "name": "bug_label", "type": "boolean", "description": "Binary label: 1 if the unit was modified in a bug-fix commit, 0 otherwise." }
+        ]
+  rows:
+    type: object
+    description: "Summary statistics of the dataset rows."
+    required:
+      - count
+      - train_count
+      - test_count
+    properties:
+      count:
+        type: integer
+        minimum: 0
+        description: "Total number of records in the dataset."
+      train_count:
+        type: integer
+        minimum: 0
+        description: "Number of records in the training split."
+      test_count:
+        type: integer
+        minimum: 0
+        description: "Number of records in the test split."
   metadata:
     type: object
-    additionalProperties: true
-    description: "Optional top‑level metadata (e.g., generation timestamp, version)."
-
-# Example instance (for documentation purposes)
-example:
-  project_id: "apache/commons-lang"
-  file_path: "src/main/java/org/apache/commons/lang3/StringUtils.java"
-  cyclomatic_complexity: 5.0
-  loc: 120
-  token_count: 350
-  nesting_depth: 3
-  halstead_volume: 45.6
-  bug_label: false
+    required:
+      - source
+      - extraction_date
+      - version
+      - split_strategy
+    properties:
+      source:
+        type: string
+        description: "Data source identifier (e.g., 'GHTorrent')."
+      extraction_date:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of when the data was extracted."
+      version:
+        type: string
+        description: "Schema version (e.g., '1.0.0')."
+      split_strategy:
+        type: string
+        description: "Description of the train/test split strategy (e.g., 'Project-level stratified split 70/30')."
+      preprocessing_steps:
+        type: array
+        items:
+          type: string
+        description: "List of preprocessing steps applied (e.g., 'log_transform', 'missing_imputation')."
+additionalProperties: false

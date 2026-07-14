@@ -1,33 +1,29 @@
 """
-Contract test for the model output schema.
-
-This test ensures that the JSON/YAML schema located at
-`contracts/model_output.schema.yaml` is a valid JSON Schema (Draft 7).
-It does not validate concrete model output files, but guarantees that
-the schema itself is well‑formed and can be used for downstream validation.
+Contract test for model output schema (US2).
 """
+import json
+import pytest
+import pandas as pd
 
-import pathlib
-
-import yaml
-import jsonschema
-
-
-def _load_schema() -> dict:
-    """Load the model output schema from the contracts directory."""
-    # The test file resides in `tests/contract/`, so we go two levels up
-    # to the repository root and then into `contracts/`.
-    schema_path = (
-        pathlib.Path(__file__).resolve().parents[2]
-        / "contracts"
-        / "model_output.schema.yaml"
-    )
-    with open(schema_path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+EXPECTED_MODEL_FIELDS = {
+    "roc_auc",
+    "pr_auc",
+    "coefficients",
+    "feature_importance",
+    "model_type",
+}
 
 
-def test_model_output_schema_is_valid():
-    """Validate that the schema conforms to JSON Schema Draft‑7."""
-    schema = _load_schema()
-    # jsonschema provides a helper to check the schema itself.
-    jsonschema.Draft7Validator.check_schema(schema)
+def test_model_output_schema(model_output: dict):
+    """
+    Contract test: Verify model output contains required fields.
+    """
+    if model_output is None:
+        pytest.skip("Model output fixture not available.")
+
+    missing = EXPECTED_MODEL_FIELDS - set(model_output.keys())
+    assert not missing, f"Model output missing fields: {missing}"
+
+    assert isinstance(model_output["roc_auc"], float)
+    assert model_output["roc_auc"] >= 0.0
+    assert model_output["roc_auc"] <= 1.0

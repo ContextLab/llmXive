@@ -32,31 +32,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/statistical-analysis-of-code-complexity
   verified_at: '2026-06-29T17:31:46.383308Z'
-- artifact_hash: dfa05a61a9a3e6ce436a371f65be451d7ebee6c976867b208679c2944e7d2cb5
-  artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/README.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: BOSGACOR > Bandar Rajaslot Gacor Hari Ini Kasih JP Besar Tanpa Syarat
-  kind: url
-  value: https://ghtorrent.org/
-  verification_status: verified
-  verified_against_url: https://rajaslot-jp.com/
-  verified_at: '2026-06-29T17:58:20.727241Z'
-- artifact_hash: dfa05a61a9a3e6ce436a371f65be451d7ebee6c976867b208679c2944e7d2cb5
-  artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/README.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: "GitHub - terryyin/lizard: A simple code complexity analyser without\
-    \ caring about the C/C++ header files or Java imports, supports most of the popular\
-    \ languages. \xB7 GitHub"
-  kind: url
-  value: https://github.com/terryyin/lizard
-  verification_status: verified
-  verified_against_url: https://github.com/terryyin/lizard
-  verified_at: '2026-06-29T17:58:20.727241Z'
-- artifact_hash: 66251256860641952c5eaffe293719bc5804830a05e87da3a34c2757a24d4e1b
+- artifact_hash: e3aced2b1a53e98fd7e28a95b7942172ab1dbbfb5090541613556d9b55fd08a1
   artifact_path: projects/PROJ-148-statistical-analysis-of-code-complexity-/specs/001-statistical-analysis-of-code-complexity/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -66,4 +42,4 @@
   value: https://www.wikidata.org/wiki/Q178051
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q178051
-  verified_at: '2026-06-29T17:59:10.192755Z'
+  verified_at: '2026-07-14T19:01:21.211661Z'

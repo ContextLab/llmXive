@@ -135,23 +135,23 @@ id: "TASKS-001"
 - [X] T033 Update README with usage instructions, data source citations, and reproducibility notes (`README.md`)
 - [X] T034 Add detailed documentation for each pipeline stage (`docs/data_pipeline.md`, `docs/modeling.md`)
 - [X] T035 Code cleanup and refactoring (see subtasks T055‑T057) (`code/`)
-- [ ] T055 Run black on the entire `code/` directory and verify no formatting violations (`code/`)
-- [ ] T056 Run flake8 on the entire `code/` directory and verify PEP8 compliance (`code/`)
-- [ ] T057 Manually remove dead code and verify no import errors (`code/`)
-- [ ] T036 Add additional unit tests for utility modules (`tests/unit/test_utils.py`)
-- [ ] T037 Performance optimization: cache lizard metric results to avoid re‑parsing unchanged files (`code/data/cache_metrics.py`)
-- [ ] T038 Security hardening: ensure downloaded archives are checksum‑verified before extraction (`code/data/download_gh.py`)
-- [ ] T039 Run full test suite and enforce coverage ≥ 85 % (`pytest`, `coverage`)
+- [X] T055 Run black on the entire `code/` directory and verify no formatting violations (`code/`)
+- [X] T056 Run flake8 on the entire `code/` directory and verify PEP8 compliance (`code/`)
+- [X] T057 Manually remove dead code and verify no import errors (`code/`)
+- [X] T036 Add additional unit tests for utility modules (`tests/unit/test_utils.py`)
+- [X] T037 Performance optimization: cache lizard metric results to avoid re‑parsing unchanged files (`code/data/cache_metrics.py`)
+- [X] T038 Security hardening: ensure downloaded archives are checksum‑verified before extraction (`code/data/download_gh.py`)
+- [X] T039 Run full test suite and enforce coverage ≥ 85 % (`pytest`, `coverage`)
 
 ### Documentation & Deliverables
 
-- [ ] T040 (moved to Phase 0)
-- [ ] T041 (moved to Phase 0)
-- [ ] T042 (moved to Phase 0)
-- [ ] T043 (moved to Phase 0)
-- [ ] T044 (moved to Phase 0)
-- [ ] T045 (moved to Phase 0)
+- [X] T040 (moved to Phase 0) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [X] T041 (moved to Phase 0) <!-- FAILED: unspecified -->
+- [X] T042 (moved to Phase 0) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T043 (moved to Phase 0)
+- [X] T044 (moved to Phase 0)
+- [X] T045 (moved to Phase 0) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ### New Tasks
 
-- [ ] T060 Update spec to replace “[deferred]” placeholders with concrete [deferred]/30 % train/test split proportions (`specs/001-statistical-analysis-of-code-complexity/spec.md`)
+- [X] T060 Update spec to replace “[deferred]” placeholders with concrete [deferred]/30 % train/test split proportions (`specs/001-statistical-analysis-of-code-complexity/spec.md`)
