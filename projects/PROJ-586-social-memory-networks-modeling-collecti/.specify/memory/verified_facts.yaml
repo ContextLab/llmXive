@@ -1,15 +1,33 @@
-'|power':
-  quote: "Indeed, although there are no formal standards for power, many researchers\
-    \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
-    \ This convention implies a four-to-one trade off between \u03B2-risk and \u03B1\
-    -risk, as the probability of a type II error \u03B2 is set as 1 - 0.8 = 0.2, while\
-    \ \u03B1, the probability of a type I error, is commonly set at 0.05. Some applications\
-    \ require much higher levels of power. Medical tests may be designed to minimise\
-    \ the number of false negatives (type II errors) produced by loosening the threshold\
-    \ of significance, raising the risk of obtaining a false positive (a type I error).\
-    \ The rationale is that it is better to tell a healthy patient \"we may have found\
-    \ something\u2014let's test further,\" than to tell a diseased patient \"all is\
-    \ well.\""
-  source_id: Power (statistics)
-  url: https://en.wikipedia.org/wiki/Power_(statistics)
-  value: '0.80'
+128256512|token:
+  quote: PPL-based 69.61 70.47 72.27
+  source_id: '2504.01707'
+  url: https://arxiv.org/abs/2504.01707
+  value: '72.27'
+'|game':
+  quote: enables our approach of measuring the win rate over 1000
+  source_id: '2503.02686'
+  url: https://arxiv.org/abs/2503.02686
+  value: '1000'
+'|resample':
+  quote: As an example, assume we are interested in the average (or mean) height of
+    people worldwide.  We cannot measure all the people in the global population,
+    so instead, we sample only a tiny part of it, and measure that.  Assume the sample
+    is of size N; that is, we measure the heights of N individuals.  From that single
+    sample, only one estimate of the mean can be obtained.  In order to reason about
+    the population, we need some sense of the variability of the mean that we have
+    computed. The simplest bootstrap method involves taking the original data set
+    of heights, and, using a computer, sampling from it to form a new sample (called
+    a 'resample' or bootstrap sample) that is also of size N.  The bootstrap sample
+    is taken from the original by using sampling with replacement (e.g. we might 'resample'
+    5 times from [1,2,3,4,5] and get [2,5,4,4,1]), so, assuming N is sufficiently
+    large, for all practical purposes there is virtually zero probability that it
+    will be identical to the original "real" sample.  This process is repeated a large
+    number of times (typically 1,000 or 10,000 times), and for each of these bootstrap
+    samples, we compute its mean (each of these is called a "bootstrap estimate").  We
+    now can create a histogram of bootstrap means.  This histogram provides an estimate
+    of the shape of the distribution of the sample mean from which we can answer questions
+    about how much the mean varies across samples.  (The method here, described for
+    the mean, can be applied to almost any other statistic or estimator.)
+  source_id: Bootstrapping (statistics)
+  url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+  value: '1000'

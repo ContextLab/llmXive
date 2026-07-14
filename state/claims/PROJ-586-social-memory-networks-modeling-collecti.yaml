@@ -27325,24 +27325,6 @@
   updated_at: '2026-07-14T17:32:09Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
-  canonical: minimum 10 synthetic cue-response pairs per game
-  claim_id: c_70c2dcbc
-  context: 'Implement synthetic fallback generator in code/data/synthetic.py: Create
-    a set of synthetic cue-response pairs (minimum 10 per game) from available context
-    spans if explicit cues are missing. (FR-011)'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Create a set of synthetic cue-response pairs (minimum 10 per game) from
-    available context spans if explicit cues are missing.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T17:35:32Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
   canonical: 95% confidence intervals using 1000 bootstrapping resamples
   claim_id: c_d7c13aba
   context: Compute 95% confidence intervals for fitted exponents using bootstrapping
@@ -28010,3 +27992,654 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T17:51:38Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Power analysis for N=1000 and alpha=0.05
+  claim_id: c_2b5971f4
+  context: 'Implement power analysis in code/analysis/power.py: Estimate detectable
+    effect size for N=1000, alpha=0.05, {{claim:c_d4139ed9}} (Wikipedia: Power (statistics),
+    https://en.wikipedia.org/wiki/Power_(statistics))'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate detectable effect size for N=1000, alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:34:05Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Sweep token thresholds 128 256 512
+  claim_id: c_e3f13ddd
+  context: 'Implement sensitivity analysis in code/analysis/sensitivity.py: Sweep
+    token thresholds explicitly across the set {128, 256, 512} tokens and record how
+    specialization and retrieval metrics vary for each threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep token thresholds explicitly across the set {128, 256, 512} tokens
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:34:33Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: minimum 10 synthetic cue-response pairs per game
+  claim_id: c_70c2dcbc
+  context: 'Implement synthetic fallback generator in code/data/synthetic.py: Create
+    a set of synthetic cue-response pairs (minimum 10 per game) from available context
+    spans if explicit cues are missing. (FR-011)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a set of synthetic cue-response pairs (minimum 10 per game) from
+    available context spans if explicit cues are missing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:35:03Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 95% confidence intervals using 1000 bootstrap resamples
+  claim_id: c_0b4f9dad
+  context: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples) and output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json.
+    (US-3, SC-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:35:08Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: default seed 42
+  claim_id: c_a5b79215
+  context: 'Create code/utils/config.py with explicit configuration: seed=42, device="cpu",
+    model_name="facebook/opt-125m". Ensure these are the default values used by all
+    agents. (FR-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default configuration seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:35:39Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: default model facebook/opt-125m
+  claim_id: c_b74acd78
+  context: 'Create code/utils/config.py with explicit configuration: seed=42, device="cpu",
+    model_name="facebook/opt-125m". Ensure these are the default values used by all
+    agents. (FR-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default model facebook/opt-125m
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:36:05Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: default device cpu
+  claim_id: c_c56eada7
+  context: 'Create code/utils/config.py with explicit configuration: seed=42, device="cpu",
+    model_name="facebook/opt-125m". Ensure these are the default values used by all
+    agents. (FR-002)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_device_cpu
+  kind: entity_fact
+  raw_text: default device cpu
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:36:35Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 3 data points limit power-law reliability
+  claim_id: c_9b9189e9
+  context: "Generate scaling_plot.pdf with fitted power\u2011law curves for specialization\
+    \ index and retrieval efficiency, and an explicit text note stating that \"3 data\
+    \ points limit power-law reliability\". (US-3, SC-005)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: explicit text note stating that 3 data points limit power-law reliability
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:38:38Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: specialization index bounded 0 to log2(N_agents)
+  claim_id: c_bd71061e
+  context: 'Implement specialization index computation in code/metrics/specialization.py:
+    Calculate distribution-based metric of per-agent fact contribution, bounded 0
+    to log2(N_agents). (FR-004)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: specialization index bounded 0 to log2(N_agents)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:38:43Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Hanabi CoQA URLs not in verified block
+  claim_id: c_3167e8d1
+  context: 'Dataset Constraint: Hanabi/CoQA URLs are not in the verified block; synthetic
+    fallback is mandatory if URLs are missing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hanabi_CoQA_URLs_not_in_verified_block
+  kind: entity_fact
+  raw_text: Hanabi/CoQA URLs are not in the verified block
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:39:06Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Wikidata Q131143974
+  claim_id: c_05889b65
+  context: 'Implement validation logic in code/metrics/validator.py: {{claim:c_e0e74a46}}
+    (Wikidata Q131143974, https://www.wikidata.org/wiki/Q131143974); log errors for
+    failed games. (SC-001)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q131143974
+  kind: entity_fact
+  raw_text: reference Wikidata Q131143974
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:39:30Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv 2503.02686
+  claim_id: c_a294f5b3
+  context: Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for {{claim:c_5ddf2989}} (2503.02686, https://arxiv.org/abs/2503.02686). (US-2)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: reference arXiv 2503.02686
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:39:51Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Wikipedia Power statistics
+  claim_id: c_d36cd2b5
+  context: 'Implement power analysis in code/analysis/power.py: Estimate detectable
+    effect size for N=1000, alpha=0.05, {{claim:c_d4139ed9}} (Wikipedia: Power (statistics),
+    https://en.wikipedia.org/wiki/Power_(statistics)); flag if {{claim:c_48c03e05}}.
+    (FR-009)'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P13134: 5266'
+      source_id: Q328
+      url: https://www.wikidata.org/wiki/Q328
+      value: '5266'
+    filled: true
+  kind: entity_fact
+  raw_text: reference Wikipedia Power (statistics)
+  resolved_value: '5266'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T18:40:11Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv 2202.05773
+  claim_id: c_b0fc5fe9
+  context: Implement game simulation for varying agent counts ({{claim:c_c9888c5b}}
+    (2202.05773, https://arxiv.org/abs/2202.05773)) in code/run_experiment.py. (US-3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: reference arXiv 2202.05773
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:40:17Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: 10 synthetic cue-response pairs per game
+  claim_id: c_7d2f9ee8
+  context: 'Implement synthetic fallback generator in code/data/synthetic.py: Create
+    a set of synthetic cue-response pairs (minimum 10 per game) from available context
+    spans if explicit cues are missing.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: enables our approach of measuring the win rate over 1000
+      source_id: '2503.02686'
+      url: https://arxiv.org/abs/2503.02686
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: 10 per game
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T18:43:06Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 resamples for bootstrapping confidence intervals
+  claim_id: c_ef4c6ea1
+  context: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples) and output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: 1000 resamples
+  resolved_value: '1000'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T18:43:52Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 3 data points limit power-law reliability
+  claim_id: c_909348aa
+  context: Generate scaling_plot.pdf with fitted power-law curves for specialization
+    index and retrieval efficiency, and an explicit text note stating that '3 data
+    points limit power-law reliability'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3 data points limit power-law reliability
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:44:22Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Token thresholds of 128, 256, and 512
+  claim_id: c_644e8fbb
+  context: 'Implement sensitivity analysis in code/analysis/sensitivity.py: Sweep
+    token thresholds explicitly across the set {128, 256, 512} tokens and record how
+    specialization and retrieval metrics vary for each threshold.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: PPL-based 69.61 70.47 72.27
+      source_id: '2504.01707'
+      url: https://arxiv.org/abs/2504.01707
+      value: '72.27'
+    filled: true
+  kind: numeric
+  raw_text: 128, 256, 512 tokens
+  resolved_value: '72.27'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T18:44:58Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: ArXiv ID 2503.02686
+  claim_id: c_006bea5a
+  context: Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for {{claim:c_5ddf2989}} (2503.02686, https://arxiv.org/abs/2503.02686).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2503.02686'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:45:18Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: ArXiv ID 2202.05773
+  claim_id: c_536b6edf
+  context: Implement game simulation for varying agent counts ({{claim:c_c9888c5b}}
+    (2202.05773, https://arxiv.org/abs/2202.05773)) in code/run_experiment.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2202.05773'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:45:46Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Wikidata Q131143974
+  claim_id: c_1f99b43f
+  context: 'Implement validation logic in code/metrics/validator.py: {{claim:c_e0e74a46}}
+    (Wikidata Q131143974, https://www.wikidata.org/wiki/Q131143974); log errors for
+    failed games.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q131143974
+  kind: entity_fact
+  raw_text: Wikidata Q131143974
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:46:15Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Wikipedia article on Power (statistics)
+  claim_id: c_06343197
+  context: 'Implement power analysis in code/analysis/power.py: Estimate detectable
+    effect size for N=1000, alpha=0.05, {{claim:c_d4139ed9}} (Wikipedia: Power (statistics),
+    https://en.wikipedia.org/wiki/Power_(statistics)); flag if {{claim:c_48c03e05}}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikipedia_article_on_Power_(statistics)
+  kind: entity_fact
+  raw_text: 'Wikipedia: Power (statistics)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:47:09Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: Wikidata Q131143974
+  claim_id: c_cb792ca3
+  context: 'T014 [P] [US-1] Implement validation logic in code/metrics/validator.py:
+    {{claim:c_e0e74a46}} (Wikidata Q131143974, https://www.wikidata.org/wiki/Q131143974);
+    log errors for failed games. (SC-001)'
+  evidence:
+    entailment_evidence: Validation logic references Wikidata Q131143974
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Validation_logic_references_Wikidata_Q131143974
+  kind: entity_fact
+  raw_text: 'Implement validation logic in code/metrics/validator.py: Wikidata Q131143974,
+    https://www.wikidata.org/wiki/Q131143974'
+  resolved_value: Validation logic references Wikidata Q131143974
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T18:49:51Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv 2503.02686
+  claim_id: c_6718e392
+  context: T019 [US-2] Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for {{claim:c_5ddf2989}} (2503.02686, https://arxiv.org/abs/2503.02686). (US-2)
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for 2503.02686, https://arxiv.org/abs/2503.02686
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T18:50:24Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Wikipedia Power (statistics)
+  claim_id: c_4307666a
+  context: 'T023 [US-2] Implement power analysis in code/analysis/power.py: Estimate
+    detectable effect size for N=1000, alpha=0.05, {{claim:c_d4139ed9}} (Wikipedia:
+    Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)); flag if
+    {{claim:c_48c03e05}}. (FR-009)'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Estimate detectable effect size for N=1000, alpha=0.05, Wikipedia: Power
+    (statistics), https://en.wikipedia.org/wiki/Power_(statistics)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:53:17Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv 2202.05773
+  claim_id: c_0f48bbe0
+  context: T027 [US-3] Implement game simulation for varying agent counts ({{claim:c_c9888c5b}}
+    (2202.05773, https://arxiv.org/abs/2202.05773)) in code/run_experiment.py. (US-3)
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Implement game simulation for varying agent counts (2202.05773, https://arxiv.org/abs/2202.05773)
+    in code/run_experiment.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T18:53:25Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Wikipedia Bootstrapping (statistics)
+  claim_id: c_9509554d
+  context: 'T029 [P] [US-3] Compute 95% confidence intervals for fitted exponents
+    using bootstrapping ({{claim:c_ef4c6ea1}} (Wikipedia: Bootstrapping (statistics),
+    https://en.wikipedia.org/wiki/Bootstrapping_(statistics))) and output results
+    to projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json.
+    (US-3, SC-005)'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:53:32Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: alpha equals 0.05 for power analysis
+  claim_id: c_ff0080ab
+  context: 'Implement power analysis in `code/analysis/power.py`: Estimate detectable
+    effect size for N=1000, alpha=0.05, {{claim:c_d4139ed9}}'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:57:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Hanabi and CoQA URLs missing from verified block
+  claim_id: c_ae4d0bfb
+  context: 'Dataset Constraint: Hanabi/CoQA URLs are not in the verified block; synthetic
+    fallback is mandatory if URLs are missing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hanabi_and_CoQA_URLs_missing_from_verified_block
+  kind: entity_fact
+  raw_text: Hanabi/CoQA URLs are not in the verified block
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:00:34Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Power analysis sample size N equals 1000
+  claim_id: c_41511399
+  context: 'Power Analysis: N=1000 (FR-009 spec requirement)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=1000 for power analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:01:26Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Token thresholds set of 128, 256, and 512
+  claim_id: c_5e4b1f75
+  context: 'Implement sensitivity analysis in code/analysis/sensitivity.py: Sweep
+    token thresholds explicitly across the set {128, 256, 512} tokens and record how
+    specialization and retrieval metrics vary for each threshold. (FR-008)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep token thresholds explicitly across the set {128, 256, 512} tokens
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:03:33Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis token thresholds of 128, 256, and 512
+  claim_id: c_f63e3ae9
+  context: Task T022 description for implementing sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep token thresholds explicitly across the set {128, 256, 512} tokens
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:06:16Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Power analysis parameters N=1000 and alpha=0.05
+  claim_id: c_45bf9de5
+  context: Task T023 description for implementing power analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate detectable effect size for N=1000, alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:06:21Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 95% confidence intervals for fitted exponents via bootstrapping
+  claim_id: c_e2605929
+  context: Task T029 description for computing confidence intervals in scaling analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 95% confidence intervals for fitted exponents using bootstrapping
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:06:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 3 data points limit power-law reliability
+  claim_id: c_3d67be74
+  context: Task T030 description regarding the generation of the scaling plot.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3 data points limit power-law reliability
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:06:32Z'

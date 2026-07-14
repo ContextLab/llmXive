@@ -26,7 +26,7 @@ class RetrievalMetrics:
 def compute_retrieval_efficiency(
     successful: Union[int, List[int], None],
     total: Union[int, List[int], None],
-    agents: Union[int, List[int]]
+    agents: Union[int, List[int], None]
 ) -> Tuple[float, RetrievalMetrics]:
     """
     Compute cue-retrieval efficiency.
@@ -34,7 +34,7 @@ def compute_retrieval_efficiency(
     Args:
         successful: Number of successful retrievals (int or list).
         total: Total number of queries (int or list). If None, assumed equal to successful (100% success).
-        agents: Number of agents (int or list).
+        agents: Number of agents (int or list). If None, defaults to 1.
 
     Returns:
         Tuple of (efficiency_score, RetrievalMetrics object).
@@ -55,6 +55,8 @@ def compute_retrieval_efficiency(
         
     if isinstance(agents, list):
         agents = sum(agents) // len(agents) if agents else 1
+    elif agents is None:
+        agents = 1
 
     # Validate inputs
     if successful < 0:

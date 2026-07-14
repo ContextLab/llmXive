@@ -64,7 +64,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/JasonXF/US3D-Enhanced/7f60acedd7f2c766cdc27a1e9e62bcc9c7d3428e/prompt.json?%2Fdatasets%2FJasonXF%2FUS3D-Enhanced%2Fresolve%2Fmain%2Fprompt.json=&etag=%22b1e79c038446025d54f94493aedb58c848fe8d2c%22
   verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: ee33e3fa33d081bacc5e1726f57a1a13b6242fe034ef438157f487f6954f015d
+- artifact_hash: 01417d4bf918610c019c6c0d241dc314fb92c8f522725d37520e3aa1eeacc7af
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -74,8 +74,8 @@
   value: https://www.wikidata.org/wiki/Q131143974
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q131143974
-  verified_at: '2026-07-14T17:51:49.973628Z'
-- artifact_hash: ee33e3fa33d081bacc5e1726f57a1a13b6242fe034ef438157f487f6954f015d
+  verified_at: '2026-07-14T19:06:52.238720Z'
+- artifact_hash: 01417d4bf918610c019c6c0d241dc314fb92c8f522725d37520e3aa1eeacc7af
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -86,8 +86,8 @@
   value: https://arxiv.org/abs/2503.02686
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2503.02686
-  verified_at: '2026-07-14T17:51:49.973628Z'
-- artifact_hash: ee33e3fa33d081bacc5e1726f57a1a13b6242fe034ef438157f487f6954f015d
+  verified_at: '2026-07-14T19:06:52.238720Z'
+- artifact_hash: 01417d4bf918610c019c6c0d241dc314fb92c8f522725d37520e3aa1eeacc7af
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -97,8 +97,8 @@
   value: https://en.wikipedia.org/wiki/Power_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Power
-  verified_at: '2026-07-14T17:51:49.973628Z'
-- artifact_hash: ee33e3fa33d081bacc5e1726f57a1a13b6242fe034ef438157f487f6954f015d
+  verified_at: '2026-07-14T19:06:52.238720Z'
+- artifact_hash: 01417d4bf918610c019c6c0d241dc314fb92c8f522725d37520e3aa1eeacc7af
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -108,4 +108,15 @@
   value: https://arxiv.org/abs/2202.05773
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2202.05773
-  verified_at: '2026-07-14T17:51:49.973628Z'
+  verified_at: '2026-07-14T19:06:52.238720Z'
+- artifact_hash: 01417d4bf918610c019c6c0d241dc314fb92c8f522725d37520e3aa1eeacc7af
+  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: Bootstrapping - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Bootstrapping_
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
+  verified_at: '2026-07-14T19:06:52.238720Z'

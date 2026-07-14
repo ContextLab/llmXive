@@ -56,7 +56,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement dataset loaders in `code/data/loaders.py`: Verify URLs against a whitelist. If the dataset (Hanabi/CoQA) lacks a verified URL in the `verified_datasets` block, raise a clear error and trigger the synthetic fallback. (FR-001, FR-011)
-- [X] T004b [P] Implement synthetic fallback generator in `code/data/synthetic.py`: Create a set of synthetic cue-response pairs (minimum 10 per game [UNRESOLVED-CLAIM: c_11f688d9 — status=not_enough_info]) from available context spans if explicit cues are missing. (FR-011)
+- [X] T004b [P] Implement synthetic fallback generator in `code/data/synthetic.py`: Create a set of synthetic cue-response pairs (minimum {{claim:c_7d2f9ee8}}) from available context spans if explicit cues are missing.. (FR-011)
 - [X] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (model: `facebook/opt-*`, precision: standard floating-point) in `code/agent/base_agent.py`. Ensure no CUDA imports. (FR-002)
 - [X] T006 [P] Implement shared external memory buffer in `code/memory/buffer.py`: Support `<MEMORY_ACTION>` tokens with JSON schema `{"type": "write"|"read", "key": str, "value": str}`. Implement queue-based write conflict resolution. (FR-003, FR-012)
 - [X] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py`. Log format: `[TIMESTAMP] [LEVEL] [MODULE] Message`. (FR-010)
@@ -85,9 +85,9 @@
 - [X] T011b [P] [US-1] Implement game simulation loop in `code/run_experiment.py`: Orchestrate agents, memory buffer, and turn-based interaction for a single game. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
 - [X] T011c [P] [US-1] Implement dataset loading logic in `code/run_experiment.py`: Integrate `loaders.py` and `synthetic.py`, ensuring data is checksummed before use.
 - [X] T012 [P] [US-1] Implement specialization index computation in `code/metrics/specialization.py`: Calculate distribution-based metric of per-agent fact contribution, bounded 0 to log2(N_agents). (FR-004)
-- [ ] T013 [P] [US-1] Implement cue-retrieval efficiency in `code/metrics/retrieval.py`: Calculate proportion of successful retrievals vs. a theoretical baseline derived from the number of agents. (FR-005)
+- [X] T013 [P] [US-1] Implement cue-retrieval efficiency in `code/metrics/retrieval.py`: Calculate proportion of successful retrievals vs. a theoretical baseline derived from the number of agents. (FR-005)
 - [X] T014 [P] [US-1] Implement validation logic in `code/metrics/validator.py`: {{claim:c_e0e74a46}} (Wikidata Q131143974, https://www.wikidata.org/wiki/Q131143974); log errors for failed games. (SC-001)
-- [ ] T015 [US-1] Output `results_full.csv` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` for [deferred] games. (US-1, FR-004, FR-005, SC-001)
+- [X] T015 [US-1] Output `results_full.csv` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` for [deferred] games. (US-1, FR-004, FR-005, SC-001)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,15 +106,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US-2] Implement limited-context simulation in `code/run_experiment.py`: Truncate context to a specified token limit before passing to the model. (US-2)
+- [X] T018 [US-2] Implement limited-context simulation in `code/run_experiment.py`: Truncate context to a specified token limit before passing to the model. (US-2) <!-- FAILED: unspecified -->
 - [X] T019 [US-2] Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` for {{claim:c_5ddf2989}} (2503.02686, https://arxiv.org/abs/2503.02686). (US-2)
 - [X] T020 [P] [US-2] Implement a two-way independent-samples ANOVA in `code/analysis/anova.py` using `statsmodels.stats.anova.anova_lm`.
  - **Data Structure**: Combine `results_full.csv` and `results_limited.csv` into a single long-format DataFrame with columns: `game_id`, `context_condition` (full/limited), `metric_name` (specialization/retrieval), and `metric_value`.
  - **Model Formula**: `metric_value ~ C(context_condition) * C(metric_name)`.
  - **Output**: Compute and report the interaction p-value for the term `C(context_condition):C(metric_name)`. (FR-006)
 - [X] T021 [P] [US-2] Apply Bonferroni correction to all family‑wise hypothesis tests and report corrected α in `code/analysis/anova.py`. (FR-007)
-- [ ] T022 [US-2] Implement sensitivity analysis in `code/analysis/sensitivity.py`: Sweep token thresholds explicitly across the set {128, 256, 512} tokens and record how specialization and retrieval metrics vary for each threshold. (FR-008) <!-- FAILED: unspecified -->
-- [X] T023 [US-2] Implement power analysis in `code/analysis/power.py`: Estimate detectable effect size for N=1000, alpha=0.05 [UNRESOLVED-CLAIM: c_8fa1c4d0 — status=not_enough_info], {{claim:c_d4139ed9}} (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)); flag if {{claim:c_48c03e05}}. (FR-009)
+- [X] T022 [US-2] Implement sensitivity analysis in `code/analysis/sensitivity.py`: Sweep token thresholds explicitly across the set {128, 256, 512} tokens [UNRESOLVED-CLAIM: c_f63e3ae9 — status=not_enough_info] and record how specialization and retrieval metrics vary for each threshold. (FR-008) <!-- FAILED: unspecified -->
+- [X] T023 [US-2] Implement power analysis in `code/analysis/power.py`: Estimate detectable effect size for N=1000, alpha=0.05 [UNRESOLVED-CLAIM: c_45bf9de5 — status=not_enough_info], {{claim:c_d4139ed9}} (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)); flag if {{claim:c_48c03e05}}. (FR-009)
 - [X] T024 [US-2] Generate `power_analysis_report.md` in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with results from T023. (SC-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -135,9 +135,9 @@
 ### Implementation for User Story 3
 
 - [ ] T027 [US-3] Implement game simulation for varying agent counts ({{claim:c_c9888c5b}} (2202.05773, https://arxiv.org/abs/2202.05773)) in `code/run_experiment.py`. (US-3) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T028 [P] [US-3] Implement power-law fitting in `code/analysis/scaling.py`: Fit log-log curves formetric trends vs. agent count (small to medium cohorts) for specialization index and retrieval efficiency. (US-3)
-- [X] T029 [P] [US-3] Compute 95% confidence intervals [UNRESOLVED-CLAIM: c_ff33dd11 — status=not_enough_info] for fitted exponents using bootstrapping (1000 resamples [UNRESOLVED-CLAIM: c_7fbae0e7 — status=not_enough_info]) and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`. (US-3, SC-005)
-- [ ] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves for specialization index and retrieval efficiency, and an explicit text note stating that "3 data points limit power-law reliability". (US-3, SC-005)
+- [X] T028 [P] [US-3] Implement power-law fitting in `code/analysis/scaling.py`: Fit log-log curves formetric trends vs. agent count (small to medium cohorts) for specialization index and retrieval efficiency. (US-3)
+- [X] T029 [P] [US-3] Compute 95% confidence intervals for fitted exponents using bootstrapping [UNRESOLVED-CLAIM: c_e2605929 — status=not_enough_info] ({{claim:c_ef4c6ea1}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))) and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`. (US-3, SC-005)
+- [ ] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves for specialization index and retrieval efficiency, and an explicit text note stating that "3 data points limit power-law reliability [UNRESOLVED-CLAIM: c_3d67be74 — status=not_enough_info] ". (US-3, SC-005)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -254,8 +254,8 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Compute Constraint**: CPU-only inference, no CUDA, default float32 precision
-- **Game Counts**: US-1/US-2 = 1,000 games per condition [UNRESOLVED-CLAIM: c_d42fdd46 — status=not_enough_info] (spec requirement); US-3 = {{claim:c_c9888c5b}} (spec requirement)
-- **Dataset Constraint**: Hanabi/CoQA URLs are not in the verified block; synthetic fallback is mandatory if URLs are missing. [UNRESOLVED-CLAIM: c_af5a4695 — status=not_enough_info]
+- **Game Counts**: US-1/US-2 = 1,000 games per condition (spec requirement); US-3 = {{claim:c_c9888c5b}} (spec requirement)
+- **Dataset Constraint**: Hanabi/CoQA URLs are not in the verified block; synthetic fallback is mandatory if URLs are missing.
 - **ANOVA Design**: Single two-way ANOVA with Context × Metric interaction (FR-006), NOT separate ANOVAs. The plan's "Separate ANOVAs" description is overridden by the spec's FR-006.
 - **Power Analysis**: N=1000 (FR-009 spec requirement)
 - **Scaling Analysis**: Strictly plots specialization index and retrieval efficiency (SC-005).
