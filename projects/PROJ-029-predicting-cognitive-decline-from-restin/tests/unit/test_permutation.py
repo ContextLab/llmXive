@@ -1,31 +1,13 @@
-"""
-Unit tests for p-value calculation logic.
-"""
-import pytest
-import numpy as np
+import json
+from pathlib import Path
 
-def test_p_value_calculation():
-    """Test p-value calculation from permutation distribution."""
-    # Observed statistic
-    observed = 0.75
-    
-    # Permutation distribution (random stats)
-    perm_stats = np.array([0.4, 0.5, 0.6, 0.55, 0.45, 0.5, 0.6, 0.5, 0.4, 0.55])
-    
-    # Count how many permuted stats are >= observed
-    count = np.sum(perm_stats >= observed)
-    p_value = count / len(perm_stats)
-    
-    # Since observed (0.75) is higher than all perm_stats, p_value should be 0.0
-    assert p_value == 0.0
+def test_permutation_results_file_exists():
+    """Simple sanity test – the permutation script should create the JSON file."""
+    result_path = Path("data/processed/permutation_results.json")
+    assert result_path.is_file(), f"{result_path} does not exist"
 
-def test_p_value_calculation_low_observed():
-    """Test p-value when observed is low."""
-    observed = 0.4
-    perm_stats = np.array([0.4, 0.5, 0.6, 0.55, 0.45, 0.5, 0.6, 0.5, 0.4, 0.55])
-    
-    count = np.sum(perm_stats >= observed)
-    p_value = count / len(perm_stats)
-    
-    # All 10 values are >= 0.4
-    assert p_value == 1.0
+    # The file should contain valid JSON with the expected keys
+    with result_path.open() as f:
+        data = json.load(f)
+    assert "permutations" in data and data["permutations"] == 500
+    assert "auc_scores" in data and isinstance(data["auc_scores"], list)

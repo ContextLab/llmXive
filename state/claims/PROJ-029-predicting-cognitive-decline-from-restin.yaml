@@ -2060,3 +2060,142 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T11:38:40Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline can produce graph_metrics.csv from a single batch without ML
+    training
+  claim_id: c_3655cdff
+  context: "Phase 3 \u2013 User Story 1 defines an independent test stating that the\
+    \ pipeline can be run on a single batch of data to produce `data/processed/graph_metrics.csv`\
+    \ containing subject IDs and calculated graph metrics without any machine learning\
+    \ training."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_can_produce_graph_metrics.csv_from_a_single_batch_w
+  kind: entity_fact
+  raw_text: The pipeline can be run on a single batch of data to produce `data/processed/graph_metrics.csv`
+    containing subject IDs and calculated graph metrics without any machine learning
+    training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:54:21Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: "pipeline can output model.pkl and performance_report.json with ROC\u2011\
+    AUC and F1\u2011score for nested CV without permutation test"
+  claim_id: c_a440ca33
+  context: "Phase 4 \u2013 User Story 2 lists an independent test asserting that the\
+    \ pipeline can be executed to output `data/processed/model.pkl` and `data/processed/performance_report.json`\
+    \ containing ROC\u2011AUC and F1\u2011score for nested cross\u2011validation,\
+    \ without running the permutation test."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_can_output_model.pkl_and_performance_report.json_wi
+  kind: entity_fact
+  raw_text: "The pipeline can be executed to output `data/processed/model.pkl` and\
+    \ `data/processed/performance_report.json` containing ROC\u2011AUC and F1\u2011\
+    score for nested CV, without running the permutation test."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:54:57Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline can run permutation test on existing model and output permutation_results.json
+    and sensitivity_report.json
+  claim_id: c_cd4f0267
+  context: "Phase 5 \u2013 User Story 3 defines an independent test stating that the\
+    \ pipeline can take an existing model and performance metric, run the permutation\
+    \ test, and output `data/processed/permutation_results.json` and `data/processed/sensitivity_report.json`."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_can_run_permutation_test_on_existing_model_and_outp
+  kind: entity_fact
+  raw_text: The pipeline can take an existing model and performance metric, run the
+    permutation test, and output `data/processed/permutation_results.json` and `data/processed/sensitivity_report.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:55:15Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: process subject-by-subject to stay within 7 GB RAM
+  claim_id: c_e21466d5
+  context: "T019 and T020 specify that graph metric calculation must stay within a\
+    \ 7\u202FGB RAM limit on a 2\u2011core runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Process subject-by-subject to stay within 7\u202FGB RAM limit on a 2\u2011\
+    core runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:57:43Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: nested CV training completes within 30 minutes on CPU-only runner
+  claim_id: c_ca760293
+  context: "T026 requires that nested cross\u2011validation training finishes within\
+    \ 30\u202Fminutes on a CPU\u2011only runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure nested\u2011CV training completes within 30\u202Fminutes on the\
+    \ CPU\u2011only runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:58:19Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: 500 permutations must complete within 2 hours
+  claim_id: c_c2d7c4f3
+  context: "T029 mandates a pre\u2011flight check that 500 permutations finish within\
+    \ 2\u202Fhours, otherwise the process aborts."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Estimate runtime for 500 permutations; if > 2\u202Fhours, abort."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:58:36Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: runtime less than 30 minutes for 100 subjects
+  claim_id: c_96c415d7
+  context: "T035 sets a performance target of less than 30\u202Fminutes when processing\
+    \ 100 subjects."
+  evidence:
+    candidates:
+    - - Runtime less than 30 minutes for
+      - 100.0
+    - - Create account Log in Runtime less than
+      - 30.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_30_minutes_for_100_subjects
+  kind: magnitude
+  raw_text: "Target runtime <\u202F30\u202Fmin for 100 subjects."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-14T11:59:01Z'

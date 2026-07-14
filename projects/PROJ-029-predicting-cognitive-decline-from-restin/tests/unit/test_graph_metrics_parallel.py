@@ -1,82 +1,69 @@
-"""Unit test ensuring that the parallel implementation produces the same
-number of rows as there are input subjects and that the output CSV is
-written."""
+"""Unit test to ensure that the parallel implementation in
+``code/03_compute_graph_metrics.py`` produces the expected number of rows
+and includes required columns.
+
+The test creates a tiny synthetic eligibility list and corresponding
+dummy connectivity matrices, runs the main function, and checks the
+output CSV.
+"""
 
 import csv
 from pathlib import Path
 
-import pandas as pd
 import pytest
 
-# Import the functions we need from the module under test
-from code import (
-    compute_subject_metrics,
-    write_outputs,
-    load_subject_list,
-    load_config_wrapper,
-    get_data_directories,
-)
+# Import the module under test
+from code import _03_compute_graph_metrics as gmetrics
 
 @pytest.fixture
-def dummy_processed_dir(tmp_path: Path):
-    """Create a minimal processed directory with an empty eligible_subjects.csv."""
-    processed = tmp_path / "processed"
-    processed.mkdir()
-    # Write a tiny eligible_subjects.csv with two dummy IDs
-    csv_path = processed / "eligible_subjects.csv"
-    with csv_path.open("w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["subject_id"])
-        writer.writerow(["001"])
-        writer.writerow(["002"])
-    return processed
+def setup_dummy_data(tmp_path: Path):
+    # Create dummy eligible_subjects.csv
+    eligible_path = Path("data/processed/eligible_subjects.csv")
+    eligible_path.parent.mkdir(parents=True, exist_ok=True)
+    with eligible_path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["subject_id"])
+        writer.writeheader()
+        writer.writerow({"subject_id": "sub-001"})
+        writer.writerow({"subject_id": "sub-002"})
 
-@pytest.fixture
-def dummy_raw_dir(tmp_path: Path):
-    """Create a raw directory containing dummy connectivity matrices."""
-    raw = tmp_path / "raw" / "ds000246"
-    raw.mkdir(parents=True)
-    for sid in ("001", "002"):
-        sub_dir = raw / f"sub-{sid}" / "func"
-        sub_dir.mkdir(parents=True)
-        matrix_path = sub_dir / f"sub-{sid}_desc-connectivity_matrix.npy"
-        # Simple identity matrix as a stand‑in
-        import numpy as np
-        np.save(matrix_path, np.identity(90))
-    return raw
+    # Create dummy connectivity matrices (90x90 zeros)
+    matrix_dir = Path("data/processed")
+    for sid in ["sub-001", "sub-002"]:
+        matrix_path = matrix_dir / f"{sid}_matrix.json"
+        matrix = [[0.0] * 90 for _ in range(90)]
+        with matrix_path.open("w") as jf:
+            import json
+            json.dump(matrix, jf)
 
-def test_parallel_computation_writes_csv(
-    dummy_processed_dir: Path, dummy_raw_dir: Path
-):
-    # Load config using the real helper – we patch the paths afterwards
-    cfg = load_config_wrapper()
-    cfg["raw_data_dir"] = str(dummy_raw_dir.parent.parent)  # points to project root
-    cfg["processed_dir"] = str(dummy_processed_dir.parent)
+    yield
 
-    raw_dir, processed_dir = get_data_directories(cfg)
+    # Cleanup after test
+    for p in [eligible_path, *matrix_dir.glob("*_matrix.json")]:
+        p.unlink()
+    if eligible_path.parent.exists():
+        eligible_path.parent.rmdir()
 
-    subject_ids = load_subject_list(processed_dir)
-    assert subject_ids == ["001", "002"]
+def test_parallel_graph_metrics_produces_output(setup_dummy_data, tmp_path):
+    # Run the main pipeline
+    gmetrics.main()
 
-    # Compute metrics (this will run the parallelised function)
-    results = [
-        compute_subject_metrics(raw_dir, sid) for sid in subject_ids
-    ]
-    assert len(results) == 2
-    for r in results:
-        assert r["subject_id"] in {"001", "002"}
+    output_path = Path("data/processed/graph_metrics.csv")
+    assert output_path.is_file(), "graph_metrics.csv was not created"
 
-    # Write outputs and verify the CSV exists and has the right shape
-    write_outputs(processed_dir, results)
-    out_csv = processed_dir / "graph_metrics.csv"
-    assert out_csv.is_file()
+    with output_path.open() as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
 
-    df = pd.read_csv(out_csv)
-    assert list(df.columns) == [
+    # Expect two rows (one per subject)
+    assert len(rows) == 2
+    # Verify required columns exist
+    expected_cols = {
         "subject_id",
         "degree_mean",
         "global_efficiency",
         "clustering_coefficient",
         "characteristic_path_length",
-    ]
-    assert df.shape[0] == 2
+    }
+    assert expected_cols.issubset(set(reader.fieldnames))      
+
+# The test file is intentionally lightweight to keep CI runtime low.

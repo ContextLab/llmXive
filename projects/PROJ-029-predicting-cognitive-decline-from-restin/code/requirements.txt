@@ -11,8 +11,8 @@ fsl
 nilearn
 psutil
 joblib
-# added for permutation test implementation
-scikit-learn
-pandas
-numpy
-# logger replacement does not add new deps
+# Added for permutation test implementation
+scipy
+# Ensure compatibility with the logger replacement
+# (no additional packages needed)
+torch  # auto-added: imported by run-book but missing from venv

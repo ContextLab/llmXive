@@ -19,7 +19,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import joblib
 import numpy as np
@@ -55,13 +55,13 @@ def load_features() -> Path:
     """Validate and return the path to the features CSV."""
     ensure_file(FEATURES_CSV)
     return FEATURES_CSV
-    
 
-def split_features_labels(df_path: Path) -> tuple[np.ndarray, np.ndarray]:
+
+def split_features_labels(df_path: Path) -> Tuple[np.ndarray, np.ndarray]:
     """Split the CSV into ``X`` (features) and ``y`` (binary label)."""
     df = load_csv(df_path)  # returns a list of dicts
-    # Convert to a DataFrame for easier handling
     import pandas as pd
+
     data = pd.DataFrame(df)
 
     if "decline" not in data.columns:
@@ -78,7 +78,9 @@ def load_trained_model() -> Any:
     return joblib.load(MODEL_PKL)
 
 
-def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_proba: np.ndarray) -> Dict[str, float]:
+def calculate_metrics(
+    y_true: np.ndarray, y_pred: np.ndarray, y_proba: np.ndarray
+) -> Dict[str, float]:
     """Return ROC‑AUC, accuracy and F1‑score."""
     # Guard against pathological cases where only one class is present
     if len(np.unique(y_true)) == 1:
@@ -90,7 +92,7 @@ def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_proba: np.ndarra
     return {"roc_auc": roc, "accuracy": acc, "f1": f1}
 
 
-@log_operation("evaluate_model")
+@log_operation
 def evaluate_model() -> Dict[str, Any]:
     """Run K‑fold evaluation and return a structured report."""
     logger = get_logger_wrapper()
@@ -109,13 +111,12 @@ def evaluate_model() -> Dict[str, Any]:
 
         # Use the persisted model for prediction (no re‑training)
         y_pred = model.predict(X_test)
+
         # ``predict_proba`` may not be available for some estimators;
-        # fall back to ``predict`` probabilities if needed.
+        # fall back to a deterministic probability array.
         if hasattr(model, "predict_proba"):
             y_proba = model.predict_proba(X_test)
         else:
-            # Create a dummy probability array where the predicted class has
-            # probability 1.0 – ROC‑AUC will be undefined (nan) in this case.
             prob = np.zeros((len(y_test), 2))
             prob[np.arange(len(y_test)), y_pred] = 1.0
             y_proba = prob
@@ -141,7 +142,7 @@ def evaluate_model() -> Dict[str, Any]:
     return report
 
 
-@log_operation("write_performance_report")
+@log_operation
 def write_performance_report(report: Dict[str, Any]) -> None:
     """Persist the evaluation report as JSON."""
     ensure_dir(REPORT_JSON.parent)
@@ -158,7 +159,15 @@ def main() -> int:
         logger.info("Performance report written to %s", REPORT_JSON)
         return 0
     except Exception as exc:  # pragma: no cover – top‑level guard
+        # Ensure a report file is still generated so downstream steps do not fail.
         logger.error("Evaluation failed: %s", exc)
+        error_report = {"error": str(exc)}
+        try:
+            ensure_dir(REPORT_JSON.parent)
+            save_json(error_report, REPORT_JSON)
+            logger.info("Error report written to %s", REPORT_JSON)
+        except Exception as inner_exc:  # pragma: no cover
+            logger.error("Failed to write error report: %s", inner_exc)
         return 1
 
 
