@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantifying-disorder-effect"
+version = "0.1.0"
+description = "Quantifying the effect of disorder on electronic transport in 1D chains"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy==1.26.4",
+    "scipy==1.13.1",
+    "matplotlib==3.9.0",
+    "pandas==2.2.2",
+    "h5py==3.11.0",
+    "pytest==8.2.2",
+    "joblib==1.4.2",
+    "black==24.4.2"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+(
+  __pycache__
+  | \.git
+  | \.mypy_cache
+  | \.pytest_cache
+  | \.venv
+  | venv
+  | build
+  | dist
+)
+'''
+skip-string-normalization = false
+skip-magic-trailing-comma = false
+
+[tool.setuptools]
+packages = ["code", "tests"]

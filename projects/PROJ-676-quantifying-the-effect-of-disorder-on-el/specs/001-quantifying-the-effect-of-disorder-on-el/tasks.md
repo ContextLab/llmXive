@@ -27,7 +27,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `data/metadata/`, `tests/`, `docs/`, `specs/` inside `projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/`
+- [ ] T001a Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `data/metadata/`, `tests/`, `docs/`, `specs/` inside `projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/` <!-- FAILED: unspecified -->
 - [ ] T001b Initialize `requirements.txt` in `projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/` with pinned versions for `numpy`, `scipy`, `matplotlib`, `pandas`, `h5py`, `pytest`, `joblib`
 - [ ] T003a Configure linting tools (flake8/pylint) and create `.flake8` and `.pylintrc` in project root
 - [ ] T003b Configure formatting tool (black) and create `pyproject.toml` for black settings in project root
@@ -40,14 +40,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup `code/config.py` with hyperparameters, random seeds, and path constants
-- [ ] T005 [P] Implement `code/generate_hamiltonian.py` (FR-001) to generate 1D tight-binding matrices $L \times L$ with hopping $t=1$ and on-site $\epsilon_i \sim U(-W/2, W/2)$
+- [X] T004 Setup `code/config.py` with hyperparameters, random seeds, and path constants
+- [X] T005 [P] Implement `code/generate_hamiltonian.py` (FR-001) to generate 1D tight-binding matrices $L \times L$ with hopping $t=1$ and on-site $\epsilon_i \sim U(-W/2, W/2)$
 - [ ] T006a Create directory structure `data/raw/`, `data/processed/`, `data/metadata/` and `data/metadata/provenance.json` schema file
-- [ ] T006b Implement `code/storage_utils.py` to handle HDF5 storage with SHA-256 checksum generation and logging to `data/metadata/provenance.json`
-- [ ] T007a Create base data schemas in `specs/001-quantifying-disorder-effect/contracts/` for Hamiltonian (`hamiltonian_schema.json`), Eigenstate (`eigenstate_schema.json`), and Localization Length (`localization_length_schema.json`)
-- [ ] T007b Create `disorder_realization_schema.json` in `specs/001-quantifying-disorder-effect/contracts/` for the 'Disorder Realization' entity (W, L, realization_index)
-- [ ] T008 Implement error handling and logging infrastructure in `code/` to capture numerical residuals and convergence flags for *every* eigenvalue problem (Constitution Principle VI; exceeds Spec's minimal 'warning' requirement for reproducibility)
-- [ ] T009 Implement `code/main.py` orchestration skeleton using `joblib` for parallel disorder realization execution (FR-011), specifically targeting a sufficient number of realizations (multiple widths × 100 samples)
+- [X] T006b Implement `code/storage_utils.py` to handle HDF5 storage with SHA-256 checksum generation and logging to `data/metadata/provenance.json`
+- [~] T007a Create base data schemas in `specs/001-quantifying-disorder-effect/contracts/` for Hamiltonian (`hamiltonian_schema.json`), Eigenstate (`eigenstate_schema.json`), and Localization Length (`localization_length_schema.json`)
+- [~] T007b Create `disorder_realization_schema.json` in `specs/001-quantifying-disorder-effect/contracts/` for the 'Disorder Realization' entity (W, L, realization_index)
+- [~] T008 Implement error handling and logging infrastructure in `code/` to capture numerical residuals and convergence flags for *every* eigenvalue problem (Constitution Principle VI; exceeds Spec's minimal 'warning' requirement for reproducibility)
+- [~] T009 Implement `code/main.py` orchestration skeleton using `joblib` for parallel disorder realization execution (FR-011), specifically targeting a sufficient number of realizations (multiple widths × 100 samples)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -63,17 +63,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for PR calculation output schema in `tests/contract/test_pr_schema.py`
-- [ ] T011 [P] [US1] Integration test for finite-size scaling workflow in `tests/integration/test_pr_scaling.py`
+- [~] T010 [P] [US1] Contract test for PR calculation output schema in `tests/contract/test_pr_schema.py`
+- [~] T011 [P] [US1] Integration test for finite-size scaling workflow in `tests/integration/test_pr_scaling.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/analyze_pr.py` to compute Participation Ratio $PR = (\sum|\psi_i|^2)^2 / \sum|\psi_i|^4$ for eigenstates within $|E|<0.1$ (FR-002)
-- [ ] T013 [US1] Implement finite-size scaling saturation logic in `code/analyze_pr.py` to extract $\xi$ from PR scaling across $L \in \{100, 200, 400, 800\}$. **Override FR-003's simplified proportionality** by fitting the saturation curve; output a `dict` with keys `xi`, `uncertainty`, and `fit_params` (FR-003, Plan correction)
-- [ ] T014 [US1] Implement `code/stats.py` linear regression for $\log(\xi)$ vs $\log(W)$ with slope, $R^2$, and confidence intervals (FR-005). **Depends on T013 output**
-- [ ] T015 [US1] Implement Bonferroni correction logic in `code/stats.py` for **family-wise error rate (FWER) across all disorder widths** (FR-010, SC-005). **Depends on T014 output**
-- [ ] T016 [US1] Add fallback mechanism in `code/analyze_pr.py` to use `scipy.sparse.linalg.eigsh` if `scipy.linalg.eigh` exceeds 6GB RAM for $L=1600$ (FR-008)
-- [ ] T017 [US1] Add logging for residual norms and convergence flags for every eigenvalue problem to `data/metadata/residuals.json` (Constitution Principle VI)
+- [~] T012 [P] [US1] Implement `code/analyze_pr.py` to compute Participation Ratio $PR = (\sum|\psi_i|^2)^2 / \sum|\psi_i|^4$ for eigenstates within $|E|<0.1$ (FR-002)
+- [~] T013 [US1] Implement finite-size scaling by fitting PR(L) saturation across a range of system sizes L to extract ξ. This implements the corrected methodology defined in Plan.md, section Complexity Tracking (dual-method validation requires finite-size scaling saturation, not simple proportionality), which supersedes the simplified proportionality in FR-003. Output a `dict` with keys `xi`, `uncertainty`, and `fit_params` (FR-003, Plan correction)
+- [~] T014 [US1] Implement `code/stats.py` linear regression for $\log(\xi)$ vs $\log(W)$ with slope, $R^2$, and confidence intervals (FR-005). **Depends on T013 output**
+- [~] T015 [US1] Aggregate results from T014 for *all* disorder widths, then apply Bonferroni correction for FWER across the full family of tests (FR-010, SC-005). Note: The Plan's 'pairwise' summary refers to result interpretation, but the correction scope must be global to satisfy SC-005. **Depends on T014 output**
+- [~] T015b [US1] Perform a priori power analysis to verify 100 realizations provide ≥80% power to detect slope deviation from -2 at α=0.05 (SC-003). Log results to `data/metadata/power_analysis.json`.
+- [~] T016 [US1] Add fallback mechanism in `code/analyze_pr.py` to use `scipy.sparse.linalg.eigsh` if `scipy.linalg.eigh` exceeds 6GB RAM for $L=1600$ (FR-008)
+- [~] T017 [US1] Add logging for residual norms and convergence flags for every eigenvalue problem to `data/metadata/residuals.json` (Constitution Principle VI)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -87,12 +88,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for TM output schema in `tests/contract/test_tm_schema.py`
+- [~] T018 [P] [US2] Contract test for TM output schema in `tests/contract/test_tm_schema.py`
 - [ ] T019 [P] [US2] Integration test for TM convergence and method agreement in `tests/integration/test_tm_validation.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/analyze_tm.py` with QR-based orthogonalization at every step to compute Lyapunov exponent $\gamma$. **Determine iteration count based on convergence studies in literature** (FR-004)
+- [ ] T020a [P] [US2] Research Task: Determine the iteration count for Transfer Matrix products based on convergence studies in literature. Document the chosen count and rationale in `docs/research_notes.md`.
+- [ ] T020b [US2] Implement `code/analyze_tm.py` with QR-based orthogonalization at every step to compute Lyapunov exponent $\gamma$. Stopping Criterion: Iterate until relative change in γ < 1e-4 for 3 consecutive steps OR max 2000 iterations. (FR-004, FR-009)
 - [ ] T021 [US2] Implement logarithmic accumulation in `code/analyze_tm.py` to prevent numerical underflow for large $L$ (FR-009)
 - [ ] T022 [US2] Add convergence monitoring logic to track relative change in $\gamma$ between consecutive size doublings ($L=100 \to 800$)
 
@@ -104,7 +106,7 @@
 
 **Purpose**: Validate US2 results against US1 results. Requires both US1 and US2 to be complete.
 
-- [ ] T023 [US2] Implement `code/compare_methods.py` to verify $\xi_{TM}$ vs $\xi_{PR}$ agreement within 10% for **L ≥ 400** and **≥ 80 out of 100 realizations**. Generate `data/processed/method_agreement_report.json` (US-2 Acceptance Scenario 3)
+- [ ] T023 [US2] Implement `code/compare_methods.py` to verify $\xi_{TM}$ vs $\xi_{PR}$ agreement within 10% for **L ≥ 400** and **≥ 80% of config.NUM_REALIZATIONS realizations** (calculated as `int(0.8 * config.NUM_REALIZATIONS)`). Generate `data/processed/method_agreement_report.json` (US-2 Acceptance Scenario 3). **Input: data/processed/localization_lengths.json (aggregated from T014/T015)**. **Depends on: T015 (aggregated results)**
 
 **Checkpoint**: US1 and US2 validated against each other.
 
@@ -126,7 +128,7 @@
 - [ ] T026 [P] [US3] Implement `code/visualize.py` to plot $|\psi_i|^2$ vs site index for eigenstates near $E=0$ (FR-006)
 - [ ] T027 [US3] Implement log-linear fit logic in `code/visualize.py` to calculate decay length and $R^2$ from probability density (US-3 Acceptance Scenario 1)
 - [ ] T028 [US3] Add comparison visualization logic to overlay $W=0.5$ and $W=2.0$ states and verify FWHM reduction (US-3 Acceptance Scenario 3)
-- [ ] T029 [US3] **Address Feynman Review**: Implement a "worked example" generator in `code/visualize.py` that identifies the specific site index where amplitude drops by half, calculates the decay length, and writes a **human-readable summary string** (e.g., "At site 42, amplitude drops to [deferred]") to `docs/physical_interpretation.md` (US-3, Feynman Review)
+- [ ] T029 [US3] **Address Feynman Review**: Implement a "worked example" generator in `code/visualize.py` that identifies the specific site index where amplitude drops by half, calculates the decay length, and writes a **human-readable summary string** (e.g., 'At site {site_idx}, amplitude drops to {value:.4f}') to `docs/physical_interpretation.md` (US-3, Feynman Review)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -141,6 +143,8 @@
 - [ ] T032 Performance optimization: Tune `joblib` parallelization to ensure 1000 realizations complete within 6 hours on 2 CPU cores. Generate `data/metadata/performance_benchmark.json` with wall-clock time and peak RAM metrics (FR-007, SC-006)
 - [ ] T033 [P] Additional unit tests for edge cases: $W=0$ (delocalized), large $L$ memory limits, and transfer matrix underflow handling
 - [ ] T034 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T035 [US3] **Address Feynman Review (Physical Picture)**: Implement a script in `code/physical_narrative.py` that iterates through a representative set of disorder widths ($W=0.1, 1.0, 10.0$) and generates a **qualitative narrative** describing the electron's "wiggling" behavior, explicitly identifying the transition from "wandering" (delocalized) to "trapped" (localized) based on the computed localization length, and writes this narrative to `docs/physical_narrative.md` (Feynman Review: "Can you sketch what happens... without the math?")
+- [ ] T036 [US3] **Address Feynman Review (Anderson's Argument)**: Implement a verification task in `code/verify_anderson_1958.py` that explicitly checks if the strong-disorder limit (simulated by W=100.0) recovers the interference-based suppression of diffusion predicted by Anderson (1958), and logs a "Pass/Fail" status with a brief textual explanation to `data/metadata/anderson_verification.json` (Feynman Review: "Does your work recover that picture?")
 
 ---
 
@@ -151,8 +155,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Cross-Story Validation (Phase 4.5)**: Depends on completion of Phase 3 (US1) and Phase 4 (US2)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
@@ -221,9 +225,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently (Phase 4.5 validates US1+US2)
 
 ---
@@ -241,3 +245,4 @@ With multiple developers:
 - **Crucial**: Task T029 specifically addresses the "Feynman" review by demanding a physical, non-equation explanation of the electron's behavior.
 - **Crucial**: T013 overrides the simplified FR-003 proportionality to implement the correct finite-size scaling saturation logic as per the Plan.
 - **Crucial**: T015 applies Bonferroni correction for FWER across all widths, aligning with SC-005.
+- **Crucial**: T035 and T036 directly address the specific "physical picture" and "Anderson's 1958 argument" concerns raised by the Feynman reviewer, ensuring the project delivers a conceptual understanding beyond numerical fitting.

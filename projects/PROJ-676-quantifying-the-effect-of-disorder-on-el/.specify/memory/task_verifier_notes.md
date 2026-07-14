@@ -1,0 +1,9 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001a** — No evidence of the required directory tree (`code/`, `data/raw/`, `data/processed/`, `data/metadata/`, `tests/`, `docs/`, `specs/`) inside `projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/` is provided; the implementer’s claim lacks any artifact confirming the structure exists.
+- **T001b** — No `requirements.txt` file content or path listing was provided, so we cannot verify that a file exists in `projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/` with pinned versions for the specified packages. The required artifact is missing.
+- **T003a** — No evidence of `.flake8` or `.pylintrc` files being present in the project root is provided; without those configuration files the linting tools cannot be considered configured. The implementer must add the two non‑empty config files to the repository.
+- **T003b** — No `pyproject.toml` file containing Black configuration is present in the project root, nor any evidence that Black has been set up or invoked. The required artifact (a properly formatted `pyproject.toml` with Black settings) is missing.
+- **T006a** — The provided artifact only includes a `data/metadata/provenance.json` file, but there is no evidence that the required `data/raw/` and `data/processed/` directories exist, nor that the JSON file defines a proper schema (it merely contains an empty `entries` list). The task’s directory structure and a meaningful schema file are therefore not satisfied.

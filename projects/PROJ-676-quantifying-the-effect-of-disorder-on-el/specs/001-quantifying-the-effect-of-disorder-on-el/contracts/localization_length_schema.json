@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/localization_length_schema.json",
+  "title": "Localization Length Analysis Result",
+  "description": "Schema for the final extracted localization length (xi) derived from finite-size scaling of Participation Ratios.",
+  "type": "object",
+  "required": [
+    "disorder_strength",
+    "system_sizes",
+    "mean_pr_by_size",
+    "fitted_xi",
+    "fit_uncertainty",
+    "fit_params",
+    "r_squared",
+    "analysis_method",
+    "timestamp"
+  ],
+  "properties": {
+    "disorder_strength": {
+      "type": "number",
+      "description": "The disorder width W used for this analysis.",
+      "minimum": 0
+    },
+    "system_sizes": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "List of system sizes L used in the finite-size scaling fit.",
+      "minItems": 2
+    },
+    "mean_pr_by_size": {
+      "type": "object",
+      "description": "Map of system size L to mean Participation Ratio across realizations.",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "fitted_xi": {
+      "type": "number",
+      "description": "The extracted localization length xi (in units of lattice spacing).",
+      "minimum": 0
+    },
+    "fit_uncertainty": {
+      "type": "number",
+      "description": "Standard error of the fitted xi.",
+      "minimum": 0
+    },
+    "fit_params": {
+      "type": "object",
+      "description": "Detailed parameters from the finite-size scaling fit (e.g., slope, intercept).",
+      "additionalProperties": true
+    },
+    "r_squared": {
+      "type": "number",
+      "description": "Coefficient of determination for the fit.",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "analysis_method": {
+      "type": "string",
+      "description": "Method used to extract xi.",
+      "const": "finite-size-scaling-saturation"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the analysis."
+    },
+    "num_realizations": {
+      "type": "integer",
+      "description": "Number of disorder realizations averaged for each system size.",
+      "minimum": 1
+    }
+  },
+  "additionalProperties": false
+}

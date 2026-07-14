@@ -1,0 +1,81 @@
+[MAIN]
+ignore=tests,venv,.venv,build,dist
+jobs=4
+persistent=yes
+load-plugins=
+
+[MESSAGES CONTROL]
+disable=
+    C0114,
+    C0115,
+    C0116,
+    R0903,
+    R0913,
+    R0914,
+    R0917,
+    W0613,
+    W0621,
+    R0902,
+    R0904,
+    R0911,
+    R0912,
+    R0915,
+    W0511
+
+[FORMAT]
+max-line-length=120
+max-module-lines=1000
+single-line-class-stmt=no
+single-line-if-stmt=no
+
+[DESIGN]
+max-args=10
+max-locals=25
+max-returns=6
+max-branches=15
+max-statements=60
+max-attributes=15
+max-public-methods=20
+
+[SIMILARITIES]
+min-similarity-lines=8
+ignore-comments=yes
+ignore-docstrings=yes
+ignore-imports=yes
+
+[BASIC]
+good-names=i,j,k,ex,_,f,t,df,id,x,y,z
+function-rgx=[a-z_][a-z0-9_]{2,}$
+method-rgx=[a-z_][a-z0-9_]{2,}$
+variable-rgx=[a-z_][a-z0-9_]{2,}$
+attr-rgx=[a-z_][a-z0-9_]{2,}$
+argument-rgx=[a-z_][a-z0-9_]{2,}$
+const-rgx=[A-Z_][A-Z0-9_]{2,}$
+class-rgx=[A-Z_][a-zA-Z0-9_]+$
+module-rgx=[a-z_][a-z0-9_]*$
+
+[TYPECHECK]
+ignored-classes=optparse.Values,thread._local,_thread._local
+ignored-modules=numpy,matplotlib
+generated-members=numpy.*,scipy.*,pandas.*,h5py.*
+
+[VARIABLES]
+additional-builtins=
+dummy-variables-rgx=(_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$))
+init-import=no
+ungrouped-imports=no
+
+[CLASSES]
+valid-metaclass-classmethod-first-arg=cls
+valid-metaclass-classmethod-first-arg=cls
+check-protected-access-in-special-methods=no
+
+[IMPORTS]
+deprecated-modules=
+known-third-party=enchant
+preferred-modules=
+
+[EXCEPTIONS]
+overgeneral-exceptions=
+    builtins.BaseException,
+    builtins.Exception

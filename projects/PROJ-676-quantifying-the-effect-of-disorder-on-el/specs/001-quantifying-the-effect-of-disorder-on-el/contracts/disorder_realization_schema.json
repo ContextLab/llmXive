@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/disorder_realization_schema.json",
+  "title": "Disorder Realization Schema",
+  "description": "Defines the structure for a single disorder realization in the 1D tight-binding model. Captures the disorder strength (W), system size (L), and the unique realization index used for reproducibility.",
+  "type": "object",
+  "required": [
+    "disorder_strength_W",
+    "system_size_L",
+    "realization_index",
+    "seed"
+  ],
+  "properties": {
+    "disorder_strength_W": {
+      "type": "number",
+      "description": "Disorder strength parameter W. On-site potentials are drawn from U(-W/2, W/2).",
+      "exclusiveMinimum": 0,
+      "examples": [0.5, 1.0, 2.0, 10.0]
+    },
+    "system_size_L": {
+      "type": "integer",
+      "description": "Number of sites in the 1D chain (matrix dimension L x L).",
+      "exclusiveMinimum": 0,
+      "examples": [100, 400, 800, 1600]
+    },
+    "realization_index": {
+      "type": "integer",
+      "description": "Unique index for this specific realization within the batch for a given (W, L). Used to track provenance.",
+      "minimum": 0,
+      "examples": [0, 1, 42, 99]
+    },
+    "seed": {
+      "type": "integer",
+      "description": "The random seed used to generate this specific realization's on-site potentials. Ensures exact reproducibility.",
+      "examples": [12345, 67890]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when this realization was generated.",
+      "examples": ["2026-01-01T12:00:00Z"]
+    },
+    "on_site_potentials_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the on-site potential array for integrity verification.",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/hamiltonian_schema.json",
+  "title": "1D Tight-Binding Hamiltonian Metadata",
+  "description": "Schema for storing metadata of a generated 1D disordered Hamiltonian matrix. This schema captures the structural parameters and the random seed used for reproducibility, but does not store the full matrix data (which is stored in HDF5).",
+  "type": "object",
+  "required": [
+    "system_size",
+    "disorder_strength",
+    "hopping_parameter",
+    "random_seed",
+    "realization_index",
+    "diagonal_distribution",
+    "generated_at"
+  ],
+  "properties": {
+    "system_size": {
+      "type": "integer",
+      "description": "The dimension L of the L x L Hamiltonian matrix.",
+      "minimum": 1,
+      "examples": [100, 400, 1600]
+    },
+    "disorder_strength": {
+      "type": "number",
+      "description": "The disorder width W. On-site potentials are drawn from U(-W/2, W/2).",
+      "minimum": 0,
+      "examples": [0.0, 1.0, 5.0, 10.0]
+    },
+    "hopping_parameter": {
+      "type": "number",
+      "description": "The nearest-neighbor hopping amplitude t. Fixed at 1.0 in this study.",
+      "const": 1.0
+    },
+    "random_seed": {
+      "type": "integer",
+      "description": "The random seed used to initialize the NumPy RNG for this specific realization.",
+      "minimum": 0
+    },
+    "realization_index": {
+      "type": "integer",
+      "description": "The 0-based index of this realization within the batch for the given (W, L).",
+      "minimum": 0
+    },
+    "diagonal_distribution": {
+      "type": "string",
+      "description": "The distribution used for on-site energies.",
+      "const": "Uniform(-W/2, W/2)"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when this Hamiltonian was generated."
+    },
+    "checksum": {
+      "type": "string",
+      "description": "SHA-256 checksum of the flattened Hamiltonian matrix data (used for integrity verification).",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "additionalProperties": false
+}
