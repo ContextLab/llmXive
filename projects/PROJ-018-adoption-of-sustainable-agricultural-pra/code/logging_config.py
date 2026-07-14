@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import functools
 import json
-import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any
@@ -73,61 +72,54 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)
 
+def initialize_modeling_log(path: str = "modeling_log.yaml") -> None:
+    """Initialize the modeling log file if it doesn't exist."""
+    import yaml
+    if not os.path.exists(path):
+        with open(path, 'w') as f:
+            yaml.dump({"initialization": datetime.now().isoformat()}, f)
 
-def initialize_modeling_log(log_path: str) -> None:
-    """Initialize the modeling_log.yaml file with an empty structure."""
-    if not os.path.exists(log_path):
-        with open(log_path, 'w') as f:
-            yaml.dump({}, f)
-
-
-def update_log_section(section_name: str, data: dict, log_path: Optional[str] = None) -> None:
-    """Update a specific section in the modeling_log.yaml.
-
-    This function is designed to be tolerant of various call signatures:
-    - update_log_section("error", {"message": "..."})
-    - update_log_section("mediation_analysis", {...})
-    - update_log_section("report_generation", {...}, log_path="...")
-
-    If log_path is not provided, it defaults to 'modeling_log.yaml' in the code directory.
-    """
-    if log_path is None:
-        log_path = os.path.join(os.path.dirname(__file__), 'modeling_log.yaml')
-
-    # Load existing log or create empty dict
+def update_log_section(section_name: str, data: Dict[str, Any]) -> None:
+    """Update a specific section in the modeling log."""
+    import yaml
+    import os
+    
+    # Default path
+    log_path = "modeling_log.yaml"
+    
+    # Load existing log
     log_data = {}
     if os.path.exists(log_path):
-        try:
-            with open(log_path, 'r') as f:
-                log_data = yaml.safe_load(f) or {}
-        except Exception:
-            log_data = {}
-
-    # Update the specific section
+        with open(log_path, 'r') as f:
+            log_data = yaml.safe_load(f) or {}
+    
+    # Update section
     log_data[section_name] = data
-
+    
     # Write back
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
     with open(log_path, 'w') as f:
         yaml.dump(log_data, f, default_flow_style=False)
 
-
-def append_log_entry(entry: LogEntry, log_path: Optional[str] = None) -> None:
-    """Append a LogEntry to the modeling_log.yaml entries list."""
-    if log_path is None:
-        log_path = os.path.join(os.path.dirname(__file__), 'modeling_log.yaml')
-
-    if not os.path.exists(log_path):
-        with open(log_path, 'w') as f:
-            yaml.dump({"entries": []}, f)
-
-    with open(log_path, 'r') as f:
-        log_data = yaml.safe_load(f) or {}
-
-    if "entries" not in log_data:
-        log_data["entries"] = []
-
-    log_data["entries"].append(asdict(entry))
-
+def append_log_entry(entry: LogEntry) -> None:
+    """Append a log entry to the modeling log."""
+    import yaml
+    import os
+    
+    log_path = "modeling_log.yaml"
+    
+    # Load existing log
+    log_data = []
+    if os.path.exists(log_path):
+        with open(log_path, 'r') as f:
+            content = yaml.safe_load(f)
+            if isinstance(content, list):
+                log_data = content
+            elif isinstance(content, dict):
+                # If it's a dict, convert to list of entries if possible, or just append
+                # For simplicity, we treat the existing dict as a single entry or ignore
+                log_data = [content] if content else []
+    
+    log_data.append(asdict(entry))
+    
     with open(log_path, 'w') as f:
         yaml.dump(log_data, f, default_flow_style=False)
