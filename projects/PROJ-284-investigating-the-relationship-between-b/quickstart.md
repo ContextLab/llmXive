@@ -1,58 +1,47 @@
 # Quickstart Guide
 
+This guide describes how to run the full analysis pipeline end-to-end.
+
 ## Prerequisites
+
 - Python 3.11+
-- pip
+- Install dependencies: `pip install -r requirements.txt`
 
-## Installation
+## Execution Steps
+
+### 1. Download and Preprocess Data
 ```bash
-pip install -r requirements.txt
+python code/main.py --step download_preprocess --subjects 50
+```
+*Note: This step requires FSL/AFNI for full preprocessing. For CI validation, it uses synthetic data or nilearn fetch_adhd as a fallback.*
+
+### 2. Extract Metrics
+```bash
+python code/main.py --step extract_metrics
 ```
 
-## Running the Pipeline
-
-The pipeline is executed via `code/main.py` or specific script runners.
-
-### Step 1: Download and Preprocess
+### 3. Run Analysis (PCA, Correlations, FDR)
+This step runs T023a (PCA), T023b (Merge), T024 (Correlations), T025 (FDR), and T027 (Logging).
 ```bash
-python code/main.py --step download --subjects 50
-python code/main.py --step preprocess --subjects 50
+python code/analysis/pca_runner.py
+python code/analysis/create_full_metrics.py
+python code/analysis/correlations.py
+```
+*Alternatively, run the unified analysis runner:*
+```bash
+python code/main.py --step analyze
 ```
 
-### Step 2: Extract Metrics
+### 4. Visualization and Reporting
 ```bash
-python code/main.py --step metrics --subjects 50
+python code/main.py --step viz_report
 ```
 
-### Step 3: Analysis (T023a, T023b, T024)
-This step performs PCA, merges metrics, and saves `full_metrics.csv`.
-```bash
-python code/main.py --step analyze --subjects 50
-```
+## Output Artifacts
 
-Alternatively, run the specific analysis script directly:
-```bash
-python code/analysis/generate_full_metrics.py
-```
-
-### Step 4: Visualization
-```bash
-python code/main.py --step viz --subjects 50
-```
-
-### Step 5: Report Generation
-```bash
-python code/main.py --step report --subjects 50
-```
-
-### Full Pipeline
-```bash
-python code/main.py --step all --subjects 50
-```
-
-## Output Files
-- `data/processed/aggregated_metrics.csv`: Aggregated graph metrics per subject.
-- `data/analysis/pca_loadings.csv`: PCA component loadings.
-- `data/analysis/factor_scores.csv`: PCA factor scores per subject.
-- `data/analysis/full_metrics.csv`: Merged dataset with raw metrics and PCA factors.
-- `figures/`: Generated plots.
+- `data/analysis/pca_loadings.csv`: PCA component loadings (T023a)
+- `data/analysis/factor_scores.csv`: Subject PCA factor scores (T023a)
+- `data/analysis/full_metrics.csv`: Merged raw and PCA metrics (T023b)
+- `data/analysis/correlation_results.csv`: Correlation statistics with FDR (T024, T025)
+- `figures/`: Generated plots (T031, T032)
+- `docs/report.md`: Final report (T033)

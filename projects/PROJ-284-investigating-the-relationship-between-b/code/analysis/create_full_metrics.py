@@ -1,81 +1,75 @@
-"""Create full metrics CSV by merging raw metrics with PCA factor scores.
-
-This script:
-1. Loads raw metrics (modularity, global_efficiency, participation_coef, within_module_degree)
-2. Computes PCA factor scores
-3. Merges them into a single output CSV: data/analysis/full_metrics.csv
-
-Output files:
-- data/analysis/pca_loadings.csv: PCA component loadings
-- data/analysis/factor_scores.csv: PCA factor scores per subject
-- data/analysis/full_metrics.csv: Merged metrics + PCA factors
 """
+Standalone runner for merging metrics and PCA scores (T023b) to ensure it is invoked by the run-book.
+"""
+import os
+import sys
 import logging
 from pathlib import Path
 import pandas as pd
-import numpy as np
-from logging_config import get_logger
-from analysis.correlations import (
-    load_metrics_data,
-    compute_and_save_pca,
-    compute_pca_factor_scores,
-    merge_metrics_and_pca_scores,
-    save_full_metrics
-)
+
+from code.logging_config import get_logger
+from code.analysis.correlations import load_metrics_data, compute_and_save_pca, merge_metrics_and_pca_scores, save_full_metrics
 
 logger = get_logger(__name__)
 
-
-def merge_and_save_full_metrics(metrics_csv: str = "data/processed/metrics.csv",
-                                output_dir: str = "data/analysis") -> None:
-    """Load metrics, compute PCA, and save merged output.
+def main():
+    logger.log("create_full_metrics", operation="start")
     
-    Args:
-        metrics_csv: Path to input metrics CSV (from T021/T022)
-        output_dir: Directory for output files
-    """
-    logger.log("merge_and_save_full_metrics", input=metrics_csv, output_dir=output_dir)
+    input_file = "data/processed/aggregated_metrics.csv"
+    output_dir = "data/analysis"
     
-    # Create output directory
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    # Resolve input
+    if not os.path.exists(input_file):
+        for p in ["../" + input_file, "../../" + input_file]:
+            if os.path.exists(p):
+                input_file = p
+                break
     
-    # Load metrics from T021/T022
-    if not Path(metrics_csv).exists():
-        logger.log("merge_and_save_full_metrics", status="error", 
-                  reason=f"Metrics CSV not found: {metrics_csv}")
-        raise FileNotFoundError(f"Metrics CSV not found: {metrics_csv}")
+    if not os.path.exists(input_file):
+        logger.log("create_full_metrics", operation="failed", reason="Input file not found")
+        print(f"Error: Input file not found: {input_file}")
+        sys.exit(1)
     
-    metrics_df = load_metrics_data(metrics_csv)
-    logger.log("merge_and_save_full_metrics", metrics_loaded=str(metrics_df.shape))
-    
-    # Compute and save PCA loadings
-    pca_loadings_path = f"{output_dir}/pca_loadings.csv"
-    compute_and_save_pca(metrics_df, pca_loadings_path)
-    logger.log("merge_and_save_full_metrics", pca_loadings_saved=pca_loadings_path)
-    
-    # Compute and save PCA factor scores
-    pca_scores_path = f"{output_dir}/factor_scores.csv"
-    pca_scores_df = compute_pca_factor_scores(metrics_df, pca_scores_path)
-    logger.log("merge_and_save_full_metrics", pca_scores_saved=pca_scores_path)
-    
-    # Merge metrics and PCA scores
-    merged_df = merge_metrics_and_pca_scores(metrics_df, pca_scores_df)
-    logger.log("merge_and_save_full_metrics", merged_shape=str(merged_df.shape))
-    
-    # Save full metrics
-    full_metrics_path = f"{output_dir}/full_metrics.csv"
-    save_full_metrics(merged_df, full_metrics_path)
-    logger.log("merge_and_save_full_metrics", full_metrics_saved=full_metrics_path)
-    
-    print(f"✓ Created {full_metrics_path}")
-    print(f"  Columns: {', '.join(merged_df.columns)}")
-    print(f"  Rows: {len(merged_df)}")
-
-
-def main() -> None:
-    """Main entry point."""
-    merge_and_save_full_metrics()
-
+    try:
+        # Load raw metrics
+        df = load_metrics_data(input_file)
+        
+        # Prepare for PCA (need index as subject_id)
+        if 'subject_id' in df.columns:
+            df_pca = df.set_index('subject_id')
+        else:
+            # Assume index is subject_id
+            df_pca = df
+        
+        # Ensure PCA outputs exist (T023a)
+        # We call compute_and_save_pca to ensure files are there, even if we just merge existing ones
+        # But to be safe and consistent, we re-run the logic or load existing.
+        # Given T023a is a dependency, we assume the files might exist or we generate them.
+        # To be robust, we generate them here if missing, or load them.
+        
+        scores_file = Path(output_dir) / "factor_scores.csv"
+        if not scores_file.exists():
+            logger.log("create_full_metrics", operation="generating_pca", reason="Scores file missing")
+            # Run PCA first
+            compute_and_save_pca(df_pca, output_dir)
+        
+        # Load scores
+        scores_df = pd.read_csv(scores_file, index_col=0)
+        
+        # Merge
+        merged = merge_metrics_and_pca_scores(df, scores_df)
+        
+        # Save
+        output_path = Path(output_dir) / "full_metrics.csv"
+        save_full_metrics(merged, str(output_path))
+        
+        logger.log("create_full_metrics", operation="complete", path=str(output_path))
+        print(f"Full metrics created: {output_path}")
+        
+    except Exception as e:
+        logger.log("create_full_metrics", operation="failed", error=str(e))
+        print(f"Error creating full metrics: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

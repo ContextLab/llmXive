@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import functools
 import json
-import sys
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any
@@ -74,5 +73,5 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 def setup_logging(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
-    """Setup logging infrastructure. Returns the global logger."""
+    """Wrapper to match existing callers expecting setup_logging."""
     return get_logger(*args, **kwargs)
