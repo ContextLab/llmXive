@@ -27,9 +27,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with dependencies: `pandas`, `scipy`, `pytest`, `pyyaml`, `jsonschema`, `datasets`, `tqdm`, `numpy`, `statsmodels`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan
+- [X] T002 Initialize Python 3.11 project with dependencies: `pandas`, `scipy`, `pytest`, `pyyaml`, `jsonschema`, `datasets`, `tqdm`, `numpy`, `statsmodels`
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -39,8 +39,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `src/utils/checksum.py` for SHA256 verification of data artifacts
-- [ ] T005 [P] Implement `src/utils/logging.py` with structured JSON logging and error tracking
+- [X] T004 [P] Implement `src/utils/checksum.py` for SHA256 verification of data artifacts
+- [X] T005 [P] Implement `src/utils/logging.py` with structured JSON logging and error tracking
 - [ ] T006 [P] Implement `src/utils/config.py` for loading experiment parameters, timeout limits, and constants including `RESEARCHCLAWBENCH_DATASET_ID`, `SCIENTIFIC_CORE_MARGIN=5`, and `MAX_CONCURRENCY=7` (specifically for the TOST equivalence test on "Scientific Core" scores as required by FR-005)
 - [ ] T007 [P] Create `src/data/loader.py` with ResearchClawBench fetch logic using `datasets.load_dataset` or canonical URL; use `RESEARCHCLAWBENCH_DATASET_ID` from config; include checksum verification against `data/raw/`; if ID is placeholder or checksum fails, ABORT with error (no mock data). **Output**: Write checksum to `data/raw/checksum.txt`.
 - [ ] T007b [S] Implement "Verified Accuracy" Gate Logic: Read the checksum file at `data/raw/checksum.txt` (produced by T007). Verify the hash matches the expected value defined in `config.py`. If mismatch, trigger T007e (Exit). If match, trigger T007c (Log) and T007d (Write). This task is the entry point for the gate sequence. **Trigger**: Must run after T007 completes successfully.

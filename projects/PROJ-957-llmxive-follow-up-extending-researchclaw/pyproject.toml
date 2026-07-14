@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up"
+version = "0.1.0"
+description = "Extension of ResearchClawBench for autonomous scientific research"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "scipy",
+    "pytest",
+    "pyyaml",
+    "jsonschema",
+    "datasets",
+    "tqdm",
+    "numpy",
+    "statsmodels"
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "black"
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+
+[tool.setuptools.package-dir]
+"" = "code"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+pythonpath = ["code"]

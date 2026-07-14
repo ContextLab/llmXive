@@ -1,0 +1,18 @@
+# Core Data & Analysis
+pandas
+scipy
+numpy
+statsmodels
+
+# Testing
+pytest
+
+# Configuration & Validation
+pyyaml
+jsonschema
+
+# Data Loading
+datasets
+
+# Progress & Utilities
+tqdm
