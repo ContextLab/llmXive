@@ -8,4 +8,5 @@ seaborn
 requests
 pyyaml
 pybids
-# Added for checksum handling (built‑in) – no new third‑party needed.
+# Added for robustness report correction
+# (none needed beyond the existing dependencies)
