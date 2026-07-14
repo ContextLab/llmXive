@@ -1,8 +1,23 @@
-# Core dependencies
+# Core scientific stack
+numpy
 pandas
 pyarrow
 scikit-learn
-numpy
-# The project already depends on torch for the GNN; keep it
+
+# Project utilities
+tqdm
+
+# Optional (used elsewhere in the repo)
 torch
-# Ensure sitecustomize is used (no extra package needed)
+torch-geometric
+scipy
+joblib
+
+# Linting / formatting (already configured)
+black
+isort
+flake8
+matplotlib  # auto-added: imported by run-book but missing from venv
+matplotlib  # auto-added: imported by run-book but missing from venv
+rdkit  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv

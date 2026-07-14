@@ -64,7 +64,7 @@ The method is: We will implement and evaluate a graph neural network model train
 
 ## Phase 3: User Story 1 - Dataset Preparation and Baseline Feature Extraction (Priority: P1) 🎯 MVP
 
-**Goal**: Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, filter to a 10 k random subset, extract both 3D coordinates and 2D descriptors for baseline comparison
+**Goal**: Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, filter to a 10 k random subset [UNRESOLVED-CLAIM: c_ee63f0aa — status=not_enough_info], extract both 3D coordinates and 2D descriptors for baseline comparison
 
 **Independent Test**: Verify data files exist, subset size equals 10 k, and both 3D and 2D feature matrices are generated with no missing values
 
@@ -109,7 +109,7 @@ The method is: We will implement and evaluate a graph neural network model train
 
 - [X] T026 [P] [US2] Implement SchNet‑style GNN architecture in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/schnet_gnn.py` (FR‑004, CPU‑only)
 - [X] T027 [P] [US2] Implement Random Forest baseline in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/random_forest_baseline.py` (FR‑005)
-- [X] T028 [US2] Implement GNN training with 5 seeds, 50 epochs, early stopping (patience = 10) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py` – compute variance of RMSE across seeds and ensure it is recorded (fulfills SC‑005). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T028 [US2] Implement GNN training with 5 seeds, 50 epochs, early stopping (patience = 10) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py` – compute variance of RMSE across seeds and ensure it is recorded (fulfills SC‑005). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T029 [US2] Train Random Forest baseline with 5 seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py` – also records RMSE variance. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/split_data.py`
 - [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/evaluate.py` (FR‑006)
@@ -137,7 +137,7 @@ The method is: We will implement and evaluate a graph neural network model train
 
 - [X] T038 [P] [US3] Implement permutation importance for Random Forest in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/attribution/permutation_importance.py` (FR‑007)
 - [X] T039 [P] [US3] Implement saliency mapping for GNN node embeddings in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/attribution/saliency_mapping.py` (FR‑007)
-- [X] T040 [US3] Rank structural contributions (e.g., electronegativeatom placement, local bond angles) and verify **at least three** distinct features appear in the top‑10 of `results/attributions.json` (FR‑007, SC‑002)
+- [X] T040 [US3] Rank structural contributions (e.g., electronegativeatom placement, local bond angles) and {{claim:c_9ded9bf2}} (FR‑007, SC‑002)
 - [X] T041 [US3] Implement paired t‑tests (α = 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) comparing RMSE distributions in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py` (FR‑008, SC‑004)
 - [X] T042 [US3] Generate `results/attributions.json` with feature importance rankings
 - [X] T043 [US3 (Wikidata Q126592664, https://www.wikidata.org/wiki/Q126592664) ] Generate `results/significance.csv` with columns `seed`, `t_statistic`, `p_value`, `significant_at_alpha_0.05 ` (FR‑008)
