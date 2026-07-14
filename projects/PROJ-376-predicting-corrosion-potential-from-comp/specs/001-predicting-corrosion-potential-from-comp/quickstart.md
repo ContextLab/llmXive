@@ -2,77 +2,67 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   `pip`
-*   (Optional) `Materials Project API Key` (Set as `MP_API_KEY` environment variable) - *Not used for primary task.*
+- **Python**: 3.11+
+- **Environment**: GitHub Actions `ubuntu-latest` (or local equivalent with 7 GB+ RAM).
+- **Access**: No special API keys required if using public NIST data (or verified HuggingFace mirrors).
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-376-predicting-corrosion-potential-from-comp
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-376-predicting-corrosion-potential-from-comp
+   ```
 
-2.  **Create a virtual environment** and install dependencies.
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
+2. **Create and activate virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Verify environment**:
-    ```bash
-    python -c "import sklearn, pandas, numpy; print('All imports successful')"
-    ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
 ## Running the Pipeline
 
-The pipeline is orchestrated via `code/main.py`.
+The pipeline is executed via the main entry script.
 
-### Step 1: Data Ingestion
-Downloads and validates data. If the NIST source fails validation, it will **halt** with a `DataInsufficientError`.
-*   **CI Mode**: Set `MOCK_DATA=1` to load `tests/fixtures/mock_corpus.json` (a verified mock dataset containing the required schema) for testing without live API calls.
+### 1. Data Ingestion & Preprocessing
+This step downloads (or loads) the data, validates the schema, filters outliers, and **normalizes reference electrodes to SHE**.
 ```bash
-# Production (requires valid data source)
-python code/main.py --step ingest
-
-# CI/Testing (uses mock data)
-MOCK_DATA=1 python code/main.py --step ingest
+python code/data/download_nist.py
+python code/data/preprocess.py
 ```
-*Output*: `data/processed/merged_dataset.parquet`
+*Output*: `data/processed/corrosion_dataset.parquet` and `data/logs/pipeline.log`.
 
-### Step 2: Preprocessing & Splitting
-Cleans data and performs the "Compositional Clustering" split.
+### 2. Model Training & Evaluation
+Trains Random Forest and Gradient Boosting models using **GroupKFold (k=5)** to ensure statistical power.
 ```bash
-python code/main.py --step split
+python code/models/train.py
+python code/models/evaluate.py
 ```
-*Output*: `data/processed/train_set.parquet`, `data/processed/test_set.parquet`
+*Output*: `data/processed/model_metrics.json` and `data/processed/predictions.parquet`.
 
-### Step 3: Model Training
-Trains Random Forest and Gradient Boosting models.
+### 3. Interpretability Analysis
+Generates feature importance plots and partial dependence plots.
 ```bash
-python code/main.py --step train
+python code/models/interpret.py
 ```
-*Output*: `data/results/model_metrics.json`, saved model artifacts.
+*Output*: `data/figures/` (PDF/PNG) and `data/processed/importance_report.csv`.
 
-### Step 4: Evaluation & Interpretability
-Calculates permutation importance (2000 permutations), p-values, and generates plots.
-```bash
-python code/main.py --step interpret
-```
-*Output*: `data/results/feature_importance.json`, `data/results/plots/` (PDP images).
+## Verification
 
-## Testing
-
-Run the unit and integration tests to verify data integrity and split logic.
-```bash
-pytest tests/ -v
-```
+To verify the pipeline:
+1. Check `data/logs/pipeline.log` for "Schema Validation: PASSED" and "Reference Electrode Normalization: COMPLETED".
+2. Ensure `data/processed/model_metrics.json` contains `r2_score` and `rmse`.
+3. Confirm `data/figures/` contains at least one partial dependence plot.
+4. Verify that `data/processed/model_metrics.json` includes a `regime_of_validity` field listing the alloy families tested.
 
 ## Troubleshooting
 
-*   **Error: `DataInsufficientError`**: The verified NIST dataset did not contain the required corrosion schema, or no verified dataset was found. The pipeline has halted. Check `research.md` for the list of verified sources.
-*   **Error: `Low Cluster Count`**: The clustering algorithm yielded fewer than 3 distinct clusters. The test set would be statistically insufficient. The pipeline has halted.
-*   **Error: `Alloy Family Overlap`**: The split logic detected a cluster in both train and test sets. This should not happen if `split.py` is used correctly. Check the `cluster_id` column for inconsistencies.
-*   **Error: `Missing Mock Fixture`**: If `MOCK_DATA=1` is set but `tests/fixtures/mock_corpus.json` is missing, the pipeline will fail. Ensure the mock fixture exists and matches the schema.
+- **Error: `DataInsufficientError`**: The dataset has a limited number of records or alloy designations. The pipeline cannot proceed.
+- **Error: `SchemaMismatchError`**: The source data lacks required columns (pH, temperature, composition, reference electrode). Check the raw data source.
+- **Error: `429 Too Many Requests`**: The download script has a built-in retry mechanism. If it fails after multiple retries, check network connectivity.
+- **Error: `ReferenceMismatchError`**: The reference electrode is missing or cannot be converted to SHE. Check the raw data for reference electrode metadata.

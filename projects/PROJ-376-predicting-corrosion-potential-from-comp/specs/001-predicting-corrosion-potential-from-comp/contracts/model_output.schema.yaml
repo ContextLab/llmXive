@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the model evaluation metrics and predictions."
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "RandomForest"
+      - "GradientBoosting"
+    description: "Type of model used."
+  r2_score:
+    type: number
+    description: "Coefficient of determination on the test set."
+  rmse_mV:
+    type: number
+    description: "Root Mean Square Error in millivolts."
+  is_learnable:
+    type: boolean
+    description: "True if R2 > 0 and p < 0.05 via permutation test."
+  feature_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        importance_score:
+          type: number
+        p_value:
+          type: number
+        is_significant:
+          type: boolean
+      required:
+        - feature_name
+        - importance_score
+        - p_value
+        - is_significant
+    description: "List of feature importances with significance testing."
+required:
+  - model_type
+  - r2_score
+  - rmse_mV
+  - is_learnable
+  - feature_importance
+additionalProperties: false

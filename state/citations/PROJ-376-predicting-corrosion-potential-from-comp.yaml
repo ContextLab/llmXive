@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 7d3fd7bb7682e9cff7aaabdcd2f76065d13e755b4dec79d9ce8e99cb534c781e
+  artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: nist.jsonl
+  kind: url
+  value: https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/rkreddyp/nist_800_53/521fcc861fd85b5bfd52171041ccbd4d3d7fb963/nist.jsonl?%2Fdatasets%2Frkreddyp%2Fnist_800_53%2Fresolve%2Fmain%2Fnist.jsonl=&etag=%22a9ac1847956294e9cd774eee73e72f56c9323076%22
+  verified_at: '2026-07-14T13:36:29.414792Z'
+- artifact_hash: 7d3fd7bb7682e9cff7aaabdcd2f76065d13e755b4dec79d9ce8e99cb534c781e
+  artifact_path: projects/PROJ-376-predicting-corrosion-potential-from-comp/specs/001-predicting-corrosion-potential-from-comp/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: National Institute of Standards and Technology
+  kind: url
+  value: https://www.nist.gov/...`
+  verification_status: verified
+  verified_against_url: https://www.nist.gov/
+  verified_at: '2026-07-14T13:36:29.414792Z'

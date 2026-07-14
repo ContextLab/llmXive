@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Corrosion Dataset Schema"
+description: "Schema for the processed corrosion potential dataset used in training and evaluation."
+type: object
+properties:
+  record_id:
+    type: string
+    description: "Unique identifier for the record."
+  specific_alloy_designation:
+    type: string
+    description: "Normalized alloy grade (e.g., SS304)."
+  fe_weight:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Iron weight fraction."
+  cr_weight:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Chromium weight fraction."
+  ni_weight:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Nickel weight fraction."
+  mo_weight:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Molybdenum weight fraction."
+  other_elements:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Sum of remaining elemental weight fractions."
+  ph:
+    type: number
+    minimum: 0.0
+    maximum: 14.0
+    description: "Environmental pH (aqueous range)."
+  temperature_c:
+    type: number
+    minimum: 0.0
+    description: "Temperature in Celsius."
+  corrosion_potential_mv:
+    type: number
+    description: "Target variable: Corrosion potential in millivolts vs SHE (normalized)."
+  reference_electrode:
+    type: string
+    description: "Original reference electrode used (e.g., SHE, SCE, Ag/AgCl)."
+  is_outlier:
+    type: boolean
+    description: "Flag for extreme pH conditions."
+required:
+  - record_id
+  - specific_alloy_designation
+  - fe_weight
+  - cr_weight
+  - ni_weight
+  - mo_weight
+  - other_elements
+  - ph
+  - temperature_c
+  - corrosion_potential_mv
+  - reference_electrode
+  - is_outlier
+additionalProperties: false

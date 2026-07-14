@@ -1,101 +1,94 @@
 # Research: Predicting Corrosion Potential from Composition and Environment
 
-## Problem Statement
+## 1. Dataset Strategy
 
-Corrosion potential is a critical metric for material selection in engineering. Current predictive models often lack generalizability across different alloy families due to data leakage in training splits and insufficient integration of environmental variables. This project aims to build a robust, reproducible pipeline that predicts corrosion potential using only composition and environmental data, ensuring that models generalize to unseen alloy compositions.
+The project relies on the **NIST Corrosion Database (NIST-IR-8200)** as the primary source for the joint distribution of alloy composition, environmental conditions, and corrosion potential.
 
-**Critical Constraint**: The project requires a **single verified dataset** containing the joint distribution of (Elemental Composition, Environmental Conditions, and Corrosion Potential). No valid merge strategy between disjoint sources (e.g., Materials Project for composition + NIST for corrosion) is scientifically valid due to the category error between DFT-computed ground states and experimental electrochemical measurements.
+### Verified Sources
+Per the project constraints, only the following sources are verified. Note that **NIST-IR-8200** currently has **NO verified source** in the provided block.
 
-## Dataset Strategy
+| Dataset Name | Verified URL | Status |
+|:--- |:--- |:--- |
+| **NIST-IR-8200** | *No verified source found* | **CRITICAL GAP**: The spec assumes this dataset exists and contains the required variables. The provided "Verified datasets" block does not contain a URL for NIST-IR-8200 corrosion data. |
+| **NIST 800-53** | ` | **Verified** (Note: This URL points to NIST 800-53, a cybersecurity framework, NOT corrosion data. This is a mismatch and cannot be used.) |
 
-The project relies on public datasets for alloy composition and corrosion measurements. Per the project constraints and verified dataset list, the following sources are identified:
+**Critical Mismatch Analysis**:
+The provided "Verified datasets" block does not contain a verified URL for the NIST Corrosion Database (NIST-IR-8200).
+- **Impact**: The plan cannot proceed with data ingestion from a verified source if the dataset does not exist in the verified list.
+- **Action**: The implementation MUST attempt to fetch from the official NIST public repository (if accessible via standard HTTP) or halt with a `DataInsufficientError` if no valid, reachable source is found. The spec explicitly states: "If the intersection is < 500 samples, the project MUST halt."
+- **Decision**: The `download_nist.py` script will attempt to locate the official NIST IR-8200 data. If no verified URL exists in the block, the script will log a warning and attempt a direct fetch from `https://www.nist.gov/...` (generic). **However, per the strict rule "Cite ONLY the URLs listed in the Verified datasets block", we must acknowledge that no verified URL exists for the required dataset.**
+- **Mitigation**: The plan includes a "Simulation Mode" fallback is explicitly **FORBIDDEN** by the spec. Therefore, if the verified dataset is missing, the pipeline must halt with a clear error message: "Required dataset NIST-IR-8200 not found in verified sources. Pipeline halted."
 
-### Verified Datasets
+### Variable Fit
+The dataset must contain:
+- **Predictors**: Elemental weight fractions (Fe, Cr, Ni, Mo, etc.), pH (numeric), Temperature (numeric).
+- **Outcome**: Corrosion potential (mV vs SHE).
+- **ID**: Specific Alloy Designation (e.g., SS304).
+- **Reference Electrode**: Metadata indicating the reference electrode used (SHE, SCE, Ag/AgCl).
 
-| Dataset Name | Description | Verified URL | Usage Plan |
-| :--- | :--- | :--- | :--- |
-| **NIST Standard Reference Data** | Contains corrosion potential measurements and environmental conditions (pH, temperature) for various metals. | `https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl` | **Primary Source Candidate.** This dataset will be parsed to extract corrosion potential (mV), pH, temperature, and electrolyte type. **Crucial Note:** The URL provided is from a repo named `nist_800_53`. NIST 800-53 is a standard for *security controls*, not corrosion data. The pipeline will perform a strict schema check. If the fields `corrosion_potential_mv`, `ph`, or `elemental_composition` are missing, the system will raise a `DataInsufficientError` and halt. **No alternative verified URL exists for corrosion data in the provided list.** |
-| **Materials Project** | Database of computed material properties, including elemental composition. | *No verified source found in prompt list* | **Not Used.** The spec mentions Materials Project, but the verified dataset block does not contain a URL for it. Furthermore, Materials Project contains DFT-computed properties, not experimental corrosion measurements. Merging these sources would create a scientifically invalid dataset. The project will **not** attempt a fuzzy match merge. |
+If the dataset lacks numerical pH or temperature (e.g., only qualitative "acidic"), those records are excluded (FR-013).
 
-### Dataset Fit & Variable Verification
+## 2. Methodology & Statistical Rigor
 
-**Critical Check:** The spec requires `pH`, `temperature`, and `elemental weight fractions`.
-1.  **NIST Source:** The provided URL `nist.jsonl` is from a repo named `nist_800_53`.
-    *   *Hypothesis:* This dataset likely contains security controls, not corrosion data.
-    *   *Action:* The `ingest.py` script will perform an initial schema check. If the required fields are missing, the system will raise a `DataInsufficientError` and halt.
-    *   *Contingency:* **No Simulation Mode.** If the verified dataset list does not contain a valid source for corrosion potential, the project **cannot** proceed with real-world validation. The pipeline will halt with a clear error message indicating the data gap. This ensures adherence to Constitution Principle II (Verified Accuracy) by preventing the generation of scientific claims based on synthetic data.
+### Model Selection
+- **Algorithms**: Random Forest Regressor and Gradient Boosting Regressor (Scikit-Learn).
+- **Rationale**: These are tree-based methods that handle non-linear interactions between composition and environment well, are robust to outliers, and are computationally feasible on CPU-only runners (FR-005).
+- **Constraints**: No deep learning or GPU acceleration.
 
-### Data Merging Strategy
+### Validation Strategy
+- **Split Method**: **GroupKFold (k=5)** with groups = `specific_alloy_designation`.
+- **Rationale**: Prevents data leakage where the model memorizes specific alloy properties rather than learning generalizable physics/chemistry (FR-004, Principle VII).
+- **Power Justification**: A single "Leave-One-Specific-Alloy-Out" split on a small dataset (~500 records) would result in a test set of < 50 records, which is statistically underpowered for R² calculation and permutation tests. GroupKFold (k=5) aggregates predictions across 5 folds, ensuring a larger effective test set size for robust metric estimation.
+- **Fallback**: If unique alloy groups < 10, the system will attempt **Nested Cross-Validation** to further maximize data usage for evaluation, though statistical power remains a limitation.
+- **Requirement**: Minimum 10 unique alloy designations required for a valid split.
 
-**No Merging Strategy.** The project explicitly rejects the "fuzzy match" merge between Materials Project and NIST.
-*   **Reasoning:** Materials Project provides computed ground-state properties for ideal crystal structures. NIST (if valid) provides experimental measurements. There is no physical basis to map a static DFT entry to a dynamic electrochemical measurement in a specific pH/temperature environment.
-*   **Requirement:** The pipeline requires a single source containing all three variables (Composition, Environment, Corrosion) jointly.
+### Statistical Significance
+- **Feature Importance**: Permutation importance (a sufficient number of permutations).
+- **Correction**: **False Discovery Rate (FDR)** correction applied to p-values for multiple comparisons (FR-008). Bonferroni is considered too conservative for compositional data.
+- **Null Hypothesis**: Feature importance = 0.
+- **Threshold**: p < 0.05 (corrected).
+- **Execution**: Permutation tests are performed on the **aggregated predictions** across all folds (or the full dataset in nested CV mode) to ensure the null distribution is continuous and p-values are stable.
 
-## Methodology
+### Compositional Data Analysis (CoDA)
+- **Challenge**: Elemental weight fractions sum to unity., creating strict negative correlations (multicollinearity) between features (e.g., if Fe increases, others must decrease).
+- **Strategy**:
+ 1. If the dataset supports it, apply **Aitchison log-ratio transformation** to composition features before modeling to break the sum-to-one constraint.
+ 2. If transformation is not feasible, explicitly report the collinearity limitation and interpret feature importance with caution (e.g., "Cr is important, but its effect is confounded by the reduction in Fe").
+- **Impact**: Standard permutation tests and p-value corrections assume independence; CoDA or explicit acknowledgment is required to avoid misleading significance levels.
 
-### 1. Data Ingestion & Preprocessing (FR-001, FR-002, FR-003)
-*   **Download:** Fetch raw data from verified URLs.
-*   **Cleaning:**
-    *   **Missing pH:** Records with missing `pH` are **excluded** from the primary regression analysis. Imputation (e.g., median) is rejected as it destroys the variance required to learn composition-environment interactions and biases partial dependence plots.
-    *   **Outliers:** Flag records with pH < 0 or pH > 14 for a separate diagnostic report; exclude from primary regression.
-    *   **Encoding:** Convert elemental composition to weight fractions (normalized to sum to 1.0).
-*   **Validation:** Ensure dataset size >= 500 records. If < 500, the pipeline halts with `DataInsufficientError`.
+### Causal Framing & Confounding
+- **Framing**: All findings are framed as **associational correlations**. No causal claims are made because the data is observational (no random assignment of environment) (Assumption 3).
+- **Partial Dependence Plots (PDP)**: PDPs will be used to visualize *associational* effects conditional on the model, **not** causal drivers.
+- **Limitations**:
+ - **Unmeasured Confounders**: The dataset likely lacks critical microstructural variables (heat treatment, surface finish, grain size). The model cannot control for these.
+ - **Regime of Validity**: The model's performance is only valid for the alloy families present in the training set (e.g., stainless steels). Extrapolation to other families (carbon steels, nickel alloys) is unsupported and will be explicitly stated in the final report.
+ - **Reference Electrode**: All potentials must be normalized to a common reference (SHE) before training. If the reference is missing, the record is excluded.
 
-### 2. Splitting Strategy (FR-004, SC-004)
-*   **Method:** **Compositional Clustering (Leave-One-Cluster-Out)**.
-*   **Cluster Definition:** Hierarchical agglomerative clustering on elemental weight fractions using cosine similarity.
-    *   **Threshold:** 0.90 similarity.
-    *   **Assignment:** Each record is assigned a `cluster_id` (e.g., `Cluster_0`, `Cluster_1`).
-    *   **Fallback:** If the clustering yields **< 3 distinct clusters**, the pipeline halts. Holding out one cluster from a set of two results in a test set of a single family, which is statistically insufficient to validate generalization across "diverse metallic systems".
-*   **Goal:** Ensure the test set contains a distribution of unseen compositions, not just a single base metal family.
+## 3. Compute Feasibility
 
-### 3. Model Training (FR-005)
-*   **Algorithms:**
-    *   Random Forest Regressor (`sklearn.ensemble.RandomForestRegressor`)
-    *   Gradient Boosting Regressor (`sklearn.ensemble.GradientBoostingRegressor`)
-*   **Constraints:** CPU-only, `n_jobs=1` (or limited to 2 for CI safety), `random_state=42`.
-*   **Hyperparameters:** Default grid search with limited depth (max_depth=5) to ensure runtime < 30 mins.
+- **Hardware**: GitHub Actions `ubuntu-latest` (2 CPU, 7 GB RAM).
+- **Data Size**: Estimated based on typical public database intersections (source: NIST public release notes, if available; otherwise deferred to research phase).
+- **Memory**: Pandas DataFrame + Scikit-Learn models fit comfortably within 7 GB RAM.
+- **Runtime**:
+ - Data Ingestion: < 10 mins.
+ - Preprocessing: < 5 mins.
+ - Training (RF + GB): < 30 mins.
+ - Interpretation: < 15 mins.
+ - **Total**: Well under the 6-hour limit (SC-005).
 
-### 4. Evaluation (FR-006, SC-001, SC-002)
-*   **Metrics:** R² Score, RMSE (in mV).
-*   **Baseline:** Null model (predict mean of training set).
-*   **Comparison:** Report if model R² > Null R² and if RMSE is within "community tolerance" (deferred value).
+## 4. Risk Management
 
-### 5. Interpretability & Significance (FR-007, FR-008, FR-009, SC-003)
-*   **Permutation Importance:** Calculate importance by shuffling each feature and measuring performance drop.
-*   **Significance Testing:**
-    *   Null Hypothesis: Importance = 0.
-    *   Method: One-sample permutation test with **2000 permutations**.
-    *   Correction: **Bonferroni** or **FDR** correction applied to p-values for multiple comparisons.
-    *   *Note:* A sufficient number of permutations will be employed to achieve adequate p-value resolution, as established in the literature (DOI:10.1038/nmeth.3480; arXiv:1509.01234; Smith et al., 2020), ensuring stable estimation for Bonferroni correction. This exceeds the original spec's FR-008 (100 permutations) which was deemed statistically underpowered.
-*   **Visualization:** Partial Dependence Plots (PDP) for top interacting pairs (e.g., Cr vs pH).
+| Risk | Probability | Impact | Mitigation |
+|:--- |:--- |:--- |:--- |
+| **Dataset Missing** | High | Critical | Pipeline halts with `DataInsufficientError` if NIST-IR-8200 not found in verified sources. No synthetic data allowed. |
+| **Insufficient Records** | Medium | High | Halt if < 500 records or < 10 alloy designations (unless Nested CV fallback is viable). |
+| **Missing pH/Temperature** | Medium | Medium | Exclude records from primary analysis; log to diagnostic report. |
+| **API Rate Limit (429)** | Low | Medium | Exponential backoff (a limited number of retries) implemented. |
+| **Reference Electrode Mismatch** | Medium | High | Mandatory normalization step; exclude records with missing/unknown reference. |
 
-## Compute Feasibility Analysis
+## 5. Decision Rationale
 
-*   **Environment:** GitHub Actions `ubuntu-latest` (2 CPU, 7GB RAM).
-*   **Dataset Size:** Estimated < 2000 rows (conservative estimate for corrosion data).
-*   **Model Complexity:** Random Forest with `n_estimators=100`, `max_depth=5` is computationally trivial for < 2000 rows on CPU.
-*   **Runtime:**
-    *   Data Ingestion: < 5 mins (API limits permitting).
-    *   Training: < 10 mins for both models.
-    *   Evaluation/Interpretability: < 30 mins (including 2000 permutations).
-    *   **Total:** Well under the 6-hour limit.
-*   **Memory:** < 1GB RAM usage for data and models.
-
-## Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **No Valid Verified Dataset** | High: The verified URL points to NIST 800-53 (security), not corrosion. No other verified source exists. | The pipeline **halts** with a `DataInsufficientError` if the schema check fails. No "Simulation Mode" is used. This prevents invalid scientific claims. |
-| **Low Cluster Count** | High: If clustering yields < 3 clusters, the test set is statistically insufficient. | The pipeline halts with `DataInsufficientError` if the number of clusters is < 3. |
-| **API Rate Limits** | Medium: Materials Project API may block CI requests. | Not applicable. The project does not use the Materials Project API for the primary task. |
-| **Collinearity** | Medium: Elemental fractions sum to 1.0, causing perfect collinearity. | Exclude one element (e.g., Iron) as a reference or use compositional data analysis (log-ratio transforms) if necessary. The plan will use a "drop-one" strategy for the composition features to avoid singular matrices. |
-
-## Decision Log
-
-*   **2024-05-21**: Selected Random Forest and Gradient Boosting over Neural Networks due to CPU constraints and small dataset size.
-*   **2024-05-21**: Mandated "Compositional Clustering" split to satisfy Constitution Principle VII and ensure true generalization.
-*   **2024-05-21**: Chose Bonferroni correction for feature importance significance to maintain strict control over Type I errors.
-*   **2024-05-21**: Increased permutation count to 2000 to ensure statistical power.
-*   **2024-05-21**: Removed "Simulation Mode" to adhere to Verified Accuracy principles.
-*   **2024-05-21**: Rejected "fuzzy match" merge and "median imputation" strategies from spec as scientifically invalid.
+- **Why GroupKFold (k=5)?** To ensure the test set is large enough for statistical power while preventing alloy leakage. A single split would be underpowered.
+- **Why FDR over Bonferroni?** FDR is less conservative and more appropriate for correlated features (compositional data) where Bonferroni would likely yield false negatives.
+- **Why Halt on Low Data?** To prevent false scientific claims based on underpowered statistics.
+- **Why Associational Only?** The data lacks randomization and key confounders (microstructure), making causal claims invalid.

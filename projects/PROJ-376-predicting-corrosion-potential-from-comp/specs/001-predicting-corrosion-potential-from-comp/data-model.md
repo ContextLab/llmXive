@@ -1,67 +1,80 @@
 # Data Model: Predicting Corrosion Potential from Composition and Environment
 
-## Overview
+## 1. Entity Relationship Diagram (Conceptual)
 
-This document defines the data schemas for the project, ensuring strict adherence to the "Composition-Environment Feature Integrity" principle (Constitution VI). All data transformations produce new files, and raw data is preserved.
+The data model consists of three core entities linked by a unique `record_id`.
 
-## Entity Definitions
+```mermaid
+erDiagram
+    AlloyRecord ||--o{ CorrosionMeasurement : "has"
+    EnvironmentRecord ||--o{ CorrosionMeasurement : "defines"
+    
+    AlloyRecord {
+        string specific_alloy_designation "e.g., SS304"
+        float fe_weight_fraction
+        float cr_weight_fraction
+        float ni_weight_fraction
+        float mo_weight_fraction
+        // ... other elements
+    }
+    
+    EnvironmentRecord {
+        float ph
+        float temperature_celsius
+        string electrolyte_type "e.g., saline, acidic"
+        string reference_electrode "e.g., SHE, SCE, Ag/AgCl"
+    }
+    
+    CorrosionMeasurement {
+        string record_id
+        float corrosion_potential_mv
+        string test_standard "e.g., ASTM G59"
+    }
+```
 
-### 1. AlloyRecord
-Represents the chemical composition of a metallic alloy.
-*   **Primary Key**: `alloy_id` (UUID or generated hash).
-*   **Attributes**:
-    *   `alloy_name`: String (e.g., "SS304").
-    *   `cluster_id`: String (e.g., "Cluster_0", "Cluster_1"). *Derived from hierarchical agglomerative clustering of elemental weight fractions using cosine similarity threshold 0.90. If < 3 clusters are found, the pipeline halts.*
-    *   `composition`: Object (Key: Element Symbol, Value: Weight Fraction). *Normalized to sum to 1.0.*
-    *   `source`: String (e.g., "NIST", "Mock" - *Mock only for fixtures*).
+## 2. Schema Definitions
 
-### 2. EnvironmentRecord
-Represents the testing conditions.
-*   **Primary Key**: `env_id` (UUID).
-*   **Attributes**:
-    *   `ph`: Float (Numeric pH). *Records with missing pH are excluded.*
-    *   `temperature_celsius`: Float.
-    *   `electrolyte_type`: String (Categorical: "Saline", "Acidic", "Alkaline", "Other").
-    *   `source`: String.
+### 2.1 Raw Input Schema (NIST-IR-8200)
+*Expected fields from the source.*
+- `record_id`: Unique identifier.
+- `alloy_name`: String (e.g., "Stainless Steel 304").
+- `composition`: JSON object `{ "Fe": 0.70, "Cr": 0.18, ... }`.
+- `environment`: JSON object `{ "pH": 7.0, "temp": 25.0, "type": "neutral", "reference": "SHE" }`.
+- `corrosion_potential`: Float (mV).
 
-### 3. CorrosionMeasurement
-The target observation linking an alloy and environment.
-*   **Primary Key**: `measurement_id` (UUID).
-*   **Attributes**:
-    *   `alloy_id`: FK -> AlloyRecord.
-    *   `env_id`: FK -> EnvironmentRecord.
-    *   `corrosion_potential_mv`: Float (Target Variable, mV vs SHE).
-    *   `timestamp`: DateTime (if available).
-    *   `is_outlier`: Boolean (True if pH outside [0, 14]).
+### 2.2 Processed Dataset Schema (Parquet)
+*The unified dataset used for training.*
 
-### 4. ModelResult
-Stores the output of the training phase.
-*   **Attributes**:
-    *   `model_type`: String ("RandomForest", "GradientBoosting").
-    *   `r2_score`: Float.
-    *   `rmse_mv`: Float.
-    *   `hyperparameters`: Object (JSON).
-    *   `feature_importance`: Object (Map: Feature Name -> Importance Score).
-    *   `p_values`: Object (Map: Feature Name -> P-value).
-    *   `permutation_count`: Integer (2000).
+| Column Name | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `record_id` | String | Unique identifier | Non-null, Unique |
+| `specific_alloy_designation` | String | Normalized alloy grade (e.g., "SS304") | Non-null |
+| `fe_weight` | Float64 | Iron weight fraction | 0.0 ≤ x ≤ 1.0 |
+| `cr_weight` | Float64 | Chromium weight fraction | 0.0 ≤ x ≤ 1.0 |
+| `ni_weight` | Float64 | Nickel weight fraction | 0.0 ≤ x ≤ 1.0 |
+| `mo_weight` | Float64 | Molybdenum weight fraction | 0.0 ≤ x ≤ 1.0 |
+| `other_elements` | Float64 | Sum of remaining elements | 0.0 ≤ x ≤ 1.0 |
+| `ph` | Float64 | Environmental pH | 0.0 ≤ x ≤ 14.0 |
+| `temperature_c` | Float64 | Temperature in Celsius | > 0 |
+| `corrosion_potential_mv` | Float64 | Target variable (normalized to SHE) | Non-null |
+| `reference_electrode` | String | Original reference electrode | Non-null (e.g., SHE, SCE) |
+| `is_outlier` | Boolean | Flag for extreme pH | False (default) |
 
-## Data Flow
+### 2.3 Split Strategy
+- **Training Set**: All records where `specific_alloy_designation` is in the training group (GroupKFold).
+- **Test Set**: All records where `specific_alloy_designation` is in the test group (GroupKFold).
+- **Constraint**: Intersection of alloy designations between Train and Test must be **empty** within each fold.
 
-1.  **Raw Ingestion**:
-    *   `data/raw/nist_raw.jsonl`: Unprocessed NIST data.
-2.  **Processing**:
-    *   `data/processed/merged_dataset.parquet`: Unified dataset with normalized composition and environment.
-    *   `data/processed/train_set.parquet`: Training split (derived from clustering).
-    *   `data/processed/test_set.parquet`: Test split (derived from clustering, no cluster overlap).
-3.  **Results**:
-    *   `data/results/model_metrics.json`: R², RMSE, and baseline comparison.
-    *   `data/results/feature_importance.json`: Permutation importance and p-values (2000 permutations).
+## 3. Data Lineage
 
-## Constraints & Validation Rules
+1. **Raw**: `data/raw/nist_corrosion.jsonl` (Downloaded from source).
+2. **Cleaned**: `data/processed/cleaned_data.csv` (Filtered for non-null pH, temp, composition, reference electrode).
+3. **Final**: `data/processed/corrosion_dataset.parquet` (Encoded, split-ready, potentials normalized to SHE).
+4. **Logs**: `data/logs/pipeline.log` (Record of exclusions, errors, normalization steps).
 
-*   **Composition Normalization**: Sum of all weight fractions in `AlloyRecord.composition` MUST be within `0.99 <= sum <= 1.01`.
-*   **pH Range**: `EnvironmentRecord.ph` MUST be numeric. Records with missing pH are **excluded**. Values outside `[0, 14]` are flagged as outliers.
-*   **Split Integrity**: The `test_set` MUST contain zero `cluster_id` values present in the `train_set`.
-*   **Minimum Cluster Count**: The clustering algorithm MUST yield at least 3 distinct clusters. If < 3, the pipeline halts.
-*   **Missing Data**: Records with missing `corrosion_potential_mv` are dropped. Records with missing `pH` are **excluded**.
-*   **Permutation Count**: Significance testing MUST use 2000 permutations.
+## 4. Error Handling
+
+- **SchemaMismatchError**: Raised if required columns (pH, temp, composition, reference electrode) are missing in the source.
+- **DataInsufficientError**: Raised if total records < 500 or unique alloys < 10.
+- **OutlierFlag**: Records with pH < 0 or pH > 14 are flagged but not removed from the raw log; they are excluded from the training set.
+- **ReferenceMismatchError**: Raised if the reference electrode is missing or cannot be converted to SHE.

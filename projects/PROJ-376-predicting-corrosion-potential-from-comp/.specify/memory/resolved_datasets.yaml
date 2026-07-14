@@ -1,4 +1,4 @@
-resolved_at: '2026-07-13T10:51:46.905641+00:00'
+resolved_at: '2026-07-14T13:27:09.274115+00:00'
 datasets:
 - intent: NIST
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Seagrass_composition_shifts_and_declines_associated_with_reduced_light_high_phosphate_and_elevated_water_temperatures_in_Turneffe_Atoll_Marine_Reserve_Belize_docx/32974016
+  - url: https://figshare.com/articles/online_resource/AJP_-_Supplemental_Data_-_Kanashiro-Takeuchi-_Cardiomyocyte-Specific_Expression_of_HIF-1a_Mediates_the_Cardioprotective_Effects_of_Growth_Hormone-Releasing_Hormone_GHRH_/31310104
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.mmu.ac.uk/articles/chapter/The_future_of_research_on_LGBTQ_working_lives/32760090
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Tables_of_Ac-YP1/32983559
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Nontargeted_LC-HRMS-Based_Strategies_as_a_Tool_to_Study_the_Behavior_of_Chemical_Attribution_Signatures_of_Organophosphorus_in_Complex_Environmental_Matrices/32974006
+  - url: https://figshare.com/articles/dataset/Dataset_for_A_bibliometric_analysis_and_thematic_synthesis_of_Korean_fisheries_science_research_landscapes_structural_patterns_and_policy-relevant_gaps_1990_2025_/32983532
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Multidisciplinary_analyses_of_Gotlandic_picture_stones_a_case_study_of_fragments_from_Martebo_and_Stenkyrka/32896131
+  - url: https://tandf.figshare.com/articles/journal_contribution/Developing_embedded_greenhouse_gas_emissions_accounting_frameworks_and_calculation_tools_for_Australia_s_aluminium_and_steel_sectors/32983549
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://preprints.opticaopen.org/articles/preprint/Differential_absorption_emulation_for_systematic-error_characterization_in_lidars/32156733
+  - url: https://figshare.com/articles/journal_contribution/Detailed_description_of_the_methodology_and_results_of_Ac-YP1/32983541
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -73,43 +73,179 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.7254581
+  - url: https://zenodo.org/records/3382347
     source: zenodo
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://doi.org/10.5281/zenodo.3382347
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7254581
     source: zenodo
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/12807749
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unsworks.unsw.edu.au/handle/1959.4/44045
+  - url: https://usiena-air.unisi.it//handle/11365/1144376
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.18672035
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/18672036
+  - url: https://zenodo.org/records/21357761
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17416444
+  - url: https://zenodo.org/records/21357761
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.17416443
+  - url: https://zenodo.org/records/21357034
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21357034
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NIST-IR-8200
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/online_resource/AJP_-_Supplemental_Data_-_Kanashiro-Takeuchi-_Cardiomyocyte-Specific_Expression_of_HIF-1a_Mediates_the_Cardioprotective_Effects_of_Growth_Hormone-Releasing_Hormone_GHRH_/31310104
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Tables_of_Ac-YP1/32983559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_A_bibliometric_analysis_and_thematic_synthesis_of_Korean_fisheries_science_research_landscapes_structural_patterns_and_policy-relevant_gaps_1990_2025_/32983532
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Developing_embedded_greenhouse_gas_emissions_accounting_frameworks_and_calculation_tools_for_Australia_s_aluminium_and_steel_sectors/32983549
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Detailed_description_of_the_methodology_and_results_of_Ac-YP1/32983541
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10386885
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17294708
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17512504
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15376219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14894634
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18197124
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18197124
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18187716
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SS304
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://tandf.figshare.com/articles/journal_contribution/Association_of_inflammation-related_composite_indices_with_lung_cancer_risk_in_US_adults_and_all-cause_mortality_among_lung_cancer_patients_evidence_from_the_1999_2018_NHANES/32983574
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/AJP_-_Supplemental_Data_-_Kanashiro-Takeuchi-_Cardiomyocyte-Specific_Expression_of_HIF-1a_Mediates_the_Cardioprotective_Effects_of_Growth_Hormone-Releasing_Hormone_GHRH_/31310104
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Tables_of_Ac-YP1/32983559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_A_bibliometric_analysis_and_thematic_synthesis_of_Korean_fisheries_science_research_landscapes_structural_patterns_and_policy-relevant_gaps_1990_2025_/32983532
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Developing_embedded_greenhouse_gas_emissions_accounting_frameworks_and_calculation_tools_for_Australia_s_aluminium_and_steel_sectors/32983549
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5225326
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15030262
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1242986
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16752642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10417632
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/70697
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/18760
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/3753
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/25744
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Water-leaching_behavior_for_cesium_chemisorbed_on_stainless_steel_at_room_temperature/30830739/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: DataInsufficientError
   status: unresolved
   candidates: []
-  candidates_tried: []
+  candidates_tried:
+  - url: https://tandf.figshare.com/articles/journal_contribution/Association_of_inflammation-related_composite_indices_with_lung_cancer_risk_in_US_adults_and_all-cause_mortality_among_lung_cancer_patients_evidence_from_the_1999_2018_NHANES/32983574
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/AJP_-_Supplemental_Data_-_Kanashiro-Takeuchi-_Cardiomyocyte-Specific_Expression_of_HIF-1a_Mediates_the_Cardioprotective_Effects_of_Growth_Hormone-Releasing_Hormone_GHRH_/31310104
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Tables_of_Ac-YP1/32983559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_A_bibliometric_analysis_and_thematic_synthesis_of_Korean_fisheries_science_research_landscapes_structural_patterns_and_policy-relevant_gaps_1990_2025_/32983532
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Developing_embedded_greenhouse_gas_emissions_accounting_frameworks_and_calculation_tools_for_Australia_s_aluminium_and_steel_sectors/32983549
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

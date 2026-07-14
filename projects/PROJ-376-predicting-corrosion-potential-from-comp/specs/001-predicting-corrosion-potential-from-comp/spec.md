@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
 
-**Description**: As a materials researcher, I want to automatically download alloy composition and corrosion records from the NIST Corrosion Database (NIST-IR-8200), then preprocess them into a unified, clean dataset by filtering for records with complete environmental metadata, so that I have a reliable foundation for training predictive models without manual data wrangling.
+**Description**: As a materials researcher, I want to automatically download alloy composition and corrosion records from the NIST Corrosion Database (NIST-IR), then preprocess them into a unified, clean dataset by filtering for records with complete environmental metadata, so that I have a reliable foundation for training predictive models without manual data wrangling.
 
 **Why this priority**: This is the foundational step; without a clean, verified dataset containing the joint distribution of composition, environment, and corrosion, no modeling or analysis can occur. It directly addresses the "verified dataset" gap identified in the literature review.
 
@@ -55,8 +55,8 @@
 
 ### Edge Cases
 
-- **What happens when the NIST API returns a 429 (Too Many Requests) error?** The system MUST implement a retry mechanism with exponential backoff (3 retries, base delay of 1s, max delay of 60s) and log the failure.
-- **How does the system handle a corrosion record where the environmental pH is outside the standard aqueous range (e.g., > 14.0 or < 0.0)?** The record MUST be flagged as an outlier and excluded from the primary regression analysis, but included in a separate "extreme condition" diagnostic report. The standard aqueous range is defined as pH 0.0 to 14.0.
+- **What happens when the NIST API returns a 429 (Too Many Requests) error?** The system MUST implement a retry mechanism with exponential backoff (a limited number of retries, base delay of a short interval, max delay of approximately one minute) and log the failure.
+- **How does the system handle a corrosion record where the environmental pH is outside the standard aqueous range (e.g., > 14.0 or < 0.0)?** The record MUST be flagged as an outlier and excluded from the primary regression analysis, but included in a separate "extreme condition" diagnostic report. The standard aqueous range is defined as the full spectrum of the pH scale.
 - **What happens if the dataset size is too small to support a meaningful train/test split (e.g., < 10 specific alloy designations)?** The system MUST halt execution and raise a `DataInsufficientError` with a message suggesting data augmentation or a different data source.
 - **Definition of Specific Alloy Designation**: For the purpose of splitting, a "Specific Alloy Designation" is defined by the unique alloy grade (e.g., "SS304", "SS316", "Inconel625"). This definition ensures disjoint sets for the Group Split.
 
@@ -95,7 +95,7 @@
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Model predictive power (R² score) is measured against the baseline of a null model (mean prediction) to confirm a learnable relationship. (See US-2)
-- **SC-002**: Prediction error (RMSE) is measured in millivolts (mV) against a tolerance of 150 mV defined in ASTM G59 standard practice to determine practical utility. (See US-2)
+- **SC-002**: Prediction error (RMSE) is measured in millivolts (mV) against a tolerance defined in ASTM G59 standard practice to determine practical utility. (See US-2)
 - **SC-003**: Feature importance robustness is measured against statistical significance thresholds (p < 0.05 via one-sample permutation test with 1,000 permutations) to verify that identified drivers are not random noise. (See US-3)
 - **SC-004**: Data leakage is measured by checking the overlap of specific_alloy_designation_id between training and test sets; the target is zero overlap. (See US-1)
 - **SC-005**: Compute feasibility is measured by ensuring the total execution time on a GitHub Actions `ubuntu-latest` runner is ≤ 6 hours. (See US-2)

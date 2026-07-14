@@ -19,13 +19,13 @@ properties:
     properties:
       r2_score:
         type: number
-        description: "R-squared score on the test set"
+        description: "R-squared score on the test set (aggregated across folds)."
       rmse_mv:
         type: number
-        description: "Root Mean Squared Error in millivolts"
+        description: "Root Mean Squared Error in millivolts."
       baseline_r2:
         type: number
-        description: "R-squared of the null model (mean prediction)"
+        description: "R-squared of the null model (mean prediction)."
   feature_importance:
     type: array
     description: "List of features with importance scores and p-values"
@@ -46,7 +46,7 @@ properties:
           maximum: 1
         is_significant:
           type: boolean
-          description: "True if p_value < 0.05 after correction"
+          description: "True if p_value < 0.05 after FDR correction."
   execution_info:
     type: object
     properties:
@@ -56,8 +56,16 @@ properties:
         type: integer
       permutation_count:
         type: integer
-        description: "Number of permutations used for significance testing (e.g., 2000)"
+        description: "Number of permutations used for significance testing (e.g., 1000)"
         minimum: 1000
+      validation_strategy:
+        type: string
+        description: "e.g., 'GroupKFold(k=5)' or 'NestedCV'"
+      regime_of_validity:
+        type: array
+        items:
+          type: string
+        description: "List of alloy families present in the dataset (e.g., ['Stainless Steel', 'Nickel Alloys'])"
 required:
   - model_type
   - metrics

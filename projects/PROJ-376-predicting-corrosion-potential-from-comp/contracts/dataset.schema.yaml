@@ -1,0 +1,64 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Processed Corrosion Dataset Schema
+description: >
+  Schema for the cleaned, preprocessed dataset used for modeling.
+  Enforces non-null constraints on critical fields as per FR-014.
+  Corresponds to output of code/data/preprocess.py.
+type: object
+required:
+  - columns
+  - data
+  - stats
+properties:
+  columns:
+    type: array
+    description: Ordered list of column names matching the data array.
+    items:
+      type: string
+    contains:
+      const: "specific_alloy_designation_id"
+      const: "cr_weight_fraction"
+      const: "ni_weight_fraction"
+      const: "fe_weight_fraction"
+      const: "temp_c"
+      const: "ph"
+      const: "corrosion_potential_mv"
+  data:
+    type: array
+    description: List of rows, where each row is an array of values matching 'columns'.
+    items:
+      type: array
+      minItems: 7
+      maxItems: 7
+      items:
+        - type: string   # specific_alloy_designation_id
+        - type: number   # cr_weight_fraction
+        - type: number   # ni_weight_fraction
+        - type: number   # fe_weight_fraction
+        - type: number   # temp_c
+        - type: number   # ph
+        - type: number   # corrosion_potential_mv
+  stats:
+    type: object
+    required:
+      - total_records
+      - null_counts
+      - alloy_count
+    properties:
+      total_records:
+        type: integer
+        minimum: 500
+        description: Total number of valid records (must be >= 500 per FR-014).
+      null_counts:
+        type: object
+        description: Count of nulls per column (must be 0 for critical columns).
+        additionalProperties:
+          type: integer
+          minimum: 0
+      alloy_count:
+        type: integer
+        minimum: 10
+        description: Number of unique alloy designations (must be >= 10 for GroupKFold).
+additionalProperties: false
