@@ -1,8 +1,7 @@
-datasets
-transformers
-bitsandbytes
-scipy
-matplotlib
-pytest
-torch
-pandas
+datasets>=2.0.0
+transformers>=4.30.0
+bitsandbytes>=0.41.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+pytest>=7.0.0
+pandas>=2.0.0

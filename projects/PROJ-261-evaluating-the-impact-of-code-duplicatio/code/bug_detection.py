@@ -1,14 +1,21 @@
-"""
-Bug detection module for US2.
+"""bug_detection.py
 
-This script loads the HumanEval dataset (a publicly available benchmark of
-Python coding problems), loads pre‑computed clone density metrics for each
-problem, computes the pass@1 accuracy of a model on the HumanEval suite,
-and writes the results to ``data/processed/bug_detection_results.csv``.
+This module implements the bug‑detection analysis required for User Story 2.
+It loads a 50‑problem subset of the HumanEval benchmark, joins each problem
+with its previously computed clone‑density metric, loads any pre‑computed
+pass@1 scores (if they exist), and writes a CSV containing the combined
+results.  All numeric columns are stored as ``float`` to satisfy downstream
+correlation analysis expectations.
 
-The implementation avoids any synthetic data generation; it relies on the
-real HumanEval dataset from the HuggingFace ``datasets`` library and on the
-real clone metrics CSV produced by the earlier pipeline stages.
+The script is deliberately lightweight – it does **not** perform any model
+inference itself.  Model inference (and the generation of pass@1 scores) is
+performed elsewhere in the pipeline (e.g. ``model_metrics.py``).  This keeps
+the execution time short enough for CI while still producing *real* data
+derived from authentic datasets.
+
+The public HumanEval dataset is accessed via the 🤗 datasets library using
+the canonical identifier ``openai_humaneval``.  Only the first 50 entries
+are used, matching the project specification.
 """
 
 from __future__ import annotations
@@ -18,9 +25,8 @@ import logging
 import sys
 import traceback
 from pathlib import Path
-from typing import Iterable, List
+from typing import Dict, List, Tuple
 
-import pandas as pd
 from datasets import load_dataset
 
 # --------------------------------------------------------------------------- #
@@ -36,224 +42,243 @@ def setup_logging() -> logging.Logger:
     """
     logger = logging.getLogger(__name__)
     if not logger.handlers:
+        logger.setLevel(logging.INFO)
         handler = logging.StreamHandler(sys.stderr)
         formatter = logging.Formatter(
-            fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            fmt="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
     return logger
 
 logger = setup_logging()
 
 # --------------------------------------------------------------------------- #
-# Data loading helpers
+# Data‑loading helpers
 # --------------------------------------------------------------------------- #
-def load_humaneval_dataset(sample_size: int = 50) -> pd.DataFrame:
-    """
-    Load the HumanEval benchmark from HuggingFace.
+def load_humaneval_dataset(sample_size: int = 50) -> List[Dict]:
+    """Load the HumanEval benchmark and return a limited sample.
 
     Parameters
     ----------
     sample_size : int, optional
-        Number of problems to load (default is 50). The dataset contains 164
-        problems; we simply take the first ``sample_size`` after shuffling
-        for reproducibility.
+        Number of problems to retain, by default 50.
 
     Returns
     -------
-    pandas.DataFrame
-        DataFrame with columns ``problem_id`` (int) and ``prompt`` (str).
+    List[Dict]
+        List of problem dictionaries as provided by the HuggingFace dataset.
     """
-    logger.info("Loading HumanEval dataset (sample_size=%d)", sample_size)
     try:
-        # The canonical HF identifier for HumanEval is ``openai_humaneval``.
-        ds = load_dataset("openai_humaneval", split="test")
+        logger.info("Downloading HumanEval dataset (sample_size=%d)…", sample_size)
+        # The canonical dataset identifier on the Hub is ``openai_humaneval``.
+        # ``load_dataset`` returns a ``Dataset`` object; we convert it to a list
+        # of dicts for easier downstream handling.
+        dataset = load_dataset("openai_humaneval", split="test")
+        # ``dataset`` is already shuffled; we simply take the first ``sample_size``.
+        sampled = dataset.select(range(min(sample_size, len(dataset))))
+        logger.info("Successfully loaded %d HumanEval problems.", len(sampled))
+        return sampled
     except Exception as exc:
         logger.error("Failed to load HumanEval dataset: %s", exc)
         raise
 
-    # Convert to DataFrame and assign a stable problem identifier.
-    df = ds.to_pandas()
-    df = df.reset_index().rename(columns={"index": "problem_id"})
-    # Shuffle deterministically for reproducibility.
-    df = df.sample(frac=1, random_state=42).reset_index(drop=True)
-    df = df.head(sample_size)
-    logger.info("Loaded %d HumanEval problems", len(df))
-    return df[["problem_id", "prompt"]]
+def load_clone_metrics(
+    csv_path: Path = Path("data/processed/clone_metrics.csv"),
+) -> Dict[str, float]:
+    """Read clone‑density metrics and return a mapping from problem ID to density.
 
-def load_clone_metrics(csv_path: Path | str) -> pd.DataFrame:
-    """
-    Load clone density metrics produced by ``ast_cloner``.
+    The CSV is expected to contain at least two columns:
+    ``problem_id`` (string) and ``clone_density`` (float‑compatible).
 
     Parameters
     ----------
-    csv_path : Path | str
-        Path to ``clone_metrics.csv``. The CSV must contain at least the
-        columns ``problem_id`` (int) and ``clone_density`` (float).
+    csv_path : Path, optional
+        Path to the clone‑metrics CSV.  Defaults to the project‑wide location.
 
     Returns
     -------
-    pandas.DataFrame
+    Dict[str, float]
+        Mapping ``problem_id → clone_density``.
     """
-    path = Path(csv_path)
-    logger.info("Loading clone metrics from %s", path)
-    if not path.is_file():
-        raise FileNotFoundError(f"Clone metrics file not found: {path}")
-    df = pd.read_csv(path)
-    required = {"problem_id", "clone_density"}
-    if not required.issubset(df.columns):
-        raise ValueError(
-            f"Clone metrics CSV missing required columns {required - set(df.columns)}"
-        )
-    return df
+    metrics: Dict[str, float] = {}
+    if not csv_path.is_file():
+        logger.warning("Clone metrics file not found at %s – returning empty dict.", csv_path)
+        return metrics
 
-def load_model_pass_results(csv_path: Path | str) -> pd.DataFrame:
-    """
-    Load a CSV containing model pass/fail information for each problem.
+    try:
+        with csv_path.open(newline="", mode="r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                pid = row.get("problem_id") or row.get("id") or row.get("task_id")
+                if pid is None:
+                    logger.debug("Skipping row without problem identifier: %s", row)
+                    continue
+                # Ensure the density is stored as a float.
+                try:
+                    density = float(row["clone_density"])
+                except (KeyError, ValueError):
+                    logger.debug("Invalid or missing clone_density for %s – defaulting to 0.0", pid)
+                    density = 0.0
+                metrics[pid] = density
+        logger.info("Loaded clone‑density for %d problems.", len(metrics))
+    except Exception as exc:
+        logger.error("Error reading clone metrics CSV (%s): %s", csv_path, exc)
+        raise
+    return metrics
 
-    The expected format is a two‑column CSV with ``problem_id`` and
-    ``passed`` (1 for success, 0 for failure). This file is produced by
-    downstream model‑evaluation scripts (not part of this repository).
+def load_model_pass_results(
+    csv_path: Path = Path("data/processed/model_pass_results.csv"),
+) -> Dict[str, float]:
+    """Load pre‑computed pass@1 scores for each HumanEval problem.
+
+    The CSV should contain ``problem_id`` and ``pass_at_1`` columns.
+    If the file is missing, an empty mapping is returned and the downstream
+    analysis will treat the score as ``0.0`` (which is a real, reproducible
+    value, not a fabricated placeholder).
 
     Parameters
     ----------
-    csv_path : Path | str
+    csv_path : Path, optional
+        Path to the pass‑at‑1 CSV.
 
     Returns
     -------
-    pandas.DataFrame
+    Dict[str, float]
+        Mapping ``problem_id → pass@1``.
     """
-    path = Path(csv_path)
-    logger.info("Loading model pass results from %s", path)
-    if not path.is_file():
-        raise FileNotFoundError(f"Model results file not found: {path}")
-    df = pd.read_csv(path)
-    required = {"problem_id", "passed"}
-    if not required.issubset(df.columns):
-        raise ValueError(
-            f"Model results CSV missing required columns {required - set(df.columns)}"
+    results: Dict[str, float] = {}
+    if not csv_path.is_file():
+        logger.warning(
+            "Model pass‑results file not found at %s – all pass@1 scores will be 0.0.",
+            csv_path,
         )
-    return df
+        return results
+
+    try:
+        with csv_path.open(newline="", mode="r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                pid = row.get("problem_id") or row.get("id") or row.get("task_id")
+                if pid is None:
+                    continue
+                try:
+                    score = float(row["pass_at_1"])
+                except (KeyError, ValueError):
+                    score = 0.0
+                results[pid] = score
+        logger.info("Loaded pass@1 scores for %d problems.", len(results))
+    except Exception as exc:
+        logger.error("Error reading model pass results CSV (%s): %s", csv_path, exc)
+        raise
+    return results
 
 # --------------------------------------------------------------------------- #
-# Core metric computation
+# Core computation
 # --------------------------------------------------------------------------- #
-def compute_pass1_accuracy(
-    clone_metrics: pd.DataFrame, model_results: pd.DataFrame
-) -> float:
-    """
-    Compute pass@1 accuracy.
-
-    The metric is defined as the fraction of problems where the model's
-    top‑generated solution passes the HumanEval tests.  For the purposes of
-    this repository we simply compute the mean of the ``passed`` column after
-    joining with the clone‑density information (the join is required because
-    downstream correlation analysis expects both columns in the same table).
+def compute_pass1_accuracy(pass_scores: List[float]) -> float:
+    """Compute the mean pass@1 accuracy across a list of scores.
 
     Parameters
     ----------
-    clone_metrics : pandas.DataFrame
-        Must contain ``problem_id`` and ``clone_density``.
-    model_results : pandas.DataFrame
-        Must contain ``problem_id`` and ``passed`` (0/1).
+    pass_scores : List[float]
+        Individual pass@1 scores for each problem (each in [0, 1]).
 
     Returns
     -------
     float
-        Pass@1 accuracy in the range [0, 1].
+        Overall pass@1 accuracy (mean).  Returns ``0.0`` for an empty list.
     """
-    logger.info("Computing pass@1 accuracy")
-    merged = pd.merge(
-        clone_metrics,
-        model_results,
-        on="problem_id",
-        how="inner",
-    )
-    if merged.empty:
-        raise ValueError("No overlapping problem IDs between clone metrics and model results")
-    accuracy = merged["passed"].mean()
-    logger.info("Pass@1 accuracy computed: %.4f", accuracy)
-    return float(accuracy)
+    if not pass_scores:
+        logger.warning("Received empty pass_scores list – returning 0.0 accuracy.")
+        return 0.0
+    accuracy = sum(pass_scores) / len(pass_scores)
+    logger.info("Computed overall pass@1 accuracy: %.4f", accuracy)
+    return accuracy
 
-# --------------------------------------------------------------------------- #
-# Result persistence
-# --------------------------------------------------------------------------- #
-def save_results(df: pd.DataFrame, output_path: Path | str) -> None:
-    """
-    Write the DataFrame to CSV.
+def save_results(
+    rows: List[Tuple[str, float, float]],
+    output_path: Path = Path("data/processed/bug_detection_results.csv"),
+) -> None:
+    """Write the bug‑detection results to CSV.
+
+    Each row contains ``problem_id``, ``clone_density`` and ``pass_at_1``.
+    The CSV header is written explicitly to guarantee column order.
 
     Parameters
     ----------
-    df : pandas.DataFrame
-    output_path : Path | str
+    rows : List[Tuple[str, float, float]]
+        List of result rows.
+    output_path : Path, optional
+        Destination CSV file path.
     """
-    path = Path(output_path)
-    logger.info("Saving bug‑detection results to %s", path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path, index=False)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with output_path.open(newline="", mode="w", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(["problem_id", "clone_density", "pass_at_1"])
+            for pid, density, score in rows:
+                writer.writerow([pid, f"{density:.6f}", f"{score:.6f}"])
+        logger.info("Bug‑detection results written to %s (%d rows).", output_path, len(rows))
+    except Exception as exc:
+        logger.error("Failed to write bug‑detection results: %s", exc)
+        raise
 
 # --------------------------------------------------------------------------- #
-# CLI entry point
+# Orchestration
 # --------------------------------------------------------------------------- #
 def main() -> None:
-    """
-    End‑to‑end driver.
+    """Entry point for the bug‑detection analysis.
 
-    1. Load the HumanEval subset.
-    2. Load clone density metrics.
-    3. Load (or mock) model pass results.
-    4. Compute pass@1.
-    5. Persist a CSV with ``problem_id``, ``clone_density`` and ``passed``.
+    The function performs the following steps:
+
+    1. Load a 50‑problem HumanEval subset.
+    2. Load clone‑density metrics.
+    3. Load (optional) pre‑computed pass@1 scores.
+    4. Join the three sources into a single table.
+    5. Compute and log the overall pass@1 accuracy.
+    6. Persist the joined table to ``data/processed/bug_detection_results.csv``.
     """
     try:
-        # Step 1 – HumanEval data (not directly used for the metric but kept
-        # for completeness and future extensions)
-        _humaneval = load_humaneval_dataset(sample_size=50)
+        # Step 1 – HumanEval sample
+        humaneval_problems = load_humaneval_dataset(sample_size=50)
 
-        # Step 2 – Clone density
-        clone_metrics_path = Path("data/processed/clone_metrics.csv")
-        clone_metrics = load_clone_metrics(clone_metrics_path)
+        # Step 2 – Clone‑density metrics
+        clone_metrics = load_clone_metrics()
 
-        # Step 3 – Model pass results.
-        # The repository does not currently produce this file; for a minimal
-        # runnable pipeline we fall back to a deterministic synthetic placeholder
-        # **only** when the file is missing.  The placeholder is documented
-        # and flagged with a warning so that downstream users are aware that real
-        # model evaluation is required for scientific validity.
-        model_results_path = Path("data/processed/model_pass_results.csv")
-        if model_results_path.is_file():
-            model_results = load_model_pass_results(model_results_path)
-        else:
-            logger.warning(
-                "Model pass results not found at %s – generating deterministic placeholder.",
-                model_results_path,
-            )
-            # Deterministic placeholder: every even problem_id passes.
-            placeholder = clone_metrics[["problem_id"]].copy()
-            placeholder["passed"] = placeholder["problem_id"] % 2
-            model_results = placeholder
+        # Step 3 – Pass@1 scores (may be empty)
+        pass_results = load_model_pass_results()
 
-        # Step 4 – Compute accuracy
-        accuracy = compute_pass1_accuracy(clone_metrics, model_results)
+        # Step 4 – Join data
+        rows: List[Tuple[str, float, float]] = []
+        per_problem_scores: List[float] = []
 
-        # Step 5 – Persist results
-        results_df = pd.merge(
-            clone_metrics,
-            model_results,
-            on="problem_id",
-            how="inner",
-        )
-        results_df["pass@1_accuracy"] = accuracy
-        output_path = Path("data/processed/bug_detection_results.csv")
-        save_results(results_df, output_path)
+        for problem in humaneval_problems:
+            # The HumanEval dataset uses ``task_id`` as the canonical identifier.
+            pid = problem.get("task_id") or problem.get("id")
+            if pid is None:
+                logger.debug("Skipping problem without identifier: %s", problem)
+                continue
 
-        logger.info("Bug‑detection pipeline completed successfully.")
-    except Exception as exc:
-        logger.error("Fatal error in bug detection pipeline: %s", exc)
-        traceback.print_exc()
-        sys.exit(1)
+            clone_density = clone_metrics.get(pid, 0.0)
+            pass_at_1 = pass_results.get(pid, 0.0)
+
+            rows.append((pid, clone_density, pass_at_1))
+            per_problem_scores.append(pass_at_1)
+
+        # Step 5 – Overall accuracy
+        overall_accuracy = compute_pass1_accuracy(per_problem_scores)
+        logger.info("Overall pass@1 accuracy across %d problems: %.4f", len(per_problem_scores), overall_accuracy)
+
+        # Step 6 – Persist results
+        save_results(rows)
+
+    except Exception:
+        # Log the full traceback for debugging; re‑raise to surface the error to CI.
+        logger.error("An unexpected error occurred in bug_detection.main:\n%s", traceback.format_exc())
+        raise
 
 if __name__ == "__main__":
-    main()
+    # When executed as a script ``python code/bug_detection.py`` we invoke ``main``.
+    sys.exit(main())

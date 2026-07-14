@@ -1,39 +1,65 @@
-# Quickstart – end‑to‑end execution
+# Quickstart Guide
 
-This document describes the commands that constitute a full run of the
-research pipeline. The commands are deliberately ordered to respect data
-dependencies.
+This document outlines the commands required to run the full analysis pipeline
+for the *Evaluating the Impact of Code Duplication on LLM Code Understanding*
+project.
 
-```bash
-# 1️⃣ Stream a small sample of the CodeParrot/GitHub‑Code dataset
-python code/data_loader.py
+## Prerequisites
 
-# 2️⃣ Scan for PII in the freshly downloaded data
-python code/pii_scanner.py
+- Python 3.11
+- All dependencies installed via `pip install -r requirements.txt`
+- Internet access (required for dataset streaming)
 
-# 3️⃣ Compute clone density metrics
-python code/ast_cloner.py
+## Step‑by‑step execution
 
-# 4️⃣ Compute model perplexity (and semantic distance)
-python code/model_metrics.py
+1. **Download a sample of the GitHub code dataset**
+ ```bash
+ python code/data_loader.py
+ ```
 
-# 5️⃣ Run bug‑detection evaluation on HumanEval
-python code/bug_detection.py
+2. **Run the PII scanner** (optional, can be disabled in `config.py`)
+ ```bash
+ python code/pii_scanner.py
+ ```
 
-# 6️⃣ **Generate correlation results (T034)**
-python code/save_correlation_results.py
+3. **Compute clone density**
+ ```bash
+ python code/ast_cloner.py
+ ```
 
-# 7️⃣ Produce visualisations (scatter plots, sensitivity analysis)
-python code/visualization/plotting.py
+4. **Compute model perplexity scores**
+ ```bash
+ python code/model_metrics.py
+ ```
 
-# 8️⃣ Validate that all expected outputs exist
-python code/quickstart_validation.py
-```
+5. **Run bug‑detection evaluation**
+ ```bash
+ python code/bug_detection.py
+ ```
 
-After the final step completes, you should find the following artefacts:
+6. **Perform correlation analysis and save results**
+ ```bash
+ python code/correlation_analysis.py
+ ```
 
-- `data/processed/clone_metrics.csv`
-- `data/processed/perplexity_scores.csv`
-- `data/processed/bug_detection_results.csv`
-- `data/analysis/correlation_results.csv`
-- `data/analysis/figures/` (PNG & PDF visualisations)
+7. **Generate visualizations**
+ ```bash
+ python code/visualization/plotting.py
+ ```
+
+8. **Validate that all expected output files are present**
+ ```bash
+ python code/quickstart_validation.py
+ ```
+
+After step 6 the file `data/analysis/correlation_results.csv` will be created,
+containing the Spearman correlation coefficients and p‑values required by the
+research claims.
+
+## Notes
+
+- The scripts are idempotent; re‑running them will overwrite previous results.
+- All intermediate and final artifacts are recorded in the checksum manifest
+ via `code/checksum_manifest.py`.
+- Logging output is written to the console and to the appropriate CSV files
+ (e.g., `data/parse_failures.csv`).

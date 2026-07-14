@@ -12,3 +12,5 @@ tqdm  # auto-added: imported by run-book but missing from venv
 transformers  # auto-added: imported by run-book but missing from venv
 zstandard  # auto-added: imported by run-book but missing from venv
 pyyaml  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv
+scikit-learn  # auto-added: imported by run-book but missing from venv

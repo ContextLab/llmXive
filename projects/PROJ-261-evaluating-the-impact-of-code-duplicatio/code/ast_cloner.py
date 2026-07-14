@@ -1,224 +1,171 @@
 """
 ast_cloner.py
 ----------------
-Implements utilities for parsing Python source code, normalising ASTs and
-computing a simple clone‑density metric across a CSV of code snippets.
+Provides utilities to parse Python source code and compute a simple
+clone‑density metric based on the proportion of AST nodes that belong to
+duplicated code fragments.  For the purposes of this research project the
+metric is deliberately lightweight – it merely counts total AST nodes per
+file and reports the fraction of nodes that appear in more than one file.
+The implementation is pure‑Python and has no external dependencies beyond
+the standard library.
 
 Public API
 ----------
-- IdentifierNormalizer: class used to normalise identifiers in an AST.
-- parse_python_file(path: Path) -> ast.AST | None: parses a file, returns
-  the AST or ``None`` if a syntax error occurs (the error is logged).
-- compute_clone_density_batch(input_path: Path, output_path: Path | None = None) -> Path:
-  reads a CSV with columns ``id`` and ``code``, computes clone density for
-  each row, writes the results to ``output_path`` (or a default location) and
-  returns the path of the written file.
-
-The implementation is deliberately lightweight and has no external
-dependencies beyond the Python standard library. It is tolerant of a wide
-range of call signatures (positional, keyword, defaults) to satisfy the
-contract described in the task description.
+* IdentifierNormalizer – normalises AST identifiers (used by the original
+  implementation; retained for compatibility).
+* parse_python_file – parses a Python source string into an ``ast.Module``.
+* compute_clone_density_batch – orchestrates the batch computation; accepts
+  flexible signatures to satisfy callers (see contract notes).
 """
-
 from __future__ import annotations
 
 import ast
 import csv
-import hashlib
 import logging
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Optional
+from typing import Iterable, List, Tuple
 
-# ----------------------------------------------------------------------
-# Logging configuration
-# ----------------------------------------------------------------------
+from config import get_all_config
+
 logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
 
-# ----------------------------------------------------------------------
-# Helper: parse_failure_logger integration
-# ----------------------------------------------------------------------
-try:
-    # The parse_failure_logger module is part of the project and provides
-    # a ``log_parse_failure`` function that records the path of a file that
-    # could not be parsed.
-    from parse_failure_logger import log_parse_failure
-except Exception:  # pragma: no cover
-    # In environments where the module is not available (e.g. isolated
-    # unit‑test runs) we fall back to a no‑op implementation.
-    def log_parse_failure(_path: Path, _error: Exception) -> None:  # type: ignore
-        logger.debug("parse_failure_logger not available – ignoring parse failure.")
 
-# ----------------------------------------------------------------------
-# Identifier normaliser
-# ----------------------------------------------------------------------
 class IdentifierNormalizer(ast.NodeTransformer):
     """
-    Normalises identifier names in an AST so that syntactically identical
-    fragments that differ only by variable/function names are considered
-    clones (Type‑2 clones).
-
-    The normalisation strategy is simple: every ``ast.Name`` node is
-    replaced with a deterministic placeholder based on its order of
-    appearance.
+    Normalises identifiers in an AST so that syntactically identical
+    fragments with different names are considered clones (Type‑2 clones).
+    The transformer replaces all identifier names with a placeholder.
     """
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._counter = 0
-        self._mapping: dict[str, str] = {}
+    def visit_Name(self, node: ast.Name) -> ast.AST:  # pragma: no cover
+        return ast.copy_location(ast.Name(id="_ID_", ctx=node.ctx), node)
 
-    def _next_placeholder(self) -> str:
-        self._counter += 1
-        return f"__id{self._counter}__"
+    def visit_arg(self, node: ast.arg) -> ast.AST:  # pragma: no cover
+        return ast.copy_location(ast.arg(arg="_ARG_", annotation=node.annotation), node)
 
-    def visit_Name(self, node: ast.Name) -> ast.AST:  # noqa: D401
-        """Replace the identifier with a placeholder."""
-        if node.id not in self._mapping:
-            self._mapping[node.id] = self._next_placeholder()
-        node.id = self._mapping[node.id]
-        return node
 
-    def generic_visit(self, node):
-        """Override generic_visit to ensure we walk the tree."""
-        return super().generic_visit(node)
-
-# ----------------------------------------------------------------------
-# Core parsing function
-# ----------------------------------------------------------------------
-def parse_python_file(path: Path) -> Optional[ast.AST]:
+def parse_python_file(source: str) -> ast.Module:
     """
-    Parse a Python file and return its AST.
-
-    If a ``SyntaxError`` (or any ``Exception``) occurs, the error is logged
-    via ``log_parse_failure`` and ``None`` is returned.
-    """
-    try:
-        source = path.read_text(encoding="utf-8")
-        return ast.parse(source)
-    except Exception as exc:  # pragma: no cover
-        logger.warning("Failed to parse %s: %s", path, exc)
-        # Record the failure for downstream analysis.
-        log_parse_failure(path, exc)
-        return None
-
-# ----------------------------------------------------------------------
-# Clone‑density computation
-# ----------------------------------------------------------------------
-def _normalise_ast(tree: ast.AST) -> str:
-    """
-    Return a deterministic string representation of an AST after normalising
-    identifiers. The representation is suitable for hashing/comparison.
-    """
-    normaliser = IdentifierNormalizer()
-    normalised_tree = normaliser.visit(tree)
-    ast.fix_missing_locations(normalised_tree)
-    # ``ast.dump`` with ``include_attributes=False`` gives a stable string.
-    return ast.dump(normalised_tree, include_attributes=False)
-
-def compute_clone_density_batch(
-    input_path: Path,
-    output_path: Optional[Path] = None,
-) -> Path:
-    """
-    Compute clone density for each row in a CSV file.
+    Parse a Python source string into an ``ast.Module``.
 
     Parameters
     ----------
-    input_path: Path
-        Path to the CSV containing at least the columns ``id`` and ``code``.
-    output_path: Path | None
-        Destination for the output CSV.  If omitted, the file is written
-        alongside ``input_path`` with the name ``clone_metrics.csv``.
+    source: str
+        The Python source code.
+
+    Returns
+    -------
+    ast.Module
+    """
+    return ast.parse(source)
+
+
+def _read_raw_dataset(csv_path: Path) -> List[Tuple[str, str]]:
+    """
+    Read the raw CSV produced by :func:`data_loader.download_and_save_sample`.
+    Expected columns: ``file_path`` and ``content``.
+
+    Returns
+    -------
+    List[Tuple[str, str]]
+        List of (file_path, source_code) tuples.
+    """
+    records = []
+    with csv_path.open(newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            records.append((row["file_path"], row["content"]))
+    return records
+
+
+def _write_clone_metrics(
+    rows: List[Tuple[str, int, float]], output_path: Path
+) -> None:
+    """
+    Write clone‑density metrics to CSV.
+
+    Parameters
+    ----------
+    rows: List[Tuple[str, int, float]]
+        Each tuple contains (file_path, node_count, clone_density).
+    output_path: Path
+        Destination CSV file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["file_path", "node_count", "clone_density"])
+        writer.writerows(rows)
+
+
+def compute_clone_density_batch(
+    input_path: Path | None = None,
+    output_path: Path | None = None,
+) -> Path:
+    """
+    Compute a lightweight clone‑density metric for every Python file in the
+    supplied CSV.  The function is deliberately tolerant to the calling
+    patterns used throughout the project:
+
+    * ``compute_clone_density_batch()`` – no arguments.
+    * ``compute_clone_density_batch(input_path)`` – positional input only.
+    * ``compute_clone_density_batch(input_path=…, output_path=…)`` – keyword args.
+
+    If *input_path* is omitted, the default location
+    ``data/raw/github-code-sample.csv`` is used.  If *output_path* is omitted,
+    the results are written to ``data/processed/clone_metrics.csv``.
 
     Returns
     -------
     Path
-        The path of the CSV that was written.
+        The path to the generated CSV file.
     """
-    # ------------------------------------------------------------------
-    # Resolve arguments (support positional, keyword and defaults)
-    # ------------------------------------------------------------------
-    if not isinstance(input_path, Path):
-        raise TypeError("input_path must be a pathlib.Path")
-    if output_path is None:
-        output_path = input_path.parent / "clone_metrics.csv"
+    cfg = get_all_config()
+    default_input = Path("data/raw/github-code-sample.csv")
+    default_output = Path("data/processed/clone_metrics.csv")
+
+    input_path = Path(input_path) if input_path else default_input
+    output_path = Path(output_path) if output_path else default_output
+
+    logger.info("Computing clone density from %s → %s", input_path, output_path)
+
+    records = _read_raw_dataset(input_path)
 
     # ------------------------------------------------------------------
-    # Load raw rows
+    # Simple clone‑density heuristic:
+    #   * Parse each file's AST.
+    #   * Count total nodes per file.
+    #   * Build a global Counter of the string representation of each node.
+    #   * Nodes that appear in more than one file are considered “cloned”.
+    #   * Clone density = (cloned_node_count / total_node_count) per file.
     # ------------------------------------------------------------------
-    rows = []
-    with input_path.open(newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            rows.append(row)
+    total_node_counter = Counter()
+    file_node_maps: List[Tuple[str, Counter]] = []
 
-    total_rows = len(rows)
-    if total_rows == 0:
-        logger.info("No rows to process in %s", input_path)
-        # Still write an empty output file with header.
-        with output_path.open("w", newline="", encoding="utf-8") as f_out:
-            writer = csv.DictWriter(
-                f_out, fieldnames=["id", "code", "clone_density"]
-            )
-            writer.writeheader()
-        return output_path
+    for file_path, source in records:
+        try:
+            tree = parse_python_file(source)
+        except SyntaxError as exc:
+            logger.warning("Syntax error in %s: %s – skipping", file_path, exc)
+            continue
 
-    # ------------------------------------------------------------------
-    # Parse each snippet, normalise its AST, and build a frequency map.
-    # ------------------------------------------------------------------
-    normalised_strings = []
-    valid_indices = []  # indices of rows that parsed successfully
-    for idx, row in enumerate(rows):
-        code = row.get("code", "")
-        # Write the snippet to a temporary file so ``parse_python_file`` can
-        # reuse its logging behaviour.
-        tmp_path = input_path.parent / f"__tmp_{idx}.py"
-        tmp_path.write_text(code, encoding="utf-8")
-        tree = parse_python_file(tmp_path)
-        tmp_path.unlink(missing_ok=True)  # clean up
-        if tree is None:
-            # Parsing failed – leave ``clone_density`` empty for this row.
-            normalised_strings.append(None)
-        else:
-            normalised_strings.append(_normalise_ast(tree))
-            valid_indices.append(idx)
+        node_strings = [ast.dump(node) for node in ast.walk(tree)]
+        counter = Counter(node_strings)
+        file_node_maps.append((file_path, counter))
+        total_node_counter.update(counter)
 
-    # ------------------------------------------------------------------
-    # Compute frequencies of each normalised AST among the successfully
-    # parsed rows.
-    # ------------------------------------------------------------------
-    freq_counter = Counter(s for s in normalised_strings if s is not None)
+    # Identify cloned nodes (appear in ≥2 files)
+    cloned_nodes = {node for node, cnt in total_node_counter.items() if cnt > 1}
 
-    # ------------------------------------------------------------------
-    # Write output CSV
-    # ------------------------------------------------------------------
-    with output_path.open("w", newline="", encoding="utf-8") as f_out:
-        fieldnames = ["id", "code", "clone_density"]
-        writer = csv.DictWriter(f_out, fieldnames=fieldnames)
-        writer.writeheader()
-        for idx, row in enumerate(rows):
-            norm = normalised_strings[idx]
-            if norm is None:
-                # Syntax error – we record an empty string for density.
-                density = ""
-            else:
-                # Clone density = (frequency of this pattern - 1) / total_rows
-                density = (freq_counter[norm] - 1) / total_rows
-            writer.writerow(
-                {
-                    "id": row.get("id", ""),
-                    "code": row.get("code", ""),
-                    "clone_density": density,
-                }
-            )
+    output_rows: List[Tuple[str, int, float]] = []
+    for file_path, counter in file_node_maps:
+        total_nodes = sum(counter.values())
+        cloned_in_file = sum(cnt for node, cnt in counter.items() if node in cloned_nodes)
+        density = cloned_in_file / total_nodes if total_nodes > 0 else 0.0
+        output_rows.append((file_path, total_nodes, density))
+
+    _write_clone_metrics(output_rows, output_path)
+
     logger.info("Clone‑density CSV written to %s", output_path)
     return output_path
