@@ -1,0 +1,88 @@
+model_summary:
+  n_observations: 1000
+  n_predictors: 3
+  converged: true
+  log_likelihood: -574.3129842117935
+  aic: 1156.625968423587
+  bic: 1176.2569895395154
+coefficients:
+- variable: engagement_score
+  coefficient: -0.4132844678101611
+  std_error: 0.15122135631872508
+  z_statistic: -2.732976861674834
+  p_value: 0.006276474141751475
+  adj_p_value: 0.018829422425254427
+  significant_at_0.05: true
+  significant_at_fdr: true
+- variable: age
+  coefficient: -0.0005044304060705375
+  std_error: 0.004536358849003235
+  z_statistic: -0.11119720085225951
+  p_value: 0.9114599712650155
+  adj_p_value: 0.9114599712650155
+  significant_at_0.05: false
+  significant_at_fdr: false
+- variable: farm_size
+  coefficient: -0.008449754711888597
+  std_error: 0.029392548480912578
+  z_statistic: -0.28747948540004414
+  p_value: 0.7737452075839462
+  adj_p_value: 0.9114599712650155
+  significant_at_0.05: false
+  significant_at_fdr: false
+vif_diagnostics:
+- variable: engagement_score
+  vif: 1.0001936622830871
+  warning: false
+- variable: age
+  vif: 1.8314444964555125
+  warning: false
+- variable: farm_size
+  vif: 1.8311875845066525
+  warning: false
+fdr_correction:
+  alpha: 0.1
+  method: Benjamini-Hochberg
+  adjusted_p_values:
+  - 0.018829422425254427
+  - 0.9114599712650155
+  - 0.9114599712650155
+  rejected:
+  - true
+  - false
+  - false
+roc_metrics:
+  auc: 0.5545424207418816
+  interpretation: No better than random
+roc_plot_path: results/roc_curve.png
+mediation_analysis:
+  method: Baron & Kenny with bootstrap
+  n_bootstraps: 1000
+  n_observations: 1000
+  direct_effect: null
+  indirect_effect: null
+  total_effect: null
+  confidence_interval:
+  - -0.06624800591527069
+  - -0.01109608185602066
+  interpretation: Exploratory - mediation effects should be interpreted with caution
+  indirect_effect_significant: !!python/object/apply:numpy._core.multiarray.scalar
+  - !!python/object/apply:numpy.dtype
+    args:
+    - b1
+    - false
+    - true
+    state: !!python/tuple
+    - 3
+    - '|'
+    - null
+    - null
+    - null
+    - -1
+    - -1
+    - 0
+  - !!binary |
+    AQ==
+  error: float() argument must be a string or a real number, not 'Series'
+timestamp: '2026-07-14T14:21:27.623151'
+random_seed: 42

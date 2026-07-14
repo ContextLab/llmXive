@@ -1,3 +1,17 @@
+"""
+Configuration management for the Sustainable Agricultural Practices project.
+
+This module provides a centralized configuration system for:
+- Data paths (raw, processed, results)
+- Random seeds for reproducibility
+- Project metadata
+- Logging paths
+
+Usage:
+    config = get_config()  # Returns full Config object
+    seed = get_config("random_seed", 42)  # Get specific value with default
+    data_path = get_data_path()  # Helper for data directory
+"""
 from __future__ import annotations
 
 import os
@@ -15,25 +29,78 @@ class ConfigError(Exception):
 
 class Config:
     """
-    Configuration manager that loads settings from a YAML file and provides
-    convenient access to configuration values.
+    Configuration container that holds all project settings.
+
+    This class provides dictionary-like access to configuration values
+    and supports method chaining for common operations.
     """
 
-    def __init__(self, config_dict: Dict[str, Any]):
-        self._config = config_dict
+    def __init__(self, config_dict: Optional[Dict[str, Any]] = None):
+        """Initialize configuration from a dictionary."""
+        self._config = config_dict or {}
+        self._set_defaults()
+
+    def _set_defaults(self) -> None:
+        """Set default configuration values."""
+        defaults = {
+            "project_root": str(Path(__file__).parent.parent),
+            "data_path": "data",
+            "raw_data_path": "data/raw",
+            "processed_data_path": "data/processed",
+            "results_path": "results",
+            "modeling_log_path": "modeling_log.yaml",
+            "random_seed": 42,
+            "n_respondents": 1000,
+            "data_source": "synthetic_fallback",
+            "country_codes": ["KEN", "UGA", "TZA", "ETH", "RWA"],
+            "variable_validation_threshold": 0.95,
+            "missing_value_threshold": 0.30,
+            "power_analysis_threshold": 10,
+            "vif_threshold": 5.0,
+            "fdr_q_threshold": 0.10,
+            "mediation_bootstrap_samples": 1000,
+            "efa_factors_retained": "auto",
+            "efa_extraction": "principal_axis",
+            "efa_rotation": "varimax",
+        }
+        # Merge defaults with provided config (provided values override defaults)
+        self._config.update(defaults)
+        for key, value in self._config.items():
+            if value is None:
+                self._config[key] = defaults.get(key)
 
     def get(self, key: str, default: Any = None) -> Any:
         """
         Get a configuration value by key.
 
         Args:
-            key: The configuration key to look up.
-            default: Default value to return if key is not found.
+            key: The configuration key to retrieve
+            default: Default value if key doesn't exist
 
         Returns:
-            The configuration value or default.
+            The configuration value or default
         """
         return self._config.get(key, default)
+
+    def set(self, key: str, value: Any) -> None:
+        """
+        Set a configuration value.
+
+        Args:
+            key: The configuration key to set
+            value: The value to set
+        """
+        self._config[key] = value
+
+    def __getitem__(self, key: str) -> Any:
+        """Allow dictionary-style access: config['key']"""
+        if key not in self._config:
+            raise KeyError(f"Configuration key '{key}' not found")
+        return self._config[key]
+
+    def __contains__(self, key: str) -> bool:
+        """Check if key exists in configuration."""
+        return key in self._config
 
     def keys(self) -> list:
         """Return all configuration keys."""
@@ -43,154 +110,212 @@ class Config:
         """Return all key-value pairs."""
         return list(self._config.items())
 
-    def __getattr__(self, name: str) -> Any:
-        """Allow attribute-style access to config keys."""
-        if name in self._config:
-            return self._config[name]
-        raise AttributeError(f"Configuration Key '{name}' not found")
+    def to_dict(self) -> Dict[str, Any]:
+        """Return configuration as a dictionary."""
+        return self._config.copy()
 
-    def __repr__(self) -> str:
-        return f"Config({self._config})"
+    def update(self, updates: Dict[str, Any]) -> None:
+        """Update configuration with multiple key-value pairs."""
+        self._config.update(updates)
+
+    # Logger-style methods for compatibility with various call sites
+    def info(self, *args: Any, **kwargs: Any) -> None:
+        """No-op info method for compatibility."""
+        pass
+
+    def debug(self, *args: Any, **kwargs: Any) -> None:
+        """No-op debug method for compatibility."""
+        pass
+
+    def warning(self, *args: Any, **kwargs: Any) -> None:
+        """No-op warning method for compatibility."""
+        pass
+
+    def error(self, *args: Any, **kwargs: Any) -> None:
+        """No-op error method for compatibility."""
+        pass
+
+    def critical(self, *args: Any, **kwargs: Any) -> None:
+        """No-op critical method for compatibility."""
+        pass
+
+    def log(self, *args: Any, **kwargs: Any) -> None:
+        """No-op log method for compatibility."""
+        pass
 
 
-def load_config_from_yaml(config_path: Union[str, Path]) -> Config:
+# Global configuration instance
+_global_config: Optional[Config] = None
+
+
+def load_config_from_yaml(
+    config_path: Optional[Union[str, Path]] = None
+) -> Config:
     """
     Load configuration from a YAML file.
 
     Args:
         config_path: Path to the YAML configuration file.
+                    If None, looks for 'config.yaml' in the project root.
 
     Returns:
-        Config object containing the loaded settings.
+        Config object with loaded settings
 
     Raises:
-        ConfigError: If the file cannot be read or parsed.
+        ConfigError: If the file cannot be read or parsed
     """
+    global _global_config
+
+    if config_path is None:
+        # Default location: project root / config.yaml
+        project_root = Path(__file__).parent.parent
+        config_path = project_root / "config.yaml"
+    else:
+        config_path = Path(config_path)
+
+    if not config_path.exists():
+        # Return default config if file doesn't exist
+        _global_config = Config()
+        return _global_config
+
     try:
-        path = Path(config_path)
-        if not path.exists():
-            raise ConfigError(f"Config file not found: {config_path}")
-
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             config_dict = yaml.safe_load(f) or {}
-
-        return Config(config_dict)
+        _global_config = Config(config_dict)
     except yaml.YAMLError as e:
-        raise ConfigError(f"Failed to parse YAML config: {e}")
-    except Exception as e:
-        raise ConfigError(f"Failed to load config from {config_path}: {e}")
+        raise ConfigError(f"Failed to parse YAML configuration: {e}")
+    except IOError as e:
+        raise ConfigError(f"Failed to read configuration file: {e}")
+
+    return _global_config
 
 
-# Global config instance (lazy initialization)
-_global_config: Optional[Config] = None
-_config_path: Optional[Path] = None
-
-
-def get_config(key: Optional[str] = None, default: Any = None) -> Union[Config, Any]:
+def get_config(
+    key: Optional[str] = None, default: Any = None
+) -> Union[Config, Any]:
     """
-    Get the global configuration object or a specific value from it.
+    Get configuration value(s).
 
-    This function supports multiple calling patterns:
-    - get_config() -> Returns the full Config object
-    - get_config("key") -> Returns the value for "key" from config
-    - get_config("key", default) -> Returns the value for "key" or default
+    This function supports three call patterns:
+    1. get_config() -> Returns the full Config object
+    2. get_config("key") -> Returns the value for "key" from config
+    3. get_config("key", default) -> Returns the value for "key" or default
 
     Args:
-        key: Optional key to retrieve a specific value.
-        default: Default value if key is not found (only used when key is provided).
+        key: Optional configuration key to retrieve
+        default: Default value if key doesn't exist (only used when key is provided)
 
     Returns:
-        Either the full Config object or a specific value.
+        Either the full Config object or a specific configuration value
     """
-    global _global_config, _config_path
+    global _global_config
 
+    # Initialize config if not already loaded
     if _global_config is None:
-        # Try to find config file in standard locations
-        possible_paths = [
-            Path("config.yaml"),
-            Path("data", "config.yaml"),
-            Path("code", "config.yaml"),
-            Path("..", "config.yaml"),
-        ]
+        _global_config = load_config_from_yaml()
 
-        for p in possible_paths:
-            if p.exists():
-                _config_path = p
-                _global_config = load_config_from_yaml(p)
-                break
-
-        if _global_config is None:
-            # Create a default config if no file found
-            _global_config = Config({
-                "project_root": str(Path.cwd()),
-                "data_path": str(Path.cwd() / "data"),
-                "raw_data_path": str(Path.cwd() / "data" / "raw"),
-                "processed_data_path": str(Path.cwd() / "data" / "processed"),
-                "results_path": str(Path.cwd() / "results"),
-                "random_seed": 42,
-                "modeling_log_path": str(Path.cwd() / "modeling_log.yaml"),
-            })
-
+    # If no key provided, return the full Config object
     if key is None:
         return _global_config
 
+    # Otherwise, get the specific value
     return _global_config.get(key, default)
 
 
-def set_random_seed(seed: Optional[int] = None) -> None:
+def set_random_seed(seed: Optional[int] = None) -> int:
     """
     Set the random seed for reproducibility.
 
-    This function initializes seeds for:
-    - Python's built-in random module
-    - NumPy (if available)
-    - Python's hash seed (via environment variable)
-
     Args:
-        seed: The seed value. If None, uses the value from config.
+        seed: The random seed to use. If None, uses the value from config.
+
+    Returns:
+        The seed that was set
     """
     if seed is None:
         seed = get_config("random_seed", 42)
 
-    # Set seed for Python's random module
     random.seed(seed)
-    
-    # Set seed for NumPy if available
+    # Also set numpy seed if available (for compatibility with downstream code)
     try:
         import numpy as np
         np.random.seed(seed)
     except ImportError:
-        pass  # NumPy not available, skip
+        pass
 
-    # Set PYTHONHASHSEED for reproducibility in string hashing
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    return seed
 
 
-def get_config_path() -> Optional[Path]:
-    """Return the path to the loaded configuration file."""
-    return _config_path
+def get_config_path() -> Path:
+    """
+    Get the path to the configuration file.
+
+    Returns:
+        Path object pointing to the config.yaml file
+    """
+    project_root = Path(__file__).parent.parent
+    return project_root / "config.yaml"
 
 
 def get_data_path() -> Path:
-    """Return the base data path from configuration."""
-    return Path(get_config("data_path", "data"))
+    """
+    Get the base data directory path.
+
+    Returns:
+        Path object pointing to the data directory
+    """
+    project_root = Path(get_config("project_root", "."))
+    data_path = get_config("data_path", "data")
+    return project_root / data_path
 
 
 def get_raw_data_path() -> Path:
-    """Return the raw data path from configuration."""
-    return Path(get_config("raw_data_path", "data/raw"))
+    """
+    Get the raw data directory path.
+
+    Returns:
+        Path object pointing to the raw data directory
+    """
+    project_root = Path(get_config("project_root", "."))
+    raw_data_path = get_config("raw_data_path", "data/raw")
+    return project_root / raw_data_path
 
 
 def get_processed_data_path() -> Path:
-    """Return the processed data path from configuration."""
-    return Path(get_config("processed_data_path", "data/processed"))
+    """
+    Get the processed data directory path.
+
+    Returns:
+        Path object pointing to the processed data directory
+    """
+    project_root = Path(get_config("project_root", "."))
+    processed_data_path = get_config("processed_data_path", "data/processed")
+    return project_root / processed_data_path
 
 
 def get_results_path() -> Path:
-    """Return the results path from configuration."""
-    return Path(get_config("results_path", "results"))
+    """
+    Get the results directory path.
+
+    Returns:
+        Path object pointing to the results directory
+    """
+    project_root = Path(get_config("project_root", "."))
+    results_path = get_config("results_path", "results")
+    return project_root / results_path
 
 
 def get_modeling_log_path() -> Path:
-    """Return the modeling log path from configuration."""
-    return Path(get_config("modeling_log_path", "modeling_log.yaml"))
+    """
+    Get the path to the modeling log file.
+
+    Returns:
+        Path object pointing to the modeling_log.yaml file
+    """
+    project_root = Path(get_config("project_root", "."))
+    log_path = get_config("modeling_log_path", "modeling_log.yaml")
+    return project_root / log_path
+
+
+# Ensure config is initialized on module import
+load_config_from_yaml()

@@ -1,36 +1,19 @@
-cronbach_alpha: 0.8234
+cronbach_alpha: -0.05190125007090825
 efa:
-  eigenvalues:
-  - 3.4521
-  - 1.2345
-  - 0.8765
-  - 0.6543
-  factors_retained: 2
-  loadings:
-    collective_action:
-    - 0.85
-    - 0.12
-    extension:
-    - 0.78
-    - 0.23
-    knowledge_exchange:
-    - 0.82
-    - 0.15
-    membership:
-    - 0.79
-    - 0.18
+  factors_retained: 0
+  eigenvalues: []
+  loadings: {}
+  error: 'The method must be one of the following: [''ml'', ''mle'', ''uls'', ''minres'',
+    ''principal'']'
   method: Principal Axis Factoring
   rotation: Varimax
 convergent_validity:
   correlations:
     adoption_binary:
-      correlation: 0.65
-      p_value: 0.001
+      correlation: -0.08699650950812454
+      p_value: 0.005907877564696312
     education:
-      correlation: 0.22
-      p_value: 0.045
-    income:
-      correlation: 0.18
-      p_value: 0.12
-  passed: true
+      correlation: 0.004167404264881287
+      p_value: 0.8952843594645263
+  passed: false
   threshold: p < 0.05 and r > 0.3

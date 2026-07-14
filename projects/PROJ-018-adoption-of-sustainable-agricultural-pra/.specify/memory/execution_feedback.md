@@ -9,56 +9,34 @@ The gate detected that your reported numbers are NOT real measurements: they are
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Developmen…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…ting.  NOTE: This script generates synthetic data ONLY when real data…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…NLY).  NOTE: This script generates synthetic data ONLY when real data…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…LY authorized source for synthetic input data. All data must be clearl…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…> Dict[str, Any]:     """Generate a single synthetic respondent record for te…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the full synthetic dataset."""     set_rand…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…ain") def main():     """Generate and save synthetic data (FALLBACK ONLY)."""…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…umentParser(description="Generate synthetic survey data")     parser…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…nt(f"Generated {len(df)} synthetic records at {output_path}")…”
-- code/01_download_data.py: synthetic/fake INPUT data not authorized by the spec — “…FAO FIES. Falls back to synthetic data generation only if real…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 24 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Developmen…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…ting.  NOTE: This script generates synthetic data ONLY when real data…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…> Dict[str, Any]:     """Generate a single synthetic respondent record for te…”; 6 command(s) failed: python code/01_download_data.py --synthetic (rc=1); python code/02_clean_data.py (rc=1); python code/03_engineer_features.py (rc=1)
+**Summary**: 26 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Developmen…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…NLY).  NOTE: This script generates synthetic data ONLY when real data…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…LY authorized source for synthetic input data. All data must be clearl…”; 1 command(s) failed: python code/05_generate_report.py (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/01_download_data.py --synthetic -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/01_download_data.py", line 19, in <module>
-    import requests
-ModuleNotFoundError: No module named 'requests'
-- python code/02_clean_data.py -> rc=1
-    2026-07-14 13:07:21,782 - clean_data - INFO - Starting data cleaning pipeline.
-2026-07-14 13:07:21,784 - clean_data - INFO - Loading raw data from: data/raw/survey_data.csv
-2026-07-14 13:07:21,786 - clean_data - ERROR - Input file not found: data/raw/survey_data.csv
-- python code/03_engineer_features.py -> rc=1
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 190, in perform_efa
-    fa.fit(data)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/.venv/lib/python3.11/site-packages/factor_analyzer/factor_analyzer.py", line 630, in fit
-    X = check_array(X, force_all_finite="allow-nan", estimator=self, copy=True)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: check_array() got an unexpected keyword argument 'force_all_finite'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 402, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 399, in main
-    raise FeatureEngineeringError(str(e))
-FeatureEngineeringError: check_array() got an unexpected keyword argument 'force_all_finite'
-- python code/04_model_analysis.py -> rc=1
-    ERROR:root:Engineered data file not found at data/processed/engineered_data.csv. Please ensure T036/T037 (US2) has completed successfully.
 - python code/05_generate_report.py -> rc=1
-    WARNING: reportlab not installed. PDF generation will fail.
-Starting report generation...
-ERROR: reportlab is required for PDF generation.
-- python code/02_clean_data.py --input data/raw/survey_data.csv -> rc=1
-    2026-07-14 13:07:26,563 - clean_data - INFO - Starting data cleaning pipeline.
-2026-07-14 13:07:26,565 - clean_data - INFO - Loading raw data from: data/raw/survey_data.csv
-2026-07-14 13:07:26,567 - clean_data - ERROR - Input file not found: data/raw/survey_data.csv
+    ib/python3.11/site-packages/yaml/constructor.py", line 218, in construct_mapping
+    return super().construct_mapping(node, deep=deep)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/.venv/lib/python3.11/site-packages/yaml/constructor.py", line 143, in construct_mapping
+    value = self.construct_object(value_node, deep=deep)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/.venv/lib/python3.11/site-packages/yaml/constructor.py", line 100, in construct_object
+    data = constructor(self, node)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/.venv/lib/python3.11/site-packages/yaml/constructor.py", line 427, in construct_undefined
+    raise ConstructorError(None, None,
+yaml.constructor.ConstructorError: could not determine a constructor for the tag 'tag:yaml.org,2002:python/object/apply:numpy._core.multiarray.scalar'
+  in "results/model_results.yaml", line 69, column 32
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -68,41 +46,46 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_config` — defined in `code/config.py`; called 15 way(s):
+### `get_config` — defined in `code/config.py`; called 21 way(s):
 
-- code/02_clean_data.py: # get_config() in config.py handles the YAML loading
-- code/02_clean_data.py: cfg = get_config()
+- code/02_clean_data.py: return get_config()
+- code/02_clean_data.py: config = get_config()
 - code/config.py: - get_config() -> Returns the full Config object
 - code/config.py: - get_config("key") -> Returns the value for "key" from config
 - code/config.py: - get_config("key", default) -> Returns the value for "key" or default
 - code/config.py: seed = get_config("random_seed", 42)
 - code/config.py: return Path(get_config("data_path", "data"))
-- code/03_engineer_features.py: # The contract requires get_config() to return a Config object
+- code/config.py: return Path(get_config("raw_data_path", "data/raw"))
+- code/config.py: return Path(get_config("processed_data_path", "data/processed"))
+- code/config.py: return Path(get_config("results_path", "results"))
+- code/config.py: return Path(get_config("modeling_log_path", "modeling_log.yaml"))
 - code/03_engineer_features.py: return get_config()
+- code/03_engineer_features.py: config = get_config()
 - code/06_finalize_results.py: config = get_config()
-- code/05_generate_report.py: PROJECT_ROOT = Path(get_config("project_root", "."))
+- code/05_generate_report.py: config = get_config()
 - code/00_generate_synthetic_data.py: config = get_config()
 - code/validate_quickstart.py: config = get_config()
-- code/01_download_data.py: config = get_config()
-- code/04_model_analysis.py: config = get_config() if 'get_config' in globals() else {}
+- code/04_model_analysis.py: cfg = get_config()
+- code/04_model_analysis.py: project_root = Path(get_config("project_root", "."))
+- code/04_model_analysis.py: "processed_data_path": project_root / get_config("processed_data_path", "data/processed"),
+- code/04_model_analysis.py: "results_path": project_root / get_config("results_path", "results"),
 
 Make `get_config` in `code/config.py` accept ALL of the above.
 
-### `update_log_section` — defined in `code/logging_config.py`; called 14 way(s):
+### `update_log_section` — defined in `code/logging_config.py`; called 13 way(s):
 
-- code/02_clean_data.py: update_log_section("data_cleaning", {"status": "failed", "error": str(e)})
+- code/02_clean_data.py: update_log_section("variable_validation", {
 - code/02_clean_data.py: update_log_section("data_cleaning", {
-- code/03_engineer_features.py: update_log_section("feature_engineering", {"status": "failed", "error": str(e)})
+- code/03_engineer_features.py: update_log_section("feature_engineering", {"status": "completed", "timestamp": datetime.utcnow().isoformat()})
+- code/03_engineer_features.py: update_log_section("feature_engineering", {"status": "failed", "error": str(e), "timestamp": datetime.utcnow().isoformat()})
 - code/logging_config.py: - update_log_section("name", {"key": "value"})
 - code/logging_config.py: - update_log_section("name", status="failed", error="msg")
 - code/logging_config.py: update_log_section(operation_name, {"status": "started", "timestamp": datetime.utcnow().isoformat()}, log_path=log_path)
 - code/logging_config.py: update_log_section(operation_name, {"status": "completed", "timestamp": datetime.utcnow().isoformat()}, log_path=log_path)
 - code/logging_config.py: update_log_section(operation_name, {"status": "failed", "error": str(e), "timestamp": datetime.utcnow().isoformat()}, log_path=log_path)
 - code/00_generate_synthetic_data.py: update_log_section("data_source_metadata", {
+- code/01_download_data.py: update_log_section("variable_validation", {
 - code/01_download_data.py: update_log_section("data_acquisition", {
-- code/01_download_data.py: update_log_section("data_acquisition", {"status": "started", "source": "attempting_real"})
-- code/01_download_data.py: update_log_section("data_acquisition", {"status": "completed", "source": source_used})
-- code/04_model_analysis.py: update_log_section("model_analysis", {"status": "failed", "error": str(e)})
 - code/04_model_analysis.py: update_log_section("model_analysis", {
 
 Make `update_log_section` in `code/logging_config.py` accept ALL of the above.
@@ -126,29 +109,29 @@ Whichever you choose, every call site of `Config` across the codebase must stop 
 `Config.get` call sites (25):
 - code/02_clean_data.py: base_dir = Path(config.get("project_root", "."))
 - code/02_clean_data.py: raw_dir = base_dir / config.get("raw_data_path", "data/raw")
-- code/02_clean_data.py: return aliases.get(col_name, col_name)
-- code/02_clean_data.py: log_path = Path(config.get("project_root", ".")) / "modeling_log.yaml"
+- code/02_clean_data.py: log_path = base_dir / config.get("modeling_log_path", "modeling_log.yaml")
 - code/02_clean_data.py: proc_dir = base_dir / config.get("processed_data_path", "data/processed")
 - code/02_clean_data.py: set_random_seed(config.get("random_seed", 42))
 - code/code_00_generate_synthetic_data.py: random.seed(config.get("random_seed", 42))
 - code/code_00_generate_synthetic_data.py: n = config.get("n_respondents", 1000)
 - code/config.py: return self._config.get(key, default)
 - code/config.py: return _global_config.get(key, default)
-- code/03_engineer_features.py: input_path = Path(config.get("processed_data_path", "data/processed")) / "cleaned_data.csv"
-- code/03_engineer_features.py: results_dir = Path(config.get("results_path", "results"))
-- code/03_engineer_features.py: log_path = Path(config.get("project_root", ".")) / "modeling_log.yaml"
-- code/03_engineer_features.py: status = "passed" if metrics.get("convergent_validity", {}).get("passed", False) else "skipped"
-- code/03_engineer_features.py: log_data["validity_analysis"]["cronbach_alpha"] = metrics.get("cronbach_alpha")
-- code/03_engineer_features.py: log_data["validity_analysis"]["efa_factors_retained"] = metrics.get("efa", {}).get("factors_retained")
-- code/03_engineer_features.py: output_dir = Path(config.get("processed_data_path", "data/processed"))
+- code/03_engineer_features.py: base_dir = Path(config.get("project_root", "."))
+- code/03_engineer_features.py: processed_path = base_dir / config.get("processed_data_path", "data/processed")
+- code/03_engineer_features.py: log_data['validity_analysis']['cronbach_alpha'] = metrics.get('cronbach_alpha')
+- code/03_engineer_features.py: efa_data = metrics.get('efa', {})
+- code/03_engineer_features.py: log_data['validity_analysis']['efa_factors_retained'] = efa_data.get('factors_retained')
+- code/03_engineer_features.py: log_data['validity_analysis']['efa_method'] = efa_data.get('method')
+- code/03_engineer_features.py: log_data['validity_analysis']['efa_rotation'] = efa_data.get('rotation')
+- code/03_engineer_features.py: conv_data = metrics.get('convergent_validity', {})
+- code/03_engineer_features.py: log_data['validity_analysis']['convergent_validity_status'] = conv_data.get('passed', False)
+- code/03_engineer_features.py: log_data['validity_analysis']['convergent_validity_details'] = conv_data.get('correlations', {})
+- code/03_engineer_features.py: input_path = Path(args.input) if args.input else (base_dir / config.get("processed_data_path", "data/processed") / "cleaned_data.csv")
+- code/03_engineer_features.py: output_path = Path(args.output) if args.output else (base_dir / config.get("processed_data_path", "data/processed") / "engineered_data.csv")
+- code/03_engineer_features.py: metrics_path = Path(args.metrics) if args.metrics else (base_dir / config.get("results_path", "results") / "validity_metrics.yaml")
 - code/logging_config.py: log_path = kwargs.get('log_path', 'modeling_log.yaml')
 - code/06_finalize_results.py: "random_seed": config.get("random_seed"),
 - code/06_finalize_results.py: "data_source": config.get("data_source", "unknown"),
-- code/06_finalize_results.py: "seed_value": config.get("random_seed"),
-- code/06_finalize_results.py: set_random_seed(config.get("random_seed", 42))
-- code/06_finalize_results.py: project_root = Path(config.get("project_root", "."))
-- code/05_generate_report.py: reg_data = results.get("regression", {})
-- code/05_generate_report.py: coeffs = reg_data.get("coefficients", [])
 
 ## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module
 
@@ -243,16 +226,6 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 - PRODUCER(s) to edit: `code/03_engineer_features.py`, `code/06_finalize_results.py`, `code/04_model_analysis.py`
 - CONSUMER(s) that read it: `code/03_engineer_features.py`, `code/06_finalize_results.py`, `code/05_generate_report.py`, `code/validate_quickstart.py`, `code/04_model_analysis.py`
   → Edit the producer so every required name [results_dir] is in `engineered_data.csv`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
-
-### `data/processed/engineered_data.csv`
-
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/03_engineer_features.py`, `code/06_finalize_results.py`, `code/04_model_analysis.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/engineered_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/03_engineer_features.py`, `code/06_finalize_results.py`, `code/05_generate_report.py`, `code/validate_quickstart.py`, `code/04_model_analysis.py`.
-
-### `data/raw/survey_data.csv`
-
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/02_clean_data.py`, `code/code_00_generate_synthetic_data.py`, `code/00_generate_synthetic_data.py`, `code/01_download_data.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/raw/survey_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/02_clean_data.py`, `code/code_00_generate_synthetic_data.py`, `code/validate_quickstart.py`.
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/cleaned_data.csv`
 

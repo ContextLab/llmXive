@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-018-adoption-of-sustainable-agricultural-pra",
   "ok": false,
-  "reason": "24 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Synthetic Data Generator for Developmen\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ting.  NOTE: This script generates synthetic data ONLY when real data\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026> Dict[str, Any]:     \"\"\"Generate a single synthetic respondent record for te\u2026\u201d; 6 command(s) failed: python code/01_download_data.py --synthetic (rc=1); python code/02_clean_data.py (rc=1); python code/03_engineer_features.py (rc=1)",
-  "artifacts": [],
-  "failures": [
-    "python code/01_download_data.py --synthetic -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/01_download_data.py\", line 19, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
-    "python code/02_clean_data.py -> rc=1\n    2026-07-14 13:07:21,782 - clean_data - INFO - Starting data cleaning pipeline.\n2026-07-14 13:07:21,784 - clean_data - INFO - Loading raw data from: data/raw/survey_data.csv\n2026-07-14 13:07:21,786 - clean_data - ERROR - Input file not found: data/raw/survey_data.csv",
-    "python code/03_engineer_features.py -> rc=1\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py\", line 190, in perform_efa\n    fa.fit(data)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/.venv/lib/python3.11/site-packages/factor_analyzer/factor_analyzer.py\", line 630, in fit\n    X = check_array(X, force_all_finite=\"allow-nan\", estimator=self, copy=True)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
-    "python code/04_model_analysis.py -> rc=1\n    ERROR:root:Engineered data file not found at data/processed/engineered_data.csv. Please ensure T036/T037 (US2) has completed successfully.",
-    "python code/05_generate_report.py -> rc=1\n    WARNING: reportlab not installed. PDF generation will fail.\nStarting report generation...\nERROR: reportlab is required for PDF generation.",
-    "python code/02_clean_data.py --input data/raw/survey_data.csv -> rc=1\n    2026-07-14 13:07:26,563 - clean_data - INFO - Starting data cleaning pipeline.\n2026-07-14 13:07:26,565 - clean_data - INFO - Loading raw data from: data/raw/survey_data.csv\n2026-07-14 13:07:26,567 - clean_data - ERROR - Input file not found: data/raw/survey_data.csv"
+  "reason": "26 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Synthetic Data Generator for Developmen\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026NLY).  NOTE: This script generates synthetic data ONLY when real data\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026LY authorized source for synthetic input data. All data must be clearl\u2026\u201d; 1 command(s) failed: python code/05_generate_report.py (rc=1)",
+  "artifacts": [
+    "data/processed/cleaned_data.csv",
+    "data/processed/engineered_data.csv",
+    "data/raw/survey_data.csv",
+    "results/roc_curve.png"
   ],
-  "fix_rounds": 9,
+  "failures": [
+    "python code/05_generate_report.py -> rc=1\n    ib/python3.11/site-packages/yaml/constructor.py\", line 218, in construct_mapping\n    return super().construct_mapping(node, deep=deep)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/.venv/lib/python3.11/site-packages/yaml/constructor.py\", line 143, in construct_mapping\n    value = self.construct_object(value_node, deep=deep)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-0"
+  ],
+  "fix_rounds": 10,
   "model_tier": 0,
-  "updated_at": "2026-07-14T13:07:27Z"
+  "updated_at": "2026-07-14T14:21:29Z"
 }

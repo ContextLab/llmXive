@@ -1,22 +1,76 @@
+power_analysis:
+  effective_N_events: 200
+  num_predictors: 5
+  ratio: 40.0
+  shortfall: false
 sections:
+  clean_data_pipeline:
+    last_updated: '2026-07-14T14:21:28.629229'
+    status: completed
+    timestamp: '2026-07-14T14:21:28.625568'
+  data_acquisition:
+    last_updated: '2026-07-14T14:21:19.317849'
+    record_count: 1000
+    source: synthetic_fallback
+    status: completed
+    timestamp: '2026-07-14T14:21:19.315706'
   data_cleaning:
     error: 'Input file not found: data/raw/survey_data.csv'
-    last_updated: '2026-07-14T13:07:26.566651'
-    status: failed
+    last_updated: '2026-07-14T14:21:28.623079'
+    records_processed: 1000
+    status: completed
+    timestamp: '2026-07-14T14:21:28.619356'
   data_cleaning_main:
     last_updated: '2026-07-14T13:07:26.561993'
     status: started
     timestamp: '2026-07-14T13:07:26.560387'
   feature_engineering:
     error: check_array() got an unexpected keyword argument 'force_all_finite'
-    last_updated: '2026-07-14T13:07:23.413378'
-    status: failed
+    last_updated: '2026-07-14T14:21:21.104896'
+    status: completed
+    timestamp: '2026-07-14T14:21:21.101295'
   model_analysis:
+    auc: 0.5545424207418816
+    converged: true
     error: Engineered data file not found at data/processed/engineered_data.csv. Please
       ensure T036/T037 (US2) has completed successfully.
-    last_updated: '2026-07-14T13:07:25.390042'
-    status: failed
+    last_updated: '2026-07-14T14:21:27.630835'
+    n_observations: 1000
+    results_file: results/model_results.yaml
+    roc_plot: results/roc_curve.png
+    status: completed
+    timestamp: '2026-07-14T14:21:27.627076'
   model_analysis_main:
     last_updated: '2026-07-14T13:07:25.392342'
     status: completed
     timestamp: '2026-07-14T13:07:25.391050'
+  variable_validation:
+    last_updated: '2026-07-14T14:21:28.602764'
+    missing_variables:
+    - adoption
+    - engagement_items
+    present_variables:
+    - age
+    - education
+    - farm_size
+    - credit_access
+    - adoption_sustainable
+    - engagement_membership
+    - engagement_extension
+    - engagement_collective_action
+    - engagement_knowledge_exchange
+    status: warning
+    timestamp: '2026-07-14T14:21:28.598979'
+validity_analysis:
+  convergent_validity_details:
+    adoption_binary:
+      correlation: -0.08699650950812454
+      p_value: 0.005907877564696312
+    education:
+      correlation: 0.004167404264881287
+      p_value: 0.8952843594645263
+  convergent_validity_status: false
+  cronbach_alpha: -0.05190125007090825
+  efa_factors_retained: 0
+  efa_method: Principal Axis Factoring
+  efa_rotation: Varimax
