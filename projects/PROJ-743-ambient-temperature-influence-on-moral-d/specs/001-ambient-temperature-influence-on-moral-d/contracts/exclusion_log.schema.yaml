@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Exclusion Log Schema"
+description: "Schema for the log of excluded records during data ingestion."
+type: "object"
+properties:
+  response_id:
+    type: "string"
+    description: "Unique identifier for the excluded response."
+  reason:
+    type: "string"
+    description: "Reason for exclusion (e.g., 'distance > 100km', 'ERA5 coverage gap', 'invalid response time')."
+  original_lat:
+    type: "number"
+    description: "Original latitude of the response."
+  original_lon:
+    type: "number"
+    description: "Original longitude of the response."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Original timestamp of the response."
+required:
+  - response_id
+  - reason
+  - original_lat
+  - original_lon
+  - timestamp
+additionalProperties: false

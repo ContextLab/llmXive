@@ -59,6 +59,13 @@ properties:
     type: "string"
     enum: ["high", "low"]
     description: "Quality of the geospatial/temporal match."
+  station_id:
+    type: "string"
+    description: "Identifier of the matched ERA5 grid cell."
+  match_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of the matched ERA5 observation."
   exclusion_reason:
     type: ["string", "null"]
     description: "Reason for exclusion if the record was filtered out."

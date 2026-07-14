@@ -97,7 +97,7 @@ The system must execute robustness checks, including alternative temperature met
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The percentage of Moral Machine records successfully matched with ERA5 temperature data is measured against the total number of records with valid location data. (See US-1)
-- **SC-002**: The statistical significance of the temperature coefficient (p-value) is measured against the standard alpha threshold of 0.05 to determine if the association is non-zero. (See US-2)
+- **SC-002**: The statistical significance of the temperature coefficient (p-value) is measured against a standard alpha threshold to determine if the association is non-zero. (See US-2)
 - **SC-003**: The variation in the temperature coefficient across the sensitivity analysis thresholds is measured against the primary model coefficient to assess robustness. (See US-3)
 - **SC-004**: The convergence status of the mixed-effects model is measured against the requirement of successful optimization (no convergence warnings) to ensure valid inference. (See US-2)
 - **SC-005**: The distribution of model residuals is measured against the normal distribution using the Anderson-Darling test on a random [deferred] sample, requiring a p-value > 0.05 to indicate a good fit, supplemented by visual inspection of QQ-plots. (See US-2)

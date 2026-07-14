@@ -1,4 +1,4 @@
-resolved_at: '2026-07-02T21:20:39.255539+00:00'
+resolved_at: '2026-07-14T23:03:24.764072+00:00'
 datasets:
 - intent: ERA5
   status: verified
@@ -15,24 +15,32 @@ datasets:
     source: huggingface
     status: verified
     format: hdf5
-  - url: https://figshare.com/articles/preprint/Novel_Adsorbent_in_Novel_Location_Fluorosorb_as_Replacement_for_Anthracite_in_Gravity_Media_Filters_North_Jersey_District_Water_Supply_Commission_s_Research_on_the_Use_of_Cetco_s_Fluorosorb_Media_for_Compliance_with_Federal_PFAS_Regulations/32746212
+  - url: https://figshare.com/articles/figure/Structural_Drift_of_AI_Behavior_Across_Model_Evolution_An_Observational_Timeline/32721132
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Del_da_o_quir_rgico_al_equilibrio_ocular_abordaje_biorregulador_del_ojo_seco_postoperatorio_Reporte_de_caso/32885414
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Redeveloping_an_Undergraduate_Coach_Development_program_using_Human-Centred_Design/32980889
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/K_sub_3_sub_Yb_sub_2_sub_BO_sub_3_sub_sub_3_sub_and_Rb_sub_3_sub_Yb_sub_2_sub_BO_sub_3_sub_sub_3_sub_Two_Rare-Earth_Borate_Ultraviolet_Nonlinear_Optical_Crystals/32885436
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Bird_flu_H5N1_in_Australia_protect_Australian_species_from_bird_flu_virus/32983049
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Map_of_Ilam_Province_western_Iran_indicating_the_location_of_Ilam_City_provincial_capital_with_its_position_highlighted_on_the_world_map/32885426
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Frailty_Trajectories_in_Men_Aged_71_Years_or_Older_Living_in_Western_Australia_Results_From_the_Health_in_Men_Study/32987999
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/From_lab_to_life_Advances_in_tissue_engineering_and_3D_bioprinting_for_regenerative_female_reproductive_health_https_doi_org_10_1016_j_tice_2026_103736_/32885417
+  - url: https://figshare.com/articles/thesis/_b_Safety-Framed_Template_Reconstruction_in_GPT-5_6_b_b_An_Observational_Study_Using_Cel-Style_Images_as_Behavioral_Probes_b_/32957075
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21361664
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21361666
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/18488867
@@ -47,31 +55,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7474859
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3528936
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21115102
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.cvdncjtkc
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21115102
+  - url: https://zenodo.org/records/21361664
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21135299
+  - url: https://zenodo.org/records/21361664
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21135299
+  - url: https://zenodo.org/records/21361666
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16763144
+  - url: https://zenodo.org/records/21361666
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

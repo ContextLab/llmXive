@@ -1,69 +1,56 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Output Schema"
-description: "Schema for the statistical model output and diagnostics."
+description: "Schema for the statistical model output (LMM/GLMM)."
 type: "object"
 properties:
   model_type:
     type: "string"
-    description: "Type of model fitted (e.g., 'LMM', 'GLMM')."
+    description: "Type of model used (e.g., 'LMM', 'GLMM')."
   fixed_effects:
     type: "object"
-    description: "Coefficients, standard errors, and p-values for fixed effects."
+    description: "Dictionary of fixed effect coefficients."
     additionalProperties:
       type: "object"
       properties:
-        coefficient:
+        estimate:
           type: "number"
-        standard_error:
+        std_error:
           type: "number"
         p_value:
           type: "number"
-          minimum: 0
-          maximum: 1
       required:
-        - coefficient
-        - standard_error
+        - estimate
+        - std_error
         - p_value
   random_effects:
     type: "object"
-    description: "Variance components for random effects."
+    description: "Dictionary of random effect variances."
     additionalProperties:
       type: "number"
-  convergence_status:
-    type: "boolean"
-    description: "True if the model converged successfully."
   likelihood_ratio_test:
     type: "object"
-    description: "Results of the likelihood-ratio test against the null model."
+    description: "Result of the likelihood ratio test against the null model."
     properties:
       statistic:
         type: "number"
       p_value:
         type: "number"
-        minimum: 0
-        maximum: 1
-    required:
-      - statistic
-      - p_value
+      df_diff:
+        type: "integer"
+  convergence_status:
+    type: "string"
+    description: "Status of model convergence (e.g., 'success', 'warning')."
   diagnostics:
     type: "object"
     description: "Diagnostic test results."
     properties:
-      shapiro_wilk_p:
+      anderson_darling_p_value:
         type: "number"
-        minimum: 0
-        maximum: 1
-      anderson_darling_p:
-        type: "number"
-        minimum: 0
-        maximum: 1
-    required:
-      - shapiro_wilk_p
-      - anderson_darling_p
+      normality_assessed:
+        type: "boolean"
 required:
   - model_type
   - fixed_effects
   - convergence_status
   - likelihood_ratio_test
-  - diagnostics
 additionalProperties: false

@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Dataset Schema"
+description: "Schema for the merged Moral Machine and ERA5 dataset used in analysis."
+type: "object"
+properties:
+  response_id:
+    type: "string"
+    description: "Unique identifier for the moral response."
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  country:
+    type: "string"
+    description: "ISO country code of the participant."
+  latitude:
+    type: "number"
+    description: "Latitude of the response location."
+  longitude:
+    type: "number"
+    description: "Longitude of the response location."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of the response (ISO 8601)."
+  response_time_ms:
+    type: "integer"
+    description: "Response time in milliseconds (filtered: 100ms <= x <= 10000ms)."
+  log_response_time:
+    type: "number"
+    description: "Natural log of response_time_ms."
+  temperature_celsius:
+    type: "number"
+    description: "Ambient temperature in Celsius from ERA5."
+  temperature_squared:
+    type: "number"
+    description: "Square of temperature_celsius for non-linearity testing."
+  dilemma_complexity:
+    type: "number"
+    description: "Static complexity score of the dilemma."
+  time_of_day:
+    type: "number"
+    description: "Hour of the day (0-23) or encoded time-of-day."
+  choice:
+    type: "string"
+    description: "The choice made (e.g., save_many, save_few)."
+  distance_km:
+    type: "number"
+    description: "Distance in km to the nearest ERA5 grid point."
+  exclusion_flag:
+    type: "boolean"
+    description: "True if the record was excluded due to distance or time gap."
+required:
+  - response_id
+  - participant_id
+  - temperature_celsius
+  - response_time_ms
+  - log_response_time
+  - dilemma_complexity
+  - time_of_day
+  - choice
+  - distance_km
+additionalProperties: false

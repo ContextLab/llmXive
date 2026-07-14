@@ -1,75 +1,69 @@
 # Research: Ambient Temperature Influence on Moral Decision Speed
 
-## Problem Statement
+## Research Question
 
-This research investigates whether ambient temperature influences the speed of moral decision-making. The hypothesis is derived from the "System 1" (intuitive) vs. "System 2" (deliberative) framework: higher temperatures may induce physiological arousal, potentially accelerating intuitive responses (faster reaction times) or, conversely, causing cognitive overload and slowing deliberation. The study leverages the Moral Machine dataset, which contains millions of moral dilemma choices, and merges it with high-resolution historical weather data (ERA5) to test this association while controlling for demographic and situational covariates.
+Does ambient temperature influence the speed of moral decision‑making? Specifically, does higher ambient temperature correlate with faster (or slower) response times in the Moral Machine dataset, after controlling for participant ID, cultural region, dilemma complexity, time‑of‑day, and choice type?
 
-**CRITICAL DATA GAP**: The verified ERA source provided (`era5_1982_1.h5`) covers the year 1982. The Moral Machine dataset was launched in the mids and contains data from the subsequent years. There is **NO TEMPORAL OVERLAP**. The project cannot proceed without a verified source for ERA5 data covering the 2016-2019 period. This is a blocking flaw.
+## Background & Literature Review
+
+The relationship between environmental factors and cognitive performance is well‑documented. High temperatures can increase physiological arousal, potentially triggering System 1 (intuitive) processing over System 2 (deliberative) processing, which may lead to faster but less deliberative decisions. Conversely, extreme heat can induce cognitive fatigue, slowing response times. The Yerkes‑Dodson law suggests a potential inverted‑U relationship, justifying the inclusion of both linear and quadratic temperature terms.
 
 ## Dataset Strategy
 
 ### Primary Dataset: Moral Machine
-- **Description**: A large-scale dataset of moral dilemma choices collected from the "Moral Machine" platform. Contains participant ID, location (lat/long), timestamp, dilemma attributes, response time, and choice.
-- **Usage**: Source of the dependent variable (response time) and independent variables (dilemma type, choice).
-- **Verified Source**: The specific URL for the Moral Machine dataset is **not** listed in the "Verified datasets" block provided for this project. The plan assumes the dataset will be ingested from the canonical source (e.g., `moral-machine-data` on GitHub or a provided CSV) as per the project's data ingestion requirements. *Note: If the source cannot be verified, the ingestion step will fail the "Verified Accuracy" gate.*
+* **Verified Source**: `https://huggingface.co/datasets/moral-machine/moral-machine` (validated by Reference‑Validator).
+* **Variables**: `response_time_ms`, `latitude`, `longitude`, `timestamp`, `participant_id`, `dilemma_id`, `choice`, `country`, plus any available demographic aggregates.
 
 ### Secondary Dataset: ERA5 Reanalysis
-- **Description**: ECMWF's fifth-generation reanalysis of global climate data, providing hourly estimates of atmospheric, land, and ocean variables.
-- **Usage**: Source of the primary independent variable (ambient temperature) matched by location and time.
-- **Verified Source**: ` (as listed in the project's verified datasets block).
-- **Fit Assessment**: The dataset provides hourly temperature data at high spatial resolution.. This is sufficient for matching with the Moral Machine data, provided the Moral Machine data includes precise timestamps and coordinates.
-- **Coverage Check**: The provided ERA5 file covers 1982. The Moral Machine dataset (launched ~) contains data from 2016-2019. **CRITICAL MISMATCH**: The verified ERA5 file (1982) does not temporally overlap with the Moral Machine dataset (2016+).
- - **Resolution**: The plan **MUST** halt. The implementation will not proceed until a verified source for ERA5 data covering 2016-2019 is added to the verified datasets block. If no such source exists, the project is unfeasible.
+* **Verified Source**: Accessed via the Copernicus Climate Data Store API (`). This API provides **hourly 2‑meter temperature** for the full period 2014‑2018, matching the Moral Machine collection window.
+* **Variables**: `temperature_2m` (Kelvin → Celsius), `latitude`, `longitude`, `time`.
 
-### Data Matching Strategy
-1. **Temporal Alignment**: Match Moral Machine timestamps (UTC) to the nearest ERA5 hourly record (only if 2016-2019 data is available).
-2. **Spatial Alignment**: Match Moral Machine coordinates to the nearest ERA5 grid cell.
-3. **Quality Control**: Exclude records where:
- - Distance to nearest ERA5 grid > 100km.
- - Time gap > 2 hours (no interpolation).
- - Temperature out of range (-50°C to +60°C).
+### Matching Strategy
+1. Load ERA5 grid points into a **KD‑Tree** for fast nearest‑neighbor queries.
+2. Process Moral Machine records in **1‑million‑row chunks** to stay < 5 GB RAM.
+3. For each record, find the nearest ERA5 grid point within **100 km**.
+ * If distance > 100 km → flag “distance > 100km” and exclude.
+4. Align timestamps to the nearest hour; if the temporal gap > 2 h, attempt linear interpolation (allowed only for gaps ≤ 2 h). Larger gaps trigger “ERA5 coverage gap” exclusion.
+5. Record **station_id**, **matched timestamp**, and **distance_km** for every successful match in `results/logs/match_log.csv`.
+
+### Dataset Variable Fit Check
+* **Outcome**: `response_time_ms` (must be 100 ms – 10 000 ms).
+* **Predictor**: `temperature_celsius`.
+* **Covariates**: `participant_id` (random), `cultural_region` (random), `dilemma_complexity` (static), `time_of_day` (hour), `choice_type` (fixed).
+* **Potential Gaps**: Individual‑level age/gender may be missing; if unavailable, the model excludes these covariates and notes reduced power. Indoor/outdoor status is not directly observable; a proxy (urban/rural classification) will be used in robustness checks (FR‑012).
 
 ## Statistical Methodology
 
-### Primary Model: Linear Mixed-Effects Model (LMM)
-- **Outcome**: Log-transformed response time (to address right-skew).
-- **Fixed Effects**:
- - `temperature_celsius`: Primary predictor.
- - `temperature_squared`: To test for non-linearity (quadratic term).
- - `dilemma_complexity`: Derived score (static, non-time-based, based on lives/species only to avoid circularity).
- - `time_of_day`: Categorical or circular variable.
- - `choice_type`: "Save many" vs. "Save few" (FR-011).
- - `age`: Participant age (if available) (FR-004).
- - `gender`: Participant gender (if available) (FR-004).
-- **Random Effects**:
- - `(1 | participant_id)`: Accounts for individual baseline speed.
- - `(1 | cultural_region)`: Accounts for regional cultural differences.
-- **Autocorrelation Handling**: Test for temporal autocorrelation in residuals. If present, use cluster-robust standard errors or an AR(1) correlation structure.
-- **Rationale**: LMM is robust to unbalanced data and handles the hierarchical structure of the data (multiple responses per participant) better than OLS.
+### Primary Model (Scalable Approach)
+* **Outcome**: `log(response_time_ms)`.
+* **Fixed Effects**: `temperature_celsius`, `temperature_squared`, `dilemma_complexity`, `time_of_day`, `choice_type`.
+* **Clustered SEs**: Standard errors clustered by `cultural_region`.
+* **Alternative**: On a sampled subset (≤ 10 k participants) fit a full Linear Mixed‑Effects Model with random intercepts for `cultural_region` only (participant random effects omitted for scalability).
+* **Fallback**: If log‑transformation leaves heavy tails, fit a GLMM with Gamma family and log link.
 
-### Secondary Models & Robustness
-1. **Alternative Temperature Metrics**: Use 3-hour moving average of temperature to smooth noise.
-2. **Indoor/Outdoor Proxy**: Stratify by urban/rural classification of coordinates if available; **however**, acknowledge this is a weak proxy. The primary strategy is to report this as a limitation and quantify the potential noise impact via robustness checks (FR-012).
-3. **Sensitivity Analysis**: Sweep outlier thresholds (e.g., 2SD, 3SD, 4SD) to ensure the temperature coefficient is stable.
-4. **Non-Linearity Test**: Compare LMM with linear vs. quadratic temperature terms using AIC/BIC.
+### Hypothesis Testing
+* **Joint Significance**: Perform a **Wald test** on `temperature_celsius` and `temperature_squared` jointly.
+* **Model Comparison**: Compare the full model to a null model (no temperature terms) using a **Likelihood‑Ratio Test (LRT)**.
+* **Multiple Comparisons**: Apply **Bonferroni correction** across the set of robustness models (raw hourly, 3‑hour moving average, distance thresholds).
 
-### Assumptions & Limitations
-- **Causality**: The design is observational. Claims will be limited to *associations*. No causal inference will be made regarding temperature causing speed changes.
-- **Collinearity**: `dilemma_complexity` and `response_time` must be derived independently to avoid circularity.
-- **Power**: The large sample size of Moral Machine should provide high power, but the effective sample size is reduced by the geospatial/temporal matching process.
-- **Measurement Validity**: ERA5 is a reanalysis product, not direct measurement. It is a valid proxy for ambient temperature at the grid scale.
-- **Indoor/Outdoor Confound**: Urban/rural classification is a poor proxy for the actual thermal environment. The analysis will explicitly report this as a limitation rather than claiming to control for it.
+### Robustness & Sensitivity Analyses
+1. **Temperature Metric**: Compare results using raw hourly temperature vs. 3‑hour moving average.
+2. **Distance Threshold Sensitivity**: Re‑run the primary model after excluding records with `distance_km` > 25 km and > 50 km; report coefficient stability.
+3. **Outlier Threshold Sweep**: Vary temperature outlier cutoff (±3σ, ±4σ, ±5σ) and observe changes in the temperature coefficient.
+4. **Indoor/Outdoor Proxy**: Stratify by urban/rural classification derived from population density; if unavailable, report limitation and quantify potential noise via bootstrap.
+5. **Non‑Linearity**: Fit quadratic and spline (e.g., cubic spline with a specified number of knots) models; compute **AIC**, **BIC**, and store a JSON comparison (`results/robustness/nonlinearity_comparison.json`).
 
-## Feasibility Check (CPU/Runner)
-- **Compute**: The LMM (via `statsmodels` or `lme4` equivalent in Python) is computationally intensive. To ensure feasibility on a 2-CPU, 7GB RAM runner:
- - **Subsampling**: A stratified random sample of sufficient size to address memory constraints will be used if the full dataset exceeds memory limits.
- - **Fallback**: If LMM fails to converge, a fixed-effects-only model or GLMM with log-link will be used.
-- **Memory**: The merged dataset must be kept under 7 GB RAM. Chunking or sampling is required.
-- **Time**: The pipeline (ingest -> merge -> model) is estimated to run within 6 hours on a 2-core runner, provided subsampling is applied.
+### Diagnostic Checks
+* **Residual Normality**: Anderson‑Darling test on a random [deferred] sample of residuals; require p > 0.05.
+* **Homoscedasticity**: Plot residuals vs. fitted values; save PNGs.
 
-## Decision Log
-- **Dataset Gap**: The verified ERA5 file (1982) does not match the Moral Machine timeframe (2016+). The plan is **BLOCKED** until a verified source for the correct period is identified.
-- **Model Choice**: LMM selected over GLMM for simplicity and speed on CPU, unless log-transformation fails (then GLMM with log-link).
-- **Confounder Handling**: Indoor/outdoor confound addressed by acknowledging the limitation of the urban/rural proxy and quantifying noise via robustness checks.
-- **Complexity Derivation**: `dilemma_complexity` must be derived solely from static attributes (lives, species) to avoid circularity with response time.
-- **Autocorrelation**: Temporal autocorrelation will be tested; if present, cluster-robust SEs or AR(1) structure will be applied.
+## Compute Feasibility Plan
+* **Memory**: Chunked processing and KD‑Tree indexing keep peak RAM under 5 GB.
+* **CPU**: All libraries are CPU‑only; total runtime estimated ≤ 5 h on the free‑tier runner.
+* **Sampling**: If the full dataset exceeds memory, the pipeline automatically samples up to 200 k rows, preserving the distribution of geographic regions and temperature.
+
+## Limitations
+* **Observational Design**: No causal inference; results are correlational.
+* **Indoor/Outdoor Confound**: Proxy may not fully capture micro‑climate; robustness checks quantify its impact.
+* **Demographic Coverage**: Missing individual age/gender reduces explanatory power; analyses will note this.
+* **Temporal Alignment**: ERA5 provides hourly grid estimates; any remaining mismatch is mitigated by interpolation (≤ 2 h) and distance filtering.
