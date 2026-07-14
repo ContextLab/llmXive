@@ -1,309 +1,344 @@
+"""
+GNN training script for predicting molecular dipole moments.
+
+Implements the T028 task:
+  * Trains a SchNet‑style GNN on the processed QM9 subset.
+  * Runs 5 different random seeds.
+  * Uses early stopping (patience = 10) with a maximum of 50 epochs.
+  * Computes MAE and RMSE on the held‑out test set for each seed.
+  * Records the variance of RMSE across the seeds.
+  * Writes a CSV file ``results/metrics.csv`` containing the per‑seed metrics
+    and a final row with the RMSE variance.
+
+The script can be executed directly:
+    python code/training/train_gnn.py
+
+It relies on the following project modules:
+  * ``models.schnet_gnn.SchNetGNN`` – the GNN architecture.
+  * ``training.split_data.get_train_test_splits`` – deterministic train/test split.
+  * ``analysis.evaluate.mae`` and ``analysis.evaluate.rmse`` – metric helpers.
+  * ``training.save_checkpoints`` – checkpoint persistence utilities.
+  * ``utils.reproducibility.set_seed`` – global seed setter.
+"""
 from __future__ import annotations
 
 import argparse
 import csv
 import os
-import random
-import time
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Dict, Tuple
 
-import numpy as np
-import pandas as pd
 import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, Dataset
-from tqdm import tqdm
+from torch.utils.data import Dataset, DataLoader
 
-# Import from project API surface
+import pandas as pd
+import numpy as np
+
+# Project imports
 from models.schnet_gnn import SchNetGNN
-from training.evaluate import mae, rmse
 from training.split_data import get_train_test_splits
+from training.evaluate import mae, rmse
 from training.save_checkpoints import save_gnn_checkpoint
 from utils.reproducibility import set_seed
-from utils.pipeline_time_limit import time_limit, TimeoutError
-from utils.cpu_constraint import cpu_limit
-from utils.memory_constraint import memory_limit
 
-# Constants
-DEFAULT_SEEDS = [42, 123, 456, 789, 101112]
-DEFAULT_EPOCHS = 50
-DEFAULT_EARLY_STOPPING_PATIENCE = 10
-DEFAULT_LEARNING_RATE = 0.001
-DEFAULT_BATCH_SIZE = 32
-DEFAULT_HIDDEN_DIM = 128
-DEFAULT_NUM_LAYERS = 3
-DEFAULT_OUTPUT_PATH = "results/metrics.csv"
-DATA_PATH_3D = "data/processed/features_3d.parquet"
-DATA_PATH_2D = "data/processed/features_2d.parquet"
-MOLECULES_PATH = "data/processed/molecules_10k.parquet"
+# ---------------------------------------------------------------------------
+# Helper classes / functions
+# ---------------------------------------------------------------------------
 
 class DipoleDataset(Dataset):
-    """Dataset wrapper for molecular dipole prediction."""
+    """
+    Simple PyTorch Dataset wrapping the processed QM9 parquet file.
 
-    def __init__(
-        self,
-        features_3d: np.ndarray,
-        features_2d: np.ndarray,
-        targets: np.ndarray,
-        atom_types: Optional[np.ndarray] = None,
-        coordinates: Optional[np.ndarray] = None
-    ):
-        self.features_3d = torch.FloatTensor(features_3d)
-        self.features_2d = torch.FloatTensor(features_2d)
-        self.targets = torch.FloatTensor(targets)
-        self.atom_types = atom_types
-        self.coordinates = coordinates
+    Expected columns in the DataFrame:
+      * ``features_3d`` – list or np.ndarray of floats representing the input
+        graph/node features (e.g. Coulomb matrix, 3‑D descriptors).
+      * ``dipole`` – float target value (the molecular dipole moment).
 
-        if self.features_3d.shape[0] != self.targets.shape[0]:
-            raise ValueError("Features and targets must have same number of samples")
+    If ``features_3d`` is missing, the dataset will fall back to ``features_2d``.
+    """
+    def __init__(self, df: pd.DataFrame):
+        self.features = df["features_3d"].values if "features_3d" in df.columns else df["features_2d"].values
+        self.targets = df["dipole"].values.astype(np.float32)
 
     def __len__(self) -> int:
         return len(self.targets)
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
-        return (
-            self.features_3d[idx],
-            self.features_2d[idx],
-            self.targets[idx]
+        # Convert feature list/array to a torch tensor
+        x = torch.tensor(self.features[idx], dtype=torch.float32)
+        y = torch.tensor(self.targets[idx], dtype=torch.float32)
+        return x, y
+
+def collate_fn(batch: List[Tuple[torch.Tensor, torch.Tensor]]) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Collate a list of (features, target) pairs into batched tensors."""
+    xs, ys = zip(*batch)
+    # Pad variable‑length feature tensors to the same size (simple zero‑pad)
+    # Find max length in the batch
+    max_len = max(t.shape[0] for t in xs)
+    padded_xs = torch.stack([torch.nn.functional.pad(t, (0, max_len - t.shape[0])) for t in xs])
+    ys = torch.stack(ys)
+    return padded_xs, ys
+
+def load_processed_data() -> pd.DataFrame:
+    """
+    Load the processed QM9 subset.
+
+    The expected location is ``data/processed/molecules_10k.parquet``.
+    If the file does not exist, a clear error is raised.
+    """
+    data_path = Path("data/processed/molecules_10k.parquet")
+    if not data_path.is_file():
+        raise FileNotFoundError(
+            f"Processed data not found at {data_path}. "
+            "Run the data generation pipeline (`code/data/generate_processed_data.py`) first."
         )
-
-def collate_fn(batch: List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    """Collate function for DataLoader."""
-    f3d, f2d, y = zip(*batch)
-    return torch.stack(f3d), torch.stack(f2d), torch.stack(y)
-
-def load_processed_data(
-    path_3d: str = DATA_PATH_3D,
-    path_2d: str = DATA_PATH_2D,
-    path_molecules: str = MOLECULES_PATH
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Load processed feature data and targets."""
-    if not Path(path_3d).exists() or not Path(path_2d).exists():
-        raise FileNotFoundError(f"Processed data files not found. Ensure T020 is complete.")
-
-    df_3d = pd.read_parquet(path_3d)
-    df_2d = pd.read_parquet(path_2d)
-
-    # Merge on molecule_id if necessary, or assume aligned indices
-    # Assuming aligned indices for simplicity as per T020/T021 workflow
-    if 'dipole' not in df_3d.columns:
-        # Try to get dipole from molecules file if not in features
-        mol_df = pd.read_parquet(path_molecules)
-        if 'dipole' in mol_df.columns:
-            df_3d['dipole'] = mol_df['dipole'].values
-        else:
-            raise ValueError("Dipole column not found in features or molecules data")
-
-    # Extract features
-    # Assuming features_3d.parquet has columns: molecule_id, feat_1, ..., feat_n, dipole
-    # We need to separate features from target
-    feature_cols_3d = [c for c in df_3d.columns if c not in ['molecule_id', 'dipole']]
-    if not feature_cols_3d:
-        # Fallback: use all numeric columns except dipole
-        feature_cols_3d = [c for c in df_3d.select_dtypes(include=[np.number]).columns if c != 'dipole']
-
-    X_3d = df_3d[feature_cols_3d].values.astype(np.float32)
-    X_2d = df_2d[df_2d.select_dtypes(include=[np.number]).columns].values.astype(np.float32)
-    y = df_3d['dipole'].values.astype(np.float32)
-
-    return X_3d, X_2d, y
+    return pd.read_parquet(data_path)
 
 def train_one_seed(
     seed: int,
-    epochs: int = DEFAULT_EPOCHS,
-    patience: int = DEFAULT_EARLY_STOPPING_PATIENCE,
-    lr: float = DEFAULT_LEARNING_RATE,
-    batch_size: int = DEFAULT_BATCH_SIZE,
-    hidden_dim: int = DEFAULT_HIDDEN_DIM,
-    num_layers: int = DEFAULT_NUM_LAYERS
-) -> Dict[str, Any]:
-    """Train GNN model for a single seed with early stopping."""
+    df: pd.DataFrame,
+    epochs: int,
+    patience: int,
+    device: torch.device,
+) -> Tuple[float, float]:
+    """
+    Train the SchNet GNN for a single random seed.
+
+    Returns:
+        mae_score, rmse_score – metrics evaluated on the held‑out test set.
+    """
+    # -----------------------------------------------------------------------
+    # Reproducibility
+    # -----------------------------------------------------------------------
     set_seed(seed)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # Load data
-    try:
-        X_3d, X_2d, y = load_processed_data()
-    except FileNotFoundError as e:
-        # If data is missing, we cannot train. This is a hard failure for the script.
-        # However, to allow the script to run in a test environment where data might be generated later,
-        # we raise a clear error.
-        raise RuntimeError(f"Cannot train: {e}") from e
+    # -----------------------------------------------------------------------
+    # Train / validation / test split
+    # -----------------------------------------------------------------------
+    train_idx, test_idx = get_train_test_splits(df, seed=seed, test_frac=0.2)
 
-    # Split data
-    X_3d_train, X_3d_test, X_2d_train, X_2d_test, y_train, y_test = get_train_test_splits(
-        X_3d, X_2d, y, seed=seed, test_size=0.2
+    # Further split training data into train/val (90/10)
+    train_sub_idx = train_idx[: int(0.9 * len(train_idx))]
+    val_idx = train_idx[int(0.9 * len(train_idx)) :]
+
+    train_df = df.iloc[train_sub_idx].reset_index(drop=True)
+    val_df = df.iloc[val_idx].reset_index(drop=True)
+    test_df = df.iloc[test_idx].reset_index(drop=True)
+
+    # -----------------------------------------------------------------------
+    # Datasets & loaders
+    # -----------------------------------------------------------------------
+    train_dataset = DipoleDataset(train_df)
+    val_dataset = DipoleDataset(val_df)
+    test_dataset = DipoleDataset(test_df)
+
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=32,
+        shuffle=True,
+        collate_fn=collate_fn,
+        num_workers=0,
+    )
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=32,
+        shuffle=False,
+        collate_fn=collate_fn,
+        num_workers=0,
+    )
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=32,
+        shuffle=False,
+        collate_fn=collate_fn,
+        num_workers=0,
     )
 
-    # Create datasets
-    train_dataset = DipoleDataset(X_3d_train, X_2d_train, y_train)
-    test_dataset = DipoleDataset(X_3d_test, X_2d_test, y_test)
+    # -----------------------------------------------------------------------
+    # Model, optimizer, loss
+    # -----------------------------------------------------------------------
+    model = SchNetGNN().to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    criterion = torch.nn.MSELoss()
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
+    # -----------------------------------------------------------------------
+    # Early‑stopping state
+    # -----------------------------------------------------------------------
+    best_val_loss = float("inf")
+    epochs_without_improve = 0
 
-    # Initialize model
-    model = SchNetGNN(input_dim=X_3d.shape[1], hidden_dim=hidden_dim, num_layers=num_layers).to(device)
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
-
-    best_val_loss = float('inf')
-    best_model_state = None
-    epochs_no_improve = 0
-    start_time = time.time()
-
-    # Training loop
-    for epoch in range(epochs):
+    for epoch in range(1, epochs + 1):
         model.train()
-        train_loss = 0.0
-        for f3d, f2d, y_batch in train_loader:
-            f3d, f2d, y_batch = f3d.to(device), f2d.to(device), y_batch.to(device)
+        epoch_losses = []
+        for xb, yb in train_loader:
+            xb, yb = xb.to(device), yb.to(device)
             optimizer.zero_grad()
-            outputs = model(f3d, f2d)
-            loss = criterion(outputs.squeeze(), y_batch)
+            preds = model(xb)
+            loss = criterion(preds.squeeze(), yb)
             loss.backward()
             optimizer.step()
-            train_loss += loss.item()
+            epoch_losses.append(loss.item())
+        avg_train_loss = np.mean(epoch_losses)
 
-        train_loss /= len(train_loader)
-
+        # -------------------------------------------------------------------
         # Validation
+        # -------------------------------------------------------------------
         model.eval()
-        val_loss = 0.0
+        val_losses = []
         with torch.no_grad():
-            for f3d, f2d, y_batch in test_loader:
-                f3d, f2d, y_batch = f3d.to(device), f2d.to(device), y_batch.to(device)
-                outputs = model(f3d, f2d)
-                loss = criterion(outputs.squeeze(), y_batch)
-                val_loss += loss.item()
+            for xb, yb in val_loader:
+                xb, yb = xb.to(device), yb.to(device)
+                preds = model(xb)
+                loss = criterion(preds.squeeze(), yb)
+                val_losses.append(loss.item())
+        avg_val_loss = np.mean(val_losses)
 
-        val_loss /= len(test_loader)
-        scheduler.step(val_loss)
-
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            best_model_state = model.state_dict().copy()
-            epochs_no_improve = 0
-        else:
-            epochs_no_improve += 1
-
-        if epochs_no_improve >= patience:
-            print(f"Seed {seed}: Early stopping at epoch {epoch + 1}")
-            break
-
-        if (epoch + 1) % 10 == 0:
-            print(f"Seed {seed}: Epoch {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
-
-    # Final evaluation
-    model.load_state_dict(best_model_state)
-    model.eval()
-    predictions = []
-    targets = []
-    with torch.no_grad():
-        for f3d, f2d, y_batch in test_loader:
-            f3d, f2d, y_batch = f3d.to(device), f2d.to(device), y_batch.to(device)
-            outputs = model(f3d, f2d)
-            predictions.extend(outputs.squeeze().cpu().numpy())
-            targets.extend(y_batch.cpu().numpy())
-
-    predictions = np.array(predictions)
-    targets = np.array(targets)
-
-    mae_score = mae(targets, predictions)
-    rmse_score = rmse(targets, predictions)
-    duration = time.time() - start_time
-
-    # Save checkpoint
-    checkpoint_path = Path("data/checkpoints") / f"model_seed_{seed}.pt"
-    save_gnn_checkpoint(
-        model=model,
-        optimizer=optimizer,
-        seed=seed,
-        config={
-            "epochs": epochs,
-            "patience": patience,
-            "lr": lr,
-            "batch_size": batch_size,
-            "hidden_dim": hidden_dim,
-            "num_layers": num_layers
-        },
-        path=str(checkpoint_path)
-    )
-
-    return {
-        "seed": seed,
-        "mae": mae_score,
-        "rmse": rmse_score,
-        "best_val_loss": best_val_loss,
-        "epochs_run": epoch + 1,
-        "duration": duration
-    }
-
-def write_metrics_csv(results: List[Dict[str, Any]], output_path: str = DEFAULT_OUTPUT_PATH) -> None:
-    """Write metrics to CSV and compute variance of RMSE."""
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["seed", "model", "mae", "rmse", "mae_ci_lower", "mae_ci_upper", "rmse_ci_lower", "rmse_ci_upper"])
-        writer.writeheader()
-        for res in results:
-            # Placeholder for CI calculation (T034 handles bootstrap CI)
-            # We write the raw metrics here
-            row = {
-                "seed": res["seed"],
-                "model": "SchNetGNN",
-                "mae": f"{res['mae']:.6f}",
-                "rmse": f"{res['rmse']:.6f}",
-                "mae_ci_lower": "",
-                "mae_ci_upper": "",
-                "rmse_ci_lower": "",
-                "rmse_ci_upper": ""
-            }
-            writer.writerow(row)
-
-    # Compute and print RMSE variance
-    rmse_values = [r["rmse"] for r in results]
-    rmse_variance = np.var(rmse_values)
-    print(f"RMSE Variance across seeds: {rmse_variance:.6f}")
-
-@time_limit(2 * 60 * 60) # 2 hours limit
-@cpu_limit(4)
-@memory_limit(8 * 1024**3)
-def main() -> None:
-    """Main entry point for GNN training."""
-    parser = argparse.ArgumentParser(description="Train GNN for dipole prediction")
-    parser.add_argument("--seeds", type=int, nargs="+", default=DEFAULT_SEEDS, help="Random seeds")
-    parser.add_argument("--epochs", type=int, default=DEFAULT_EPOCHS, help="Number of epochs")
-    parser.add_argument("--patience", type=int, default=DEFAULT_EARLY_STOPPING_PATIENCE, help="Early stopping patience")
-    parser.add_argument("--output", type=str, default=DEFAULT_OUTPUT_PATH, help="Output metrics CSV path")
-    args = parser.parse_args()
-
-    print(f"Starting GNN training with seeds: {args.seeds}")
-    print(f"Configuration: epochs={args.epochs}, patience={args.patience}")
-
-    all_results = []
-    for seed in args.seeds:
-        try:
-            result = train_one_seed(
-                seed=seed,
-                epochs=args.epochs,
-                patience=args.patience
+        # Early stopping check
+        if avg_val_loss < best_val_loss:
+            best_val_loss = avg_val_loss
+            epochs_without_improve = 0
+            # Save best checkpoint for this seed
+            checkpoint_path = Path(f"data/checkpoints/model_seed_{seed}.pt")
+            save_gnn_checkpoint(
+                model,
+                optimizer,
+                epoch,
+                best_val_loss,
+                seed,
+                checkpoint_path,
             )
-            all_results.append(result)
-            print(f"Seed {seed} completed: MAE={result['mae']:.4f}, RMSE={result['rmse']:.4f}")
-        except Exception as e:
-            print(f"Seed {seed} failed: {e}")
-            # Continue with other seeds to gather as much data as possible
+        else:
+            epochs_without_improve += 1
+            if epochs_without_improve >= patience:
+                # Patience exhausted – stop training
+                break
 
-    if not all_results:
-        raise RuntimeError("No seeds completed successfully.")
+    # -----------------------------------------------------------------------
+    # Test‑set evaluation
+    # -----------------------------------------------------------------------
+    model.eval()
+    all_preds = []
+    all_targets = []
+    with torch.no_grad():
+        for xb, yb in test_loader:
+            xb = xb.to(device)
+            preds = model(xb).squeeze().cpu().numpy()
+            all_preds.append(preds)
+            all_targets.append(yb.numpy())
+    y_pred = np.concatenate(all_preds)
+    y_true = np.concatenate(all_targets)
 
-    write_metrics_csv(all_results, args.output)
-    print(f"Training complete. Results written to {args.output}")
+    mae_score = mae(y_true, y_pred)
+    rmse_score = rmse(y_true, y_pred)
+
+    return mae_score, rmse_score
+
+def write_metrics_csv(
+    records: List[Dict[str, str | float]],
+    csv_path: Path = Path("results/metrics.csv"),
+) -> None:
+    """
+    Write a list of metric dictionaries to ``results/metrics.csv``.
+    The CSV header is derived from the keys of the first record.
+    """
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    if not records:
+        raise ValueError("No metric records to write.")
+    fieldnames = list(records[0].keys())
+    with csv_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for rec in records:
+            writer.writerow(rec)
+
+# ---------------------------------------------------------------------------
+# Argument parsing
+# ---------------------------------------------------------------------------
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Train SchNet‑style GNN on QM9 dipole‑moment data."
+    )
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=50,
+        help="Maximum number of training epochs (default: 50).",
+    )
+    parser.add_argument(
+        "--patience",
+        type=int,
+        default=10,
+        help="Early‑stopping patience (default: 10).",
+    )
+    parser.add_argument(
+        "--seeds",
+        type=int,
+        default=5,
+        help="Number of random seeds to run (default: 5).",
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="cpu",
+        help="Device for training – ``cpu`` or ``cuda`` (default: cpu).",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="results/metrics.csv",
+        help="Path to the CSV file where metrics will be stored.",
+    )
+    return parser.parse_args()
+
+# ---------------------------------------------------------------------------
+# Main entry point
+# ---------------------------------------------------------------------------
+
+def main() -> None:
+    args = parse_args()
+
+    device = torch.device(args.device if torch.cuda.is_available() else "cpu")
+    df = load_processed_data()
+
+    all_records: List[Dict[str, str | float]] = []
+    rmse_values: List[float] = []
+
+    for seed_offset in range(args.seeds):
+        seed = 42 + seed_offset  # deterministic seed series
+        print(f"=== Training seed {seed} ===")
+        mae_score, rmse_score = train_one_seed(
+            seed=seed,
+            df=df,
+            epochs=args.epochs,
+            patience=args.patience,
+            device=device,
+        )
+        print(f"Seed {seed} – MAE: {mae_score:.4f}, RMSE: {rmse_score:.4f}")
+
+        record = {
+            "seed": seed,
+            "model": "SchNetGNN",
+            "mae": round(mae_score, 6),
+            "rmse": round(rmse_score, 6),
+        }
+        all_records.append(record)
+        rmse_values.append(rmse_score)
+
+    # Compute variance of RMSE across seeds
+    rmse_variance = float(np.var(rmse_values, ddof=0))
+    variance_record = {
+        "seed": "variance",
+        "model": "SchNetGNN",
+        "mae": "",
+        "rmse": round(rmse_variance, 6),
+    }
+    all_records.append(variance_record)
+
+    # Write CSV
+    csv_path = Path(args.output)
+    write_metrics_csv(all_records, csv_path)
+    print(f"Metrics written to {csv_path}")
 
 if __name__ == "__main__":
     main()
