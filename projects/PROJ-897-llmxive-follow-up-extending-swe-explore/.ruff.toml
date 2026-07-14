@@ -1,0 +1,54 @@
+[lint]
+# Enable all rules from the recommended set
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+    "SIM",# flake8-simplify
+    "ARG",# flake8-unused-arguments
+]
+
+# Ignore specific rules that conflict with project style
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in tests)
+    "ARG001", # Unused function argument (sometimes intentional in interfaces)
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "env",
+    ".eggs",
+    "*.egg",
+    "*.egg-info",
+    "build",
+    "dist",
+]
+
+[lint.per-file-ignores]
+# Allow unused imports in __init__.py for public API exposure
+"__init__.py" = ["F401"]
+
+[lint.isort]
+# Configuration for import sorting
+known-first-party = ["code", "tests"]
+force-single-line = false
+lines-after-imports = 2
+
+[format]
+# Configuration for formatting (if using ruff format)
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

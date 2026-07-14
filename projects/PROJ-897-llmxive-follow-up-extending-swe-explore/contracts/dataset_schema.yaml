@@ -1,0 +1,68 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SWEExploreDatasetSchema
+description: >
+  Schema for the curated SWE-Explore dataset artifacts.
+  Defines the structure for hard_subset.jsonl and synthetic_issues.jsonl.
+type: object
+required:
+  - issue_id
+  - repo
+  - base_commit
+  - instance_id
+  - problem_statement
+  - ground_truth_lines
+  - coverage_score
+  - source_type
+properties:
+  issue_id:
+    type: string
+    description: Unique identifier for the issue (e.g., "swe-bench/123" or "synthetic/001")
+  repo:
+    type: string
+    description: Repository name (e.g., "swe-bench/eval")
+  base_commit:
+    type: string
+    description: Git commit hash for the base code
+  instance_id:
+    type: string
+    description: Original instance ID from the benchmark
+  problem_statement:
+    type: string
+    description: The natural language problem description
+  ground_truth_lines:
+    type: array
+    items:
+      type: integer
+    description: List of line numbers (1-based) that constitute the ground truth solution
+  coverage_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Initial coverage score used to determine 'hard' status
+  source_type:
+    type: string
+    enum:
+      - original
+      - synthetic
+    description: Whether this instance is from the original benchmark or synthetically generated
+  mutation_metadata:
+    type: object
+    description: >
+      Metadata for synthetic issues. Only present if source_type is 'synthetic'.
+      Contains hash of original code and mutation parameters.
+    properties:
+      original_code_hash:
+        type: string
+      mutation_type:
+        type: string
+        enum:
+          - variable_rename
+          - comment_removal
+          - control_flow_reorder
+          - api_signature_change
+      mutation_params:
+        type: object
+    required:
+      - original_code_hash
+      - mutation_type
+additionalProperties: false

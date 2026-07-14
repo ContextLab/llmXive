@@ -1,0 +1,49 @@
+[project]
+name = "llmxive"
+version = "0.1.0"
+description = "LLM-driven automated science pipeline for benchmarking coding agents"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "pyyaml>=6.0",
+    "jinja2>=3.1.0",
+    "datasets>=2.14.0",
+    "pyarrow>=12.0.0",
+    "pytest>=7.0.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[project.scripts]
+setup-project = "code.setup_project_structure:main"
+setup-linting = "code.setup_linting:main"
+download-data = "code.data.download:main"
+derive-gt = "code.data.derive_gt:main"
+curate-data = "code.data.curate:main"
+validate-hard = "code.data.validate_hard:main"
+hash-curated = "code.data.hash_curated:main"
+run-baseline = "code.agent.run_baseline:main"
+run-iterative = "code.agent.iterative:main"
+run-main = "code.main:main"
+run-stats = "code.analysis.stats:main"
+generate-report = "code.analysis.report_generator:main"
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\\.pyi?$'
+extend-exclude = '''
+(
+  .venv
+  | venv
+  | env
+  | __pycache__
+  | .git
+  | .eggs
+  | *.egg
+  | *.egg-info
+  | build
+  | dist
+)
+'''

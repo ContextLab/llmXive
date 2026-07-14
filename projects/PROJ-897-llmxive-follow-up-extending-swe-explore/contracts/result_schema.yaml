@@ -1,0 +1,114 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ComparativeResultSchema
+description: >
+  Schema for comparative analysis results.
+  Contains aggregated metrics and statistical test outcomes.
+type: object
+required:
+  - experiment_id
+  - timestamp
+  - sample_size
+  - paired_metrics
+  - statistical_tests
+properties:
+  experiment_id:
+    type: string
+    description: Unique identifier for the experiment run
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of result generation
+  sample_size:
+    type: integer
+    description: Number of issues included in the comparison
+  paired_metrics:
+    type: object
+    description: >
+      Raw paired data for each issue_id.
+      Keys are issue_ids, values contain metrics for both agents.
+    additionalProperties:
+      type: object
+      required:
+        - baseline_coverage
+        - iterative_coverage
+        - baseline_ranking
+        - iterative_ranking
+      properties:
+        baseline_coverage:
+          type: number
+        iterative_coverage:
+          type: number
+        baseline_ranking:
+          type: integer
+        iterative_ranking:
+          type: integer
+  statistical_tests:
+    type: object
+    description: Results of statistical hypothesis tests
+    required:
+      - coverage_wilcoxon
+      - ranking_wilcoxon
+    properties:
+      coverage_wilcoxon:
+        type: object
+        description: Wilcoxon signed-rank test for coverage
+        required:
+          - statistic
+          - pvalue
+          - significant
+          - correction_applied
+        properties:
+          statistic:
+            type: number
+          pvalue:
+            type: number
+          significant:
+            type: boolean
+            description: True if p < alpha_threshold
+          correction_applied:
+            type: string
+            enum:
+              - bonferroni
+              - none
+              - continuity
+          alpha_threshold:
+            type: number
+          associational_statement:
+            type: string
+            description: The result framed as an associational difference
+      ranking_wilcoxon:
+        type: object
+        description: Wilcoxon signed-rank test for ranking
+        required:
+          - statistic
+          - pvalue
+          - significant
+          - correction_applied
+        properties:
+          statistic:
+            type: number
+          pvalue:
+            type: number
+          significant:
+            type: boolean
+          correction_applied:
+            type: string
+            enum:
+              - bonferroni
+              - none
+              - continuity
+          alpha_threshold:
+            type: number
+          associational_statement:
+            type: string
+  metadata:
+    type: object
+    description: Additional context about the run
+    properties:
+      config_summary:
+        type: object
+      hard_instance_percentile:
+        type: number
+      turn_limit:
+        type: integer
+additionalProperties: false

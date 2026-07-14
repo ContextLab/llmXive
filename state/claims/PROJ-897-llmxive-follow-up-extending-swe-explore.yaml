@@ -1,0 +1,147 @@
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialized with pinned dependencies
+  claim_id: c_eea0cf13
+  context: 'Design documents from `/specs/001-iterative-exploration-benchmark/`
+
+    **Input**: Design documents from `/specs/001-iterative-exploration-benchmark/`'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with `requirements.txt` (pinned `datasets`,
+    `scikit-learn`, `pandas`, `pylint`, `lifelines`, `llama-cpp-python`, `torch-cpu`)
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T14:29:27Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Filtering of issues based on initial coverage scores
+  claim_id: c_54821af5
+  context: 'Implement `code/data/curate.py` Part A: **Filter** the bottom [deferred]
+    of issues based on existing **`initial_coverage`** scores (read `HARD_INSTANCE_PERCENTILE`
+    from `config.py`) to identify "Hard" instances per FR-001.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filtering_of_issues_based_on_initial_coverage_scores
+  kind: entity_fact
+  raw_text: 'Implement `code/data/curate.py` Part A: Filter the bottom [deferred]
+    of issues based on existing `initial_coverage` scores'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:29:51Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generation of up to 50 synthetic ambiguous issues
+  claim_id: c_db16325c
+  context: 'Implement `code/data/curate.py` Part B: Generate **up to 50** synthetic
+    ambiguous issues by mutating variable names, removing comments, and applying **structural
+    obfuscations (control flow reordering, API signature changes)** per FR-009.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate up to 50 synthetic ambiguous issues by mutating variable names,
+    removing comments, and applying structural obfuscations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:30:03Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: 3 parallel queries per issue
+  claim_id: c_fcd2b9f3
+  context: 'Implement `code/agent/base.py` for Static Multi-Query Baseline. **Requirement**:
+    Run **3 parallel queries** per issue (matching iterative budget).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 3 parallel queries per issue
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:30:20Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: 3-turn limit in iterative agent loop
+  claim_id: c_0b415511
+  context: "Implement `code/agent/iterative.py`:\n - Enforce 3-turn limit (FR-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce 3-turn limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:30:36Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied
+  claim_id: c_cef9bace
+  context: 'Implement `code/analysis/stats.py` Part C: Apply **Bonferroni correction**
+    to the family of tests (coverage + ranking) per SC-004.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Mascot\u2019s fundamental approach to identifying peptides is to calculate\
+        \ the probability whether an observed match between experimental data and\
+        \ peptide sequences found in a reference database has occurred by chance.\
+        \ The match with the lowest probability of occurring by chance is returned\
+        \ as the most significant match. The significance of the match depends on\
+        \ the size of the database that is being queried. Mascot employs the widely\
+        \ used significance level of 0.05, meaning that in a single test the probability\
+        \ of observing an event at random is less than or equal to 1 in 20. In this\
+        \ light, a score of 10\u22125 might seem very promising. However, if the database\
+        \ being searched contains 106 sequences several scores of this magnitude would\
+        \ be expected by chance alone because the algorithm carried out 106 individual\
+        \ comparisons. For a database of that size, by applying a Bonferroni correction\
+        \ to account for multiple comparisons, the significance threshold drops to\
+        \ 5*10\u22128."
+      source_id: Mascot (software)
+      url: https://en.wikipedia.org/wiki/Mascot_(software)
+      value: "5*10\u22128"
+    filled: true
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction to the family of tests
+  resolved_value: "5*10\u22128"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T14:30:47Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Runtime limit of 5.5 hours
+  claim_id: c_77aad174
+  context: 'Implement runtime monitor in `code/main.py` to track total execution time.
+    **Logic**: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical
+    sweeps or reduce sample size to ensure completion within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If elapsed time > 5.5 hours, abort remaining non-critical sweeps or reduce
+    sample size
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:30:47Z'

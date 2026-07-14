@@ -1,0 +1,112 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AgentExecutionLogSchema
+description: >
+  Schema for agent execution logs.
+  Captures the iterative loop behavior, static analysis signals, and query history.
+  Used for both Baseline and Iterative agent outputs to enable pairing.
+type: object
+required:
+  - issue_id
+  - agent_type
+  - execution_id
+  - start_time
+  - end_time
+  - turns
+  - final_coverage
+  - final_ranking
+properties:
+  issue_id:
+    type: string
+    description: The issue_id from the dataset, used for pairing results
+  agent_type:
+    type: string
+    enum:
+      - static_baseline
+      - iterative
+    description: Type of agent execution
+  execution_id:
+    type: string
+    description: Unique UUID for this specific run
+  start_time:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of start
+  end_time:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of end
+  turn_limit:
+    type: integer
+    description: Maximum turns allowed (e.g., 3)
+  turns:
+    type: array
+    description: List of turn records
+    items:
+      type: object
+      required:
+        - turn_number
+        - query
+        - retrieved_context_ids
+        - static_analysis_signals
+        - reformulation_reason
+      properties:
+        turn_number:
+          type: integer
+          minimum: 1
+        query:
+          type: string
+          description: The query sent to the retrieval system
+        retrieved_context_ids:
+          type: array
+          items:
+            type: string
+          description: IDs of retrieved code snippets/files
+        static_analysis_signals:
+          type: array
+          items:
+            type: object
+            properties:
+              signal_type:
+                type: string
+                enum:
+                  - syntax_error
+                  - undefined_variable
+                  - missing_import
+                  - pylint_warning
+              message:
+                type: string
+              location:
+                type: object
+                properties:
+                  line:
+                    type: integer
+                  column:
+                    type: integer
+        reformulation_reason:
+          type: string
+          description: Why the query was reformulated (or "none" if final)
+        coverage_at_turn:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Coverage achieved at end of this turn
+  final_coverage:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Final coverage score achieved
+  final_ranking:
+    type: integer
+    description: Position of the first relevant line found (N+1 if not found)
+  total_queries:
+    type: integer
+    description: Total number of queries executed
+  loop_detection_triggered:
+    type: boolean
+    description: Whether the loop detection mechanism stopped execution early
+  error_signals:
+    type: array
+    items:
+      type: string
+    description: List of error strings encountered during execution
+additionalProperties: false
