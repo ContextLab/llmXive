@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 
 # Ensure project root is in path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -16,7 +16,23 @@ def main():
     Main entry point for the analysis pipeline.
     Executes the sequence: Download -> Validate -> Preprocess -> Correlation -> Bootstrap -> Regression -> Filter -> Robustness -> Report
     """
-    logger = setup_logging("info")
+    # Fix for T035: Use the correct setup_logging signature that accepts no args or a config dict,
+    # but since the existing code calls it with a string "INFO" and fails due to config loading issues,
+    # we will initialize logging manually here to ensure the pipeline starts,
+    # then delegate to the module's internal logging setup if possible,
+    # or simply configure root logger to avoid the AttributeError on CONFIG.get.
+    
+    # The error was: AttributeError: 'str' object has no attribute 'get'
+    # This happened in code/config/env_config.py line 114: level = config.get("logging", {}).get("level", "INFO")
+    # Because setup_logging was called with a string "INFO", but the function expected a dict or the config wasn't loaded properly.
+    # We will configure the root logger directly to ensure the pipeline runs.
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    logger = logging.getLogger(__name__)
+    
     logger.info("Starting full analysis pipeline...")
     
     # 0. Validate Data Availability (T004)

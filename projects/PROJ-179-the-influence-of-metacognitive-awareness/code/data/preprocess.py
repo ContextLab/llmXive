@@ -1,9 +1,3 @@
-"""
-Preprocessing module for behavioral metacognition data.
-
-Extracts trial-wise source labels and responses from the validated dataset.
-Produces `data/derived/trial_data.csv` with required columns.
-"""
 import os
 import sys
 import json
@@ -13,222 +7,154 @@ from pathlib import Path
 
 # Add project root to path for imports if running as script
 project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from config.env_config import load_config, setup_logging
 
-logger = logging.getLogger(__name__)
-
 def setup_directories():
     """Ensure output directories exist."""
-    base_dir = Path(__file__).resolve().parent.parent
+    base_dir = Path("projects/PROJ-179-the-influence-of-metacognitive-awareness")
     derived_dir = base_dir / "data" / "derived"
     derived_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Output directory ready: {derived_dir}")
     return derived_dir
 
-def load_and_clean_data(input_path: Path) -> pd.DataFrame:
+def load_and_clean_data(derived_dir):
     """
-    Load the validated dataset and perform basic cleaning.
-    
-    Args:
-        input_path: Path to the input CSV file.
-        
-    Returns:
-        Cleaned DataFrame.
-        
-    Raises:
-        FileNotFoundError: If input file does not exist.
-        ValueError: If required columns are missing.
+    Load the validated dataset from the expected location.
+    T006 ensures the file exists at data/behavioral_data.csv relative to project root.
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    # The download script (T005) places the file here after validation (T006)
+    input_file = derived_dir.parent / "behavioral_data.csv"
     
-    logger.info(f"Loading dataset from {input_path}")
-    df = pd.read_csv(input_path)
+    if not input_file.exists():
+        # Fallback check for common locations if not in derived parent
+        fallback_paths = [
+            derived_dir.parent / "downloaded" / "behavioral_data.csv",
+            derived_dir.parent / "ds003386_behavioral.csv",
+            derived_dir.parent / "sample_behavioral_data.csv",
+            derived_dir.parent / "downloaded" / "ds003386_behavioral.csv",
+            derived_dir.parent / "downloaded" / "sample_behavioral_data.csv",
+        ]
+        found = False
+        for p in fallback_paths:
+            if p.exists():
+                input_file = p
+                found = True
+                break
+        
+        if not found:
+            raise FileNotFoundError(
+                "No valid input dataset found. Ensure T005 (download) and T006 (validation) "
+                "have completed successfully and placed the file in data/."
+            )
+
+    logging.info(f"Loading dataset from: {input_file}")
+    df = pd.read_csv(input_file)
     
     # Basic cleaning: drop rows with missing critical fields
-    required_cols = ['confidence_rating', 'source_label', 'participant_response', 'stimulus_modality']
-    # Handle potential missing columns gracefully - log warning if missing
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        # Try to map common aliases if available
-        alias_map = {
-            'confidence_rating': ['confidence', 'conf_rating', 'confidence_score'],
-            'source_label': ['source', 'source_type', 'signal_source'],
-            'participant_response': ['response', 'participant_response', 'answer'],
-            'stimulus_modality': ['modality', 'stimulus_type', 'mode']
-        }
-        for col in missing_cols:
-            for alias in alias_map.get(col, []):
-                if alias in df.columns:
-                    df[col] = df[alias]
-                    logger.info(f"Mapped alias '{alias}' to '{col}'")
-                    break
-            else:
-                logger.warning(f"Required column '{col}' not found and no alias mapped.")
-        
-        # Re-check after alias mapping
-        missing_cols = [c for c in required_cols if c not in df.columns]
-        if missing_cols:
-            raise ValueError(f"Required columns missing after alias mapping: {missing_cols}")
+    required_cols = ['participant_id', 'trial_id', 'confidence_rating', 'source_label', 'participant_response']
+    # Check for modality if available, otherwise infer or leave as is
+    if 'stimulus_modality' not in df.columns:
+        # If missing, we might need to infer or handle, but spec says extract it.
+        # Assuming the dataset from T004/T005 has it or we add a placeholder if strictly needed.
+        # However, T006 validates required fields. Let's assume it exists or is derived.
+        # For robustness, if missing, we create a default 'unknown' or check if it's in source_label.
+        # Given the spec, we expect it. If not, we raise or handle.
+        # Let's assume standard behavioral datasets have this or we map it.
+        # For now, if missing, we'll raise a clear error as per data contract.
+        raise ValueError("Required column 'stimulus_modality' missing from dataset.")
     
-    # Drop rows with NaN in critical columns
-    initial_count = len(df)
-    df = df.dropna(subset=required_cols)
-    dropped_count = initial_count - len(df)
-    if dropped_count > 0:
-        logger.warning(f"Dropped {dropped_count} rows with missing critical values.")
-    
-    return df
-
-def validate_required_columns(df: pd.DataFrame) -> bool:
-    """
-    Validate that all required columns exist in the DataFrame.
-    
-    Args:
-        df: Input DataFrame.
-        
-    Returns:
-        True if all required columns are present.
-        
-    Raises:
-        ValueError: If required columns are missing.
-    """
-    required_cols = [
-        'participant_id', 'trial_id', 'stimulus_modality', 
-        'source_label', 'participant_response', 'confidence_rating'
-    ]
+    # Ensure required columns exist
     missing = [c for c in required_cols if c not in df.columns]
     if missing:
-        raise ValueError(f"Missing required columns: {missing}")
+        raise ValueError(f"Required columns missing: {missing}")
+
+    # Clean data types
+    df['participant_id'] = df['participant_id'].astype(str)
+    df['trial_id'] = df['trial_id'].astype(str)
+    df['confidence_rating'] = pd.to_numeric(df['confidence_rating'], errors='coerce')
+    df['participant_response'] = df['participant_response'].astype(str).str.strip()
+    df['source_label'] = df['source_label'].astype(str).str.strip()
+    df['stimulus_modality'] = df['stimulus_modality'].astype(str).str.strip()
+
+    # Drop rows with NaN in critical fields
+    df = df.dropna(subset=required_cols + ['stimulus_modality'])
+    
+    logging.info(f"Loaded {len(df)} valid trials.")
+    return df
+
+def validate_required_columns(df):
+    """Ensure the dataframe has the necessary columns for downstream analysis."""
+    required = ['participant_id', 'trial_id', 'stimulus_modality', 'source_label', 'participant_response', 'confidence_rating']
+    missing = [c for c in required if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in preprocessed data: {missing}")
     return True
 
-def extract_trial_data(df: pd.DataFrame) -> pd.DataFrame:
+def extract_trial_data(df):
     """
     Extract and format trial-wise data.
-    
-    Ensures all required columns are present and properly typed.
-    
-    Args:
-        df: Input DataFrame with raw trial data.
-        
-    Returns:
-        Processed DataFrame with standardized columns.
+    Ensures data types are consistent for downstream statistical analysis.
     """
-    # Ensure required columns exist (alias mapping handled in load_and_clean_data)
-    # Add participant_id and trial_id if missing
-    if 'participant_id' not in df.columns:
-        if 'participant' in df.columns:
-            df['participant_id'] = df['participant']
-        else:
-            # Generate synthetic participant IDs if none exist
-            df['participant_id'] = 'P001'
-    
-    if 'trial_id' not in df.columns:
-        if 'trial' in df.columns:
-            df['trial_id'] = df['trial']
-        else:
-            # Generate sequential trial IDs
-            df['trial_id'] = range(1, len(df) + 1)
-    
-    # Standardize column names if aliases were used
-    standard_cols = {
-        'confidence': 'confidence_rating',
-        'conf_rating': 'confidence_rating',
-        'source': 'source_label',
-        'source_type': 'source_label',
-        'response': 'participant_response',
-        'modality': 'stimulus_modality',
-        'stimulus_type': 'stimulus_modality'
-    }
-    
-    for old, new in standard_cols.items():
-        if old in df.columns and new not in df.columns:
-            df[new] = df[old]
-    
     # Select and order columns
     output_cols = [
-        'participant_id', 'trial_id', 'stimulus_modality', 
-        'source_label', 'participant_response', 'confidence_rating'
+        'participant_id', 
+        'trial_id', 
+        'stimulus_modality', 
+        'source_label', 
+        'participant_response', 
+        'confidence_rating'
     ]
     
-    # Only include columns that exist
-    available_cols = [c for c in output_cols if c in df.columns]
-    result = df[available_cols].copy()
+    # Filter to only these columns and ensure order
+    trial_data = df[output_cols].copy()
     
-    # Ensure correct data types
-    result['participant_id'] = result['participant_id'].astype(str)
-    result['trial_id'] = result['trial_id'].astype(int)
-    result['confidence_rating'] = pd.to_numeric(result['confidence_rating'], errors='coerce')
+    # Validate again after selection
+    validate_required_columns(trial_data)
     
-    # Drop rows where confidence_rating conversion failed
-    result = result.dropna(subset=['confidence_rating'])
-    
-    return result
+    return trial_data
 
-def write_output(df: pd.DataFrame, output_path: Path):
-    """
-    Write the processed DataFrame to CSV.
-    
-    Args:
-        df: Processed DataFrame.
-        output_path: Path to write the output CSV.
-    """
-    df.to_csv(output_path, index=False)
-    logger.info(f"Written {len(df)} trials to {output_path}")
+def write_output(trial_data, derived_dir):
+    """Write the preprocessed trial data to CSV."""
+    output_path = derived_dir / "trial_data.csv"
+    trial_data.to_csv(output_path, index=False)
+    logging.info(f"Wrote preprocessed trial data to {output_path}")
+    return output_path
 
 def main():
-    """Main entry point for preprocessing task."""
+    """Main entry point for T012: Preprocess data."""
     # Setup logging
-    setup_logging(level=logging.INFO)
+    config = load_config()
+    logger = setup_logging(config.get("logging", {}).get("level", "INFO"))
+    
+    logger.info("Starting data preprocessing (T012)...")
     
     try:
         # Setup directories
         derived_dir = setup_directories()
         
-        # Find input file
-        base_dir = Path(__file__).resolve().parent.parent
-        data_dir = base_dir / "data"
-        
-        possible_inputs = [
-            data_dir / "behavioral_data.csv",
-            data_dir / "downloaded" / "behavioral_data.csv",
-            data_dir / "ds003386_behavioral.csv",
-            data_dir / "downloaded" / "ds003386_behavioral.csv"
-        ]
-        
-        input_path = None
-        for p in possible_inputs:
-            if p.exists():
-                input_path = p
-                break
-        
-        if not input_path:
-            logger.error("No input CSV found in data/ directory. Run T005 first.")
-            sys.exit(1)
-        
-        logger.info(f"Found input file: {input_path}")
-        
         # Load and clean data
-        df = load_and_clean_data(input_path)
-        
-        # Validate columns
-        validate_required_columns(df)
+        df = load_and_clean_data(derived_dir)
         
         # Extract trial data
-        trial_df = extract_trial_data(df)
+        trial_data = extract_trial_data(df)
         
         # Write output
-        output_path = derived_dir / "trial_data.csv"
-        write_output(trial_df, output_path)
+        output_path = write_output(trial_data, derived_dir)
         
         logger.info("Preprocessing completed successfully.")
-        sys.exit(0)
+        return 0
         
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        return 1
+    except ValueError as e:
+        logger.error(str(e))
+        return 1
     except Exception as e:
-        logger.error(f"Preprocessing failed: {e}")
-        sys.exit(1)
+        logger.error(f"Unexpected error during preprocessing: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
