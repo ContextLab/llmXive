@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MergedDatasetSchema"
+description: "Schema for the processed merged dataset used in modeling."
+type: "object"
+properties:
+  species:
+    type: "string"
+    description: "Plant species name."
+  root_length_log:
+    type: "number"
+    description: "Log-transformed total root length."
+  branching_density_log:
+    type: "number"
+    description: "Log-transformed branching density."
+  surface_area_log:
+    type: "number"
+    description: "Log-transformed surface area."
+  phosphorus_z:
+    type: "number"
+    description: "Z-score normalized phosphorus concentration."
+  nitrogen_z:
+    type: "number"
+    description: "Z-score normalized nitrogen concentration."
+  latitude:
+    type: "number"
+    description: "Geographic latitude (fixed effect)."
+  longitude:
+    type: "number"
+    description: "Geographic longitude (fixed effect)."
+  sample_count:
+    type: "integer"
+    description: "Number of observations for this species."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if applicable, else null."
+required:
+  - species
+  - root_length_log
+  - branching_density_log
+  - surface_area_log
+  - phosphorus_z
+  - nitrogen_z
+  - latitude
+  - longitude
+  - sample_count
+additionalProperties: false

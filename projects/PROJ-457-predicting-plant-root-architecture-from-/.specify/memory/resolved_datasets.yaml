@@ -1,0 +1,456 @@
+resolved_at: '2026-07-13T23:55:50.667459+00:00'
+datasets:
+- intent: RootReader
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/Women_s_Health_in_Crisis_Navigating_Complex_Care_in_the_United_States_Restrictive_Healthcare_Landscape/32978870
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Ajayi_Crowther_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978930
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_American_University_of_Nigeria_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978924
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Pan-Atlantic_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Intrumentos_do_Estudo/32978246
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PlantPheno
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/davidkartchner/plant-phenotype/resolve/main/PPR_train_corpus.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/envedabio/plant-phenotype/resolve/main/PPR_test_corpus.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/davidkartchner/plant-phenotype/resolve/main/PPR_train_corpus.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/envedabio/plant-phenotype/resolve/main/PPR_test_corpus.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/poster/Women_s_Health_in_Crisis_Navigating_Complex_Care_in_the_United_States_Restrictive_Healthcare_Landscape/32978870
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Ajayi_Crowther_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978930
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_American_University_of_Nigeria_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978924
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Pan-Atlantic_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Intrumentos_do_Estudo/32978246
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ISRIC-World
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Al-Hikmah_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978933
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Women_s_Health_in_Crisis_Navigating_Complex_Care_in_the_United_States_Restrictive_Healthcare_Landscape/32978870
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Ajayi_Crowther_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978930
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_American_University_of_Nigeria_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978924
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Pan-Atlantic_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17696631
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11182098
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12751114
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14795916
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4090917
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.re3data.org/repository/r3d100010303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://library.wur.nl/WebQuery/isric/start/2353837
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://library.wur.nl/WebQuery/isric/start/2329520
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://library.wur.nl/WebQuery/isric/start/2353471
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://library.wur.nl/WebQuery/isric/start/2346791
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ISRIC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Al-Hikmah_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978933
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Women_s_Health_in_Crisis_Navigating_Complex_Care_in_the_United_States_Restrictive_Healthcare_Landscape/32978870
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Ajayi_Crowther_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978930
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_American_University_of_Nigeria_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978924
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Pan-Atlantic_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11182098
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1233213
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17514538
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18340092
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://essd.copernicus.org/articles/16/4735/2024/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/hz75rs73yt/2
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/hz75rs73yt
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/hz75rs73yt/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.re3data.org/repository/r3d100010303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.hx3ffbgkx
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?Expires=1783990482&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY4ZWRkNDYyNTlmMTRmMjFjNjk4YWEyOC9mNDRmNzAzZWNkNTdkMWRkZmZhYjY4ZWExNjZkZmZjYjgxOGYwMmEwMjc0NTY2YWI0NjUxMjM5ZWQ4NWZmZmZmKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk5MDQ4Mn19fV19&Signature=Sx2QChxX7DMQ5YEQzg4EhpYcP63wZA3H6ZOqBFBJpGXbTo0FL6HErLTZt9VpAmBrnmEdryKuc8h-Oqn6G3JmwPn6rbeh4kK5vMocnCvVaGJurgm041Y5ZzK0QfbFeqesKct9V1p336lrgiNPOVQsLorfZ8lYsvaSAR2EuDkN6idq1hCYSbegDy5x1OJyFq48k7UjpjC28sgvEohxTDLMqNa5nuFvCGkS1pLygf7UX4og9d8kBmL0Hi7ZAeVy4qd6VKpoX9OSZfyQ3WUESK5dDMQ-y2IVWxcKNjFazH2I3D~oq5Ov4oiTbxNJgN~rpbWzF36qKunMoTEMZm3~4MdaxQ__&Key-Pair-Id=K2L8F4GPSG1IFC&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260713%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260713T235442Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0616e8e44fb6b986fb477df52f80e4b7732bd9036f3006fc9adf9020ceddc095
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Al-Hikmah_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978933
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Women_s_Health_in_Crisis_Navigating_Complex_Care_in_the_United_States_Restrictive_Healthcare_Landscape/32978870
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Ajayi_Crowther_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978930
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_American_University_of_Nigeria_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978924
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Pan-Atlantic_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20325172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17593144
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17750460
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10972798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10966066
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21345448
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21345448
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344973
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344973
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21344433
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LMM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lmms-lab/POPE/resolve/main/Full/adversarial-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lmms-lab/RefCOCO/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lmms-lab/MP-DocVQA/resolve/main/data/test-00000-of-00023.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lmms-lab/POPE/resolve/main/Full/adversarial-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/RefCOCO/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/MP-DocVQA/resolve/main/data/test-00000-of-00023.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/egoschema/resolve/main/GENERATION/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/Video-MME/resolve/main/videomme/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Al-Hikmah_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978933
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Women_s_Health_in_Crisis_Navigating_Complex_Care_in_the_United_States_Restrictive_Healthcare_Landscape/32978870
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Ajayi_Crowther_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978930
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_American_University_of_Nigeria_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978924
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Pan-Atlantic_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6657148
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4053698
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11166211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17361190
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ojs.uc.cl/index.php/ijanr/article/view/36711
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://iris.uniupo.it//handle/11579/46198
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.v41ns1s9q
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21333651
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21333651
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/101647
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MergedDataset
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/joaosanches/merged_dataset_no_duplicates/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/aizenSosuke/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/joaosanches/merged_dataset_no_duplicates/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/aizenSosuke/merged_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/aizenSosuke/merged_dataset_final/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Al-Hikmah_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978933
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Women_s_Health_in_Crisis_Navigating_Complex_Care_in_the_United_States_Restrictive_Healthcare_Landscape/32978870
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Ajayi_Crowther_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978930
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_American_University_of_Nigeria_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978924
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Pan-Atlantic_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32978918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

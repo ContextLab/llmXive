@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutputSchema"
+description: "Schema for statistical model results and metrics."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum: ["LMM", "RandomForest"]
+    description: "Type of model used."
+  adj_r2:
+    type: "number"
+    description: "Adjusted R-squared value."
+  rmse:
+    type: "number"
+    description: "Root Mean Squared Error."
+  coefficients:
+    type: "object"
+    description: "Map of predictor names to coefficients."
+    additionalProperties:
+      type: "number"
+  p_values:
+    type: "object"
+    description: "Map of predictor names to Bonferroni-corrected p-values."
+    additionalProperties:
+      type: "number"
+  cv_r2_mean:
+    type: "number"
+    description: "Mean R-squared from 5-fold cross-validation."
+  cv_r2_std:
+    type: "number"
+    description: "Standard deviation of R-squared from CV."
+  cv_coeff_stability:
+    type: "number"
+    description: "Standard deviation of nutrient coefficients across folds (validation target)."
+  lrt_p_value:
+    type: "number"
+    description: "P-value from Likelihood Ratio Test (Full vs Null model)."
+  collinearity_vif:
+    type: "object"
+    description: "Variance Inflation Factor for predictors."
+    additionalProperties:
+      type: "number"
+  association_only:
+    type: "boolean"
+    default: true
+    description: "Flag indicating no causal claims are made."
+  literature_overlap:
+    type: "boolean"
+    description: "True if 95% CI overlaps with literature-reported physiological ranges."
+required:
+  - model_type
+  - adj_r2
+  - rmse
+  - coefficients
+  - p_values
+  - cv_r2_mean
+  - cv_coeff_stability
+  - lrt_p_value
+  - association_only
+  - literature_overlap
+additionalProperties: false
