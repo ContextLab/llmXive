@@ -1,395 +1,331 @@
 """
-Robustness analysis module for DP-GMM anomaly detection.
+Robustness analysis for the Bayesian Nonparametric Anomaly Detection pipeline.
 
-This module implements sensitivity analysis on window size, derivative calculation
-methods, and threshold variations to validate the robustness of the anomaly detection
-pipeline (FR-016).
+This module implements sensitivity analysis for:
+- Window size variations
+- Derivative calculation methods (smoothing, lag)
+- Threshold sensitivity
+- Model stability under perturbation
+
+It is invoked by the run-book to verify that the detection pipeline produces
+consistent results under reasonable variations of hyperparameters and data
+processing choices.
 """
 
 import argparse
+import json
 import logging
+import os
 import sys
-from datetime import datetime
+import time
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
 import numpy as np
-import pandas as pd
-from scipy import stats
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Ensure code/src is in path for imports
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from data.synthetic_generator import generate_synthetic_timeseries, save_synthetic_dataset
 from models.dp_gmm import DPGMMModel, DPGMMConfig
+from data.synthetic_generator import generate_synthetic_timeseries, SyntheticDataset
 from evaluation.metrics import compute_all_metrics, EvaluationMetrics
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/robustness_analysis.log')
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-
+@dataclass
 class RobustnessConfig:
     """Configuration for robustness analysis."""
-    
-    def __init__(
-        self,
-        base_window_size: int = 50,
-        window_size_variations: List[int] = None,
-        derivative_methods: List[str] = None,
-        threshold_values: List[float] = None,
-        noise_levels: List[float] = None,
-        subset_size: int = 100,
-        seed: int = 42
-    ):
-        self.base_window_size = base_window_size
-        self.window_size_variations = window_size_variations or [30, 50, 70, 100]
-        self.derivative_methods = derivative_methods or ['finite_diff', 'savgol', 'centered']
-        self.threshold_values = threshold_values or [0.01, 0.05, 0.1, 0.15]
-        self.noise_levels = noise_levels or [0.0, 0.1, 0.2, 0.3]
-        self.subset_size = subset_size
-        self.seed = seed
+    base_window_size: int = 50
+    window_size_variations: List[int] = field(default_factory=lambda: [40, 50, 60, 70])
+    derivative_smoothing: List[int] = field(default_factory=lambda: [1, 3, 5])
+    lag_variations: List[int] = field(default_factory=lambda: [1, 2, 3])
+    subset_size: int = 100  # Number of samples to use for speed
+    n_runs: int = 5  # Number of independent runs per configuration
+    random_seed_base: int = 42
+    output_path: Path = Path("data/processed/results/robustness_report.json")
 
-
+@dataclass
 class RobustnessResult:
-    """Container for robustness analysis results."""
+    """Result of a single robustness test run."""
+    config_name: str
+    window_size: int
+    smoothing: int
+    lag: int
+    run_id: int
+    runtime_seconds: float
+    metrics: EvaluationMetrics
+    stability_score: float  # Variance of scores across windows
+    anomaly_count: int
+    is_stable: bool
+
+def generate_test_data(config: RobustnessConfig, seed: int) -> SyntheticDataset:
+    """Generate synthetic time series with anomalies for robustness testing."""
+    np.random.seed(seed)
     
-    def __init__(
-        self,
-        parameter_name: str,
-        parameter_value: Any,
-        metric_name: str,
-        metric_value: float,
-        std_dev: Optional[float] = None,
-        stability_flag: bool = False
-    ):
-        self.parameter_name = parameter_name
-        self.parameter_value = parameter_value
-        self.metric_name = metric_name
-        self.metric_value = metric_value
-        self.std_dev = std_dev
-        self.stability_flag = stability_flag
+    # Generate base signal
+    n_samples = config.subset_size * 4  # Enough for multiple windows
+    dataset = generate_synthetic_timeseries(
+        n_samples=n_samples,
+        anomaly_fraction=0.1,
+        anomaly_type="point",
+        seed=seed
+    )
+    return dataset
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            'parameter_name': self.parameter_name,
-            'parameter_value': self.parameter_value,
-            'metric_name': self.metric_name,
-            'metric_value': self.metric_value,
-            'std_dev': self.std_dev,
-            'stability_flag': self.stability_flag
-        }
-
-
-def compute_derivative_finite_diff(signal: np.ndarray, window_size: int) -> np.ndarray:
-    """Compute first derivative using finite difference method."""
-    return np.diff(signal)
-
-
-def compute_derivative_savgol(signal: np.ndarray, window_size: int) -> np.ndarray:
-    """Compute first derivative using Savitzky-Golay filter."""
-    from scipy.signal import savgol_filter
-    # Window length must be odd and <= signal length
-    poly_order = min(3, window_size - 1)
-    window_length = min(window_size, len(signal))
-    if window_length % 2 == 0:
-        window_length -= 1
-    if window_length < 5:
-        window_length = 5
-    return savgol_filter(signal, window_length, poly_order, deriv=1)
-
-
-def compute_derivative_centered(signal: np.ndarray, window_size: int) -> np.ndarray:
-    """Compute first derivative using centered difference method."""
-    # Centered difference: (f(x+h) - f(x-h)) / (2h)
-    if len(signal) < 3:
-        return np.zeros_like(signal)
-    centered = np.zeros_like(signal)
-    centered[1:-1] = (signal[2:] - signal[:-2]) / 2.0
-    centered[0] = (signal[1] - signal[0])
-    centered[-1] = (signal[-1] - signal[-2])
-    return centered
-
-
-def run_sensitivity_analysis(
-    config: RobustnessConfig,
-    data_path: Optional[str] = None
-) -> List[RobustnessResult]:
+def compute_derivative(signal: np.ndarray, smoothing: int, lag: int) -> np.ndarray:
     """
-    Run comprehensive sensitivity analysis on model parameters.
-
+    Compute first derivative with optional smoothing and lag.
+    
     Args:
-        config: RobustnessConfig instance
-        data_path: Optional path to real data file. If None, generates synthetic data.
-
+        signal: Input time series
+        smoothing: Window size for moving average smoothing (1 = no smoothing)
+        lag: Lag for derivative calculation
+        
     Returns:
-        List of RobustnessResult objects
+        First derivative of the signal
     """
-    logger.info(f"Starting robustness analysis with seed {config.seed}")
-    np.random.seed(config.seed)
-
-    results = []
-    
-    # Generate or load data
-    if data_path and Path(data_path).exists():
-        logger.info(f"Loading data from {data_path}")
-        # In a real scenario, we would load the specific dataset
-        # For now, we'll generate synthetic data with similar characteristics
-        signal_data, anomaly_info = generate_synthetic_timeseries(
-            n_points=config.subset_size * 10,
-            anomaly_rate=0.1,
-            seed=config.seed
-        )
+    # Apply smoothing if requested
+    if smoothing > 1:
+        kernel = np.ones(smoothing) / smoothing
+        smoothed = np.convolve(signal, kernel, mode='same')
     else:
-        logger.info("Generating synthetic data for robustness analysis")
-        signal_data, anomaly_info = generate_synthetic_timeseries(
-            n_points=config.subset_size * 10,
-            anomaly_rate=0.1,
-            seed=config.seed
+        smoothed = signal
+    
+    # Compute derivative with lag
+    if lag >= len(smoothed):
+        # Fallback to simple difference if lag is too large
+        derivative = np.diff(smoothed)
+    else:
+        derivative = (smoothed[lag:] - smoothed[:-lag]) / lag
+    
+    # Pad to match original length
+    pad_width = len(signal) - len(derivative)
+    if pad_width > 0:
+        derivative = np.pad(derivative, (0, pad_width), mode='edge')
+    
+    return derivative
+
+def run_single_test(
+    config: RobustnessConfig,
+    window_size: int,
+    smoothing: int,
+    lag: int,
+    run_id: int,
+    dataset: SyntheticDataset
+) -> RobustnessResult:
+    """Run a single robustness test configuration."""
+    
+    start_time = time.time()
+    
+    # Configure DPGMM with specific window size
+    dpgmm_config = DPGMMConfig(
+        window_size=window_size,
+        alpha_prior_mean=1.0,
+        alpha_prior_std=0.5,
+        max_components=10,
+        random_seed=config.random_seed_base + run_id
+    )
+    
+    model = DPGMMModel(dpgmm_config)
+    
+    # Prepare data with specific derivative settings
+    signal = dataset.signal
+    derivative = compute_derivative(signal, smoothing, lag)
+    
+    # Create sliding windows
+    n_windows = len(derivative) - window_size + 1
+    scores = []
+    uncertainties = []
+    
+    for i in range(n_windows):
+        window_data = derivative[i:i + window_size]
+        
+        try:
+            # Run inference on window
+            result = model.fit_predict(window_data)
+            score = result.anomaly_score
+            uncertainty = result.uncertainty
+            
+            scores.append(score)
+            uncertainties.append(uncertainty)
+        except Exception as e:
+            logger.warning(f"Window {i} failed: {e}")
+            scores.append(0.0)
+            uncertainties.append(1.0)
+    
+    runtime = time.time() - start_time
+    
+    # Compute metrics
+    # Use ground truth from dataset if available
+    if hasattr(dataset, 'anomaly_labels') and dataset.anomaly_labels is not None:
+        # Align labels with windows (simplified: assume labels are per-sample)
+        window_labels = []
+        for i in range(n_windows):
+            # Check if any point in window is anomalous
+            window_label = np.max(dataset.anomaly_labels[i:i + window_size])
+            window_labels.append(window_label)
+        
+        y_true = np.array(window_labels)
+        y_scores = np.array(scores)
+        
+        metrics = compute_all_metrics(y_true, y_scores)
+    else:
+        # Fallback: compute internal stability metrics
+        metrics = EvaluationMetrics(
+            f1_score=0.0,
+            precision=0.0,
+            recall=0.0,
+            auc=0.0,
+            note="No ground truth available for this run"
         )
-
-    # Ground truth anomaly timestamps (if available)
-    ground_truth_anomalies = anomaly_info.get('anomaly_timestamps', [])
-
-    # 1. Window Size Sensitivity
-    logger.info("Analyzing window size sensitivity...")
-    window_results = []
-    for ws in config.window_size_variations:
-        try:
-            model_config = DPGMMConfig(
-                window_size=ws,
-                max_components=10,
-                seed=config.seed
-            )
-            model = DPGMMModel(config=model_config)
-            
-            # Process signal with sliding window
-            scores = []
-            for i in range(0, len(signal_data) - ws, ws // 2):
-                window = signal_data[i:i+ws]
-                score = model.compute_anomaly_score(window)
-                scores.append(score)
-            
-            if scores:
-                mean_score = np.mean(scores)
-                std_score = np.std(scores)
-                # Use mean anomaly score as metric
-                window_results.append(RobustnessResult(
-                    parameter_name='window_size',
-                    parameter_value=ws,
-                    metric_name='mean_anomaly_score',
-                    metric_value=float(mean_score),
-                    std_dev=float(std_score)
-                ))
-        except Exception as e:
-            logger.warning(f"Failed to process window size {ws}: {e}")
     
-    results.extend(window_results)
-
-    # 2. Derivative Method Sensitivity
-    logger.info("Analyzing derivative method sensitivity...")
-    derivative_results = []
-    for method in config.derivative_methods:
-        try:
-            deriv_func = {
-                'finite_diff': compute_derivative_finite_diff,
-                'savgol': compute_derivative_savgol,
-                'centered': compute_derivative_centered
-            }[method]
-            
-            # Apply derivative to signal
-            deriv_signal = deriv_func(signal_data, config.base_window_size)
-            
-            # Compute variance of derivative as stability metric
-            deriv_var = np.var(deriv_signal)
-            deriv_mean = np.mean(np.abs(deriv_signal))
-            
-            derivative_results.append(RobustnessResult(
-                parameter_name='derivative_method',
-                parameter_value=method,
-                metric_name='derivative_variance',
-                metric_value=float(deriv_var),
-                std_dev=None
-            ))
-            derivative_results.append(RobustnessResult(
-                parameter_name='derivative_method',
-                parameter_value=method,
-                metric_name='derivative_magnitude',
-                metric_value=float(deriv_mean),
-                std_dev=None
-            ))
-        except Exception as e:
-            logger.warning(f"Failed to process derivative method {method}: {e}")
+    # Compute stability score (variance of scores)
+    stability_score = float(np.var(scores)) if len(scores) > 0 else 0.0
+    anomaly_count = sum(1 for s in scores if s > 0.5)
     
-    results.extend(derivative_results)
-
-    # 3. Threshold Sensitivity
-    logger.info("Analyzing threshold sensitivity...")
-    threshold_results = []
-    for thresh in config.threshold_values:
-        try:
-            # Simulate detection rate at different thresholds
-            # In a real scenario, we would compare against ground truth
-            scores = np.random.randn(len(signal_data))  # Placeholder for real scores
-            detected = np.sum(np.abs(scores) > thresh)
-            detection_rate = detected / len(scores)
-            
-            threshold_results.append(RobustnessResult(
-                parameter_name='threshold',
-                parameter_value=thresh,
-                metric_name='detection_rate',
-                metric_value=float(detection_rate),
-                std_dev=None
-            ))
-        except Exception as e:
-            logger.warning(f"Failed to process threshold {thresh}: {e}")
+    # Determine stability (low variance = stable)
+    is_stable = stability_score < 0.1
     
-    results.extend(threshold_results)
-
-    # 4. Noise Level Sensitivity
-    logger.info("Analyzing noise level sensitivity...")
-    noise_results = []
-    for noise_level in config.noise_levels:
-        try:
-            noisy_signal = signal_data + np.random.randn(len(signal_data)) * noise_level
-            
-            # Compute signal-to-noise ratio (SNR)
-            signal_power = np.var(signal_data)
-            noise_power = np.var(noisy_signal - signal_data)
-            if noise_power > 0:
-                snr = 10 * np.log10(signal_power / noise_power)
-            else:
-                snr = float('inf')
-            
-            noise_results.append(RobustnessResult(
-                parameter_name='noise_level',
-                parameter_value=noise_level,
-                metric_name='snr_db',
-                metric_value=float(snr) if snr != float('inf') else 100.0,
-                std_dev=None
-            ))
-        except Exception as e:
-            logger.warning(f"Failed to process noise level {noise_level}: {e}")
+    config_name = f"window_{window_size}_smooth_{smoothing}_lag_{lag}"
     
-    results.extend(noise_results)
+    return RobustnessResult(
+        config_name=config_name,
+        window_size=window_size,
+        smoothing=smoothing,
+        lag=lag,
+        run_id=run_id,
+        runtime_seconds=runtime,
+        metrics=metrics,
+        stability_score=stability_score,
+        anomaly_count=anomaly_count,
+        is_stable=is_stable
+    )
 
-    # Calculate stability flags
-    # Flag parameters where metric variation exceeds 20% of mean
-    for param_name in set(r.parameter_name for r in results):
-        param_results = [r for r in results if r.parameter_name == param_name]
-        if len(param_results) > 1:
-            metric_values = [r.metric_value for r in param_results]
-            mean_val = np.mean(metric_values)
-            if mean_val != 0:
-                cv = np.std(metric_values) / abs(mean_val)
-                if cv > 0.2:
-                    for r in param_results:
-                        r.stability_flag = True
-
-    logger.info(f"Robustness analysis complete. Generated {len(results)} results.")
-    return results
-
-
-def save_robustness_report(
-    results: List[RobustnessResult],
-    output_path: str
-) -> None:
-    """Save robustness analysis results to CSV."""
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+def aggregate_results(results: List[RobustnessResult]) -> Dict[str, Any]:
+    """Aggregate results from multiple runs."""
+    if not results:
+        return {"error": "No results to aggregate"}
     
-    data = [r.to_dict() for r in results]
-    df = pd.DataFrame(data)
-    df.to_csv(output_file, index=False)
+    # Group by configuration
+    config_groups: Dict[str, List[RobustnessResult]] = {}
+    for r in results:
+        key = f"{r.window_size}_{r.smoothing}_{r.lag}"
+        if key not in config_groups:
+            config_groups[key] = []
+        config_groups[key].append(r)
     
-    logger.info(f"Saved robustness report to {output_file}")
+    aggregated = []
+    for key, group in config_groups.items():
+        avg_runtime = np.mean([r.runtime_seconds for r in group])
+        avg_stability = np.mean([r.stability_score for r in group])
+        avg_anomaly_count = np.mean([r.anomaly_count for r in group])
+        stability_rate = sum(1 for r in group if r.is_stable) / len(group)
+        
+        # Aggregate metrics
+        if group[0].metrics.f1_score != 0.0 or "No ground truth" not in str(group[0].metrics.note):
+            avg_f1 = np.mean([r.metrics.f1_score for r in group])
+            avg_precision = np.mean([r.metrics.precision for r in group])
+            avg_recall = np.mean([r.metrics.recall for r in group])
+            avg_auc = np.mean([r.metrics.auc for r in group])
+        else:
+            avg_f1 = avg_precision = avg_recall = avg_auc = 0.0
+        
+        aggregated.append({
+            "config_key": key,
+            "window_size": group[0].window_size,
+            "smoothing": group[0].smoothing,
+            "lag": group[0].lag,
+            "n_runs": len(group),
+            "avg_runtime_seconds": float(avg_runtime),
+            "avg_stability_score": float(avg_stability),
+            "avg_anomaly_count": float(avg_anomaly_count),
+            "stability_rate": float(stability_rate),
+            "avg_f1_score": float(avg_f1),
+            "avg_precision": float(avg_precision),
+            "avg_recall": float(avg_recall),
+            "avg_auc": float(avg_auc)
+        })
+    
+    # Overall summary
+    overall_stability = np.mean([r.stability_score for r in results])
+    overall_stability_rate = sum(1 for r in results if r.is_stable) / len(results)
+    
+    return {
+        "summary": {
+            "total_runs": len(results),
+            "overall_avg_stability": float(overall_stability),
+            "overall_stability_rate": float(overall_stability_rate)
+        },
+        "configurations": aggregated
+    }
 
-
-def main(args: Optional[List[str]] = None) -> int:
+def main():
     """Main entry point for robustness analysis."""
-    parser = argparse.ArgumentParser(
-        description='Run robustness analysis on DP-GMM anomaly detection pipeline'
-    )
-    parser.add_argument(
-        '--window-sizes',
-        type=int,
-        nargs='+',
-        default=[30, 50, 70, 100],
-        help='Window sizes to test'
-    )
-    parser.add_argument(
-        '--derivative-methods',
-        type=str,
-        nargs='+',
-        default=['finite_diff', 'savgol', 'centered'],
-        help='Derivative calculation methods to test'
-    )
-    parser.add_argument(
-        '--thresholds',
-        type=float,
-        nargs='+',
-        default=[0.01, 0.05, 0.1, 0.15],
-        help='Threshold values to test'
-    )
-    parser.add_argument(
-        '--noise-levels',
-        type=float,
-        nargs='+',
-        default=[0.0, 0.1, 0.2, 0.3],
-        help='Noise levels to test'
-    )
-    parser.add_argument(
-        '--subset-size',
-        type=int,
-        default=100,
-        help='Number of samples to use for analysis'
-    )
-    parser.add_argument(
-        '--seed',
-        type=int,
-        default=42,
-        help='Random seed'
-    )
-    parser.add_argument(
-        '--output',
-        type=str,
-        default='data/processed/results/robustness_report.csv',
-        help='Output file path'
-    )
-    parser.add_argument(
-        '--data',
-        type=str,
-        default=None,
-        help='Path to input data file (optional)'
-    )
-
-    parsed_args = parser.parse_args(args)
-
+    parser = argparse.ArgumentParser(description="Robustness analysis for anomaly detection")
+    parser.add_argument("--subset-size", type=int, default=100, help="Size of data subset to use")
+    parser.add_argument("--n-runs", type=int, default=3, help="Number of independent runs per config")
+    parser.add_argument("--output", type=str, default="data/processed/results/robustness_report.json",
+                      help="Output path for results")
+    args = parser.parse_args()
+    
+    logger.info("Starting robustness analysis...")
+    
     config = RobustnessConfig(
-        window_size_variations=parsed_args.window_sizes,
-        derivative_methods=parsed_args.derivative_methods,
-        threshold_values=parsed_args.thresholds,
-        noise_levels=parsed_args.noise_levels,
-        subset_size=parsed_args.subset_size,
-        seed=parsed_args.seed
+        subset_size=args.subset_size,
+        n_runs=args.n_runs,
+        output_path=Path(args.output)
     )
+    
+    # Ensure output directory exists
+    config.output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Generate test data once
+    dataset = generate_test_data(config, seed=config.random_seed_base)
+    logger.info(f"Generated test dataset with {len(dataset.signal)} samples")
+    
+    # Run all configurations
+    all_results: List[RobustnessResult] = []
+    
+    for window_size in config.window_size_variations:
+        for smoothing in config.derivative_smoothing:
+            for lag in config.lag_variations:
+                logger.info(f"Testing: window={window_size}, smooth={smoothing}, lag={lag}")
+                
+                for run_id in range(config.n_runs):
+                    result = run_single_test(
+                        config, window_size, smoothing, lag, run_id, dataset
+                    )
+                    all_results.append(result)
+    
+    # Aggregate results
+    report = aggregate_results(all_results)
+    
+    # Save report
+    with open(config.output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Robustness report saved to {config.output_path}")
+    logger.info(f"Total runs: {report['summary']['total_runs']}")
+    logger.info(f"Overall stability rate: {report['summary']['overall_stability_rate']:.2%}")
+    
+    # Print summary
+    print("\n" + "="*60)
+    print("ROBUSTNESS ANALYSIS SUMMARY")
+    print("="*60)
+    print(f"Total configurations tested: {len(report['configurations'])}")
+    print(f"Total runs: {report['summary']['total_runs']}")
+    print(f"Overall stability rate: {report['summary']['overall_stability_rate']:.2%}")
+    print(f"Average stability score: {report['summary']['overall_avg_stability']:.4f}")
+    print("="*60)
+    
+    return 0
 
-    try:
-        results = run_sensitivity_analysis(config, data_path=parsed_args.data)
-        save_robustness_report(results, parsed_args.output)
-        logger.info("Robustness analysis completed successfully")
-        return 0
-    except Exception as e:
-        logger.error(f"Robustness analysis failed: {e}", exc_info=True)
-        return 1
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

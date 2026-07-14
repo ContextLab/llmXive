@@ -44,6 +44,10 @@ def main():
     print(f"State path: {STATE_PATH}")
 
     # 1. Load config
+    if not CONFIG_PATH.exists():
+        print(f"Error: Config file not found at {CONFIG_PATH}")
+        sys.exit(1)
+    
     config = load_yaml(CONFIG_PATH)
     
     # 2. Extract derived statistics

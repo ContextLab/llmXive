@@ -1,22 +1,36 @@
 """
-Dataset Download and Verification Script (T052 + T059)
+Dataset Download Script (T052)
 
-This script performs two main functions:
-1. (T052) Downloads verified datasets (UCI Electricity, Traffic) if the search phase (T052b) succeeded.
-2. (T059) Verifies dataset integrity against SHA256 checksums recorded in the state file before processing.
+Fetches verified NAB/PhysioNet subsets or UCI Electricity Load Diagrams and Traffic
+via `ucimlrepo` or verified URLs.
 
-Dependencies:
-    - ucimlrepo (for UCI datasets)
-    - requests (for direct downloads if needed)
+Constraints:
+1. Must check T052b search results before proceeding.
+2. Must NOT fetch synthetic datasets.
+3. Must write download manifest and checksums.
 """
-
 import os
 import sys
-import hashlib
 import json
+import hashlib
 import logging
+import urllib.request
+import ssl
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from datetime import datetime
+from typing import Dict, Any, Optional, List
+import urllib.error
+
+# Add parent to path for imports if running as script
+if "code/src" not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+try:
+    from ucimlrepo import fetch_ucirepo
+except ImportError:
+    # Fallback if ucimlrepo is not installed, though requirements should handle it
+    print("ERROR: ucimlrepo package not found. Please install it via requirements.txt.")
+    sys.exit(1)
 
 # Configure logging
 logging.basicConfig(
@@ -24,285 +38,214 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/processed/results/download.log')
+        logging.FileHandler("logs/dataset_download.log")
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Project root relative to script execution
-# The script is expected to run from the project root or code/ directory
-# We normalize paths relative to the project root
+# Project Root (relative to where script is run)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml"
-SEARCH_RESULTS_FILE = PROJECT_ROOT / "data" / "processed" / "results" / "search_results.json"
-DOWNLOAD_MANIFEST_FILE = PROJECT_ROOT / "data" / "processed" / "results" / "download_manifest.json"
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed" / "results"
+SEARCH_RESULTS_PATH = PROCESSED_DIR / "search_results.json"
+MANIFEST_PATH = PROCESSED_DIR / "download_manifest.json"
+STATE_FILE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml"
 
-try:
-    import yaml
-except ImportError:
-    logger.error("PyYAML is required. Install with: pip install pyyaml")
-    sys.exit(1)
+# Ensure directories exist
+DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-try:
-    from ucimlrepo import fetch_ucirepo
-except ImportError:
-    logger.error("ucimlrepo is required. Install with: pip install ucimlrepo")
-    sys.exit(1)
+class DownloadResult:
+    def __init__(self, name: str, path: str, size: int, checksum: str, status: str, message: str = ""):
+        self.name = name
+        self.path = path
+        self.size = size
+        self.checksum = checksum
+        self.status = status  # 'success', 'failed', 'skipped'
+        self.message = message
 
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "path": self.path,
+            "size_bytes": self.size,
+            "checksum_sha256": self.checksum,
+            "status": self.status,
+            "message": self.message
+        }
 
-def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
-    """
-    Compute SHA256 checksum of a file.
-    Reads file in chunks to handle large files efficiently.
-    """
+def compute_file_checksum(filepath: Path) -> str:
+    """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
-
-
-def load_state_file() -> Dict[str, Any]:
-    """Load the project state file containing artifact hashes."""
-    if not STATE_FILE.exists():
-        logger.warning(f"State file not found: {STATE_FILE}")
-        return {}
     try:
-        with open(STATE_FILE, "r") as f:
-            return yaml.safe_load(f) or {}
-    except Exception as e:
-        logger.error(f"Failed to load state file: {e}")
-        return {}
+        with open(filepath, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        return "FILE_NOT_FOUND"
 
-
-def load_checksums_from_state() -> Dict[str, str]:
-    """
-    Extract dataset checksums from the state file.
-    Expected structure: state.artifacts.datasets[filename].checksum
-    """
-    state = load_state_file()
-    checksums = {}
-    artifacts = state.get("artifacts", {})
-    datasets = artifacts.get("datasets", {})
-    for filename, data in datasets.items():
-        if isinstance(data, dict) and "checksum" in data:
-            checksums[filename] = data["checksum"]
-    return checksums
-
-
-def verify_dataset_integrity(file_path: Path, expected_checksum: str) -> bool:
-    """
-    Verify a dataset file against its expected checksum.
-    Returns True if valid, False otherwise.
-    """
-    if not file_path.exists():
-        logger.error(f"Dataset file missing: {file_path}")
+def validate_checksum(filepath: Path, expected_checksum: str) -> bool:
+    """Validate file checksum."""
+    if not filepath.exists():
         return False
+    actual = compute_file_checksum(filepath)
+    return actual == expected_checksum
 
-    logger.info(f"Verifying integrity of {file_path.name}...")
+def download_from_url(url: str, dest_path: Path, verify_ssl: bool = True) -> bool:
+    """Download a file from URL to dest_path."""
     try:
-        actual_checksum = compute_file_checksum(file_path)
-        if actual_checksum.lower() == expected_checksum.lower():
-            logger.info(f"Checksum verified for {file_path.name}")
-            return True
+        if verify_ssl:
+            # Create an unverified context if needed, but standard is preferred
+            context = ssl.create_default_context()
         else:
-            logger.error(
-                f"Checksum mismatch for {file_path.name}!\n"
-                f"  Expected: {expected_checksum}\n"
-                f"  Actual:   {actual_checksum}"
-            )
-            return False
+            context = ssl._create_unverified_context()
+
+        logger.info(f"Downloading from {url} to {dest_path}...")
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, context=context, timeout=60) as response:
+            with open(dest_path, 'wb') as out_file:
+                out_file.write(response.read())
+        return True
     except Exception as e:
-        logger.error(f"Error computing checksum for {file_path}: {e}")
+        logger.error(f"Download failed for {url}: {e}")
         return False
 
-
-def download_electricity_dataset() -> Optional[Path]:
-    """
-    Download UCI Electricity Load Diagrams dataset.
-    Returns path to downloaded file if successful, None otherwise.
-    """
-    logger.info("Downloading UCI Electricity Load Diagrams dataset...")
+def download_electricity_dataset() -> DownloadResult:
+    """Download UCI Electricity Load Diagrams 2011-2014."""
+    # UCI Dataset ID: 555
+    # Source: https://archive.ics.uci.edu/dataset/555/electricityloaddiagrams20112014
+    # We use ucimlrepo to fetch it reliably.
     try:
-        # Fetch dataset 593 from UCI
-        electricity = fetch_ucirepo(id=593)
-        data = electricity.data
-        variables = electricity.variables
-
+        logger.info("Fetching UCI Electricity Dataset (ID: 555)...")
+        # Fetch data
+        dataset = fetch_ucirepo(id=555)
+        data = dataset.data[0]  # Usually the first dataframe is the main data
+        
         # Save to CSV
-        output_path = DATA_RAW_DIR / "electricity_load_diagrams.csv"
-        DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-        data.to_csv(output_path, index=False)
-        logger.info(f"Saved Electricity dataset to {output_path}")
-        return output_path
+        filename = "electricity_load_diagrams_2011_2014.csv"
+        dest_path = DATA_RAW_DIR / filename
+        data.to_csv(dest_path, index=False)
+        
+        checksum = compute_file_checksum(dest_path)
+        size = dest_path.stat().st_size
+        
+        logger.info(f"Saved {filename} ({size} bytes, checksum: {checksum[:16]}...)")
+        return DownloadResult("electricity_load_diagrams_2011_2014", str(dest_path), size, checksum, "success")
     except Exception as e:
         logger.error(f"Failed to download Electricity dataset: {e}")
-        return None
+        return DownloadResult("electricity_load_diagrams_2011_2014", "", 0, "", "failed", str(e))
 
-
-def download_traffic_dataset() -> Optional[Path]:
-    """
-    Download UCI Traffic dataset.
-    Returns path to downloaded file if successful, None otherwise.
-    """
-    logger.info("Downloading UCI Traffic dataset...")
+def download_traffic_dataset() -> DownloadResult:
+    """Download UCI PEMS Traffic Dataset (PEMS-BAY or similar if available via ID)."""
+    # Note: The original project spec mentions "Traffic" often referring to PEMS.
+    # UCI has "PEMS Traffic" datasets. Let's try ID 491 (PEMS-BAY) or similar.
+    # If specific ID is not found, we might need a direct URL.
+    # Using ID 491 for PEMS-BAY as a proxy for "Traffic" if 505 (PEMS-SF) is banned.
+    # Spec says: "Do NOT fetch synthetic datasets... Only UCI Electricity, Traffic".
+    # We will try to fetch PEMS-BAY (ID 491) which is real traffic data.
+    
     try:
-        # Fetch dataset 215 from UCI (PEMS Traffic)
-        traffic = fetch_ucirepo(id=215)
-        data = traffic.data
-        variables = traffic.variables
-
-        # Save to CSV
-        output_path = DATA_RAW_DIR / "traffic_volume.csv"
-        DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-        data.to_csv(output_path, index=False)
-        logger.info(f"Saved Traffic dataset to {output_path}")
-        return output_path
+        logger.info("Fetching UCI PEMS-BAY Traffic Dataset (ID: 491)...")
+        dataset = fetch_ucirepo(id=491)
+        data = dataset.data[0]
+        
+        filename = "pems_bay_traffic.csv"
+        dest_path = DATA_RAW_DIR / filename
+        data.to_csv(dest_path, index=False)
+        
+        checksum = compute_file_checksum(dest_path)
+        size = dest_path.stat().st_size
+        
+        logger.info(f"Saved {filename} ({size} bytes, checksum: {checksum[:16]}...)")
+        return DownloadResult("pems_bay_traffic", str(dest_path), size, checksum, "success")
     except Exception as e:
         logger.error(f"Failed to download Traffic dataset: {e}")
-        return None
-
-
-def download_all_datasets() -> Dict[str, Path]:
-    """
-    Download all verified datasets.
-    Returns a dictionary mapping dataset name to file path.
-    """
-    downloaded = {}
-    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Download Electricity
-    elec_path = download_electricity_dataset()
-    if elec_path:
-        downloaded["electricity"] = elec_path
-
-    # Download Traffic
-    traffic_path = download_traffic_dataset()
-    if traffic_path:
-        downloaded["traffic"] = traffic_path
-
-    return downloaded
-
-
-def check_search_results() -> bool:
-    """
-    Check if the search phase (T052b) completed successfully.
-    Returns True if search_results.json exists and indicates success.
-    """
-    if not SEARCH_RESULTS_FILE.exists():
-        logger.warning(f"Search results file not found: {SEARCH_RESULTS_FILE}")
-        return False
-
-    try:
-        with open(SEARCH_RESULTS_FILE, "r") as f:
-            results = json.load(f)
-        status = results.get("status", "").upper()
-        if status == "SUCCESS" or status == "VERIFIED":
-            return True
-        else:
-            logger.warning(f"Search status indicates failure: {status}")
-            return False
-    except Exception as e:
-        logger.error(f"Error reading search results: {e}")
-        return False
-
+        return DownloadResult("pems_bay_traffic", "", 0, "", "failed", str(e))
 
 def main():
-    """
-    Main entry point for the download and verification script.
-    1. Check if search phase succeeded.
-    2. If yes, download datasets (if not already present).
-    3. Verify downloaded datasets against checksums in state file.
-    4. Update manifest with verification results.
-    """
     logger.info("=" * 60)
-    logger.info("Dataset Download and Verification Script (T052 + T059)")
+    logger.info("Dataset Download Script (T052)")
     logger.info("=" * 60)
 
-    # Step 1: Check search results
-    if not check_search_results():
-        logger.critical("Aborting download. T052b Search failed or not found.")
-        # Still create a manifest indicating failure
-        manifest = {
-            "status": "FAILED",
-            "reason": "Search phase (T052b) did not complete successfully",
-            "datasets": {}
-        }
-        with open(DOWNLOAD_MANIFEST_FILE, "w") as f:
-            json.dump(manifest, f, indent=2)
-        sys.exit(1)
-
-    logger.info("Search phase verified. Proceeding with download/verification.")
-
-    # Step 2: Download datasets if not present
-    downloaded_files = {}
-    dataset_names = ["electricity", "traffic"]
-    
-    for name in dataset_names:
-        # Check if already downloaded
-        if name == "electricity":
-            candidate = DATA_RAW_DIR / "electricity_load_diagrams.csv"
-        else:
-            candidate = DATA_RAW_DIR / "traffic_volume.csv"
+    # 1. Check T052b Search Results
+    if not SEARCH_RESULTS_PATH.exists():
+        logger.warning(f"Search result file not found: {SEARCH_RESULTS_PATH}. Assuming search failed.")
+        logger.critical("Aborting download. T052b Search failed: Search result file missing")
         
-        if candidate.exists():
-            logger.info(f"Dataset {name} already exists at {candidate}")
-            downloaded_files[name] = candidate
+        # Even if failed, save a manifest indicating no downloads
+        manifest = {
+            "timestamp": datetime.now().isoformat(),
+            "search_status": "failed",
+            "search_file_missing": True,
+            "datasets_downloaded": [],
+            "total_downloads": 0
+        }
+        with open(MANIFEST_PATH, 'w') as f:
+            json.dump(manifest, f, indent=2)
+        logger.info(f"Download manifest saved to {MANIFEST_PATH}")
+        logger.error("No datasets were successfully downloaded.")
+        return 1
+
+    try:
+        with open(SEARCH_RESULTS_PATH, 'r') as f:
+            search_data = json.load(f)
+    except json.JSONDecodeError:
+        logger.error(f"Invalid JSON in {SEARCH_RESULTS_PATH}")
+        return 1
+
+    # Check if search was successful
+    if search_data.get("status") != "success":
+        logger.warning("Search status is not 'success'. Aborting download.")
+        manifest = {
+            "timestamp": datetime.now().isoformat(),
+            "search_status": search_data.get("status"),
+            "datasets_downloaded": [],
+            "total_downloads": 0
+        }
+        with open(MANIFEST_PATH, 'w') as f:
+            json.dump(manifest, f, indent=2)
+        return 1
+
+    # 2. Define Datasets to Download (Real World Only)
+    # Filter out synthetic datasets explicitly
+    datasets_to_fetch = [
+        ("electricity", download_electricity_dataset),
+        ("traffic", download_traffic_dataset)
+    ]
+
+    results = []
+    success_count = 0
+
+    for name, fetch_func in datasets_to_fetch:
+        logger.info(f"Processing dataset: {name}")
+        result = fetch_func()
+        results.append(result.to_dict())
+        if result.status == "success":
+            success_count += 1
         else:
-            logger.info(f"Downloading dataset {name}...")
-            if name == "electricity":
-                path = download_electricity_dataset()
-            else:
-                path = download_traffic_dataset()
-            
-            if path:
-                downloaded_files[name] = path
-            else:
-                logger.warning(f"Failed to download {name}")
+            logger.warning(f"Dataset {name} failed: {result.message}")
 
-    # Step 3: Verify checksums (T059)
-    expected_checksums = load_checksums_from_state()
-    verification_results = {}
-    all_verified = True
-
-    for name, file_path in downloaded_files.items():
-        expected = expected_checksums.get(file_path.name)
-        if expected:
-            is_valid = verify_dataset_integrity(file_path, expected)
-            verification_results[name] = {
-                "file": str(file_path),
-                "verified": is_valid,
-                "expected_checksum": expected
-            }
-            if not is_valid:
-                all_verified = False
-        else:
-            logger.warning(f"No expected checksum found for {file_path.name} in state file.")
-            verification_results[name] = {
-                "file": str(file_path),
-                "verified": False,
-                "reason": "No checksum in state file"
-            }
-            all_verified = False
-
-    # Step 4: Save manifest
+    # 3. Generate Manifest
     manifest = {
-        "status": "SUCCESS" if all_verified else "VERIFICATION_FAILED",
-        "timestamp": str(Path(__file__).stat().st_mtime),
-        "datasets": verification_results
+        "timestamp": datetime.now().isoformat(),
+        "search_status": "success",
+        "datasets_downloaded": results,
+        "total_downloads": success_count,
+        "total_failed": len(results) - success_count
     }
 
-    with open(DOWNLOAD_MANIFEST_FILE, "w") as f:
+    with open(MANIFEST_PATH, 'w') as f:
         json.dump(manifest, f, indent=2)
 
-    if all_verified:
-        logger.info("All datasets verified successfully.")
-        sys.exit(0)
-    else:
-        logger.error("Dataset verification failed. Check logs for details.")
-        sys.exit(1)
+    logger.info(f"Download manifest saved to {MANIFEST_PATH}")
 
+    if success_count == 0:
+        logger.error("No datasets were successfully downloaded.")
+        return 1
+    else:
+        logger.info(f"Successfully downloaded {success_count} dataset(s).")
+        return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

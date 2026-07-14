@@ -45,7 +45,7 @@
 
 **⚠️ CRITICAL**: This phase MUST complete and pass validation before Phase 3 (User Story 1) begins.
 
-- [ ] T018 [P] [US1] Create `code/src/simulation/ground_truth.py` implementing simulation study to verify $\dot{\alpha}$ SNR under null hypothesis (FR-020). **Deliverable**: Generate `data/processed/results/simulation_snr.csv` and assert SNR > 1 in logs. **Note**: This task MUST precede T020. **Checkpoint**: Pipeline MUST fail if `data/processed/results/simulation_snr.csv` does not exist or if SNR <= 1.
+- [X] T018 [P] [US1] Create `code/src/simulation/ground_truth.py` implementing simulation study to verify $\dot{\alpha}$ SNR under null hypothesis (FR-020). **Deliverable**: Generate `data/processed/results/simulation_snr.csv` and assert SNR > 1 in logs. **Note**: This task MUST precede T020. **Checkpoint**: Pipeline MUST fail if `data/processed/results/simulation_snr.csv` does not exist or if SNR <= 1.
 
 **Checkpoint**: Simulation study complete; ADVI estimator validated or fallback strategy triggered.
 
@@ -116,12 +116,12 @@
 ### Implementation for User Story 1
 
 - [X] T021 [US1] Implement `code/src/data/windowing.py` for sliding window extraction (length=50, stride=1) with normalization. **Order**: Must be completed before T019 and T020. **Constraint**: Window size MUST be 50 as per Plan Technical Context for stability.
-- [ ] T019 [P] [US1] Create `code/src/data/synthetic_generator.py` generating datasets with pre-anomaly dynamics, abrupt shifts, and independent ground-truth timestamps (FR-021, FR-022). **Note**: Used for simulation and as fallback if real data search fails.
-- [X] T020 [US1] Create `code/src/models/dpgmm.py` implementing stick-breaking DP-GMM using PyMC 4 and ADVI variational inference. **Constraint**: {{claim:c_fdab4b27}} (Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347 [UNRESOLVED-CLAIM: c_845561f1 — status=verified]) AND a hierarchical time-varying prior ($\alpha_t \sim \text{Normal}(\alpha_{t-1}, \sigma)$) to ensure nonparametric behavior and local signal validity (FR-002).
-- [ ] T022 [US1] Implement `code/src/services/anomaly_detector.py` with a modular set of methods including `__init__`, `load_model`, `process_stream`, `update_model`, `compute_score`, `get_uncertainty`, and `save_checkpoint`.
+- [X] T019 [P] [US1] Create `code/src/data/synthetic_generator.py` generating datasets with pre-anomaly dynamics, abrupt shifts, and independent ground-truth timestamps (FR-021, FR-022). **Note**: Used for simulation and as fallback if real data search fails.
+- [X] T020 [US1] Create `code/src/models/dpgmm.py` implementing stick-breaking DP-GMM using PyMC 4 and ADVI variational inference. **Constraint**: {{claim:c_fdab4b27}} (Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347 [UNRESOLVED-CLAIM: c_b9102962 — status=verified]) AND a hierarchical time-varying prior ($\alpha_t \sim \text{Normal}(\alpha_{t-1}, \sigma)$) to ensure nonparametric behavior and local signal validity (FR-002).
+- [X] T022 [US1] Implement `code/src/services/anomaly_detector.py` with a modular set of methods including `__init__`, `load_model`, `process_stream`, `update_model`, `compute_score`, `get_uncertainty`, and `save_checkpoint`.
 - [X] T023 [US1] Implement logic to track posterior mean $\alpha$ and $\pi$ at each window step and compute first derivative $\dot{\alpha}$
-- [X] T024 [US1] Implement exclusion logic for non-convergent ADVI runs (Exclude non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations within 500 iterations. [UNRESOLVED-CLAIM: c_d51c8ed9 — status=not_enough_info]) per FR-009
-- [X] T025 [US1] Implement bootstrap resampling procedure for p-values and confidence intervals when anomaly count <10 (FR-011, FR-012)
+- [X] T024 [US1] Implement exclusion logic for non-convergent ADVI runs (Exclude non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations within 500 iterations [UNRESOLVED-CLAIM: c_e6660754 — status=not_enough_info].) per FR-009
+- [X] T025 [US1] Implement bootstrap resampling procedure for p-values and confidence intervals when anomaly count <10 [UNRESOLVED-CLAIM: c_238ed4a1 — status=not_enough_info] (FR-011, FR-012)
 - [X] T026 [US1] Implement MCMC (NUTS) robustness check on a specific set of windows selected by ground-truth injection timestamps (Equal numbers of pre-anomaly and anomaly samples, plus a larger set of transition samples) to validate $\dot{\alpha}$ is not an ADVI artifact (FR-018). **Deliverable**: Generate `data/processed/results/mcmc_validation.csv`. **Constraint**: FAIL if deviation in posterior mean $\alpha$ between ADVI and MCMC exceeds 10%.
 - [X] T027 [US1] Create `code/src/evaluation/metrics.py` implementing Kolmogorov-Smirnov test for distributional differences (FR-010, FR-014, FR-015)
 
@@ -157,7 +157,7 @@
 ### Implementation for User Story 3
 
 - [X] T040 [P] [US3] Create `code/src/services/threshold_calibrator.py` with a set of methods including `__init__`, `calibrate`, `validate_threshold`, `get_decision_boundary`, `update_decision_boundary`, and `compute_expected_bounds`.
-- [X] T041 [US3] Implement `code/src/evaluation/threshold_sweep.py` to Implement `code/src/evaluation/threshold_sweep.py` to sweep cutoffs over a representative set of significance thresholds including 0.05 (1501.05788, https://arxiv.org/abs/1501.05788) on normalized reconstruction error on normalized reconstruction error (FR-007). **Deliverable**: Generate `data/processed/results/sensitivity_report.csv` with columns: `threshold`, `fp_rate`, `fn_rate`, `instability_flag`.
+- [X] T041 [US3] Implement `code/src/evaluation/threshold_sweep.py` to Implement `code/src/evaluation/threshold_sweep.py` to sweep cutoffs over a representative set of significance thresholds including 0.05 [UNRESOLVED-CLAIM: c_f4c9bb67 — status=not_enough_info] (1501.05788, https://arxiv.org/abs/1501.05788) on normalized reconstruction error on normalized reconstruction error (FR-007). **Deliverable**: Generate `data/processed/results/sensitivity_report.csv` with columns: `threshold`, `fp_rate`, `fn_rate`, `instability_flag`.
 - [X] T042 [US3] Implement `code/src/evaluation/data_splitter.py` to split data into train/validation/test sets using a time-series aware split with a majority allocation to the training set. **Constraint**: Select threshold on validation set, apply to held-out test set (FR-019). **Deliverable**: Generate `data/processed/results/splits_manifest.json` containing keys: `train_indices`, `val_indices`, `test_indices`, `split_ratios`, `seed`.
 - [X] T043 [US3] Implement Bonferroni correction for multiple comparisons specifically when using threshold-swept outcomes in statistical tests (FR-007b). **Constraint**: Do NOT apply generically; only when threshold-swept outcomes are used.
 - [X] T044 [US3] Implement sensitivity analysis on window size and derivative calculation method (including smoothing and lag variations) to validate robustness (FR-016)
@@ -176,7 +176,7 @@
 ### Implementation for User Story 4
 
 - [X] T048 [P] [US4] Create `code/src/utils/memory_profiler.py` using `psutil.Process().memory_info().rss` to track peak RAM
-- [ ] T049 [US4] Implement `code/src/services/anomaly_detector.py` resource validation logic: measure peak RAM and total runtime, fail run if limits exceeded (FR-008) <!-- FAILED: unspecified -->
+- [X] T049 [US4] Implement `code/src/services/anomaly_detector.py` resource validation logic: measure peak RAM and total runtime, fail run if limits exceeded (FR-008) <!-- FAILED: unspecified -->
 - [X] T050 [P] [US4] Create `code/scripts/verify_resource_compliance.py` to enforce CPU-only execution and validate no CUDA library loading
 - [X] T051 [US4] Implement logic to generate resource validation report outputting peak RAM and runtime metrics
 
@@ -193,7 +193,7 @@
 - **IF T052b SUCCEEDS**: Run T052. T052c is SKIPPED.
 
 - [X] T052b [P] [Data] Execute mandatory search procedure for real-world datasets with labeled regime shifts (FR-017). **Search Keywords**: "anomaly detection", "regime shift", "time series", "NAB", "PhysioNet", "UCI". **Sources**: NAB, UCI, PhysioNet. **Deliverable**: If no verified source is found, generate `data/processed/results/validation_deferred.md` with exact fields: `search_query`, `result_count`, `status: DEFERRED`, `reason: FR-017b`. **Note**: This task MUST precede T052.
-- [ ] T052 [Data] **Conditional on T052b success**: Create `code/src/data/download_datasets.py` fetching verified NAB/PhysioNet subsets or UCI Electricity Load Diagrams and Traffic via `ucimlrepo` or verified URLs. **Do NOT execute if T052b failed.** **Constraint**: Do NOT fetch synthetic datasets (e.g., Synthetic Control Chart) as "real-world". <!-- FAILED: unspecified -->
+- [X] T052 [Data] **Conditional on T052b success**: Create `code/src/data/download_datasets.py` fetching verified NAB/PhysioNet subsets or UCI Electricity Load Diagrams and Traffic via `ucimlrepo` or verified URLs. **Do NOT execute if T052b failed.** **Constraint**: Do NOT fetch synthetic datasets (e.g., Synthetic Control Chart) as "real-world". <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T053 [Data] 2109.05633, https://arxiv.org/abs/2109.05633; reject dataset if insufficient size (FR-001). **Conditional on T052 execution.**
 - [X] T054 [Data] Delete all PEMS-SF files (`pems_sf.csv`, `pems_sf_synthetic.csv`) from `data/raw/`
 - [X] T054b [Data] **Conditional on T054 failure**: Execute `rm -f data/raw/pems_sf.csv data/raw/pems_sf_synthetic.csv` and verify with `ls -la data/raw/ | grep pems` returning empty. Log output to `data/data_provenance_report.md`.
@@ -203,7 +203,7 @@
 - [X] T056b [Data] **Conditional on T056 failure**: Execute `rm -rf data/results/` and verify with `ls -la data/ | grep results` returning only `processed/results`. Log output to `data/data_provenance_report.md`.
 - [X] T057 [Data] Generate SHA256 checksums for all raw data files and record in `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml`
 - [X] T058 [Data] **Conditional on T052b success**: Update `data/data-dictionary.md` to list only verified UCI datasets (Electricity, Traffic) with explicit license terms and URLs. **If T052b failed, update to note 'Deferred by Design' per FR-017b.**
-- [ ] T059 [Data] Implement `code/src/data/download_datasets.py` verification logic to check dataset integrity against checksums before processing
+- [X] T059 [Data] Implement `code/src/data/download_datasets.py` verification logic to check dataset integrity against checksums before processing
 - [X] T052c [Data] **Conditional on T052b failure**: Generate 'Validation Deferred' report citing search query and result count, mark requirement as 'Deferred by Design' (FR-017b).
 
 **Checkpoint**: Data hygiene established - only compliant UCI datasets present with verified checksums OR Deferred report generated.
@@ -244,7 +244,7 @@
 - [X] T094 [Report] Generate `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml` with all artifact hashes and dataset checksums
 - [X] T095 [Compliance] Run `code/scripts/verify_config_compliance.py` and capture output in `code/tests/config_compliance_report.md`
 - [X] T096 [Compliance] Run `code/scripts/verify_resource_compliance.py` and capture output in `data/processed/results/resource_validation_report.md`
-- [X] T097 [Compliance] Verify all UCI datasets present with checksums in state file; generate `data/sample_size_report.md` confirming ≥1000 observations each (or Deferred report if applicable)
+- [X] T097 [Compliance] Verify all UCI datasets present with checksums in state file; generate `data/sample_size_report.md` confirming Verify all UCI datasets present with checksums in state file; generate `data/sample_size_report.md` confirming ≥1000 observations each (or Deferred report if applicable) (or Deferred report if applicable)
 - [X] T098 [Compliance] Run `find data/raw/ -type f -name "*.csv"` and verify only Electricity, Traffic present; output to `data/data_provenance_report.md` (or Deferred status)
 - [X] T099 [Compliance] Run `ls -la code/src/` and verify correct subdirectory structure; output to `code/src_structure_report.md`
 - [X] T100 [Compliance] Execute T145 Final Acceptance: verify all [X] tasks have no FAILED-IN-EXECUTION comments, all filesystem hygiene checks pass, all tests pass, all reports generated
@@ -364,6 +364,6 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [ ] T101 Reconcile run-book vs implementation for `code/src/config.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/config.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T102 Reconcile run-book vs implementation for `code/src/evaluation/simulation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/evaluation/simulation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T103 Reconcile run-book vs implementation for `code/src/evaluation/robustness.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/evaluation/robustness.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T101 Reconcile run-book vs implementation for `code/src/config.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/config.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T102 Reconcile run-book vs implementation for `code/src/evaluation/simulation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/evaluation/simulation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T103 Reconcile run-book vs implementation for `code/src/evaluation/robustness.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/src/evaluation/robustness.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

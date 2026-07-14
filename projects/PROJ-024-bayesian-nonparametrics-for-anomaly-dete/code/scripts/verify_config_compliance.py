@@ -1,36 +1,31 @@
 """
-Script to verify config.yaml compliance.
-Checks that the file exists and its size is under 2048 bytes.
+Script to verify config.yaml compliance (size < 2KB).
+This script is invoked by the run-book to enforce the constraint.
 """
 import os
 import sys
 from pathlib import Path
 
-# Project root is parent of 'code' directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 CONFIG_PATH = PROJECT_ROOT / "code" / "config.yaml"
 LIMIT = 2048
 
 def main():
-    print("Configuration Compliance Check")
-    print("=" * 40)
-    
     if not CONFIG_PATH.exists():
-        print(f"ERROR: Configuration file not found at {CONFIG_PATH}")
-        return 1
-    
-    file_size = os.path.getsize(CONFIG_PATH)
-    print(f"Configuration file: {CONFIG_PATH}")
-    print(f"Current size: {file_size} bytes")
+        print(f"ERROR: Config file not found: {CONFIG_PATH}")
+        sys.exit(1)
+
+    size = os.path.getsize(CONFIG_PATH)
+    print(f"Config file: {CONFIG_PATH}")
+    print(f"Size: {size} bytes")
     print(f"Limit: {LIMIT} bytes")
-    
-    if file_size > LIMIT:
-        print(f"❌ FAIL: Configuration size ({file_size}) exceeds limit ({LIMIT}).")
-        print("Please run migrate_config.py to move derived statistics to the state file.")
-        return 1
-    
-    print("✅ PASS: Configuration size is within limits.")
-    return 0
+
+    if size > LIMIT:
+        print(f"FAIL: Config file size ({size}) exceeds limit ({LIMIT}).")
+        sys.exit(1)
+    else:
+        print("PASS: Config file size is within limits.")
+        sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
