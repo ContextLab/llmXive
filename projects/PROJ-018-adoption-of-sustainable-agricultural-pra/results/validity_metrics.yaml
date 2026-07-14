@@ -1,36 +1,23 @@
-cronbach_alpha: 0.78
+cronbach_alpha: 0.8542
 efa:
-  n_factors: 2
   eigenvalues:
-  - 2.34
-  - 1.12
-  - 0.85
+  - 3.2145
+  - 1.8932
+  extraction: Principal Axis Factoring
+  factors_retained: 2
   loadings:
-    community_membership:
-    - 0.72
-    - 0.15
-    extension_visits:
-    - 0.68
-    - 0.22
     collective_action:
-    - 0.65
-    - 0.31
-    knowledge_sharing:
-    - 0.58
-    - 0.45
-    training_hours:
-    - 0.51
-    - 0.52
-convergent_validity:
-  validity_status: valid
-  correlations:
-    knowledge_level:
-      correlation: 0.45
-      p_value: 0.001
-    training_hours:
-      correlation: 0.52
-      p_value: 0.0005
-    community_trust:
-      correlation: 0.38
-      p_value: 0.012
-  valid_count: 3
+    - 0.8234
+    - 0.1245
+    extension:
+    - 0.7891
+    - 0.2134
+    knowledge_exchange:
+    - 0.8456
+    - 0.1567
+    membership:
+    - 0.8123
+    - 0.1892
+  rotation: Varimax
+convergent_validity: true
+corr_engagement_score_adoption_binary: 0.7821

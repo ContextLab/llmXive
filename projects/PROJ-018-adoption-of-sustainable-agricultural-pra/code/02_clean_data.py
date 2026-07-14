@@ -2,13 +2,11 @@
 Data Cleaning Module for Sustainable Agriculture Survey Data.
 
 This module handles:
-1. Loading raw data (CSV)
-2. Calculating missingness metrics
-3. Handling missing values (imputation or dropping rows with >30% missing)
-4. Normalizing categorical codes
-5. Validating the cleaned dataset
-6. Power analysis calculation
-7. Exporting cleaned data to CSV
+- Loading raw data
+- Missing value analysis and handling
+- Categorical normalization
+- Power analysis check (T015)
+- Exporting cleaned data
 """
 
 from __future__ import annotations
@@ -23,30 +21,31 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-import numpy as np
 import yaml
 
 # Import from project modules
-from config import get_config, get_data_path
+from config import Config, load_config
 from logging_config import (
+    LogEntry,
     ReproducibilityLogger,
+    append_log_entry,
     get_logger,
+    initialize_modeling_log,
     log_operation,
     update_log_section,
-    initialize_modeling_log,
-    append_log_entry,
 )
 
-
-# Custom error class
+# Custom exception for data errors
 class CustomDataError(Exception):
-    """Custom exception for data processing errors."""
+    """Custom exception for data-related errors."""
     pass
 
+
 @log_operation("load_config")
-def load_config_wrapper() -> Dict[str, Any]:
-    """Wrapper to load configuration safely."""
-    return load_config()
+def load_config_wrapper(config_path: Optional[str] = None) -> Config:
+    """Load configuration from YAML file."""
+    return load_config(config_path)
+
 
 # ----------------------------------------------------------------------
 # Configuration and Logging Setup
@@ -68,510 +67,314 @@ def load_config() -> Dict[str, Any]:
 # ----------------------------------------------------------------------
 
 @log_operation("load_raw_data")
-def load_raw_data(input_path: Optional[str] = None) -> pd.DataFrame:
+def load_raw_data(input_path: str) -> pd.DataFrame:
     """
-    Load raw survey data from a CSV file.
-
+    Load raw data from CSV or JSON.
+    
     Args:
-        input_path: Optional path to the input CSV file. If not provided,
-                    uses the path from config.
-
-    Returns:
-        pd.DataFrame: The loaded raw data.
-
-    Raises:
-        CustomDataError: If the file cannot be loaded or is empty.
-    """
-    logger = get_logger_instance()
-    config = load_config()
-
-    if input_path is None:
-        # Try to get from config
-        raw_data_path = config.get("paths", {}).get("raw_data", "data/raw/survey_data.csv")
-        input_path = raw_data_path
-
-    # Handle relative paths relative to project root
-    project_root = Path(__file__).parent.parent
-    full_path = project_root / input_path
-
-    if not full_path.exists():
-        # Check if it's a relative path from current working directory
-        if Path(input_path).exists():
-            full_path = Path(input_path)
-        else:
-            raise CustomDataError(f"Raw data file not found at {input_path}")
-
-    logger.log("load_raw_data", file=str(full_path), status="loading")
-
-    try:
-        df = pd.read_csv(full_path)
-        if df.empty:
-            raise CustomDataError(f"Loaded data file is empty: {input_path}")
+        input_path: Path to the raw data file
         
-        logger.log("load_raw_data", status="success", rows=len(df), columns=len(df.columns))
-        return df
-    except Exception as e:
-        logger.log("load_raw_data", status="failed", error=str(e))
-        raise CustomDataError(f"Failed to load raw data from {input_path}: {str(e)}")
+    Returns:
+        DataFrame with raw data
+        
+    Raises:
+        CustomDataError: If file cannot be loaded or is empty
+    """
+    path = Path(input_path)
+    if not path.exists():
+        raise CustomDataError(f"Input file not found: {input_path}")
+    
+    if path.suffix.lower() == '.csv':
+        df = pd.read_csv(path)
+    elif path.suffix.lower() in ['.json']:
+        df = pd.read_json(path)
+    else:
+        raise CustomDataError(f"Unsupported file format: {path.suffix}")
+    
+    if df.empty:
+        raise CustomDataError("Input file is empty")
+    
+    return df
 
-
-# ----------------------------------------------------------------------
-# Missing Value Analysis
-# ----------------------------------------------------------------------
 
 @log_operation("calculate_missingness")
 def calculate_missingness(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Calculate missingness metrics for the dataset.
-
+    Calculate missing value percentage for each column.
+    
     Args:
         df: Input DataFrame
-
+        
     Returns:
-        Dict containing missingness statistics.
+        Dictionary mapping column names to missing percentages
     """
-    logger = get_logger_instance()
-    logger.log("calculate_missingness", status="starting")
-
     missing_counts = df.isnull().sum()
-    missing_pct = (missing_counts / len(df)) * 100
+    total_rows = len(df)
+    if total_rows == 0:
+        return {}
+    return (missing_counts / total_rows * 100).to_dict()
 
-    # Rows with >30% missing values
-    row_missing_pct = df.isnull().mean(axis=1) * 100
-    rows_to_drop = row_missing_pct > 30
-    num_rows_to_drop = rows_to_drop.sum()
-
-    stats = {
-        "total_rows": len(df),
-        "total_columns": len(df.columns),
-        "missing_by_column": missing_counts.to_dict(),
-        "missing_pct_by_column": missing_pct.to_dict(),
-        "rows_with_over_30pct_missing": int(num_rows_to_drop),
-        "percentage_rows_to_drop": float(num_rows_to_drop / len(df) * 100),
-    }
-
-    logger.log("calculate_missingness", status="success", **stats)
-    return stats
-
-
-# ----------------------------------------------------------------------
-# Missing Value Handling
-# ----------------------------------------------------------------------
 
 @log_operation("handle_missing_values")
 def handle_missing_values(
-    df: pd.DataFrame,
+    df: pd.DataFrame, 
     threshold: float = 30.0,
-    numeric_imputation: str = "median",
-    categorical_imputation: str = "mode"
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    numeric_strategy: str = 'median',
+    categorical_strategy: str = 'mode'
+) -> Tuple[pd.DataFrame, Dict[str, str]]:
     """
-    Handle missing values in the dataset.
-
-    Strategy:
-    1. Drop rows where >30% of values are missing.
-    2. For remaining rows:
-       - Numeric columns: Impute with median (or mean)
-       - Categorical columns: Impute with mode (most frequent)
-
-    Args:
-        df: Input DataFrame.
-        threshold: Percentage threshold for dropping rows (default 30%).
-        numeric_imputation: Strategy for numeric imputation ('median' or 'mean').
-        categorical_imputation: Strategy for categorical imputation ('mode').
-
-    Returns:
-        Tuple of (cleaned DataFrame, imputation stats).
-    """
-    logger = get_logger_instance()
-    logger.log("handle_missing_values", threshold=threshold, status="starting")
-
-    initial_rows = len(df)
-    imputation_stats = {
-        "initial_rows": initial_rows,
-        "columns_imputed": {},
-        "rows_dropped": 0,
-    }
-
-    # Step 1: Drop rows with >30% missing values
-    row_missing_pct = df.isnull().mean(axis=1) * 100
-    rows_to_keep = row_missing_pct <= threshold
-    df_cleaned = df[rows_to_keep].copy()
+    Handle missing values in the DataFrame.
     
-    rows_dropped = initial_rows - len(df_cleaned)
-    imputation_stats["rows_dropped"] = rows_dropped
-
-    if rows_dropped > 0:
-        logger.log("handle_missing_values", rows_dropped=rows_dropped, reason=">30% missing")
-
-    # Step 2: Identify numeric and categorical columns
-    numeric_cols = df_cleaned.select_dtypes(include=[np.number]).columns.tolist()
-    categorical_cols = df_cleaned.select_dtypes(include=["object", "category"]).columns.tolist()
-
-    # Step 3: Impute missing values
-    imputed_columns = []
-
-    for col in numeric_cols:
-        if df_cleaned[col].isnull().any():
-            if numeric_imputation == "median":
-                fill_value = df_cleaned[col].median()
+    Strategy:
+    - Drop rows where > threshold% of required fields are missing
+    - Impute remaining missing values based on column type
+    
+    Args:
+        df: Input DataFrame
+        threshold: Maximum allowed missing percentage per row (default 30%)
+        numeric_strategy: Strategy for numeric columns ('mean', 'median', 'drop')
+        categorical_strategy: Strategy for categorical columns ('mode', 'drop', 'unknown')
+        
+    Returns:
+        Tuple of (cleaned DataFrame, imputation log)
+    """
+    df_clean = df.copy()
+    imputation_log = {}
+    
+    # Identify required columns (based on domain knowledge)
+    required_columns = [
+        'age', 'education', 'farm_size', 'credit_access', 
+        'adoption', 'engagement_score'  # engagement_score may be added later
+    ]
+    
+    # Filter to columns that exist
+    existing_required = [col for col in required_columns if col in df_clean.columns]
+    
+    if not existing_required:
+        logging.warning("No required columns found for missing value handling")
+        return df_clean, imputation_log
+    
+    # Calculate missingness per row for required columns
+    row_missing_pct = df_clean[existing_required].isnull().sum(axis=1) / len(existing_required) * 100
+    
+    # Drop rows exceeding threshold
+    rows_to_drop = row_missing_pct > threshold
+    if rows_to_drop.any():
+        dropped_count = rows_to_drop.sum()
+        logging.info(f"Dropping {dropped_count} rows with >{threshold}% missing required values")
+        imputation_log['rows_dropped'] = int(dropped_count)
+        df_clean = df_clean[~rows_to_drop]
+    
+    # Impute remaining missing values
+    for col in df_clean.columns:
+        if df_clean[col].isnull().any():
+            if pd.api.types.is_numeric_dtype(df_clean[col]):
+                if numeric_strategy == 'median':
+                  # Handle case where all values are NaN
+                  if df_clean[col].notna().sum() == 0:
+                      df_clean[col] = 0  # Fallback to 0 if all missing
+                  else:
+                      df_clean[col] = df_clean[col].fillna(df_clean[col].median())
+                elif numeric_strategy == 'mean':
+                  if df_clean[col].notna().sum() == 0:
+                      df_clean[col] = 0
+                  else:
+                      df_clean[col] = df_clean[col].fillna(df_clean[col].mean())
+                elif numeric_strategy == 'drop':
+                  df_clean = df_clean.dropna(subset=[col])
+                imputation_log[col] = f"numeric_{numeric_strategy}"
             else:
-                fill_value = df_cleaned[col].mean()
-            
-            if pd.isna(fill_value):
-                fill_value = 0  # Fallback for all-NaN columns
-            
-            df_cleaned[col] = df_cleaned[col].fillna(fill_value)
-            imputed_columns.append(col)
-            imputation_stats["columns_imputed"][col] = {
-                "type": "numeric",
-                "strategy": numeric_imputation,
-                "fill_value": float(fill_value) if not pd.isna(fill_value) else 0.0,
-                "missing_count_before": int(df_cleaned[col].isnull().sum()),
-            }
+                if categorical_strategy == 'mode':
+                  # Handle case where all values are NaN
+                  if df_clean[col].notna().sum() == 0:
+                      df_clean[col] = 'unknown'
+                  else:
+                      mode_val = df_clean[col].mode()
+                      if len(mode_val) > 0:
+                          df_clean[col] = df_clean[col].fillna(mode_val[0])
+                      else:
+                          df_clean[col] = 'unknown'
+                elif categorical_strategy == 'drop':
+                  df_clean = df_clean.dropna(subset=[col])
+                elif categorical_strategy == 'unknown':
+                  df_clean[col] = df_clean[col].fillna('unknown')
+                imputation_log[col] = f"categorical_{categorical_strategy}"
+    
+    return df_clean, imputation_log
 
-    for col in categorical_cols:
-        if df_cleaned[col].isnull().any():
-            # Mode imputation
-            mode_val = df_cleaned[col].mode()
-            if len(mode_val) > 0:
-                fill_value = mode_val[0]
-            else:
-                fill_value = "Unknown"
-            
-            df_cleaned[col] = df_cleaned[col].fillna(fill_value)
-            imputed_columns.append(col)
-            imputation_stats["columns_imputed"][col] = {
-                "type": "categorical",
-                "strategy": categorical_imputation,
-                "fill_value": str(fill_value),
-                "missing_count_before": int(df_cleaned[col].isnull().sum()),
-            }
-
-    imputation_stats["columns_imputed_count"] = len(imputed_columns)
-    imputation_stats["final_rows"] = len(df_cleaned)
-
-    logger.log("handle_missing_values", status="success", **imputation_stats)
-    return df_cleaned, imputation_stats
-
-
-# ----------------------------------------------------------------------
-# Categorical Normalization
-# ----------------------------------------------------------------------
 
 @log_operation("normalize_categorical_codes")
-def normalize_categorical_codes(
-    df: pd.DataFrame,
-    code_mappings: Optional[Dict[str, Dict[Any, Any]]] = None
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def normalize_categorical_codes(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Normalize categorical codes to consistent values.
-
-    This function:
-    1. Applies standard mappings for known categorical variables.
-    2. Ensures consistent encoding (e.g., "Yes"/"yes"/1 -> 1, "No"/"no"/0 -> 0).
-    3. Converts ordinal categories to numeric codes where appropriate.
-
+    Normalize categorical codes to standard values.
+    
     Args:
-        df: Input DataFrame.
-        code_mappings: Optional custom mappings for specific columns.
-
+        df: Input DataFrame
+        
     Returns:
         Tuple of (normalized DataFrame, normalization stats).
     """
-    logger = get_logger_instance()
-    logger.log("normalize_categorical_codes", status="starting")
-
-    normalization_stats = {
-        "columns_normalized": [],
-        "mappings_applied": {},
+    df_norm = df.copy()
+    
+    # Common categorical normalizations
+    boolean_mappings = {
+        'yes': 1, 'no': 0, 'Yes': 1, 'No': 0, 
+        'YES': 1, 'NO': 0, 'true': 1, 'false': 0,
+        'True': 1, 'False': 0, '1': 1, '0': 0
     }
+    
+    for col in df_norm.columns:
+        if df_norm[col].dtype == 'object':
+            # Check if column looks like boolean
+            unique_vals = df_norm[col].str.lower().dropna().unique()
+            if all(v in ['yes', 'no', 'true', 'false', '1', '0'] for v in unique_vals):
+                df_norm[col] = df_norm[col].map(boolean_mappings)
+    
+    return df_norm
 
-    # Standard mappings for common categorical variables
-    standard_mappings = {
-        "adoption": {
-            "yes": 1, "Yes": 1, "YES": 1, "Y": 1, "y": 1, 1: 1,
-            "no": 0, "No": 0, "NO": 0, "N": 0, "n": 0, 0: 0,
-        },
-        "gender": {
-            "male": 1, "Male": 1, "MALE": 1, "M": 1, "m": 1, 1: 1,
-            "female": 0, "Female": 0, "FEMALE": 0, "F": 0, "f": 0, 0: 0,
-        },
-        "education_level": {
-            "none": 0, "None": 0, "No education": 0,
-            "primary": 1, "Primary": 1, "Elementary": 1,
-            "secondary": 2, "Secondary": 2, "High school": 2,
-            "tertiary": 3, "Tertiary": 3, "University": 3, "College": 3,
-        },
-        "membership": {
-            "yes": 1, "Yes": 1, "YES": 1, "Y": 1, "y": 1, 1: 1,
-            "no": 0, "No": 0, "NO": 0, "N": 0, "n": 0, 0: 0,
-        },
-        "extension_contact": {
-            "yes": 1, "Yes": 1, "YES": 1, "Y": 1, "y": 1, 1: 1,
-            "no": 0, "No": 0, "NO": 0, "N": 0, "n": 0, 0: 0,
-        },
-    }
-
-    # Merge with custom mappings if provided
-    if code_mappings:
-        standard_mappings.update(code_mappings)
-
-    df_normalized = df.copy()
-
-    for col, mapping in standard_mappings.items():
-        if col in df_normalized.columns:
-            original_unique = df_normalized[col].unique().tolist()
-            df_normalized[col] = df_normalized[col].map(
-                lambda x: mapping.get(x, x) if isinstance(x, (str, int, float)) else x
-            )
-            
-            # Handle unmapped values (keep as is if not in mapping)
-            # Convert to numeric if all values are now numeric
-            try:
-                df_normalized[col] = pd.to_numeric(df_normalized[col], errors="ignore")
-            except Exception:
-                pass
-
-            normalization_stats["columns_normalized"].append(col)
-            normalization_stats["mappings_applied"][col] = {
-                "original_values": original_unique[:10],  # First 10 for brevity
-                "mapping_size": len(mapping),
-            }
-
-    normalization_stats["total_columns_normalized"] = len(normalization_stats["columns_normalized"])
-    normalization_stats["final_shape"] = list(df_normalized.shape)
-
-    logger.log("normalize_categorical_codes", status="success", **normalization_stats)
-    return df_normalized, normalization_stats
-
-
-# ----------------------------------------------------------------------
-# Data Validation
-# ----------------------------------------------------------------------
 
 @log_operation("validate_clean_data")
-def validate_clean_data(df: pd.DataFrame, required_columns: Optional[List[str]] = None) -> Dict[str, Any]:
+def validate_clean_data(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Validate the cleaned dataset.
-
-    Checks:
-    1. No missing values remain (or document them).
-    2. Required columns are present.
-    3. Data types are appropriate.
-    4. Value ranges are reasonable.
-
+    Validate the cleaned data meets requirements.
+    
     Args:
-        df: Input DataFrame.
-        required_columns: List of required column names.
-
+        df: Cleaned DataFrame
+        
     Returns:
-        Dict containing validation results.
+        Validation report dictionary
     """
-    logger = get_logger_instance()
-    logger.log("validate_clean_data", status="starting")
-
-    validation_results = {
-        "is_valid": True,
-        "errors": [],
-        "warnings": [],
-        "final_stats": {},
+    report = {
+        'total_rows': len(df),
+        'total_columns': len(df.columns),
+        'columns': list(df.columns),
+        'missing_values': df.isnull().sum().sum(),
+        'duplicate_rows': df.duplicated().sum(),
+        'dtypes': df.dtypes.astype(str).to_dict()
     }
-
-    # Default required columns based on the project spec
-    if required_columns is None:
-        required_columns = [
-            "age", "education", "farm_size", "credit_access", 
-            "adoption", "adoption_binary", "engagement_score",
-            "membership", "extension_contact", "collective_action",
-            "knowledge_exchange", "country_code", "household_id"
-        ]
-
-    # Check for missing columns
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    if missing_cols:
-        validation_results["errors"].append(f"Missing required columns: {missing_cols}")
-        validation_results["is_valid"] = False
-
-    # Check for remaining missing values
-    remaining_missing = df.isnull().sum()
-    if remaining_missing.sum() > 0:
-        validation_results["warnings"].append(
-            f"Remaining missing values in {remaining_missing[remaining_missing > 0].to_dict()}"
-        )
-
-    # Check for reasonable value ranges
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    # Check for negative values in numeric columns
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
     for col in numeric_cols:
-        if col in df.columns:
-            min_val = df[col].min()
-            max_val = df[col].max()
-            if min_val < 0 and col in ["age", "farm_size", "education"]:
-                validation_results["warnings"].append(
-                    f"Column '{col}' has negative values (min={min_val})"
-                )
+        if (df[col] < 0).any():
+            report[f'negative_{col}'] = int((df[col] < 0).sum())
+    
+    return report
 
-    # Final statistics
-    validation_results["final_stats"] = {
-        "rows": len(df),
-        "columns": len(df.columns),
-        "total_missing": int(remaining_missing.sum()),
-        "required_columns_present": len(missing_cols) == 0,
-    }
-
-    if validation_results["is_valid"]:
-        logger.log("validate_clean_data", status="success", **validation_results)
-    else:
-        logger.log("validate_clean_data", status="invalid", **validation_results)
-
-    return validation_results
-
-
-# ----------------------------------------------------------------------
-# Power Analysis
-# ----------------------------------------------------------------------
 
 @log_operation("calculate_power_analysis")
-def calculate_power_analysis(df: pd.DataFrame, num_predictors: int = 10) -> Dict[str, Any]:
+def calculate_power_analysis(
+    df: pd.DataFrame, 
+    num_predictors: int = 5,
+    outcome_col: str = 'adoption_binary'
+) -> Dict[str, Any]:
     """
     Calculate power analysis metrics for the dataset.
-
-    Computes the ratio of effective events to predictors (EPV).
-    For logistic regression, a rule of thumb is EPV >= 10.
-
+    
+    This implements T015: Calculate effective_N_events / num_predictors.
+    If the ratio is < 10, it logs a shortfall.
+    
     Args:
-        df: Input DataFrame (should contain adoption_binary).
-        num_predictors: Number of predictors in the model (default 10).
-
+        df: Cleaned DataFrame
+        num_predictors: Number of predictors in the planned model (default 5)
+        outcome_col: Name of the binary outcome column
+        
     Returns:
-        Dict containing power analysis results.
+        Dictionary with power analysis results
     """
-    logger = get_logger_instance()
-    logger.log("calculate_power_analysis", num_predictors=num_predictors, status="starting")
-
-    power_results = {
-        "effective_N_events": 0,
-        "num_predictors": num_predictors,
-        "ratio": 0.0,
-        "shortfall": False,
-        "recommendation": "",
+    result = {
+        'effective_N': len(df),
+        'num_predictors': num_predictors,
+        'outcome_column': outcome_col,
+        'shortfall': False,
+        'ratio': 0.0
     }
-
-    # Try to get effective_N_events from adoption_binary
-    if "adoption_binary" in df.columns:
-        effective_N_events = df["adoption_binary"].sum()
-    elif "adoption" in df.columns:
-        # Estimate from adoption column if binary not available
-        # Assume adoption is 0/1 or Yes/No
-        if df["adoption"].dtype == "object":
-            effective_N_events = (df["adoption"].isin(["Yes", "yes", "Y", "1"])).sum()
-        else:
-            effective_N_events = df["adoption"].sum()
+    
+    # Determine effective_N_events
+    if outcome_col in df.columns:
+        # Count positive outcomes (1s) in the binary column
+        positive_outcomes = df[outcome_col].sum()
+        effective_N_events = int(positive_outcomes)
+        logging.info(f"Found {effective_N_events} positive outcomes in '{outcome_col}'")
     else:
-        # Fallback: estimate as 20% of total rows (conservative)
-        effective_N_events = int(len(df) * 0.20)
-        power_results["estimation_method"] = "assumed_20pct_adoption"
+        # If outcome column doesn't exist yet, estimate based on a non-negligible proportion
+        # We assume a conservative 20% adoption rate for estimation
+        estimated_proportion = 0.20
+        effective_N_events = int(len(df) * estimated_proportion)
+        logging.warning(f"Outcome column '{outcome_col}' not found. Estimating {effective_N_events} events at 20% rate.")
+    
+    result['effective_N_events'] = effective_N_events
+    
+    # Calculate ratio
+    if num_predictors > 0 and effective_N_events > 0:
+        ratio = effective_N_events / num_predictors
+        result['ratio'] = round(ratio, 2)
+        
+        # Check if ratio < 10 (rule of thumb for logistic regression)
+        if ratio < 10:
+            result['shortfall'] = True
+            logging.warning(
+                f"Power analysis shortfall detected: ratio={ratio:.2f} < 10. "
+                f"Consider collecting more data or reducing predictors."
+            )
+    
+    return result
 
-    power_results["effective_N_events"] = int(effective_N_events)
-    ratio = effective_N_events / num_predictors if num_predictors > 0 else 0
-    power_results["ratio"] = float(ratio)
-
-    if ratio < 10:
-        power_results["shortfall"] = True
-        power_results["recommendation"] = (
-            f"EPV ({ratio:.1f}) < 10. Consider reducing predictors or collecting more data."
-        )
-    else:
-        power_results["recommendation"] = "EPV is adequate for logistic regression."
-
-    logger.log("calculate_power_analysis", status="success", **power_results)
-    return power_results
-
-
-# ----------------------------------------------------------------------
-# Log Updates
-# ----------------------------------------------------------------------
 
 @log_operation("update_modeling_log_with_power_analysis")
-def update_modeling_log_with_power_analysis(power_results: Dict[str, Any]) -> None:
+def update_modeling_log_with_power_analysis(
+    power_analysis: Dict[str, Any], 
+    log_path: str = 'modeling_log.yaml'
+) -> None:
     """
     Update the modeling log with power analysis results.
-
+    
     Args:
-        power_results: Dictionary from calculate_power_analysis.
+        power_analysis: Dictionary with power analysis results
+        log_path: Path to the modeling log file
     """
-    logger = get_logger_instance()
-    logger.log("update_modeling_log_with_power_analysis", status="starting")
+    # Initialize or load the log
+    log_data = initialize_modeling_log(log_path)
+    
+    # Add power analysis section
+    if 'power_analysis' not in log_data:
+        log_data['power_analysis'] = {}
+    
+    log_data['power_analysis'].update(power_analysis)
+    
+    # Add limitation note if shortfall exists
+    if power_analysis.get('shortfall', False):
+        limitations = log_data.get('limitations', [])
+        limitation_note = (
+            f"Power analysis indicates a shortfall (ratio={power_analysis['ratio']:.2f} < 10). "
+            f"This may limit the statistical power of the logistic regression model. "
+            f"Interpret results with caution."
+        )
+        if limitation_note not in limitations:
+            limitations.append(limitation_note)
+        log_data['limitations'] = limitations
+    
+    # Write back to file
+    with open(log_path, 'w', encoding='utf-8') as f:
+        yaml.dump(log_data, f, default_flow_style=False, sort_keys=False)
+    
+    logging.info(f"Updated modeling log with power analysis at {log_path}")
 
-    try:
-        config = load_config()
-        project_root = Path(__file__).parent.parent
-        log_path = project_root / config.get("paths", {}).get("modeling_log", "modeling_log.yaml")
-
-        if not log_path.exists():
-            initialize_modeling_log()
-
-        # Load existing log
-        with open(log_path, "r") as f:
-            log_data = yaml.safe_load(f) or {}
-
-        # Update power analysis section
-        if "power_analysis" not in log_data:
-            log_data["power_analysis"] = {}
-
-        log_data["power_analysis"].update({
-            "effective_N_events": power_results.get("effective_N_events"),
-            "num_predictors": power_results.get("num_predictors"),
-            "ratio": power_results.get("ratio"),
-            "shortfall": power_results.get("shortfall", False),
-            "recommendation": power_results.get("recommendation"),
-            "timestamp": datetime.utcnow().isoformat(),
-        })
-
-        # Write back
-        with open(log_path, "w") as f:
-            yaml.dump(log_data, f, default_flow_style=False, sort_keys=False)
-
-        logger.log("update_modeling_log_with_power_analysis", status="success", log_path=str(log_path))
-    except Exception as e:
-        logger.log("update_modeling_log_with_power_analysis", status="failed", error=str(e))
-        # Don't raise - log failure but continue
-
-
-# ----------------------------------------------------------------------
-# Export
-# ----------------------------------------------------------------------
 
 @log_operation("export_cleaned_data")
-def export_cleaned_data(
-    df: pd.DataFrame,
-    output_path: Optional[str] = None,
-    include_stats: bool = True
-) -> str:
+def export_cleaned_data(df: pd.DataFrame, output_path: str) -> None:
     """
     Export cleaned data to CSV.
-
+    
     Args:
-        df: Cleaned DataFrame.
-        output_path: Optional output path. If not provided, uses config.
-        include_stats: Whether to log export statistics.
-
-    Returns:
-        Path to the exported file.
+        df: Cleaned DataFrame
+        output_path: Path for output CSV file
     """
-    logger = get_logger_instance()
-    logger.log("export_cleaned_data", status="starting")
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(path, index=False)
+    logging.info(f"Cleaned data exported to {output_path}")
 
-    if output_path is None:
-        config = load_config()
-        output_path = config.get("paths", {}).get("cleaned_data", "data/processed/cleaned_data.csv")
-
-    # Handle relative paths
-    project_root = Path(__file__).parent.parent
-    full_path = project_root / output_path
-
-    # Ensure directory exists
-    full_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Export to CSV
     df.to_csv(full_path, index=False)
@@ -593,83 +396,77 @@ def export_cleaned_data(
 
 @log_operation("data_cleaning_main")
 def main() -> None:
-    """
-    Main entry point for data cleaning pipeline.
-
-    Executes the full cleaning pipeline:
-    1. Load raw data
-    2. Calculate missingness
-    3. Handle missing values
-    4. Normalize categorical codes
-    5. Validate cleaned data
-    6. Calculate power analysis
-    7. Export cleaned data
-    """
-    logger = get_logger_instance()
-    logger.log("data_cleaning_main", status="starting")
-
+    """Main entry point for data cleaning pipeline."""
+    parser = argparse.ArgumentParser(description='Clean survey data for analysis')
+    parser.add_argument('--input', type=str, default='data/raw/survey_data.csv',
+                      help='Path to input raw data file')
+    parser.add_argument('--output', type=str, default='data/processed/cleaned_data.csv',
+                      help='Path for cleaned data output')
+    parser.add_argument('--config', type=str, default='code/config.yaml',
+                      help='Path to configuration file')
+    parser.add_argument('--missing-threshold', type=float, default=30.0,
+                      help='Maximum missing percentage per row (default: 30%)')
+    parser.add_argument('--num-predictors', type=int, default=5,
+                      help='Number of predictors for power analysis (default: 5)')
+    
+    args = parser.parse_args()
+    
+    # Setup logging
+    logger = get_logger()
+    initialize_modeling_log()
+    
     try:
-        # Initialize modeling log
-        initialize_modeling_log()
-
-        # Update log section
-        update_log_section("data_cleaning", {"status": "running", "started_at": datetime.utcnow().isoformat()})
-
-        # Step 1: Load raw data
-        logger.log("data_cleaning_main", step="load_raw_data")
-        raw_df = load_raw_data()
-        logger.info(f"Loaded {len(raw_df)} rows")
-
-        # Step 2: Calculate missingness
-        logger.log("data_cleaning_main", step="calculate_missingness")
-        missingness_stats = calculate_missingness(raw_df)
-        logger.info(f"Missingness: {missingness_stats['rows_with_over_30pct_missing']} rows to drop")
-
-        # Step 3: Handle missing values
-        logger.log("data_cleaning_main", step="handle_missing_values")
-        cleaned_df, imputation_stats = handle_missing_values(raw_df)
-        logger.info(f"Imputation complete: {imputation_stats['columns_imputed_count']} columns imputed")
-
-        # Step 4: Normalize categorical codes
-        logger.log("data_cleaning_main", step="normalize_categorical_codes")
-        normalized_df, norm_stats = normalize_categorical_codes(cleaned_df)
-        logger.info(f"Normalization complete: {norm_stats['total_columns_normalized']} columns normalized")
-
-        # Step 5: Validate cleaned data
-        logger.log("data_cleaning_main", step="validate_clean_data")
-        validation_results = validate_clean_data(normalized_df)
+        logging.info("Starting data cleaning pipeline")
         
-        if not validation_results["is_valid"]:
-            logger.warning(f"Validation failed: {validation_results['errors']}")
-            # Continue anyway, but log warning
-
-        # Step 6: Calculate power analysis
-        logger.log("data_cleaning_main", step="calculate_power_analysis")
-        power_results = calculate_power_analysis(normalized_df)
-        update_modeling_log_with_power_analysis(power_results)
-        logger.info(f"Power analysis: EPV = {power_results['ratio']:.1f}")
-
-        # Step 7: Export cleaned data
-        logger.log("data_cleaning_main", step="export_cleaned_data")
-        output_path = export_cleaned_data(normalized_df)
-        logger.info(f"Cleaned data exported to {output_path}")
-
-        # Final log update
-        update_log_section("data_cleaning", {
-            "status": "completed",
-            "completed_at": datetime.utcnow().isoformat(),
-            "output_file": output_path,
-            "rows_processed": len(normalized_df),
-        })
-
-        logger.log("data_cleaning_main", status="success", output_path=output_path)
-
+        # Load configuration
+        config = load_config_wrapper(args.config)
+        
+        # Load raw data
+        df_raw = load_raw_data(args.input)
+        logging.info(f"Loaded {len(df_raw)} records from {args.input}")
+        
+        # Calculate initial missingness
+        initial_missing = calculate_missingness(df_raw)
+        logging.info(f"Initial missingness: {initial_missing}")
+        
+        # Handle missing values
+        df_clean, imputation_log = handle_missing_values(
+            df_raw, 
+            threshold=args.missing_threshold
+        )
+        logging.info(f"Imputation log: {imputation_log}")
+        
+        # Normalize categorical codes
+        df_clean = normalize_categorical_codes(df_clean)
+        
+        # Validate cleaned data
+        validation_report = validate_clean_data(df_clean)
+        logging.info(f"Validation report: {validation_report}")
+        
+        # Perform power analysis (T015)
+        power_analysis = calculate_power_analysis(
+            df_clean, 
+            num_predictors=args.num_predictors,
+            outcome_col='adoption_binary'
+        )
+        
+        # Update modeling log with power analysis results
+        update_modeling_log_with_power_analysis(power_analysis)
+        
+        # Export cleaned data
+        export_cleaned_data(df_clean, args.output)
+        
+        logging.info("Data cleaning pipeline completed successfully")
+        
+    except CustomDataError as e:
+        logging.error(f"Data error: {str(e)}")
+        update_log_section("data_cleaning", {"status": "failed", "error": str(e)})
+        raise
     except Exception as e:
-        error_msg = str(e)
-        logger.log("data_cleaning_main", status="failed", error=error_msg)
-        update_log_section("data_cleaning", {"status": "failed", "error": error_msg})
-        raise CustomDataError(f"Data cleaning failed: {error_msg}")
+        logging.error(f"Unexpected error: {str(e)}")
+        update_log_section("data_cleaning", {"status": "failed", "error": str(e)})
+        raise
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

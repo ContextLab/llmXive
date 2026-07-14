@@ -1,26 +1,9 @@
-# Configuration for Sustainable Agriculture Adoption Study
-# T007: Base configuration management
-
-paths:
-  raw_data: data/raw
-  processed_data: data/processed
-  results: results
-  figures: figures
-  modeling_log: modeling_log.yaml
-  cleaned_data: data/processed/cleaned_data.csv
-  engineered_data: data/processed/engineered_data.csv
-  report_output: results/final_report.pdf
-
 random_seed: 42
-
-# Analysis settings
-analysis:
-  min_sample_size: 100
-  max_missing_threshold: 0.30
-  fdr_threshold: 0.10
-  vif_threshold: 5.0
-
-# Model settings
-model:
-  n_bootstrap: 1000
-  sensitivity_gamma_range: [1.5, 2.0, 2.5, 3.0]
+project_root: "."
+data_path: "data"
+raw_data_path: "data/raw"
+processed_data_path: "data/processed"
+results_path: "results"
+figures_path: "figures"
+log_path: "modeling_log.yaml"
+log_level: "INFO"

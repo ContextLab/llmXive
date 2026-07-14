@@ -8,57 +8,67 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
+- code/01_download_data.py: self-declared fabricated metric — “…sing, create them with NaN or dummy values     to prevent downstream cr…”
 - code/03_engineer_features.py: self-declared fabricated metric — “…ement proxies found. Creating dummy score of 0.")         df['engagemen…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""Synthetic Data Generator for Developmen…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…> Dict[str, Any]:     """Generate a single synthetic respondent record for te…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the full synthetic dataset."""     records…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…ation def main():     """Generate and save synthetic data (FALLBACK ONLY)."""…”
-- code/01_download_data.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generates synthetic data ONLY when real sour…”
-- code/01_download_data.py: synthetic/fake INPUT data not authorized by the spec — “…vailable. "             "Synthetic data generated as fallback pe…”
-- code/01_download_data.py: synthetic/fake INPUT data not authorized by the spec — “…help="Force synthetic data generation if real sourc…”
+- code/01_download_data.py: synthetic/fake INPUT data not authorized by the spec — “…er.info("Falling back to synthetic data generator.")          #…”
+- code/01_download_data.py: synthetic/fake INPUT data not authorized by the spec — “…)          logger.info(f"Generated synthetic data with {len(df)} reco…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 21 fabricated/simulated-result signal(s) — results are not real measurements: code/03_engineer_features.py: self-declared fabricated metric — “…ement proxies found. Creating dummy score of 0.")         df['engagemen…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""Synthetic Data Generator for Developmen…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…> Dict[str, Any]:     """Generate a single synthetic respondent record for te…”; 5 command(s) failed: python code/01_download_data.py --synthetic (rc=1); python code/02_clean_data.py (rc=1); python code/03_engineer_features.py (rc=1); 1 declared deliverable(s) absent: data/processed/cleaned_data.csv
+**Summary**: 21 fabricated/simulated-result signal(s) — results are not real measurements: code/01_download_data.py: self-declared fabricated metric — “…sing, create them with NaN or dummy values     to prevent downstream cr…”; code/03_engineer_features.py: self-declared fabricated metric — “…ement proxies found. Creating dummy score of 0.")         df['engagemen…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""Synthetic Data Generator for Developmen…”; 6 command(s) failed: python code/01_download_data.py --synthetic (rc=1); python code/02_clean_data.py (rc=1); python code/03_engineer_features.py (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/01_download_data.py --synthetic -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/01_download_data.py", line 217, in <module>
-    @log_operation("data_acquisition_main")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/01_download_data.py", line 74, in <module>
+    @log_operation("load_config")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: 'LogEntry' object is not callable
 - python code/02_clean_data.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 64, in <module>
-    @log_operation("load_raw_data")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 51, in <module>
+    @log_operation("load_config")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: 'LogEntry' object is not callable
 - python code/03_engineer_features.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 244, in <module>
-    @log_operation("engineer_features_main")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: 'LogEntry' object is not callable
-- python code/04_model_analysis.py -> rc=1
-    WARNING: 'evalues' library not installed. Sensitivity analysis will be skipped.
+    fa.fit(data)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/.venv/lib/python3.11/site-packages/factor_analyzer/factor_analyzer.py", line 619, in fit
+    self._arg_checker()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/.venv/lib/python3.11/site-packages/factor_analyzer/factor_analyzer.py", line 287, in _arg_checker
+    raise ValueError(
+ValueError: The method must be one of the following: ['ml', 'mle', 'uls', 'minres', 'principal']
+
+The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 305, in <module>
-    @log_operation("model_analysis_main")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 301, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 298, in main
+    raise FeatureEngineeringError(f"Feature engineering failed: {str(e)}") from e
+FeatureEngineeringError: Feature engineering failed: The method must be one of the following: ['ml', 'mle', 'uls', 'minres', 'principal']
+- python code/04_model_analysis.py -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 29, in <module>
+    @log_operation("get_config_paths")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'LogEntry' object is not callable
+- python code/05_generate_report.py -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/05_generate_report.py", line 51, in <module>
+    @log_operation("load_cleaned_data")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: 'LogEntry' object is not callable
 - python code/02_clean_data.py --input data/raw/survey_data.csv -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 64, in <module>
-    @log_operation("load_raw_data")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 51, in <module>
+    @log_operation("load_config")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: 'LogEntry' object is not callable
-
-## Declared deliverables still missing
-
-- data/processed/cleaned_data.csv
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -74,11 +84,13 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 - code/02_clean_data.py: update_log_section("data_cleaning", {
 - code/02_clean_data.py: update_log_section("data_cleaning", {"status": "failed", "error": error_msg})
 - code/03_engineer_features.py: update_log_section("feature_engineering", {"status": "failed", "error": str(e)})
+- code/logging_config.py: - update_log_section("name", {"key": "value"})
+- code/logging_config.py: - update_log_section("name", status="failed", error="msg")
+- code/05_generate_report.py: update_log_section("report_generation", {"status": "failed", "error": str(e)})
+- code/05_generate_report.py: update_log_section("report_generation", {"status": "completed", "output": str(pdf_path)})
 - code/00_generate_synthetic_data.py: update_log_section("data_source_metadata", {"synthetic_fallback": {"status": "used", "reason": "Real data sources unavailable"}})
-- code/01_download_data.py: update_log_section("data_acquisition", {"status": "started", "source": "attempting_real"})
-- code/01_download_data.py: update_log_section("data_acquisition", {"status": "failed", "error": "No data source available"})
-- code/01_download_data.py: update_log_section("data_acquisition", {
-- code/04_model_analysis.py: update_log_section("model_analysis", log_entry)
+- code/01_download_data.py: update_log_section(
+- code/04_model_analysis.py: update_log_section("model_analysis", {
 - code/04_model_analysis.py: update_log_section("model_analysis", {"status": "failed", "error": str(e)})
 
 Make `update_log_section` in `code/logging_config.py` accept ALL of the above.
@@ -101,18 +113,22 @@ Whichever you choose, every call site of `Config` across the codebase must stop 
 
 `Config.get` call sites (25):
 - code/02_clean_data.py: if power_analysis.get('shortfall', False):
-- code/02_clean_data.py: log_data['limitations'] = log_data.get('limitations', [])
+- code/02_clean_data.py: limitations = log_data.get('limitations', [])
 - code/code_00_generate_synthetic_data.py: random.seed(config.get("random_seed", 42))
 - code/code_00_generate_synthetic_data.py: n = config.get("n_respondents", 1000)
-- code/config.py: seed=data.get("seed", DEFAULT_SEED),
-- code/03_engineer_features.py: input_path = Path(config.get("processed_data_path", "data/processed/cleaned_data.csv"))
-- code/03_engineer_features.py: logging.info(f"EFA completed. Factors retained: {efa_results.get('factors_retained', 0)}")
-- code/03_engineer_features.py: log_data['validity_analysis']['convergent_validity_status'] = "passed" if metrics.get('convergent_validity') else "skipped"
-- code/03_engineer_features.py: log_data['validity_analysis']['cronbach_alpha'] = metrics.get('cronbach_alpha')
+- code/config.py: Provides .get() for dict-like access and tolerant .info/.debug/.warning/.error
+- code/config.py: self._seed = self._data.get("random_seed", DEFAULT_SEED)
+- code/config.py: return self._data.get(key, default)
+- code/config.py: return Path(config.get("data_path", "data"))
+- code/config.py: return Path(config.get("raw_data_path", "data/raw"))
+- code/config.py: return Path(config.get("processed_data_path", "data/processed"))
+- code/config.py: return Path(config.get("results_path", "results"))
+- code/03_engineer_features.py: input_path = config.get("processed_data_path", "data/processed/cleaned_data.csv")
+- code/03_engineer_features.py: "convergent_validity_status": "passed" if metrics.get('convergent_validity') else "skipped",
+- code/03_engineer_features.py: "cronbach_alpha": metrics.get('cronbach_alpha'),
 - code/03_engineer_features.py: "factors_retained": metrics.get('efa', {}).get('factors_retained'),
 - code/03_engineer_features.py: "rotation": metrics.get('efa', {}).get('rotation'),
 - code/03_engineer_features.py: "extraction": metrics.get('efa', {}).get('extraction')
-- code/03_engineer_features.py: output_path = Path(config.get("processed_data_path", "data/processed")) / "engineered_data.csv"
 - code/logging_config.py: self.name = args[0] if args else kwargs.get("name", "reproducibility")
 - code/logging_config.py: op = args[0] if args else kwargs.get("operation", "")
 - code/06_finalize_results.py: "random_seed": config.get("random_seed"),
@@ -120,11 +136,7 @@ Whichever you choose, every call site of `Config` across the codebase must stop 
 - code/06_finalize_results.py: "seed_value": config.get("random_seed"),
 - code/06_finalize_results.py: set_random_seed(config.get("random_seed", 42))
 - code/06_finalize_results.py: project_root = Path(config.get("project_root", "."))
-- code/05_generate_report.py: coef_data = reg_data.get('coefficients', [])
-- code/05_generate_report.py: var_name = row.get('variable', 'Unknown')
-- code/05_generate_report.py: coef = row.get('coef', 0)
-- code/05_generate_report.py: std_err = row.get('std_err', 0)
-- code/05_generate_report.py: z_val = row.get('z', 0)
+- code/05_generate_report.py: path = config.get("processed_data_path", "data/processed/cleaned_data.csv")
 
 ## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module
 
@@ -206,18 +218,6 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 ```
 
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/processed/cleaned_data.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/02_clean_data.py` — IS a run-book command
-    - `code/03_engineer_features.py` — IS a run-book command
-    - `code/06_finalize_results.py` — NOT invoked by the run-book
-    - `code/05_generate_report.py` — IS a run-book command
-    - `code/validate_quickstart.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/cleaned_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 
 One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
@@ -231,11 +231,6 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 - PRODUCER(s) to edit: `code/06_finalize_results.py`, `code/04_model_analysis.py`
 - CONSUMER(s) that read it: `code/06_finalize_results.py`, `code/05_generate_report.py`, `code/validate_quickstart.py`, `code/04_model_analysis.py`
   → Edit the producer so every required name [results_dir] is in `engineered_data.csv`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
-
-### `data/processed/cleaned_data.csv`
-
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/02_clean_data.py`, `code/06_finalize_results.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/cleaned_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/02_clean_data.py`, `code/06_finalize_results.py`, `code/05_generate_report.py`, `code/validate_quickstart.py`.
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/cleaned_data.csv`
 

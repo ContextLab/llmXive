@@ -3,10 +3,11 @@ from __future__ import annotations
 
 import functools
 import json
-import os
+import yaml
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from pathlib import Path
+from typing import Any, Optional
 
 import yaml
 
@@ -30,6 +31,7 @@ class ReproducibilityLogger:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list = []
+        self.sections: dict = {}
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
         op = args[0] if args else kwargs.get("operation", "")
@@ -37,11 +39,26 @@ class ReproducibilityLogger:
         self.entries.append(entry)
         return entry
 
+    def to_json(self) -> str:
+        return json.dumps({
+            "name": self.name,
+            "entries": [asdict(e) for e in self.entries],
+            "sections": self.sections
+        }, ensure_ascii=False, default=str)
+
     # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
     def __getattr__(self, name: str):
         def _noop(*args: Any, **kwargs: Any) -> None:
             return None
         return _noop
+
+    def update_section(self, name: str, data: dict) -> None:
+        """Update a specific section in the log."""
+        self.sections[name] = data
+
+    def get_sections(self) -> dict:
+        return self.sections
+
 
 _GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
 
@@ -72,59 +89,38 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 def initialize_modeling_log(log_path: str = "modeling_log.yaml") -> None:
     """Initialize the modeling log file if it doesn't exist."""
-    if not os.path.exists(log_path):
-        with open(log_path, 'w') as f:
-            yaml.dump({"_metadata": {"created_at": datetime.utcnow().isoformat()}}, f)
+    path = Path(log_path)
+    if not path.exists():
+        with open(path, 'w') as f:
+            yaml.dump({"initialized_at": datetime.utcnow().isoformat()}, f)
 
 def update_log_section(section_name: str, updates: Dict[str, Any]) -> None:
     """Update a specific section in the modeling log.
 
-    Args:
-        section_name: The top-level key to update/create
-        updates: Dictionary of key-value pairs to update in that section
-    """
-    log_path = "modeling_log.yaml"
-    initialize_modeling_log(log_path)
-
+def update_log_section(name: str, data: dict) -> None:
+    """Update a section in the global logger and persist to YAML."""
+    logger = get_logger()
+    logger.update_section(name, data)
+    # Persist to YAML file
+    log_path = Path("modeling_log.yaml")
     try:
         with open(log_path, 'r') as f:
-            log_data = yaml.safe_load(f) or {}
-    except Exception:
-        log_data = {}
+            current_log = yaml.safe_load(f) or {}
+    except FileNotFoundError:
+        current_log = {}
 
-    if section_name not in log_data:
-        log_data[section_name] = {}
-
-    log_data[section_name].update(updates)
-    log_data[section_name]["updated_at"] = datetime.utcnow().isoformat()
+    current_log[name] = data
+    current_log["updated_at"] = datetime.utcnow().isoformat()
 
     with open(log_path, 'w') as f:
-        yaml.dump(log_data, f, default_flow_style=False)
+        yaml.dump(current_log, f, default_flow_style=False)
 
 def append_log_entry(section_name: str, entry: Dict[str, Any]) -> None:
     """Append an entry to a list-based section in the modeling log.
 
-    Args:
-        section_name: The top-level key containing a list
-        entry: Dictionary to append to the list
-    """
-    log_path = "modeling_log.yaml"
-    initialize_modeling_log(log_path)
-
-    try:
-        with open(log_path, 'r') as f:
-            log_data = yaml.safe_load(f) or {}
-    except Exception:
-        log_data = {}
-
-    if section_name not in log_data:
-        log_data[section_name] = []
-
-    if not isinstance(log_data[section_name], list):
-        log_data[section_name] = []
-
-    entry["timestamp"] = datetime.utcnow().isoformat()
-    log_data[section_name].append(entry)
-
-    with open(log_path, 'w') as f:
-        yaml.dump(log_data, f, default_flow_style=False)
+def append_log_entry(operation: str, data: dict) -> None:
+    """Append an entry to the log."""
+    logger = get_logger()
+    logger.log(operation, **data)
+    # We don't persist append-only entries to YAML in this simplified version
+    # as the main persistence is via update_log_section
