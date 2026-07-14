@@ -1,6 +1,10 @@
-"""Specialization index computation for multi-agent memory networks.
+"""
+Specialization metrics for multi-agent memory networks.
 
-Calculates distribution-based metrics of per-agent fact contribution,
+Implements the specialization index as a distribution-based metric of per-agent
+fact contribution, bounded between 0 and log2(N_agents).
+
+FR-004: Calculate distribution-based metric of per-agent fact contribution,
 bounded 0 to log2(N_agents).
 """
 from __future__ import annotations
@@ -14,222 +18,267 @@ import numpy as np
 
 @dataclass
 class SpecializationMetrics:
-    """Container for specialization-related metrics."""
+    """Container for specialization computation results."""
     specialization_index: float
-    gini_coefficient: float
-    shannon_entropy: float
+    entropy: float
     max_entropy: float
-    normalized_entropy: float
-    agent_contributions: Dict[int, int] = field(default_factory=dict)
+    gini_coefficient: Optional[float] = None
+    facts_per_agent: Dict[int, int] = field(default_factory=dict)
+    total_facts: int = 0
+    num_agents: int = 0
 
 def compute_gini_coefficient(values: List[float]) -> float:
-    """Compute Gini coefficient for a list of values.
-
+    """
+    Compute the Gini coefficient for a list of values.
+    
     The Gini coefficient measures inequality in a distribution.
     0 = perfect equality, 1 = perfect inequality.
-
+    
     Args:
-        values: List of non-negative numeric values.
-
+        values: List of numeric values (e.g., facts per agent)
+        
     Returns:
-        Gini coefficient in range [0, 1].
+        Gini coefficient between 0 and 1
     """
     if not values or len(values) == 0:
         return 0.0
-
-    values = [v if v >= 0 else 0 for v in values]
-    n = len(values)
-    if n == 1:
+    
+    values = np.array(values, dtype=float)
+    if np.sum(values) == 0:
         return 0.0
+    
+    # Sort values
+    sorted_values = np.sort(values)
+    n = len(sorted_values)
+    
+    # Compute Gini using the formula: G = (2 * sum(i * x_i) - (n + 1) * sum(x_i)) / (n * sum(x_i))
+    cumulative = np.cumsum(sorted_values)
+    gini = (2.0 * np.sum((np.arange(1, n + 1) * sorted_values)) - (n + 1) * np.sum(sorted_values)) / (n * np.sum(sorted_values))
+    
+    return float(gini)
 
-    sorted_values = sorted(values)
-    cumsum = np.cumsum(sorted_values)
-    total = cumsum[-1]
-
-    if total == 0:
-        return 0.0
-
-    gini = (2 * np.sum((np.arange(1, n + 1) * sorted_values))) / (n * total) - (n + 1) / n
-    return max(0.0, min(1.0, gini))
-
-def compute_shannon_entropy(values: List[float]) -> Tuple[float, float]:
-    """Compute Shannon entropy and maximum possible entropy.
-
-    Args:
-        values: List of non-negative numeric values representing counts.
-
-    Returns:
-        Tuple of (shannon_entropy, max_entropy).
+def compute_shannon_entropy(proportions: List[float]) -> float:
     """
-    if not values or len(values) == 0:
-        return 0.0, 0.0
-
-    total = sum(values)
-    if total == 0:
-        return 0.0, 0.0
-
-    probabilities = [v / total for v in values if v > 0]
-    if len(probabilities) == 0:
-        return 0.0, 0.0
-
-    entropy = -sum(p * math.log2(p) for p in probabilities if p > 0)
-    max_entropy = math.log2(len(probabilities)) if len(probabilities) > 1 else 0.0
-
-    return entropy, max(entropy, 0.0)
+    Compute Shannon entropy for a distribution of proportions.
+    
+    Args:
+        proportions: List of proportions that sum to 1.0
+        
+    Returns:
+        Shannon entropy (non-negative)
+    """
+    if not proportions or len(proportions) == 0:
+        return 0.0
+    
+    # Filter out zero proportions to avoid log(0)
+    filtered = [p for p in proportions if p > 0]
+    
+    if len(filtered) == 0:
+        return 0.0
+    
+    entropy = -sum(p * math.log(p) for p in filtered)
+    return entropy
 
 def compute_specialization_index(
-    agent_facts: Union[List, Dict, None],
-    num_agents: Optional[int] = None,
-    agents: Optional[Any] = None
+    facts_per_agent: Union[List[int], Dict[int, int], List[Dict[str, Any]], None],
+    num_agents: Optional[int] = None
 ) -> Tuple[float, SpecializationMetrics]:
-    """Compute the specialization index for agent contributions.
-
-    The specialization index measures how specialized the distribution of
-    facts across agents is. It is bounded between 0 (perfect specialization,
-    one agent knows everything) and log2(N_agents) (perfectly uniform).
-
-    Args:
-        agent_facts: Either a list of fact counts per agent, a dict mapping
-            agent_id to fact count, or None/empty for default behavior.
-        num_agents: Optional explicit number of agents. If None, inferred from
-            agent_facts.
-        agents: Alternative parameter for backward compatibility; treated as
-            agent_facts if provided.
-
-    Returns:
-        Tuple of (specialization_index, metrics_dict).
     """
-    # Handle various input shapes for backward compatibility
-    if agents is not None and agent_facts is None:
-        agent_facts = agents
-
-    # Normalize input to a list of counts
-    if agent_facts is None or (isinstance(agent_facts, list) and len(agent_facts) == 0):
-        # Default: uniform distribution across 1 agent
-        if num_agents is None or num_agents <= 0:
-            num_agents = 1
-        counts = [1] * num_agents
-    elif isinstance(agent_facts, dict):
-        if not agent_facts:
-            if num_agents is None or num_agents <= 0:
-                num_agents = 1
-            counts = [0] * num_agents
-        else:
-            num_agents = num_agents if num_agents is not None else len(agent_facts)
-            counts = [agent_facts.get(i, 0) for i in range(num_agents)]
-    elif isinstance(agent_facts, (list, tuple)):
-        if len(agent_facts) == 0:
-            if num_agents is None or num_agents <= 0:
-                num_agents = 1
-            counts = [1] * num_agents
-        else:
-            counts = list(agent_facts)
-            if num_agents is None:
-                num_agents = len(counts)
-    else:
-        # Single value or unexpected type
-        if num_agents is None or num_agents <= 0:
-            num_agents = 1
-        counts = [1] * num_agents
-
-    # Ensure non-negative
-    counts = [max(0, c) for c in counts]
-    total = sum(counts)
-
-    if total == 0:
-        # No facts distributed
-        if num_agents <= 1:
-            spec_index = 0.0
-        else:
-            spec_index = 0.0  # Uniform but empty
-        metrics = SpecializationMetrics(
-            specialization_index=spec_index,
-            gini_coefficient=0.0,
-            shannon_entropy=0.0,
-            max_entropy=math.log2(num_agents) if num_agents > 1 else 0.0,
-            normalized_entropy=0.0,
-            agent_contributions={i: c for i, c in enumerate(counts)}
+    Compute the specialization index for a multi-agent system.
+    
+    The specialization index measures how unevenly facts are distributed across agents.
+    - 0: Perfect equality (all agents contribute equally)
+    - log2(N_agents): Maximum specialization (one agent contributes all facts)
+    
+    This is computed as: max_entropy - actual_entropy, where entropy is the
+    Shannon entropy of the fact distribution across agents.
+    
+    Args:
+        facts_per_agent: Can be:
+            - List[int]: Direct list of fact counts per agent
+            - Dict[int, int]: Mapping of agent_id -> fact_count
+            - List[Dict]: List of game result dicts with 'agent_facts' or similar
+            - None: Returns 0 with empty metrics
+        num_agents: Total number of agents (optional, inferred if not provided)
+        
+    Returns:
+        Tuple of (specialization_index, SpecializationMetrics)
+        
+    Raises:
+        ValueError: If input is invalid or num_agents is inconsistent
+    """
+    # Handle None input
+    if facts_per_agent is None:
+        return 0.0, SpecializationMetrics(
+            specialization_index=0.0,
+            entropy=0.0,
+            max_entropy=0.0,
+            facts_per_agent={},
+            total_facts=0,
+            num_agents=num_agents or 0
         )
-        return spec_index, metrics
-
-    # Compute Gini coefficient
-    gini = compute_gini_coefficient(counts)
-
-    # Compute Shannon entropy
-    entropy, max_entropy = compute_shannon_entropy(counts)
-
-    # Normalize entropy to [0, 1]
-    normalized_entropy = entropy / max_entropy if max_entropy > 0 else 0.0
-
-    # Specialization index: based on entropy
-    # Lower entropy = higher specialization (one agent knows most)
-    # Higher entropy = lower specialization (distributed knowledge)
-    # We define specialization_index as: max_entropy - entropy
-    # This gives: 0 (perfectly uniform) to max_entropy (one agent knows all)
-    if num_agents <= 1:
-        spec_index = 0.0
+    
+    # Parse input into a list of fact counts
+    fact_counts: List[int] = []
+    
+    if isinstance(facts_per_agent, dict):
+        fact_counts = list(facts_per_agent.values())
+        if num_agents is None:
+            num_agents = len(facts_per_agent)
+    elif isinstance(facts_per_agent, list):
+        if len(facts_per_agent) == 0:
+            return 0.0, SpecializationMetrics(
+                specialization_index=0.0,
+                entropy=0.0,
+                max_entropy=0.0,
+                facts_per_agent={},
+                total_facts=0,
+                num_agents=num_agents or 0
+            )
+        
+        # Check if it's a list of dicts (game results)
+        if isinstance(facts_per_agent[0], dict):
+            # Extract fact counts from game result format
+            total_facts = 0
+            agent_facts: Dict[int, int] = {}
+            
+            for item in facts_per_agent:
+                if 'agent_facts' in item:
+                    # Direct fact counts per agent
+                    for agent_id, count in item['agent_facts'].items():
+                        agent_facts[int(agent_id)] = int(count)
+                        total_facts += int(count)
+                elif 'facts_contributed' in item:
+                    # Alternative format
+                    for agent_id, count in item['facts_contributed'].items():
+                        agent_facts[int(agent_id)] = int(count)
+                        total_facts += int(count)
+                elif 'agent_id' in item and 'fact_count' in item:
+                    # Per-agent record format
+                    agent_id = int(item['agent_id'])
+                    count = int(item['fact_count'])
+                    agent_facts[agent_id] = count
+                    total_facts += count
+            
+            fact_counts = list(agent_facts.values())
+            if num_agents is None:
+                num_agents = len(agent_facts)
+            if num_agents is None or num_agents == 0:
+                num_agents = 1
+        else:
+            # Direct list of integers
+            fact_counts = [int(x) for x in facts_per_agent]
+            if num_agents is None:
+                num_agents = len(fact_counts)
     else:
-        spec_index = max_entropy - entropy
-        # Ensure bounds [0, log2(N)]
-        spec_index = max(0.0, min(spec_index, math.log2(num_agents)))
-
-    metrics = SpecializationMetrics(
-        specialization_index=round(spec_index, 6),
-        gini_coefficient=round(gini, 6),
-        shannon_entropy=round(entropy, 6),
-        max_entropy=round(max_entropy, 6),
-        normalized_entropy=round(normalized_entropy, 6),
-        agent_contributions={i: c for i, c in enumerate(counts)}
+        # Try to convert to list
+        try:
+            fact_counts = [int(x) for x in facts_per_agent]
+            if num_agents is None:
+                num_agents = len(fact_counts)
+        except (TypeError, ValueError):
+            return 0.0, SpecializationMetrics(
+                specialization_index=0.0,
+                entropy=0.0,
+                max_entropy=0.0,
+                facts_per_agent={},
+                total_facts=0,
+                num_agents=num_agents or 0
+            )
+    
+    # Ensure num_agents is valid
+    if num_agents is None or num_agents <= 0:
+        num_agents = max(1, len(fact_counts))
+    
+    # Pad fact_counts to num_agents if necessary
+    while len(fact_counts) < num_agents:
+        fact_counts.append(0)
+    
+    # Trim if too long
+    fact_counts = fact_counts[:num_agents]
+    
+    total_facts = sum(fact_counts)
+    
+    if total_facts == 0:
+        # No facts distributed
+        return 0.0, SpecializationMetrics(
+            specialization_index=0.0,
+            entropy=0.0,
+            max_entropy=math.log2(num_agents) if num_agents > 1 else 0.0,
+            gini_coefficient=0.0,
+            facts_per_agent={i: count for i, count in enumerate(fact_counts)},
+            total_facts=0,
+            num_agents=num_agents
+        )
+    
+    # Compute proportions
+    proportions = [count / total_facts for count in fact_counts]
+    
+    # Compute Shannon entropy
+    actual_entropy = compute_shannon_entropy(proportions)
+    
+    # Maximum possible entropy (uniform distribution)
+    max_entropy = math.log2(num_agents) if num_agents > 1 else 0.0
+    
+    # Specialization index: difference from maximum entropy
+    # This measures how much the distribution deviates from uniform
+    specialization_index = max_entropy - actual_entropy
+    
+    # Compute Gini coefficient as an additional metric
+    gini = compute_gini_coefficient(fact_counts)
+    
+    # Ensure bounds: [0, log2(N_agents)]
+    specialization_index = max(0.0, min(specialization_index, max_entropy))
+    
+    return specialization_index, SpecializationMetrics(
+        specialization_index=specialization_index,
+        entropy=actual_entropy,
+        max_entropy=max_entropy,
+        gini_coefficient=gini,
+        facts_per_agent={i: count for i, count in enumerate(fact_counts)},
+        total_facts=total_facts,
+        num_agents=num_agents
     )
 
-    return round(spec_index, 6), metrics
-
-def validate_specialization_index(index: float, num_agents: int) -> Tuple[bool, str]:
-    """Validate that specialization index is within expected bounds.
-
+def validate_specialization_index(
+    specialization_index: float,
+    num_agents: int
+) -> bool:
+    """
+    Validate that the specialization index is within expected bounds.
+    
     Args:
-        index: Computed specialization index.
-        num_agents: Number of agents in the system.
-
+        specialization_index: Computed specialization index
+        num_agents: Number of agents in the system
+        
     Returns:
-        Tuple of (is_valid, message).
+        True if valid, False otherwise
     """
     if num_agents <= 0:
-        return False, "num_agents must be positive"
-
-    if index < 0:
-        return False, f"Specialization index {index} is negative"
-
-    max_val = math.log2(num_agents)
-    if index > max_val + 1e-9:  # Small tolerance for floating point
-        return False, f"Specialization index {index} exceeds max {max_val}"
-
-    return True, "Valid"
+        return specialization_index == 0.0
+    
+    max_valid = math.log2(num_agents)
+    return 0.0 <= specialization_index <= max_valid + 1e-9
 
 def batch_compute_specialization(
-    game_results: List[Dict[str, Any]]
+    game_results: List[Dict[str, Any]],
+    num_agents: int
 ) -> List[Tuple[float, SpecializationMetrics]]:
-    """Compute specialization index for multiple game results.
-
+    """
+    Compute specialization index for multiple game results.
+    
     Args:
-        game_results: List of dicts with 'facts_per_agent' key.
-
+        game_results: List of game result dictionaries
+        num_agents: Number of agents per game
+        
     Returns:
-        List of (specialization_index, metrics) tuples.
+        List of (specialization_index, metrics) tuples
     """
     results = []
     for game in game_results:
-        facts = game.get('facts_per_agent', [])
-        num_agents = game.get('num_agents', len(facts) if facts else 1)
-        idx, metrics = compute_specialization_index(facts, num_agents=num_agents)
+        idx, metrics = compute_specialization_index(
+            facts_per_agent=game.get('agent_facts', game.get('facts_contributed', [])),
+            num_agents=num_agents
+        )
         results.append((idx, metrics))
     return results
-
-# Backward compatibility aliases
-def compute_specialization_index_v1(
-    agent_skills: Union[List, Dict, None],
-    num_agents: Optional[int] = None,
-    agents: Optional[Any] = None
-) -> Tuple[float, SpecializationMetrics]:
-    """Alias for compute_specialization_index with legacy signature."""
-    return compute_specialization_index(agent_skills, num_agents, agents)

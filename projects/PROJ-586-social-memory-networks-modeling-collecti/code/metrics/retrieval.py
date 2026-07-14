@@ -22,7 +22,7 @@ class RetrievalMetrics:
 def compute_retrieval_efficiency(
     successful: Union[int, float, List[int], List[float]], 
     total_queries: Union[int, float, List[int], List[float]], 
-    agents: Union[int, float, List[int], List[float]]
+    agents: Union[int, List[int]]
 ) -> Tuple[float, RetrievalMetrics]:
     """
     Compute retrieval efficiency.
@@ -46,7 +46,7 @@ def compute_retrieval_efficiency(
     if isinstance(agents, list):
         agents = len(agents)
         
-    # Ensure we are working with floats for division
+    # Ensure we have numeric types for calculation
     successful = float(successful)
     total_queries = float(total_queries)
     agents = int(agents)

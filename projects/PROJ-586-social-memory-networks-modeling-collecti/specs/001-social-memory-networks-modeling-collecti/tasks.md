@@ -81,11 +81,11 @@
 
 ### Implementation for User Story 1
 
-- [X] T011 [P] [US-1] Implement CLI flag parsing in `code/run_experiment.py`: Accept `--context {full,limited}`, `--agents N`, and `--dataset {hanabi,coqa}`. If dataset is missing, invoke synthetic fallback. (FR-001) <!-- FAILED: unspecified -->
-- [X] T011b [P] [US-1] Implement game simulation loop in `code/run_experiment.py`: Orchestrate agents, memory buffer, and turn-based interaction for a single game. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T011 [P] [US-1] Implement CLI flag parsing in `code/run_experiment.py`: Accept `--context {full,limited}`, `--agents N`, and `--dataset {hanabi,coqa}`. If dataset is missing, invoke synthetic fallback. (FR-001) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T011b [P] [US-1] Implement game simulation loop in `code/run_experiment.py`: Orchestrate agents, memory buffer, and turn-based interaction for a single game.
 - [X] T011c [P] [US-1] Implement dataset loading logic in `code/run_experiment.py`: Integrate `loaders.py` and `synthetic.py`, ensuring data is checksummed before use.
 - [X] T012 [P] [US-1] Implement specialization index computation in `code/metrics/specialization.py`: Calculate distribution-based metric of per-agent fact contribution, bounded 0 to log2(N_agents). (FR-004)
-- [X] T013 [P] [US-1] Implement cue-retrieval efficiency in `code/metrics/retrieval.py`: Calculate proportion of successful retrievals vs. a theoretical baseline derived from the number of agents. (FR-005)
+- [ ] T013 [P] [US-1] Implement cue-retrieval efficiency in `code/metrics/retrieval.py`: Calculate proportion of successful retrievals vs. a theoretical baseline derived from the number of agents. (FR-005)
 - [X] T014 [P] [US-1] Implement validation logic in `code/metrics/validator.py`: Assert `(games_with_metrics / total_games) >= 0.95`; log errors for failed games. (SC-001)
 - [ ] T015 [US-1] Output `results_full.csv` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` for [deferred] games. (US-1, FR-004, FR-005, SC-001)
 
@@ -137,7 +137,7 @@
 - [~] T027 [US-3] Implement game simulation for varying agent counts (800 games per configuration) in `code/run_experiment.py`. (US-3) <!-- FAILED: unspecified -->
 - [~] T028 [P] [US-3] Implement power-law fitting in `code/analysis/scaling.py`: Fit log-log curves for metric trends vs. agent count (small to medium cohorts) for specialization index and retrieval efficiency. (US-3)
 - [X] T029 [P] [US-3] Compute 95% confidence intervals for fitted exponents using bootstrapping (1000 resamples) and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`. (US-3, SC-005)
-- [~] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves for specialization index and retrieval efficiency, and an explicit text note stating that "3 data points limit power-law reliability". (US-3, SC-005)
+- [ ] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves for specialization index and retrieval efficiency, and an explicit text note stating that "3 data points limit power-law reliability". (US-3, SC-005)
 
 **Checkpoint**: All user stories should now be independently functional
 

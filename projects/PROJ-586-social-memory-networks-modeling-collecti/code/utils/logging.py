@@ -57,7 +57,7 @@ class ReproducibilityLogger:
         op = args[0] if args else kwargs.get("operation", "")
         level = kwargs.get("level", "INFO")
         msg = kwargs.get("message", str(op))
-        
+
         entry = LogEntry(
             operation=str(op),
             parameters=dict(kwargs),
@@ -67,7 +67,7 @@ class ReproducibilityLogger:
             message=msg
         )
         self.entries.append(entry)
-        
+
         # Write to file immediately for persistence
         self._write_to_file(entry)
         return entry
