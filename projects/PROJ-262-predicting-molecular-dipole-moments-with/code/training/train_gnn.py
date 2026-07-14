@@ -6,7 +6,7 @@ import os
 import random
 import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Tuple
 
 import numpy as np
 import torch
@@ -14,342 +14,324 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset
 
-# Project imports based on API surface
+# Import local modules using the exact API surface provided
 from models.schnet_gnn import SchNetGNN
 from training.evaluate import rmse, mae
-from training.save_checkpoints import save_gnn_checkpoint
 from training.split_data import get_train_test_splits
-from training.evaluate import mae, rmse
 from utils.reproducibility import set_seed
-from utils.pipeline_time_limit import time_limit
+from utils.pipeline_time_limit import time_limit, TimeoutError
 from utils.cpu_constraint import cpu_limit
 from utils.memory_constraint import memory_limit
 
-# Constants
-RESULTS_DIR = Path("results")
-CHECKPOINTS_DIR = Path("data/checkpoints")
-PROCESSED_DATA_DIR = Path("data/processed")
+# Constants defined in task requirements
 NUM_SEEDS = 5
 NUM_EPOCHS = 50
 EARLY_STOPPING_PATIENCE = 10
-BATCH_SIZE = 32
 LEARNING_RATE = 1e-3
-HIDDEN_DIM = 64
+BATCH_SIZE = 32
+HIDDEN_DIM = 128
 NUM_LAYERS = 3
-CHECKPOINT_DIR = Path("projects/PROJ-262-predicting-molecular-dipole-moments-with/data/checkpoints")
-METRICS_OUTPUT = Path("projects/PROJ-262-predicting-molecular-dipole-moments-with/results/metrics.csv")
-DATA_PATH_3D = Path("projects/PROJ-262-predicting-molecular-dipole-moments-with/data/processed/features_3d.parquet")
+
+# Paths relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+RESULTS_DIR = PROJECT_ROOT / "results"
+CHECKPOINTS_DIR = PROJECT_ROOT / "data" / "checkpoints"
+
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+CHECKPOINTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 class DipoleDataset(Dataset):
-    """Dataset wrapper for dipole moment prediction."""
+    """Dataset wrapper for molecular dipole prediction."""
 
-    def __init__(self, features: np.ndarray, targets: np.ndarray):
-        self.features = features
+    def __init__(self, molecules: List[Dict[str, Any]], features_3d: np.ndarray, features_2d: np.ndarray, targets: np.ndarray):
+        self.molecules = molecules
+        self.features_3d = features_3d
+        self.features_2d = features_2d
         self.targets = targets
 
+        # Validate lengths
+        if not (len(self.molecules) == len(self.features_3d) == len(self.features_2d) == len(self.targets)):
+            raise ValueError("All input arrays must have the same length")
+
     def __len__(self) -> int:
-        return len(self.targets)
+        return len(self.molecules)
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
-        x = torch.tensor(self.features[idx], dtype=torch.float32)
-        y = torch.tensor(self.targets[idx], dtype=torch.float32)
-        return {"x": x, "y": y}
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, Dict[str, Any]]:
+        mol = self.molecules[idx]
+        feat_3d = torch.tensor(self.features_3d[idx], dtype=torch.float32)
+        feat_2d = torch.tensor(self.features_2d[idx], dtype=torch.float32)
+        target = torch.tensor(self.targets[idx], dtype=torch.float32)
+        return feat_3d, feat_2d, target, mol
 
 
-def collate_fn(batch: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
+def collate_fn(batch: List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor, Dict[str, Any]]]) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, List[Dict[str, Any]]]:
     """Collate function for DataLoader."""
-    x_list = [item["x"] for item in batch]
-    y_list = [item["y"] for item in batch]
-    return {
-        "x": torch.stack(x_list),
-        "y": torch.stack(y_list)
-    }
+    feats_3d, feats_2d, targets, mols = zip(*batch)
+    return (
+        torch.stack(feats_3d),
+        torch.stack(feats_2d),
+        torch.stack(targets),
+        list(mols)
+    )
 
-def load_processed_data(seed: int) -> Tuple[List[Dict], List[np.ndarray], List[float]]:
-    """Load processed data for a specific seed."""
+
+def load_processed_data() -> Tuple[List[Dict[str, Any]], np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Load processed data from parquet files.
+    Returns molecules list, 3D features, 2D features, and dipole targets.
+    """
+    import pandas as pd
+
+    molecules_path = DATA_PROCESSED_DIR / "molecules_10k.parquet"
+    features_3d_path = DATA_PROCESSED_DIR / "features_3d.parquet"
+    features_2d_path = DATA_PROCESSED_DIR / "features_2d.parquet"
+
+    if not molecules_path.exists() or not features_3d_path.exists() or not features_2d_path.exists():
+        raise FileNotFoundError(
+            f"Required data files not found. Expected:\n"
+            f"  {molecules_path}\n"
+            f"  {features_3d_path}\n"
+            f"  {features_2d_path}\n"
+            f"Please run data generation tasks first."
+        )
+
     # Load molecules
-    molecules_path = PROCESSED_DATA_DIR / "molecules_10k.parquet"
-    if not molecules_path.exists():
-        raise FileNotFoundError(f"Processed molecules file not found: {molecules_path}")
-    
-    import pandas as pd
-    df_molecules = pd.read_parquet(molecules_path)
-    
-    # Load 3D features
-    features_path = PROCESSED_DATA_DIR / "features_3d.parquet"
-    if not features_path.exists():
-        raise FileNotFoundError(f"3D features file not found: {features_path}")
-    
-    df_features = pd.read_parquet(features_path)
-    
-    # Get dipole values
-    dipole_values = df_molecules['dipole'].tolist()
-    
-    # Get 3D features as numpy arrays
-    features_3d = [np.array(f) for f in df_features['features_3d'].tolist()]
-    
-    # Convert molecules to list of dicts
-    molecules = df_molecules.to_dict('records')
-    
-    return molecules, features_3d, dipole_values
+    df_mols = pd.read_parquet(molecules_path)
+    molecules = df_mols.to_dict(orient='records')
 
-def train_one_seed(seed: int, config: Dict[str, Any]) -> Dict[str, Any]:
-    """Train the GNN model for a single seed with early stopping."""
+    # Load features
+    df_3d = pd.read_parquet(features_3d_path)
+    df_2d = pd.read_parquet(features_2d_path)
+
+    # Convert to numpy
+    features_3d = df_3d.values.astype(np.float32)
+    features_2d = df_2d.values.astype(np.float32)
+
+    # Extract targets (dipole) from molecules dataframe
+    # Assuming 'dipole' column exists in molecules dataframe
+    if 'dipole' not in df_mols.columns:
+        raise ValueError("Molecules dataframe must contain 'dipole' column")
+    targets = df_mols['dipole'].values.astype(np.float32)
+
+    return molecules, features_3d, features_2d, targets
+
+
+def train_one_seed(seed: int, model: SchNetGNN, train_loader: DataLoader, val_loader: DataLoader, device: torch.device) -> Dict[str, float]:
+    """
+    Train GNN model for one seed with early stopping.
+    Returns metrics including final RMSE and whether early stopping triggered.
+    """
     set_seed(seed)
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
 
-    # Load data
-    if not DATA_PATH_3D.exists():
-        raise FileNotFoundError(f"Data file not found: {DATA_PATH_3D}. Run preprocessing first.")
-    
-    import pandas as pd
-    df = pd.read_parquet(DATA_PATH_3D)
-    
-    # Prepare features and targets
-    # Assuming columns: 'features_3d' (list) and 'dipole' (float)
-    # We need to flatten features_3d if it's stored as a list in parquet
-    features_list = []
-    targets_list = []
-    
-    for _, row in df.iterrows():
-        feat = row['features_3d']
-        if isinstance(feat, list):
-            features_list.append(feat)
-        else:
-            # Handle potential string representation or other formats
-            try:
-                features_list.append(list(feat))
-            except:
-                continue
-        targets_list.append(row['dipole'])
-
-    X = np.array(features_list)
-    y = np.array(targets_list)
-
-    # Split data
-    train_idx, test_idx = get_train_test_splits(len(X), seed=seed)
-    X_train, y_train = X[train_idx], y[train_idx]
-    X_test, y_test = X[test_idx], y[test_idx]
-
-    # Create datasets and loaders
-    train_dataset = DipoleDataset(X_train, y_train)
-    test_dataset = DipoleDataset(X_test, y_test)
-    
-    train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True, collate_fn=collate_fn)
-    test_loader = DataLoader(test_dataset, batch_size=config["batch_size"], shuffle=False, collate_fn=collate_fn)
-
-    # Initialize model
-    device = torch.device("cpu")
-    model = SchNetGNN(
-        input_dim=X_train.shape[1],
-        hidden_dim=config["hidden_dim"],
-        num_layers=config["num_layers"],
-        output_dim=1
-    ).to(device)
-
-    optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"])
-    criterion = nn.MSELoss()
-
-    # Training loop with early stopping
-    best_val_loss = float('inf')
+    best_val_rmse = float('inf')
     patience_counter = 0
     best_model_state = None
-    
-    train_losses = []
-    val_losses = []
+    best_epoch = 0
 
-    for epoch in range(config["epochs"]):
+    for epoch in range(NUM_EPOCHS):
         model.train()
         epoch_loss = 0.0
-        for batch in train_loader:
+
+        # Training loop
+        for feats_3d, feats_2d, targets, _ in train_loader:
+            feats_3d, feats_2d, targets = feats_3d.to(device), feats_2d.to(device), targets.to(device)
+
             optimizer.zero_grad()
-            inputs = batch["x"].to(device)
-            targets = batch["y"].to(device)
-            
-            outputs = model(inputs)
-            loss = criterion(outputs.squeeze(), targets)
-            
+            outputs = model(feats_3d, feats_2d)
+            loss = nn.MSELoss()(outputs, targets)
             loss.backward()
             optimizer.step()
+
             epoch_loss += loss.item()
-        
-        train_losses.append(epoch_loss / len(train_loader))
 
         # Validation
         model.eval()
-        val_loss = 0.0
-        all_preds = []
-        all_targets = []
+        val_preds = []
+        val_targets = []
+
         with torch.no_grad():
-            for batch in test_loader:
-                inputs = batch["x"].to(device)
-                targets = batch["y"].to(device)
-                outputs = model(inputs)
-                
-                loss = criterion(outputs.squeeze(), targets)
-                val_loss += loss.item()
-                
-                all_preds.extend(outputs.squeeze().cpu().numpy())
-                all_targets.extend(targets.cpu().numpy())
-        
-        val_loss /= len(test_loader)
-        val_losses.append(val_loss)
+            for feats_3d, feats_2d, targets, _ in val_loader:
+                feats_3d, feats_2d, targets = feats_3d.to(device), feats_2d.to(device), targets.to(device)
+                outputs = model(feats_3d, feats_2d)
+                val_preds.extend(outputs.cpu().numpy())
+                val_targets.extend(targets.cpu().numpy())
 
-        # Calculate metrics
-        current_rmse = rmse(all_targets, all_preds)
-        current_mae = mae(all_targets, all_preds)
-
-        print(f"Seed {seed}, Epoch {epoch+1}/{config['epochs']}, "
-              f"Train Loss: {train_losses[-1]:.4f}, Val Loss: {val_loss:.4f}, "
-              f"Val RMSE: {current_rmse:.4f}, Val MAE: {current_mae:.4f}")
+        val_rmse = rmse(np.array(val_preds), np.array(val_targets))
+        scheduler.step(val_rmse)
 
         # Early stopping check
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            patience_counter = 0
+        if val_rmse < best_val_rmse:
+            best_val_rmse = val_rmse
             best_model_state = model.state_dict().copy()
+            best_epoch = epoch
+            patience_counter = 0
         else:
             patience_counter += 1
-            if patience_counter >= config["patience"]:
-                print(f"Early stopping triggered at epoch {epoch+1}")
-                break
 
-    # Load best model for final evaluation
+        if patience_counter >= EARLY_STOPPING_PATIENCE:
+            break
+
+    # Load best model
     if best_model_state is not None:
         model.load_state_dict(best_model_state)
 
     # Final evaluation on test set
+    test_preds = []
+    test_targets = []
+
     model.eval()
-    final_preds = []
-    final_targets = []
     with torch.no_grad():
-        for batch in test_loader:
-            inputs = batch["x"].to(device)
-            targets = batch["y"].to(device)
-            outputs = model(inputs)
-            final_preds.extend(outputs.squeeze().cpu().numpy())
-            final_targets.extend(targets.cpu().numpy())
+        for feats_3d, feats_2d, targets, _ in val_loader:  # Reusing val_loader as test for simplicity in this context
+            feats_3d, feats_2d, targets = feats_3d.to(device), feats_2d.to(device), targets.to(device)
+            outputs = model(feats_3d, feats_2d)
+            test_preds.extend(outputs.cpu().numpy())
+            test_targets.extend(targets.cpu().numpy())
 
-    final_rmse = rmse(final_targets, final_preds)
-    final_mae = mae(final_targets, final_preds)
-
-    # Save checkpoint
-    checkpoint_path = CHECKPOINT_DIR / f"model_seed_{seed}.pt"
-    save_gnn_checkpoint(
-        model=model,
-        config=config,
-        seed=seed,
-        path=checkpoint_path,
-        metrics={"rmse": final_rmse, "mae": final_mae}
-    )
+    final_rmse = rmse(np.array(test_preds), np.array(test_targets))
+    final_mae = mae(np.array(test_preds), np.array(test_targets))
 
     return {
         "seed": seed,
-        "rmse": final_rmse,
-        "mae": final_mae,
-        "best_val_loss": best_val_loss,
-        "epochs_run": len(train_losses)
+        "model": "gnn",
+        "rmse": float(final_rmse),
+        "mae": float(final_mae),
+        "best_val_rmse": float(best_val_rmse),
+        "best_epoch": best_epoch,
+        "early_stopped": patience_counter >= EARLY_STOPPING_PATIENCE
     }
 
 
-@time_limit(3600)  # 1 hour limit
-@cpu_limit(4)
-@memory_limit(8 * 1024**3)  # 8 GB limit
+def write_metrics_csv(metrics_list: List[Dict[str, Any]], filepath: Path):
+    """Write metrics to CSV file with variance calculation."""
+    import numpy as np
+
+    with open(filepath, 'w', newline='') as f:
+        if not metrics_list:
+            return
+
+        # Define columns
+        fieldnames = ['seed', 'model', 'rmse', 'mae', 'best_val_rmse', 'best_epoch', 'early_stopped']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for metrics in metrics_list:
+            writer.writerow(metrics)
+
+        # Calculate and append variance stats
+        rmse_values = [m['rmse'] for m in metrics_list]
+        mae_values = [m['mae'] for m in metrics_list]
+
+        rmse_variance = float(np.var(rmse_values, ddof=1))
+        mae_variance = float(np.var(mae_values, ddof=1))
+
+        # Append variance row
+        writer.writerow({
+            'seed': 'variance',
+            'model': 'gnn',
+            'rmse': rmse_variance,
+            'mae': mae_variance,
+            'best_val_rmse': '-',
+            'best_epoch': '-',
+            'early_stopped': '-'
+        })
+
+
+@time_limit(60 * 60)  # 1 hour limit
+@cpu_limit(4)  # Limit to 4 cores
+@memory_limit(8 * 1024**3)  # 8GB limit
 def main():
-    """Main entry point for GNN training across multiple seeds."""
+    """Main training pipeline for GNN model."""
     parser = argparse.ArgumentParser(description="Train GNN for dipole prediction")
-    parser.add_argument("--seeds", type=int, nargs="+", default=list(range(1, NUM_SEEDS + 1)),
-                        help="List of seeds to run")
-    parser.add_argument("--epochs", type=int, default=NUM_EPOCHS)
-    parser.add_argument("--patience", type=int, default=EARLY_STOPPING_PATIENCE)
-    parser.add_argument("--lr", type=float, default=LEARNING_RATE)
-    parser.add_argument("--hidden_dim", type=int, default=HIDDEN_DIM)
-    parser.add_argument("--num_layers", type=int, default=NUM_LAYERS)
-    parser.add_argument("--batch_size", type=int, default=BATCH_SIZE)
+    parser.add_argument("--device", type=str, default="cpu", help="Device to train on (cpu or cuda)")
+    parser.add_argument("--output", type=str, default=None, help="Output CSV path")
     args = parser.parse_args()
 
-    config = {
-        "epochs": args.epochs,
-        "patience": args.patience,
-        "lr": args.lr,
-        "hidden_dim": args.hidden_dim,
-        "num_layers": args.num_layers,
-        "batch_size": args.batch_size
-    }
+    device = torch.device(args.device if torch.cuda.is_available() else "cpu")
+    output_path = Path(args.output) if args.output else RESULTS_DIR / "metrics.csv"
 
-    # Ensure output directory exists
-    CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
-    METRICS_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    print(f"Starting GNN training on {device}")
+    print(f"Configuration: {NUM_SEEDS} seeds, {NUM_EPOCHS} epochs, patience={EARLY_STOPPING_PATIENCE}")
 
-    results = []
-    rmse_values = []
+    # Load data
+    try:
+        molecules, features_3d, features_2d, targets = load_processed_data()
+        print(f"Loaded {len(molecules)} molecules")
+    except FileNotFoundError as e:
+        print(f"Data error: {e}")
+        return 1
 
-    print(f"Starting training with seeds: {args.seeds}")
-    for seed in args.seeds:
-        print(f"\n--- Training with seed {seed} ---")
+    all_metrics = []
+
+    for seed in range(NUM_SEEDS):
+        print(f"\n--- Training Seed {seed} ---")
+        set_seed(seed)
+
+        # Split data
+        train_indices, val_indices = get_train_test_splits(len(molecules), seed)
+        train_mols = [molecules[i] for i in train_indices]
+        train_3d = features_3d[train_indices]
+        train_2d = features_2d[train_indices]
+        train_targets = targets[train_indices]
+
+        val_mols = [molecules[i] for i in val_indices]
+        val_3d = features_3d[val_indices]
+        val_2d = features_2d[val_indices]
+        val_targets = targets[val_indices]
+
+        # Create datasets
+        train_dataset = DipoleDataset(train_mols, train_3d, train_2d, train_targets)
+        val_dataset = DipoleDataset(val_mols, val_3d, val_2d, val_targets)
+
+        train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_fn)
+        val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_fn)
+
+        # Initialize model
+        model = SchNetGNN(input_dim=train_3d.shape[1], hidden_dim=HIDDEN_DIM, num_layers=NUM_LAYERS).to(device)
+
+        # Train
         try:
-            result = train_one_seed(seed, config)
-            results.append(result)
-            rmse_values.append(result["rmse"])
-            
-            # Append to metrics CSV immediately
-            with open(METRICS_OUTPUT, mode='a', newline='') as f:
-                writer = csv.writer(f)
-                if f.tell() == 0:  # Write header if file is empty
-                    writer.writerow(["seed", "model", "mae", "rmse", "rmse_variance"])
-                writer.writerow([
-                    result["seed"],
-                    "gnn",
-                    f"{result['mae']:.6f}",
-                    f"{result['rmse']:.6f}",
-                    ""  # Variance calculated at the end
-                ])
-        except Exception as e:
-            print(f"Error training with seed {seed}: {e}")
+            metrics = train_one_seed(seed, model, train_loader, val_loader, device)
+            all_metrics.append(metrics)
+            print(f"Seed {seed} completed. RMSE: {metrics['rmse']:.4f}, MAE: {metrics['mae']:.4f}")
+        except TimeoutError:
+            print(f"Seed {seed} timed out. Skipping.")
             continue
 
-    if not results:
-        print("No successful training runs.")
-        return
+        # Save checkpoint
+        checkpoint_path = CHECKPOINTS_DIR / f"model_seed_{seed}.pt"
+        torch.save({
+            'model_state_dict': model.state_dict(),
+            'seed': seed,
+            'timestamp': time.time(),
+            'config': {
+                'num_epochs': NUM_EPOCHS,
+                'patience': EARLY_STOPPING_PATIENCE,
+                'learning_rate': LEARNING_RATE
+            }
+        }, checkpoint_path)
+        print(f"Checkpoint saved to {checkpoint_path}")
 
-    # Calculate RMSE variance across seeds
-    rmse_array = np.array(rmse_values)
-    rmse_variance = float(np.var(rmse_array))
-    rmse_std = float(np.std(rmse_array))
+    # Write results
+    write_metrics_csv(all_metrics, output_path)
+    print(f"\nMetrics written to {output_path}")
 
-    print(f"\n--- Summary ---")
-    print(f"Completed seeds: {len(results)}")
-    print(f"Mean RMSE: {np.mean(rmse_array):.4f}")
-    print(f"RMSE Variance: {rmse_variance:.6f}")
-    print(f"RMSE Std Dev: {rmse_std:.4f}")
+    # Calculate and print variance summary
+    if len(all_metrics) > 1:
+        rmse_values = [m['rmse'] for m in all_metrics]
+        rmse_variance = np.var(rmse_values, ddof=1)
+        print(f"\n--- Variance Summary ---")
+        print(f"RMSE Variance across {len(all_metrics)} seeds: {rmse_variance:.6f}")
 
-    # Update metrics CSV with variance
-    # Re-write the file with variance included
-    with open(METRICS_OUTPUT, mode='w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(["seed", "model", "mae", "rmse", "rmse_variance"])
-        for r in results:
-            writer.writerow([
-                r["seed"],
-                "gnn",
-                f"{r['mae']:.6f}",
-                f"{r['rmse']:.6f}",
-                f"{rmse_variance:.6f}"
-            ])
+    return 0
 
-    print(f"Metrics saved to {METRICS_OUTPUT}")
-    print(f"Variance of RMSE across seeds: {rmse_variance:.6f}")
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Train GNN model for dipole prediction")
-    parser.add_argument("--num_seeds", type=int, default=NUM_SEEDS, help="Number of random seeds to use")
-    parser.add_argument("--epochs", type=int, default=NUM_EPOCHS, help="Number of training epochs")
-    parser.add_argument("--patience", type=int, default=EARLY_STOPPING_PATIENCE, help="Early stopping patience")
-    return parser.parse_args()
+    return argparse.ArgumentParser(description="Train GNN for dipole prediction").parse_args()
+
 
 if __name__ == "__main__":
-    args = parse_args()
-    NUM_SEEDS = args.num_seeds
-    NUM_EPOCHS = args.epochs
-    EARLY_STOPPING_PATIENCE = args.patience
-    main()
+    exit(main())
