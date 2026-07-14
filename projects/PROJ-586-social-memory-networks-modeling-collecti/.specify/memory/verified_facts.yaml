@@ -1,5 +1,5 @@
-10|crossing knot prime:
-  quote: 13 9988
-  source_id: A002863
-  url: https://oeis.org/A002863
-  value: '9988'
+'|assert':
+  quote: 'P3879: 0872'
+  source_id: Q131143974
+  url: https://www.wikidata.org/wiki/Q131143974
+  value: 0872

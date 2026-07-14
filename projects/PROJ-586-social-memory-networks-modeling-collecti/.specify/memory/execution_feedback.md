@@ -19,48 +19,48 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 19 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/sensitivity.py: synthetic/fake INPUT data not authorized by the spec — “…erator         # FR-011: Synthetic data is a FALLBACK. We use it…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…"""Synthetic data generation utilities for…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ublication.  Per FR-011, synthetic data generation is a FALLBACK…”; 6 command(s) failed: python code/run_experiment.py --context full --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context limited --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=1)
+**Summary**: 16 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…"""Synthetic data generation utilities for…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ublication.  Per FR-011, synthetic data generation is a FALLBACK…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ication for generating a synthetic dataset."""     name: str     nu…”; 6 command(s) failed: python code/run_experiment.py --context full --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context limited --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/run_experiment.py --context full --agents 5 --games 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 23, in <module>
     from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
     from .buffer import (
 ImportError: cannot import name 'get_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
 - python code/run_experiment.py --context limited --agents 5 --games 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 23, in <module>
     from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
     from .buffer import (
 ImportError: cannot import name 'get_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
 - python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 23, in <module>
     from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
     from .buffer import (
 ImportError: cannot import name 'get_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
 - python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 23, in <module>
     from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
     from .buffer import (
 ImportError: cannot import name 'get_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
 - python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 23, in <module>
     from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
     from .buffer import (
 ImportError: cannot import name 'get_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
 - python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 23, in <module>
     from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
     from .buffer import (
@@ -79,10 +79,11 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
-### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 17 way(s):
+### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 18 way(s):
 
-- code/run_experiment.py: ret_eff, _ = compute_retrieval_efficiency(
-- code/t015_generate_full_results.py: ret_eff, ret_metrics = compute_retrieval_efficiency(
+- code/run_experiment.py: ret_eff, _ = compute_retrieval_efficiency(successful_retrievals, total_queries, config.num_agents)
+- code/t015_generate_full_results.py: ret_eff, _ = compute_retrieval_efficiency(successful_retrievals, total_queries, agent_count)
+- code/t015_generate_full_results.py: ret_eff, _ = compute_retrieval_efficiency(result.successful_retrievals,
 - code/metrics/retrieval.py: eff, metrics = compute_retrieval_efficiency(successful, total, agents)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(10, 10, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(1, 3, 3)
@@ -101,16 +102,15 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
 Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of the above.
 
-### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 13 way(s):
+### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 12 way(s):
 
-- code/run_experiment.py: spec_index, _ = compute_specialization_index(facts_per_agent, num_agents=config.num_agents)
-- code/t015_generate_full_results.py: spec_index, spec_metrics = compute_specialization_index(agent_facts, num_agents=agent_count)
-- code/metrics/specialization.py: idx, metrics = compute_specialization_index(facts_per_agent, num_agents)
+- code/run_experiment.py: spec_idx, _ = compute_specialization_index(facts_per_agent, num_agents=config.num_agents)
+- code/t015_generate_full_results.py: spec_index, _ = compute_specialization_index(agent_fact_counts, num_agents=agent_count)
+- code/t015_generate_full_results.py: spec_index, _ = compute_specialization_index(agent_fact_counts, num_agents=result.agent_count)
+- code/metrics/specialization.py: idx, metrics = compute_specialization_index(facts, num_agents=agent_count)
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index([])
-- code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(None)
-- code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(agent_facts)
-- code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(agent_facts, num_agents=5)
-- code/analysis/sensitivity.py: spec_idx, _ = compute_specialization_index(facts_list, num_agents=num_agents)
+- code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(game_results)
+- code/analysis/sensitivity.py: spec_idx, _ = compute_specialization_index(
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(agent_skills)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index([])
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(agents=agent_skills, num_agents=2)
@@ -140,8 +140,9 @@ Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
 ### `simulate_one_game` — defined in `code/generate_full_results.py`; called 3 way(s):
 
-- code/run_experiment.py: result = simulate_one_game(config, game_id)
+- code/run_experiment.py: result = simulate_one_game(config)
 - code/output_full_results.py: spec_idx, ret_eff = simulate_one_game(
+- code/analysis/sensitivity.py: result = simulate_one_game(config, game_id)
 - code/tests/unit/test_run_experiment.py: spec_metrics, ret_metrics, result = simulate_one_game(1, config)
 
 Make `simulate_one_game` in `code/generate_full_results.py` accept ALL of the above.

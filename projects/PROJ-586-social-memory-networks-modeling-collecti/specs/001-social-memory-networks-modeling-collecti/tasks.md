@@ -56,9 +56,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement dataset loaders in `code/data/loaders.py`: Verify URLs against a whitelist. If the dataset (Hanabi/CoQA) lacks a verified URL in the `verified_datasets` block, raise a clear error and trigger the synthetic fallback. (FR-001, FR-011)
-- [X] T004b [P] Implement synthetic fallback generator in `code/data/synthetic.py`: Create a set of synthetic cue-response pairs (minimum 10 per game) from available context spans if explicit cues are missing. (FR-011)
+- [X] T004b [P] Implement synthetic fallback generator in `code/data/synthetic.py`: Create a set of synthetic cue-response pairs (minimum 10 per game) from available context spans if explicit cues are missing. [UNRESOLVED-CLAIM: c_3bb78f4d — status=not_enough_info] (FR-011)
 - [X] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (model: `facebook/opt-*`, precision: standard floating-point) in `code/agent/base_agent.py`. Ensure no CUDA imports. (FR-002)
-- [X] T006 [P] Implement shared external memory buffer in `code/memory/buffer.py`: Support `<MEMORY_ACTION>` tokens with JSON schema `{"type": "write"|"read", "key": str, "value": str}`. Implement queue-based write conflict resolution. (FR-003, FR-012)
+- [ ] T006 [P] Implement shared external memory buffer in `code/memory/buffer.py`: Support `<MEMORY_ACTION>` tokens with JSON schema `{"type": "write"|"read", "key": str, "value": str}`. Implement queue-based write conflict resolution. (FR-003, FR-012)
 - [X] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py`. Log format: `[TIMESTAMP] [LEVEL] [MODULE] Message`. (FR-010)
 - [X] T008 [P] Create `code/utils/config.py` with explicit configuration: `seed=42`, `device="cpu"`, `model_name="facebook/opt-125m"`. Ensure these are the default values used by all agents. (FR-002)
 
@@ -81,10 +81,10 @@
 
 ### Implementation for User Story 1
 
-- [X] T011 [P] [US-1] Implement CLI flag parsing in `code/run_experiment.py`: Accept `--context {full,limited}`, `--agents N`, and `--dataset {hanabi,coqa}`. If dataset is missing, invoke synthetic fallback. (FR-001) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T011b [P] [US-1] Implement game simulation loop in `code/run_experiment.py`: Orchestrate agents, memory buffer, and turn-based interaction for a single game.
-- [X] T011c [P] [US-1] Implement dataset loading logic in `code/run_experiment.py`: Integrate `loaders.py` and `synthetic.py`, ensuring data is checksummed before use.
-- [X] T012 [P] [US-1] Implement specialization index computation in `code/metrics/specialization.py`: Calculate distribution-based metric of per-agent fact contribution, bounded 0 to log2(N_agents). (FR-004)
+- [ ] T011 [P] [US-1] Implement CLI flag parsing in `code/run_experiment.py`: Accept `--context {full,limited}`, `--agents N`, and `--dataset {hanabi,coqa}`. If dataset is missing, invoke synthetic fallback. (FR-001) <!-- FAILED: unspecified -->
+- [ ] T011b [P] [US-1] Implement game simulation loop in `code/run_experiment.py`: Orchestrate agents, memory buffer, and turn-based interaction for a single game.
+- [ ] T011c [P] [US-1] Implement dataset loading logic in `code/run_experiment.py`: Integrate `loaders.py` and `synthetic.py`, ensuring data is checksummed before use.
+- [ ] T012 [P] [US-1] Implement specialization index computation in `code/metrics/specialization.py`: Calculate distribution-based metric of per-agent fact contribution, bounded 0 to log2(N_agents). (FR-004)
 - [ ] T013 [P] [US-1] Implement cue-retrieval efficiency in `code/metrics/retrieval.py`: Calculate proportion of successful retrievals vs. a theoretical baseline derived from the number of agents. (FR-005)
 - [X] T014 [P] [US-1] Implement validation logic in `code/metrics/validator.py`: Assert `(games_with_metrics / total_games) >= 0.95`; log errors for failed games. (SC-001)
 - [ ] T015 [US-1] Output `results_full.csv` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` for [deferred] games. (US-1, FR-004, FR-005, SC-001)
@@ -113,8 +113,8 @@
  - **Model Formula**: `metric_value ~ C(context_condition) * C(metric_name)`.
  - **Output**: Compute and report the interaction p-value for the term `C(context_condition):C(metric_name)`. (FR-006)
 - [X] T021 [P] [US-2] Apply Bonferroni correction to all family‑wise hypothesis tests and report corrected α in `code/analysis/anova.py`. (FR-007)
-- [~] T022 [US-2] Implement sensitivity analysis in `code/analysis/sensitivity.py`: Sweep token thresholds explicitly across the set {128, 256, 512} tokens and record how specialization and retrieval metrics vary for each threshold. (FR-008)
-- [X] T023 [US-2] Implement power analysis in `code/analysis/power.py`: Estimate detectable effect size for N=1000, alpha=0.05, power=0.80; flag if power < 0.70. (FR-009)
+- [ ] T022 [US-2] Implement sensitivity analysis in `code/analysis/sensitivity.py`: Sweep token thresholds explicitly across the set {128, 256, 512} tokens and record how specialization and retrieval metrics vary for each threshold. (FR-008)
+- [X] T023 [US-2] Implement power analysis in `code/analysis/power.py`: Estimate detectable effect size for N=1000, alpha=0.05, power=0.80; flag if power < 0.70. [UNRESOLVED-CLAIM: c_05d84850 — status=refuted] (FR-009)
 - [X] T024 [US-2] Generate `power_analysis_report.md` in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with results from T023. (SC-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -134,8 +134,8 @@
 
 ### Implementation for User Story 3
 
-- [~] T027 [US-3] Implement game simulation for varying agent counts (800 games per configuration) in `code/run_experiment.py`. (US-3) <!-- FAILED: unspecified -->
-- [~] T028 [P] [US-3] Implement power-law fitting in `code/analysis/scaling.py`: Fit log-log curves for metric trends vs. agent count (small to medium cohorts) for specialization index and retrieval efficiency. (US-3)
+- [ ] T027 [US-3] Implement game simulation for varying agent counts (800 games per configuration) in `code/run_experiment.py`. (US-3) <!-- FAILED: unspecified -->
+- [ ] T028 [P] [US-3] Implement power-law fitting in `code/analysis/scaling.py`: Fit log-log curves for metric trends vs. agent count (small to medium cohorts) for specialization index and retrieval efficiency. (US-3) <!-- FAILED: unspecified -->
 - [X] T029 [P] [US-3] Compute 95% confidence intervals for fitted exponents using bootstrapping (1000 resamples) and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`. (US-3, SC-005)
 - [ ] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves for specialization index and retrieval efficiency, and an explicit text note stating that "3 data points limit power-law reliability". (US-3, SC-005)
 

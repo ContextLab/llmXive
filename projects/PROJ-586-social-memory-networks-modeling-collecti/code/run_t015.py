@@ -1,16 +1,13 @@
-"""
-Entry point wrapper for T015 to ensure it runs as a standalone script.
-This script calls the main logic in t015_generate_full_results.py.
-"""
+"""Runner script for T015 to ensure it can be executed independently."""
+import subprocess
 import sys
 from pathlib import Path
 
-# Add code directory to path
-code_dir = Path(__file__).parent
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
-
-from t015_generate_full_results import main
+def main():
+    """Run T015 experiment."""
+    script_path = Path(__file__).parent / "t015_generate_full_results.py"
+    result = subprocess.run([sys.executable, str(script_path)], check=True)
+    return result.returncode
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
