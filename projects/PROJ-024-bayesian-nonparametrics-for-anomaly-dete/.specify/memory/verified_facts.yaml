@@ -1,6 +1,6 @@
-'|confirm each observation':
-  quote: As of August 2022, 2,056 exoplanet candidates remain to be confirmed and
-    2,711 are now confirmed exoplanets.
-  source_id: Kepler space telescope
-  url: https://en.wikipedia.org/wiki/Kepler_space_telescope
-  value: 2,711
+'|analysi sensitivity significance threshold used':
+  quote: smaller than 0.05. The remaining pairs form a plausible set of sensitivity
+    parameters
+  source_id: '1501.05788'
+  url: https://arxiv.org/abs/1501.05788
+  value: '0.05'

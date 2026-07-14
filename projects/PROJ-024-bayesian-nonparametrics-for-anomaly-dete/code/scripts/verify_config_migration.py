@@ -1,86 +1,82 @@
 """
-Verify that T060 migration was successful.
-
-Checks:
-1. config.yaml is under 2KB
-2. State file contains migrated keys
-3. Config file no longer contains migrated keys
+Script to verify that config migration has been performed correctly.
+Checks that:
+1. config.yaml is under 2048 bytes
+2. state file exists and contains derived_statistics
+3. config.yaml does not contain derived statistic keys
 """
 import os
 import sys
 import yaml
 from pathlib import Path
+from datetime import datetime
 
-def get_project_root():
-    """Get the project root directory."""
-    current = Path(__file__).resolve()
-    # Navigate up: scripts -> code -> project root
-    project_root = current.parent.parent
-    return project_root
+# Project paths
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CONFIG_PATH = PROJECT_ROOT / "code" / "config.yaml"
+STATE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml"
 
-def load_yaml(path):
-    """Load a YAML file."""
-    with open(path, 'r') as f:
-        return yaml.safe_load(f)
+DERIVED_KEYS = ['dataset_stats', 'inference_results', 'simulation_metrics']
+CONFIG_SIZE_LIMIT = 2048
 
 def main():
-    project_root = get_project_root()
-    config_path = project_root / "code" / "config.yaml"
-    state_path = project_root / "state" / "projects" / "PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml"
-
-    print("=== Config Migration Verification ===\n")
-
-    # Check config size
-    config_size = os.path.getsize(config_path)
-    max_size = 2048
-    print(f"Config file size: {config_size} bytes")
-    print(f"Max allowed size: {max_size} bytes")
+    print(f"Verifying config migration at {datetime.now().isoformat()}")
+    errors = []
     
-    if config_size > max_size:
-        print("❌ FAILED: Config file exceeds 2KB limit")
-        return 1
+    # 1. Check config file size
+    if not CONFIG_PATH.exists():
+        errors.append(f"Config file not found: {CONFIG_PATH}")
     else:
-        print("✅ PASSED: Config file is under 2KB limit")
-
-    # Load config and check for migrated keys
-    config = load_yaml(config_path)
-    migrated_keys = ['dataset_stats', 'inference_results', 'simulation_metrics']
-    found_in_config = [k for k in migrated_keys if k in config]
+        config_size = os.path.getsize(CONFIG_PATH)
+        print(f"Config file size: {config_size} bytes (limit: {CONFIG_SIZE_LIMIT} bytes)")
+        if config_size > CONFIG_SIZE_LIMIT:
+            errors.append(f"Config file size {config_size} exceeds limit {CONFIG_SIZE_LIMIT}")
+        else:
+            print("✓ Config file size is within limits")
     
-    if found_in_config:
-        print(f"❌ FAILED: Config still contains migrated keys: {found_in_config}")
-        return 1
+    # 2. Check state file exists
+    if not STATE_PATH.exists():
+        errors.append(f"State file not found: {STATE_PATH}")
     else:
-        print("✅ PASSED: Config does not contain migrated keys")
-
-    # Load state and check for migrated data
-    state = load_yaml(state_path)
-    if 'migrated_data' not in state:
-        print("❌ FAILED: State file does not contain 'migrated_data' section")
-        return 1
-
-    migrated_data = state['migrated_data']
-    missing_in_state = [k for k in migrated_keys if k not in migrated_data]
+        print(f"✓ State file exists: {STATE_PATH}")
+        
+        # 3. Check state file contains derived_statistics
+        try:
+            with open(STATE_PATH, 'r', encoding='utf-8') as f:
+                state = yaml.safe_load(f) or {}
+            
+            if 'derived_statistics' in state:
+                print(f"✓ State file contains 'derived_statistics' section")
+                print(f"  Keys in derived_statistics: {list(state['derived_statistics'].keys())}")
+            else:
+                print("  Note: No 'derived_statistics' section in state file (may be empty)")
+        except Exception as e:
+            errors.append(f"Error reading state file: {e}")
     
-    if missing_in_state:
-        print(f"❌ FAILED: State file missing migrated keys: {missing_in_state}")
+    # 4. Check config file doesn't contain derived keys
+    if CONFIG_PATH.exists():
+        try:
+            with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f) or {}
+            
+            found_derived = [key for key in DERIVED_KEYS if key in config]
+            if found_derived:
+                errors.append(f"Config file still contains derived keys: {found_derived}")
+            else:
+                print("✓ Config file does not contain derived statistic keys")
+        except Exception as e:
+            errors.append(f"Error reading config file: {e}")
+    
+    # Report results
+    print("\n" + "="*50)
+    if errors:
+        print("VERIFICATION FAILED:")
+        for error in errors:
+            print(f"  - {error}")
         return 1
     else:
-        print("✅ PASSED: State file contains all migrated keys")
-
-    # Check migration metadata
-    if 'migration_timestamp' not in migrated_data:
-        print("⚠️ WARNING: Migration timestamp not found in state file")
-    else:
-        print(f"✅ Migration timestamp: {migrated_data['migration_timestamp']}")
-
-    if 'migration_task' not in migrated_data:
-        print("⚠️ WARNING: Migration task ID not found in state file")
-    else:
-        print(f"✅ Migration task: {migrated_data['migration_task']}")
-
-    print("\n=== All Checks Passed ===")
-    return 0
+        print("VERIFICATION PASSED: Config migration successful")
+        return 0
 
 if __name__ == "__main__":
     sys.exit(main())

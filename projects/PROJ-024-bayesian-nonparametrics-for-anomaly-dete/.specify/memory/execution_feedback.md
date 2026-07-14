@@ -13,13 +13,13 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”
 - code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…())                  # Return placeholder result         return EvaluationResu…”
 - code/scripts/verify_confusion_matrix.py: metric `y_scores` assigned from an RNG draw (line 50)
-- code/src/data/synthetic_generator.py: metric `duration` assigned from an RNG draw (line 107)
-- code/src/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363)
-- code/src/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348)
+- code/src/data/synthetic_generator.py: metric `duration` assigned from an RNG draw (line 136)
+- code/src/data/synthetic_generator.py: metric `duration` assigned from an RNG draw (line 159)
+- code/src/data/synthetic_generator.py: metric `duration` assigned from an RNG draw (line 189)
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 84 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 5 command(s) failed: python code/src/config.py --check (rc=1); python code/src/data/download_datasets.py (rc=1); python code/src/services/anomaly_detector.py (rc=1); 1 declared deliverable(s) absent: data/processed/results/simulation_snr.csv
+**Summary**: 90 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 5 command(s) failed: python code/src/config.py --check (rc=1); python code/src/data/download_datasets.py (rc=1); python code/src/services/anomaly_detector.py (rc=1); 1 declared deliverable(s) absent: data/processed/results/simulation_snr.csv
 
 ## Failing / missing run-book commands
 
@@ -29,21 +29,16 @@ Configuration Check
 ============================================================
 ERROR: Configuration file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/code/config.yaml
 - python code/src/data/download_datasets.py -> rc=1
-    omaly-dete/data/raw/electricity_load.csv
-2026-07-14 14:49:30,046 - ERROR - Download failed: HTTP Error 404: Not Found
-2026-07-14 14:49:30,064 - INFO - Downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00258/synthetic_control.data to /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/raw/traffic_data.csv
-2026-07-14 14:49:30,229 - ERROR - Download failed: HTTP Error 404: Not Found
-2026-07-14 14:49:30,248 - INFO - Downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00258/synthetic_control.data to /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/raw/synthetic_control.csv
-2026-07-14 14:49:30,442 - ERROR - Download failed: HTTP Error 404: Not Found
-2026-07-14 14:49:30,443 - ERROR - Failed: Download failed
-2026-07-14 14:49:30,444 - ERROR - Failed: Download failed
-2026-07-14 14:49:30,444 - ERROR - Failed: Download failed
-2026-07-14 14:49:30,444 - INFO - Download Summary: 0/3 datasets successful
-2026-07-14 14:49:30,444 - INFO - Verifying dataset integrity against checksums...
-2026-07-14 14:49:30,457 - WARNING - No datasets were downloaded or found to verify.
+    ============================================================
+Dataset Download Script (T052)
+============================================================
+2026-07-14 15:52:17,686 - WARNING - Search result file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/processed/results/search_results.json. Assuming search failed.
+2026-07-14 15:52:17,686 - CRITICAL - Aborting download. T052b Search failed: Search result file missing
+2026-07-14 15:52:17,687 - INFO - Download manifest saved to /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/processed/results/download_manifest.json
+2026-07-14 15:52:17,687 - ERROR - No datasets were successfully downloaded.
 - python code/src/services/anomaly_detector.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 20, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 27, in <module>
     from models.anomaly_score import AnomalyScore
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/anomaly_score.py", line 8, in <module>
     class AnomalyScore:
@@ -53,14 +48,16 @@ ERROR: Configuration file not found: /home/runner/work/llmXive/llmXive/projects/
 NameError: name 'List' is not defined. Did you mean: 'list'?
 - python code/src/evaluation/simulation.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/simulation.py", line 26, in <module>
-    from src.data.synthetic_generator import generate_synthetic_timeseries, save_synthetic_dataset, load_synthetic_dataset
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/data/__init__.py", line 5, in <module>
-    from .synthetic_generator import (
-ImportError: cannot import name 'generate_validation_dataset' from 'src.data.synthetic_generator' (/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/data/synthetic_generator.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/simulation.py", line 27, in <module>
+    from src.models.dpgmm import DPGMMModel, DPGMMConfig
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/models/__init__.py", line 5, in <module>
+    from .dp_gmm import DPGMMConfig, DPGMMModel, ELBOHistory, ClusterAnomalyResult, main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/models/dp_gmm.py", line 125, in <module>
+    import _winapi
+ModuleNotFoundError: No module named '_winapi'
 - python code/src/evaluation/robustness.py --subset-size 50 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/robustness.py", line 27, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/robustness.py", line 24, in <module>
     from models.dp_gmm import DPGMMModel, DPGMMConfig
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/dp_gmm.py", line 21, in <module>
     from models.anomaly_score import AnomalyScore
@@ -128,3 +125,14 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/evaluation/simulation.py` — IS a run-book command
     - `code/src/simulation/ground_truth.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/results/simulation_snr.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+
+## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
+
+One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
+
+**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
+
+### `home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/processed/results/search_results.json`
+
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/src/data/download_datasets.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/processed/results/search_results.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/src/data/download_datasets.py`.
