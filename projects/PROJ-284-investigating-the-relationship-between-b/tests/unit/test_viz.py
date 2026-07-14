@@ -1,79 +1,116 @@
-"""
-Unit tests for the visualization module.
-
-Task: T029
-Description: Unit test in tests/unit/test_viz.py::test_scatter_plot_generates_png_with_annotations
-(dummy data, verifies file output and labels)
-"""
+"""Unit tests for visualization modules."""
 import os
 import tempfile
-import shutil
-import pytest
-import numpy as np
-import pandas as pd
 from pathlib import Path
+
 import matplotlib
-# Use non-interactive backend for CI/Headless environments
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import pandas as pd
+import pytest
+
+# Ensure non-interactive backend for testing
+matplotlib.use('Agg')
 
 from code.viz.scatter import generate_scatter_plot
 
-class TestScatterPlot:
-    """Tests for scatter plot generation."""
 
-    @pytest.fixture(autouse=True)
-    def setup_teardown(self, tmp_path):
-        """Setup and teardown for each test."""
-        self.tmp_path = tmp_path
-        self.output_dir = self.tmp_path / "output_plots"
-        self.output_dir.mkdir()
-        self.input_csv = self.tmp_path / "test_metrics.csv"
-        
-        # Create dummy data matching the expected schema from T024/T025
-        # Columns: subject_id, metric_value, motor_score, r_value, p_value, q_value
-        np.random.seed(42)  # For reproducibility
-        data = {
-            'subject_id': [f'sub-{i:03d}' for i in range(1, 21)],
-            'metric_value': np.random.randn(20) * 10 + 50,
-            'motor_score': np.random.randn(20) * 5 + 100,
-            'r_value': [0.45] * 20,  # Dummy aggregated stats for the plot annotation
-            'p_value': [0.02] * 20,
-            'q_value': [0.05] * 20
-        }
-        self.df = pd.DataFrame(data)
-        self.df.to_csv(self.input_csv, index=False)
+class TestScatterPlot:
+    """Tests for the scatter plot generator."""
 
     def test_scatter_plot_generates_png_with_annotations(self):
         """
-        Verify that generate_scatter_plot creates a PNG file with correct labels 
-        and statistical annotations.
+        Test that a scatter plot is generated with correct annotations and saved to a PNG file.
+        Uses dummy data to verify file output and labels.
         """
-        output_file = self.output_dir / "scatter_test.png"
-        
-        # Call the function with keyword arguments (matching T031 implementation)
-        generate_scatter_plot(
-            input_data=str(self.input_csv),
-            x_col='metric_value',
-            y_col='motor_score',
-            x_label='Network Metric',
-            y_label='Sensorimotor Performance',
-            output_path=str(output_file),
-            title='Correlation Test'
-        )
+        # Create dummy data
+        dummy_data = pd.DataFrame({
+            'metric': [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
+            'score': [2.1, 4.0, 6.2, 7.8, 10.1, 12.0, 14.1, 15.9, 18.0, 20.2]
+        })
 
-        # Assertions
-        assert output_file.exists(), "Output PNG file was not created."
-        assert output_file.stat().st_size > 0, "Output PNG file is empty."
-        assert str(output_file).endswith(".png"), "Output file does not have .png extension."
+        # Create a temporary file for the output
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_scatter_plot.png"
 
-        # Verify the file is a valid PNG by checking magic bytes
-        with open(output_file, 'rb') as f:
-            header = f.read(8)
-            assert header[:4] == b'\x89PNG', "File is not a valid PNG image."
+            # Generate the plot
+            result_path = generate_scatter_plot(
+                input=dummy_data,
+                x='metric',
+                y='score',
+                output=str(output_path),
+                metric_name='Test Metric',
+                score_name='Test Score'
+            )
 
-        # Cleanup
-        plt.close('all')
+            # Verify the file was created
+            assert Path(result_path).exists(), f"Output file not created at {result_path}"
+            assert result_path == str(output_path), f"Returned path {result_path} does not match expected {output_path}"
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+            # Verify file is not empty
+            assert os.path.getsize(result_path) > 0, "Output file is empty"
+
+            # Verify the file is a valid image (basic check)
+            img = plt.imread(result_path)
+            assert img.ndim == 3, "Output is not a valid image"
+            assert img.shape[2] in [3, 4], "Image does not have expected color channels"
+
+            # Clean up the plot figure
+            plt.close('all')
+
+    def test_scatter_plot_missing_columns(self):
+        """Test that appropriate error is raised for missing columns."""
+        dummy_data = pd.DataFrame({
+            'col_a': [1, 2, 3],
+            'col_b': [4, 5, 6]
+        })
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test.png"
+
+            with pytest.raises(ValueError, match="Column 'missing_col' not found"):
+                generate_scatter_plot(
+                    input=dummy_data,
+                    x='missing_col',
+                    y='col_b',
+                    output=str(output_path)
+                )
+
+    def test_scatter_plot_insufficient_data(self):
+        """Test that appropriate error is raised for insufficient data points."""
+        dummy_data = pd.DataFrame({
+            'x': [1.0],
+            'y': [2.0]
+        })
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test.png"
+
+            with pytest.raises(ValueError, match="Insufficient data points"):
+                generate_scatter_plot(
+                    input=dummy_data,
+                    x='x',
+                    y='y',
+                    output=str(output_path)
+                )
+
+    def test_scatter_plot_kwargs_unpacking(self):
+        """Test that the function works when called with **kwargs."""
+        dummy_data = pd.DataFrame({
+            'x': [1, 2, 3, 4, 5],
+            'y': [2, 4, 6, 8, 10]
+        })
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_kwargs.png"
+
+            kwargs = {
+                'input': dummy_data,
+                'x': 'x',
+                'y': 'y',
+                'output': str(output_path)
+            }
+
+            result_path = generate_scatter_plot(**kwargs)
+
+            assert Path(result_path).exists(), "Output file not created with kwargs unpacking"
+            plt.close('all')

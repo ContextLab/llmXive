@@ -1,48 +1,130 @@
+"""
+Main entry point for the research pipeline.
+Handles command-line arguments and orchestrates pipeline steps.
+"""
 import argparse
 import sys
 from pathlib import Path
 from code.logging_config import get_logger
-from code.data.download import download_pipeline
-from code.data.metrics import main as metrics_main
-from code.analysis.correlations import main as correlations_main
-from code.viz.scatter import main as viz_scatter_main
-from code.report.generate import main as report_main
 
 logger = get_logger(__name__)
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="llmXive Research Pipeline")
-    parser.add_argument("--step", required=True, choices=["download_preprocess", "metrics", "correlations", "viz_report"],
-                        help="Pipeline step to execute")
-    parser.add_argument("--subjects", type=int, default=50, help="Number of subjects to process (for download_preprocess)")
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Brain Network Dynamics Research Pipeline"
+    )
+    
+    parser.add_argument(
+        "--step",
+        type=str,
+        choices=["download_preprocess", "metrics", "correlations", "viz_report"],
+        required=True,
+        help="Pipeline step to execute"
+    )
+    
+    parser.add_argument(
+        "--subjects",
+        type=int,
+        default=None,
+        help="Number of subjects to process (for download_preprocess step)"
+    )
+    
+    parser.add_argument(
+        "--correlations",
+        type=str,
+        default="data/analysis/correlations.csv",
+        help="Path to correlation results file"
+    )
+    
+    parser.add_argument(
+        "--power",
+        type=str,
+        default="data/analysis/power_analysis.csv",
+        help="Path to power analysis results file"
+    )
+    
+    parser.add_argument(
+        "--plots",
+        type=str,
+        default="figures/",
+        help="Directory for output plots"
+    )
+    
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="reports/",
+        help="Directory for output reports"
+    )
+    
     return parser.parse_args()
 
-def run_pipeline(step: str, subjects: int):
-    logger.log("run_pipeline", step=step, subjects=subjects)
+def run_pipeline(step: str, subjects: int = None, **kwargs):
+    """
+    Execute a specific pipeline step.
     
+    Args:
+        step: Pipeline step name
+        subjects: Number of subjects to process
+        **kwargs: Additional arguments for specific steps
+    """
     if step == "download_preprocess":
-        # Create a dummy subject list for testing if not downloading real data
-        # In a real run, this would fetch from HCP
-        subject_ids = [f"sub-{i:04d}" for i in range(subjects)]
-        download_pipeline(subjects=subject_ids)
+        from code.data.download import download_pipeline
+        logger.log("pipeline_step_start", step=step, subjects=subjects)
+        download_pipeline(subject_count=subjects)
+        logger.log("pipeline_step_complete", step=step)
+    
     elif step == "metrics":
+        from code.data.metrics import main as metrics_main
+        logger.log("pipeline_step_start", step=step)
         metrics_main()
+        logger.log("pipeline_step_complete", step=step)
+    
     elif step == "correlations":
+        from code.analysis.correlations import main as correlations_main
+        logger.log("pipeline_step_start", step=step)
         correlations_main()
+        logger.log("pipeline_step_complete", step=step)
+    
     elif step == "viz_report":
-        # Ensure analysis data exists before viz
-        viz_scatter_main()
+        # Check for required files
+        corr_path = kwargs.get('correlations', 'data/analysis/correlations.csv')
+        if not Path(corr_path).exists():
+            logger.log("viz_report_error", error=f"Correlation results file not found: {corr_path}")
+            print(f"Error: Correlation results file not found: {corr_path}")
+            print("Please run the correlation analysis first (T024, T025)")
+            sys.exit(1)
+        
+        from code.viz.scatter import main as scatter_main
+        from code.viz.network import main as network_main
+        from code.report.generate import main as report_main
+        
+        logger.log("pipeline_step_start", step=step)
+        scatter_main()
+        network_main()
         report_main()
+        logger.log("pipeline_step_complete", step=step)
+    
     else:
         raise ValueError(f"Unknown step: {step}")
 
 def main():
+    """Main entry point."""
     args = parse_args()
+    
     try:
-        result = run_pipeline(args.step, args.subjects)
-        logger.log("main", step=args.step, status="success")
+        run_pipeline(
+            step=args.step,
+            subjects=args.subjects,
+            correlations=args.correlations,
+            power=args.power,
+            plots=args.plots,
+            output=args.output
+        )
     except Exception as e:
-        logger.log("main", step=args.step, status="failed", error=str(e))
+        logger.log("pipeline_error", step=args.step, error=str(e))
+        print(f"Error in pipeline step '{args.step}': {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

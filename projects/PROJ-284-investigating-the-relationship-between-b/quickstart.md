@@ -1,44 +1,64 @@
 # Quickstart Guide
 
-This guide outlines the steps to run the full analysis pipeline for PROJ-284.
+This guide walks you through running the full analysis pipeline for PROJ-284.
 
 ## Prerequisites
 
 - Python 3.11+
-- Dependencies installed: `pip install -r requirements.txt`
+- Install dependencies: `pip install -r requirements.txt`
 
-## Step-by-Step Execution
+## Running the Pipeline
 
-### 1. Setup and Data Download
-Run the download and preprocessing pipeline.
+### Step 1: Data Acquisition and Preprocessing
+
 ```bash
 python code/main.py --step download_preprocess --subjects 50
 ```
 
-### 2. Extract Metrics
-Calculate graph metrics and aggregate them.
+This downloads HCP data (or ADHD dataset as fallback) and preprocesses it.
+
+### Step 2: Metric Extraction
+
 ```bash
 python code/main.py --step metrics
 ```
 
-### 3. Run Analysis (PCA, Correlations, FDR)
-This step performs PCA, calculates correlations with FD covariate, applies Benjamini-Hochberg FDR correction, and saves all results including `factor_scores.csv`.
+This extracts functional connectivity matrices and graph metrics.
+
+### Step 3: Correlation Analysis (PCA + FDR)
+
 ```bash
-python code/main.py --step correlations
+python code/analysis/pca_runner.py
+python code/analysis/create_full_metrics.py
+python code/analysis/correlations.py
 ```
 
-### 4. Visualization and Reporting
-Generate scatter plots, network diagrams, and the final report.
+This performs:
+1. PCA on network metrics (T023a) -> `data/analysis/factor_scores.csv`
+2. Merge metrics with PCA scores (T023b) -> `data/analysis/full_metrics.csv`
+3. Correlation with FD covariate and FDR correction (T024, T025) -> `data/analysis/correlations.csv`
+
+### Step 4: Visualization and Reporting
+
 ```bash
 python code/main.py --step viz_report
 ```
 
-## Output Artifacts
+This generates scatter plots and the final report.
 
-- `data/processed/aggregated_metrics.csv`: Aggregated node-level metrics.
-- `data/analysis/pca_loadings.csv`: PCA component loadings.
-- `data/analysis/factor_scores.csv`: Subject-level PCA factor scores.
-- `data/analysis/full_metrics.csv`: Merged raw metrics and PCA scores.
-- `data/analysis/correlation_results.csv`: Correlation results with FDR correction.
-- `figures/*.png`: Generated plots.
-- `docs/report.md`: Final analysis report.
+## Expected Outputs
+
+After a successful run, you should have:
+
+- `data/analysis/factor_scores.csv`: PCA factor scores per subject
+- `data/analysis/full_metrics.csv`: All raw metrics + PCA factors
+- `data/analysis/correlations.csv`: Correlation results with FDR correction
+- `figures/`: Generated plots
+- `docs/report.md`: Final analysis report
+
+## Troubleshooting
+
+If you encounter errors, check:
+1. All dependencies are installed
+2. Data files exist in `data/raw` and `data/processed`
+3. Configuration in `code/config.py` is valid

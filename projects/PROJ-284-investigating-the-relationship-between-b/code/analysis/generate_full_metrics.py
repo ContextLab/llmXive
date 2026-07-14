@@ -1,25 +1,34 @@
+"""
+Runner script for T023b: Generate Full Metrics.
+Invoked by quickstart.md to ensure data/analysis/full_metrics.csv is produced.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
-import pandas as pd
+
+# Add project root to path if needed
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from code.analysis.correlations import main as correlations_main
 from code.logging_config import get_logger
-from code.analysis.correlations import generate_full_metrics, save_full_metrics
 
 logger = get_logger(__name__)
 
 def main():
-    """
-    Specific runner for T023b: Generate and Save Full Metrics.
-    """
-    logger.log("generate_full_metrics_runner_start")
+    """Entry point for Full Metrics runner."""
+    logger.log("full_metrics_runner_start")
     try:
-        df = generate_full_metrics()
-        save_full_metrics(df)
-        logger.log("generate_full_metrics_runner_success", path="data/analysis/full_metrics.csv")
+        # The main function in correlations.py handles both PCA and Full Metrics generation.
+        # We call it here to ensure the full pipeline runs if invoked separately.
+        result = correlations_main()
+        logger.log("full_metrics_runner_complete")
+        return result
     except Exception as e:
-        logger.log("generate_full_metrics_runner_error", error=str(e))
-        raise
+        logger.log("full_metrics_runner_error", error=str(e))
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

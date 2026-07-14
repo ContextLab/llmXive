@@ -1,5 +1,9 @@
 [
   {
+    "data_file": "data/analysis/correlations.csv",
+    "required": []
+  },
+  {
     "data_file": "data/processed/aggregated_metrics.csv",
     "required": []
   }
