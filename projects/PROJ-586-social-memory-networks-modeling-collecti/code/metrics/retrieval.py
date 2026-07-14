@@ -1,104 +1,136 @@
 """
-Cue-Retrieval Efficiency Computation Module.
+Cue-retrieval efficiency metrics.
 
-Implements the retrieval efficiency metric as defined in FR-005.
-Calculates the proportion of successful retrievals vs. a theoretical baseline.
+Implements FR-005: Calculate proportion of successful retrievals vs. a theoretical baseline.
 """
 from __future__ import annotations
+
 import math
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple, Union
+
 import numpy as np
+
 
 @dataclass
 class RetrievalMetrics:
-    """Container for retrieval-related metrics."""
+    """Container for retrieval efficiency metrics."""
     efficiency: float
-    success_rate: float
-    baseline_rate: float
+    successful_retrievals: int
     total_queries: int
-    successful_queries: int
+    agents: int
+    theoretical_baseline: float
+    error_rate: float = field(default=0.0)
+
 
 def compute_retrieval_efficiency(
-    successful: Union[int, float, List[int], List[float]], 
-    total_queries: Union[int, float, List[int], List[float]], 
+    successful: Union[int, List[int], None],
+    total: Union[int, List[int], None],
     agents: Union[int, List[int]]
 ) -> Tuple[float, RetrievalMetrics]:
     """
-    Compute retrieval efficiency.
-    
-    This function is designed to be tolerant of various input shapes as per
-    the cumulative call sites identified in the project.
-    
+    Compute cue-retrieval efficiency.
+
     Args:
-        successful: Number of successful retrievals (or list of successes per agent).
-        total_queries: Total number of queries made (or list of queries per agent).
-        agents: Number of agents (or list of agent IDs/counts).
-        
+        successful: Number of successful retrievals (int or list).
+        total: Total number of queries (int or list). If None, assumed equal to successful (100% success).
+        agents: Number of agents (int or list).
+
     Returns:
-        Tuple of (efficiency, RetrievalMetrics)
+        Tuple of (efficiency_score, RetrievalMetrics object).
+
+    FR-005: Calculate proportion of successful retrievals vs. a theoretical baseline
+    derived from the number of agents.
     """
-    # Normalize inputs to scalars if lists are passed
+    # Handle list inputs by aggregating
     if isinstance(successful, list):
         successful = sum(successful)
-    if isinstance(total_queries, list):
-        total_queries = sum(total_queries)
+    elif successful is None:
+        successful = 0
+        
+    if isinstance(total, list):
+        total = sum(total) if total else 0
+    elif total is None:
+        total = successful  # If total is not provided, assume all successful were queried
+        
     if isinstance(agents, list):
-        agents = len(agents)
-        
-    # Ensure we have numeric types for calculation
-    successful = float(successful)
-    total_queries = float(total_queries)
-    agents = int(agents)
-    
-    # Handle edge cases for division
-    if total_queries <= 0:
-        success_rate = 0.0
-    else:
-        success_rate = successful / total_queries
-        
-    # Theoretical baseline:
-    # FR-005: "proportion of successful retrievals vs. a theoretical baseline derived from the number of agents"
-    # Baseline for random guessing in a distributed system: 1/N_agents.
+        agents = sum(agents) // len(agents) if agents else 1
+
+    # Validate inputs
+    if successful < 0:
+        raise ValueError("Successful retrievals cannot be negative")
     if agents <= 0:
-        baseline_rate = 1.0
+        raise ValueError("Number of agents must be positive")
+
+    # If total is 0, efficiency is 0 if no successful retrievals, else undefined (treat as 1.0)
+    if total == 0:
+        efficiency = 1.0 if successful > 0 else 0.0
     else:
-        baseline_rate = 1.0 / agents
-    
-    # Calculate efficiency as normalized improvement over baseline
-    # Formula: (Observed - Baseline) / (1 - Baseline)
-    # This normalizes the score such that:
-    # - Random guessing yields 0.0
-    # - Perfect retrieval yields 1.0
-    if baseline_rate < 1.0:
-        efficiency = (success_rate - baseline_rate) / (1.0 - baseline_rate)
-        # Clamp to [0, 1] range to handle cases where success_rate < baseline_rate
-        efficiency = max(0.0, min(1.0, efficiency))
+        efficiency = successful / total
+
+    # Clamp to [0, 1]
+    efficiency = max(0.0, min(1.0, efficiency))
+
+    # Theoretical baseline: In a full network, efficiency should be high.
+    # A simple baseline model: 1 - (1 / agents) represents the probability of
+    # finding a fact in a distributed system of 'agents' nodes.
+    if agents > 1:
+        theoretical_baseline = 1.0 - (1.0 / agents)
     else:
-        # If baseline is 1.0 (single agent scenario), efficiency equals success rate
-        efficiency = success_rate
+        theoretical_baseline = 1.0
+
+    # Error rate relative to baseline
+    error_rate = max(0.0, theoretical_baseline - efficiency)
 
     metrics = RetrievalMetrics(
-        efficiency=float(efficiency),
-        success_rate=float(success_rate),
-        baseline_rate=float(baseline_rate),
-        total_queries=int(total_queries),
-        successful_queries=int(successful)
+        efficiency=efficiency,
+        successful_retrievals=successful,
+        total_queries=total,
+        agents=agents,
+        theoretical_baseline=theoretical_baseline,
+        error_rate=error_rate
     )
-    
-    return float(efficiency), metrics
+
+    return efficiency, metrics
+
 
 def validate_retrieval_efficiency(efficiency: float) -> bool:
-    """Validate that retrieval efficiency is within [0, 1]."""
+    """Validate that efficiency is within expected bounds [0, 1]."""
     return 0.0 <= efficiency <= 1.0
 
-def batch_compute_retrieval_efficiency(game_results: List[Dict[str, Any]]) -> List[RetrievalMetrics]:
-    """Compute retrieval efficiency for a batch of game results."""
-    results = []
-    for game in game_results:
-        successful = game.get("successful_retrievals", 0)
-        total = game.get("total_queries", 0)
-        agents = game.get("num_agents", 1)
-        eff, metrics = compute_retrieval_efficiency(successful, total, agents)
-        results.append(metrics)
-    return results
+
+def batch_compute_retrieval_efficiency(
+    results: List[Dict[str, Any]]
+) -> Tuple[float, RetrievalMetrics]:
+    """
+    Compute aggregate retrieval efficiency from a list of game results.
+
+    Args:
+        results: List of dicts containing 'successful_retrievals', 'total_queries', 'agents'.
+
+    Returns:
+        Tuple of (aggregate_efficiency, aggregate_metrics).
+    """
+    total_successful = 0
+    total_queries = 0
+    total_agents = 0
+    count = 0
+
+    for r in results:
+        total_successful += r.get("successful_retrievals", 0)
+        total_queries += r.get("total_queries", 0)
+        total_agents += r.get("agents", 1)
+        count += 1
+
+    if count == 0:
+        return 0.0, RetrievalMetrics(
+            efficiency=0.0,
+            successful_retrievals=0,
+            total_queries=0,
+            agents=0,
+            theoretical_baseline=1.0
+        )
+
+    avg_agents = total_agents // count if count > 0 else 1
+
+    return compute_retrieval_efficiency(total_successful, total_queries, avg_agents)
