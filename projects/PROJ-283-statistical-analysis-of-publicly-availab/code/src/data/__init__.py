@@ -1,2 +1,3 @@
-# Data module initialization
-pass
+"""
+Data processing package.
+"""

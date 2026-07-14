@@ -1,0 +1,3 @@
+"""
+Contracts directory package.
+"""

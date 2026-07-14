@@ -1,14 +1,27 @@
+schema_name: model_output
+description: Schema for model output metrics and statistics.
 columns:
-  - model_type
-  - coefficients
-  - p_values
-  - r_squared
-  - aic
-  - cross_validation_scores
-types:
-  model_type: str
-  coefficients: dict
-  p_values: dict
-  r_squared: float
-  aic: float
-  cross_validation_scores: list
+  - name: model_type
+    type: str
+    nullable: false
+    description: Type of model (e.g., Gaussian GLM, Ridge)
+  - name: coefficients
+    type: str
+    nullable: false
+    description: JSON string of model coefficients
+  - name: p_values
+    type: str
+    nullable: false
+    description: JSON string of p-values for predictors
+  - name: r_squared
+    type: float
+    nullable: false
+    description: R-squared score of the model
+  - name: aic
+    type: float
+    nullable: false
+    description: Akaike Information Criterion
+  - name: cross_validation_scores
+    type: str
+    nullable: false
+    description: JSON string of cross-validation scores

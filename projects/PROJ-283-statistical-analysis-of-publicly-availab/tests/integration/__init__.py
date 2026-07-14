@@ -1,2 +1,1 @@
-# Integration tests
-pass
+# Integration test package

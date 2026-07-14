@@ -1,2 +1,3 @@
-# Tests module initialization
-pass
+"""
+Tests package.
+"""

@@ -1,2 +1,3 @@
-# Contract tests initialization
-pass
+"""
+Contract tests package.
+"""

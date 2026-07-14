@@ -1,227 +1,239 @@
 """
-Unit tests for statistical metrics calculations in src/models/metrics.py
+Unit tests for metrics calculation functions.
 """
 import pytest
 import numpy as np
-import pandas as pd
+from scipy import stats
 from src.models.metrics import (
-    calculate_wald_z_test,
+    calculate_wald_z_statistic,
+    calculate_p_value_z_test,
     calculate_f_statistic,
-    calculate_model_f_statistic,
     apply_benjamini_hochberg_fdr,
-    calculate_feature_significance
+    calculate_metric_summary
 )
 
 
-class TestWaldZTest:
-    def test_basic_wald_test(self):
-        """Test basic Wald Z-test calculation"""
+class TestWaldZStatistic:
+    """Tests for Wald Z-statistic calculation."""
+    
+    def test_basic_calculation(self):
+        """Test basic Z-statistic calculation."""
         coef = 2.5
-        std_err = 0.5
+        se = 0.5
+        expected_z = 5.0
         
-        z_stat, p_value = calculate_wald_z_test(coef, std_err)
-        
-        # z_stat should be coef / std_err
-        assert np.isclose(z_stat, 5.0)
-        # p_value should be very small for z=5
-        assert p_value < 0.0001
-        
-    def test_zero_std_error(self):
-        """Test handling of zero standard error"""
-        coef = 2.5
-        std_err = 0.0
-        
-        z_stat, p_value = calculate_wald_z_test(coef, std_err)
-        
-        assert z_stat == 0.0
-        assert p_value == 1.0
-        
-    def test_nan_std_error(self):
-        """Test handling of NaN standard error"""
-        coef = 2.5
-        std_err = np.nan
-        
-        z_stat, p_value = calculate_wald_z_test(coef, std_err)
-        
-        assert z_stat == 0.0
-        assert p_value == 1.0
-        
-    def test_negative_coef(self):
-        """Test with negative coefficient"""
+        result = calculate_wald_z_statistic(coef, se)
+        assert abs(result - expected_z) < 1e-10
+    
+    def test_negative_coefficient(self):
+        """Test Z-statistic with negative coefficient."""
         coef = -3.0
-        std_err = 0.5
+        se = 1.0
+        expected_z = -3.0
         
-        z_stat, p_value = calculate_wald_z_test(coef, std_err)
+        result = calculate_wald_z_statistic(coef, se)
+        assert abs(result - expected_z) < 1e-10
+    
+    def test_small_standard_error(self):
+        """Test Z-statistic with small standard error."""
+        coef = 1.0
+        se = 0.01
+        expected_z = 100.0
         
-        assert np.isclose(z_stat, -6.0)
-        assert p_value < 0.0001
+        result = calculate_wald_z_statistic(coef, se)
+        assert abs(result - expected_z) < 1e-6
+    
+    def test_zero_standard_error_raises_error(self):
+        """Test that zero standard error raises ValueError."""
+        with pytest.raises(ValueError):
+            calculate_wald_z_statistic(1.0, 0.0)
+    
+    def test_negative_standard_error_raises_error(self):
+        """Test that negative standard error raises ValueError."""
+        with pytest.raises(ValueError):
+            calculate_wald_z_statistic(1.0, -0.5)
+
+
+class TestPValueZTest:
+    """Tests for p-value calculation from Z-statistic."""
+    
+    def test_zero_z_statistic(self):
+        """Test p-value for Z=0 should be 1.0."""
+        result = calculate_p_value_z_test(0.0)
+        assert abs(result - 1.0) < 1e-10
+    
+    def test_large_positive_z(self):
+        """Test p-value for large positive Z should be small."""
+        result = calculate_p_value_z_test(5.0)
+        assert result < 0.0001
+    
+    def test_large_negative_z(self):
+        """Test p-value for large negative Z should be small."""
+        result = calculate_p_value_z_test(-5.0)
+        assert result < 0.0001
+    
+    def test_symmetry(self):
+        """Test that p-values are symmetric for positive and negative Z."""
+        z_pos = 2.0
+        z_neg = -2.0
+        
+        p_pos = calculate_p_value_z_test(z_pos)
+        p_neg = calculate_p_value_z_test(z_neg)
+        
+        assert abs(p_pos - p_neg) < 1e-10
+    
+    def test_z_equals_196(self):
+        """Test p-value for Z=1.96 should be approximately 0.05."""
+        result = calculate_p_value_z_test(1.96)
+        assert abs(result - 0.05) < 0.01
 
 
 class TestFStatistic:
-    def test_f_statistic_comparison(self):
-        """Test F-statistic calculation for nested model comparison"""
-        rss_restricted = 100.0
-        rss_unrestricted = 80.0
-        df_restricted = 10
-        df_unrestricted = 8
-        
-        f_stat, p_value = calculate_f_statistic(
-            rss_restricted, rss_unrestricted, df_restricted, df_unrestricted
-        )
-        
-        # Manual calculation:
-        # numerator = (100 - 80) / (10 - 8) = 20 / 2 = 10
-        # denominator = 80 / 8 = 10
-        # f_stat = 10 / 10 = 1.0
-        assert np.isclose(f_stat, 1.0)
-        assert 0 < p_value < 1
-        
-    def test_zero_unrestricted_rss(self):
-        """Test handling of zero unrestricted RSS"""
-        rss_restricted = 100.0
-        rss_unrestricted = 0.0
-        df_restricted = 10
-        df_unrestricted = 8
-        
-        f_stat, p_value = calculate_f_statistic(
-            rss_restricted, rss_unrestricted, df_restricted, df_unrestricted
-        )
-        
-        assert np.isinf(f_stat)
-        assert p_value == 0.0
-
-
-class TestModelFStatistic:
-    def test_basic_f_statistic(self):
-        """Test overall F-statistic calculation from R-squared"""
-        r_squared = 0.75
-        n_observations = 100
+    """Tests for F-statistic calculation."""
+    
+    def test_basic_calculation(self):
+        """Test basic F-statistic calculation."""
+        r_squared = 0.5
+        n_samples = 100
         n_predictors = 5
         
-        f_stat, p_value = calculate_model_f_statistic(
-            r_squared, n_observations, n_predictors
-        )
+        # F = (R²/k) / ((1-R²)/(n-k-1))
+        # F = (0.5/5) / (0.5/94) = 0.1 / 0.005319 = 18.8
+        expected_f = (r_squared / n_predictors) / ((1 - r_squared) / (n_samples - n_predictors - 1))
         
-        # Manual calculation:
-        # numerator = 0.75 / 5 = 0.15
-        # denominator = 0.25 / 94 = 0.00266
-        # f_stat = 0.15 / 0.00266 = 56.4
-        assert f_stat > 50
-        assert p_value < 0.0001
-        
+        result = calculate_f_statistic(r_squared, n_samples, n_predictors)
+        assert abs(result - expected_f) < 1e-6
+    
     def test_perfect_fit(self):
-        """Test with R-squared = 1"""
+        """Test F-statistic with perfect fit (R²=1)."""
         r_squared = 1.0
-        n_observations = 100
+        n_samples = 100
         n_predictors = 5
         
-        f_stat, p_value = calculate_model_f_statistic(
-            r_squared, n_observations, n_predictors
-        )
-        
-        assert np.isinf(f_stat)
-        assert p_value == 0.0
-        
-    def test_zero_fit(self):
-        """Test with R-squared = 0"""
+        result = calculate_f_statistic(r_squared, n_samples, n_predictors)
+        assert result == float('inf')
+    
+    def test_zero_r_squared(self):
+        """Test F-statistic with R²=0."""
         r_squared = 0.0
-        n_observations = 100
+        n_samples = 100
         n_predictors = 5
         
-        f_stat, p_value = calculate_model_f_statistic(
-            r_squared, n_observations, n_predictors
-        )
+        result = calculate_f_statistic(r_squared, n_samples, n_predictors)
+        assert result == 0.0
+    
+    def test_insufficient_samples(self):
+        """Test F-statistic with insufficient samples."""
+        r_squared = 0.5
+        n_samples = 5
+        n_predictors = 5
         
-        assert f_stat == 0.0
-        assert p_value == 1.0
+        result = calculate_f_statistic(r_squared, n_samples, n_predictors)
+        assert result == 0.0
 
 
-class TestBenjaminiHochberg:
-    def test_basic_fdr_correction(self):
-        """Test basic Benjamini-Hochberg FDR correction"""
-        p_values = [0.01, 0.03, 0.05, 0.1, 0.2]
-        
-        adj_p_values, rejection_mask = apply_benjamini_hochberg_fdr(p_values, alpha=0.05)
-        
-        # Adjusted p-values should be >= raw p-values
-        for raw, adj in zip(p_values, adj_p_values):
-            assert adj >= raw
-            
-        # First few should be significant at alpha=0.05
-        assert rejection_mask[0] == True  # 0.01
-        assert rejection_mask[1] == True  # 0.03 (possibly)
-        
-    def test_empty_list(self):
-        """Test with empty p-value list"""
-        p_values = []
-        
-        adj_p_values, rejection_mask = apply_benjamini_hochberg_fdr(p_values)
-        
-        assert adj_p_values == []
-        assert rejection_mask == []
-        
-    def test_monotonicity(self):
-        """Test that adjusted p-values are monotonically non-decreasing"""
-        p_values = [0.1, 0.01, 0.05, 0.03]  # Unsorted
-        
-        adj_p_values, _ = apply_benjamini_hochberg_fdr(p_values)
-        
-        # Check monotonicity in original order
-        for i in range(len(adj_p_values) - 1):
-            assert adj_p_values[i] <= adj_p_values[i + 1] or i == len(adj_p_values) - 2
-            
-    def test_all_significant(self):
-        """Test with very small p-values"""
-        p_values = [0.001, 0.002, 0.003]
-        
-        adj_p_values, rejection_mask = apply_benjamini_hochberg_fdr(p_values, alpha=0.05)
-        
-        # All should be significant
-        assert all(rejection_mask)
-        
-    def test_none_significant(self):
-        """Test with large p-values"""
-        p_values = [0.5, 0.6, 0.7]
-        
-        adj_p_values, rejection_mask = apply_benjamini_hochberg_fdr(p_values, alpha=0.05)
-        
-        # None should be significant
-        assert not any(rejection_mask)
-
-
-class TestFeatureSignificance:
-    def test_feature_significance_calculation(self):
-        """Test feature significance calculation on synthetic data"""
-        # Create synthetic data
-        np.random.seed(42)
-        n = 100
-        X1 = np.random.randn(n)
-        X2 = np.random.randn(n)
-        y = 2 * X1 + 0.5 * X2 + np.random.randn(n) * 0.5
-        
-        df = pd.DataFrame({
-            'target': y,
-            'feature1': X1,
-            'feature2': X2
-        })
-        
-        result = calculate_feature_significance(
-            df, 'target', ['feature1', 'feature2']
-        )
-        
-        assert len(result) == 2
-        assert 'coefficient' in result.columns
-        assert 'p_value' in result.columns
-        assert 'adj_p_value' in result.columns
-        assert 'is_significant' in result.columns
-        
-        # feature1 should be significant (coef=2)
-        assert result.loc[result['feature'] == 'feature1', 'is_significant'].iloc[0]
-        
-    def test_empty_dataframe(self):
-        """Test with empty dataframe"""
-        df = pd.DataFrame()
-        
-        result = calculate_feature_significance(df, 'target', ['feature1'])
-        
+class TestBenjaminiHochbergFDR:
+    """Tests for Benjamini-Hochberg FDR correction."""
+    
+    def test_empty_array(self):
+        """Test FDR correction with empty array."""
+        result = apply_benjamini_hochberg_fdr(np.array([]))
         assert len(result) == 0
+    
+    def test_single_p_value(self):
+        """Test FDR correction with single p-value."""
+        p_values = np.array([0.05])
+        result = apply_benjamini_hochberg_fdr(p_values)
+        # For single value, adjusted = raw
+        assert abs(result[0] - 0.05) < 1e-10
+    
+    def test_monotonicity(self):
+        """Test that adjusted p-values maintain monotonicity."""
+        p_values = np.array([0.1, 0.05, 0.01, 0.2, 0.03])
+        result = apply_benjamini_hochberg_fdr(p_values)
+        
+        # Find indices where original p-values were sorted
+        sorted_indices = np.argsort(p_values)
+        sorted_adjusted = result[sorted_indices]
+        
+        # Check that adjusted p-values are monotonically increasing
+        for i in range(len(sorted_adjusted) - 1):
+            assert sorted_adjusted[i] <= sorted_adjusted[i + 1]
+    
+    def test_clamping(self):
+        """Test that adjusted p-values are clamped to [0, 1]."""
+        p_values = np.array([0.5, 0.6, 0.7, 0.8, 0.9])
+        result = apply_benjamini_hochberg_fdr(p_values)
+        
+        assert np.all(result >= 0)
+        assert np.all(result <= 1)
+    
+    def test_known_example(self):
+        """Test FDR correction with a known example."""
+        # Example from Benjamini-Hochberg paper
+        p_values = np.array([0.001, 0.004, 0.009, 0.015, 0.022, 0.028, 0.031, 0.035, 0.041, 0.050])
+        result = apply_benjamini_hochberg_fdr(p_values)
+        
+        # All adjusted p-values should be >= corresponding raw p-values
+        assert np.all(result >= p_values)
+
+
+class TestMetricSummary:
+    """Tests for comprehensive metrics summary calculation."""
+    
+    def test_basic_summary(self):
+        """Test basic metrics summary calculation."""
+        model_results = {
+            'coefficients': np.array([1.0, 2.0, 3.0]),
+            'standard_errors': np.array([0.5, 0.5, 0.5]),
+            'r_squared': 0.6,
+            'n_samples': 100,
+            'n_predictors': 3
+        }
+        
+        result = calculate_metric_summary(model_results)
+        
+        assert 'z_statistics' in result
+        assert 'p_values' in result
+        assert 'adjusted_p_values' in result
+        assert 'f_statistic' in result
+        assert 'r_squared' in result
+        assert 'n_samples' in result
+        assert 'n_predictors' in result
+        
+        assert len(result['z_statistics']) == 3
+        assert len(result['p_values']) == 3
+        assert len(result['adjusted_p_values']) == 3
+    
+    def test_nan_handling(self):
+        """Test handling of invalid standard errors."""
+        model_results = {
+            'coefficients': np.array([1.0, 2.0, 3.0]),
+            'standard_errors': np.array([0.5, 0.0, 0.5]),  # Zero SE should cause NaN
+            'r_squared': 0.6,
+            'n_samples': 100,
+            'n_predictors': 3
+        }
+        
+        result = calculate_metric_summary(model_results)
+        
+        # First and third should be valid, second should be NaN
+        assert not np.isnan(result['z_statistics'][0])
+        assert np.isnan(result['z_statistics'][1])
+        assert not np.isnan(result['z_statistics'][2])
+    
+    def test_f_statistic_calculation(self):
+        """Test that F-statistic is calculated correctly in summary."""
+        model_results = {
+            'coefficients': np.array([1.0, 2.0]),
+            'standard_errors': np.array([0.5, 0.5]),
+            'r_squared': 0.5,
+            'n_samples': 100,
+            'n_predictors': 2
+        }
+        
+        result = calculate_metric_summary(model_results)
+        
+        # Expected F = (0.5/2) / (0.5/97) = 0.25 / 0.00515 = 48.5
+        expected_f = (0.5 / 2) / ((1 - 0.5) / (100 - 2 - 1))
+        assert abs(result['f_statistic'] - expected_f) < 1e-6

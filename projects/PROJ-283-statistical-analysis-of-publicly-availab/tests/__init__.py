@@ -1,2 +1,1 @@
-# Test suite
-pass
+# Tests package

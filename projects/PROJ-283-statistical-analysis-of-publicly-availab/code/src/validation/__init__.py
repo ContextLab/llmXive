@@ -1,2 +1,3 @@
-# Validation module initialization
-pass
+"""
+Validation package.
+"""

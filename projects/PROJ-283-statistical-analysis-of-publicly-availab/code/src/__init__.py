@@ -1,3 +1,3 @@
-# llmXive Statistical Analysis Project
-# This file makes the src directory a Python package.
-pass
+"""
+Source package for the Statistical Analysis of Publicly Available Chess Game Data project.
+"""

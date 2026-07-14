@@ -1,2 +1,3 @@
-# Integration tests initialization
-pass
+"""
+Integration tests package.
+"""

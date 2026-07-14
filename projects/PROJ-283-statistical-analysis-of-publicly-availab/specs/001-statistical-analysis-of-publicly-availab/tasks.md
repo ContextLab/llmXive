@@ -70,7 +70,7 @@
 - [~] T015 [US1] Implement `src/data/process.py` to calculate `elo_expected_prob` using `P = 1 / (1 + 10^((R2-R1)/400))` with probability capping for numerical stability (e.g., clamp to [0.01, 0.99]).
 - [~] T016 [US1] Implement `src/data/process.py` to compute `outcome_deviation` as `(actual_result - expected_probability)`.
 - [~] T017 [US1] Implement error handling in `src/data/process.py` to skip malformed games, log errors, and ensure final dataset inclusion rate meets SC-001 (≥95% of valid PGNs). Remove any ±1% target constraint as it conflicts with the exclusion rule and T009 HALT logic.
-- [~] T018 [US1] Integrate schema validation in `src/main.py` to run `validate_contracts.py` on the generated dataset before saving to `data/processed/games.parquet`.
+- [~] T018 [US1] Integrate schema validation in `src/main.py` to run `validate_contracts.py` on the generated dataset before saving to `data/processed/games.parquet`. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -91,11 +91,11 @@
 
 - [~] T021 [P] [US2] Implement `src/models/fit.py` to prepare features: one-hot encode ECO codes and collapse them into opening families (e.g., King's Pawn, Queen's Gambit) as per FR-011. This task prepares features specifically for the Plan-authorized models (Gaussian GLM/Ridge).
 - [~] T022 [US2] Implement `src/models/fit.py` to fit Gaussian GLM (Gaussian family) and Ridge Regression. This implements the Plan.md Complexity Tracking override of Spec FR-005 (Beta Regression). The implementation uses `statsmodels` for GLM and `sklearn.linear_model.Ridge`.
-- [~] T023 [US2] Implement `src/models/fit.py` to fit Ridge Regression as a linear baseline (if not covered in T022). <!-- ATOMIZE: requested -->
+- [~] T023 [US2] Implement `src/models/fit.py` to fit Ridge Regression as a linear baseline (if not covered in T022).
 - [~] T024 [US2] Implement `src/models/metrics.py` to calculate p-values (Wald Z-tests) and F-statistics for all predictors.
 - [~] T025 [US2] Implement `src/models/metrics.py` to apply Benjamini-Hochberg FDR correction to p-values (FR-009).
 - [~] T026 [US2] Implement `src/reports/sensitivity.py` to perform threshold sweep analysis over a range of small thresholds and report Jaccard index of significant predictors (FR-010).
-- [~] T027 [US2] Save model artifacts (coefficients, p-values, R², AIC) to `data/results/model_metrics.json` and validate against `model_output.schema.yaml` (T007).
+- [~] T027 [US2] Save model artifacts (coefficients, p-values, R², AIC) to `data/results/model_metrics.json` and validate against `model_output.schema.yaml` (T007). <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,8 +130,8 @@
 - [~] T034 [P] Documentation updates in `README.md` and `quickstart.md`.
 - [~] T035 Code cleanup and refactoring. <!-- ATOMIZE: requested -->
 - [~] T036 Performance optimization (ensure RAM usage < 7GB, sample data if necessary).
-- [~] T037 [P] Additional unit tests (if requested) in `tests/unit/`. <!-- ATOMIZE: requested -->
-- [~] T038 Run quickstart.md validation. <!-- FAILED: unspecified -->
+- [ ] T037 [P] Additional unit tests (if requested) in `tests/unit/`.
+- [ ] T038 Run quickstart.md validation.
 
 ---
 

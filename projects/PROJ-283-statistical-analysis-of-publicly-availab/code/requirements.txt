@@ -8,5 +8,4 @@ seaborn
 requests
 datasets
 pytest
-ruff
-black
+pyyaml

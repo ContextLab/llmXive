@@ -1,2 +1,3 @@
-# Reports module initialization
-pass
+"""
+Reporting package.
+"""

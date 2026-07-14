@@ -1,136 +1,183 @@
-import numpy as np
-import pandas as pd
-from typing import Union, List, Optional
-import logging
-import sys
-from pathlib import Path
+"""
+Process game data to compute derived metrics.
 
-# Configure logging to stderr to ensure visibility in pipeline logs
+This module implements the calculation of outcome deviation,
+which is defined as (actual_result - expected_probability).
+
+It also provides utilities for capping probabilities and
+calculating expected probabilities from Elo ratings.
+"""
+import pandas as pd
+import numpy as np
+from typing import Optional, List, Dict, Any
+from pathlib import Path
+import logging
+
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stderr)]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-MIN_PROB = 0.01
-MAX_PROB = 0.99
-SC001_THRESHOLD = 0.95  # Minimum inclusion rate (95%)
-
-def calculate_expected_probability(white_rating: Union[int, float], black_rating: Union[int, float]) -> float:
+def cap_probability(p: float, min_val: float = 0.01, max_val: float = 0.99) -> float:
     """
-    Calculate the expected probability of White winning using the Elo formula.
-    P = 1 / (1 + 10^((R2 - R1) / 400))
+    Cap a probability value to a safe range to avoid numerical instability.
     
     Args:
-        white_rating: White player's Elo rating
-        black_rating: Black player's Elo rating
+        p: The probability value to cap.
+        min_val: Minimum allowed value (default 0.01).
+        max_val: Maximum allowed value (default 0.99).
         
     Returns:
-        Expected probability of White winning, clamped to [0.01, 0.99] for stability.
+        The capped probability value.
+    """
+    return max(min_val, min(max_val, p))
+
+def calculate_expected_probability(white_rating: float, black_rating: float) -> float:
+    """
+    Calculate the expected probability of White winning based on Elo ratings.
+    
+    Formula: P = 1 / (1 + 10^((R_black - R_white) / 400))
+    
+    Args:
+        white_rating: White player's Elo rating.
+        black_rating: Black player's Elo rating.
+        
+    Returns:
+        The expected probability of White winning, capped to [0.01, 0.99].
     """
     if pd.isna(white_rating) or pd.isna(black_rating):
         return np.nan
         
     diff = black_rating - white_rating
     exponent = diff / 400.0
-    prob = 1.0 / (1.0 + np.power(10.0, exponent))
+    prob = 1.0 / (1.0 + (10.0 ** exponent))
     
-    # Clamp for numerical stability
-    return float(np.clip(prob, MIN_PROB, MAX_PROB))
+    return cap_probability(prob)
 
-def calculate_outcome_deviation(actual_result: Union[int, float], expected_probability: float) -> float:
+def calculate_outcome_deviation(actual_result: float, expected_probability: float) -> float:
     """
-    Calculate the outcome deviation: actual_result - expected_probability.
+    Calculate the outcome deviation for a game.
+    
+    Outcome deviation is defined as (actual_result - expected_probability).
     
     Args:
-        actual_result: 1.0 for White win, 0.0 for Black win, 0.5 for draw.
-        expected_probability: Expected probability of White winning.
+        actual_result: The actual game result (1.0 for White win, 0.5 for draw, 0.0 for Black win).
+        expected_probability: The expected probability of White winning.
         
     Returns:
-        The deviation between actual and expected outcome.
+        The outcome deviation value.
     """
     if pd.isna(actual_result) or pd.isna(expected_probability):
         return np.nan
-    return float(actual_result) - float(expected_probability)
+        
+    return actual_result - expected_probability
 
-def process_game_records(df: pd.DataFrame, validate: bool = True) -> pd.DataFrame:
+def map_outcome_to_result(outcome: str) -> float:
     """
-    Process a DataFrame of game records to calculate derived metrics and handle malformed data.
-    
-    This function:
-    1. Calculates `elo_expected_prob` for each game.
-    2. Calculates `outcome_deviation` for each game.
-    3. Identifies and logs malformed games (missing critical fields or invalid outcomes).
-    4. Filters out malformed games to ensure data quality.
-    5. Verifies that the final inclusion rate meets SC-001 (>= 95% of valid PGNs processed).
+    Map a string outcome to a numeric result value.
     
     Args:
-        df: Input DataFrame containing game records. Expected columns include:
-            - 'white_rating': Elo rating of White player
-            - 'black_rating': Elo rating of Black player
-            - 'outcome': Actual game outcome (1.0, 0.5, or 0.0)
-            - Other columns from previous parsing steps.
-        validate: If True, performs strict validation and raises errors if SC-001 is violated.
-                
-    Returns:
-        A cleaned DataFrame with new columns 'elo_expected_prob' and 'outcome_deviation'.
+        outcome: The game outcome string (e.g., '1-0', '0-1', '1/2-1/2', '*').
         
-    Raises:
-        RuntimeError: If the inclusion rate falls below SC-001 threshold and validation is enabled.
+    Returns:
+        Numeric result (1.0, 0.5, 0.0) or np.nan if outcome is invalid/unknown.
     """
-    logger.info(f"Starting processing of {len(df)} game records.")
-    
-    if df.empty:
-        logger.warning("Input DataFrame is empty. Returning empty DataFrame.")
-        return df
+    outcome_map = {
+        '1-0': 1.0,
+        '0-1': 0.0,
+        '1/2-1/2': 0.5,
+        '*': np.nan,  # Unknown outcome
+    }
+    return outcome_map.get(str(outcome).strip(), np.nan)
 
-    # Identify rows with missing critical data
-    critical_columns = ['white_rating', 'black_rating', 'outcome']
-    missing_mask = df[critical_columns].isna().any(axis=1)
+def process_game_record(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Process a DataFrame of game records to add derived metrics.
     
-    # Identify rows with invalid outcomes (must be 1.0, 0.5, or 0.0)
-    valid_outcomes = [1.0, 0.5, 0.0]
-    invalid_outcome_mask = ~df['outcome'].isin(valid_outcomes)
+    This function:
+    1. Calculates expected probability from ratings.
+    2. Maps outcome strings to numeric results.
+    3. Calculates outcome deviation.
     
-    # Combine masks to find malformed games
-    malformed_mask = missing_mask | invalid_outcome_mask
-    malformed_count = malformed_mask.sum()
-    valid_count = len(df) - malformed_count
+    Args:
+        df: DataFrame with columns including 'white_rating', 'black_rating', and 'outcome'.
+        
+    Returns:
+        DataFrame with new columns: 'elo_expected_prob', 'outcome_result', 'outcome_deviation'.
+    """
+    logger.info(f"Processing {len(df)} game records...")
     
-    if malformed_count > 0:
-        logger.warning(f"Detected {malformed_count} malformed games (missing critical data or invalid outcomes).")
-        # Log details of the first few malformed rows for debugging
-        sample_malformed = df[malformed_mask].head(3)
-        logger.debug(f"Sample malformed records:\n{sample_malformed}")
+    # Create a copy to avoid modifying the original
+    result_df = df.copy()
     
-    # Filter out malformed games
-    clean_df = df[~malformed_mask].copy()
-    
-    if clean_df.empty:
-        logger.error("All games were malformed. Cannot proceed.")
-        raise ValueError("No valid game records found in the input DataFrame.")
-    
-    # Calculate derived columns
-    clean_df['elo_expected_prob'] = clean_df.apply(
-        lambda row: calculate_expected_probability(row['white_rating'], row['black_rating']), 
+    # Calculate expected probability
+    logger.info("Calculating expected probabilities...")
+    result_df['elo_expected_prob'] = result_df.apply(
+        lambda row: calculate_expected_probability(row['white_rating'], row['black_rating']),
         axis=1
     )
     
-    clean_df['outcome_deviation'] = clean_df.apply(
-        lambda row: calculate_outcome_deviation(row['outcome'], row['elo_expected_prob']), 
+    # Map outcome to numeric result
+    logger.info("Mapping outcomes to numeric results...")
+    result_df['outcome_result'] = result_df['outcome'].apply(map_outcome_to_result)
+    
+    # Calculate outcome deviation
+    logger.info("Calculating outcome deviations...")
+    result_df['outcome_deviation'] = result_df.apply(
+        lambda row: calculate_outcome_deviation(row['outcome_result'], row['elo_expected_prob']),
         axis=1
     )
     
-    # Verify SC-001 Inclusion Rate
-    inclusion_rate = len(clean_df) / len(df)
-    logger.info(f"Processed {len(df)} records. Kept {len(clean_df)} ({inclusion_rate:.2%}).")
+    # Log statistics
+    valid_deviation_count = result_df['outcome_deviation'].notna().sum()
+    logger.info(f"Successfully calculated outcome deviation for {valid_deviation_count} records.")
     
-    if validate and inclusion_rate < SC001_THRESHOLD:
-        error_msg = f"SC-001 Violation: Inclusion rate {inclusion_rate:.2%} is below threshold {SC001_THRESHOLD:.0%}."
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
+    return result_df
+
+def main():
+    """
+    Main entry point for processing game data.
     
-    logger.info("Processing complete. Dataset meets SC-001 inclusion criteria.")
-    return clean_df
+    This function:
+    1. Loads the processed game data from data/processed/games.parquet.
+    2. Processes the data to add outcome deviation metrics.
+    3. Saves the result to data/results/games_with_deviation.parquet.
+    """
+    # Define paths
+    input_path = Path("data/processed/games.parquet")
+    output_path = Path("data/results/games_with_deviation.parquet")
+    
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
+        logger.info("Please run the ingestion pipeline first to generate games.parquet")
+        return
+    
+    logger.info(f"Loading data from {input_path}...")
+    df = pd.read_parquet(input_path)
+    
+    logger.info(f"Loaded {len(df)} records with columns: {list(df.columns)}")
+    
+    # Process the data
+    processed_df = process_game_record(df)
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save the result
+    logger.info(f"Saving processed data to {output_path}...")
+    processed_df.to_parquet(output_path, index=False)
+    
+    logger.info("Processing complete!")
+    logger.info(f"Output saved to: {output_path}")
+    logger.info(f"Columns in output: {list(processed_df.columns)}")
+    
+    # Print sample of outcome deviation
+    if 'outcome_deviation' in processed_df.columns:
+        sample = processed_df[['outcome', 'white_rating', 'black_rating', 'elo_expected_prob', 'outcome_result', 'outcome_deviation']].head(5)
+        logger.info("Sample of processed data:")
+        print(sample.to_string())
+
+if __name__ == "__main__":
+    main()

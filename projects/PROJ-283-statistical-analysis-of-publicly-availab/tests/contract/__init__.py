@@ -1,2 +1,1 @@
-# Contract tests
-pass
+# Contract test package

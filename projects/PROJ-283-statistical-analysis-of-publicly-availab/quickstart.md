@@ -1,147 +1,214 @@
 # Quick Start Guide
 
-This guide provides a quick overview of how to use the Statistical Analysis of Chess Game Data pipeline.
+This guide provides step-by-step instructions to run the chess Elo rating prediction pipeline.
 
 ## Prerequisites
 
 - Python 3.11 or higher
 - pip package manager
+- Internet connection (for downloading Lichess data)
 
-## Installation
+## Step 1: Setup Environment
 
-1. Clone the repository:
- ```bash
- git clone <repository-url>
- cd PROJ-283-statistical-analysis-of-publicly-availab
- ```
+```bash
+# Clone the repository
+git clone <repository-url>
+cd <project-directory>
 
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+# Install dependencies
+pip install -r requirements.txt
 
-## Running the Pipeline
-
-The pipeline consists of several stages:
-
-### 1. Data Download and Verification
-
-The data download module verifies dataset availability and checks for required metadata:
-
-```python
-from src.data.download import download_chess_data
-
-# Download and verify data
-data_path = download_chess_data(limit=1000) # Download 1000 games for testing
+# Verify installation
+python -c "import pandas, numpy, sklearn, statsmodels, chess; print('Environment ready')"
 ```
 
-### 2. Feature Extraction
+## Step 2: Create Directory Structure
 
-Parse PGN files and extract features:
+The project structure is created automatically, but you can verify:
 
-```python
-from src.data.parse import extract_features_from_pgn
-from src.data.process import process_game_records
-
-# Extract features from PGN files
-games_df = extract_features_from_pgn(data_path)
-
-# Process and calculate derived metrics
-processed_df = process_game_records(games_df)
+```bash
+python code/src/setup_structure.py
 ```
 
-### 3. Model Fitting
+This creates:
+- `data/raw/` - Raw downloaded PGN files
+- `data/processed/` - Processed datasets
+- `data/results/` - Model outputs and reports
+- `specs/contracts/` - Data schemas
+- `tests/unit/`, `tests/contract/`, `tests/integration/` - Test directories
 
-Fit statistical models to the data:
+## Step 3: Download and Parse Data
 
-```python
-from src.models.fit import fit_gaussian_glm, fit_ridge_regression
-from src.models.metrics import apply_benjamini_hochberg_fdr
-
-# Prepare features
-X, y = prepare_features_for_model(processed_df)
-
-# Fit models
-glm_results = fit_gaussian_glm(X, y)
-ridge_results = fit_ridge_regression(X, y)
-
-# Apply FDR correction
-corrected_pvalues = apply_benjamini_hochberg_fdr(glm_results.pvalues)
+```bash
+python code/src/data/parse.py
 ```
 
-### 4. Cross-Validation and Validation
+This script will:
+1. Verify dataset URL reachability
+2. Sample games to check for required metadata
+3. Parse PGN files and extract features
+4. Save processed data to `data/processed/games.parquet`
 
-Validate model stability:
+**Expected Output**:
+- Console logs showing progress
+- `data/processed/games.parquet` containing game records with columns:
+ - `game_id`, `white_rating`, `black_rating`, `eco_code`
+ - `avg_move_time_white`, `avg_move_time_black`
+ - `material_imbalance_move5`, `outcome`
+ - `elo_expected_prob`, `outcome_deviation`
 
-```python
-from src.models.validate import perform_cross_validation
+## Step 4: Process and Calculate Metrics
 
-# Perform 5-fold cross-validation
-cv_results = perform_cross_validation(glm_results, X, y, n_folds=5)
-
-# Check model stability (raises error if unstable)
-cv_results.check_stability()
+```bash
+python code/src/data/process.py
 ```
 
-### 5. Generate Reports and Plots
+This calculates:
+- Expected Elo probabilities using the formula: `P = 1 / (1 + 10^((R2-R1)/400))`
+- Outcome deviations: `(actual_result - expected_probability)`
+- Applies probability capping for numerical stability
 
-Generate diagnostic plots and reports:
+**Expected Output**:
+- Updated `data/processed/games.parquet` with calculated metrics
+- Validation against `game_record.schema.yaml`
 
-```python
-from src.reports.generate_plots import generate_all_plots
-from src.reports.sensitivity import run_sensitivity_analysis
+## Step 5: Fit Statistical Models
 
-# Generate plots
-generate_all_plots(processed_df, glm_results, output_dir="data/results")
-
-# Run sensitivity analysis
-sensitivity_results = run_sensitivity_analysis(glm_results, output_dir="data/results")
+```bash
+python code/src/models/fit.py
 ```
 
-## Output Files
+This fits:
+- Gaussian GLM (Gaussian family)
+- Ridge Regression
+- Maps ECO codes to opening families
+- Applies Benjamini-Hochberg FDR correction
 
-The pipeline produces the following outputs in `data/results/`:
+**Expected Output**:
+- Model coefficients and statistics
+- `data/results/model_metrics.json` with:
+ - `model_type`, `coefficients`, `p_values`
+ - `r_squared`, `aic`, `cross_validation_scores`
 
-- `model_metrics.json`: Model coefficients, p-values, R², AIC
-- `diagnostics.json`: Cross-validation results and stability metrics
-- `residuals.png`: Residual plots
-- `feature_importance.png`: Feature importance rankings
-- `predicted_vs_actual.png`: Predicted vs. actual scatterplots
-- `sensitivity_analysis.json`: Threshold sweep results
+## Step 6: Validate Models
 
-## Validation
+```bash
+python code/src/models/validate.py
+```
 
-All outputs are validated against schema definitions in `specs/contracts/`:
+This performs:
+- 5-fold cross-validation
+- Calculates R² and MSE variance across folds
+- Checks for model instability (SC-003 threshold: std_dev_r2 < 0.05)
 
-```python
-from src.validation.validate_contracts import assert_game_records_valid, assert_model_output_valid
+**Expected Output**:
+- Cross-validation results in `data/results/model_metrics.json`
+- Console output with validation metrics
+- RuntimeError if model instability detected
 
-# Validate game records
-assert_game_records_valid(processed_df)
+## Step 7: Generate Reports and Visualizations
 
-# Validate model output
-assert_model_output_valid(model_metrics_dict)
+```bash
+python code/src/reports/generate_plots.py
+```
+
+This creates:
+- Residual plots
+- Predicted vs. actual scatterplots
+- Feature importance rankings
+- Diagnostic report summary
+
+**Expected Output**:
+- PNG plots in `data/results/`:
+ - `residuals.png`
+ - `predicted_vs_actual.png`
+ - `feature_importance.png`
+- `data/results/diagnostics.json` with summary statistics
+
+## Step 8: Run Sensitivity Analysis
+
+```bash
+python code/src/reports/sensitivity.py
+```
+
+This performs:
+- Threshold sweep analysis
+- Jaccard index calculation for significant predictors
+- Sensitivity report generation
+
+**Expected Output**:
+- `data/results/sensitivity_report.json`
+
+## Step 9: Validate All Contracts
+
+```bash
+python code/src/validation/validate_contracts.py
+```
+
+This validates:
+- All processed datasets against their schemas
+- Ensures data integrity throughout the pipeline
+
+**Expected Output**:
+- Console output with validation results
+- SchemaValidationError if any contract fails
+
+## Step 10: Run Tests
+
+```bash
+# Run all tests
+pytest code/tests/ -v
+
+# Run specific test suites
+pytest code/tests/unit/ -v # Unit tests
+pytest code/tests/contract/ -v # Contract tests
+pytest code/tests/integration/ -v # Integration tests
 ```
 
 ## Troubleshooting
 
-### Dataset Verification Failed
+### Common Issues
 
-If the dataset verification fails (T009), it means either:
-- The dataset URL is unreachable
-- More than 5% of games lack `move_time` metadata
+1. **Missing Dependencies**:
+ ```bash
+ pip install -r requirements.txt --upgrade
+ ```
 
-Check the error message for details and verify your internet connection or dataset source.
+2. **Data Download Failures**:
+ - Check internet connection
+ - Verify Lichess API is accessible
+ - The script includes exponential backoff retry logic
 
-### Model Instability Detected
+3. **Model Instability Error**:
+ - If you see "SC-003 Threshold Exceeded: Model instability detected",
+ the model has high variance across folds. Consider:
+ - Increasing dataset size
+ - Adjusting regularization parameters
+ - Checking for data quality issues
 
-If cross-validation detects model instability (SC-003), the standard deviation of R² across folds exceeds 0.05. Consider:
-- Reducing model complexity
-- Increasing sample size
-- Checking for data quality issues
+4. **Schema Validation Errors**:
+ - Ensure all required columns are present
+ - Check for null values in critical fields
+ - Verify data types match schema definitions
+
+### Performance Tips
+
+- For large datasets, the pipeline includes sampling logic
+- Monitor RAM usage (target: < 7GB)
+- Use `--sample` flag if available for testing with smaller subsets
 
 ## Next Steps
 
-- Explore the `code/src/` modules for detailed implementation
-- Review `specs/contracts/` for data schema definitions
-- Check `tests/` for comprehensive test coverage
+- Review generated plots and diagnostic reports
+- Analyze model coefficients and p-values
+- Explore feature importance rankings
+- Conduct additional sensitivity analyses
+- Consider extending the model with additional features
+
+## Support
+
+For issues or questions:
+- Check the `README.md` for detailed documentation
+- Review the `specs/` directory for design documents
+- Examine test files in `tests/` for usage examples
+- Consult the project's issue tracker

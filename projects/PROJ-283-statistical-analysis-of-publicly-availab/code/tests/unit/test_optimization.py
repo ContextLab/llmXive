@@ -1,200 +1,132 @@
-"""
-Unit tests for the optimization module.
-"""
 import pytest
 import pandas as pd
 import numpy as np
+from pathlib import Path
 import tempfile
 import os
-from pathlib import Path
-from unittest.mock import patch, MagicMock
 
-from src.optimization import (
-    get_current_memory_mb,
-    get_memory_usage_mb,
-    sample_dataframe,
-    reduce_memory_usage,
+from src.utils.optimization import (
+    get_current_memory_usage_gb,
     check_memory_usage,
-    ensure_memory_safe,
-    get_optimal_chunk_size,
-    run_optimization_pipeline
+    sample_dataframe,
+    optimize_dataframe_dtypes,
+    cleanup_memory,
+    ensure_memory_constraints
 )
 
-class TestOptimizationModule:
-    """Test suite for optimization functions."""
+class TestMemoryUsage:
+    def test_get_current_memory_usage_returns_positive(self):
+        """Test that memory usage function returns a positive number"""
+        usage = get_current_memory_usage_gb()
+        assert usage >= 0.0
 
-    def test_sample_dataframe_with_size(self):
-        """Test sampling with explicit size."""
-        df = pd.DataFrame({'a': range(100), 'b': range(100, 200)})
-        sampled = sample_dataframe(df, sample_size=10, random_state=42)
-        
-        assert len(sampled) == 10
-        assert len(sampled) < len(df)
-        assert list(sampled.columns) == ['a', 'b']
+    def test_check_memory_usage_returns_boolean(self):
+        """Test that check_memory_usage returns a boolean"""
+        result = check_memory_usage()
+        assert isinstance(result, bool)
 
-    def test_sample_dataframe_with_fraction(self):
-        """Test sampling with fraction."""
-        df = pd.DataFrame({'a': range(1000), 'b': range(1000, 2000)})
-        sampled = sample_dataframe(df, sample_fraction=0.1, random_state=42)
-        
-        assert len(sampled) == 100
-        assert len(sampled) == len(df) * 0.1
-
-    def test_sample_dataframe_no_args(self):
-        """Test default sampling (10%)."""
-        df = pd.DataFrame({'a': range(100), 'b': range(100, 200)})
-        sampled = sample_dataframe(df, random_state=42)
-        
-        assert len(sampled) == 10
-        assert len(sampled) == len(df) * 0.1
-
-    def test_sample_dataframe_large_than_original(self):
-        """Test when sample size is larger than dataframe."""
-        df = pd.DataFrame({'a': range(10), 'b': range(10, 20)})
-        sampled = sample_dataframe(df, sample_size=100, random_state=42)
-        
-        # Should return original
-        assert len(sampled) == len(df)
-
-    def test_reduce_memory_usage_integers(self):
-        """Test memory reduction for integer columns."""
-        df = pd.DataFrame({
-            'small_int': np.array([1, 2, 3], dtype=np.int64),
-            'large_int': np.array([100000, 200000, 300000], dtype=np.int64)
+class TestSampling:
+    @pytest.fixture
+    def sample_data(self):
+        """Create a sample dataframe for testing"""
+        n = 1000
+        return pd.DataFrame({
+            'id': range(n),
+            'value': np.random.randn(n),
+            'category': np.random.choice(['A', 'B', 'C'], n),
+            'outcome': np.random.choice(['1-0', '0-1', '1/2-1/2'], n)
         })
-        
-        reduced = reduce_memory_usage(df)
-        
-        # Small integers should be downcasted
-        assert reduced['small_int'].dtype == np.int8
-        # Large integers might stay as int32 or int64 depending on range
-        assert reduced['large_int'].dtype in [np.int32, np.int64]
 
-    def test_reduce_memory_usage_floats(self):
-        """Test memory reduction for float columns."""
-        df = pd.DataFrame({
-            'small_float': np.array([0.1, 0.2, 0.3], dtype=np.float64),
-            'large_float': np.array([100000.5, 200000.5, 300000.5], dtype=np.float64)
-        })
-        
-        reduced = reduce_memory_usage(df)
-        
-        # Check that dtypes are optimized (might be float32 or float64)
-        assert reduced['small_float'].dtype in [np.float32, np.float64]
+    def test_sample_smaller_than_requested_returns_original(self, sample_data):
+        """Test that sampling doesn't reduce data if it's already small"""
+        result = sample_dataframe(sample_data, sample_size=2000)
+        assert len(result) == len(sample_data)
 
-    def test_reduce_memory_usage_categorical(self):
-        """Test memory reduction for categorical columns."""
-        df = pd.DataFrame({
-            'category_col': ['A', 'B', 'A', 'C', 'B', 'A'] * 100
-        })
-        
-        reduced = reduce_memory_usage(df)
-        
-        # Should be converted to category
-        assert reduced['category_col'].dtype.name == 'category'
-
-    def test_get_optimal_chunk_size(self):
-        """Test optimal chunk size calculation."""
-        # Should return a reasonable chunk size
-        chunk_size = get_optimal_chunk_size(total_rows=1000000, target_mem_mb=5000)
-        
-        assert chunk_size > 0
-        assert chunk_size <= 1000000
-        assert chunk_size >= 1000
-
-    def test_ensure_memory_safe_no_sampling_needed(self):
-        """Test when no sampling is needed."""
-        df = pd.DataFrame({'a': range(100), 'b': range(100, 200)})
-        
-        result = ensure_memory_safe(df, max_rows=1000, sample_fraction=None)
-        
-        # Should return optimized version but same size
-        assert len(result) == len(df)
-
-    def test_ensure_memory_safe_with_max_rows(self):
-        """Test sampling with max_rows."""
-        df = pd.DataFrame({'a': range(1000), 'b': range(1000, 2000)})
-        
-        result = ensure_memory_safe(df, max_rows=100, sample_fraction=None)
-        
+    def test_sample_reduces_to_requested_size(self, sample_data):
+        """Test that sampling reduces data to requested size"""
+        result = sample_dataframe(sample_data, sample_size=100)
         assert len(result) == 100
 
-    def test_run_optimization_pipeline_parquet(self):
-        """Test optimization pipeline with parquet files."""
-        # Create temporary files
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.parquet'
-            output_path = Path(tmpdir) / 'output.parquet'
-            
-            # Create sample data
-            df = pd.DataFrame({
-                'game_id': range(100),
-                'white_rating': [1500 + i for i in range(100)],
-                'black_rating': [1500 + i for i in range(100)]
-            })
-            df.to_parquet(input_path)
-            
-            # Run optimization
-            stats = run_optimization_pipeline(
-                input_path=str(input_path),
-                output_path=str(output_path),
-                sample_fraction=0.5
-            )
-            
-            assert stats['success']
-            assert stats['final_rows'] == 50
-            assert Path(output_path).exists()
+    def test_sample_preserves_stratification(self, sample_data):
+        """Test that stratified sampling preserves outcome distribution"""
+        result = sample_dataframe(sample_data, sample_size=100)
+        # Just check that we can calculate proportions without error
+        proportions = result['outcome'].value_counts(normalize=True)
+        assert abs(proportions.sum() - 1.0) < 0.01
 
-    def test_run_optimization_pipeline_csv(self):
-        """Test optimization pipeline with CSV files."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_path = Path(tmpdir) / 'output.csv'
-            
-            # Create sample data
-            df = pd.DataFrame({
-                'game_id': range(100),
-                'value': range(100)
-            })
-            df.to_csv(input_path, index=False)
-            
-            # Run optimization
-            stats = run_optimization_pipeline(
-                input_path=str(input_path),
-                output_path=str(output_path),
-                sample_fraction=0.5
-            )
-            
-            assert stats['success']
-            assert stats['final_rows'] == 50
-            assert Path(output_path).exists()
+    def test_sample_preserves_data_types(self, sample_data):
+        """Test that sampling preserves data types"""
+        result = sample_dataframe(sample_data, sample_size=100)
+        assert result['id'].dtype == sample_data['id'].dtype
+        assert result['value'].dtype == sample_data['value'].dtype
 
-    def test_run_optimization_pipeline_unsupported_format(self):
-        """Test error handling for unsupported file format."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.txt'
-            output_path = Path(tmpdir) / 'output.txt'
-            
-            # Create dummy file
-            input_path.write_text("dummy")
-            
-            # Run optimization - should fail gracefully
-            stats = run_optimization_pipeline(
-                input_path=str(input_path),
-                output_path=str(output_path),
-                sample_fraction=0.5
-            )
-            
-            assert not stats['success']
-            assert 'error' in stats
+class TestOptimization:
+    @pytest.fixture
+    def large_dataframe(self):
+        """Create a dataframe with various data types"""
+        n = 10000
+        return pd.DataFrame({
+            'int_col': np.random.randint(0, 100, n),
+            'float_col': np.random.randn(n),
+            'string_col': np.random.choice(['short', 'medium', 'long'], n),
+            'category_col': pd.Categorical(np.random.choice(['A', 'B', 'C', 'D'], n))
+        })
 
-    def test_memory_functions_exist(self):
-        """Test that memory monitoring functions exist and return numbers."""
-        # These should not raise exceptions
-        mem1 = get_current_memory_mb()
-        mem2 = get_memory_usage_mb()
-        
-        assert isinstance(mem1, (int, float))
-        assert isinstance(mem2, (int, float))
-        assert mem1 >= 0
-        assert mem2 >= 0
+    def test_optimize_dataframe_returns_dataframe(self, large_dataframe):
+        """Test that optimization returns a dataframe"""
+        result = optimize_dataframe_dtypes(large_dataframe)
+        assert isinstance(result, pd.DataFrame)
+
+    def test_optimize_preserves_shape(self, large_dataframe):
+        """Test that optimization preserves row count"""
+        result = optimize_dataframe_dtypes(large_dataframe)
+        assert len(result) == len(large_dataframe)
+        assert len(result.columns) == len(large_dataframe.columns)
+
+    def test_optimize_converts_low_cardinality_to_category(self, large_dataframe):
+        """Test that low cardinality columns are converted to category"""
+        result = optimize_dataframe_dtypes(large_dataframe)
+        # string_col has low cardinality (3 unique values out of 10000)
+        assert result['string_col'].dtype.name == 'category'
+
+    def test_optimize_downcasts_floats(self, large_dataframe):
+        """Test that floats are downcast when possible"""
+        result = optimize_dataframe_dtypes(large_dataframe)
+        # float_col should be downcast to float32 if possible
+        assert result['float_col'].dtype in [np.float32, np.float64]
+
+class TestFullPipeline:
+    @pytest.fixture
+    def test_dataframe(self):
+        """Create a test dataframe"""
+        n = 5000
+        return pd.DataFrame({
+            'game_id': range(n),
+            'white_rating': np.random.randint(800, 3000, n),
+            'black_rating': np.random.randint(800, 3000, n),
+            'eco_code': np.random.choice(['A00', 'B12', 'C44'], n),
+            'avg_move_time': np.random.uniform(5.0, 30.0, n),
+            'outcome': np.random.choice(['1-0', '0-1', '1/2-1/2'], n),
+            'prob': np.random.uniform(0.1, 0.9, n),
+            'deviation': np.random.uniform(-0.5, 0.5, n)
+        })
+
+    def test_ensure_memory_constraints_returns_tuple(self, test_dataframe):
+        """Test that the main function returns expected tuple"""
+        result_df, sampled = ensure_memory_constraints(test_dataframe)
+        assert isinstance(result_df, pd.DataFrame)
+        assert isinstance(sampled, bool)
+
+    def test_ensure_memory_constraints_preserves_columns(self, test_dataframe):
+        """Test that all columns are preserved"""
+        result_df, _ = ensure_memory_constraints(test_dataframe)
+        assert set(result_df.columns) == set(test_dataframe.columns)
+
+    def test_ensure_memory_constraints_handles_small_dataframe(self, test_dataframe):
+        """Test that small dataframes are not unnecessarily sampled"""
+        result_df, sampled = ensure_memory_constraints(test_dataframe, force_sample=False)
+        # Should not sample if under limit
+        assert sampled == False or len(result_df) == len(test_dataframe)
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

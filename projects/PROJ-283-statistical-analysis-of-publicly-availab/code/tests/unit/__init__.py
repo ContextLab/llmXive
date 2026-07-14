@@ -1,2 +1,3 @@
-# Unit tests initialization
-pass
+"""
+Unit tests package.
+"""

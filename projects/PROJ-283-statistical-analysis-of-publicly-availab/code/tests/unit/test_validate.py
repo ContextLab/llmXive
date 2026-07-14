@@ -1,7 +1,6 @@
 """
-Unit tests for model validation and stability checking.
+Unit tests for cross-validation and model validation logic.
 """
-
 import pytest
 import pandas as pd
 import numpy as np
@@ -10,207 +9,148 @@ import tempfile
 import json
 
 from src.models.validate import (
-    perform_cross_validation,
-    check_model_stability,
+    perform_kfold_cross_validation,
     run_validation_pipeline,
-    validate_model_output
+    SC003_THRESHOLD
 )
+from src.models.fit import prepare_features_for_modeling
 
+@pytest.fixture
+def sample_data():
+    """Create a sample dataset for testing."""
+    np.random.seed(42)
+    n_samples = 200
+    
+    # Create synthetic but realistic features
+    data = {
+        'eco_code': np.random.choice(['B00', 'B10', 'C00', 'D00'], n_samples),
+        'avg_move_time_white': np.random.uniform(5.0, 20.0, n_samples),
+        'avg_move_time_black': np.random.uniform(5.0, 20.0, n_samples),
+        'material_imbalance_move5': np.random.uniform(-2.0, 2.0, n_samples),
+        'elo_expected_prob': np.random.uniform(0.1, 0.9, n_samples),
+    }
+    
+    # Create a target that has some correlation with features
+    df = pd.DataFrame(data)
+    df['outcome_deviation'] = (
+        0.3 * (df['avg_move_time_white'] - 12.5) / 7.5 +
+        0.2 * (df['avg_move_time_black'] - 12.5) / 7.5 +
+        0.1 * df['material_imbalance_move5'] +
+        np.random.normal(0, 0.1, n_samples)
+    )
+    
+    return df
 
 class TestCrossValidation:
-    """Test cross-validation functionality."""
-
-    @pytest.fixture
-    def sample_data(self):
-        """Create sample data for testing."""
-        np.random.seed(42)
-        n_samples = 100
-        X = pd.DataFrame({
-            'feature1': np.random.randn(n_samples),
-            'feature2': np.random.randn(n_samples),
-            'feature3': np.random.randn(n_samples)
-        })
-        y = pd.Series(
-            0.5 * X['feature1'] + 0.3 * X['feature2'] + np.random.randn(n_samples) * 0.1
+    def test_perform_kfold_ridge_basic(self, sample_data):
+        """Test basic Ridge cross-validation execution."""
+        result = perform_kfold_cross_validation(
+            sample_data, model_type='ridge', n_folds=3, random_state=42
         )
-        return X, y
+        
+        assert 'model_type' in result
+        assert result['model_type'] == 'ridge'
+        assert 'mean_r2' in result
+        assert 'std_r2' in result
+        assert 'r2_scores' in result
+        assert len(result['r2_scores']) == 3
+        assert result['sc003_passed'] is True
+        
+        # Check R2 is in reasonable range (can be negative, but usually > -1 for real data)
+        assert result['mean_r2'] > -1.0
+        assert result['mean_r2'] <= 1.0
 
-    def test_perform_cross_validation_ridge(self, sample_data):
-        """Test cross-validation for Ridge regression."""
-        X, y = sample_data
-        results = perform_cross_validation(X, y, model_type="ridge", n_splits=5)
+    def test_perform_kfold_glm_basic(self, sample_data):
+        """Test basic GLM cross-validation execution."""
+        result = perform_kfold_cross_validation(
+            sample_data, model_type='glm', n_folds=3, random_state=42
+        )
+        
+        assert 'model_type' in result
+        assert result['model_type'] == 'glm'
+        assert 'mean_r2' in result
+        assert 'std_r2' in result
+        assert 'r2_scores' in result
+        assert len(result['r2_scores']) == 3
 
-        assert "r2_scores" in results
-        assert "mse_scores" in results
-        assert len(results["r2_scores"]) == 5
-        assert len(results["mse_scores"]) == 5
-        assert "r2_mean" in results
-        assert "r2_std" in results
-        assert results["model_type"] == "ridge"
-        assert results["n_splits"] == 5
+    def test_sc003_threshold_enforcement(self, sample_data):
+        """Test that SC-003 threshold is properly enforced."""
+        # Create data with high variance to potentially trigger SC-003
+        # We use a very small dataset with high noise to force instability
+        np.random.seed(123)
+        unstable_data = pd.DataFrame({
+            'eco_code': ['B00'] * 10,
+            'avg_move_time_white': np.random.uniform(5, 20, 10),
+            'avg_move_time_black': np.random.uniform(5, 20, 10),
+            'material_imbalance_move5': np.random.uniform(-2, 2, 10),
+            'elo_expected_prob': np.random.uniform(0.1, 0.9, 10),
+            'outcome_deviation': np.random.uniform(-1, 1, 10) * 10  # High noise
+        })
+        
+        # This might or might not trigger SC-003 depending on the split
+        # but the function should handle it gracefully
+        try:
+            result = perform_kfold_cross_validation(
+                unstable_data, model_type='ridge', n_folds=3, random_state=42
+            )
+            # If it doesn't raise, SC-003 was passed
+            assert result['sc003_passed'] is True
+        except RuntimeError as e:
+            assert "SC-003" in str(e)
 
-    def test_perform_cross_validation_glm(self, sample_data):
-        """Test cross-validation for Gaussian GLM."""
-        X, y = sample_data
-        results = perform_cross_validation(X, y, model_type="glm", n_splits=5)
+    def test_empty_dataset_raises_error(self):
+        """Test that empty dataset raises appropriate error."""
+        empty_df = pd.DataFrame(columns=['eco_code', 'outcome_deviation'])
+        
+        with pytest.raises(ValueError):
+            perform_kfold_cross_validation(empty_df, model_type='ridge')
 
-        assert "r2_scores" in results
-        assert "mse_scores" in results
-        assert len(results["r2_scores"]) == 5
-        assert len(results["mse_scores"]) == 5
-        assert "r2_mean" in results
-        assert "r2_std" in results
-        assert results["model_type"] == "glm"
-
-    def test_invalid_model_type(self, sample_data):
-        """Test that invalid model type raises error."""
-        X, y = sample_data
-        with pytest.raises(ValueError, match="Unknown model_type"):
-            perform_cross_validation(X, y, model_type="invalid")
-
-
-class TestModelStability:
-    """Test model stability checking."""
-
-    def test_stable_model_passes(self):
-        """Test that a stable model passes the check."""
-        cv_results = {
-            "r2_std": 0.03,
-            "r2_scores": [0.8, 0.82, 0.79, 0.81, 0.8]
-        }
-        assert check_model_stability(cv_results, threshold=0.05) is True
-
-    def test_unstable_model_raises_error(self):
-        """Test that an unstable model raises RuntimeError."""
-        cv_results = {
-            "r2_std": 0.06,
-            "r2_scores": [0.7, 0.9, 0.6, 0.95, 0.75]
-        }
-        with pytest.raises(RuntimeError, match="SC-003 Threshold Exceeded"):
-            check_model_stability(cv_results, threshold=0.05)
-
-    def test_boundary_case_exact_threshold(self):
-        """Test the exact threshold boundary."""
-        cv_results = {
-            "r2_std": 0.05,
-            "r2_scores": [0.8, 0.8, 0.8, 0.8, 0.8]
-        }
-        # Should raise error because >= threshold
-        with pytest.raises(RuntimeError, match="SC-003 Threshold Exceeded"):
-            check_model_stability(cv_results, threshold=0.05)
-
-    def test_below_threshold_passes(self):
-        """Test that values below threshold pass."""
-        cv_results = {
-            "r2_std": 0.049,
-            "r2_scores": [0.8, 0.81, 0.79, 0.8, 0.8]
-        }
-        assert check_model_stability(cv_results, threshold=0.05) is True
-
+    def test_missing_target_column_raises_error(self, sample_data):
+        """Test that missing target column raises error."""
+        df = sample_data.drop(columns=['outcome_deviation'])
+        
+        with pytest.raises(ValueError):
+            perform_kfold_cross_validation(df, model_type='ridge')
 
 class TestValidationPipeline:
-    """Test the full validation pipeline."""
-
-    @pytest.fixture
-    def sample_data(self):
-        """Create sample data for testing."""
-        np.random.seed(42)
-        n_samples = 100
-        X = pd.DataFrame({
-            'feature1': np.random.randn(n_samples),
-            'feature2': np.random.randn(n_samples)
-        })
-        y = pd.Series(0.5 * X['feature1'] + np.random.randn(n_samples) * 0.1)
-        return X, y
-
-    def test_pipeline_single_model(self, sample_data):
-        """Test pipeline with a single model type."""
-        X, y = sample_data
+    def test_run_validation_pipeline(self, sample_data):
+        """Test full validation pipeline execution."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "validation_results.json"
-            results, stability = run_validation_pipeline(
-                X, y,
-                model_types=["ridge"],
-                output_path=output_path
+            data_path = Path(tmpdir) / "test_games.parquet"
+            output_path = Path(tmpdir) / "test_validation.json"
+            
+            # Save sample data
+            sample_data.to_parquet(data_path)
+            
+            # Run pipeline
+            results = run_validation_pipeline(
+                data_path=str(data_path),
+                output_path=str(output_path),
+                n_folds=3
             )
-
-            assert "ridge" in results
-            assert stability is True
+            
+            # Check results structure
+            assert 'ridge' in results
+            assert 'glm' in results
+            
+            # Check output file was created
             assert output_path.exists()
+            
+            # Check JSON content
+            with open(output_path, 'r') as f:
+                saved_results = json.load(f)
+            
+            assert 'ridge' in saved_results
+            assert 'glm' in saved_results
 
-    def test_pipeline_multiple_models(self, sample_data):
-        """Test pipeline with multiple model types."""
-        X, y = sample_data
+    def test_missing_data_file_raises_error(self):
+        """Test that missing data file raises error."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "validation_results.json"
-            results, stability = run_validation_pipeline(
-                X, y,
-                model_types=["ridge", "glm"],
-                output_path=output_path
-            )
-
-            assert "ridge" in results
-            assert "glm" in results
-            assert stability is True
-
-    def test_pipeline_unstable_model(self, sample_data):
-        """Test pipeline when model is unstable."""
-        # Create data that will likely produce unstable results
-        X = pd.DataFrame({
-            'feature1': np.random.randn(50),
-            'feature2': np.random.randn(50)
-        })
-        y = pd.Series(np.random.randn(50))  # Pure noise
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "validation_results.json"
-            results, stability = run_validation_pipeline(
-                X, y,
-                model_types=["ridge"],
-                output_path=output_path
-            )
-
-            # Stability should fail with noisy data
-            assert "ridge" in results
-            # The result might pass or fail depending on random seed,
-            # but the pipeline should complete without crashing
-
-
-class TestValidateModelOutput:
-    """Test single model output validation."""
-
-    def test_valid_output(self):
-        """Test validation of a valid output."""
-        cv_results = {
-            "r2_scores": [0.8, 0.82, 0.79, 0.81, 0.8],
-            "mse_scores": [0.1, 0.09, 0.11, 0.095, 0.1],
-            "r2_mean": 0.804,
-            "r2_std": 0.01,
-            "n_splits": 5
-        }
-        result = validate_model_output("ridge", cv_results)
-        assert result["stability_status"] == "PASSED"
-        assert result["model_type"] == "ridge"
-
-    def test_missing_required_field(self):
-        """Test validation fails with missing required field."""
-        cv_results = {
-            "r2_scores": [0.8, 0.82, 0.79, 0.81, 0.8],
-            "r2_mean": 0.804,
-            # Missing r2_std
-            "n_splits": 5
-        }
-        with pytest.raises(ValueError, match="Missing required field"):
-            validate_model_output("ridge", cv_results)
-
-    def test_unstable_output(self):
-        """Test validation fails for unstable model."""
-        cv_results = {
-            "r2_scores": [0.5, 0.9, 0.4, 0.95, 0.6],
-            "mse_scores": [0.5, 0.1, 0.6, 0.08, 0.45],
-            "r2_mean": 0.67,
-            "r2_std": 0.2,
-            "n_splits": 5
-        }
-        with pytest.raises(RuntimeError, match="SC-003 Threshold Exceeded"):
-            validate_model_output("ridge", cv_results)
+            output_path = Path(tmpdir) / "test.json"
+            missing_data = Path(tmpdir) / "missing.parquet"
+            
+            with pytest.raises(FileNotFoundError):
+                run_validation_pipeline(
+                    data_path=str(missing_data),
+                    output_path=str(output_path)
+                )

@@ -1,0 +1,27 @@
+name: model_output
+description: Schema for model performance metrics and coefficients.
+columns:
+  - name: model_type
+    type: str
+    nullable: false
+    description: Type of model (e.g., 'GaussianGLM', 'Ridge').
+  - name: coefficients
+    type: str
+    nullable: false
+    description: JSON string representation of model coefficients.
+  - name: p_values
+    type: str
+    nullable: false
+    description: JSON string representation of p-values for coefficients.
+  - name: r_squared
+    type: float
+    nullable: false
+    description: R-squared value of the model.
+  - name: aic
+    type: float
+    nullable: false
+    description: Akaike Information Criterion.
+  - name: cross_validation_scores
+    type: str
+    nullable: false
+    description: JSON string representation of cross-validation scores.

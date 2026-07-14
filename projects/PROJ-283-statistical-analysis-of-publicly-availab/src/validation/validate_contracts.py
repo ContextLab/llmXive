@@ -1,217 +1,294 @@
+"""
+Contract validation module for chess data analysis pipeline.
+Loads YAML schemas from specs/contracts/ and validates pandas DataFrames against them.
+"""
 import os
-import re
-from typing import Dict, Any, List, Optional, Tuple
+import sys
 from pathlib import Path
-from dataclasses import dataclass, field
+from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import yaml
-import logging
 
-from src.config import get_contract_path
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-
-@dataclass
-class ValidationResult:
-    """Container for validation results."""
-    is_valid: bool
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-    schema_name: Optional[str] = None
-
-    def add_error(self, message: str) -> None:
-        self.errors.append(message)
-        self.is_valid = False
-
-    def add_warning(self, message: str) -> None:
-        self.warnings.append(message)
-
-    def __bool__(self) -> bool:
-        return self.is_valid
-
-    def __str__(self) -> str:
-        status = "VALID" if self.is_valid else "INVALID"
-        error_count = len(self.errors)
-        warning_count = len(self.warnings)
-        return (f"Validation Result [{status}] for {self.schema_name or 'Unknown'}: "
-                f"{error_count} errors, {warning_count} warnings")
-
+# Custom exception for schema validation errors
+class SchemaValidationError(Exception):
+    """Raised when DataFrame validation against a schema fails."""
+    pass
 
 def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a YAML schema file."""
+    """
+    Load a YAML schema file.
+    
+    Args:
+        schema_path: Path to the YAML schema file
+        
+    Returns:
+        Dictionary containing the schema definition
+        
+    Raises:
+        FileNotFoundError: If schema file doesn't exist
+        yaml.YAMLError: If YAML is malformed
+    """
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
 
-    with open(schema_path, 'r', encoding='utf-8') as f:
-        schema = yaml.safe_load(f)
-
-    if not isinstance(schema, dict):
-        raise ValueError(f"Schema at {schema_path} must be a YAML dictionary")
-
-    return schema
-
-
-def validate_dataframe(
-    df: pd.DataFrame,
-    schema_name: str,
-    required_columns: List[str],
-    column_types: Optional[Dict[str, type]] = None
-) -> ValidationResult:
+def get_available_schemas(contracts_dir: Path) -> List[Path]:
     """
-    Validate a pandas DataFrame against a schema definition.
-
+    Get list of all schema files in the contracts directory.
+    
     Args:
-        df: The DataFrame to validate.
-        schema_name: Name of the schema for reporting.
-        required_columns: List of column names that must exist.
-        column_types: Optional dict mapping column names to expected Python types.
-
+        contracts_dir: Path to the contracts directory
+        
     Returns:
-        ValidationResult object.
+        List of paths to schema YAML files
     """
-    result = ValidationResult(is_valid=True, schema_name=schema_name)
+    if not contracts_dir.exists():
+        return []
+    
+    return list(contracts_dir.glob("*.schema.yaml"))
 
-    if df.empty:
-        result.add_warning("DataFrame is empty.")
+def validate_column_exists(df: pd.DataFrame, schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    """
+    Validate that all required columns exist in the DataFrame.
+    
+    Args:
+        df: DataFrame to validate
+        schema: Schema definition dictionary
+        
+    Returns:
+        Tuple of (is_valid, list_of_missing_columns)
+    """
+    required_columns = schema.get("required_columns", [])
+    actual_columns = set(df.columns)
+    missing = [col for col in required_columns if col not in actual_columns]
+    return len(missing) == 0, missing
 
-    # Check required columns
-    existing_cols = set(df.columns)
-    missing_cols = set(required_columns) - existing_cols
-    if missing_cols:
-        result.add_error(f"Missing required columns: {sorted(missing_cols)}")
+def validate_column_type(df: pd.DataFrame, schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    """
+    Validate that columns have the expected types.
+    
+    Args:
+        df: DataFrame to validate
+        schema: Schema definition dictionary
+        
+    Returns:
+        Tuple of (is_valid, list_of_type_errors)
+    """
+    column_types = schema.get("column_types", {})
+    errors = []
+    
+    for col, expected_type in column_types.items():
+        if col not in df.columns:
+            continue  # Will be caught by validate_column_exists
+        
+        actual_type = str(df[col].dtype)
+        
+        # Map common pandas dtypes to expected types
+        type_mapping = {
+            'int64': ['int', 'integer'],
+            'float64': ['float', 'number'],
+            'object': ['string', 'str'],
+            'bool': ['boolean', 'bool'],
+            'datetime64[ns]': ['datetime', 'date']
+        }
+        
+        is_valid_type = False
+        for pd_type, valid_names in type_mapping.items():
+            if actual_type == pd_type and expected_type.lower() in valid_names:
+                is_valid_type = True
+                break
+        
+        if not is_valid_type:
+            errors.append(f"Column '{col}' has type '{actual_type}', expected '{expected_type}'")
+    
+    return len(errors) == 0, errors
 
-    # Check column types if provided
-    if column_types:
-        for col_name, expected_type in column_types.items():
-            if col_name in existing_cols:
-                # Check if the dtype is compatible (e.g., int64 vs int)
-                actual_dtype = df[col_name].dtype
-                # Simple check: ensure the values can be cast or are of compatible kind
-                try:
-                    if expected_type == int:
-                        if not pd.api.types.is_integer_dtype(actual_dtype) and not pd.api.types.is_float_dtype(actual_dtype):
-                            result.add_error(f"Column '{col_name}' expected integer type, got {actual_dtype}")
-                    elif expected_type == float:
-                        if not pd.api.types.is_numeric_dtype(actual_dtype):
-                            result.add_error(f"Column '{col_name}' expected numeric type, got {actual_dtype}")
-                    elif expected_type == str:
-                        if not pd.api.types.is_string_dtype(actual_dtype):
-                            # Allow object dtype for strings in older pandas
-                            if actual_dtype != 'object' and actual_dtype.name != 'string':
-                                result.add_error(f"Column '{col_name}' expected string type, got {actual_dtype}")
-                    elif expected_type == bool:
-                        if not pd.api.types.is_bool_dtype(actual_dtype):
-                            result.add_error(f"Column '{col_name}' expected boolean type, got {actual_dtype}")
-                except Exception as e:
-                    result.add_warning(f"Could not fully validate type for '{col_name}': {e}")
-
-    # Check for null values in required columns
+def validate_no_nulls(df: pd.DataFrame, schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    """
+    Validate that required columns have no null values.
+    
+    Args:
+        df: DataFrame to validate
+        schema: Schema definition dictionary
+        
+    Returns:
+        Tuple of (is_valid, list_of_null_errors)
+    """
+    required_columns = schema.get("required_columns", [])
+    errors = []
+    
     for col in required_columns:
-        if col in existing_cols:
+        if col in df.columns:
             null_count = df[col].isnull().sum()
             if null_count > 0:
-                result.add_error(f"Column '{col}' contains {null_count} null values.")
+                errors.append(f"Column '{col}' has {null_count} null values")
+        
+    return len(errors) == 0, errors
 
-    return result
-
-
-def validate_game_records(df: pd.DataFrame) -> ValidationResult:
+def validate_column_range(df: pd.DataFrame, schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
-    Validate a DataFrame against the game_record.schema.yaml.
-    Loads the schema from specs/contracts/ dynamically.
+    Validate that numeric columns are within expected ranges.
+    
+    Args:
+        df: DataFrame to validate
+        schema: Schema definition dictionary
+        
+    Returns:
+        Tuple of (is_valid, list_of_range_errors)
     """
-    schema_path = get_contract_path("game_record.schema.yaml")
-    try:
-        schema = load_schema(schema_path)
-    except FileNotFoundError:
-        # Fallback to hardcoded definition if schema file is missing during early dev
-        logger.warning(f"Schema file {schema_path} not found. Using fallback definition.")
-        schema = {
-            "columns": [
-                "game_id", "white_rating", "black_rating", "eco_code",
-                "avg_move_time_white", "avg_move_time_black",
-                "material_imbalance_move5", "outcome",
-                "elo_expected_prob", "outcome_deviation"
-            ],
-            "types": {
-                "game_id": str,
-                "white_rating": (int, float),
-                "black_rating": (int, float),
-                "eco_code": str,
-                "avg_move_time_white": (int, float),
-                "avg_move_time_black": (int, float),
-                "material_imbalance_move5": (int, float),
-                "outcome": str,
-                "elo_expected_prob": float,
-                "outcome_deviation": float
-            }
-        }
+    range_constraints = schema.get("column_ranges", {})
+    errors = []
+    
+    for col, constraints in range_constraints.items():
+        if col not in df.columns:
+            continue
+        
+        min_val = constraints.get("min")
+        max_val = constraints.get("max")
+        
+        if min_val is not None:
+            below_min = (df[col] < min_val).sum()
+            if below_min > 0:
+                errors.append(f"Column '{col}' has {below_min} values below minimum {min_val}")
+        
+        if max_val is not None:
+            above_max = (df[col] > max_val).sum()
+            if above_max > 0:
+                errors.append(f"Column '{col}' has {above_max} values above maximum {max_val}")
+    
+    return len(errors) == 0, errors
 
-    required_cols = schema.get("columns", [])
-    type_map = schema.get("types", {})
-
-    return validate_dataframe(
-        df,
-        schema_name="game_record",
-        required_columns=required_cols,
-        column_types=type_map
-    )
-
-
-def validate_model_output(df: pd.DataFrame) -> ValidationResult:
+def validate_schema(df: pd.DataFrame, schema: Dict[str, Any], schema_name: str = "unknown") -> Tuple[bool, List[str]]:
     """
-    Validate a DataFrame against the model_output.schema.yaml.
-    Loads the schema from specs/contracts/ dynamically.
+    Run all validation checks against a schema.
+    
+    Args:
+        df: DataFrame to validate
+        schema: Schema definition dictionary
+        schema_name: Name of the schema for error messages
+        
+    Returns:
+        Tuple of (is_valid, list_of_all_errors)
     """
-    schema_path = get_contract_path("model_output.schema.yaml")
-    try:
-        schema = load_schema(schema_path)
-    except FileNotFoundError:
-        logger.warning(f"Schema file {schema_path} not found. Using fallback definition.")
-        schema = {
-            "columns": [
-                "model_type", "coefficients", "p_values",
-                "r_squared", "aic", "cross_validation_scores"
-            ],
-            "types": {
-                "model_type": str,
-                "coefficients": dict,
-                "p_values": dict,
-                "r_squared": float,
-                "aic": float,
-                "cross_validation_scores": list
-            }
-        }
+    all_errors = []
+    
+    # Check required columns
+    valid, missing = validate_column_exists(df, schema)
+    if not valid:
+        all_errors.extend([f"Missing required column: {col}" for col in missing])
+    
+    # Skip type, null, and range checks if columns are missing
+    if valid:
+        valid, type_errors = validate_column_type(df, schema)
+        if not valid:
+            all_errors.extend(type_errors)
+        
+        valid, null_errors = validate_no_nulls(df, schema)
+        if not valid:
+            all_errors.extend(null_errors)
+        
+        valid, range_errors = validate_column_range(df, schema)
+        if not valid:
+            all_errors.extend(range_errors)
+    
+    return len(all_errors) == 0, all_errors
 
-    required_cols = schema.get("columns", [])
-    type_map = schema.get("types", {})
+def validate_dataframe_against_contract(df: pd.DataFrame, schema_path: Path) -> bool:
+    """
+    Validate a DataFrame against a specific schema file.
+    
+    Args:
+        df: DataFrame to validate
+        schema_path: Path to the schema YAML file
+        
+    Returns:
+        True if validation passes, False otherwise
+        
+    Raises:
+        SchemaValidationError: If validation fails
+    """
+    schema_name = schema_path.stem
+    schema = load_schema(schema_path)
+    
+    is_valid, errors = validate_schema(df, schema, schema_name)
+    
+    if not is_valid:
+        error_msg = f"Validation failed for {schema_name}:\n" + "\n".join(f"  - {e}" for e in errors)
+        raise SchemaValidationError(error_msg)
+    
+    return True
 
-    return validate_dataframe(
-        df,
-        schema_name="model_output",
-        required_columns=required_cols,
-        column_types=type_map
-    )
+def validate_all_contracts(df: pd.DataFrame, contracts_dir: Path) -> Dict[str, bool]:
+    """
+    Validate DataFrame against all schema files in a directory.
+    
+    Args:
+        df: DataFrame to validate
+        contracts_dir: Path to the contracts directory
+        
+    Returns:
+        Dictionary mapping schema names to validation status
+    """
+    results = {}
+    schema_files = get_available_schemas(contracts_dir)
+    
+    for schema_file in schema_files:
+        schema_name = schema_file.stem
+        try:
+            validate_dataframe_against_contract(df, schema_file)
+            results[schema_name] = True
+        except SchemaValidationError as e:
+            results[schema_name] = False
+            print(f"Warning: {schema_name} validation failed: {e}", file=sys.stderr)
+    
+    return results
 
+def main():
+    """
+    Command-line interface for contract validation.
+    Usage: python -m src.validation.validate_contracts --data <path> --contracts <dir>
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Validate DataFrame against contract schemas")
+    parser.add_argument("--data", type=str, required=True, help="Path to parquet or csv data file")
+    parser.add_argument("--contracts", type=str, default="specs/contracts", help="Path to contracts directory")
+    parser.add_argument("--format", type=str, default="parquet", choices=["parquet", "csv"], help="Data file format")
+    
+    args = parser.parse_args()
+    
+    # Load data
+    data_path = Path(args.data)
+    if not data_path.exists():
+        print(f"Error: Data file not found: {data_path}", file=sys.stderr)
+        sys.exit(1)
+    
+    if args.format == "parquet":
+        df = pd.read_parquet(data_path)
+    else:
+        df = pd.read_csv(data_path)
+    
+    print(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
+    
+    # Validate
+    contracts_path = Path(args.contracts)
+    results = validate_all_contracts(df, contracts_path)
+    
+    passed = sum(1 for v in results.values() if v)
+    total = len(results)
+    
+    print(f"\nValidation Results: {passed}/{total} schemas passed")
+    for schema_name, status in results.items():
+        status_str = "PASS" if status else "FAIL"
+        print(f"  {schema_name}: {status_str}")
+    
+    if passed < total:
+        sys.exit(1)
+    else:
+        print("\nAll validations passed!")
+        sys.exit(0)
 
-def assert_valid(result: ValidationResult) -> None:
-    """Raise an AssertionError if validation failed."""
-    if not result.is_valid:
-        error_msg = f"Validation failed for {result.schema_name}:\n" + "\n".join(result.errors)
-        raise AssertionError(error_msg)
-
-
-def assert_game_records_valid(df: pd.DataFrame) -> ValidationResult:
-    """Validate game records and raise if invalid, returning the result."""
-    result = validate_game_records(df)
-    assert_valid(result)
-    return result
-
-
-def assert_model_output_valid(df: pd.DataFrame) -> ValidationResult:
-    """Validate model output and raise if invalid, returning the result."""
-    result = validate_model_output(df)
-    assert_valid(result)
-    return result
+if __name__ == "__main__":
+    main()

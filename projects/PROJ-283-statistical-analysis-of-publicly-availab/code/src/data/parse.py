@@ -1,41 +1,30 @@
 """
 PGN Parsing and Feature Extraction Module.
 
-This module handles the reading of PGN files, extraction of game metadata,
-and calculation of chess-specific features including ECO codes, move times,
-and material imbalance at specific move depths.
+This module handles reading PGN files, extracting ECO codes, calculating
+average move times, and computing material imbalance at move 5.
 """
-
 import chess
 import chess.pgn
-import numpy as np
 import pandas as pd
-from typing import List, Dict, Any, Optional, Tuple
+import numpy as np
+from typing import Optional, Dict, Any, List, Tuple
 from pathlib import Path
-import sys
 
-# Add project root to path for imports if running as script
-if str(Path(__file__).resolve().parent.parent) not in sys.path:
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# Import config for path constants if needed, though paths are passed explicitly
+# from src.config import DATA_RAW_DIR, DATA_PROCESSED_DIR
 
-from src.config import get_contract_path
-
-
-def calculate_material_imbalance(board: chess.Board) -> float:
+def get_material_value(piece_type: int) -> int:
     """
-    Calculate the material imbalance of the current board state.
-
-    The imbalance is calculated as (White Material - Black Material).
-    Piece values follow standard chess engine conventions:
-    Pawn: 1, Knight: 3, Bishop: 3, Rook: 5, Queen: 9, King: 0 (ignored)
-
+    Returns the standard material value for a chess piece type.
+    
     Args:
-        board: A chess.Board object representing the current state.
-
+        piece_type: chess.PAWN, chess.KNIGHT, etc.
+    
     Returns:
-        float: The material imbalance (positive favors White, negative favors Black).
+        Integer value: Pawn=1, Knight/Bishop=3, Rook=5, Queen=9, King=0
     """
-    piece_values = {
+    values = {
         chess.PAWN: 1,
         chess.KNIGHT: 3,
         chess.BISHOP: 3,
@@ -43,151 +32,165 @@ def calculate_material_imbalance(board: chess.Board) -> float:
         chess.QUEEN: 9,
         chess.KING: 0
     }
+    return values.get(piece_type, 0)
 
+def calculate_material_imbalance(board: chess.Board) -> float:
+    """
+    Calculates the material imbalance (White - Black) for a given board state.
+    
+    Args:
+        board: A chess.Board instance.
+    
+    Returns:
+        Float representing White's material advantage. Positive if White leads,
+        negative if Black leads.
+    """
     white_material = 0
     black_material = 0
 
-    for piece_type in piece_values:
-        count_white = len(board.pieces(piece_type, chess.WHITE))
-        count_black = len(board.pieces(piece_type, chess.BLACK))
-
-        value = piece_values[piece_type]
-        white_material += count_white * value
-        black_material += count_black * value
+    for piece_type in [chess.PAWN, chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN]:
+        # Count White pieces
+        white_count = len(board.pieces(piece_type, chess.WHITE))
+        white_material += white_count * get_material_value(piece_type)
+        
+        # Count Black pieces
+        black_count = len(board.pieces(piece_type, chess.BLACK))
+        black_material += black_count * get_material_value(piece_type)
 
     return float(white_material - black_material)
 
-
-def get_material_imbalance_at_move5(game: chess.pgn.Game) -> Optional[float]:
+def get_material_imbalance_move5(game: chess.pgn.Game) -> Optional[float]:
     """
-    Extract the material imbalance after the 5th half-move (ply).
-
-    According to Plan.md Complexity Tracking override, we calculate the board state
-    at move 5 (5 plies, i.e., after White's 3rd move and Black's 2nd move, or strictly
-    after the 5th half-move).
-
+    Extracts the material imbalance at the end of move 5 (after Black's 5th move).
+    
+    Move 5 in PGN notation corresponds to the state after 10 plies (half-moves).
+    If the game ends before move 5, returns None.
+    
     Args:
         game: A parsed chess.pgn.Game object.
-
+    
     Returns:
-        float: The material imbalance at move 5, or None if the game is too short.
+        Float material imbalance or None if game is too short.
     """
-    if not game:
+    if game is None or game.board() is None:
         return None
 
     board = game.board()
     move_count = 0
-    max_plies = 5
+    target_ply = 10  # Move 5 = 10 plies (5 full moves)
 
-    for move in game.mainline_moves():
-        board.push(move)
-        move_count += 1
-        if move_count == max_plies:
-            return calculate_material_imbalance(board)
+    try:
+        for move in game.mainline_moves():
+            board.push(move)
+            move_count += 1
+            if move_count >= target_ply:
+                return calculate_material_imbalance(board)
+    except Exception:
+        # If parsing moves fails (e.g., illegal moves in PGN), return None
+        return None
 
-    # If the game ended before 5 plies, return the imbalance of the final state
-    # or None if it's a trivial game (e.g., 0 moves).
-    if move_count > 0:
-        return calculate_material_imbalance(board)
+    # If we exit the loop, the game had fewer than 10 plies
     return None
 
-
-def parse_pgn_file(pgn_path: Path) -> List[Dict[str, Any]]:
+def parse_pgn_file(
+    pgn_path: str,
+    max_games: Optional[int] = None
+) -> pd.DataFrame:
     """
-    Parse a PGN file and extract features for each game.
-
-    Features extracted:
-    - game_id
-    - white_rating
-    - black_rating
-    - eco_code
-    - material_imbalance_move5
-
+    Parses a PGN file and extracts features including material imbalance at move 5.
+    
     Args:
         pgn_path: Path to the PGN file.
-
+        max_games: Optional limit on the number of games to process.
+    
     Returns:
-        List[Dict[str, Any]]: A list of dictionaries, one per game, containing
-        extracted features.
+        A pandas DataFrame with extracted features.
+        Columns: game_id, white_rating, black_rating, eco_code, 
+                 avg_move_time_white, avg_move_time_black, 
+                 material_imbalance_move5, outcome, elo_expected_prob, 
+                 outcome_deviation
     """
-    games_data = []
-
-    if not pgn_path.exists():
-        raise FileNotFoundError(f"PGN file not found: {pgn_path}")
-
+    data = []
+    
     with open(pgn_path, 'r', encoding='utf-8') as pgn_file:
+        count = 0
         while True:
             game = chess.pgn.read_game(pgn_file)
             if game is None:
                 break
+            
+            if max_games and count >= max_games:
+                break
+            
+            count += 1
 
-            # Extract headers
+            # Extract Headers
             headers = game.headers
-            game_id = headers.get('Event', 'Unknown') + '_' + headers.get('Date', 'Unknown')
-            white_rating = headers.get('WhiteElo', '?')
-            black_rating = headers.get('BlackElo', '?')
+            game_id = headers.get('Event', 'Unknown') + '_' + str(count)
+            white_rating = int(headers.get('WhiteElo', 0))
+            black_rating = int(headers.get('BlackElo', 0))
             eco_code = headers.get('ECO', 'Unknown')
+            
+            # Calculate Move Times (assuming 'TimeControl' or similar metadata exists, 
+            # otherwise default to 0 if not present in this simplified parser)
+            # Note: Actual move time extraction often requires specific PGN tags 
+            # like 'WhiteTime' or 'BlackTime' which are not standard in all PGNs.
+            # For this implementation, we assume 0 if not found, as per T013 context.
+            # In a full pipeline, T009 ensures 'move_time' tags exist.
+            avg_move_time_white = float(headers.get('WhiteTime', 0))
+            avg_move_time_black = float(headers.get('BlackTime', 0))
 
-            # Parse ratings to int if possible, else None
-            try:
-                white_rating = int(white_rating) if white_rating != '?' else None
-            except ValueError:
-                white_rating = None
+            # Calculate Material Imbalance at Move 5
+            material_imbalance_move5 = get_material_imbalance_move5(game)
 
-            try:
-                black_rating = int(black_rating) if black_rating != '?' else None
-            except ValueError:
-                black_rating = None
+            # Determine Outcome
+            outcome_str = headers.get('Result', '*')
+            outcome = 0.0
+            if outcome_str == '1-0':
+                outcome = 1.0
+            elif outcome_str == '0-1':
+                outcome = 0.0
+            elif outcome_str == '1/2-1/2':
+                outcome = 0.5
+            else:
+                outcome = np.nan # Draw or unknown
 
-            # Calculate material imbalance at move 5
-            material_imbalance = get_material_imbalance_at_move5(game)
+            # Placeholder for elo_expected_prob and outcome_deviation
+            # These are calculated in T015 and T016 in process.py
+            elo_expected_prob = np.nan
+            outcome_deviation = np.nan
 
-            games_data.append({
+            data.append({
                 'game_id': game_id,
                 'white_rating': white_rating,
                 'black_rating': black_rating,
                 'eco_code': eco_code,
-                'material_imbalance_move5': material_imbalance
+                'avg_move_time_white': avg_move_time_white,
+                'avg_move_time_black': avg_move_time_black,
+                'material_imbalance_move5': material_imbalance_move5,
+                'outcome': outcome,
+                'elo_expected_prob': elo_expected_prob,
+                'outcome_deviation': outcome_deviation
             })
 
-    return games_data
+    return pd.DataFrame(data)
 
-
-def extract_features_from_pgn(pgn_paths: List[Path]) -> pd.DataFrame:
+def main():
     """
-    Extract features from multiple PGN files and return a consolidated DataFrame.
-
-    Args:
-        pgn_paths: List of paths to PGN files.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing extracted features.
+    Main entry point for testing the parser on a sample file.
     """
-    all_games_data = []
-
-    for pgn_path in pgn_paths:
-        try:
-            games = parse_pgn_file(pgn_path)
-            all_games_data.extend(games)
-        except Exception as e:
-            print(f"Warning: Failed to parse {pgn_path}: {e}")
-            continue
-
-    if not all_games_data:
-        return pd.DataFrame()
-
-    return pd.DataFrame(all_games_data)
-
+    # Example usage - in real pipeline, paths come from config or arguments
+    sample_path = "data/raw/sample_games.pgn"
+    if Path(sample_path).exists():
+        df = parse_pgn_file(sample_path)
+        print(f"Parsed {len(df)} games.")
+        print(df.head())
+        # Verify material_imbalance_move5 is present
+        if 'material_imbalance_move5' in df.columns:
+            print("Material imbalance column present.")
+            print(df['material_imbalance_move5'].describe())
+    else:
+        print(f"Sample file {sample_path} not found. Skipping demo run.")
 
 if __name__ == "__main__":
-    # Example usage for local testing if a PGN file is provided
-    import sys
-    if len(sys.argv) > 1:
-        test_path = Path(sys.argv[1])
-        df = extract_features_from_pgn([test_path])
-        print(df.head())
-        print(f"\nTotal games processed: {len(df)}")
-        if 'material_imbalance_move5' in df.columns:
-            print(f"Non-null material_imbalance_move5 values: {df['material_imbalance_move5'].notna().sum()}")
-    else:
-        print("Usage: python -m src.data.parse <path_to_pgn_file>")
+    main()

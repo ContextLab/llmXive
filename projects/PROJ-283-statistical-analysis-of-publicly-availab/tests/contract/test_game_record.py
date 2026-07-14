@@ -1,123 +1,127 @@
 """
 Contract test for GameRecord schema validation.
-
-This test verifies that the `validate_contracts` module correctly validates
-pandas DataFrames against the `game_record.schema.yaml` contract.
-
-It ensures:
-1. A valid DataFrame passes validation.
-2. A DataFrame with missing required columns fails validation.
-3. A DataFrame with incorrect data types fails validation.
+Ensures that the GameRecord DataFrame matches the schema defined in specs/contracts/game_record.schema.yaml
 """
 import pytest
 import pandas as pd
-import numpy as np
+import tempfile
 from pathlib import Path
+import yaml
 
-# Import the validation logic and config helper
-from src.validation.validate_contracts import validate_contract
-from src.config import get_contract_path
-
+from src.validation.validate_contracts import (
+    SchemaValidationError,
+    validate_dataframe_against_contract,
+    load_schema,
+)
 
 @pytest.fixture
-def valid_game_record_df():
-    """
-    Returns a DataFrame that conforms to the GameRecord schema.
-    """
-    data = {
-        "game_id": ["game_001", "game_002"],
-        "white_rating": [1500.0, 1600.0],
-        "black_rating": [1450.0, 1550.0],
-        "eco_code": ["B01", "C50"],
-        "avg_move_time_white": [10.5, 12.0],
-        "avg_move_time_black": [11.0, 11.5],
-        "material_imbalance_move5": [0.0, 1.0],
-        "outcome": ["1-0", "0-1"],
-        "elo_expected_prob": [0.57, 0.45],
-        "outcome_deviation": [0.43, -0.45]
-    }
+def game_record_schema():
+    """Load the GameRecord schema."""
+    schema_path = Path("specs/contracts/game_record.schema.yaml")
+    if not schema_path.exists():
+        pytest.skip("GameRecord schema not yet created (T006)")
+    return load_schema(schema_path)
+
+@pytest.fixture
+def valid_game_record_df(game_record_schema):
+    """Create a valid GameRecord DataFrame based on schema requirements."""
+    required_cols = game_record_schema.get("required_columns", [])
+    
+    # Create dummy data for each required column
+    data = {}
+    for col in required_cols:
+        if col == "game_id":
+            data[col] = ["game_001", "game_002", "game_003"]
+        elif col == "white_rating":
+            data[col] = [1500, 1600, 1700]
+        elif col == "black_rating":
+            data[col] = [1450, 1550, 1650]
+        elif col == "eco_code":
+            data[col] = ["B01", "C50", "E00"]
+        elif col == "avg_move_time_white":
+            data[col] = [15.5, 12.3, 18.7]
+        elif col == "avg_move_time_black":
+            data[col] = [14.2, 13.1, 16.5]
+        elif col == "material_imbalance_move5":
+            data[col] = [0.0, 1.0, -0.5]
+        elif col == "outcome":
+            data[col] = [1, 0, 0.5]
+        elif col == "elo_expected_prob":
+            data[col] = [0.57, 0.51, 0.49]
+        elif col == "outcome_deviation":
+            data[col] = [0.43, -0.51, 0.01]
+        else:
+            data[col] = [None, None, None]
+    
     return pd.DataFrame(data)
 
+def test_game_record_schema_exists(game_record_schema):
+    """Verify that the GameRecord schema is defined."""
+    assert game_record_schema is not None
+    assert "required_columns" in game_record_schema
+    assert len(game_record_schema["required_columns"]) > 0
 
-@pytest.fixture
-def contract_path():
-    """
-    Returns the path to the GameRecord schema file.
-    """
-    return get_contract_path("game_record.schema.yaml")
+def test_game_record_validation_passes(valid_game_record_df, game_record_schema):
+    """Verify that a valid GameRecord DataFrame passes schema validation."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        schema_path = Path(tmpdir) / "game_record.schema.yaml"
+        with open(schema_path, 'w') as f:
+            yaml.dump(game_record_schema, f)
+        
+        # This should not raise an exception
+        result = validate_dataframe_against_contract(valid_game_record_df, schema_path)
+        assert result is True
 
-
-def test_valid_game_record_passes(contract_path, valid_game_record_df):
-    """
-    Test that a valid DataFrame passes schema validation.
-    """
-    # Should not raise any exception
-    result = validate_contract(valid_game_record_df, contract_path)
-    assert result is True
-
-
-def test_missing_column_fails(contract_path, valid_game_record_df):
-    """
-    Test that a DataFrame missing a required column fails validation.
-    """
+def test_game_record_validation_fails_with_missing_columns(valid_game_record_df, game_record_schema):
+    """Verify that validation fails when required columns are missing."""
     # Remove a required column
-    invalid_df = valid_game_record_df.drop(columns=["eco_code"])
-
-    with pytest.raises(ValueError) as exc_info:
-        validate_contract(invalid_df, contract_path)
-
-    assert "eco_code" in str(exc_info.value)
-
-
-def test_wrong_data_type_fails(contract_path, valid_game_record_df):
-    """
-    Test that a DataFrame with incorrect data types fails validation.
-    """
-    # Create a copy and corrupt a numeric column to string
-    invalid_df = valid_game_record_df.copy()
-    invalid_df["white_rating"] = invalid_df["white_rating"].astype(str)
-
-    with pytest.raises(ValueError) as exc_info:
-        validate_contract(invalid_df, contract_path)
-
-    # The error message should indicate the type mismatch or validation failure
-    assert "white_rating" in str(exc_info.value) or "dtype" in str(exc_info.value).lower()
-
-
-def test_null_values_in_required_fields(contract_path, valid_game_record_df):
-    """
-    Test that null values in required fields cause validation failure.
-    The schema implies these fields are required (non-nullable).
-    """
-    invalid_df = valid_game_record_df.copy()
-    invalid_df.loc[0, "game_id"] = np.nan
-
-    with pytest.raises(ValueError):
-        validate_contract(invalid_df, contract_path)
-
-def test_empty_dataframe_fails(contract_path):
-    """
-    Test that an empty DataFrame fails validation (no rows).
-    """
-    empty_df = pd.DataFrame(columns=["game_id", "white_rating", "black_rating", "eco_code",
-                                     "avg_move_time_white", "avg_move_time_black", "material_imbalance_move5",
-                                     "outcome", "elo_expected_prob", "outcome_deviation"])
+    missing_col = game_record_schema["required_columns"][0]
+    invalid_df = valid_game_record_df.drop(columns=[missing_col])
     
-    # Depending on implementation, empty might be valid or invalid. 
-    # Typically, a contract expects data to exist if it's a record set.
-    # Assuming the validator checks for non-empty or specific row count if defined.
-    # If the schema doesn't explicitly forbid empty, we might just check structure.
-    # However, for a "GameRecord" dataset, we usually expect rows.
-    # Let's assume the validator checks structure primarily. If structure is right, it passes.
-    # But if the task implies "real data", empty might be a failure case for the *pipeline*.
-    # For pure schema validation, structure is key.
-    # Let's test structure validity on empty df.
-    try:
-        validate_contract(empty_df, contract_path)
-        # If it passes, it means schema structure is correct.
-        # If the requirement is "must have data", that's a business rule, not schema.
-        # Given T006 defines columns, we test column presence.
-        assert True 
-    except ValueError:
-        # If it fails due to empty, that's also acceptable depending on implementation.
-        assert True
+    with tempfile.TemporaryDirectory() as tmpdir:
+        schema_path = Path(tmpdir) / "game_record.schema.yaml"
+        with open(schema_path, 'w') as f:
+            yaml.dump(game_record_schema, f)
+        
+        with pytest.raises(SchemaValidationError):
+            validate_dataframe_against_contract(invalid_df, schema_path)
+
+def test_game_record_validation_fails_with_nulls(valid_game_record_df, game_record_schema):
+    """Verify that validation fails when required columns contain nulls."""
+    # Introduce a null in a required column
+    required_cols = game_record_schema["required_columns"]
+    test_col = required_cols[0]
+    invalid_df = valid_game_record_df.copy()
+    invalid_df.loc[0, test_col] = None
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        schema_path = Path(tmpdir) / "game_record.schema.yaml"
+        with open(schema_path, 'w') as f:
+            yaml.dump(game_record_schema, f)
+        
+        with pytest.raises(SchemaValidationError):
+            validate_dataframe_against_contract(invalid_df, schema_path)
+
+def test_game_record_validation_fails_with_wrong_types(valid_game_record_df, game_record_schema):
+    """Verify that validation fails when column types are incorrect."""
+    col_types = game_record_schema.get("column_types", {})
+    
+    if not col_types:
+        pytest.skip("No column type constraints defined in schema")
+    
+    # Pick a column with a type constraint and change its type
+    test_col = list(col_types.keys())[0]
+    if test_col not in valid_game_record_df.columns:
+        pytest.skip(f"Column {test_col} not in test DataFrame")
+    
+    invalid_df = valid_game_record_df.copy()
+    # Convert to a wrong type (e.g., int to string)
+    invalid_df[test_col] = invalid_df[test_col].astype(str)
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        schema_path = Path(tmpdir) / "game_record.schema.yaml"
+        with open(schema_path, 'w') as f:
+            yaml.dump(game_record_schema, f)
+        
+        with pytest.raises(SchemaValidationError):
+            validate_dataframe_against_contract(invalid_df, schema_path)

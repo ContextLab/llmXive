@@ -1,60 +1,60 @@
+"""
+Configuration module for the chess Elo analysis project.
+
+Contains:
+- Random seed settings
+- File path constants
+- Dataset URL constants
+- Threshold parameters
+"""
 import os
 from pathlib import Path
 
-# Project Root
-_ROOT = Path(__file__).resolve().parents[1]
+# Random seed for reproducibility
+RANDOM_SEED = 42
 
-# Random Seeds
-RANDOM_SEED: int = 42
+# Dataset configuration
+LICHES_DATASET_URL = "https://huggingface.co/datasets/lichess/lichess_db_standard_rated"
 
-# File Path Constants
-DIR_DATA_RAW: Path = _ROOT / "data" / "raw"
-DIR_DATA_PROCESSED: Path = _ROOT / "data" / "processed"
-DIR_DATA_RESULTS: Path = _ROOT / "data" / "results"
-DIR_SPECS: Path = _ROOT / "specs"
-DIR_SPECS_CONTRACTS: Path = DIR_SPECS / "contracts"
+# Sample size for dataset verification (T009)
+SAMPLE_SIZE = 1000
 
-# Lichess Dataset URL Constants
-# Official Lichess Game Export (PGN)
-LICHES_BASE_URL: str = "https://database.lichess.org"
-LICHES_GAMES_URL_TEMPLATE: str = (
-    f"{LICHES_BASE_URL}/lichess_db_standard_rated_{{year}}.pgn.xz"
-)
+# Threshold for missing move_time metadata (T009)
+# Per Plan.md: HALT if >5% of sampled games lack move_time
+MISSING_MOVE_TIME_THRESHOLD = 0.05
 
-# Alternative: HuggingFace Dataset for Chess (if preferred for programmatic access)
-# Using a specific version of the dataset to ensure reproducibility
-HF_DATASET_NAME: str = "chess/lichess-game-database"
-HF_DATASET_CONFIG: str = "pgn"
+# File paths
+BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = BASE_DIR / "data"
+RAW_DATA_DIR = DATA_DIR / "raw"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+RESULTS_DIR = DATA_DIR / "results"
+SPECS_DIR = BASE_DIR / "specs"
+CONTRACTS_DIR = SPECS_DIR / "contracts"
+TESTS_DIR = BASE_DIR / "tests"
 
-# Configuration for Sampling/Testing
-SAMPLE_SIZE_SMALL: int = 100
-SAMPLE_SIZE_MEDIUM: int = 10000
-
-# Validation Thresholds
-MOVE_TIME_MISSING_THRESHOLD: float = 0.05  # 5%
-VALID_GAME_INCLUSION_THRESHOLD: float = 0.95  # 95%
-
-def get_contract_path(contract_name: str) -> Path:
-    """
-    Returns the full path to a specific contract schema file.
+def ensure_directories():
+    """Create all required directories if they don't exist."""
+    directories = [
+        DATA_DIR,
+        RAW_DATA_DIR,
+        PROCESSED_DATA_DIR,
+        RESULTS_DIR,
+        SPECS_DIR,
+        CONTRACTS_DIR,
+        TESTS_DIR,
+        BASE_DIR / "src",
+        BASE_DIR / "src" / "data",
+        BASE_DIR / "src" / "models",
+        BASE_DIR / "src" / "validation",
+        BASE_DIR / "src" / "reports",
+        BASE_DIR / "tests" / "unit",
+        BASE_DIR / "tests" / "integration",
+        BASE_DIR / "tests" / "contract",
+    ]
     
-    Args:
-        contract_name: The filename of the schema (e.g., 'game_record.schema.yaml')
-        
-    Returns:
-        Path to the schema file.
-    """
-    return DIR_SPECS_CONTRACTS / contract_name
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
 
-def get_data_path(sub_path: str) -> Path:
-    """
-    Returns a full path relative to the data directory.
-    
-    Args:
-        sub_path: Relative path under data/ (e.g., 'raw/games.pgn.xz')
-        
-    Returns:
-        Full Path object.
-    """
-    return DIR_DATA_RAW / sub_path if not sub_path.startswith("processed") and not sub_path.startswith("results") \
-           else (DIR_DATA_PROCESSED / sub_path if sub_path.startswith("processed") else DIR_DATA_RESULTS / sub_path.replace("results/", ""))
+# Initialize directories on module import
+ensure_directories()
