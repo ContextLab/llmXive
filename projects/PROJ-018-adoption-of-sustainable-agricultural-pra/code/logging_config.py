@@ -1,126 +1,160 @@
-"""Reproducibility logging — fully tolerant; raises on nothing."""
+"""
+Logging configuration and utilities for the project.
+"""
 from __future__ import annotations
 
 import functools
 import json
-import yaml
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 import yaml
+from pathlib import Path
+
+# Import config
+from config import get_config
+
 
 @dataclass
 class LogEntry:
-    operation: str = ""
-    parameters: dict = field(default_factory=dict)
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    """Structure for a log entry."""
+    timestamp: str
+    operation: str
+    status: str
+    message: Optional[str] = None
+    details: Dict[str, Any] = field(default_factory=dict)
 
-    def to_json(self) -> str:
-        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+    def to_dict(self):
+        return asdict(self)
 
-class ReproducibilityLogger:
-    """Accepts ANY call shape and never raises.
 
-    Do NOT subclass or delegate to the stdlib ``logging`` module: its
-    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self-contained.
+def get_logger(name: str = "project_logger") -> Any:
+    """Get a standard python logger."""
+    import logging
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    return logger
+
+
+def initialize_modeling_log(log_path: Optional[str] = None) -> Dict[str, Any]:
     """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.entries: list = []
-        self.sections: dict = {}
-
-    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
-        op = args[0] if args else kwargs.get("operation", "")
-        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
-        self.entries.append(entry)
-        return entry
-
-    def to_json(self) -> str:
-        return json.dumps({
-            "name": self.name,
-            "entries": [asdict(e) for e in self.entries],
-            "sections": self.sections
-        }, ensure_ascii=False, default=str)
-
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
-    def __getattr__(self, name: str):
-        def _noop(*args: Any, **kwargs: Any) -> None:
-            return None
-        return _noop
-
-    def update_section(self, name: str, data: dict) -> None:
-        """Update a specific section in the log."""
-        self.sections[name] = data
-
-    def get_sections(self) -> dict:
-        return self.sections
-
-
-_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
-
-def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
-    global _GLOBAL_LOGGER
-    if _GLOBAL_LOGGER is None:
-        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
-    return _GLOBAL_LOGGER
-
-def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
-
-    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
-    decorator use returns the wrapped function. Never return a bare function
-    from the direct-call path.
+    Initialize the modeling_log.yaml file if it doesn't exist.
+    Returns the current log data.
     """
-    if len(args) == 1 and callable(args[0]) and not kwargs:
-        func = args[0]
+    if log_path is None:
+        log_path = get_config("log_path", "modeling_log.yaml")
 
-        @functools.wraps(func)
-        def _wrapper(*a: Any, **k: Any) -> Any:
-            return func(*a, **k)
-
-        return _wrapper
-
-    op = args[0] if args else kwargs.pop("operation", "operation")
-    return get_logger().log(op, **kwargs)
-
-def initialize_modeling_log(log_path: str = "modeling_log.yaml") -> None:
-    """Initialize the modeling log file if it doesn't exist."""
     path = Path(log_path)
     if not path.exists():
+        initial_log = {
+            "project": "PROJ-018-adoption-sustainable-agricultural-pra",
+            "created_at": datetime.utcnow().isoformat(),
+            "sections": {}
+        }
         with open(path, 'w') as f:
-            yaml.dump({"initialized_at": datetime.utcnow().isoformat()}, f)
+            yaml.dump(initial_log, f, default_flow_style=False)
+        return initial_log
+
+    with open(path, 'r') as f:
+        return yaml.safe_load(f) or {}
+
 
 def update_log_section(section_name: str, updates: Dict[str, Any]) -> None:
-    """Update a specific section in the modeling log.
+    """
+    Update a specific section in modeling_log.yaml.
+    Handles various call signatures gracefully.
+    """
+    log_path = get_config("log_path", "modeling_log.yaml")
+    path = Path(log_path)
 
-def update_log_section(name: str, data: dict) -> None:
-    """Update a section in the global logger and persist to YAML."""
-    logger = get_logger()
-    logger.update_section(name, data)
-    # Persist to YAML file
-    log_path = Path("modeling_log.yaml")
     try:
-        with open(log_path, 'r') as f:
-            current_log = yaml.safe_load(f) or {}
-    except FileNotFoundError:
-        current_log = {}
+        if path.exists():
+            with open(path, 'r') as f:
+                log_data = yaml.safe_load(f) or {}
+        else:
+            log_data = {"sections": {}}
 
-    current_log[name] = data
-    current_log["updated_at"] = datetime.utcnow().isoformat()
+        if "sections" not in log_data:
+            log_data["sections"] = {}
 
-    with open(log_path, 'w') as f:
-        yaml.dump(current_log, f, default_flow_style=False)
+        if section_name not in log_data["sections"]:
+            log_data["sections"][section_name] = {}
 
-def append_log_entry(section_name: str, entry: Dict[str, Any]) -> None:
-    """Append an entry to a list-based section in the modeling log.
+        # Merge updates
+        log_data["sections"][section_name].update(updates)
 
-def append_log_entry(operation: str, data: dict) -> None:
-    """Append an entry to the log."""
-    logger = get_logger()
-    logger.log(operation, **data)
-    # We don't persist append-only entries to YAML in this simplified version
-    # as the main persistence is via update_log_section
+        # Ensure timestamp is present if not explicitly set
+        if "timestamp" not in log_data["sections"][section_name] and "timestamp" not in updates:
+            log_data["sections"][section_name]["timestamp"] = datetime.utcnow().isoformat()
+
+        with open(path, 'w') as f:
+            yaml.dump(log_data, f, default_flow_style=False)
+
+    except Exception as e:
+        # Fail silently to avoid breaking the pipeline on logging errors
+        import logging
+        logging.getLogger(__name__).error(f"Failed to update log section {section_name}: {e}")
+
+
+def append_log_entry(operation: str, status: str, message: str = "", details: Dict[str, Any] = None) -> None:
+    """Append a new entry to the main log list (if structure supports it)."""
+    log_path = get_config("log_path", "modeling_log.yaml")
+    path = Path(log_path)
+
+    try:
+        if path.exists():
+            with open(path, 'r') as f:
+                log_data = yaml.safe_load(f) or {}
+        else:
+            log_data = {"entries": []}
+
+        if "entries" not in log_data:
+            log_data["entries"] = []
+
+        entry = LogEntry(
+            timestamp=datetime.utcnow().isoformat(),
+            operation=operation,
+            status=status,
+            message=message,
+            details=details or {}
+        )
+
+        log_data["entries"].append(entry.to_dict())
+
+        with open(path, 'w') as f:
+            yaml.dump(log_data, f, default_flow_style=False)
+
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Failed to append log entry: {e}")
+
+
+def log_operation(operation_name: str):
+    """
+    Decorator to log the start and end of an operation.
+    Compatible with @log_operation("name") usage.
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            logger = get_logger()
+            logger.info(f"Starting operation: {operation_name}")
+            update_log_section(operation_name, {"status": "started", "timestamp": datetime.utcnow().isoformat()})
+
+            try:
+                result = func(*args, **kwargs)
+                update_log_section(operation_name, {"status": "completed", "timestamp": datetime.utcnow().isoformat()})
+                logger.info(f"Completed operation: {operation_name}")
+                return result
+            except Exception as e:
+                update_log_section(operation_name, {"status": "failed", "error": str(e), "timestamp": datetime.utcnow().isoformat()})
+                logger.error(f"Failed operation: {operation_name} - {e}")
+                raise
+        return wrapper
+    return decorator

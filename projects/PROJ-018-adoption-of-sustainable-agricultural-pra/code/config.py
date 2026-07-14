@@ -1,115 +1,150 @@
 """
-Base configuration management for data paths and random seeds.
-
-This module provides a centralized configuration system for the project,
-handling data paths, random seeds for reproducibility, and project settings.
+Configuration management for the Sustainable Agriculture project.
+Handles loading from YAML, defaults, and random seed management.
 """
 from __future__ import annotations
 
 import os
 import random
 from pathlib import Path
-from typing import Any, Dict, Optional, Callable
+from typing import Any, Dict, Optional, Union
+
 import yaml
 
 
-DEFAULT_SEED = 42
-DEFAULT_DATA_PATH = "data"
-DEFAULT_RAW_DATA_PATH = "data/raw"
-DEFAULT_PROCESSED_DATA_PATH = "data/processed"
-DEFAULT_RESULTS_PATH = "results"
+class ConfigError(Exception):
+    """Raised when configuration loading or access fails."""
+    pass
 
 
 class Config:
-    """Configuration holder with dict-like access and tolerant logger methods."""
-
-    def __init__(self, data: Dict[str, Any]) -> None:
-        self._data = data
-        self._seed = self._data.get("random_seed", DEFAULT_SEED)
+    """
+    Configuration container.
+    Supports dictionary-like access and attribute access.
+    """
+    def __init__(self, data: Dict[str, Any] = None):
+        self._data = data or {}
 
     def get(self, key: str, default: Any = None) -> Any:
-        """
-        Get a configuration value using dot notation.
+        """Get a configuration value."""
+        return self._data.get(key, default)
 
-        Args:
-            key: Dot-separated key path (e.g., "data_paths.raw")
-        Returns:
-            The configuration value or default if not found.
-        """
-        keys = key.split(".")
-        value = self._settings
+    def set(self, key: str, value: Any) -> None:
+        """Set a configuration value."""
+        self._data[key] = value
 
-        for k in keys:
-            if isinstance(value, dict) and k in value:
-                value = value[k]
-            else:
-                return default
+    def __getitem__(self, key: str) -> Any:
+        return self._data[key]
 
-        return value
+    def __setitem__(self, key: str, value: Any) -> None:
+        self._data[key] = value
 
+    def __contains__(self, key: str) -> bool:
+        return key in self._data
+
+    def keys(self):
+        return self._data.keys()
+
+    def values(self):
+        return self._data.values()
+
+    def items(self):
+        return self._data.items()
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return the internal dictionary."""
+        return self._data.copy()
+
+    # Fallback for unknown logger-style calls to prevent AttributeError
     def __getattr__(self, name: str):
-        """Tolerant fallback for any method call (logger-style no-ops)."""
-        def _noop(*args: Any, **kwargs: Any) -> None:
+        def _noop(*args, **kwargs):
             return None
         return _noop
 
 
-def load_config(config_path: str = "code/config.yaml") -> Config:
+# Global default configuration values
+DEFAULTS = {
+    "project_root": ".",
+    "data_raw_path": "data/raw",
+    "data_processed_path": "data/processed",
+    "results_path": "results",
+    "random_seed": 42,
+    "log_path": "modeling_log.yaml",
+    "schema_path": "specs/018-adoption-sustainable-agriculture/contracts"
+}
+
+
+_global_config: Optional[Config] = None
+
+
+def load_config_from_yaml(path: Union[str, Path]) -> Config:
     """Load configuration from a YAML file."""
-    path = Path(config_path)
-    if path.exists():
-        with open(path, 'r') as f:
+    path = Path(path)
+    if not path.exists():
+        raise ConfigError(f"Config file not found: {path}")
+
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f) or {}
-    else:
-        data = {}
+    except yaml.YAMLError as e:
+        raise ConfigError(f"Failed to parse YAML: {e}")
 
-    # Ensure defaults are present
-    if "random_seed" not in data:
-        data["random_seed"] = DEFAULT_SEED
-
-    return Config(data)
+    # Merge with defaults
+    merged = {**DEFAULTS, **data}
+    return Config(merged)
 
 
-def get_config() -> Config:
-    """Get the global configuration instance."""
-    return load_config()
+def get_config(key: Optional[str] = None, default: Any = None) -> Union[Dict[str, Any], Any, Config]:
+    """
+    Global config accessor.
+    - get_config() -> Returns the full Config object (singleton).
+    - get_config("key") -> Returns the value for 'key' (or None if missing).
+    - get_config("key", default_val) -> Returns value or default_val.
+    """
+    global _global_config
+
+    if _global_config is None:
+        # Try to load from default location or use defaults
+        config_path = Path("code/config.yaml")
+        if config_path.exists():
+            _global_config = load_config_from_yaml(config_path)
+        else:
+            _global_config = Config(DEFAULTS)
+
+    if key is None:
+        return _global_config
+
+    return _global_config.get(key, default)
 
 
-def set_random_seed(seed: int) -> None:
-    """Set the random seed for reproducibility."""
+def set_random_seed(seed: Optional[int] = None) -> None:
+    """
+    Set random seeds for reproducibility.
+    Uses the global config seed if not provided.
+    """
+    if seed is None:
+        seed = get_config("random_seed", 42)
+
     random.seed(seed)
-
-
-def get_data_path() -> Path:
-    """Get the base data path."""
-    config = get_config()
-    return Path(config.get("data_path", DEFAULT_DATA_PATH))
+    # If numpy is available, seed it too
+    try:
+        import numpy as np
+        np.random.seed(seed)
+    except ImportError:
+        pass
 
 
 def get_config_path() -> Path:
+    """Return the path to the config file."""
+    return Path("code/config.yaml")
+
+
+def get_data_path(subpath: Optional[str] = None) -> Path:
     """
-    Get the configuration file path from the global configuration.
-
-    Returns:
-        Path object for the config file.
+    Return the base data path.
+    If subpath is provided, join it to the base.
     """
-    config = get_config()
-    return config.get_config_path()
-
-
-def get_raw_data_path() -> Path:
-    """Get the raw data path."""
-    config = get_config()
-    return Path(config.get("raw_data_path", DEFAULT_RAW_DATA_PATH))
-
-
-def get_processed_data_path() -> Path:
-    """Get the processed data path."""
-    config = get_config()
-    return Path(config.get("processed_data_path", DEFAULT_PROCESSED_DATA_PATH))
-
-
-def get_results_path() -> Path:
-    """Get the results path."""
-    config = get_config()
-    return Path(config.get("results_path", DEFAULT_RESULTS_PATH))
+    base = Path(get_config("data_raw_path", "data/raw"))
+    if subpath:
+        return base / subpath
+    return base

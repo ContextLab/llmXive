@@ -4,6 +4,10 @@
     "owner": "Config"
   },
   {
+    "symbol": "get_config",
+    "owner": null
+  },
+  {
     "symbol": "update_log_section",
     "owner": null
   }

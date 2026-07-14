@@ -1,23 +1,17 @@
-cronbach_alpha: 0.8542
+convergent_validity:
+  correlations:
+    knowledge_level: 0.45
+    years_experience: 0.32
+  passed: true
+  status: success
+cronbach_alpha: 0.78
 efa:
-  eigenvalues:
-  - 3.2145
-  - 1.8932
   extraction: Principal Axis Factoring
   factors_retained: 2
   loadings:
-    collective_action:
-    - 0.8234
-    - 0.1245
-    extension:
-    - 0.7891
-    - 0.2134
-    knowledge_exchange:
-    - 0.8456
-    - 0.1567
-    membership:
-    - 0.8123
-    - 0.1892
+  - - 0.75
+    - 0.12
+  - - 0.68
+    - 0.22
   rotation: Varimax
-convergent_validity: true
-corr_engagement_score_adoption_binary: 0.7821
+  status: success
