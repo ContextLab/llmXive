@@ -1,0 +1,2 @@
+# This file ensures the root directory is tracked in git if needed.
+# Linting and formatting configurations are in pyproject.toml and .ruff.toml.

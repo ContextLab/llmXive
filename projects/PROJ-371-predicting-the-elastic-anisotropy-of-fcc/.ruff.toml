@@ -1,0 +1,3 @@
+# Standalone Ruff configuration file (alternative to pyproject.toml)
+# This file ensures ruff is explicitly configured at the root level.
+extend = "pyproject.toml"

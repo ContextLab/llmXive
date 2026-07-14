@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `mkdir -p src/{data,models,utils,cli} tests/{unit,integration} data/{raw,processed} output` <!-- ATOMIZE: requested -->
+- [ ] T001 Create project structure per implementation plan: `mkdir -p src/{data,models,utils,cli} tests/{unit,integration} data/{raw,processed} output` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T002 Create `pyproject.toml` with dependencies: `pandas, scikit-learn, mendeleev, requests, pyyaml, matplotlib, python-dotenv, ruff, black, pytest`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
@@ -86,9 +86,9 @@ Examples of foundational tasks (adjust based on your project):
 - [~] T012 [US1] Implement `src/data/ingest.py` to fetch C11, C12, C44 from Materials Project and AFLOWlib APIs for a curated list of FCC IDs; validate `MP_API_KEY` environment variable; handle missing values by skipping and logging ID; verify ≥50 unique entries (SC-001) (FR-001, Edge Case 1)
 - [~] T013 [US1] Implement `src/data/clean.py` to filter for single-phase FCC entries, exclude entries where C11=C12 (preventing division by zero in A1), and calculate A1 = 2*C44 / (C11-C12) (Edge Case 2, Edge Case 3)
 - [~] T014 [US1] Implement `src/data/features.py` to compute atomic radius variance, electronegativity standard deviation, and valence electron concentration using `mendeleev` or `pymatgen` (FR-002)
-- [ ] T015 [US1] Create `src/cli/run_pipeline.py` orchestration script to fetch, clean, and feature-engineer data, saving results to `data/processed/elastic_anisotropy.csv`
-- [ ] T016 [US1] Add validation in `src/cli/run_pipeline.py` to ensure output CSV has no null values in descriptor columns (US-1 Acceptance 2)
-- [ ] T017 [US1] Verify pipeline execution on free-tier CI constraints (CPU only, <7GB RAM) by running with a sample subset of entries
+- [~] T015 [US1] Create `src/cli/run_pipeline.py` orchestration script to fetch, clean, and feature-engineer data, saving results to `data/processed/elastic_anisotropy.csv`
+- [~] T016 [US1] Add validation in `src/cli/run_pipeline.py` to ensure output CSV has no null values in descriptor columns (US-1 Acceptance 2)
+- [~] T017 [US1] Verify pipeline execution on free-tier CI constraints (CPU only, <7GB RAM) by running with a sample subset of entries
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-08T02:57:12.037767Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-1009-llmxive-follow-up-extending-ui-mopd-mult
-last_run_id: 79c64e8e-d103-4319-b1c4-c93348111d64
+last_run_id: 088546e2-e21a-472a-866f-6eb677742c97
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "UI-MOPD: Multi-Platform On-Policy Distillation
   for Continual GUI Agent"'
-updated_at: '2026-07-10T08:05:36.476259Z'
+updated_at: '2026-07-14T22:04:00.614109Z'

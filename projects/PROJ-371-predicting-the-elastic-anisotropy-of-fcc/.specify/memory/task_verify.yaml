@@ -1,10 +1,6 @@
-? 'T001 Create project structure per implementation plan: `mkdir -p src/{data,models,utils,cli}
-  tests/{unit,integration} data/{raw,processed} output` <!-- ATOMIZE: requested -->'
-: 1
-? 'T002 Create `pyproject.toml` with dependencies: `pandas, scikit-learn, mendeleev,
-  requests, pyyaml, matplotlib, python-dotenv, ruff, black, pytest`'
-: 1
-T003 [P] Configure linting (ruff) and formatting (black) tools: 1
-T004 Create `src/utils/config.py` to manage paths (data/raw, data/processed, output), random seeds (42), and constants: 1
-T005 [P] Implement `src/utils/logging.py` for structured logging and error tracking: 1
-T006 Create `tests/unit/test_config.py` to verify configuration loading and seed reproducibility: 1
+T001: 1
+T002: 1
+T003: 1
+T004: 1
+T005: 1
+T006: 1
