@@ -20,5 +20,9 @@
   {
     "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/cleaned_data.csv",
     "required": []
+  },
+  {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/data/processed/cleaned_data.csv",
+    "required": []
   }
 ]

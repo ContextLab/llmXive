@@ -9,36 +9,38 @@ sections:
     status: completed
     timestamp: '2026-07-14T14:21:28.625568'
   data_acquisition:
-    last_updated: '2026-07-14T14:21:19.317849'
+    last_updated: '2026-07-14T15:04:11.409559'
+    limitation: Real data source unavailable; using synthetic fallback.
+    n_records: 1000
     record_count: 1000
-    source: synthetic_fallback
-    status: completed
-    timestamp: '2026-07-14T14:21:19.315706'
+    source: synthetic_generator
+    status: fallback_synthetic
+    timestamp: '2026-07-14T15:04:11.404795'
   data_cleaning:
-    error: 'Input file not found: data/raw/survey_data.csv'
-    last_updated: '2026-07-14T14:21:28.623079'
+    error: No raw data file found in /home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/data/raw
+    last_updated: '2026-07-14T15:04:16.206003'
     records_processed: 1000
-    status: completed
-    timestamp: '2026-07-14T14:21:28.619356'
+    status: failed
+    timestamp: '2026-07-14T15:04:16.200789'
   data_cleaning_main:
     last_updated: '2026-07-14T13:07:26.561993'
     status: started
     timestamp: '2026-07-14T13:07:26.560387'
   feature_engineering:
-    error: check_array() got an unexpected keyword argument 'force_all_finite'
-    last_updated: '2026-07-14T14:21:21.104896'
-    status: completed
-    timestamp: '2026-07-14T14:21:21.101295'
+    error: 'Cleaned data file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/data/processed/cleaned_data.csv'
+    last_updated: '2026-07-14T15:04:13.235863'
+    status: failed
+    timestamp: '2026-07-14T15:04:13.230536'
   model_analysis:
     auc: 0.5545424207418816
     converged: true
-    error: Engineered data file not found at data/processed/engineered_data.csv. Please
-      ensure T036/T037 (US2) has completed successfully.
-    last_updated: '2026-07-14T14:21:27.630835'
+    error: Engineered data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/data/processed/engineered_data.csv.
+      Please run code/03_engineer_features.py first.
+    last_updated: '2026-07-14T15:04:15.356838'
     n_observations: 1000
     results_file: results/model_results.yaml
     roc_plot: results/roc_curve.png
-    status: completed
+    status: failed
     timestamp: '2026-07-14T14:21:27.627076'
   model_analysis_main:
     last_updated: '2026-07-14T13:07:25.392342'

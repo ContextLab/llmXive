@@ -8,6 +8,10 @@
     "owner": null
   },
   {
+    "symbol": "log_operation",
+    "owner": null
+  },
+  {
     "symbol": "update_log_section",
     "owner": null
   }

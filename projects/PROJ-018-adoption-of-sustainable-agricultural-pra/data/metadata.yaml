@@ -1,5 +1,4 @@
 data_source: synthetic_fallback
-fetch_timestamp: '2026-07-14T14:21:19.310026'
-notes: Synthetic data used as fallback due to real data source inaccessibility (FR-001,
-  FR-002)
+fetch_timestamp: '2026-07-14T15:04:11.413000'
+notes: Synthetic data used as fallback due to real data source inaccessibility (FR-001, FR-002)
 record_count: 1000
