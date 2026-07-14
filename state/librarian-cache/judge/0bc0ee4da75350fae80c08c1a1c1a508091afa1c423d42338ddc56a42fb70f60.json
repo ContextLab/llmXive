@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1910.01157",
+  "judged_at": "2026-07-13T23:44:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"does vla even know the basics? measuring commonsense and world knowled\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the commonsense reasoning capabilities and world knowledge of deep contextual representations (specifically BERT), which is the same core mechanism and dependent variable the user's question targets, even though it focuses on BERT rather than VLA models. It provides the necessary empirical baseline and methodological context for evaluating \"basics\" and \"commonsense\" in foundation models, which is essential for a literature review ",
+  "relevant": true
+}

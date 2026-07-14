@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.14554",
+  "judged_at": "2026-07-13T23:45:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"does vla even know the basics? measuring commonsense and world knowled\" computer science",
+  "rationale": "This paper addresses the user's question by providing empirical evidence on the specific mechanism of \"world knowledge\" limitations in Large Vision-Language Models (LVLMs) and offering a canonical solution (internet-augmented generation) to measure and improve this capability, satisfying criteria (a) for same-mechanism evidence and (b) for measuring the dependent variable (knowledge accuracy) on the relevant domain.",
+  "relevant": true
+}

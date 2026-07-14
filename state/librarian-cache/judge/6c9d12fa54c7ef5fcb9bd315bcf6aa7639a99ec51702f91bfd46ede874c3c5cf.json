@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2210.09263",
+  "judged_at": "2026-07-13T23:46:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"does vla even know the basics? measuring commonsense and world knowled\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the \"Vision-Language\" domain (VLP) and \"knowledge\" aspects mentioned in the user's question about VLA (Vision-Language Action) models. While the user's question focuses on a specific evaluation of \"commonsense and world knowledge\" in VLA models, this paper provides the essential background on the pre-training mechanisms, knowledge integration, and state-of-the-art methods in the broader vision-language",
+  "relevant": true
+}
