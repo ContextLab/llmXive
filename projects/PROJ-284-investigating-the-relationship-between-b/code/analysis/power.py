@@ -40,33 +40,40 @@ def calculate_detectable_effect_size(
     # Degrees of freedom
     df = n - 2
     
-    # Critical t-value
+    # Critical t-value for two-tailed test
     t_crit = stats.t.ppf(1 - alpha/2, df)
     
-    # Calculate effect size using non-central t-distribution approximation
-    # For correlation: t = r * sqrt((n-2) / (1-r^2))
-    # We need to find r such that power = P(t > t_crit | r)
+    # We need to find r such that the power (probability of rejecting H0) equals the target power.
+    # Under H1 (correlation = r), the test statistic follows a non-central t-distribution
+    # with non-centrality parameter (ncp) = r * sqrt((n-2) / (1-r^2)).
+    # Power = P(|T| > t_crit | ncp) = 1 - (CDF(t_crit) - CDF(-t_crit))
     
-    # Iterative approach to find r
-    r_low, r_high = 0.0, 0.99
-    tolerance = 1e-4
+    # Binary search for r
+    r_low, r_high = 0.0, 0.999
+    tolerance = 1e-5
+    max_iter = 100
+    iter_count = 0
     
-    while r_high - r_low > tolerance:
+    while r_high - r_low > tolerance and iter_count < max_iter:
         r_mid = (r_low + r_high) / 2
-        t_val = r_mid * np.sqrt(df / (1 - r_mid**2 + 1e-10))
+        if r_mid < 1e-10: # Avoid division by zero if r is essentially 0
+            ncp = 0.0
+        else:
+            ncp = r_mid * np.sqrt(df / (1 - r_mid**2))
         
-        # Power is probability of exceeding critical t
-        # Using non-centrality parameter approximation
-        ncp = t_val
-        power_est = 1 - stats.t.cdf(t_crit, df, ncp)
+        # Calculate power: P(T > t_crit) + P(T < -t_crit)
+        # CDF of non-central t
+        cdf_high = stats.nct.cdf(t_crit, df, ncp)
+        cdf_low = stats.nct.cdf(-t_crit, df, ncp)
         
-        if tail == 1:
-            power_est = stats.t.cdf(-t_crit, df, ncp) + (1 - stats.t.cdf(t_crit, df, ncp))
+        power_est = (1 - cdf_high) + cdf_low
         
         if power_est < power:
             r_low = r_mid
         else:
             r_high = r_mid
+        
+        iter_count += 1
     
     return (r_low + r_high) / 2
 
@@ -91,13 +98,23 @@ def generate_power_analysis_report(
             f.write(report)
         return report
     
-    # Assume n is available or estimate from data
-    if 'n' not in correlations_df.columns:
-        # Estimate n from the first row if available
-        n_est = len(correlations_df) + 2  # Rough estimate
-    else:
+    # Determine sample size N.
+    # Prefer explicit 'n' column, otherwise infer from row count.
+    if 'n' in correlations_df.columns:
+        # Use the median or mode if multiple subjects have different N (unlikely here)
+        # or just the first value if consistent.
         n_est = int(correlations_df['n'].iloc[0])
+    else:
+        # Infer N from the number of rows if each row is a subject
+        n_est = len(correlations_df)
     
+    if n_est < 3:
+        report = f"Sample size (N={n_est}) is too small for power analysis."
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w") as f:
+            f.write(report)
+        return report
+        
     # Calculate detectable effect size
     detectable_r = calculate_detectable_effect_size(n_est, power=0.80, alpha=0.05)
     
@@ -107,7 +124,7 @@ def generate_power_analysis_report(
         f"**Sample Size (N)**: {n_est}",
         f"**Target Power**: 80%",
         f"**Significance Level (α)**: 0.05",
-        f"**FDR Correction Applied**: Yes",
+        f"**FDR Correction Applied**: Yes (assumed for context)",
         "",
         "## Detectable Effect Size",
         "",
@@ -116,8 +133,8 @@ def generate_power_analysis_report(
         "",
         "## Interpretation",
         "",
-        "- Correlations with |r| > {:.3f} are likely to be detected as significant with 80% power.".format(detectable_r),
-        "- Correlations with |r| < {:.3f} may be underpowered and require larger sample sizes.".format(detectable_r),
+        f"- Correlations with |r| > {detectable_r:.3f} are likely to be detected as significant with 80% power.",
+        f"- Correlations with |r| < {detectable_r:.3f} may be underpowered and require larger sample sizes.",
         "",
         "## Notes",
         "",

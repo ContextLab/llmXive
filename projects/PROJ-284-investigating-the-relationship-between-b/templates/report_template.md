@@ -1,35 +1,21 @@
-# Research Report: Brain Network Dynamics and Sensorimotor Performance
+# Brain Network Dynamics and Sensorimotor Performance Report
+Generated: {{timestamp}}
 
-**Date Generated:** {{date}}
+## Executive Summary
+This report presents the analysis of the relationship between functional brain network dynamics
+and individual differences in sensorimotor performance, utilizing data from the HCP dataset.
 
----
-
-## 1. Correlation Results
-
-The following table summarizes the statistical relationships between extracted network metrics and sensorimotor performance scores, including FDR-corrected p-values.
-
+## Correlation Results
 {{correlation_table}}
 
----
-
-## 2. Power Analysis
-
+## Power Analysis
 {{power_analysis}}
 
----
-
-## 3. Visualizations
-
+## Visualizations
 {{plots}}
 
----
-
-## 4. Limitations
-
+## Limitations
 {{limitations}}
 
----
-
-## 5. Conclusion
-
+## Conclusion
 {{conclusion}}

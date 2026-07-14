@@ -1,4 +1,3 @@
-"""Memory profiling and dynamic batch sizing utility."""
 from __future__ import annotations
 
 import os
@@ -9,82 +8,79 @@ from code.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-# Constants
-MEMORY_LIMIT_GB = 7.0  # Default memory limit in GB
-
-
-def get_available_memory(GB: float = MEMORY_LIMIT_GB) -> int:
-    """Get available system memory in bytes.
-
-    Args:
-        GB: The memory limit in GB to use as a reference.
-
-    Returns:
-        Available memory in bytes (limited by the GB parameter).
+def get_available_memory() -> int:
+    """
+    Returns the available system memory in bytes.
     """
     try:
         mem = psutil.virtual_memory()
-        available_bytes = mem.available
-        limit_bytes = int(GB * 1024**3)
-        return min(available_bytes, limit_bytes)
+        return mem.available
     except Exception as e:
-        logger.log("get_available_memory", error=str(e), fallback=1024**3 * 2)
-        return int(GB * 1024**3)
+        logger.warning(f"Could not read memory info: {e}. Assuming default 4GB.")
+        return 4 * 1024**3
 
-
-def estimate_memory_usage(num_rows: int, num_cols: int, dtype_size: int = 8) -> int:
-    """Estimate memory usage for a DataFrame-like structure.
-
-    Args:
-        num_rows: Number of rows.
-        num_cols: Number of columns.
-        dtype_size: Size of each element in bytes (default 8 for float64).
-
-    Returns:
-        Estimated memory usage in bytes.
+def estimate_memory_usage(df_rows: int, df_cols: int, dtype_size: int = 8) -> int:
     """
-    # Base estimate: rows * cols * dtype_size
-    # Add 20% overhead for pandas structure
-    base = num_rows * num_cols * dtype_size
-    return int(base * 1.2)
-
+    Estimates memory usage for a DataFrame in bytes.
+    dtype_size defaults to 8 bytes (float64/int64).
+    """
+    # Approximate: rows * cols * bytes_per_value + overhead
+    # Overhead is roughly 10-20% for pandas structures
+    raw_size = df_rows * df_cols * dtype_size
+    return int(raw_size * 1.2)
 
 def calculate_batch_size(
-    total_items: int,
-    item_memory_estimate: int,
-    max_memory_bytes: Optional[int] = None
+    total_size_bytes: int, 
+    memory_limit_gb: float, 
+    chunk_multiplier: float = 0.5
 ) -> int:
-    """Calculate optimal batch size to stay within memory limits.
-
-    Args:
-        total_items: Total number of items to process.
-        item_memory_estimate: Estimated memory usage per item in bytes.
-        max_memory_bytes: Maximum memory to use (bytes). If None, uses default limit.
-
-    Returns:
-        Optimal batch size (number of items per batch).
     """
-    if max_memory_bytes is None:
-        max_memory_bytes = get_available_memory()
+    Calculates a safe batch size (number of rows) to process given a total data size
+    and a memory limit.
+    
+    Args:
+        total_size_bytes: Total size of the dataset to be processed.
+        memory_limit_gb: Maximum allowed memory usage in GB.
+        chunk_multiplier: Fraction of memory limit to dedicate to the batch (0.5 = 50%).
+    
+    Returns:
+        Estimated number of rows per batch.
+    """
+    limit_bytes = memory_limit_gb * 1024**3
+    safe_memory = limit_bytes * chunk_multiplier
+    
+    if total_size_bytes == 0:
+        return 1000 # Default small batch
+    
+    # Ratio of safe memory to total size gives us the fraction of data we can load at once
+    fraction = safe_memory / total_size_bytes
+    
+    # We can't directly convert bytes to rows without knowing the schema,
+    # so we assume a linear relationship and cap the batch size.
+    # If we can load the whole thing, return a large number.
+    if fraction >= 1.0:
+        return 1000000
+    
+    # This is a heuristic. In a real scenario, we'd need to know rows/bytes ratio.
+    # For CSV loading, pandas chunksize is in rows.
+    # We'll estimate a "rows per byte" ratio based on a standard float row ~ 100 bytes (10 cols).
+    estimated_rows_per_byte = 0.01 
+    estimated_total_rows = total_size_bytes * estimated_rows_per_byte
+    
+    batch_rows = int(estimated_total_rows * fraction)
+    
+    # Ensure minimum batch size
+    return max(100, batch_rows)
 
-    if item_memory_estimate == 0:
-        return total_items
+def verify_batching_logic():
+    """
+    Simple verification that the batching logic doesn't crash.
+    """
+    mem = get_available_memory()
+    print(f"Available memory: {mem / 1024**3:.2f} GB")
+    
+    batch = calculate_batch_size(500 * 1024 * 1024, 7.0) # 500MB dataset
+    print(f"Suggested batch size for 500MB dataset: {batch}")
 
-    # Calculate how many items fit in memory
-    # Use 90% of available memory for safety
-    safe_memory = max_memory_bytes * 0.9
-    batch_size = int(safe_memory // item_memory_estimate)
-
-    if batch_size < 1:
-        batch_size = 1
-    if batch_size > total_items:
-        batch_size = total_items
-
-    logger.log(
-        "calculate_batch_size",
-        total_items=total_items,
-        item_memory_bytes=item_memory_estimate,
-        max_memory_bytes=max_memory_bytes,
-        batch_size=batch_size
-    )
-    return batch_size
+if __name__ == "__main__":
+    verify_batching_logic()
