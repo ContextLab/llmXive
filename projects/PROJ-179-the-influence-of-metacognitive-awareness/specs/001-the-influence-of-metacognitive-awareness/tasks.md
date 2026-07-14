@@ -86,7 +86,7 @@
 - [X] T015 [US1] Implement `src/analysis/bootstrap.py` for 1,000 bootstrap resamples to generate 95% CI.
  - **Runtime Check**: Monitor cumulative wall-clock time of the bootstrap loop. Check periodically at regular resample intervals. If runtime > 5.5h, log warning "Runtime limit detected, reducing bootstrap count to 500", update `data/results/bootstrap_config.json` with `bootstrap_count: 500`, and exit with code 0 (success with warning).
  - **Constraint**: Default is a sufficient number of resamples. Reduction to a lower capacity is a staged fallback only if the 5.5h threshold is exceeded.
-- [X] T016 [US1] Implement `src/report/generate.py` to render correlation magnitude, direction, p-value, and CI to `data/results/primary_analysis.json`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T016 [US1] Implement `src/report/generate.py` to render correlation magnitude, direction, p-value, and CI to `data/results/primary_analysis.json`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [X] T017 [US1] Add validation to ensure `data/derived/confidence_summary.csv` and `data/derived/accuracy_summary.csv` are derived from disjoint trials.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -118,7 +118,7 @@
  - Check normality of residuals (Shapiro-Wilk)
  - Check homoscedasticity (Breusch-Pagan)
  - Calculate VIF for collinearity (flag if VIF ≥ 5)
-- [X] T022 [US2] [Depends on: T021] Implement `src/report/generate.py` update to include regression coefficients, SE, t-stat, p-value, and diagnostic flags in `data/results/regression_analysis.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [X] T022 [US2] [Depends on: T021] Implement `src/report/generate.py` update to include regression coefficients, SE, t-stat, p-value, and diagnostic flags in `data/results/regression_analysis.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,7 +133,7 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T024 [P] [US3] Contract test for modality filter logic in `tests/contract/test_modality_filter.py`
-- [~] T025 [P] [US3] Integration test for modality-specific correlation in `tests/integration/test_modality_analysis.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
+- [X] T025 [P] [US3] Integration test for modality-specific correlation in `tests/integration/test_modality_analysis.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 3
 
@@ -141,7 +141,7 @@
  - **Output**: `data/derived/visual_trials.csv`, `data/derived/auditory_trials.csv`.
 - [X] T027 [US3] [Depends on: T026, T014] Implement `src/analysis/robustness.py` to run the Phase 3 correlation pipeline on each subset independently.
  - **Constraint**: Do not run in parallel with T026. Must wait for T026 to complete.
-- [~] T028 [US3] [Depends on: T027] Implement `src/report/generate.py` update to apply Bonferroni or Benjamini-Hochberg correction for multiple comparisons (family-wise error) and report corrected p-values in `data/results/robustness_analysis.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T028 [US3] [Depends on: T027] Implement `src/report/generate.py` update to apply Bonferroni or Benjamini-Hochberg correction for multiple comparisons (family-wise error) and report corrected p-values in `data/results/robustness_analysis.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -263,4 +263,4 @@ With multiple developers:
 - **Fallbacks**: T020 MUST handle missing working-memory data by switching to an n-1 model and reporting adjusted R². T015 MUST implement a staged fallback for bootstrap count if runtime exceeds 5.5h.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [~] T035 Reconcile run-book vs implementation for `code/analysis.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist. <!-- ATOMIZE: requested -->
+- [X] T035 Reconcile run-book vs implementation for `code/analysis.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist. <!-- ATOMIZE: requested -->

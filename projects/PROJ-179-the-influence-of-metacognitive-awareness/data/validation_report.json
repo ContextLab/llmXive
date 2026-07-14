@@ -1,10 +1,9 @@
 {
   "status": "FAIL",
-  "message": "No input dataset found.",
-  "timestamp": "2026-07-14T03:33:18.407870",
+  "timestamp": "2026-07-14T05:15:04.866222",
   "required_fields": [
     "confidence_rating",
     "source_label"
   ],
-  "details": {}
+  "reason": "No input dataset found"
 }

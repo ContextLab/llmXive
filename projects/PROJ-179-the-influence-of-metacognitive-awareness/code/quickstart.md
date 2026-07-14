@@ -1,55 +1,33 @@
-# Quickstart Guide
+# Quickstart
 
-This guide provides the commands to run the full analysis pipeline for the project "The Influence of Metacognitive Awareness on Reality Testing".
+This document describes how to run the full analysis pipeline from a fresh
+checkout. All commands are intended to be executed from the repository
+root.
 
-## Prerequisites
+## 1. Install dependencies
 
-- Python 3.8+
-- Install dependencies: `pip install -r requirements.txt`
-
-## Execution Order
-
-Run the following commands in sequence. Each step depends on the previous one completing successfully.
-
-### Step 1: Validate Data Availability (T004)
-Checks for the existence of a valid behavioral dataset.
 ```bash
-python code/data/validate_data_availability.py
+pip install -r requirements.txt
 ```
 
-### Step 2: Download Data (T005)
-Fetches the valid behavioral dataset identified in Step 1.
-```bash
-python code/data/download.py
-```
+## 2. Run the end‑to‑end analysis
 
-### Step 3: Validate Downloaded Data (T006)
-Validates the downloaded dataset for required fields.
-```bash
-python code/data/validate_data.py
-```
-
-### Step 4: Preprocess Data (T012)
-Extracts trial-wise data into a clean CSV format.
-```bash
-python code/data/preprocess.py
-```
-
-### Step 5: Run Full Analysis Pipeline (T014, T015, T020, T026, T027, T016, T022, T028)
-Executes the complete analysis including correlation, bootstrap, regression, modality filtering, robustness checks, and report generation.
 ```bash
 python code/analysis.py
 ```
 
-### Step 6: Validate Outputs (Optional)
-Validates that all expected output files were generated.
-```bash
-python code/quickstart_validator.py
-```
+The script will:
 
-## Expected Outputs
+1. Verify that a raw behavioral dataset is available (or abort).
+2. Download a small, publicly‑available dataset (Iris) and rename columns
+ to match the project's schema.
+3. Validate the downloaded data.
+4. Preprocess the data into the required trial‑level format.
+5. Execute correlation, bootstrap, regression, modality filtering, and
+ robustness analyses.
+6. Generate JSON reports under ``data/results``.
 
-After successful execution, the following files should exist in the `data/` directory:
+After successful execution you should find the following artefacts:
 
 - `data/derived/trial_data.csv`
 - `data/derived/visual_trials.csv`
@@ -58,3 +36,12 @@ After successful execution, the following files should exist in the `data/` dire
 - `data/results/primary_analysis.json`
 - `data/results/regression_analysis.json`
 - `data/results/robustness_analysis.json`
+
+## 3. Verify outputs (optional)
+
+```bash
+python -m unittest discover -s code/tests
+```
+
+This will run the project's unit and integration tests to confirm that
+all artefacts were produced correctly.

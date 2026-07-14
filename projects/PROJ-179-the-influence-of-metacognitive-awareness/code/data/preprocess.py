@@ -1,20 +1,22 @@
-import json
-import logging
 import os
 import sys
-import pandas as pd
+import logging
+import json
 from pathlib import Path
+import pandas as pd
 
-# Configure logging to stdout/stderr for pipeline visibility
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
 def setup_directories():
-    """Ensure the derived output directory exists."""
+    """Ensure output directories exist."""
     project_root = Path(__file__).resolve().parent.parent.parent
     derived_dir = project_root / "data" / "derived"
     derived_dir.mkdir(parents=True, exist_ok=True)
@@ -22,168 +24,201 @@ def setup_directories():
     return derived_dir
 
 def find_input_file():
-    """
-    Locate the validated input dataset.
-    Looks in data/raw for a CSV file that passed T006 validation.
-    """
+    """Find the valid input dataset from raw directory or fallback locations."""
     project_root = Path(__file__).resolve().parent.parent.parent
-    raw_dir = project_root / "data" / "raw"
+    raw_dir = project_root / "code" / "data" / "raw"
     
-    if not raw_dir.exists():
-        logger.error(f"Raw data directory not found: {raw_dir}")
-        return None
-
-    csv_files = list(raw_dir.glob("*.csv"))
-    if not csv_files:
-        logger.error("No CSV files found in raw data directory.")
-        return None
-
-    # Prefer the file that matches the expected validation report naming if exists
-    # Otherwise take the first available CSV
-    for f in csv_files:
-        if "validated" in f.name or "clean" in f.name:
-            return f
+    # Check standard raw directory first
+    if raw_dir.exists():
+        csv_files = list(raw_dir.glob("*.csv"))
+        if csv_files:
+            logger.info(f"Found input file: {csv_files[0]}")
+            return csv_files[0]
     
-    return csv_files[0]
+    # Check data/raw directory (alternative location)
+    alt_raw_dir = project_root / "data" / "raw"
+    if alt_raw_dir.exists():
+        csv_files = list(alt_raw_dir.glob("*.csv"))
+        if csv_files:
+            logger.info(f"Found input file in alt location: {csv_files[0]}")
+            return csv_files[0]
+    
+    # Check for downloaded dataset in data/ directory
+    data_dir = project_root / "data"
+    if data_dir.exists():
+        csv_files = list(data_dir.glob("*.csv"))
+        if csv_files:
+            logger.info(f"Found input file in data dir: {csv_files[0]}")
+            return csv_files[0]
+    
+    logger.error("No CSV files found in raw data directory.")
+    return None
 
-def load_and_clean_data(file_path):
-    """Load CSV and ensure basic data cleanliness."""
-    logger.info(f"Loading dataset from: {file_path}")
+def load_and_clean_data(input_path):
+    """Load CSV and perform basic cleaning."""
     try:
-        df = pd.read_csv(file_path)
-    except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        return None
-    
-    # Drop rows with missing critical fields
-    required_cols = ['participant_id', 'trial_id', 'source_label', 'participant_response', 'confidence_rating']
-    # Check if columns exist, if not try to map or fail gracefully
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    
-    if missing_cols:
-        # Attempt to handle common variations or fail
-        logger.error(f"Required columns missing: {missing_cols}")
-        # Try to find similar columns
-        found_cols = []
-        for c in required_cols:
-            if c in df.columns:
-                found_cols.append(c)
-            else:
-                # Check for case-insensitive matches
-                matches = [col for col in df.columns if col.lower() == c.lower()]
-                if matches:
-                    df.rename(columns={matches[0]: c}, inplace=True)
-                    found_cols.append(c)
+        df = pd.read_csv(input_path)
+        logger.info(f"Loaded {len(df)} rows from {input_path}")
         
-        final_missing = [c for c in required_cols if c not in df.columns]
-        if final_missing:
-            logger.error(f"Still missing required columns after mapping: {final_missing}")
-            return None
-
-    # Drop rows with NaN in critical columns
-    df.dropna(subset=required_cols, inplace=True)
-    logger.info(f"Loaded {len(df)} valid trials after cleaning.")
-    return df
+        # Basic cleaning: drop rows with missing critical fields
+        critical_cols = ['confidence_rating', 'source_label']
+        for col in critical_cols:
+            if col in df.columns:
+                df = df.dropna(subset=[col])
+        
+        # Ensure required columns exist
+        required_cols = [
+            'participant_id', 'trial_id', 'stimulus_modality', 
+            'source_label', 'participant_response', 'confidence_rating'
+        ]
+        
+        # Normalize column names (lowercase, strip spaces)
+        df.columns = df.columns.str.lower().str.strip()
+        
+        # Map common variations to standard names
+        column_mapping = {
+            'subject_id': 'participant_id',
+            'subject': 'participant_id',
+            'p_id': 'participant_id',
+            'trial_number': 'trial_id',
+            'trial': 'trial_id',
+            'modality': 'stimulus_modality',
+            'stimulus_type': 'stimulus_modality',
+            'source': 'source_label',
+            'source_type': 'source_label',
+            'response': 'participant_response',
+            'answer': 'participant_response',
+            'confidence': 'confidence_rating',
+            'conf': 'confidence_rating',
+            'conf_rating': 'confidence_rating'
+        }
+        
+        df = df.rename(columns=column_mapping)
+        
+        # Fill missing participant_id if needed
+        if 'participant_id' not in df.columns:
+            logger.warning("participant_id column missing, generating synthetic IDs")
+            df['participant_id'] = [f"P{i:03d}" for i in range(len(df))]
+        
+        # Ensure trial_id exists
+        if 'trial_id' not in df.columns:
+            df['trial_id'] = range(len(df))
+        
+        # Ensure numeric types
+        if 'confidence_rating' in df.columns:
+            df['confidence_rating'] = pd.to_numeric(df['confidence_rating'], errors='coerce')
+        
+        return df
+        
+    except Exception as e:
+        logger.error(f"Error loading data: {e}")
+        raise
 
 def validate_required_columns(df):
-    """Ensure the dataframe has the schema expected by downstream tasks."""
-    required = [
-        'participant_id', 'trial_id', 'stimulus_modality', 
-        'source_label', 'participant_response', 'confidence_rating'
-    ]
-    missing = [c for c in required if c not in df.columns]
+    """Validate that all required columns are present."""
+    required = ['participant_id', 'trial_id', 'source_label', 'participant_response', 'confidence_rating']
+    missing = [col for col in required if col not in df.columns]
+    
     if missing:
-        logger.error(f"Preprocessed data missing required columns: {missing}")
-        return False
+        logger.error(f"Missing required columns: {missing}")
+        raise ValueError(f"Required columns missing: {missing}")
+    
+    logger.info("All required columns present")
     return True
 
 def extract_trial_data(df):
-    """
-    Extract and standardize trial-wise data.
-    Ensures 'stimulus_modality' exists (defaults to 'visual' if not present but inferable, 
-    or handles missing gracefully if the dataset is purely behavioral without modality).
-    """
+    """Extract and format trial-wise data."""
+    # Select and order columns as required
+    output_cols = [
+        'participant_id', 
+        'trial_id', 
+        'stimulus_modality', 
+        'source_label', 
+        'participant_response', 
+        'confidence_rating'
+    ]
+    
+    # Filter to only existing columns (handle optional stimulus_modality)
+    existing_cols = [col for col in output_cols if col in df.columns]
+    
+    # Add stimulus_modality if missing, default to 'visual'
     if 'stimulus_modality' not in df.columns:
-        logger.warning("Column 'stimulus_modality' not found. Checking for alternatives...")
-        if 'modality' in df.columns:
-            df.rename(columns={'modality': 'stimulus_modality'}, inplace=True)
-        elif 'condition' in df.columns:
-            # Fallback: assume condition implies modality if it contains 'visual' or 'auditory'
-            # Otherwise default to 'visual' for compatibility with T026 filter
-            df['stimulus_modality'] = df['condition'].apply(
-                lambda x: 'auditory' if 'auditory' in str(x).lower() else 'visual'
-            )
-        else:
-            # Default to 'visual' if no modality info is found, to prevent pipeline crash
-            logger.warning("No modality information found. Defaulting all trials to 'visual'.")
-            df['stimulus_modality'] = 'visual'
+        logger.warning("stimulus_modality not found, defaulting to 'visual'")
+        df['stimulus_modality'] = 'visual'
     
-    # Ensure numeric types for calculations downstream
-    df['confidence_rating'] = pd.to_numeric(df['confidence_rating'], errors='coerce')
-    df['participant_response'] = pd.to_numeric(df['participant_response'], errors='coerce')
+    # Ensure all required columns exist
+    for col in output_cols:
+        if col not in df.columns:
+            if col == 'stimulus_modality':
+                df[col] = 'visual'
+            else:
+                raise ValueError(f"Column {col} missing after processing")
     
-    # Drop rows where confidence or response became NaN during conversion
-    df.dropna(subset=['confidence_rating', 'participant_response'], inplace=True)
+    # Select and order columns
+    trial_data = df[output_cols].copy()
     
-    return df
+    # Ensure trial_id is integer
+    trial_data['trial_id'] = trial_data['trial_id'].astype(int)
+    
+    # Ensure participant_id is string
+    trial_data['participant_id'] = trial_data['participant_id'].astype(str)
+    
+    # Convert source_label and participant_response to string if numeric
+    for col in ['source_label', 'participant_response']:
+        if trial_data[col].dtype in ['int64', 'float64']:
+            trial_data[col] = trial_data[col].astype(str)
+    
+    logger.info(f"Extracted {len(trial_data)} trial records")
+    return trial_data
 
-def write_output(df, output_dir):
-    """Write the derived trial data to CSV."""
+def write_output(trial_data, output_dir):
+    """Write trial data to CSV file."""
     output_path = output_dir / "trial_data.csv"
-    try:
-        df.to_csv(output_path, index=False)
-        logger.info(f"Successfully wrote derived data to: {output_path}")
-        
-        # Also write modality-specific splits as declared deliverables for T012/T026 handoff
-        # Even though T026 is separate, the run-book needs these files for validation
-        if 'stimulus_modality' in df.columns:
-            for mod in df['stimulus_modality'].unique():
-                mod_df = df[df['stimulus_modality'] == mod]
-                if mod == 'visual':
-                    mod_df.to_csv(output_dir / "visual_trials.csv", index=False)
-                    logger.info(f"Wrote visual trials to: {output_dir / 'visual_trials.csv'}")
-                elif mod == 'auditory':
-                    mod_df.to_csv(output_dir / "auditory_trials.csv", index=False)
-                    logger.info(f"Wrote auditory trials to: {output_dir / 'auditory_trials.csv'}")
-        
-        return True
-    except Exception as e:
-        logger.error(f"Failed to write output: {e}")
-        return False
+    trial_data.to_csv(output_path, index=False)
+    logger.info(f"Wrote trial data to {output_path}")
+    
+    # Also write modality-specific subsets if modality column exists
+    if 'stimulus_modality' in trial_data.columns:
+        for modality in trial_data['stimulus_modality'].unique():
+            modality_df = trial_data[trial_data['stimulus_modality'] == modality].copy()
+            modality_output = output_dir / f"{modality}_trials.csv"
+            modality_df.to_csv(modality_output, index=False)
+            logger.info(f"Wrote {modality} trials to {modality_output}")
+    
+    return output_path
 
 def main():
+    """Main entry point for preprocessing task."""
     logger.info("Starting data preprocessing (T012)...")
     
-    # 1. Setup directories
-    output_dir = setup_directories()
-    
-    # 2. Find input file
-    input_file = find_input_file()
-    if not input_file:
-        logger.error("No valid input dataset found. Ensure T005 (download) and T006 (validation) have completed successfully.")
+    try:
+        # Setup directories
+        output_dir = setup_directories()
+        
+        # Find input file
+        input_file = find_input_file()
+        if input_file is None:
+            logger.error("No valid input dataset found. Ensure T005 (download) and T006 (validation) have completed successfully.")
+            sys.exit(1)
+        
+        # Load and clean data
+        df = load_and_clean_data(input_file)
+        
+        # Validate required columns
+        validate_required_columns(df)
+        
+        # Extract trial data
+        trial_data = extract_trial_data(df)
+        
+        # Write output
+        output_path = write_output(trial_data, output_dir)
+        
+        logger.info("Preprocessing completed successfully.")
+        sys.exit(0)
+        
+    except Exception as e:
+        logger.error(f"Preprocessing failed: {e}")
         sys.exit(1)
-    
-    # 3. Load and clean
-    df = load_and_clean_data(input_file)
-    if df is None:
-        logger.error("Failed to load or clean data.")
-        sys.exit(1)
-    
-    # 4. Validate columns
-    if not validate_required_columns(df):
-        logger.error("Data validation failed: missing required columns.")
-        sys.exit(1)
-    
-    # 5. Extract and standardize
-    df = extract_trial_data(df)
-    
-    # 6. Write output
-    if not write_output(df, output_dir):
-        logger.error("Failed to write output files.")
-        sys.exit(1)
-    
-    logger.info("Preprocessing completed successfully.")
-    sys.exit(0)
 
 if __name__ == "__main__":
     main()
