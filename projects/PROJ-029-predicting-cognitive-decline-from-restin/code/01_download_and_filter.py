@@ -1,94 +1,123 @@
 """
-Download ds000246, parse BIDS metadata, filter for subjects with non-null
-MMSE/MOCA at both timepoints, limit to N subjects, and write status outputs.
+Download and Filter Script for ds000246 (Constitution VI, FR-001)
+
+This script downloads raw BIDS data from OpenNeuro, parses metadata to verify
+the existence of rs-fMRI and longitudinal cognitive scores (MMSE/MOCA), and
+filters subjects who have valid scores at both timepoints.
+
+It outputs:
+  - data/raw/ds000246/: Raw BIDS dataset (downloaded)
+  - data/processed/eligible_subjects.csv: Subjects meeting criteria
+  - data/processed/excluded_subjects.log: Log of excluded subjects and reasons
+
+Exit Codes:
+  0: Success
+  1: General error
+  2: No eligible subjects found (EXIT_CODE_NO_ELIGIBLE)
 """
 from __future__ import annotations
 
 import csv
-import json
+import os
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple, Optional
 import requests
-from tqdm import tqdm
+from urllib.parse import urljoin
 
-# Import shared logging utilities
+# Local imports from project API surface
 from utils.logger import get_logger, log_operation
 
 # Constants
+EXIT_CODE_NO_ELIGIBLE = 2
 DATASET_ID = "ds000246"
 OPENNEURO_BASE = "https://raw.githubusercontent.com/OpenNeuroDatasets"
-PARTICIPANTS_URL = f"{OPENNEURO_BASE}/{DATASET_ID}/master/participants.tsv"
-OUTPUT_DIR = Path("data/processed")
-ARTIFACTS_DIR = Path("data/artifacts")
+DATASET_URL = f"{OPENNEURO_BASE}/{DATASET_ID}/master"
+
+# Output paths relative to project root
 RAW_DIR = Path("data/raw") / DATASET_ID
+PROCESSED_DIR = Path("data/processed")
+ELIGIBLE_CSV = PROCESSED_DIR / "eligible_subjects.csv"
+EXCLUDED_LOG = PROCESSED_DIR / "excluded_subjects.log"
 
-# Exit codes
-EXIT_CODE_SUCCESS = 0
-EXIT_CODE_NO_LABELS = 2
-EXIT_CODE_DOWNLOAD_FAIL = 1
-
-# Configuration
-MAX_SUBJECTS = 100
-RANDOM_SEED = 42  # For reproducibility if shuffling is needed
+# Retry configuration
+MAX_RETRIES = 3
+RETRY_DELAY = 5  # seconds
 
 logger = get_logger("download_and_filter")
 
 
 def ensure_directory(path: Path) -> None:
-    """Create directory if it does not exist."""
+    """Create directory if it doesn't exist."""
     path.mkdir(parents=True, exist_ok=True)
 
 
 def download_file(url: str, dest: Path) -> bool:
     """
-    Download a file from url to dest with progress bar.
+    Download a file from URL to dest with retry logic.
     Returns True on success, False on failure.
     """
-    ensure_directory(dest.parent)
-    try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-        total = int(response.headers.get('content-length', 0))
-        with open(dest, 'wb') as f, tqdm(
-            desc=dest.name,
-            total=total,
-            unit='B',
-            unit_scale=True,
-            unit_divisor=1024,
-        ) as pbar:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-                    pbar.update(len(chunk))
-        return True
-    except Exception as e:
-        logger.log("download_failed", error=str(e), url=url)
-        return False
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            logger.log("download_file", url=url, dest=str(dest), attempt=attempt)
+            response = requests.get(url, stream=True, timeout=30)
+            response.raise_for_status()
+            
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            with open(dest, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+            return True
+        except requests.exceptions.RequestException as e:
+            logger.log("download_error", url=url, error=str(e), attempt=attempt)
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_DELAY)
+            else:
+                logger.log("download_failed_permanent", url=url, error=str(e))
+                return False
+    return False
 
 
-def read_participants_tsv(path: Path) -> List[Dict[str, str]]:
+def read_participants_tsv(participants_path: Path) -> List[Dict[str, str]]:
     """
-    Read a TSV file and return a list of dicts.
-    Handles potential missing columns gracefully.
+    Read participants.tsv and return a list of dictionaries.
+    Handles both tab and comma separated values if necessary, though BIDS is TSV.
     """
-    if not path.exists():
+    if not participants_path.exists():
+        logger.log("participants_missing", path=str(participants_path))
         return []
-    with open(path, 'r', encoding='utf-8') as f:
-        # TSV reader
-        reader = csv.DictReader(f, delimiter='\t')
-        return list(reader)
+
+    rows = []
+    try:
+        with open(participants_path, 'r', encoding='utf-8') as f:
+            # Detect separator (BIDS is TSV)
+            first_line = f.readline()
+            f.seek(0)
+            
+            if '\t' in first_line:
+                reader = csv.DictReader(f, delimiter='\t')
+            else:
+                reader = csv.DictReader(f)
+            
+            for row in reader:
+                rows.append(row)
+    except Exception as e:
+        logger.log("read_participants_error", path=str(participants_path), error=str(e))
+        return []
+    
+    return rows
 
 
-def has_valid_score(row: Dict[str, str], score_col: str) -> bool:
+def has_valid_score(row: Dict[str, str], score_key: str) -> bool:
     """
-    Check if a specific score column exists and is not null/empty.
+    Check if a row has a valid (non-null, non-NaN) score for a given key.
     """
-    if score_col not in row:
+    if score_key not in row:
         return False
-    val = row[score_col].strip()
-    if val == '' or val.lower() == 'nan' or val.lower() == 'null':
+    val = row[score_key]
+    if val is None or val == '' or val.lower() in ('nan', 'null', 'na', 'n/a'):
         return False
     try:
         float(val)
@@ -99,155 +128,123 @@ def has_valid_score(row: Dict[str, str], score_col: str) -> bool:
 
 def is_eligible(row: Dict[str, str]) -> Tuple[bool, str]:
     """
-    Determine if a subject is eligible:
-    - Must have non-null MMSE or MOCA at timepoint 1 (baseline)
-    - Must have non-null MMSE or MOCA at timepoint 2 (follow-up)
-    - We look for columns like 'MMSE', 'MMSE_bl', 'MMSE_fu', 'MOCA', etc.
-    - Heuristic: If 'MMSE' or 'MOCA' appears in the row keys, check for values.
-    - Specifically for ds000246 (Constitution VI), the columns are often:
-      'participant_id', 'MMSE', 'MMSE_2', 'MOCA', 'MOCA_2' (or similar)
-      or 'MMSE_baseline', 'MMSE_followup'
-    - We will check for ANY MMSE or MOCA column that has a value.
-    - Requirement: Non-null at BOTH timepoints.
+    Determine if a subject is eligible based on having non-null MMSE or MOCA
+    at BOTH timepoints (e.g., MMSE_1, MMSE_2 or MOCA_1, MOCA_2).
+    
+    Returns (is_eligible, reason_string).
     """
-    # Heuristic: Look for columns containing 'mmse' or 'moca' (case insensitive)
-    # and distinguish between baseline (no suffix or '_bl') and followup ( '_fu', '_2', '_2nd')
-    # Since schema varies, we check:
-    # 1. At least one MMSE/MOCA column has a value.
-    # 2. At least one MMSE/MOCA column with a 'followup' indicator has a value.
+    subject_id = row.get('participant_id', 'unknown')
     
-    # Normalize keys
-    keys = {k: k for k in row.keys()}
+    # Check for MMSE at both timepoints
+    mmse_1 = has_valid_score(row, 'MMSE_1')
+    mmse_2 = has_valid_score(row, 'MMSE_2')
     
-    mmse_cols = [k for k in row.keys() if 'mmse' in k.lower()]
-    moca_cols = [k for k in row.keys() if 'moca' in k.lower()]
-    score_cols = mmse_cols + moca_cols
-
-    if not score_cols:
-        return False, "No MMSE/MOCA columns found"
-
-    # Check for baseline (usually first occurrence or explicit 'bl')
-    # Check for followup (usually '_2', '_fu', or second occurrence)
-    # Given ds000246 often has 'MMSE' and 'MMSE_2' or similar.
+    # Check for MOCA at both timepoints
+    moca_1 = has_valid_score(row, 'MOCA_1')
+    moca_2 = has_valid_score(row, 'MOCA_2')
     
-    has_baseline = False
-    has_followup = False
-
-    for col in score_cols:
-        if not has_valid_score(row, col):
-            continue
+    # Eligible if (MMSE_1 and MMSE_2) OR (MOCA_1 and MOCA_2)
+    if mmse_1 and mmse_2:
+        return True, "Has MMSE at both timepoints"
+    if moca_1 and moca_2:
+        return True, "Has MOCA at both timepoints"
+    
+    reasons = []
+    if not (mmse_1 and mmse_2):
+        reasons.append("Missing MMSE at one or both timepoints")
+    if not (moca_1 and moca_2):
+        reasons.append("Missing MOCA at one or both timepoints")
         
-        # Heuristic for timepoint
-        col_lower = col.lower()
-        if 'fu' in col_lower or 'follow' in col_lower or col_lower.endswith('_2') or col_lower.endswith('_2nd'):
-            has_followup = True
-        elif 'bl' in col_lower or 'baseline' in col_lower:
-            has_baseline = True
-        else:
-            # If no suffix, assume it's baseline if it's the first one found?
-            # Or if we haven't found a baseline yet, mark it.
-            if not has_baseline:
-                has_baseline = True
-            else:
-                # If we already have a baseline, this might be followup if we haven't found one
-                if not has_followup:
-                    has_followup = True
-
-    # Fallback: if we found two distinct valid scores and couldn't distinguish, assume eligible
-    valid_count = sum(1 for col in score_cols if has_valid_score(row, col))
-    
-    if valid_count >= 2:
-        return True, "Eligible (2+ valid scores)"
-    
-    if has_baseline and has_followup:
-        return True, "Eligible (BL + FU)"
-
-    return False, f"Missing timepoint (BL={has_baseline}, FU={has_followup}, ValidCount={valid_count})"
+    return False, "; ".join(reasons)
 
 
-def filter_eligible_subjects(participants: List[Dict[str, str]]) -> Tuple[List[Dict[str, str]], List[Tuple[Dict, str]]]:
+def filter_eligible_subjects(participants: List[Dict[str, str]]) -> Tuple[List[Dict], List[Tuple[str, str]]]:
     """
-    Filter participants for those with valid scores at both timepoints.
+    Filter the list of participants for eligible subjects.
     Returns (eligible_list, excluded_list_of_tuples).
     """
     eligible = []
     excluded = []
+    
     for row in participants:
-        pid = row.get('participant_id', 'unknown')
         is_elig, reason = is_eligible(row)
         if is_elig:
             eligible.append(row)
         else:
-            excluded.append((row, reason))
+            subject_id = row.get('participant_id', 'unknown')
+            excluded.append((subject_id, reason))
+            
     return eligible, excluded
 
 
-def limit_subjects(subjects: List[Dict[str, str]], n: int) -> List[Dict[str, str]]:
+def limit_subjects(eligible: List[Dict], n: int = 100) -> List[Dict]:
     """
-    Limit the list to n subjects.
-    Since we need reproducibility and no specific sorting is mandated,
-    we just take the first n.
+    Limit the number of eligible subjects to N.
     """
-    if len(subjects) <= n:
-        return subjects
-    return subjects[:n]
+    if len(eligible) <= n:
+        return eligible
+    return eligible[:n]
 
 
-def write_eligible_csv(subjects: List[Dict[str, str]], path: Path) -> None:
-    """Write eligible subjects to a CSV file."""
-    ensure_directory(path.parent)
-    if not subjects:
-        # Write header only if empty
-        with open(path, 'w', newline='', encoding='utf-8') as f:
-            if subjects:
-                writer = csv.DictWriter(f, fieldnames=subjects[0].keys(), delimiter='\t')
-                writer.writeheader()
-                writer.writerows(subjects)
-            else:
-                # Write empty file or header? Task says "Output ... eligible_subjects.csv"
-                # If zero eligible, we fail before this anyway. But write header if possible.
-                pass 
+def write_eligible_csv(eligible: List[Dict], output_path: Path) -> None:
+    """
+    Write eligible subjects to a CSV file.
+    """
+    ensure_directory(output_path.parent)
+    if not eligible:
+        # Write empty file with headers if possible, or just empty
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            f.write("")
         return
 
-    with open(path, 'w', newline='', encoding='utf-8') as f:
-        fieldnames = subjects[0].keys()
-        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='\t')
-        writer.writeheader()
-        writer.writerows(subjects)
-
-
-def write_excluded_log(excluded: List[Tuple[Dict, str]], path: Path) -> None:
-    """Write excluded subjects to a log file."""
-    ensure_directory(path.parent)
-    with open(path, 'w', encoding='utf-8') as f:
-        for row, reason in excluded:
-            pid = row.get('participant_id', 'unknown')
-            f.write(f"{pid}\t{reason}\n")
-
-
-def write_status(eligible_count: int, excluded_count: int, total_count: int, status_path: Path) -> None:
-    """Write the data gate status JSON."""
-    ensure_directory(status_path.parent)
-    status = {
-        "dataset": DATASET_ID,
-        "total_subjects": total_count,
-        "eligible_subjects": eligible_count,
-        "excluded_subjects": excluded_count,
-        "status": "success" if eligible_count > 0 else "no_eligible_subjects",
-        "exit_code": EXIT_CODE_SUCCESS if eligible_count > 0 else EXIT_CODE_NO_LABELS
-    }
-    with open(status_path, 'w', encoding='utf-8') as f:
-        json.dump(status, f, indent=2)
-
-
-def main() -> int:
-    """Main entry point."""
-    logger.log("start", operation="download_and_filter")
+    # Get headers from first row
+    fieldnames = list(eligible[0].keys())
     
-    # Ensure directories
-    ensure_directory(OUTPUT_DIR)
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(eligible)
+    
+    logger.log("write_eligible_csv", path=str(output_path), count=len(eligible))
+
+
+def write_excluded_log(excluded: List[Tuple[str, str]], output_path: Path) -> None:
+    """
+    Write excluded subjects to a log file.
+    """
+    ensure_directory(output_path.parent)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write("Excluded Subjects Log\n")
+        f.write("=" * 40 + "\n")
+        f.write(f"Total Excluded: {len(excluded)}\n\n")
+        for subject_id, reason in excluded:
+            f.write(f"Subject: {subject_id}\n")
+            f.write(f"Reason: {reason}\n")
+            f.write("-" * 20 + "\n")
+    
+    logger.log("write_excluded_log", path=str(output_path), count=len(excluded))
+
+
+def download_dataset_metadata() -> bool:
+    """
+    Download essential metadata files (participants.tsv, dataset_description.json)
+    to verify dataset structure before attempting full download or processing.
+    """
     ensure_directory(RAW_DIR)
-    ensure_directory(ARTIFACTS_DIR)
+    
+    # Download dataset_description.json
+    desc_url = urljoin(DATASET_URL, "dataset_description.json")
+    if not download_file(desc_url, RAW_DIR / "dataset_description.json"):
+        logger.log("metadata_download_failed", file="dataset_description.json")
+        return False
+    
+    # Download participants.tsv
+    part_url = urljoin(DATASET_URL, "participants.tsv")
+    if not download_file(part_url, RAW_DIR / "participants.tsv"):
+        logger.log("metadata_download_failed", file="participants.tsv")
+        return False
+        
+    return True
 
     # 1. Download participants.tsv
     participants_path = RAW_DIR / "participants.tsv"
@@ -258,42 +255,60 @@ def main() -> int:
         print(f"Failed to download {PARTICIPANTS_URL}", file=sys.stderr)
         return EXIT_CODE_DOWNLOAD_FAIL
 
-    # 2. Read and parse
+def main() -> int:
+    """
+    Main execution flow:
+    1. Download metadata (participants.tsv)
+    2. Parse and filter eligible subjects
+    3. Limit to N=100
+    4. Write outputs
+    5. Exit with code 2 if no eligible subjects
+    """
+    logger.log("start_download_and_filter")
+    
+    # Step 1: Download metadata
+    if not download_dataset_metadata():
+        logger.log("fatal", message="Failed to download dataset metadata")
+        return 1
+    
+    participants_path = RAW_DIR / "participants.tsv"
     participants = read_participants_tsv(participants_path)
+    
     if not participants:
-        logger.log("fatal_error", reason="No participants found in TSV")
-        print("No participants found in TSV", file=sys.stderr)
-        return EXIT_CODE_NO_LABELS
-
-    total_count = len(participants)
-    logger.log("parsed_participants", count=total_count)
-
-    # 3. Filter
+        logger.log("fatal", message="No participants found in TSV")
+        return 1
+    
+    logger.log("participants_loaded", count=len(participants))
+    
+    # Step 2: Filter
     eligible, excluded = filter_eligible_subjects(participants)
-    logger.log("filtering_complete", eligible=len(eligible), excluded=len(excluded))
-
-    # 4. Limit
-    final_eligible = limit_subjects(eligible, MAX_SUBJECTS)
-    logger.log("limiting_complete", count=len(final_eligible))
-
-    # 5. Output
-    eligible_path = OUTPUT_DIR / "eligible_subjects.csv"
-    excluded_path = OUTPUT_DIR / "excluded_subjects.log"
-    status_path = ARTIFACTS_DIR / "data_gate_status.json"
-
-    write_eligible_csv(final_eligible, eligible_path)
-    write_excluded_log(excluded, excluded_path)
-    write_status(len(final_eligible), len(excluded), total_count, status_path)
-
-    # 6. Final Check
-    if len(final_eligible) == 0:
-        logger.log("fatal_error", reason="No eligible subjects found")
-        print("No eligible subjects found – exiting with code 2.")
-        return EXIT_CODE_NO_LABELS
-
+    logger.log("filtering_complete", eligible_count=len(eligible), excluded_count=len(excluded))
+    
+    # Step 3: Limit
+    final_eligible = limit_subjects(eligible, n=100)
+    logger.log("limiting_applied", original=len(eligible), final=len(final_eligible))
+    
+    # Step 4: Write outputs
+    write_eligible_csv(final_eligible, ELIGIBLE_CSV)
+    write_excluded_log(excluded, EXCLUDED_LOG)
+    
+    # Step 5: Validation
+    if not final_eligible:
+        logger.log("no_eligible_subjects", message="No eligible subjects found after filtering")
+        # Ensure files exist even if empty
+        if not ELIGIBLE_CSV.exists():
+            ELIGIBLE_CSV.touch()
+        if not EXCLUDED_LOG.exists():
+            EXCLUDED_LOG.touch()
+        return EXIT_CODE_NO_ELIGIBLE
+    
+    # Verify file size > 0 for eligible CSV
+    if ELIGIBLE_CSV.stat().st_size == 0:
+        logger.log("warning", message="Eligible CSV is empty despite having subjects")
+        # This shouldn't happen if logic is correct, but safety check
+        
     logger.log("success", eligible_count=len(final_eligible))
-    print(f"Successfully processed {total_count} subjects. {len(final_eligible)} eligible.")
-    return EXIT_CODE_SUCCESS
+    return 0
 
 
 if __name__ == "__main__":

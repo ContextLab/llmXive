@@ -46,8 +46,8 @@ The researcher performs a permutation test to validate that feature importance i
 **Independent Test**: The pipeline can take an existing model and performance metric, run the permutation test, and output a p-value and a sensitivity report showing metric variation across thresholds.
 
 **Acceptance Scenarios**:
-1. **Given** the trained model and original labels, **When** A sufficient number of label permutations are performed to ensure statistical robustness, bounded by a practical runtime constraint.. and the model re-trained/re-evaluated, **Then** a p-value is calculated representing the proportion of permuted runs that achieved a higher ROC-AUC than the original model.
-2. **Given** the model's probability outputs, **When** the decision threshold is swept across a set of values including and 0.55, **Then** a report is generated showing how the False Positive Rate and False Negative Rate vary for each threshold.
+1. **Given** the trained model and original labels, **When** A sufficient number of label permutations are performed to ensure statistical robustness, bounded by a 2-hour runtime. and the model re-trained/re-evaluated, **Then** a p-value is calculated representing the proportion of permuted runs that achieved a higher ROC-AUC than the original model.
+2. **Given** the model's probability outputs, **When** the decision threshold is swept across a set of values including representative mid-range points, **Then** a report is generated showing how the False Positive Rate and False Negative Rate vary for each threshold.
 3. **Given** the observational nature of the data, **When** the results are summarized, **Then** the report explicitly frames findings as "associational" rather than "causal" in all text outputs.
 
 ---

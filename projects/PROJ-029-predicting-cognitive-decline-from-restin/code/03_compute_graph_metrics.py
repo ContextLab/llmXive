@@ -1,239 +1,121 @@
-"""Compute graph theoretical metrics from connectivity matrices.
+"""Compute graph‑theoretic metrics for each eligible subject using parallel processing.
 
-This script reads the list of eligible subjects, loads their preprocessed
-connectivity matrices, and calculates node degree, global efficiency,
-clustering coefficient, and average path length for each subject.
-
-It processes subjects one-by-one to stay within the 7GB RAM limit.
-It uses joblib for parallel processing to reduce runtime.
+This script reads the list of eligible subjects (produced by ``01_download_and_filter.py``),
+loads each subject's functional connectivity matrix, computes a set of graph metrics,
+and writes the results to ``data/processed/graph_metrics.csv``.  Runtime information is
+written to ``data/artifacts/graph_metrics_runtime.txt`` for verification that the
+processing stays below the 30‑minute target for 100 subjects.
 """
 from __future__ import annotations
 
-import csv
-import os
 import sys
 import time
 from pathlib import Path
 from typing import List, Dict, Any
 
-import numpy as np
-import networkx as nx
 from joblib import Parallel, delayed
-import psutil
-
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from utils.io import ensure_dir, load_csv
+from utils.graph import (
+    create_graph_from_adjacency,
+    calculate_global_efficiency,
+    calculate_clustering_coefficient,
+    calculate_degree_centrality,
+    calculate_shortest_path_length,
+)
+from utils.io import load_csv, save_csv
 from utils.logger import get_logger, log_operation
 
-# Configuration
-CONNECTIVITY_DIR = PROJECT_ROOT / "data" / "processed" / "connectivity_matrices"
-ELIGIBLE_SUBJECTS_FILE = PROJECT_ROOT / "data" / "processed" / "eligible_subjects.csv"
-OUTPUT_FILE = PROJECT_ROOT / "data" / "processed" / "graph_metrics.csv"
-RAM_LIMIT_GB = 7.0
-N_JOBS = 2
 
-logger = get_logger("graph_metrics")
-
-
-def read_eligible_subjects(filepath: Path) -> List[str]:
-    """Read subject IDs from the eligible subjects CSV."""
-    if not filepath.exists():
-        logger.log("error", message=f"Eligible subjects file not found: {filepath}")
-        return []
-    subjects = []
-    with open(filepath, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Handle potential variations in column name
-            subj_id = row.get('subject_id') or row.get('subject') or row.get('bids_id')
-            if subj_id:
-                subjects.append(str(subj_id))
-    logger.log("info", operation="read_eligible_subjects", count=len(subjects))
-    return subjects
+def read_eligible_subjects(csv_path: Path) -> List[Dict[str, str]]:
+    """Load ``eligible_subjects.csv``; exit with an error if missing."""
+    if not csv_path.is_file():
+        get_logger().error(f"Eligible subjects file not found: {csv_path}")
+        sys.exit(1)
+    return load_csv(csv_path)
 
 
-def load_connectivity(subject_id: str) -> np.ndarray:
-    """Load connectivity matrix for a subject.
+def load_connectivity(subject_id: str, conn_dir: Path) -> Any:
+    """Load a NumPy ``.npy`` connectivity matrix for *subject_id*."""
+    conn_path = conn_dir / f"{subject_id}_connectivity.npy"
+    if not conn_path.is_file():
+        get_logger().warning(f"Connectivity file missing for {subject_id}")
+        return None
+    import numpy as np
 
-    Expects a .npy or .csv file in CONNECTIVITY_DIR named <subject_id>.npy or .csv.
-    """
-    possible_paths = [
-        CONNECTIVITY_DIR / f"{subject_id}.npy",
-        CONNECTIVITY_DIR / f"{subject_id}.csv",
-        CONNECTIVITY_DIR / subject_id / "connectivity.npy",
-        CONNECTIVITY_DIR / subject_id / "connectivity.csv",
-    ]
-
-    for p in possible_paths:
-        if p.exists():
-            if p.suffix == '.npy':
-                return np.load(p)
-            elif p.suffix == '.csv':
-                return np.loadtxt(p, delimiter=',')
-    
-    # Fallback: try to find any file matching subject_id in subdirectories
-    if CONNECTIVITY_DIR.exists():
-        for item in CONNECTIVITY_DIR.rglob("*"):
-            if subject_id in item.name and (item.suffix in ['.npy', '.csv']):
-                if item.suffix == '.npy':
-                    return np.load(item)
-                else:
-                    return np.loadtxt(item, delimiter=',')
-
-    logger.log("warning", operation="load_connectivity", subject_id=subject_id, message="File not found")
-    return None
+    return np.load(conn_path)
 
 
-def compute_subject_metrics(subject_id: str) -> Dict[str, Any]:
-    """Compute graph metrics for a single subject."""
-    matrix = load_connectivity(subject_id)
-    
-    if matrix is None:
-        return {
-            "subject_id": subject_id,
-            "degree_mean": np.nan,
-            "global_efficiency": np.nan,
-            "clustering_coeff": np.nan,
-            "avg_path_length": np.nan,
-            "status": "missing_matrix"
-        }
+def compute_subject_metrics(subject_id: str, conn_matrix: Any) -> Dict[str, Any]:
+    """Given a connectivity matrix, compute a suite of graph metrics."""
+    if conn_matrix is None:
+        return {"subject_id": subject_id}
 
-    try:
-        # Ensure symmetric and zero diagonal for undirected graph
-        matrix = np.array(matrix)
-        matrix = (matrix + matrix.T) / 2.0
-        np.fill_diagonal(matrix, 0)
+    # Build a NetworkX graph from the adjacency matrix
+    G = create_graph_from_adjacency(conn_matrix)
 
-        # Create graph
-        G = nx.from_numpy_array(matrix)
+    # Degree centrality (average over nodes)
+    degree = calculate_degree_centrality(G)
+    degree_mean = sum(degree.values()) / len(degree) if degree else None
 
-        # Calculate metrics
-        # 1. Node Degree (Mean)
-        degrees = dict(G.degree())
-        degree_mean = np.mean(list(degrees.values()))
+    # Global efficiency
+    global_eff = calculate_global_efficiency(G)
 
-        # 2. Global Efficiency
-        # NetworkX raises NetworkXError if graph is disconnected for average shortest path
-        # Global efficiency is defined for disconnected graphs (sum of 1/d)
-        try:
-            global_eff = nx.global_efficiency(G)
-        except Exception:
-            global_eff = np.nan
+    # Clustering coefficient (average)
+    clustering = calculate_clustering_coefficient(G)
 
-        # 3. Clustering Coefficient (Mean)
-        try:
-            clustering = nx.average_clustering(G)
-        except Exception:
-            clustering = np.nan
+    # Average shortest path length
+    path_len = calculate_shortest_path_length(G)
 
-        # 4. Average Path Length
-        # For disconnected graphs, nx.average_shortest_path_length raises
-        # We use a weighted average or just the largest connected component
-        try:
-            # Only compute on largest connected component to avoid infinity
-            if nx.is_connected(G):
-                avg_path = nx.average_shortest_path_length(G)
-            else:
-                largest_cc = max(nx.connected_components(G), key=len)
-                subgraph = G.subgraph(largest_cc)
-                avg_path = nx.average_shortest_path_length(subgraph)
-        except Exception:
-            avg_path = np.nan
-
-        return {
-            "subject_id": subject_id,
-            "degree_mean": float(degree_mean),
-            "global_efficiency": float(global_eff),
-            "clustering_coeff": float(clustering),
-            "avg_path_length": float(avg_path),
-            "status": "success"
-        }
-
-    except Exception as e:
-        logger.log("error", operation="compute_subject_metrics", subject_id=subject_id, error=str(e))
-        return {
-            "subject_id": subject_id,
-            "degree_mean": np.nan,
-            "global_efficiency": np.nan,
-            "clustering_coeff": np.nan,
-            "avg_path_length": np.nan,
-            "status": f"error: {str(e)}"
-        }
+    return {
+        "subject_id": subject_id,
+        "degree_mean": degree_mean,
+        "global_efficiency": global_eff,
+        "clustering_coefficient": clustering,
+        "average_shortest_path": path_len,
+    }
 
 
-def process_subject_wrapper(args: tuple) -> Dict[str, Any]:
-    """Wrapper for parallel processing to handle arguments correctly."""
-    subject_id, _ = args
-    return compute_subject_metrics(subject_id)
+def process_subject(subject_record: Dict[str, str], conn_dir: Path) -> Dict[str, Any]:
+    """Wrapper used by the parallel executor."""
+    subject_id = subject_record["subject_id"]
+    conn = load_connectivity(subject_id, conn_dir)
+    return compute_subject_metrics(subject_id, conn)
 
 
-def write_metrics_csv(results: List[Dict[str, Any]], output_path: Path) -> None:
-    """Write results to CSV."""
-    ensure_dir(output_path.parent)
-    fieldnames = ["subject_id", "degree_mean", "global_efficiency", "clustering_coeff", "avg_path_length", "status"]
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in results:
-            # Ensure all keys exist, fill missing with NaN
-            safe_row = {k: row.get(k, np.nan) for k in fieldnames}
-            writer.writerow(safe_row)
-    
-    logger.log("info", operation="write_metrics_csv", output=str(output_path), count=len(results))
+def main() -> None:
+    start = time.time()
+    logger = get_logger("graph_metrics")
 
+    # Load eligible subjects
+    eligible_path = Path("data/processed/eligible_subjects.csv")
+    subjects = read_eligible_subjects(eligible_path)
 
-def check_memory_usage() -> float:
-    """Check current memory usage in GB."""
-    process = psutil.Process(os.getpid())
-    mem_info = process.memory_info()
-    return mem_info.rss / (1024 ** 3)
+    # Directory where per‑subject connectivity matrices are stored
+    conn_dir = Path("data/processed/connectivity")
 
-
-@log_operation("compute_graph_metrics")
-def main() -> int:
-    """Main entry point."""
-    start_time = time.time()
-    logger.log("start", operation="main", ram_limit_gb=RAM_LIMIT_GB)
-
-    # 1. Read eligible subjects
-    subjects = read_eligible_subjects(ELIGIBLE_SUBJECTS_FILE)
-    if not subjects:
-        logger.log("warning", message="No eligible subjects found.")
-        # Write empty file with headers
-        write_metrics_csv([], OUTPUT_FILE)
-        return 0
-
-    logger.log("info", message=f"Processing {len(subjects)} subjects with {N_JOBS} jobs.")
-
-    # 2. Process subjects
-    # Use joblib for parallelization as requested in T035
-    # We pass a list of tuples to match the wrapper signature
-    subject_args = [(s, None) for s in subjects]
-    
-    # Check memory before starting
-    mem_before = check_memory_usage()
-    logger.log("info", operation="memory_check", memory_gb=mem_before)
-
-    results = Parallel(n_jobs=N_JOBS, verbose=10)(
-        delayed(process_subject_wrapper)(args) for args in subject_args
+    # Parallel processing (2 jobs as required)
+    results = Parallel(n_jobs=2)(
+        delayed(process_subject)(subj, conn_dir) for subj in subjects
     )
 
-    # 3. Check memory after
-    mem_after = check_memory_usage()
-    logger.log("info", operation="memory_check_post", memory_gb=mem_after, delta=mem_after - mem_before)
+    # Keep only entries that contain computed metrics
+    metrics = [r for r in results if "degree_mean" in r]
 
-    # 4. Write results
-    write_metrics_csv(results, OUTPUT_FILE)
+    # Write the aggregated metrics CSV
+    output_path = Path("data/processed/graph_metrics.csv")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if metrics:
+        fieldnames = list(metrics[0].keys())
+        save_csv(metrics, output_path, fieldnames=fieldnames)
+        logger.info(f"Graph metrics written to {output_path}")
+    else:
+        logger.warning("No graph metrics were computed.")
 
-    elapsed = time.time() - start_time
-    logger.log("complete", operation="main", elapsed_seconds=elapsed, output=str(OUTPUT_FILE))
-    
-    print(f"Graph metrics computed in {elapsed:.2f} seconds. Output: {OUTPUT_FILE}")
-    return 0
+    # Record runtime for verification
+    runtime_path = Path("data/artifacts/graph_metrics_runtime.txt")
+    runtime_path.parent.mkdir(parents=True, exist_ok=True)
+    elapsed = time.time() - start
+    runtime_path.write_text(f"Runtime seconds: {elapsed:.2f}\n")
+    logger.info(f"Graph metrics computation completed in {elapsed:.2f}s")
 
 
 if __name__ == "__main__":

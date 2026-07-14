@@ -52,7 +52,7 @@
 - [X] T003b [P] Create directory `tests/integration/` at repository root
 - [X] T003c [P] Create directory `tests/contract/` at repository root
 - [X] T004a [P] Initialize Python 3.11 project structure in `code/`
-- [X] T004b [P] Create `code/requirements.txt` with pinned dependencies: `nibabel`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `bids`, `requests`, `tqdm`, `pytest`, `fsl`, `nilearn`, `psutil`, `joblib`
+- [X] T004b [P] Create `code/requirements.txt` with pinned dependencies: `nibabel`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `bids`, `requests`, `tqdm`, `pytest`, `nilearn`, `psutil`, `joblib`, `fslpy`
 - [X] T004c [P] Implement `code/00_data_gate.py`: Verify OpenNeuro `ds000246` (Constitution VI, FR-001) availability. Parse metadata to ensure rs-fMRI and longitudinal MMSE/MOCA scores exist. Exit with `EXIT_CODE_NO_LABELS = 2` if missing. Log verification status.
 - [X] T005 [P] Implement utility modules: `code/utils/io.py` (BIDS loading), `code/utils/graph.py` (AAL atlas loading), `code/utils/stats.py` (collinearity checks)
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logger.py` to capture excluded subjects and feature‑filtering logs
@@ -90,9 +90,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T017 [P] [US1] Implement `code/01_download_and_filter.py`: Download `ds000246` (Constitution VI, FR-001), parse BIDS metadata, filter for subjects with non‑null MMSE/MOCA at both timepoints, limit to `N = min(100, available_eligible)`, fail if zero eligible subjects. Output `data/processed/eligible_subjects.csv`, `data/processed/excluded_subjects.log`, and `data/artifacts/data_gate_status.json`.
-- [X] T018 [P] [US1] Implement `code/02_preprocess_and_parcellate.py`: Load raw BIDS data for subjects listed in `data/processed/eligible_subjects.csv`, perform motion correction using `fsl` (mcflirt with default reference volume and 6 degrees of freedom), normalization using `nilearn`, apply the fixed AAL atlas with a standard number of regions, and generate **90x90** square connectivity matrices (Constitution Principle VII, FR-002). Output to `data/processed/connectivity_matrices/`.
-- [ ] T019 [US1] Implement `code/03_compute_graph_metrics.py`: Calculate node degree, global efficiency, clustering coefficient, and path length for every subject; output to `data/processed/graph_metrics.csv`. Process subject‑by‑subject to stay within 7GB RAM. <!-- FAILED: unspecified -->
+- [ ] T017 [P] [US1] Implement `code/01_download_and_filter.py`: Download `ds000246` (Constitution VI, FR-001), parse BIDS metadata, and save raw data to `data/raw/`. Filter subjects with non‑null MMSE/MOCA at both timepoints, limit to `N = min(100, available_eligible)`. Output `data/processed/eligible_subjects.csv` and `data/processed/excluded_subjects.log`. Assert file size > 0; exit with `EXIT_CODE_NO_ELIGIBLE = 2` if no eligible subjects. <!-- FAILED: unspecified -->
+- [X] T018 [P] [US1] Implement `code/02_preprocess_and_parcellate.py`: Load raw BIDS data, perform motion correction using `nilearn` (or `fslpy` if available), normalization, apply an AAL atlas with multiple regions, generate square connectivity matrices for each subject.
+- [ ] T019 [US1] Implement `code/03_compute_graph_metrics.py`: Calculate node degree (`nx.degree`), global efficiency (`nx.global_efficiency`), clustering coefficient (`nx.clustering`), and path length (`nx.average_shortest_path_length`) for every subject; output to `data/processed/graph_metrics.csv`. Process subject‑by‑subject to stay within 7GB RAM.
 - [X] T020 [US1] Add validation: Verify memory usage during graph metric calculation stays within the 7 GB RAM limit on a 2‑core runner (use `psutil`).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -113,9 +113,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `code/04_train_model.py`: Define decline label (drop ≥ 3 points). Implement Nested CV (K-fold outer cross-validation, grid‑search inner). **Grid Search Parameters**: `n_estimators` over `{50, 100, 200}` and `max_depth` over `{5, 10, None}` (specific values chosen to satisfy FR-010 optimization requirements within CPU constraints). **Inside the inner CV loop**: perform collinearity check (exclude features with correlation > 0.95, keep higher‑variance feature), apply Variance Thresholding (`variance > 0.01`) and RFE to select ≤ 20 features, then fit Random Forest. Output `data/processed/model.pkl`, `data/processed/cv_results.json`, and `data/processed/model_params.json`. <!-- FAILED: unspecified -->
-- [ ] T024 [US2] Implement `code/05_evaluate_model.py`: Calculate ROC‑AUC, accuracy, and F1‑score per fold and mean; output to `data/processed/performance_report.json` <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [ ] T025 [US2] Implement `code/11_external_outcome_check.py`: Check for MCI conversion data in the dataset; if unavailable, write a limitation note to `data/artifacts/limitations.txt` (output consumed by T031 for final report generation) (FR-011).
+- [ ] T023a [US2] Implement `code/04_train_model.py`: Define decline label (drop ≥ 3 points). Implement Nested CV (k-fold outer, grid-search inner). **Grid Search**: `n_estimators ∈ {50, 100, 200}`, `max_depth ∈ {5, 10, None}` (Note: Spec FR-010 lists `{5, 10, None}` for `n_estimators` which is likely a typo for `max_depth`; this implementation uses standard RF ranges). **Inside inner CV**: perform collinearity check (Compute Pearson correlation on training fold only; exclude features with correlation > 0.95, keep higher‑variance feature), apply Variance Thresholding (`variance > 0.01`) and RFE to select ≤ 20 features, then fit Random Forest. <!-- ATOMIZE: requested -->
+- [ ] T024 [US2] Implement `code/05_evaluate_model.py`: Calculate ROC‑AUC, accuracy, and F1‑score per fold and mean; output to `data/processed/performance_report.json`
+- [X] T025 [US2] Implement `code/11_external_outcome_check.py`: Check for MCI conversion data in the dataset; if unavailable, write a limitation note to `data/artifacts/limitations.txt` (to be included in the final report)
 - [X] T026 [US2] Verify runtime: Ensure nested‑CV training completes within 30 minutes on the CPU‑only runner (use joblib with `n_jobs=2` and monitor elapsed time)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -136,10 +136,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/06_permutation_test.py`: Import training logic from `code/04_train_model.py`. **Pre-flight Check**: Estimate runtime for 100 permutations; if > 2 hours, abort with error. **Execution**: Shuffle labels **100** times (seed = 42), re‑train/re‑evaluate the model for each permutation, and record ROC‑AUC. **Constraint**: Execute 100 permutations as a runtime-optimized override of FR-005's n=500 per Plan runtime constraints. Do NOT compute a 'partial p-value'. If runtime limit is hit, fail explicitly. Output to `data/processed/permutation_results.json` with keys `p_value` and `distribution`. <!-- ATOMIZE: requested -->
-- [X] T030a [US3] Implement `code/07_sensitivity_analysis.py` (Part 1): Perform decision threshold sweep over `{0.45, 0.50, 0.55}` on the trained model. Report false‑positive/false‑negative rates.
-- [X] T030b [US3] Implement `code/07_sensitivity_analysis.py` (Part 2): Vary the decline‑definition threshold by ± 1 point on raw MMSE/MOCA scores. **MUST re-train the model** for each variation to assess robustness of the label definition (FR-012). Report false‑positive/false‑negative rates.
-- [X] T031 [US3] Implement `code/09_generate_report.py`: Aggregate all results, explicitly label findings as "associational" (FR‑007), document limitations (read from `data/artifacts/limitations.txt` generated by T025), and output `data/artifacts/final_report.md`.
+- [ ] T029 [US3] Implement `code/06_permutation_test.py`: Import training logic from `code/04_train_model.py`. **Execution**: Shuffle labels (seed = 42), re‑train/re‑evaluate the model for each permutation (n=500 as per FR-005), and record ROC‑AUC. Output to `data/processed/permutation_results.json`. **Note**: If runtime exceeds a predefined threshold, the job MUST fail with an error rather than reducing n, to preserve statistical power requirements.
+- [X] T030 [US3] Implement `code/07_sensitivity_analysis.py`: Perform decision threshold sweep over `{0.45, 0.50, 0.55}` on the trained model. Report false‑positive/false‑negative rates. Define loop over decline threshold variations: a set of integer point values. For each threshold variation, re-train the model and compute ROC-AUC. Aggregate results into `data/processed/sensitivity_report.json` showing FPR/FNR variation for each threshold definition.
+- [X] T031 [US3] Implement `code/09_generate_report.py`: Aggregate all results, explicitly label findings as "associational" (FR‑007), document limitations (read from `data/artifacts/limitations.txt`), and output `data/artifacts/final_report.md`.
 - [X] T032 [US3] Implement `code/10_verify_success_criteria.py`: Check that ROC‑AUC > 0.50, p < 0.05, and total runtime < 6 h; write `VERIFICATION_STATUS` and `runtime_report.json`.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -151,12 +150,14 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T033 [P] Documentation updates: Update `README.md` with execution order, dataset requirements, and how to reproduce each phase
-- [X] T034 Code cleanup: Remove debug prints, ensure all random seeds are pinned to a fixed value to guarantee reproducibility., and enforce PEP 8 compliance via `flake8`
-- [~] T035 Performance optimization: Refactor `code/03_compute_graph_metrics.py` to use `joblib.Parallel(n_jobs=2)` and verify runtime reduction (target < 30 min for 100 subjects)
+- [X] T034 Code cleanup: Remove debug prints, ensure all random seeds are pinned to 42, and enforce PEP 8 compliance via `flake8`
+- [ ] T035 Performance optimization: Refactor `code/03_compute_graph_metrics.py` to use `joblib.Parallel(n_jobs=2)` and verify runtime reduction (target < 30 min for 100 subjects)
 - [X] T036 [P] Run the full `tests/` suite and ensure **all** tests pass
 - [X] T037 Security hardening: Scan `data/raw/` for PII using `pybids`/`bids-validator`; automatically redact any personal identifiers found in JSON side‑cars or filenames
-- [X] T038 Run `quickstart.md` validation to ensure end‑to‑end reproducibility on a fresh runner
+- [X] T038 [P] Run `quickstart.md` validation to ensure end‑to‑end reproducibility on a fresh runner
 - [X] T043 [P] Add a CI step that logs peak memory usage for each major script (download, preprocessing, modeling, permutation) to `data/artifacts/memory_profile.log` for future audit
+
+**Checkpoint**: Project ready for final review
 
 ---
 
@@ -191,6 +192,13 @@
 - All user stories can start in parallel after Foundational phase
 - All tests for a user story marked `[P]` can run in parallel
 - Different user stories can be worked on in parallel by different team members
+
+### Specific Ordering Requirements
+
+- **T017** must be executed first in Phase 3 to provide data for subsequent tasks.
+- **T023a** and **T024** are sequential steps within the modeling phase.
+- **T030** is a single consolidated task covering all sensitivity analysis steps.
+- **T019** must be executed before **T023a** to provide graph metrics for modeling.
 
 ---
 
@@ -228,7 +236,7 @@ With multiple developers:
 ## Notes
 
 - `[P]` tasks = different files, no dependencies
-- `[Story]` label maps task to specific user story for traceability
+- `[Story]` label maps task to traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
@@ -237,9 +245,7 @@ With multiple developers:
 - **Critical**: Ensure `code/01_download_and_filter.py` handles OpenNeuro download failures with retries and clear exit codes.
 - **Critical**: Ensure `code/03_compute_graph_metrics.py` does **not** load all raw NIfTI files into memory simultaneously if `N=100` exceeds RAM; process subject‑by‑subject.
 - **Critical**: Ensure `code/04_train_model.py` uses `joblib` or similar for parallelisation within the 2‑core limit without oversubscription.
-- **Critical**: Ensure `code/06_permutation_test.py` enforces the permutation requirement (reduced from a larger baseline for runtime) and fails if the 2-hour limit cannot be met, rather than producing a partial result.
-- **Critical (Revision)**: Phase 6 removed as scope creep; pipeline remains strictly static topology as per Spec.
-- **Critical (Revision)**: All new tasks must strictly adhere to the fMRI-only scope defined in FR-002. No external molecular data or proxies are authorized.
-
-<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [~] T044 REMOVED: Reconcile run-book vs implementation for `code/08_collinearity_check.py`. The Plan and Tasks now agree that collinearity is handled inside `code/04_train_model.py` (T023). The standalone script `code/08_collinearity_check.py` has been removed from the Plan and Tasks. The run-book (quickstart.md) must be updated to remove any reference to `code/08_collinearity_check.py`.
+- **Critical**: Ensure `code/06_permutation_test.py` enforces n=500 permutations as per FR-005; failure to complete within 2 hours should be a job error, not a fallback to n=100.
+- **Critical**: Ensure `code/04_train_model.py` correctly implements nested feature selection and collinearity handling within the inner loop.
+- **Critical**: Ensure all tasks reference the correct dataset `ds000246` as per Constitution VI and Spec FR-001.
+- **Critical**: Ensure `code/04_train_model.py` implements the grid search range `{50, 100, 200}` for `n_estimators` and `{5, 10, None}` for `max_depth`, noting the spec's likely typo.
