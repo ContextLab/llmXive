@@ -4,27 +4,29 @@
 
 These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
 
-- `python code/08_collinearity_check.py`
+- `python code/03_compute_graph_metrics.py`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 command(s) failed: python code/01_download_and_filter.py (rc=2); python code/03_compute_graph_metrics.py (rc=1); python code/04_train_model.py (rc=1); 3 declared deliverable(s) absent: data/processed/graph_metrics.csv; data/processed/performance_report.json; data/processed/permutation_results.json
+**Summary**: 6 command(s) failed: python code/01_download_and_filter.py (rc=2); python code/03_compute_graph_metrics.py (rc=1); python code/04_train_model.py (rc=1); 4 declared deliverable(s) absent: data/processed/eligible_subjects.csv; data/processed/graph_metrics.csv; data/processed/performance_report.json
 
 ## Failing / missing run-book commands
 
 - python code/01_download_and_filter.py -> rc=2
-    Downloading participants.tsv from https://raw.githubusercontent.com/OpenNeuroDatasets/ds000246/master/participants.tsv ...
+    No eligible subjects found – exiting with code 2.
 
-No eligible subjects found – exiting with code 2.
+
+participants.tsv:   0%|          | 0.00/98.0 [00:00<?, ?B/s]
+participants.tsv:  93%|█████████▎| 91.0/98.0 [00:00<00:00, 414kB/s]
 - python code/03_compute_graph_metrics.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/03_compute_graph_metrics.py", line 77, in <module>
-    @log_operation("graph_metrics")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/03_compute_graph_metrics.py", line 136, in <module>
+    @log_operation("compute_graph_metrics")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: 'LogEntry' object is not callable
 - python code/04_train_model.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 226, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 305, in <module>
     @log_operation("train_model")
      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: 'LogEntry' object is not callable
@@ -41,6 +43,8 @@ TypeError: 'LogEntry' object is not callable
 
 ## Declared deliverables still missing
 
+- data/processed/eligible_subjects.csv
+- data/processed/graph_metrics.csv
 - data/processed/performance_report.json
 - data/processed/permutation_results.json
 
@@ -52,21 +56,19 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_logger` — defined in `code/utils/logger.py`; called 20 way(s):
+### `get_logger` — defined in `code/11_external_outcome_check.py`; called 18 way(s):
 
 - code/12_memory_profiler.py: logger = get_logger("memory_profiler")
 - code/06_permutation_test.py: return get_logger(name)
 - code/08_collinearity_check.py: logger = get_logger("collinearity_check")
 - code/15_ci_memory_profiler.py: logger = get_logger("ci_memory_profiler")
 - code/00_data_gate.py: logger = get_logger("data_gate")
-- code/11_external_outcome_check.py: get_logger().info("check_mci_conversion called")
-- code/11_external_outcome_check.py: logger = get_logger("external_outcome")
-- code/03_compute_graph_metrics.py: get_logger().error(f"Eligible subjects file not found: {csv_path}")
-- code/03_compute_graph_metrics.py: get_logger().warning(f"Connectivity file missing for {subject_id}")
+- code/01_download_and_filter.py: logger = get_logger("download_and_filter")
+- code/11_external_outcome_check.py: return get_logger().log(op, **kwargs)
+- code/11_external_outcome_check.py: logger = get_logger("external_outcome_check")
 - code/03_compute_graph_metrics.py: logger = get_logger("graph_metrics")
 - code/04_train_model.py: logger = get_logger("load_eligible")
 - code/04_train_model.py: logger = get_logger("load_features")
-- code/04_train_model.py: logger = get_logger("label_definition")
 - code/04_train_model.py: logger = get_logger("nested_cv")
 - code/04_train_model.py: logger = get_logger("persist_model")
 - code/04_train_model.py: logger = get_logger("performance_report")
@@ -161,6 +163,24 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/processed/eligible_subjects.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/06_permutation_test.py` — IS a run-book command
+    - `code/01_download_and_filter.py` — IS a run-book command
+    - `code/03_compute_graph_metrics.py` — IS a run-book command
+    - `code/04_train_model.py` — IS a run-book command
+    - `code/05_evaluate_model.py` — IS a run-book command
+    - `code/validate_quickstart.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/eligible_subjects.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/graph_metrics.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/12_memory_profiler.py` — NOT invoked by the run-book
+    - `code/06_permutation_test.py` — IS a run-book command
+    - `code/08_collinearity_check.py` — IS a run-book command
+    - `code/15_run_ci_memory_profile.py` — NOT invoked by the run-book
+    - `code/15_ci_memory_profiler.py` — NOT invoked by the run-book
+    - `code/14_ci_memory_profiler.py` — NOT invoked by the run-book
+    - `code/03_compute_graph_metrics.py` — IS a run-book command
+    - `code/04_train_model.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/graph_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/performance_report.json` is declared but was NOT written. Scripts referencing it:
     - `code/10_verify_success_criteria.py` — NOT invoked by the run-book
     - `code/09_generate_report.py` — IS a run-book command
@@ -183,9 +203,9 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `data/processed/graph_metrics.csv`
 
-- ACTUAL columns/keys the producer wrote: `[subject_id, degree_mean, global_efficiency, clustering_coeff, avg_path_length]`
+- ACTUAL columns/keys the producer wrote: `(file not on disk this run)`
 - REQUIRED by the consumer(s): `[data]`
-- PRODUCER(s) to edit: `code/06_permutation_test.py`, `code/08_collinearity_check.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
+- PRODUCER(s) to edit: `code/06_permutation_test.py`, `code/08_collinearity_check.py`, `code/03_compute_graph_metrics.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
 - CONSUMER(s) that read it: `code/06_permutation_test.py`, `code/08_collinearity_check.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
   → Edit the producer so every required name [data] is in `data/processed/graph_metrics.csv`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
 

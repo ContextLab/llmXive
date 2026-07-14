@@ -1,21 +1,20 @@
 {
   "project_id": "PROJ-029-predicting-cognitive-decline-from-restin",
   "ok": false,
-  "reason": "6 command(s) failed: python code/01_download_and_filter.py (rc=2); python code/03_compute_graph_metrics.py (rc=1); python code/04_train_model.py (rc=1); 3 declared deliverable(s) absent: data/processed/graph_metrics.csv; data/processed/performance_report.json; data/processed/permutation_results.json",
+  "reason": "6 command(s) failed: python code/01_download_and_filter.py (rc=2); python code/03_compute_graph_metrics.py (rc=1); python code/04_train_model.py (rc=1); 4 declared deliverable(s) absent: data/processed/eligible_subjects.csv; data/processed/graph_metrics.csv; data/processed/performance_report.json",
   "artifacts": [
-    "data/processed/eligible_subjects.csv",
-    "data/processed/graph_metrics.csv",
+    "data/artifacts/data_gate_status.json",
     "data/raw/ds000246/participants.tsv"
   ],
   "failures": [
-    "python code/01_download_and_filter.py -> rc=2\n    Downloading participants.tsv from https://raw.githubusercontent.com/OpenNeuroDatasets/ds000246/master/participants.tsv ...\n\nNo eligible subjects found \u2013 exiting with code 2.",
-    "python code/03_compute_graph_metrics.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/03_compute_graph_metrics.py\", line 77, in <module>\n    @log_operation(\"graph_metrics\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
-    "python code/04_train_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py\", line 226, in <module>\n    @log_operation(\"train_model\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
+    "python code/01_download_and_filter.py -> rc=2\n    No eligible subjects found \u2013 exiting with code 2.\n\n\nparticipants.tsv:   0%|          | 0.00/98.0 [00:00<?, ?B/s]\nparticipants.tsv:  93%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258e| 91.0/98.0 [00:00<00:00, 414kB/s]",
+    "python code/03_compute_graph_metrics.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/03_compute_graph_metrics.py\", line 136, in <module>\n    @log_operation(\"compute_graph_metrics\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
+    "python code/04_train_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py\", line 305, in <module>\n    @log_operation(\"train_model\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
     "python code/05_evaluate_model.py -> rc=1\n    ",
     "python code/06_permutation_test.py -> rc=1\n    ",
     "python code/08_collinearity_check.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/08_collinearity_check.py\", line 81, in <module>\n    @log_operation(\"collinearity_check\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "updated_at": "2026-07-14T16:47:50Z"
+  "updated_at": "2026-07-14T17:28:23Z"
 }

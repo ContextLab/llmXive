@@ -1,17 +1,14 @@
-nibabel==5.2.1
-networkx==3.2.1
-scikit-learn==1.4.2
-pandas==2.2.2
-numpy==1.26.4
-bids==0.0.4
-requests==2.32.3
-tqdm==4.66.2
-pytest==8.2.2
-fsl==6.0.7
-nilearn==0.10.4
-psutil==5.9.8
-joblib==1.4.2
-# Added for parallel execution and logging improvements
-# (joblib already listed; no new dependencies required)
-scipy  # auto-added: imported by run-book but missing from venv
-torch  # auto-added: imported by run-book but missing from venv
+nibabel
+networkx
+scikit-learn
+pandas
+numpy
+bids
+requests
+tqdm
+pytest
+fsl
+nilearn
+psutil
+joblib
+scipy

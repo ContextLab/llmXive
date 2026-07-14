@@ -1,15 +1,11 @@
-'|ensure hour runtime':
-  quote: Cleopatra premiered at the Rivoli Theatre in New York City on June 12, 1963,
-    with an estimated audience of 10,000 spectators congregated outside. Among those
-    present at the premiere were Rex Harrison, Walter Wanger, Joseph L. Mankiewicz,
-    Darryl F. Zanuck, Jacob Javits, Richard Rodgers, Joan Fontaine, Louis Nizer and
-    Beatrice Miller. Burton and Taylor were not in attendance; Taylor was in London
-    and Burton was filming Becket (1964). On that night, NBC's The Tonight Show Starring
-    Johnny Carson featured a live telecast of the film's world premiere, with Bert
-    Parks interviewing Mankiewicz and other celebrities. Top ticket prices at the
-    Rivoli were a record $5.50. Soon after the film's premiere, its running time was
-    truncated from 244 to 221 minutes. Two weeks after opening in New York, the film's
-    release was expanded into 37 cities.
-  source_id: Cleopatra (1963 film)
-  url: https://en.wikipedia.org/wiki/Cleopatra_(1963_film)
-  value: '244'
+'|elimination feature fewer recursive select using':
+  quote: machine learning algorithms aid such cases to get precise outcomes [1, 2,
+    3].
+  source_id: '2106.08889'
+  url: https://arxiv.org/abs/2106.08889
+  value: '12'
+'|label permutation shuffle test time':
+  quote: "conservativeness also occurs if very few (e.g. 25\u2013100) random pe rmutations"
+  source_id: '1411.7565'
+  url: https://arxiv.org/abs/1411.7565
+  value: '100'
