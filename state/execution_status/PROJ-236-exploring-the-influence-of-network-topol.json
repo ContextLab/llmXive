@@ -2,5 +2,7 @@
   "model_tier": 1,
   "fix_rounds": 0,
   "updated_at": "2026-07-10T19:13:15Z",
-  "project_id": "PROJ-236-exploring-the-influence-of-network-topol"
+  "project_id": "PROJ-236-exploring-the-influence-of-network-topol",
+  "total_attempts": 0,
+  "replan_rounds": 0
 }

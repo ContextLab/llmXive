@@ -10,5 +10,7 @@
   "failures": [],
   "fix_rounds": 0,
   "model_tier": 0,
-  "updated_at": "2026-06-30T12:21:17Z"
+  "updated_at": "2026-06-30T12:21:17Z",
+  "total_attempts": 0,
+  "replan_rounds": 0
 }

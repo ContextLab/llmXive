@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-179-the-influence-of-metacognitive-awareness",
-  "ok": true,
-  "reason": "ok",
+  "ok": false,
+  "reason": "6 hollow-result signal(s) \u2014 the analysis ran but computed nothing: data/derived/auditory_trials.csv: header only, ZERO data rows \u2014 the analysis produced no rows; data/derived/trial_data.csv: column(s) confidence_rating are EMPTY in every one of 150 rows \u2014 that measure was never recorded; data/derived/visual_trials.csv: column(s) confidence_rating are EMPTY in every one of 150 rows \u2014 that measure was never recorded",
   "artifacts": [
     "data/checksums.json",
     "data/derived/auditory_trials.csv",
@@ -16,5 +16,15 @@
   "failures": [],
   "fix_rounds": 0,
   "model_tier": 1,
-  "updated_at": "2026-07-14T07:10:56Z"
+  "updated_at": "2026-07-14T18:28:13Z",
+  "hollow": [
+    "data/derived/auditory_trials.csv: header only, ZERO data rows \u2014 the analysis produced no rows",
+    "data/derived/trial_data.csv: column(s) confidence_rating are EMPTY in every one of 150 rows \u2014 that measure was never recorded",
+    "data/derived/visual_trials.csv: column(s) confidence_rating are EMPTY in every one of 150 rows \u2014 that measure was never recorded",
+    "data/results/correlation_metrics.json: metric is null/NaN (d_prime) \u2014 not a real measurement",
+    "data/results/primary_analysis.json: EVERY metric is null/NaN (ci_lower, ci_upper, correlation_coefficient, p_value) \u2014 nothing was computed",
+    "data/results/robustness_analysis.json: results file is EMPTY ([]) \u2014 the analysis produced no values"
+  ],
+  "total_attempts": 0,
+  "replan_rounds": 0
 }

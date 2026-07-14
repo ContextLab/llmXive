@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T13:44:11.003213Z'
-current_stage: research_review
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-256-quantifying-the-impact-of-data
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning
 title: Quantifying the Impact of Data Cleaning on Statistical Inference
-updated_at: '2026-07-14T16:03:41.211442Z'
+updated_at: '2026-07-14T18:28:13.728930Z'

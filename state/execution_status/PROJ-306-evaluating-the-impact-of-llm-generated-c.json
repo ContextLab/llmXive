@@ -8,5 +8,7 @@
   ],
   "fix_rounds": 0,
   "model_tier": 0,
-  "updated_at": "2026-07-14T00:38:34Z"
+  "updated_at": "2026-07-14T00:38:34Z",
+  "total_attempts": 19,
+  "replan_rounds": 1
 }

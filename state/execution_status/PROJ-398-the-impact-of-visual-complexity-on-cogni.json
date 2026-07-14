@@ -2,5 +2,7 @@
   "model_tier": 1,
   "fix_rounds": 0,
   "updated_at": "2026-07-12T13:03:59Z",
-  "project_id": "PROJ-398-the-impact-of-visual-complexity-on-cogni"
+  "project_id": "PROJ-398-the-impact-of-visual-complexity-on-cogni",
+  "total_attempts": 0,
+  "replan_rounds": 0
 }

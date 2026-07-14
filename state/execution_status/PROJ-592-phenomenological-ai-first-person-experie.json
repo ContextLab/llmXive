@@ -14,5 +14,7 @@
   ],
   "fix_rounds": 7,
   "model_tier": 0,
-  "updated_at": "2026-07-13T22:15:34Z"
+  "updated_at": "2026-07-13T22:15:34Z",
+  "total_attempts": 15,
+  "replan_rounds": 1
 }
