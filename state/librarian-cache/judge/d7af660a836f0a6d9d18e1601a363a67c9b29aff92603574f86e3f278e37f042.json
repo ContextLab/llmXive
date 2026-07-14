@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.15284",
+  "judged_at": "2026-07-14T06:06:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the role of microglial morphology in age-related cognitive decline neuroscience",
+  "rationale": "The paper focuses on microglial activation phenotypes (M1/M2) and cell counts during acute ischemic stroke, which is a distinct pathological mechanism and temporal setting from the user's question regarding microglial *morphology* in *age-related* cognitive decline. While both involve microglia, the paper does not measure the specific biological construct (morphology) or the specific domain (aging/cognitive decline) required by the user's research question, failing to meet the criteria for same-",
+  "relevant": false
+}

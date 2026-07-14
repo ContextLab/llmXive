@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1705.02773",
+  "judged_at": "2026-07-14T06:06:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the role of microglial morphology in age-related cognitive decline neuroscience",
+  "rationale": "The paper focuses on computational neural network models and synaptic pruning during early brain development, which does not address the specific biological mechanism of microglial morphology or its role in age-related cognitive decline in humans. It fails to meet inclusion criteria (a) or (e) as it studies a different developmental stage, a different cell type (implied by the network model rather than microglia), and a different pathological context (development vs. aging).",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.21049",
+  "judged_at": "2026-07-14T06:06:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the role of microglial morphology in age-related cognitive decline neuroscience",
+  "rationale": "The paper focuses on a computational method for synthesizing longitudinal MRI scans to model gross neuroanatomical changes in aging and Alzheimer's disease, but it does not measure, analyze, or discuss microglial morphology or its specific causal role in cognitive decline. While it addresses the broader domain of aging brains, it fails to satisfy the criteria for the specific biological mechanism (microglia) or the specific variable (morphology) required by the user's question, falling under the",
+  "relevant": false
+}

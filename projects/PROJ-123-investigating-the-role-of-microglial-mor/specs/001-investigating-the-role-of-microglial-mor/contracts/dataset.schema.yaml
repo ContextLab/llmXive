@@ -1,0 +1,105 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://llmxive.org/schemas/dataset.schema.yaml
+title: Microglial Morphology Dataset Schema
+description: |
+  Schema for the raw and processed input dataset used in the
+  investigation of microglial morphology in age-related cognitive decline.
+  Defines the expected structure for metadata and image references.
+type: object
+required:
+  - version
+  - subjects
+  - images
+properties:
+  version:
+    type: string
+    pattern: "^\\d+\\.\\d+\\.\\d+$"
+    description: Semantic version of the dataset schema.
+  metadata:
+    type: object
+    description: Global dataset metadata.
+    properties:
+      created_at:
+        type: string
+        format: date-time
+      source:
+        type: string
+        description: Origin of the data (e.g., 'SyntheticGenerator', 'PublicRepository').
+      processing_pipeline:
+        type: string
+        description: Identifier for the pipeline version used.
+  subjects:
+    type: array
+    description: List of subject metadata.
+    items:
+      type: object
+      required:
+        - subject_id
+        - age
+        - cognitive_status
+        - brain_region
+      properties:
+        subject_id:
+          type: string
+          description: Unique identifier for the subject (e.g., 'SUBJ-001').
+        age:
+          type: integer
+          minimum: 0
+          description: Age of the subject in years.
+        cognitive_status:
+          type: string
+          enum:
+            - Control
+            - MCI
+            - Early AD
+            - Late AD
+            - Unknown
+          description: Cognitive classification of the subject.
+        amyloid_beta_load:
+          type: number
+          minimum: 0
+          description: Quantitative amyloid-beta load (optional, used for dynamic classification).
+        brain_region:
+          type: string
+          description: Specific brain region sampled (e.g., 'Hippocampus', 'Prefrontal Cortex').
+        metadata:
+          type: object
+          description: Additional subject-specific metadata.
+  images:
+    type: array
+    description: List of image entries linking to files and subjects.
+    items:
+      type: object
+      required:
+        - image_id
+        - subject_id
+        - file_path
+        - acquisition_date
+      properties:
+        image_id:
+          type: string
+          description: Unique identifier for the image (e.g., 'IMG-001-01').
+        subject_id:
+          type: string
+          description: Reference to the subject_id in the subjects list.
+        file_path:
+          type: string
+          description: Relative path to the image file (e.g., 'data/raw/images/IMG-001-01.tif').
+        acquisition_date:
+          type: string
+          format: date
+          description: Date the image was acquired.
+        microscope_model:
+          type: string
+          description: Model of the microscope used.
+        magnification:
+          type: number
+          description: Magnification level (e.g., 20.0, 40.0).
+        pixel_size_um:
+          type: number
+          minimum: 0
+          description: Physical size of a pixel in micrometers.
+        metadata:
+          type: object
+          description: Additional image-specific metadata.
+additionalProperties: false

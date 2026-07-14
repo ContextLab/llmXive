@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1805.06391",
+  "judged_at": "2026-07-14T06:06:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the role of microglial morphology in age-related cognitive decline neuroscience",
+  "rationale": "The paper focuses on sleep EEG patterns as a biomarker for brain aging, which is a distinct construct from the user's specific question regarding microglial morphology; it fails to measure the biological pathway (microglia), the specific variable (morphology), or the empirical population (microglial studies) required by criteria (a), (b), or (e), and shares only the general domain of \"aging\" without a measurable connection to the specific mechanism in question.",
+  "relevant": false
+}

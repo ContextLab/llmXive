@@ -1,0 +1,514 @@
+{
+  "fetched_at": "2026-07-14T06:06:39Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline",
+      "target_n": 5
+    },
+    "duration_seconds": 70.718,
+    "ended_at": "2026-07-14T06:06:39Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "age-related microglial activation"
+        ],
+        [
+          2,
+          "microglial dystrophy and cognitive impairment"
+        ],
+        [
+          3,
+          "senile microglial morphology changes"
+        ],
+        [
+          4,
+          "microglial process retraction in aging brain"
+        ],
+        [
+          5,
+          "neuroinflammation and age-related memory loss"
+        ],
+        [
+          6,
+          "microglial ramification decline in Alzheimer's disease"
+        ],
+        [
+          7,
+          "aged microglial phenotype transition"
+        ],
+        [
+          8,
+          "microglial structural plasticity in neurodegeneration"
+        ],
+        [
+          9,
+          "brain aging and microglial shape"
+        ],
+        [
+          10,
+          "microglial priming and cognitive decline"
+        ],
+        [
+          11,
+          "morphological correlates of microglial dysfunction in aging"
+        ],
+        [
+          12,
+          "microglial surveillance failure in elderly brain"
+        ],
+        [
+          13,
+          "microglial cytoskeletal alterations with age"
+        ],
+        [
+          14,
+          "inflammatory microglia and hippocampal atrophy"
+        ],
+        [
+          15,
+          "microglial activation states in normal aging"
+        ],
+        [
+          16,
+          "microglial morphology as a biomarker for cognitive aging"
+        ],
+        [
+          17,
+          "microglial soma enlargement in age-related dementia"
+        ],
+        [
+          18,
+          "microglial process complexity and synaptic pruning in aging"
+        ],
+        [
+          19,
+          "microglial senescence and neurodegenerative pathology"
+        ],
+        [
+          20,
+          "microglial morphology in mild cognitive impairment"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline neuroscience": 0,
+        "age-related microglial activation": 2,
+        "microglial dystrophy and cognitive impairment": 0,
+        "microglial process retraction in aging brain": 2,
+        "senile microglial morphology changes": 0
+      },
+      "total_queries_issued": 4
+    },
+    "extracted_queries": [
+      "microglia dystrophic senescence priming",
+      "aged brain microglia morphometric analysis",
+      "microglial ramification complexity neuroinflammation",
+      "microglial morphology cognitive performance correlation",
+      "microglial activation state synaptic pruning aging"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2212.10362"
+      ]
+    },
+    "per_query_hit_count": {
+      "Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline neuroscience": 3,
+      "aged brain microglia morphometric analysis": 3,
+      "microglia dystrophic senescence priming": 3,
+      "microglial activation state synaptic pruning aging": 3,
+      "microglial morphology cognitive performance correlation": 3,
+      "microglial ramification complexity neuroinflammation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1705.02773",
+          "rationale": "The paper focuses on computational neural network models and synaptic pruning during early brain development, which does not address the specific biological mechanism of microglial morphology or its role in age-related cognitive decline in humans. It fails to meet inclusion criteria (a) or (e) as it studies a different developmental stage, a different cell type (implied by the network model rather than microglia), and a different pathological context (development vs. aging).",
+          "title": "Concurrence of form and function in developing networks and its role in synaptic pruning"
+        },
+        {
+          "primary_pointer": "2403.15284",
+          "rationale": "The paper focuses on microglial activation phenotypes (M1/M2) and cell counts during acute ischemic stroke, which is a distinct pathological mechanism and temporal setting from the user's question regarding microglial *morphology* in *age-related* cognitive decline. While both involve microglia, the paper does not measure the specific biological construct (morphology) or the specific domain (aging/cognitive decline) required by the user's research question, failing to meet the criteria for same-",
+          "title": "A data-informed mathematical model of microglial cell dynamics during ischemic stroke in the middle cerebral artery"
+        },
+        {
+          "primary_pointer": "2502.21049",
+          "rationale": "The paper focuses on a computational method for synthesizing longitudinal MRI scans to model gross neuroanatomical changes in aging and Alzheimer's disease, but it does not measure, analyze, or discuss microglial morphology or its specific causal role in cognitive decline. While it addresses the broader domain of aging brains, it fails to satisfy the criteria for the specific biological mechanism (microglia) or the specific variable (morphology) required by the user's question, falling under the",
+          "title": "Synthesizing Individualized Aging Brains in Health and Disease with Generative Models and Parallel Transport"
+        },
+        {
+          "primary_pointer": "1805.06391",
+          "rationale": "The paper focuses on sleep EEG patterns as a biomarker for brain aging, which is a distinct construct from the user's specific question regarding microglial morphology; it fails to measure the biological pathway (microglia), the specific variable (morphology), or the empirical population (microglial studies) required by criteria (a), (b), or (e), and shares only the general domain of \"aging\" without a measurable connection to the specific mechanism in question.",
+          "title": "Brain Age from the Electroencephalogram of Sleep"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-14T06:05:29Z",
+    "term_input": {
+      "normalized": "investigating the role of microglial morphology in age-related cognitive decline neuroscience",
+      "raw": "Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mougenot and Matheson (2024) make a compelling case for the development of a mechanistic cognitive neuroscience that is embodied. However, their analysis of extant work under this header plays down important distinctions between \"minimal\" and \"radical\" embodiment. The former remains firmly neurocentric and therefore has limited potential to move the needle in understanding the functional contributions of neural dynamics to cognition in the context of wider organism-environment dynamics.",
+          "claimed_authors": [
+            "Matthieu M. de Wit"
+          ],
+          "claimed_title": "Separating minimal from radical embodied cognitive neuroscience",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.01830"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='Separating minimal from radical embodied cognitive neuroscience')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While probabilistic models describe the dependence structure between observed variables, causal models go one step further: they predict, for example, how cognitive functions are affected by external interventions that perturb neuronal activity. In this review and perspective article, we introduce the concept of causality in the context of cognitive neuroscience and review existing methods for inferring causal relationships from data. Causal inference is an ambitious task that is particularly challenging in cognitive neuroscience. We discuss two difficulties in more detail: the scarcity of interventional data and the challenge of finding the right variables. We argue for distributional robustness as a guiding principle to tackle these problems. Robustness (or invariance) is a fundamental principle underlying causal methodology. A causal model of a target variable generalises across environments or subjects as long as these environments leave the causal mechanisms intact. Consequently, if a candidate model does not generalise, then either it does not consist of the target variable's causes or the underlying variables do not represent the correct granularity of the problem. In this sense, assessing generalisability may be useful when defining relevant variables and can be used to partially compensate for the lack of interventional data.",
+          "claimed_authors": [
+            "Sebastian Weichwald",
+            "Jonas Peters"
+          ],
+          "claimed_title": "Causality in cognitive neuroscience: concepts, challenges, and distributional robustness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.06060"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='Causality in cognitive neuroscience: concepts, challenges, and distributional robustness')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Jackendoff (2002) posed four challenges that linguistic combinatoriality and rules of language present to theories of brain function. The essence of these problems is the question of how to neurally instantiate the rapid construction and transformation of the compositional structures that are typically taken to be the domain of symbolic processing. He contended that typical connectionist approaches fail to meet these challenges and that the dialogue between linguistic theory and cognitive neuroscience will be relatively unproductive until the importance of these problems is widely recognised and the challenges answered by some technical innovation in connectionist modelling. This paper claims that a little-known family of connectionist models (Vector Symbolic Architectures) are able to meet Jackendoff's challenges.",
+          "claimed_authors": [
+            "Ross W. Gayler"
+          ],
+          "claimed_title": "Vector Symbolic Architectures answer Jackendoff's challenges for cognitive neuroscience",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "cs/0412059"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title=\"Vector Symbolic Architectures answer Jackendoff's challenges for cognitive neuroscience\")",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural inflammation immediately follows the onset of ischemic stroke. During this process, microglial cells can be activated into two different phenotypes: the M1 phenotype, which can worsen brain injury by producing pro-inflammatory cytokines; or the M2 phenotype, which can aid in long term recovery by producing anti-inflammatory cytokines. In this study, we formulate a nonlinear system of differential equations to model the activation of microglia post-ischemic stroke, which includes bidirectional switching between the microglia phenotypes, as well as the interactions between these cells and the cytokines that they produce. Further, we explore neuroprotectant-based modeling strategies to suppress the activation of the detrimental M1 phenotype, while promoting activation of the beneficial M2 phenotype. Through use of global sensitivity techniques, we analyze the effects of the model parameters on the ratio of M1 to M2 microglia and the total number of activated microglial cells in the system over time. Results demonstrate the significance of bidirectional microglia phenotype switching on the ratio of M1 to M2 microglia, in both the absence and presence of neuroprotectant terms. Simulations further suggest that early inhibition of M1 activation and support of M2 activation leads to a decreased minimum ratio of M1 to M2 microglia and allows for a larger number of M2 than M1 cells for a longer time period.",
+          "claimed_authors": [
+            "Sara Amato",
+            "Andrea Arnold"
+          ],
+          "claimed_title": "Modeling Microglia Activation and Inflammation-Based Neuroprotectant Strategies During Ischemic Stroke",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.07473"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='Modeling Microglia Activation and Inflammation-Based Neuroprotectant Strategies During Ischemic Stroke')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose an automatic 3D segmentation algorithm for multiphoton microscopy images of microglia. Our method is capable of segmenting tubular and blob-like structures from noisy images. Current segmentation techniques and software fail to capture the fine processes and soma of the microglia cells, useful for the study of the microglia role in the brain during healthy and diseased states. Our coupled tubularity flow field (TuFF)-blob flow field (BFF) method evolves a level set toward the object boundary using the directional tubularity and blobness measure of 3D images. Our method found a 20% performance increase against state of the art segmentation methods on a dataset of 3D images of microglia even in images with intensity heterogeneity throughout the object. The coupled TuFF-BFF segmentation results also yielded 40% improvement in accuracy for the ramification index of the processes, which displays the efficacy of our method.",
+          "claimed_authors": [
+            "Tiffany Ly",
+            "Jeremy Thompson",
+            "Tajie Harris",
+            "Scott T. Acton"
+          ],
+          "claimed_title": "The Coupled TuFF-BFF Algorithm for Automatic 3D Segmentation of Microglia",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.04156"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='The Coupled TuFF-BFF Algorithm for Automatic 3D Segmentation of Microglia')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study evaluates the performance of Recurrent Neural Network (RNN) and Transformer models in replicating cross-language structural priming, a key indicator of abstract grammatical representations in human language processing. Focusing on Chinese-English priming, which involves two typologically distinct languages, we examine how these models handle the robust phenomenon of structural priming, where exposure to a particular sentence structure increases the likelihood of selecting a similar structure subsequently. Our findings indicate that transformers outperform RNNs in generating primed sentence structures, with accuracy rates that exceed 25.84\\% to 33. 33\\%. This challenges the conventional belief that human sentence processing primarily involves recurrent and immediate processing and suggests a role for cue-based retrieval mechanisms. This work contributes to our understanding of how computational models may reflect human cognitive processes across diverse language families.",
+          "claimed_authors": [
+            "Demi Zhang",
+            "Bushi Xiao",
+            "Chao Gao",
+            "Sangpil Youm",
+            "Bonnie J Dorr"
+          ],
+          "claimed_title": "Modeling Bilingual Sentence Processing: Evaluating RNN and Transformer Architectures for Cross-Language Structural Priming",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.09508"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='Modeling Bilingual Sentence Processing: Evaluating RNN and Transformer Architectures for Cross-Language Structural Priming')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The characterisation of CMB polarisation is one of the next challenge in observationnal cosmology. This is especially true for the so-called B-modes that are at least 3 order of magnitude lower than CMB temperature fluctuations. A precise measurement of the angular power spectrum of these B-modes will give important constraints on inflation parameters. In this talk, I will describe two complementary experiments, BRAIN and CLOVER, dedicated to CMB polarisation measurement. These experiments are proposed to be installed in Dome-C, Antarctica, to take advantage of the extreme dryness of the atmosphere and to allow long integration time.",
+          "claimed_authors": [
+            "M. Piat",
+            "C. Rosset",
+            "the BRAIN",
+            "CLOVER Collaboration"
+          ],
+          "claimed_title": "Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "astro-ph/0412590"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Symbolic methods of analysis are valuable tools for investigating complex time-dependent signals. In particular, the ordinal method defines sequences of symbols according to the ordering in which values appear in a time series. This method has been shown to yield useful information, even when applied to signals with large noise contamination. Here we use ordinal analysis to investigate the transition between eyes closed (EC) and eyes open (EO) resting states. We analyze two {EEG} datasets (with 71 and 109 healthy subjects) with different recording conditions (sampling rates and the number of electrodes in the scalp). Using as diagnostic tools the permutation entropy, the entropy computed from symbolic transition probabilities, and an asymmetry coefficient (that measures the asymmetry of the likelihood of the transitions between symbols) we show that ordinal analysis applied to the raw data distinguishes the two brain states. In both datasets, we find that the EO state is characterized by higher entropies and lower asymmetry coefficient, as compared to the EC state. Our results thus show that these diagnostic tools have the potential for detecting and characterizing changes in time-evolving brain states.",
+          "claimed_authors": [
+            "C. Quintero-Quiroz",
+            "Luis Montesano",
+            "A. J. Pons",
+            "M. C. Torrent",
+            "J. García-Ojalvo",
+            "C. Masoller"
+          ],
+          "claimed_title": "Differentiating resting brain states using ordinal symbolic analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1805.03933"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='Differentiating resting brain states using ordinal symbolic analysis')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Brain pathologies often manifest as partial or complete loss of tissue. The goal of many neuroimaging studies is to capture the location and amount of tissue changes with respect to a clinical variable of interest, such as disease progression. Morphometric analysis approaches capture local differences in the distribution of tissue or other quantities of interest in relation to a clinical variable. We propose to augment morphometric analysis with an additional feature extraction step based on unbalanced optimal transport. The optimal transport feature extraction step increases statistical power for pathologies that cause spatially dispersed tissue loss, minimizes sensitivity to shifts due to spatial misalignment or differences in brain topology, and separates changes due to volume differences from changes due to tissue location. We demonstrate the proposed optimal transport feature extraction step in the context of a volumetric morphometric analysis of the OASIS-1 study for Alzheimer's disease. The results demonstrate that the proposed approach can identify tissue changes and differences that are not otherwise measurable.",
+          "claimed_authors": [
+            "Samuel Gerber",
+            "Marc Niethammer",
+            "Ebrahim Ebrahim",
+            "Joseph Piven",
+            "Stephen R. Dager",
+            "Martin Styner",
+            "Stephen Aylward",
+            "Andinet Enquobahrie"
+          ],
+          "claimed_title": "Optimal Transport Features for Morphometric Population Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.05891"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='Optimal Transport Features for Morphometric Population Analysis')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Constructible complexes have the same characteristic cycle if they have the same wild ramification, even if the characteristics of the coefficients fields are different.",
+          "claimed_authors": [
+            "Takeshi Saito",
+            "Yuri Yatagawa"
+          ],
+          "claimed_title": "Wild ramification determines the characteristic cycle",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.01513"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='Wild ramification determines the characteristic cycle')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Network or graph structures are ubiquitous in the study of complex systems. Often, we are interested in complexity trends of these system as it evolves under some dynamic. An example might be looking at the complexity of a food web as species enter an ecosystem via migration or speciation, and leave via extinction.\n  In a previous paper, a complexity measure of networks was proposed based on the {\\em complexity is information content} paradigm. To apply this paradigm to any object, one must fix two things: a representation language, in which strings of symbols from some alphabet describe, or stand for the objects being considered; and a means of determining when two such descriptions refer to the same object. With these two things set, the information content of an object can be computed in principle from the number of equivalent descriptions describing a particular object.\n  The previously proposed representation language had the deficiency that the fully connected and empty networks were the most complex for a given number of nodes. A variation of this measure, called zcomplexity, applied a compression algorithm to the resulting bitstring representation, to solve this problem. Unfortunately, zcomplexity proved too computationally expensive to be practical.\n  In this paper, I propose a new representation language that encodes the number of links along with the number of nodes and a representation of the linklist. This, like zcomplexity, exhibits minimal complexity for fully connected and empty networks, but is as tractable as the original measure.\n  ...",
+          "claimed_authors": [
+            "Russell K. Standish"
+          ],
+          "claimed_title": "Complexity of Networks (reprise)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0911.3482"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='Complexity of Networks (reprise)')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Numerous definitions for complexity have been proposed over the last half century, with little consensus achieved on how to use the term. A definition of complexity is supplied here that is closely related to the Kolmogorov Complexity and Shannon Entropy measures widely used as complexity measures, yet addresses a number of concerns raised against these measures. However, the price of doing this is to introduce context dependence into the definition of complexity. It is argued that such context dependence is an inherent property of complexity, and related concepts such as entropy and emergence. Scientists are uncomfortable with such context dependence, which smacks of subjectivity, and this is perhaps the reason why little agreement has been found on the meaning of these terms.",
+          "claimed_authors": [
+            "Russell K. Standish"
+          ],
+          "claimed_title": "On Complexity and Emergence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "nlin/0101006"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='On Complexity and Emergence')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The human brain is autonomously active. To understand the functional role of this self-sustained neural activity, and its interplay with the sensory data input stream, is an important question in cognitive system research and we review here the present state of theoretical modelling.\n  This review will start with a brief overview of the experimental efforts, together with a discussion of transient vs. self-sustained neural activity in the framework of reservoir computing. The main emphasis will be then on two paradigmal neural network architectures showing continuously ongoing transient-state dynamics: saddle point networks and networks of attractor relics.\n  Self-active neural networks are confronted with two seemingly contrasting demands: a stable internal dynamical state and sensitivity to incoming stimuli. We show, that this dilemma can be solved by networks of attractor relics based on competitive neural dynamics, where the attractor relics compete on one side with each other for transient dominance, and on the other side with the dynamical influence of the input signals. Unsupervised and local Hebbian-style online learning then allows the system to build up correlations between the internal dynamical transient states and the sensory input stream. An emergent cognitive capability results from this set-up. The system performs online, and on its own, a non-linear independent component analysis of the sensory data stream, all the time being continuously and autonomously active. This process maps the independent components of the sensory input onto the attractor relics, which acquire in this way a semantic meaning.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognitive computation with autonomously active neural networks: an emerging field",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0901.3028"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='Cognitive computation with autonomously active neural networks: an emerging field')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Classification of targets by radar has proved to be notoriously difficult with the best systems still yet to attain sufficiently high levels of performance and reliability. In the current contribution we explore a new design of radar based target recognition, where angular diversity is used in a cognitive manner to attain better performance. Performance is bench- marked against conventional classification schemes. The proposed scheme can easily be extended to cognitive target recognition based on multiple diversity strategies.",
+          "claimed_authors": [
+            "Amit K. Mishra",
+            "Chris Baker"
+          ],
+          "claimed_title": "A cognitive diversity framework for radar target classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.6589"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='A cognitive diversity framework for radar target classification')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an interactive version of an evidence-driven state-merging (EDSM) algorithm for learning variants of finite state automata. Learning these automata often amounts to recovering or reverse engineering the model generating the data despite noisy, incomplete, or imperfectly sampled data sources rather than optimizing a purely numeric target function. Domain expertise and human knowledge about the target domain can guide this process, and typically is captured in parameter settings. Often, domain expertise is subconscious and not expressed explicitly. Directly interacting with the learning algorithm makes it easier to utilize this knowledge effectively.",
+          "claimed_authors": [
+            "Christian A. Hammerschmidt",
+            "Radu State",
+            "Sicco Verwer"
+          ],
+          "claimed_title": "Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.09430"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms')",
+        "failed_at": "2026-07-14T06:06:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dendritic spines, the carriers of long-term memory, occupy a small fraction of cortical space, and yet they are the major consumers of brain metabolic energy. What fraction of this energy goes for synaptic plasticity, correlated with learning and memory? It is estimated here based on neurophysiological and proteomic data for rat brain that, depending on the level of protein phosphorylation, the energy cost of synaptic plasticity constitutes a small fraction of the energy used for fast excitatory synaptic transmission, typically $4.0-11.2 \\%$. Next, this study analyzes a metabolic cost of a new learning and its memory trace in relation to the cost of prior memories, using a class of cascade models of synaptic plasticity. It is argued that these models must contain bidirectional cyclic motifs, related to protein phosphorylation, to be compatible with basic thermodynamic principles. For most investigated parameters longer memories generally require proportionally more energy to store. The exception are the parameters controlling the speed of molecular transitions (e.g. ATP driven phosphorylation rate), for which memory lifetime per invested energy can increase progressively for longer memories. Furthermore, in general, a memory trace decouples dynamically from a corresponding synaptic metabolic rate such that the energy expended on a new learning and its memory trace constitutes in most cases only a small fraction of the baseline energy associated with prior memories. Taken together, these empirical and theoretical results suggest a metabolic efficiency of synaptically stored information.",
+          "claimed_authors": [
+            "Jan Karbowski"
+          ],
+          "claimed_title": "Metabolic constraints on synaptic learning and memory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.07414"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline', candidate_title='Metabolic constraints on synaptic learning and memory')",
+        "failed_at": "2026-07-14T06:06:04Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Marc Courchesne",
+            "Colin Wakefield",
+            "Karen Nygard",
+            "Patrick Burns",
+            "Gilles Fecteau",
+            "Andre Desrochers",
+            "Mingju Cao",
+            "Martin G. Frasch"
+          ],
+          "title": "Vagus nerve manipulation and microglial plasticity in the prenatal brain",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2212.10362",
+        "summary": "The efferent and afferent effects of the vagus nerve on the developing brain have remained enigmatic. Here we review the evidence of such effects on microglial plasticity in the sheep model of human fetal development, one of the most recognized and deployed models of human fetal physiology. We show that vagotomy alters microglial phenotype and that this effect is hormetic under conditions of mild systemic inflammation, as may occur antepartum with chorioamnionitis. We present the methodology to assess not only biomarker-based microglial activation but also the morphometric features of the microglia. Together, these assessments provide a more comprehensive toolbox of glial phenotypical characterizations, especially in the context of investigating the locoregional vagal control of glial function. The presented findings support the earlier discoveries in preclinical and clinical models of adult physiology whereby vagotomy appeared neuroprotective for Parkinson disease, explained, at least in part, by the effects on microglia. In addition, we present the approach to measure and the findings on regional cerebral blood flow changes in relation to vagus nerve manipulation. In summary, the body of evidence underscores the importance of both the efferent and the afferent vagal pathways, via the vagus nerve, in the programming of microglial phenotype in the developing brain. The significance of these relationships for developing and treating early susceptibility to neuroinflammatory and neurodegenerative disorders in later life requires further studies.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2212.10362",
+          "http_status": 200,
+          "pdf_sample_score": 0.2851,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T06:06:11Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "investigating the role of microglial morphology in age-related cognitive decline neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
