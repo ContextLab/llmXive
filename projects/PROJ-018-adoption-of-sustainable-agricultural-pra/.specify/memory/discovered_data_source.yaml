@@ -1,0 +1,9 @@
+status: none
+intent: World Bank LSMS FAO STAT FAO FIES agricultural survey python package dataset
+required_fields:
+- farmer_age
+- farmer_education
+- farm_size
+- credit_access
+- sustainable_practice_adoption
+- community_engagement

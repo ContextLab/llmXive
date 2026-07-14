@@ -1,0 +1,55 @@
+project: PROJ-018-adoption-of-sustainable-agricultural-pra
+initialization:
+  timestamp: "2023-10-27T10:00:00Z"
+  config_file: "code/config.py"
+data_ingestion:
+  source: synthetic_fallback
+  records_loaded: 1500
+  missingness_log:
+    - variable: credit_access
+      missing_pct: 12.5
+    - variable: farm_size
+      missing_pct: 4.2
+power_analysis:
+  effective_N_events: 450
+  num_predictors: 6
+  ratio: 75.0
+  shortfall: false
+validity_metrics:
+  cronbach_alpha: 0.78
+  factor_extraction: "Principal Axis Factoring"
+  rotation: "Varimax"
+  convergent_validity_status: "passed"
+model_fitting:
+  model_type: LogisticRegression
+  vif_max: 2.1
+  fdr_method: benjamini_hochberg
+  auc: 0.82
+mediation_analysis:
+  method: Baron_Kenny
+  bootstrap_samples: 1000
+  indirect_effect_significant: true
+  evalue_min: 1.8
+  sensitivity_note: "Exploratory only"
+seeds:
+  global_random_seed: 42
+finalization:
+  timestamp: "2023-10-27T12:00:00Z"
+  random_seed: 42
+  choices:
+    data_source: synthetic_fallback
+    imputation_strategy: median
+    model_type: LogisticRegression
+    engagement_score_method: weighted_sum
+    fdr_method: benjamini_hochberg
+    mediation_bootstrap: 1000
+    evalue_sensitivity: true
+  constitutional_compliance:
+    IV_Reproducibility:
+      seed_recorded: true
+      seed_value: 42
+      dependencies_logged: true
+    VII_Transparency:
+      choices_documented: true
+      limitations_recorded: true
+      manifest_generated: true

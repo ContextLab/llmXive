@@ -1,19 +1,5 @@
-? "T037 [US3] Implement VIF calculation for all predictors; flag VIF \u2265 5 as a\
-  \ collinearity warning. **Do not perform PCA**; strictly adhere to FR-007 which\
-  \ only requires VIF diagnostics (FR-007, SC-004)"
-: 1
-? "T038 [US3] Implement Benjamini-Hochberg FDR correction (q \u2264 0.10) on hypothesis\
-  \ tests and report adjusted p-values (FR-008, SC-005)"
-: 1
-T039 [US3] Implement ROC curve plotting and AUC calculation in `code/04_model_analysis.py` (FR-009, SC-003): 1
-? "T040 [US3] Implement mediation analysis in `code/04_model_analysis.py`: (1) Baron\
-  \ & Kenny approach with bootstrap CI (\u22651000 resamples) for indirect effects;\
-  \ (2) Sensitivity analysis using E-values (via `evalues` library) and Rosenbaum\
-  \ bounds (calculate for gamma values in a range including 2.5); (3) Document interpretation\
-  \ as \"exploratory\" (FR-012, FR-010, Plan Phase 3)"
-: 1
-T041 [US3] [DEPRECATED - Merged into T040]: 1
-? T042 [US3] Implement `code/05_generate_report.py` to produce a PDF report containing
-  descriptives, regression table, VIF diagnostics, ROC plot, mediation results, sensitivity
-  analysis, and validity metrics (consuming `results/validity_metrics.yaml`) (FR-010)
-: 1
+T012: 1
+T013: 1
+T014: 1
+T015: 1
+T021: 1

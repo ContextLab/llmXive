@@ -6,3 +6,6 @@ convergent_validity_status: null
 model_config: {}
 data_provenance: {}
 limitations: []
+mediation_analysis:
+  status: failed
+  error: '''Config'' object is not subscriptable'

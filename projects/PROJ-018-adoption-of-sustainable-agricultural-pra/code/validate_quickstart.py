@@ -1,157 +1,190 @@
 """
-T047: Quickstart validation script.
-Executes the full pipeline end-to-end to ensure reproducibility.
+Validation script for quickstart.md to ensure end-to-end reproducibility.
+Executes the full pipeline and verifies all expected output artifacts are generated.
 """
 import os
 import sys
 import logging
 import subprocess
+import time
 from pathlib import Path
-
-# Add project root to path if running from subdirectory
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root))
-
 from config import get_config
 
-# Setup logging
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/quickstart_validation.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def run_script(script_name: str, description: str) -> bool:
-    """Execute a pipeline script and return success status."""
-    logger.info(f"Running {description}: {script_name}")
+def run_script(script_name: str, timeout: int = 300) -> bool:
+    """
+    Execute a Python script with a timeout.
+    
+    Args:
+        script_name: Name of the script in code/ directory
+        timeout: Maximum execution time in seconds
+        
+    Returns:
+        True if script completed successfully, False otherwise
+    """
+    script_path = Path('code') / script_name
+    if not script_path.exists():
+        logger.error(f"Script not found: {script_path}")
+        return False
+    
+    logger.info(f"Executing {script_name}...")
+    start_time = time.time()
+    
     try:
         result = subprocess.run(
-            [sys.executable, str(project_root / script_name)],
-            cwd=project_root,
-            check=True,
+            [sys.executable, str(script_path)],
+            cwd=Path(__file__).parent.parent,
             capture_output=True,
-            text=True
+            text=True,
+            timeout=timeout
         )
-        if result.stdout:
-            logger.info(result.stdout)
-        if result.stderr:
-            logger.warning(result.stderr)
-        return True
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Failed to run {script_name}")
-        logger.error(f"STDOUT: {e.stdout}")
-        logger.error(f"STDERR: {e.stderr}")
-        return False
-    except FileNotFoundError:
-        logger.error(f"Script not found: {script_name}")
-        return False
-
-def validate_outputs() -> bool:
-    """Verify that all expected output files exist."""
-    config = get_config()
-    expected_files = [
-        config['paths']['raw_data'],
-        config['paths']['cleaned_data'],
-        config['paths']['engineered_data'],
-        config['paths']['model_results'],
-        config['paths']['validity_metrics'],
-        config['paths']['modeling_log'],
-        config['paths']['report_pdf'],
-        config['paths']['figures']['roc_plot']
-    ]
-
-    missing_files = []
-    for file_path in expected_files:
-        full_path = Path(project_root) / file_path
-        if not full_path.exists():
-            missing_files.append(str(full_path))
-            logger.error(f"Missing output file: {full_path}")
+        
+        elapsed = time.time() - start_time
+        
+        if result.returncode == 0:
+            logger.info(f"✓ {script_name} completed successfully in {elapsed:.2f}s")
+            if result.stdout:
+                logger.debug(f"stdout:\n{result.stdout}")
+            return True
         else:
-            logger.info(f"Found output file: {full_path}")
+            logger.error(f"✗ {script_name} failed with return code {result.returncode}")
+            logger.error(f"stderr:\n{result.stderr}")
+            return False
+            
+    except subprocess.TimeoutExpired:
+        logger.error(f"✗ {script_name} timed out after {timeout}s")
+        return False
+    except Exception as e:
+        logger.error(f"✗ {script_name} raised exception: {str(e)}")
+        return False
 
-    return len(missing_files) == 0
+def validate_outputs() -> dict:
+    """
+    Validate that all expected output artifacts exist and are non-empty.
+    
+    Returns:
+        Dictionary with validation results for each artifact
+    """
+    config = get_config()
+    base_path = Path(config['data_path'])
+    
+    expected_artifacts = [
+        # Raw and processed data
+        base_path / 'raw' / 'survey_data.csv',
+        base_path / 'processed' / 'cleaned_data.csv',
+        base_path / 'processed' / 'engineered_data.csv',
+        
+        # Results and metrics
+        Path('results') / 'model_results.yaml',
+        Path('results') / 'validity_metrics.yaml',
+        Path('results') / 'mediation_results.yaml',
+        
+        # Reports and logs
+        Path('results') / 'final_report.pdf',
+        Path('modeling_log.yaml'),
+        Path('data') / 'metadata.yaml',
+        
+        # Figures
+        Path('figures') / 'roc_curve.png',
+        Path('figures') / 'mediation_plot.png',
+    ]
+    
+    results = {
+        'total': len(expected_artifacts),
+        'passed': 0,
+        'failed': 0,
+        'missing': [],
+        'empty': [],
+        'passed_artifacts': []
+    }
+    
+    for artifact_path in expected_artifacts:
+        if artifact_path.exists():
+            file_size = artifact_path.stat().st_size
+            if file_size > 0:
+                results['passed'] += 1
+                results['passed_artifacts'].append(str(artifact_path))
+                logger.info(f"✓ Found: {artifact_path} ({file_size} bytes)")
+            else:
+                results['failed'] += 1
+                results['empty'].append(str(artifact_path))
+                logger.error(f"✗ Empty file: {artifact_path}")
+        else:
+            results['failed'] += 1
+            results['missing'].append(str(artifact_path))
+            logger.error(f"✗ Missing: {artifact_path}")
+    
+    return results
 
 def main():
-    logger.info("Starting Quickstart Validation (T047)")
-    logger.info("=" * 50)
-
-    config = get_config()
-    logger.info(f"Project Root: {project_root}")
-    logger.info(f"Random Seed: {config['random_seed']}")
-
-    # Step 1: Generate synthetic data (if real data not available)
-    success = run_script(
-        "00_generate_synthetic_data.py",
-        "Data Generation"
-    )
-    if not success:
-        logger.error("Data generation failed. Aborting validation.")
+    """
+    Main validation pipeline:
+    1. Execute all pipeline scripts in order
+    2. Validate all expected outputs
+    3. Generate validation summary
+    """
+    logger.info("=" * 60)
+    logger.info("Starting Quickstart Validation Pipeline")
+    logger.info("=" * 60)
+    
+    # Define pipeline scripts in execution order
+    pipeline_scripts = [
+        '01_download_data.py',
+        '02_clean_data.py',
+        '03_engineer_features.py',
+        '04_model_analysis.py',
+        '05_generate_report.py',
+        '06_finalize_results.py'
+    ]
+    
+    # Execute pipeline
+    execution_results = {}
+    all_passed = True
+    
+    for script in pipeline_scripts:
+        success = run_script(script)
+        execution_results[script] = success
+        if not success:
+            all_passed = False
+            logger.warning(f"Pipeline broken at {script}")
+            break
+    
+    # Validate outputs
+    logger.info("-" * 60)
+    logger.info("Validating output artifacts...")
+    validation_results = validate_outputs()
+    
+    # Generate summary
+    logger.info("=" * 60)
+    logger.info("VALIDATION SUMMARY")
+    logger.info("=" * 60)
+    logger.info(f"Pipeline scripts executed: {len(execution_results)}")
+    logger.info(f"Successful executions: {sum(execution_results.values())}")
+    logger.info(f"Failed executions: {sum(not v for v in execution_results.values())}")
+    logger.info(f"Artifacts found: {validation_results['passed']}/{validation_results['total']}")
+    logger.info(f"Missing artifacts: {len(validation_results['missing'])}")
+    logger.info(f"Empty artifacts: {len(validation_results['empty'])}")
+    
+    if all_passed and validation_results['failed'] == 0:
+        logger.info("✓ VALIDATION PASSED: End-to-end reproducibility confirmed")
+        return 0
+    else:
+        logger.error("✗ VALIDATION FAILED: Reproducibility issues detected")
+        if validation_results['missing']:
+            logger.error(f"Missing files: {', '.join(validation_results['missing'])}")
+        if validation_results['empty']:
+            logger.error(f"Empty files: {', '.join(validation_results['empty'])}")
         return 1
 
-    # Step 2: Download and clean data
-    success = run_script(
-        "01_download_data.py",
-        "Data Download"
-    )
-    if not success:
-        logger.error("Data download failed. Aborting validation.")
-        return 1
-
-    # Step 3: Clean data
-    success = run_script(
-        "02_clean_data.py",
-        "Data Cleaning"
-    )
-    if not success:
-        logger.error("Data cleaning failed. Aborting validation.")
-        return 1
-
-    # Step 4: Engineer features
-    success = run_script(
-        "03_engineer_features.py",
-        "Feature Engineering"
-    )
-    if not success:
-        logger.error("Feature engineering failed. Aborting validation.")
-        return 1
-
-    # Step 5: Model analysis
-    success = run_script(
-        "04_model_analysis.py",
-        "Model Analysis"
-    )
-    if not success:
-        logger.error("Model analysis failed. Aborting validation.")
-        return 1
-
-    # Step 6: Generate report
-    success = run_script(
-        "05_generate_report.py",
-        "Report Generation"
-    )
-    if not success:
-        logger.error("Report generation failed. Aborting validation.")
-        return 1
-
-    # Step 7: Finalize results
-    success = run_script(
-        "06_finalize_results.py",
-        "Result Finalization"
-    )
-    if not success:
-        logger.error("Result finalization failed. Aborting validation.")
-        return 1
-
-    # Validate all outputs exist
-    logger.info("Validating output files...")
-    if not validate_outputs():
-        logger.error("Output validation failed. Some expected files are missing.")
-        return 1
-
-    logger.info("=" * 50)
-    logger.info("Quickstart validation PASSED successfully!")
-    logger.info("All pipeline steps executed and outputs generated.")
-    return 0
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())
