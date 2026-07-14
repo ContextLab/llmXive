@@ -22,14 +22,14 @@
   verification_status: verified
   verified_against_url: https://github.com/astral-sh/ruff-pre-commit
   verified_at: '2026-06-29T22:26:51.828148Z'
-- artifact_hash: 40effe617ea5f8f89c82646f97d997d9f50bbe33b257d0f7cf0029d41a3f3748
+- artifact_hash: c99a4d11d8c99f43802e236004d1d9b486c08f43f1aba0e4bff98d960f937eb8
   artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: CPU - Wikidata
+  fetched_title: practicality - Wikidata
   kind: url
-  value: https://www.wikidata.org/wiki/Q117453145
+  value: https://www.wikidata.org/wiki/Q21159976
   verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q117453145
-  verified_at: '2026-07-14T16:33:38.131753Z'
+  verified_against_url: https://www.wikidata.org/wiki/Q21159976
+  verified_at: '2026-07-14T17:49:02.622391Z'

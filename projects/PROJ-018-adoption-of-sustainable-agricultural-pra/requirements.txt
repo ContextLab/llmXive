@@ -5,3 +5,5 @@ matplotlib
 pyyaml
 factor_analyzer
 evalues
+numpy
+scipy

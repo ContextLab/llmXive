@@ -5,40 +5,48 @@ import functools
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Callable, Dict
+from typing import Any
+
 
 @dataclass
 class LogEntry:
-    """A single log entry that can be serialised to JSON."""
+    """A single log entry describing an operation."""
+
     operation: str = ""
-    parameters: Dict[str, Any] = field(default_factory=dict)
+    parameters: dict = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
     def to_json(self) -> str:
-        """Return a JSON representation of the entry."""
+        """Serialize the entry to a JSON string."""
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 
 class ReproducibilityLogger:
-    """A lightweight logger that never raises and stores LogEntry objects."""
+    """
+    Simple logger that never raises. It records LogEntry objects and provides
+    no‑op methods for the usual logging levels (info, debug, warning, ...).
+    """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # Accept any init signature – name is optional.
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list[LogEntry] = []
 
     def log(self, *args: Any, **kwargs: Any) -> LogEntry:
-        """Create a LogEntry, store it, and return it."""
-        operation = args[0] if args else kwargs.pop("operation", "")
-        entry = LogEntry(operation=str(operation), parameters=dict(kwargs))
+        """
+        Record a log entry.
+
+        Parameters can be supplied either positionally (first arg = operation name)
+        or as a keyword ``operation=...``. All additional keyword arguments are
+        stored as the entry's parameters.
+        """
+        op = args[0] if args else kwargs.pop("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
         return entry
 
-    # Any conventional logging method (info, debug, warning, error, etc.)
-    # becomes a no‑op that never raises.
-    def __getattr__(self, name: str) -> Callable[..., None]:
-        def _noop(*_a: Any, **_kw: Any) -> None:
+    # Provide tolerant no‑op methods for any typical logging level.
+    def __getattr__(self, name: str):
+        def _noop(*_args: Any, **_kwargs: Any) -> None:
             return None
 
         return _noop
@@ -57,25 +65,14 @@ def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
 
 def log_operation(*args: Any, **kwargs: Any) -> Any:
     """
-    Dual‑purpose decorator / direct‑call logger.
+    Dual‑purpose helper:
 
-    1. Used as a decorator without arguments:
-           @log_operation
-           def foo(...):
-               ...
-
-    2. Used as a decorator with an explicit operation name:
-           @log_operation("my_step")
-           def foo(...):
-               ...
-
-    3. Used as a direct logging call:
-           log_operation("my_step", key=value)
-
-    The function inspects the call pattern and returns either a decorator
-    (wrapping the target function) or a LogEntry (for direct calls).
+    * As a decorator: ``@log_operation`` wraps a function and returns the original
+      function unchanged (the wrapper simply forwards the call).
+    * As a direct call: ``log_operation('my_op', key=value)`` creates a LogEntry
+      and returns it.
     """
-    # Case 1 – @log_operation (no parentheses)
+    # Decorator usage – a single positional callable and no extra kwargs.
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
 
@@ -85,68 +82,6 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
         return _wrapper
 
-    # Case 2 – @log_operation("name")  (decorator with operation name)
-    if len(args) == 1 and isinstance(args[0], str) and not kwargs:
-        operation_name = args[0]
-
-        def _decorator(func: Callable) -> Callable:
-            @functools.wraps(func)
-            def _wrapper(*a: Any, **k: Any) -> Any:
-                # Log the start of the operation; actual function runs afterwards.
-                get_logger().log(operation_name)
-                return func(*a, **k)
-
-            return _wrapper
-
-        return _decorator
-
-    # Case 3 – direct call, possibly with extra keyword parameters.
-    operation = args[0] if args else kwargs.pop("operation", "operation")
-    return get_logger().log(operation, **kwargs)
-
-
-def update_log_section(
-    section: str,
-    data: Any,
-    *,
-    log_path: str | Path | None = None,
-) -> None:
-    """
-    Append or replace a top‑level ``section`` in the reproducibility log.
-
-    Parameters
-    ----------
-    section: str
-        The top‑level key to update (e.g., "power_analysis").
-    data: Any
-        JSON‑serialisable data that will be stored under ``section``.
-    log_path: str | Path, optional
-        Path to the YAML log file. If omitted, the default location
-        ``modeling_log.yaml`` in the project root is used.
-    """
-    default_path = Path(get_config("modeling_log_path", "modeling_log.yaml"))
-    path = Path(log_path) if log_path is not None else default_path
-
-    # Ensure the parent directory exists.
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Load existing content if the file already exists.
-    if path.is_file():
-        try:
-            import yaml
-
-            with path.open("r", encoding="utf-8") as f:
-                current = yaml.safe_load(f) or {}
-        except Exception:
-            current = {}
-    else:
-        current = {}
-
-    # Update the section.
-    current[section] = data
-
-    # Write back to YAML.
-    import yaml
-
-    with path.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(current, f, sort_keys=False)
+    # Direct‑call usage.
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)

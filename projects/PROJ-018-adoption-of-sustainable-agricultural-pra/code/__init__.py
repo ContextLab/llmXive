@@ -1,3 +1,2 @@
-"""
-llmXive Research Pipeline - PROJ-018
-"""
+# This file makes the ``code`` directory a Python package.
+# It is intentionally left empty.
