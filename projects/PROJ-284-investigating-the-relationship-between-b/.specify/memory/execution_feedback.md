@@ -16,78 +16,25 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/pca_runner.py: synthetic/fake INPUT data not authorized by the spec — “…l data, we might need to generate synthetic for validation         #…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…For CI validation, uses synthetic data or nilearn fetch_adhd as…”; code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…nput to output (assuming synthetic input is already 'corrected' f…”; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=1); python code/main.py --step analyze (rc=1); 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…nput to output (assuming synthetic input is already 'corrected' f…”; code/viz/network.py: synthetic/fake INPUT data not authorized by the spec — “…d if available,     # or generate a synthetic one for demonstration.…”; code/viz/network.py: synthetic/fake INPUT data not authorized by the spec — “…g synthetic.")         # Generate a synthetic connectivity matrix (400…”; 3 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=2); python code/main.py --step extract_metrics (rc=2); python code/main.py --step viz_report (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/main.py --step download_preprocess --subjects 50 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 9, in <module>
-    from code.analysis.correlation_main_runner import main as run_analyze
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/analysis/correlation_main_runner.py", line 6, in <module>
-    from code.analysis.correlations import main as _correlations_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/analysis/correlations.py", line 14, in <module>
-    import psutil
-ModuleNotFoundError: No module named 'psutil'
-- python code/main.py --step extract_metrics -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 9, in <module>
-    from code.analysis.correlation_main_runner import main as run_analyze
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/analysis/correlation_main_runner.py", line 6, in <module>
-    from code.analysis.correlations import main as _correlations_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/analysis/correlations.py", line 14, in <module>
-    import psutil
-ModuleNotFoundError: No module named 'psutil'
-- python code/main.py --step analyze -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 9, in <module>
-    from code.analysis.correlation_main_runner import main as run_analyze
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/analysis/correlation_main_runner.py", line 6, in <module>
-    from code.analysis.correlations import main as _correlations_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/analysis/correlations.py", line 14, in <module>
-    import psutil
-ModuleNotFoundError: No module named 'psutil'
-- python code/main.py --step viz_report -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 9, in <module>
-    from code.analysis.correlation_main_runner import main as run_analyze
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/analysis/correlation_main_runner.py", line 6, in <module>
-    from code.analysis.correlations import main as _correlations_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/analysis/correlations.py", line 14, in <module>
-    import psutil
-ModuleNotFoundError: No module named 'psutil'
-
-## Declared deliverables still missing
-
-- data/analysis/factor_scores.csv
-- data/analysis/full_metrics.csv
-- data/analysis/pca_loadings.csv
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real, installable source was discovered AND verified by actually loading data from it:
-
-- **Install**: add `nilearn` to the project's `requirements.txt` and `pip install nilearn`.
-- **Verified**: this loads **30** real records with fields: Unnamed: 0, Subject, Rest.Scan, MeanFD, NumFD_greater_than_0.20, rootMeanSquareFD, FDquartile.top1.4thFD., PercentFD_greater_than_0.20, MeanDVARS, MeanFD_Jenkinson, site, sibling_id, data_set, age, sex, handedness, full_2_iq, full_4_iq, viq, piq, iq_measure, tdc, adhd, adhd_inattentive, adhd_combined, adhd_subthreshold, diagnosis_using_cdis, notes, sess_1_anat_2, oppositional, cog_inatt, hyperac, anxious_shy, perfectionism, social_problems, psychosomatic, conn_adhd, restless_impulsive, emot_lability, conn_gi_tot, dsm_iv_inatt, dsm_iv_h_i, dsm_iv_tot, study, sess_1_rest_1, sess_1_rest_1_eyes, sess_1_rest_2, sess_1_rest_2_eyes, sess_1_rest_3, sess_1_rest_3_eyes, sess_1_rest_4, sess_1_rest_4_eyes, sess_1_rest_5, sess_1_rest_5_eyes, sess_1_rest_6, sess_1_rest_6_eyes, sess_1_anat_1, sess_1_which_anat, sess_2_rest_1, sess_2_rest_1_eyes, sess_2_rest_2, sess_2_rest_2_eyes, sess_2_anat_1, defacing_ok, defacing_notes.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import os
-from nilearn import datasets
-
-bunch = datasets.fetch_adhd(
-    data_dir=os.path.join(os.getenv("HOME"), "nilearn_data"),
-    verbose=0,
-)
-
-records = len(bunch.phenotypic)
-print(f"RECORDS={records}")
-
-fields = list(bunch.phenotypic.columns)
-print("FIELDS=" + ",".join(fields))
-```
-
-Write the loader to use this package/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a website endpoint.
+- python code/main.py --step download_preprocess --subjects 50 -> rc=2
+    usage: main.py [-h] --step
+               {download,preprocess,metrics,analyze,viz,report,all}
+               [--subjects SUBJECTS]
+main.py: error: argument --step: invalid choice: 'download_preprocess' (choose from 'download', 'preprocess', 'metrics', 'analyze', 'viz', 'report', 'all')
+- python code/main.py --step extract_metrics -> rc=2
+    usage: main.py [-h] --step
+               {download,preprocess,metrics,analyze,viz,report,all}
+               [--subjects SUBJECTS]
+main.py: error: argument --step: invalid choice: 'extract_metrics' (choose from 'download', 'preprocess', 'metrics', 'analyze', 'viz', 'report', 'all')
+- python code/main.py --step viz_report -> rc=2
+    usage: main.py [-h] --step
+               {download,preprocess,metrics,analyze,viz,report,all}
+               [--subjects SUBJECTS]
+main.py: error: argument --step: invalid choice: 'viz_report' (choose from 'download', 'preprocess', 'metrics', 'analyze', 'viz', 'report', 'all')
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -97,7 +44,7 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_logger` — defined in `code/logging_config.py`; called 23 way(s):
+### `get_logger` — defined in `code/logging_config.py`; called 22 way(s):
 
 - code/logging_config.py: return get_logger().log(op, **kwargs)
 - code/logging_config.py: return get_logger(*args, **kwargs)
@@ -204,36 +151,3 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)
 ```
-
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/analysis/factor_scores.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/correlations.py` — NOT invoked by the run-book
-    - `code/analysis/create_full_metrics.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/analysis/factor_scores.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/analysis/full_metrics.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/viz/network.py` — NOT invoked by the run-book
-    - `code/viz/scatter.py` — NOT invoked by the run-book
-    - `code/analysis/correlations.py` — NOT invoked by the run-book
-    - `code/analysis/generate_full_metrics.py` — NOT invoked by the run-book
-    - `code/analysis/run_analysis.py` — NOT invoked by the run-book
-    - `code/analysis/create_full_metrics.py` — NOT invoked by the run-book
-    - `code/tools/verify_batching.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/analysis/full_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/analysis/pca_loadings.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/correlations.py` — NOT invoked by the run-book
-    - `code/analysis/create_full_metrics.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/analysis/pca_loadings.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-
-## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
-
-One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
-
-**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
-
-### `data/processed/aggregated_metrics.csv`
-
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/analysis/correlations.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/aggregated_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/analysis/correlations.py`, `code/analysis/generate_full_metrics.py`, `code/analysis/pca_runner.py`, `code/tools/verify_batching.py`.
