@@ -1,10 +1,5 @@
-T010 Create `code/tests/test_training_loop.py` to verify CPU execution and early stopping logic.: 2
-? 'T013 [US1] Implement baseline training loop in `code/main.py` (seeds 1-5, batch
-  size 32, lr 1e-3). **Signature**: `def train_baseline(seed: int) -> MetricRecord`.
-  **Output**: Save results to `data/processed/baseline_metrics.csv` with columns:
-  `seed`, `epoch`, `perplexity`, `energy_per_token_kWh`, `wall_clock_time`. **Requirement**:
-  Must use the same random seed configuration as the spiking model (T017) to enable
-  paired testing (FR-009).'
-: 2
-T014 [US1] Add early stopping logic (patience=2, delta=0.01) to baseline training.: 2
-T015 [US1] Add random seed configuration (multiple seeds) and store results in `data/processed/baseline_metrics.csv`.: 1
+T013: 1
+T014: 1
+T015: 1
+T017: 1
+T018: 1

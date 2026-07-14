@@ -1,10 +1,18 @@
 [tool.black]
 line-length = 88
 target-version = ['py311']
-skip-string-normalization = false
-exclude = '\.git|__pycache__|\.eggs|build|dist'
-
-[tool.isort]
-profile = "black"
-line_length = 88
-skip = [".git", "__pycache__", ".eggs", "build", "dist"]
+include = 'code/.*\\.py$'
+exclude = '''
+/(
+    \\.eggs
+  | \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

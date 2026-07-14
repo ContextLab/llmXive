@@ -80,7 +80,7 @@
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/01_style_scoring.py` to run `pylint` (indentation/naming) and `radon` (line-length), compute composite score, AND extract `file_size` and `cyclomatic_complexity` (if not already in T009), logging errors for skipped files. Output to `data/metadata/style_scores_raw.csv`.
+- [ ] T013 [US1] Implement `code/01_style_scoring.py` to run `pylint` (indentation/naming) and `radon` (line-length), compute composite score, AND extract `file_size` and `cyclomatic_complexity` (if not already in T009), logging errors for skipped files. Output to `data/metadata/style_scores_raw.csv`.
 - [~] T014 [US1] Implement `code/02_stratification.py` to read style scores and accept threshold arguments (e.g., `--low-threshold 0.25 --high-threshold 0.75`) to assign groups: Low (<low), Medium (low-high), High (>high). Output to `data/processed/style_scores_threshold_<low>_<high>.csv`.
 - [~] T015 [US1] Implement `code/03_sensitivity_analysis.py` to run T014 with multiple threshold sets (15/85, 25/75, 30/70), compare group stability (e.g., variance of group means), and output `data/processed/sensitivity_report.json` identifying the optimal threshold set.
 - [~] T016 [US1] Generate `data/processed/style_scores.csv` using the optimal thresholds from T015, containing columns: `file_path`, `pylint_indent`, `radon_line_len`, `composite_score`, `group`, `file_size`, `cyclomatic_complexity`, `file_age`.
@@ -141,10 +141,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Update `README.md` with installation steps, usage examples, and statistical results section
-- [ ] T034 Code cleanup: remove unused imports and standardize docstrings in `code/utils/`
-- [ ] T035 [P] Add unit tests for edge cases in `tests/unit/test_style_scoring.py` (e.g., empty file, non-UTF8 encoding)
-- [ ] T036 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [~] T033 [P] Update `README.md` with installation steps, usage examples, and statistical results section
+- [~] T034 Code cleanup: remove unused imports and standardize docstrings in `code/utils/`
+- [~] T035 [P] Add unit tests for edge cases in `tests/unit/test_style_scoring.py` (e.g., empty file, non-UTF8 encoding)
+- [~] T036 Run `quickstart.md` validation to ensure end-to-end reproducibility <!-- ATOMIZE: requested -->
 
 ---
 

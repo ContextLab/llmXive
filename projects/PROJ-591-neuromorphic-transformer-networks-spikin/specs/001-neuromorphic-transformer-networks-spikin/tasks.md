@@ -62,7 +62,7 @@
 - [X] T007 Implement `code/metrics/energy_logger.py` wrapping `codecarbon` with wall-clock fallback and "estimated" flag logic.
 - [X] T008 Implement `code/metrics/temporal_coding.py` to compute inter-spike interval variance, bits/spike, and spike train synchrony.
 - [X] T009 Create `code/tests/test_lif_dynamics.py` to verify LIF membrane potential update rules.
-- [ ] T010 Create `code/tests/test_training_loop.py` to verify CPU execution and early stopping logic.
+- [X] T010 Create `code/tests/test_training_loop.py` to verify CPU execution and early stopping logic.
 
 ---
 
@@ -77,7 +77,7 @@
 - [X] T012 [US1] Implement perplexity calculation in `code/metrics/perplexity.py` and log to CSV after each epoch.
 - [ ] T013 [US1] Implement baseline training loop in `code/main.py` (seeds 1-5, batch size 32, lr 1e-3). **Signature**: `def train_baseline(seed: int) -> MetricRecord`. **Output**: Save results to `data/processed/baseline_metrics.csv` with columns: `seed`, `epoch`, `perplexity`, `energy_per_token_kWh`, `wall_clock_time`. **Requirement**: Must use the same random seed configuration as the spiking model (T017) to enable paired testing (FR-009).
 - [ ] T014 [US1] Add early stopping logic (patience=2, delta=0.01) to baseline training.
-- [ ] T015 [US1] Add random seed configuration (multiple seeds) and store results in `data/processed/baseline_metrics.csv`.
+- [ ] T015 [US1] Add random seed configuration (multiple seeds) and store results in `data/processed/baseline_metrics.csv`. <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -91,8 +91,8 @@
 
 ### Implementation for User Story 2
 
-- [~] T017 [US2] Implement spiking training loop in `code/main.py` (multiple seeds, LIF neurons, surrogate gradients). **Merged Logic**: Integrate zero-spike detection logic (FR-006 edge case) as a blocking condition within the training loop. If >50% neurons silent for 3 epochs, raise `TrainingTerminationError`, log warning "WARNING: Zero-spike detection triggered", and save diagnostic report to `data/logs/zero_spike_report.json`. **Requirement**: Must use the **exact same random seeds** as the baseline model (T013) to enable paired testing (FR-009). **Output**: Save results to `data/processed/spiking_metrics.csv` with columns: `seed`, `epoch`, `perplexity`, `energy_per_token_kWh`, `wall_clock_time`, `temporal_coding_metrics` (JSON string).
-- [~] T018 [US2] Integrate `code/metrics/energy_logger.py` to log energy-per-token (kWh) with fallback to wall-clock time.
+- [ ] T017 [US2] Implement spiking training loop in `code/main.py` (multiple seeds, LIF neurons, surrogate gradients). **Merged Logic**: Integrate zero-spike detection logic (FR-006 edge case) as a blocking condition within the training loop. If >50% neurons silent for 3 epochs, raise `TrainingTerminationError`, log warning "WARNING: Zero-spike detection triggered", and save diagnostic report to `data/logs/zero_spike_report.json`. **Requirement**: Must use the **exact same random seeds** as the baseline model (T013) to enable paired testing (FR-009). **Output**: Save results to `data/processed/spiking_metrics.csv` with columns: `seed`, `epoch`, `perplexity`, `energy_per_token_kWh`, `wall_clock_time`, `temporal_coding_metrics` (JSON string).
+- [ ] T018 [US2] Integrate `code/metrics/energy_logger.py` to log energy-per-token (kWh) with fallback to wall-clock time.
 - [~] T019 [US2] Integrate `code/metrics/temporal_coding.py` to record ISI variance, bits/spike, and synchrony during validation.
 - [~] T020 [US2] Save spiking results to `data/processed/spiking_metrics.csv` with explicit "estimated" flag for energy if codecarbon fails.
 
@@ -112,7 +112,7 @@
 - [~] T023 [US3] Apply Bonferroni/Holm-Bonferroni correction for multiple hypothesis testing (perplexity + energy).
 - [~] T024 [US3] Implement sensitivity analysis sweep over thresholds {0.20, 0.25, 0.30, 0.35} to calculate FP/FN rates (ground truth: ≥30% reduction). **Output**: Save sensitivity curves and rates to `data/results/sensitivity_analysis.csv`.
 - [~] T025 [US3] Generate comparison report in `data/results/statistical_analysis_report.md` including temporal coding comparisons.
-- [ ] T026 [US3] Create visualization script `code/analysis/plots.py` for sensitivity curves and trade-off plots.
+- [~] T026 [US3] Create visualization script `code/analysis/plots.py` for sensitivity curves and trade-off plots.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -122,11 +122,14 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T027 [P] Documentation updates in `docs/` including the "CPU Proxy" caveat for energy metrics
-- [ ] T028 Code cleanup and refactoring
-- [ ] T029 [P] Performance optimization across all stories (ensure <6h total runtime)
-- [ ] T030 [P] Additional unit tests in `code/tests/unit/`
-- [ ] T031 Run `quickstart.md` validation
+- [~] T027 [P] Documentation updates in `docs/` including the "CPU Proxy" caveat for energy metrics
+- [~] T028 Code cleanup and refactoring <!-- ATOMIZE: requested -->
+- [~] T029 [P] Performance optimization across all stories (ensure <6h total runtime) <!-- ATOMIZE: requested -->
+- [~] T030 [P] Additional unit tests in `code/tests/unit/` <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+ in "<unicode string>", line 2, column 13:
+ contents: |
+ ^) -->
+- [~] T031 Run `quickstart.md` validation
 
 ---
 

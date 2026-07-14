@@ -9,3 +9,14 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/maxentius42/dataset/e72248617a3f32d4d2749e360f982e854926b886/dataset.csv?%2Fdatasets%2Fmaxentius42%2Fdataset%2Fresolve%2Fmain%2Fdataset.csv=&etag=%22ba8f9b9f1d881d376a6c19cf8ff98b2a56cc7569%22
   verified_at: '2026-07-01T15:04:42.541287Z'
+- artifact_hash: f365ddac47c4dd67c51ebec1cd7cd184311f6df0013253c9e19e33a5aa7da414
+  artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-07-14T13:02:01.552521Z'

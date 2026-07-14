@@ -1,2 +1,2 @@
-# This directory is for raw dataset files (CodeSearchNet, Defects4J).
-# Do not commit large files here.
+# This file ensures the data/raw directory is tracked by git.
+# Place raw dataset downloads here.

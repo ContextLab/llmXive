@@ -4,19 +4,16 @@ from pathlib import Path
 
 def main():
     """
-    Initialize the project directory structure for PROJ-181-predicting-species-distribution-shifts-u.
-    Creates all required subdirectories under the project root.
+    Initialize the project directory structure for PROJ-181.
+    Creates the root project folder and all required subdirectories.
     """
-    # Determine project root based on script location or current working directory
-    # Assuming this script is run from the project root or the script is located in code/
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
+    # Define the project root relative to the script location or current working directory
+    # The task specifies the project is at projects/PROJ-181-predicting-species-distribution-shifts-u/
+    # We assume the script is run from the repository root or the parent of 'projects'
+    project_root = Path.cwd() / "projects" / "PROJ-181-predicting-species-distribution-shifts-u"
     
-    project_name = "PROJ-181-predicting-species-distribution-shifts-u"
-    project_path = project_root / "projects" / project_name
-    
-    # Define required subdirectories relative to project_path
-    subdirs = [
+    # Define all required directories
+    directories = [
         "code",
         "data",
         "tests",
@@ -31,22 +28,37 @@ def main():
         "tests/integration",
         "contracts"
     ]
+
+    print(f"Initializing project structure at: {project_root}")
     
-    created_dirs = []
-    for subdir in subdirs:
-        full_path = project_path / subdir
-        try:
+    created_count = 0
+    for dir_name in directories:
+        full_path = project_root / dir_name
+        if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
-        except OSError as e:
-            print(f"Error creating directory {full_path}: {e}", file=sys.stderr)
-            return 1
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {full_path}")
     
-    print(f"Successfully created project structure at: {project_path}")
-    print(f"Created {len(created_dirs)} subdirectories:")
-    for d in created_dirs:
-        print(f"  - {d}")
+    # Create __init__.py files to ensure they are treated as Python packages
+    init_files = [
+        project_root / "code" / "__init__.py",
+        project_root / "code" / "utils" / "__init__.py",
+        project_root / "tests" / "__init__.py",
+        project_root / "tests" / "unit" / "__init__.py",
+        project_root / "tests" / "integration" / "__init__.py",
+    ]
+    
+    # Ensure utils directory exists before creating __init__.py there
+    (project_root / "code" / "utils").mkdir(parents=True, exist_ok=True)
+
+    for init_file in init_files:
+        if not init_file.exists():
+            init_file.touch()
+            print(f"Created init file: {init_file}")
         
+    print(f"Project initialization complete. {created_count} new directories created.")
     return 0
 
 if __name__ == "__main__":

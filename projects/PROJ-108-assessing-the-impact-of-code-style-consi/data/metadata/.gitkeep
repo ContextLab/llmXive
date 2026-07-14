@@ -1,2 +1,2 @@
-# This directory is for metadata files (file age, size, complexity, style scores).
-# Do not commit large files here.
+# This file ensures the data/metadata directory is tracked by git.
+# Processed metadata (e.g., file_metadata.csv) will be generated here.

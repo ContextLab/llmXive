@@ -1,56 +1,10 @@
-'|calculate default minimum parameter power sample size statistical using':
-  quote: "The issue of power in PLS-SEM In the design of quantitative studies, researchers\
-    \ must always consider the sample size needed to achieve sufficient statistical\
-    \ power for the hypothesised effect size. In this respect, one of the most convenient\
-    \ features of PLS-SEM is that the model structural complexity does not have a\
-    \ critical impact on the determination of the minimum sample size required (Hair\
-    \ et al., 2021, Chapter 1). Moreover, compared with CB-SEM, PLS-SEM has higher\
-    \ statistical power in scenarios with complex model structures and small sample\
-    \ sizes. As described by Hair and colleagues (2021), these convenient features\
-    \ led to the misconception that sample size computation has no relevance in PLS-SEM.\
-    \ This misconception has been fueled by the very common \u201810-times rule\u2019\
-    \ (Barclay et al., 1995), i.e., a heuristic often used to determine the minimum\
-    \ sample size required for a study (Hair et al., 2011). According to this rule,\
-    \ the sample size \u201Cshould be equal to 10 times the number of independent\
-    \ variables in the most complex regression in the PLS path model (i.e., considering\
-    \ both measurement and structural models). This rule of thumb is equivalent to\
-    \ saying the minimum sample size should be 10 times the maximum number of arrowheads\
-    \ pointing at a latent variable anywhere in the PLS path mode.\u201D (Hair et\
-    \ al., 2021, p. 16). This approach has the undeniable merit of being simple and\
-    \ easy to apply, which has contributed to its widespread use. There are nevertheless\
-    \ numerous problems (Goodhue et al., 2012). First, the rule is overly simplistic;\
-    \ it does not account for other critical factors that influence statistical power,\
-    \ such as the effect size, significance level (\U0001D6FC), and the desired statistical\
-    \ power (1\u2212\u03B2). The fact that this strategy is not sensitive to the effect\
-    \ size, in particular, is problematic. The basic underlying principle behind every\
-    \ power analysis, regardless of the specific technique at hand, is precisely that\
-    \ the sample size must vary based on the magnitude of the hypothesised effect.\
-    \ As a result, the 10-times rule may underestimate the required sample size, thus\
-    \ resulting in underpowered studies. As a second point, the 10-times rule lacks\
-    \ a solid statistical foundation. It relies on informal and universal guidelines\
-    \ rather than rigorous mathematical derivations, thus limiting its reliability\
-    \ and applicability across a broad range of research scenarios. The Minimum R-squared\
-    \ method (Hair et al., 2014) represents an alternative approach to sample size\
-    \ calculation. Using the smallest R-squared value anticipated in the model, this\
-    \ method computes the required sample size in PLS-SEM. By calculating the minimum\
-    \ R-squared, the corresponding sample size needed to achieve statistical power\
-    \ at a given significance level (\u03B1) is determined using either a lookup table\
-    \ or a formula. Despite being simpler, accounting for the strength of relationships\
-    \ in the model, and having stronger statistical foundations, this approach has\
-    \ a number of theoretical and practical limitations. On the theoretical side,\
-    \ the R2 is a measure of the model\u2019s explanatory power (Shmueli & Koppius,\
-    \ 2011), more correctly referred to as in-sample predictive power (Rigdon, 2012,\
-    \ but see also Hair et al., 2021, chapter 6). However, the predictive endeavour\
-    \ is hardly the main aim in the social sciences (Ozili, 2023), wherein the ultimate\
-    \ goal is unbiased causal inference. Moreover, despite the existence of some commonly\
-    \ used thresholds for acceptable R2 values (Hair et al., 2011), they are not entirely\
-    \ agreed upon in the literature, and it has been shown convincingly that models\
-    \ with R2 values as low as 0.10 can be entirely satisfactory in certain scientific\
-    \ contexts (Raithel et al., 2012). Furthermore, the idea that high predictive\
-    \ power directly translates into explanatory power and more legitimate causality\
-    \ claims is a false belief (McElreath, 2020, p. 225; Hill et al., 2018). On the\
-    \ practical side, the Minimum R-squared method assumes that researchers have a\
-    \ rough idea of, or can even quite"
-  source_id: '2511.14546'
-  url: https://arxiv.org/abs/2511.14546
-  value: '25'
+'|alpha':
+  quote: "The error that a practising statistician would consider the more important\
+    \ to avoid (which is a subjective judgment) is called the error of the first kind.\
+    \ The first demand of the mathematical theory is to deduce such test criteria\
+    \ as would ensure that the probability of committing an error of the first kind\
+    \ would equal (or approximately equal, or not exceed) a preassigned number \u03B1\
+    , such as \u03B1 = 0.05 or 0.01, etc. This number is called the level of significance."
+  source_id: P-value
+  url: https://en.wikipedia.org/wiki/P-value
+  value: '0.05'

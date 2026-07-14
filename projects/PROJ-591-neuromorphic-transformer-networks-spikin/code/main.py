@@ -4,297 +4,288 @@ import argparse
 import time
 import json
 import hashlib
-from typing import List, Dict, Any, Optional, Tuple
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-import pandas as pd
+from typing import List, Dict, Any, Optional, Tuple
+from dataclasses import dataclass, field
+from datetime import datetime
 
-# Project imports
-from models.baseline_transformer import create_baseline_model
-from data.dataset_loader import get_wikitext_dataloader
+# Local imports based on API surface
+from models.baseline_transformer import create_baseline_model, BaselineTransformer
+from data.dataset_loader import get_wikitext_dataloader, load_wikitext_dataset
 from metrics.perplexity import compute_perplexity, log_perplexity_to_csv
-from metrics.energy_logger import EnergyLogger, estimate_energy_from_time
+from metrics.energy_logger import EnergyLogger, EnergyRecord
 
+# Custom exceptions
 class TrainingTerminationError(Exception):
-    """Raised when training must stop due to specific conditions (e.g., zero spikes)."""
+    """Raised when training should be terminated due to specific conditions (e.g., zero spikes)."""
     pass
 
+@dataclass
+class MetricRecord:
+    """Dataclass to hold metrics for a single epoch or run."""
+    seed: int
+    epoch: int
+    perplexity: float
+    energy_per_token_kWh: float
+    wall_clock_time: float
+    val_loss: float = 0.0
+    train_loss: float = 0.0
+
+@dataclass
 class EarlyStopping:
     """
-    Early stopping to stop training early if validation loss does not improve.
+    Early stopping logic to halt training when validation loss stops improving.
     
-    Args:
-        patience (int): How many epochs to wait before stopping.
-        delta (float): Minimum change in the monitored quantity to qualify as an improvement.
-        min_delta (float): Minimum change in the monitored value to be considered an improvement.
+    Attributes:
+        patience: Number of epochs with no improvement after which training stops.
+        delta: Minimum change in the monitored quantity to qualify as an improvement.
+        mode: 'min' for validation loss, 'max' for metrics like accuracy.
     """
-    def __init__(self, patience: int = 2, delta: float = 0.01, min_delta: float = 0.0):
-        self.patience = patience
-        self.delta = delta
-        self.min_delta = min_delta
-        self.counter = 0
-        self.best_loss = None
-        self.early_stop = False
+    patience: int = 2
+    delta: float = 0.01
+    mode: str = 'min'
+    best_score: Optional[float] = None
+    counter: int = 0
+    stop_training: bool = False
 
-    def __call__(self, val_loss: float) -> bool:
+    def __call__(self, score: float) -> bool:
         """
-        Check if training should stop.
+        Update early stopping state and return True if training should stop.
         
         Args:
-            val_loss: Current validation loss.
+            score: The current validation metric score (e.g., loss).
         
         Returns:
-            bool: True if training should stop (early stop triggered).
+            bool: True if training should stop, False otherwise.
         """
-        if self.best_loss is None:
-            self.best_loss = val_loss
+        if self.best_score is None:
+            self.best_score = score
             self.counter = 0
             return False
 
-        # Check if improvement (lower loss)
-        if val_loss < self.best_loss - self.delta:
-            self.best_loss = val_loss
-            self.counter = 0
-            return False
-        
-        self.counter += 1
-        if self.counter >= self.patience:
-            self.early_stop = True
-            return True
+        if self.mode == 'min':
+            # For loss, we want it to decrease
+            if score < self.best_score - self.delta:
+                self.best_score = score
+                self.counter = 0
+                return False
+            else:
+                self.counter += 1
+                if self.counter >= self.patience:
+                    self.stop_training = True
+                    return True
+        else:
+            # For accuracy, we want it to increase
+            if score > self.best_score + self.delta:
+                self.best_score = score
+                self.counter = 0
+                return False
+            else:
+                self.counter += 1
+                if self.counter >= self.patience:
+                    self.stop_training = True
+                    return True
         
         return False
 
-class MetricRecord:
-    """Data container for a single training epoch's metrics."""
-    def __init__(self, seed: int, epoch: int, perplexity: float, 
-                 energy_per_token_kWh: float, wall_clock_time: float):
-        self.seed = seed
-        self.epoch = epoch
-        self.perplexity = perplexity
-        self.energy_per_token_kWh = energy_per_token_kWh
-        self.wall_clock_time = wall_clock_time
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "seed": self.seed,
-            "epoch": self.epoch,
-            "perplexity": self.perplexity,
-            "energy_per_token_kWh": self.energy_per_token_kWh,
-            "wall_clock_time": self.wall_clock_time
-        }
-
-class TrainingResult:
-    """Container for the final results of a training run."""
-    def __init__(self, metrics: List[MetricRecord], final_model_state: Optional[Dict] = None):
-        self.metrics = metrics
-        self.final_model_state = final_model_state
-
-def setup_seed(seed: int):
+def setup_seed(seed: int) -> None:
     """Set random seeds for reproducibility."""
     torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
-    # Note: Project enforces CPU-only, but setting these is good practice
-    # if the environment were to support GPU.
-    
-    # For numpy if needed
-    import numpy as np
-    np.random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    if hasattr(torch, 'use_deterministic_algorithms'):
+        try:
+            torch.use_deterministic_algorithms(True)
+        except RuntimeError:
+            pass  # Ignore if not supported in current environment
 
 def train_step(model: nn.Module, dataloader: DataLoader, optimizer: optim.Optimizer, 
                criterion: nn.Module, device: torch.device) -> float:
     """
-    Perform a single training step over the dataloader.
+    Perform a single training step over one epoch.
     
     Returns:
-        float: Average loss for the epoch.
+        float: Average training loss for the epoch.
     """
     model.train()
     total_loss = 0.0
     num_batches = 0
 
-    for batch in dataloader:
-        # batch is expected to be a tuple (input_ids, labels) or similar
-        # Adjust based on get_wikitext_dataloader output format
-        if isinstance(batch, (tuple, list)):
-            inputs, labels = batch[0].to(device), batch[1].to(device)
-        else:
-            # Handle case where batch is a dict or single tensor
-            inputs = batch.to(device)
-            labels = inputs  # Simple self-supervised setup
-
+    for batch_idx, (data, target) in enumerate(dataloader):
+        data, target = data.to(device), target.to(device)
+        
         optimizer.zero_grad()
-        outputs = model(inputs)
+        output = model(data)
         
-        # Compute loss (assuming outputs are logits and labels are targets)
-        # Flatten for cross_entropy
-        if isinstance(outputs, tuple):
-            logits = outputs[0]
-        else:
-            logits = outputs
+        # Flatten for loss calculation if necessary
+        if output.dim() > 2:
+            output = output.view(-1, output.size(-1))
+            target = target.view(-1)
         
-        loss = criterion(logits.view(-1, logits.size(-1)), labels.view(-1))
+        loss = criterion(output, target)
         loss.backward()
         optimizer.step()
-
+        
         total_loss += loss.item()
         num_batches += 1
 
     return total_loss / num_batches if num_batches > 0 else 0.0
 
 def validate_step(model: nn.Module, dataloader: DataLoader, criterion: nn.Module, 
-                  device: torch.device) -> float:
+                  device: torch.device) -> Tuple[float, float]:
     """
-    Perform a single validation step.
+    Perform validation over one epoch.
     
     Returns:
-        float: Average loss for the epoch.
+        Tuple[float, float]: (Average validation loss, Perplexity)
     """
     model.eval()
     total_loss = 0.0
     num_batches = 0
 
     with torch.no_grad():
-        for batch in dataloader:
-            if isinstance(batch, (tuple, list)):
-                inputs, labels = batch[0].to(device), batch[1].to(device)
-            else:
-                inputs = batch.to(device)
-                labels = inputs
-
-            outputs = model(inputs)
-            if isinstance(outputs, tuple):
-                logits = outputs[0]
-            else:
-                logits = outputs
+        for data, target in dataloader:
+            data, target = data.to(device), target.to(device)
             
-            loss = criterion(logits.view(-1, logits.size(-1)), labels.view(-1))
+            output = model(data)
+            
+            if output.dim() > 2:
+                output = output.view(-1, output.size(-1))
+                target = target.view(-1)
+            
+            loss = criterion(output, target)
             total_loss += loss.item()
             num_batches += 1
 
-    return total_loss / num_batches if num_batches > 0 else 0.0
+    avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
+    perplexity = compute_perplexity(avg_loss)
+    
+    return avg_loss, perplexity
 
-def run_baseline_training(seed: int, max_epochs: int = 10, patience: int = 2, 
-                          delta: float = 0.01, batch_size: int = 32, 
-                          lr: float = 1e-3, output_csv_path: str = "data/processed/baseline_metrics.csv") -> TrainingResult:
+def run_baseline_training(seed: int, output_path: str, 
+                          patience: int = 2, delta: float = 0.01,
+                          max_epochs: int = 10) -> List[MetricRecord]:
     """
-    Run the baseline transformer training loop with early stopping.
+    Train the baseline transformer model with early stopping.
     
     Args:
         seed: Random seed for reproducibility.
-        max_epochs: Maximum number of epochs to train.
-        patience: Patience for early stopping.
-        delta: Delta for early stopping improvement threshold.
-        batch_size: Batch size for dataloaders.
-        lr: Learning rate.
-        output_csv_path: Path to save metrics CSV.
+        output_path: Path to save the metrics CSV.
+        patience: Early stopping patience.
+        delta: Early stopping delta.
+        max_epochs: Maximum number of epochs to run.
     
     Returns:
-        TrainingResult: Object containing metrics list and final model state.
+        List[MetricRecord]: List of metric records for each epoch.
     """
     setup_seed(seed)
     
-    # Device setup (CPU enforced per project constraints)
-    device = torch.device("cpu")
+    device = torch.device('cpu')
+    print(f"Training baseline model with seed {seed} on {device}")
     
     # Load data
-    train_loader, val_loader = get_wikitext_dataloader(batch_size=batch_size, seed=seed)
+    train_loader, val_loader = get_wikitext_dataloader(batch_size=32, seed=seed)
     
     # Create model
     model = create_baseline_model()
     model = model.to(device)
     
-    # Optimizer and Criterion
-    optimizer = optim.Adam(model.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
     
-    # Early Stopping Instance
-    early_stopper = EarlyStopping(patience=patience, delta=delta)
+    # Initialize early stopping
+    early_stopping = EarlyStopping(patience=patience, delta=delta, mode='min')
     
-    # Energy Logger
+    # Initialize energy logger
     energy_logger = EnergyLogger()
     
-    metrics_list: List[MetricRecord] = []
+    records: List[MetricRecord] = []
     
-    print(f"Starting baseline training with seed {seed}...")
-    
-    for epoch in range(max_epochs):
+    for epoch in range(1, max_epochs + 1):
         start_time = time.time()
         
-        # Training
+        # Train
         train_loss = train_step(model, train_loader, optimizer, criterion, device)
         
-        # Validation
-        val_loss = validate_step(model, val_loader, criterion, device)
+        # Validate
+        val_loss, perplexity = validate_step(model, val_loader, criterion, device)
         
-        # Calculate Perplexity
-        perplexity = compute_perplexity(val_loss)
+        end_time = time.time()
+        wall_clock_time = end_time - start_time
         
-        # Estimate Energy (CPU proxy)
-        epoch_time = time.time() - start_time
-        # Estimate energy based on time for CPU proxy
-        energy_kWh = estimate_energy_from_time(epoch_time, is_gpu=False)
-        energy_per_token = energy_kWh / (len(train_loader.dataset) * epoch_time) if epoch_time > 0 else 0.0
+        # Log energy (estimated based on wall clock for CPU)
+        energy_logger.start_epoch()
+        energy_record = energy_logger.end_epoch()
+        energy_per_token = energy_record.energy_per_token_kWh
         
-        # Log metrics
-        metric = MetricRecord(
+        # Create metric record
+        record = MetricRecord(
             seed=seed,
-            epoch=epoch + 1,
+            epoch=epoch,
             perplexity=perplexity,
             energy_per_token_kWh=energy_per_token,
-            wall_clock_time=epoch_time
+            wall_clock_time=wall_clock_time,
+            val_loss=val_loss,
+            train_loss=train_loss
         )
-        metrics_list.append(metric)
+        records.append(record)
         
-        # Log to CSV
-        log_perplexity_to_csv(metric, output_csv_path)
+        # Log to CSV immediately
+        log_perplexity_to_csv(
+            output_path=output_path,
+            seed=seed,
+            epoch=epoch,
+            perplexity=perplexity,
+            energy_per_token=energy_per_token,
+            wall_clock_time=wall_clock_time
+        )
         
-        print(f"Epoch {epoch+1}/{max_epochs} | Train Loss: {train_loss:.4f} | "
-              f"Val Loss: {val_loss:.4f} | PPL: {perplexity:.2f} | "
-              f"Energy: {energy_per_token:.6f} kWh/token | Time: {epoch_time:.2f}s")
+        print(f"Epoch {epoch}: Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, "
+              f"PPL: {perplexity:.4f}, Energy: {energy_per_token:.6f} kWh/token, "
+              f"Time: {wall_clock_time:.2f}s")
         
-        # Check Early Stopping
-        if early_stopper(val_loss):
-            print(f"Early stopping triggered at epoch {epoch+1}.")
+        # Check early stopping
+        if early_stopping(val_loss):
+            print(f"Early stopping triggered at epoch {epoch}. "
+                  f"Best val loss: {early_stopping.best_score:.4f}")
             break
     
-    # Save final model state if needed (optional, but good practice)
-    final_state = model.state_dict() if model else None
-    
-    return TrainingResult(metrics=metrics_list, final_model_state=final_state)
+    print(f"Training completed for seed {seed}. Total epochs: {len(records)}")
+    return records
 
 def main():
-    parser = argparse.ArgumentParser(description="Baseline Transformer Training")
-    parser.add_argument("--seeds", type=int, nargs="+", default=[1, 2, 3, 4, 5],
-                        help="List of random seeds to run.")
-    parser.add_argument("--patience", type=int, default=2, help="Early stopping patience.")
-    parser.add_argument("--delta", type=float, default=0.01, help="Early stopping delta.")
-    parser.add_argument("--max-epochs", type=int, default=10, help="Maximum epochs.")
-    parser.add_argument("--batch-size", type=int, default=32, help="Batch size.")
-    parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate.")
-    parser.add_argument("--output", type=str, default="data/processed/baseline_metrics.csv",
-                        help="Output CSV path.")
+    """Main entry point for baseline training."""
+    parser = argparse.ArgumentParser(description="Train Baseline Transformer")
+    parser.add_argument('--seeds', type=int, nargs='+', default=[1, 2, 3, 4, 5],
+                        help='List of random seeds to run')
+    parser.add_argument('--patience', type=int, default=2,
+                        help='Early stopping patience')
+    parser.add_argument('--delta', type=float, default=0.01,
+                        help='Early stopping delta')
+    parser.add_argument('--output', type=str, default='data/processed/baseline_metrics.csv',
+                        help='Output path for metrics CSV')
     
     args = parser.parse_args()
     
-    all_metrics = []
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    
+    all_records: List[MetricRecord] = []
     
     for seed in args.seeds:
-        result = run_baseline_training(
+        records = run_baseline_training(
             seed=seed,
-            max_epochs=args.max_epochs,
+            output_path=args.output,
             patience=args.patience,
-            delta=args.delta,
-            batch_size=args.batch_size,
-            lr=args.lr,
-            output_csv_path=args.output
+            delta=args.delta
         )
-        all_metrics.extend(result.metrics)
-        
-    print(f"Training complete for seeds {args.seeds}. Results saved to {args.output}.")
+        all_records.extend(records)
+    
+    print(f"Training complete. Results saved to {args.output}")
+    print(f"Total records: {len(all_records)}")
 
 if __name__ == "__main__":
     main()

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T17:25:29.108631Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-499-reconstructing-early-universe-phase-tran
-last_run_id: c0ce672b-5f40-46c3-93dc-4de35a0022f3
+last_run_id: 85a5f9dd-cfa0-4bed-a60f-43be3dbea9ea
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-499-reconstructing-early-universe-phase-tran/specs/001-reconstructing-early-universe-phase-tran
 title: Reconstructing Early Universe Phase Transitions from CMB B-Mode Polarization
-updated_at: '2026-07-06T18:16:32.366356Z'
+updated_at: '2026-07-14T13:12:59.826489Z'

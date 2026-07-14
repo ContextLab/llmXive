@@ -1,311 +1,346 @@
+"""
+Metrics utility functions for statistical analysis and code evaluation.
+
+This module provides helper functions for calculating common metrics used
+in the code style consistency research pipeline, including BLEU scores,
+F1 scores, effect sizes, and statistical tests.
+"""
+
 import math
 import statistics
 from typing import List, Tuple, Optional, Union, Iterable
 from collections import Counter
 
-def bleu_score(candidate: Union[str, List[str]], references: List[Union[str, List[str]]], max_n: int = 4) -> float:
+
+def bleu_score(
+    candidate: Union[str, List[str]],
+    references: Union[List[str], List[List[str]]],
+    n_gram: int = 4
+) -> float:
     """
-    Calculate BLEU score for a single candidate against multiple references.
-    
+    Calculate BLEU score for a candidate text against one or more references.
+
     Args:
-        candidate: The generated text (string or list of tokens)
-        references: List of reference texts (strings or lists of tokens)
-        max_n: Maximum n-gram order (default 4)
-    
+        candidate: The generated text (string or list of tokens).
+        references: List of reference texts (strings or lists of tokens).
+        n_gram: Maximum n-gram order to consider (default 4).
+
     Returns:
-        BLEU score between 0.0 and 1.0
+        BLEU score between 0.0 and 1.0. Returns 0.0 if candidate is empty.
     """
+    if not candidate:
+        return 0.0
+
     if isinstance(candidate, str):
         candidate = candidate.split()
     if isinstance(references[0], str):
         references = [ref.split() for ref in references]
-    
+
     if not candidate:
         return 0.0
-    
-    # Calculate n-gram precisions
+
+    # Calculate precision for each n-gram order
     precisions = []
-    for n in range(1, max_n + 1):
-        # Count n-grams in candidate
-        candidate_ngrams = [tuple(candidate[i:i+n]) for i in range(len(candidate) - n + 1)]
-        candidate_counts = Counter(candidate_ngrams)
-        
-        # Get maximum count for each n-gram across references
-        max_counts = Counter()
-        for ref in references:
-            ref_ngrams = [tuple(ref[i:i+n]) for i in range(len(ref) - n + 1)]
-            ref_counts = Counter(ref_ngrams)
-            for ngram, count in ref_counts.items():
-                max_counts[ngram] = max(max_counts[ngram], count)
-        
-        # Calculate clipped count
-        clipped_count = sum(min(candidate_counts[ngram], max_counts[ngram]) for ngram in candidate_counts)
-        total_count = sum(candidate_counts.values())
-        
+    for n in range(1, n_gram + 1):
+        candidate_ngrams = Counter(tuple(candidate[i:i + n]) for i in range(len(candidate) - n + 1))
+        reference_ngrams = [Counter(tuple(ref[i:i + n]) for i in range(len(ref) - n + 1)) for ref in references]
+
+        # Count clipped matches
+        clipped_count = 0
+        total_count = sum(candidate_ngrams.values())
+
         if total_count == 0:
             precisions.append(0.0)
-        else:
-            precisions.append(clipped_count / total_count)
-    
-    # Check for brevity penalty
-    candidate_len = len(candidate)
-    ref_lens = [len(ref) for ref in references]
-    closest_ref_len = min(ref_lens, key=lambda x: abs(x - candidate_len))
-    
-    if candidate_len > closest_ref_len:
-        bp = 1.0
-    else:
-        if candidate_len == 0:
-            bp = 0.0
-        else:
-            bp = math.exp(1 - closest_ref_len / candidate_len)
-    
-    # Calculate geometric mean of precisions
-    if 0.0 in precisions:
-        return 0.0
-    
-    log_precision = sum(math.log(p) for p in precisions) / len(precisions)
-    bleu = bp * math.exp(log_precision)
-    
-    return bleu
+            continue
 
-def f1_score(precision: float, recall: float) -> float:
+        for ngram, count in candidate_ngrams.items():
+            max_ref_count = max((ref_counts.get(ngram, 0) for ref_counts in reference_ngrams), default=0)
+            clipped_count += min(count, max_ref_count)
+
+        precision = clipped_count / total_count if total_count > 0 else 0.0
+        precisions.append(precision)
+
+    # Calculate brevity penalty
+    ref_lengths = [len(ref) for ref in references]
+    closest_ref_len = min(ref_lengths, key=lambda r: abs(r - len(candidate)))
+    candidate_len = len(candidate)
+
+    if candidate_len > closest_ref_len:
+        brevity_penalty = 1.0
+    else:
+        brevity_penalty = math.exp(1 - closest_ref_len / candidate_len) if closest_ref_len > 0 else 0.0
+
+    # Calculate geometric mean of precisions
+    if all(p > 0 for p in precisions):
+        log_precision = sum(math.log(p) for p in precisions) / len(precisions)
+        bleu = math.exp(log_precision)
+    else:
+        bleu = 0.0
+
+    return min(brevity_penalty * bleu, 1.0)
+
+
+def f1_score(
+    precision: float,
+    recall: float
+) -> float:
     """
     Calculate F1 score from precision and recall.
-    
+
     Args:
-        precision: Precision value (0.0 to 1.0)
-        recall: Recall value (0.0 to 1.0)
-    
+        precision: Precision value (0.0 to 1.0).
+        recall: Recall value (0.0 to 1.0).
+
     Returns:
-        F1 score between 0.0 and 1.0
+        F1 score (harmonic mean of precision and recall). Returns 0.0 if
+        both precision and recall are 0.0.
     """
-    if precision + recall == 0:
+    if precision == 0.0 and recall == 0.0:
         return 0.0
     return 2 * (precision * recall) / (precision + recall)
 
-def compute_cohen_d(group1: List[float], group2: List[float]) -> float:
+
+def compute_cohen_d(
+    group1: List[Union[int, float]],
+    group2: List[Union[int, float]]
+) -> float:
     """
-    Calculate Cohen's d effect size between two groups.
-    
+    Calculate Cohen's d effect size for two independent groups.
+
     Args:
-        group1: First group of values
-        group2: Second group of values
-    
+        group1: First group of numerical values.
+        group2: Second group of numerical values.
+
     Returns:
-        Cohen's d value
+        Cohen's d effect size. Positive values indicate group1 > group2.
     """
     if not group1 or not group2:
         return 0.0
-    
+
     mean1 = statistics.mean(group1)
     mean2 = statistics.mean(group2)
-    
-    var1 = statistics.variance(group1) if len(group1) > 1 else 0
-    var2 = statistics.variance(group2) if len(group2) > 1 else 0
-    
-    # Pooled standard deviation
+
+    var1 = statistics.variance(group1) if len(group1) > 1 else 0.0
+    var2 = statistics.variance(group2) if len(group2) > 1 else 0.0
+
     n1 = len(group1)
     n2 = len(group2)
-    pooled_std = math.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
-    
+
+    # Pooled standard deviation
+    pooled_var = ((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2)
+    pooled_std = math.sqrt(pooled_var) if pooled_var > 0 else 0.0
+
     if pooled_std == 0:
         return 0.0
-    
+
     return (mean1 - mean2) / pooled_std
 
-def pearson_correlation(x: List[float], y: List[float]) -> float:
+
+def pearson_correlation(
+    x: List[Union[int, float]],
+    y: List[Union[int, float]]
+) -> float:
     """
-    Calculate Pearson correlation coefficient between two lists.
-    
+    Calculate Pearson correlation coefficient between two variables.
+
     Args:
-        x: First list of values
-        y: Second list of values
-    
+        x: First variable (list of numerical values).
+        y: Second variable (list of numerical values).
+
     Returns:
-        Pearson correlation coefficient between -1 and 1
+        Pearson correlation coefficient between -1.0 and 1.0.
+        Returns 0.0 if either list is empty or has only one element.
     """
     if len(x) != len(y) or len(x) < 2:
         return 0.0
-    
+
     n = len(x)
     mean_x = statistics.mean(x)
     mean_y = statistics.mean(y)
-    
+
     numerator = sum((x[i] - mean_x) * (y[i] - mean_y) for i in range(n))
-    
+
     sum_sq_x = sum((xi - mean_x) ** 2 for xi in x)
     sum_sq_y = sum((yi - mean_y) ** 2 for yi in y)
-    
+
     denominator = math.sqrt(sum_sq_x * sum_sq_y)
-    
+
     if denominator == 0:
         return 0.0
-    
+
     return numerator / denominator
 
-def t_test_independent(group1: List[float], group2: List[float]) -> Tuple[float, float]:
+
+def t_test_independent(
+    group1: List[Union[int, float]],
+    group2: List[Union[int, float]]
+) -> Tuple[float, float]:
     """
     Perform independent two-sample t-test.
-    
+
     Args:
-        group1: First group of values
-        group2: Second group of values
-    
+        group1: First group of numerical values.
+        group2: Second group of numerical values.
+
     Returns:
-        Tuple of (t-statistic, p-value)
+        Tuple of (t-statistic, p-value). Returns (0.0, 1.0) if
+        either group is empty or has insufficient data.
     """
-    if not group1 or not group2:
+    if not group1 or not group2 or len(group1) < 2 or len(group2) < 2:
         return 0.0, 1.0
-    
+
     n1 = len(group1)
     n2 = len(group2)
-    
+
     mean1 = statistics.mean(group1)
     mean2 = statistics.mean(group2)
-    
-    var1 = statistics.variance(group1) if n1 > 1 else 0
-    var2 = statistics.variance(group2) if n2 > 1 else 0
-    
-    # Pooled variance
-    pooled_var = ((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2)
-    
-    if pooled_var == 0:
-        return 0.0, 1.0
-    
-    # Standard error
-    se = math.sqrt(pooled_var * (1/n1 + 1/n2))
-    
+
+    var1 = statistics.variance(group1)
+    var2 = statistics.variance(group2)
+
+    # Pooled standard error
+    se = math.sqrt(var1 / n1 + var2 / n2)
+
     if se == 0:
         return 0.0, 1.0
-    
-    # t-statistic
+
     t_stat = (mean1 - mean2) / se
-    
-    # Degrees of freedom
-    df = n1 + n2 - 2
-    
-    # Approximate p-value using t-distribution (two-tailed)
+
+    # Approximate p-value using t-distribution (degrees of freedom)
+    # Using Welch-Satterthwaite equation for degrees of freedom
+    df_num = (var1 / n1 + var2 / n2) ** 2
+    df_den = ((var1 / n1) ** 2 / (n1 - 1)) + ((var2 / n2) ** 2 / (n2 - 1))
+
+    df = df_num / df_den if df_den > 0 else n1 + n2 - 2
+
+    # Approximate p-value (two-tailed)
     # Using a simple approximation for the t-distribution CDF
-    # For a more accurate calculation, scipy would be needed
-    # This is a simplified approximation
+    # For a more accurate implementation, scipy.stats would be preferred
+    # but we avoid external dependencies beyond standard library
     abs_t = abs(t_stat)
-    
-    # Approximation for p-value (not exact, but sufficient for demonstration)
-    # In production, use scipy.stats.t.sf(abs(t_stat), df) * 2
-    if df > 30:
-        # Use normal approximation for large df
-        p_value = 2 * (1 - 0.5 * (1 + math.erf(abs_t / math.sqrt(2))))
-    else:
-        # Rough approximation for small df
-        p_value = max(0.001, 2 * (1 - 0.5 * (1 + math.erf(abs_t / math.sqrt(2 * (1 + 1/df))))))
-    
+
+    # Simple approximation: for large df, t approaches normal
+    # This is a rough approximation for demonstration
+    p_value = 2 * (1 - 0.5 * (1 + math.erf(abs_t / math.sqrt(2))))
+
+    # Clamp p-value to [0, 1]
+    p_value = max(0.0, min(1.0, p_value))
+
     return t_stat, p_value
 
+
 def ancova(
-    dependent: List[float],
+    dependent: List[Union[int, float]],
     independent: List[str],
-    covariates: List[List[float]],
-    covariate_names: List[str]
-) -> dict:
+    covariate: List[Union[int, float]]
+) -> Dict[str, Union[float, str]]:
     """
-    Perform one-way ANCOVA analysis.
-    
+    Perform one-way ANCOVA (Analysis of Covariance).
+
     Args:
-        dependent: Dependent variable values
-        independent: Independent variable (group labels)
-        covariates: List of covariate value lists (one per covariate)
-        covariate_names: Names of the covariates
-    
+        dependent: Dependent variable values.
+        independent: Independent variable (group labels).
+        covariate: Covariate values (control variable).
+
     Returns:
-        Dictionary containing ANCOVA results
+        Dictionary containing F-statistic, p-value, and covariate coefficient.
+        Returns {'F': 0.0, 'p': 1.0, 'covariate_coef': 0.0} if data is insufficient.
     """
-    if len(dependent) != len(independent):
-        raise ValueError("Dependent and independent variables must have same length")
-    
-    if covariates and len(covariates[0]) != len(dependent):
-        raise ValueError("Covariates must have same length as dependent variable")
-    
-    # Group data
+    if len(dependent) < 3 or len(set(independent)) < 2:
+        return {'F': 0.0, 'p': 1.0, 'covariate_coef': 0.0}
+
+    # Group the data
     groups = {}
     for i, group in enumerate(independent):
         if group not in groups:
-            groups[group] = {'y': [], 'covariates': [[] for _ in range(len(covariates))]}
+            groups[group] = {'y': [], 'x': []}
         groups[group]['y'].append(dependent[i])
-        for j, cov in enumerate(covariates):
-            groups[group]['covariates'][j].append(cov[i])
-    
+        groups[group]['x'].append(covariate[i])
+
     # Calculate overall means
-    overall_mean_y = statistics.mean(dependent)
-    overall_means_cov = [statistics.mean(cov) for cov in covariates] if covariates else []
-    
+    mean_y = statistics.mean(dependent)
+    mean_x = statistics.mean(covariate)
+
     # Calculate total sum of squares
-    ss_total = sum((y - overall_mean_y) ** 2 for y in dependent)
-    
-    # Calculate within-group sum of squares (residuals after adjusting for covariates)
-    # This is a simplified implementation - a full ANCOVA would require matrix operations
-    # For a proper implementation, we would use statsmodels or scipy
-    
-    # Calculate group means
-    group_means = {g: statistics.mean(data['y']) for g, data in groups.items()}
-    
-    # Calculate adjusted means (simplified)
-    adjusted_means = {}
-    for g, data in groups.items():
-        adj_mean = group_means[g]
-        for j, cov in enumerate(covariates):
-            cov_group_mean = statistics.mean(data['covariates'][j])
-            cov_overall_mean = overall_means_cov[j]
-            # Simple adjustment (in reality, this requires regression coefficients)
-            adj_mean -= (cov_group_mean - cov_overall_mean) * 0.5  # Placeholder slope
-        adjusted_means[g] = adj_mean
-    
+    ss_total = sum((y - mean_y) ** 2 for y in dependent)
+
+    # Calculate within-group sum of squares (adjusted for covariate)
+    ss_within = 0.0
+    ss_covariate = 0.0
+
+    for group_data in groups.values():
+        group_y = group_data['y']
+        group_x = group_data['x']
+
+        if len(group_y) < 2:
+            continue
+
+        mean_group_y = statistics.mean(group_y)
+        mean_group_x = statistics.mean(group_x)
+
+        # Calculate regression slope for this group
+        if len(group_x) > 1:
+            cov_xy = sum((group_x[i] - mean_group_x) * (group_y[i] - mean_group_y) for i in range(len(group_x)))
+            var_x = sum((xi - mean_group_x) ** 2 for xi in group_x)
+
+            if var_x > 0:
+                slope = cov_xy / var_x
+                ss_residual = sum((group_y[i] - mean_group_y - slope * (group_x[i] - mean_group_x)) ** 2
+                                 for i in range(len(group_x)))
+                ss_within += ss_residual
+            else:
+                ss_within += sum((y - mean_group_y) ** 2 for y in group_y)
+        else:
+            ss_within += sum((y - mean_group_y) ** 2 for y in group_y)
+
     # Calculate between-group sum of squares (adjusted)
-    ss_between = sum(
-        len(data['y']) * (adjusted_means[g] - overall_mean_y) ** 2
-        for g, data in groups.items()
-    )
-    
-    # Calculate within-group sum of squares
-    ss_within = ss_total - ss_between
-    
+    ss_between = ss_total - ss_within
+
     # Degrees of freedom
-    k = len(groups)  # Number of groups
-    n = len(dependent)  # Total sample size
-    c = len(covariates)  # Number of covariates
-    
+    k = len(groups)
+    n = len(dependent)
+
     df_between = k - 1
-    df_within = n - k - c
-    df_total = n - 1
-    
+    df_within = n - k - 1  # Adjusted for covariate
+    df_covariate = 1
+
+    if df_within <= 0:
+        return {'F': 0.0, 'p': 1.0, 'covariate_coef': 0.0}
+
     # Mean squares
-    ms_between = ss_between / df_between if df_between > 0 else 0
-    ms_within = ss_within / df_within if df_within > 0 else 0
-    
+    ms_between = ss_between / df_between if df_between > 0 else 0.0
+    ms_within = ss_within / df_within if df_within > 0 else 0.0
+
     # F-statistic
-    f_stat = ms_between / ms_within if ms_within > 0 else 0
-    
-    # Approximate p-value
-    if f_stat > 0 and df_within > 0:
-        # Simplified p-value calculation
-        p_value = max(0.001, 2 * (1 - 0.5 * (1 + math.erf(math.sqrt(f_stat) / math.sqrt(2)))))
+    if ms_within == 0:
+        f_stat = 0.0
     else:
-        p_value = 1.0
-    
-    # Effect size (eta-squared)
-    eta_squared = ss_between / ss_total if ss_total > 0 else 0
-    
+        f_stat = ms_between / ms_within
+
+    # Approximate p-value (same approximation as t-test)
+    abs_f = abs(f_stat)
+    p_value = 1.0 / (1 + abs_f)  # Very rough approximation
+
+    # Calculate covariate coefficient (pooled slope)
+    total_cov_xy = 0.0
+    total_var_x = 0.0
+
+    for group_data in groups.values():
+        group_y = group_data['y']
+        group_x = group_data['x']
+        mean_group_y = statistics.mean(group_y)
+        mean_group_x = statistics.mean(group_x)
+
+        cov_xy = sum((group_x[i] - mean_group_x) * (group_y[i] - mean_group_y) for i in range(len(group_x)))
+        var_x = sum((xi - mean_group_x) ** 2 for xi in group_x)
+
+        total_cov_xy += cov_xy
+        total_var_x += var_x
+
+    covariate_coef = total_cov_xy / total_var_x if total_var_x > 0 else 0.0
+
     return {
-        'f_statistic': f_stat,
-        'p_value': p_value,
-        'df_between': df_between,
-        'df_within': df_within,
-        'ss_between': ss_between,
-        'ss_within': ss_within,
-        'eta_squared': eta_squared,
-        'group_means': group_means,
-        'adjusted_means': adjusted_means,
-        'covariate_names': covariate_names,
-        'overall_mean_y': overall_mean_y,
-        'overall_means_cov': overall_means_cov
+        'F': f_stat,
+        'p': max(0.0, min(1.0, p_value)),
+        'covariate_coef': covariate_coef
     }

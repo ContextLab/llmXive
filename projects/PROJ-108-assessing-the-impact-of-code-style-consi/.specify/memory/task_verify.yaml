@@ -1,14 +1,6 @@
-T007 [P] Setup `data/raw/` and `data/metadata/` directory structure with `.gitkeep`: 2
-? T009 [P] Implement `code/00_extract_metadata.py` to extract `file_age` (from git
-  log), `file_size` (bytes), and `cyclomatic_complexity` (from radon) for all source
-  files, outputting to `data/metadata/file_metadata.csv`
-: 1
-? T010 [P] [US1] Unit test for style scoring logic in `tests/unit/test_style_scoring.py`
-  (verify score range and metric aggregation)
-: 1
-? 'T011 [P] [US1] Unit test for error handling in `tests/unit/test_style_scoring.py`
-  (verify parse errors skip without crash) <!-- ATOMIZE: requested -->'
-: 1
-? T012 [P] [US1] Unit test for stratification logic in `tests/unit/test_stratification.py`
-  (verify High/Med/Low group assignment)
-: 1
+T007: 1
+T009: 1
+T010: 1
+T011: 1
+T012: 1
+T013: 1

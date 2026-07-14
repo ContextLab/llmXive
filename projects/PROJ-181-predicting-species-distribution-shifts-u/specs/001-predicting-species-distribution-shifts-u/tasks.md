@@ -26,7 +26,7 @@
 
 - [ ] T001 [P] Initialize project directory structure: Create `projects/PROJ-181-predicting-species-distribution-shifts-u/` and subdirectories `code/`, `data/`, `tests/`, `metrics/`, `reports/`, `logs/`, `state/`, `data/raw/`, `data/processed/`, `data/artifacts/`, `tests/unit/`, `tests/integration/`, `contracts/`
 
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`requirements.txt`: `scikit-learn==1.5.0`, `geopandas==0.14.2`, `rasterio==1.3.9`, `pandas==2.2.2`, `numpy==1.26.4`, `requests==2.32.3`, `matplotlib==3.9.0`, `seaborn==0.13.2`)
+- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`requirements.txt`: `scikit-learn==1.5.0 `, `geopandas==0.14.2 `, `rasterio==1.3.9 `, `pandas==2.2.2 `, `numpy==1.26.4 `, `requests==2.32.3 `, `matplotlib==3.9.0 `, `seaborn==0.13.2 `)
 - [ ] T003 [P] Configure linting (flake8) and formatting (black) tools
 
 ---
@@ -40,8 +40,8 @@
 - [X] T004 Create `code/config.py` with paths, thresholds, random seeds, and `n_jobs=2` configuration
 - [ ] T005 [P] Initialize logging infrastructure (configure logger to write to `logs/`); do NOT produce `logs/preprocess_counts.yaml` yet
 - [X] T006 [P] Create utility module `code/utils/spatial_blocks.py` for spatial block cross-validation generation
-- [ ] T007 Create `code/utils/data_utils.py` for coordinate validation, missing value imputation (nearest neighbor), and error handling
-- [~] T009 Create `contracts/` directory with JSON Schema files (`model_metrics.schema.yaml`, `occurrence.schema.yaml`) for validation
+- [X] T007 Create `code/utils/data_utils.py` for coordinate validation, missing value imputation (nearest neighbor), and error handling
+- [ ] T009 Create `contracts/` directory with JSON Schema files (`model_metrics.schema.yaml`, `occurrence.schema.yaml`) for validation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,9 +79,9 @@
 ### Implementation for User Story 2
 
 - [~] T018 [P] [US2] Implement `code/baseline.py` to create a null prevalence model for baseline expectation (SC-001), outputting `metrics/baseline_performance.csv`
-- [ ] T019 [US2] Implement `code/bias_null.py` to create a bias-only null model using the bias layer from T012, outputting `metrics/bias_null_metrics.csv`
-- [ ] T020 [US2] Implement `code/power_analysis.py` to calculate minimum sample size for statistical power (post-thinning) using default parameters (power=0.8, alpha=0.05, effect_size=0.5), outputting `metrics/power_analysis_report.json`
-- [ ] T021 [US2] Implement `code/train.py` to train Random Forest (`sklearn.ensemble.RandomForestClassifier`) with `n_jobs=2` on CPU
+- [~] T019 [US2] Implement `code/bias_null.py` to create a bias-only null model using the bias layer from T012, outputting `metrics/bias_null_metrics.csv` <!-- FAILED: unspecified -->
+- [~] T020 [US2] Implement `code/power_analysis.py` to calculate minimum sample size for statistical power (post-thinning) using default parameters (power=0.8, {{claim:c_3e18cc50}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value), effect_size=0.5), outputting `metrics/power_analysis_report.json`
+- [~] T021 [US2] Implement `code/train.py` to train Random Forest (`sklearn.ensemble.RandomForestClassifier`) with `n_jobs=2` on CPU
 - [ ] T022 [US2] Implement `code/train.py` to train Bioclim algorithm (custom percentile envelope)
 - [ ] T023 [US2] Implement `code/train.py` to train Regularized Logistic Regression (Presence-Background) using `sklearn.linear_model.LogisticRegression` with L2 regularization (FR-003)
 - [ ] T024 [US2] Implement spatial block cross-validation logic in `code/train.py` using `code/utils/spatial_blocks.py` (FR-007)
