@@ -1,103 +1,45 @@
 """
-Base logging infrastructure for the llmXive research pipeline.
-
-Provides a centralized logging configuration that ensures consistent
-formatting, file rotation, and log levels across all modules.
+Logging Infrastructure for the Pipeline.
 """
+
 import logging
 import sys
 from pathlib import Path
 from typing import Optional, Union
 
-# Default log level for the application
-DEFAULT_LOG_LEVEL = logging.INFO
+def get_logger(name: str = __name__) -> logging.Logger:
+    """Gets a logger with the specified name."""
+    return logging.getLogger(name)
 
-# Log file name relative to the project root or data directory
-DEFAULT_LOG_FILENAME = "pipeline.log"
-
-# Formatter string for log messages
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-
-
-def get_logger(
-    name: Optional[str] = None,
-    log_file: Optional[Union[str, Path]] = None,
-    level: int = DEFAULT_LOG_LEVEL,
-    console_output: bool = True,
-) -> logging.Logger:
+def configure_root_logger(level: int = logging.INFO, log_file: Optional[str] = None) -> None:
     """
-    Configure and return a logger instance with file and/or console handlers.
-
+    Configures the root logger.
+    
     Args:
-        name: Name of the logger. If None, returns the root logger.
-        log_file: Path to the log file. If None, no file handler is added.
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
-        console_output: If True, add a console handler.
-
-    Returns:
-        A configured logging.Logger instance.
+        level: Logging level (e.g., logging.INFO).
+        log_file: Optional path to a log file. If provided, logs are written to file.
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-
-    # Avoid adding duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
-
-    # Create formatter
-    formatter = logging.Formatter(LOG_FORMAT)
-
-    # Add console handler if requested
-    if console_output:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
-    # Add file handler if log_file is provided
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+    
+    # Clear existing handlers
+    root_logger.handlers.clear()
+    
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(formatter)
+    root_logger.addHandler(console_handler)
+    
+    # File handler if specified
     if log_file:
-        log_path = Path(log_file)
-        # Ensure the directory exists
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_path)
+        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(level)
         file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+        root_logger.addHandler(file_handler)
 
-    return logger
-
-
-def configure_root_logger(
-    log_file: Optional[Union[str, Path]] = None,
-    level: int = DEFAULT_LOG_LEVEL,
-) -> logging.Logger:
-    """
-    Configure the root logger for the entire application.
-
-    Args:
-        log_file: Path to the log file.
-        level: Logging level.
-
-    Returns:
-        The configured root logger.
-    """
-    return get_logger(
-        name=None,
-        log_file=log_file,
-        level=level,
-        console_output=True,
-    )
-
-
-# Convenience function to get a module-specific logger
 def get_module_logger(module_name: str) -> logging.Logger:
-    """
-    Get a logger instance for a specific module.
-
-    Args:
-        module_name: The name of the module (typically __name__).
-
-    Returns:
-        A logger instance configured for the module.
-    """
-    return get_logger(name=module_name)
+    """Gets a logger for a specific module."""
+    return logging.getLogger(module_name)

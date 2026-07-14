@@ -1,0 +1,16 @@
+status: none
+intent: Arabidopsis thaliana 1001 Genomes VCF WorldClim GBIF ChemBank PhenolExplorer
+  python package dataset
+required_fields:
+- population_id
+- sample_id
+- chromosome
+- position
+- ref_allele
+- alt_allele
+- genotype
+- latitude
+- longitude
+- bioclim_variable
+- environmental_variable
+- compound_name

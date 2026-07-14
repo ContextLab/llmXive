@@ -1,8 +1,7 @@
 """
-Main pipeline orchestrator.
-Executes: Ingestion -> Validation -> Preprocessing -> Training -> Evaluation.
-Updates state file upon completion.
+Main Orchestrator for the Plant Defense Compound Prediction Pipeline.
 """
+
 import sys
 import os
 import logging
@@ -10,85 +9,89 @@ from datetime import datetime
 from pathlib import Path
 import yaml
 
-# Add code directory to path for imports
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT))
-
 from config import get_config
-from data.ingestion import main as run_ingestion
-from data.validation import main as run_validation
-from data.preprocessing import main as run_preprocessing
-from models.training import main as run_training
-from models.evaluation import main as run_evaluation
 from utils.logging import configure_root_logger, get_module_logger
-from utils.io import check_disk_space
+from data.ingestion import run_ingestion_pipeline
+from data.validation import run_validation_pipeline
+from data.preprocessing import run_vif_analysis, aggregate_to_population_level
+from models.training import train_model, extract_top_predictors
+from models.evaluation import run_permutation_test, run_sensitivity_analysis
+from scripts.update_manifest import update_manifest
 
-def update_state_file(config):
-    """Update the state file with the current timestamp."""
-    state_dir = Path(config.paths.state)
-    state_dir.mkdir(parents=True, exist_ok=True)
-    state_file = state_dir / "PROJ-475-predicting-plant-defense-compound-produc.yaml"
+logger = get_module_logger(__name__)
+
+def update_state_file(state_path: str = "state/PROJ-475-predicting-plant-defense-compound-produc.yaml") -> None:
+    """Updates the state file with the current timestamp."""
+    state_file = Path(state_path)
+    state_file.parent.mkdir(parents=True, exist_ok=True)
     
-    state_data = {
-        "project_id": "PROJ-475-predicting-plant-defense-compound-produc",
-        "updated_at": datetime.now().isoformat(),
-        "status": "completed"
-    }
+    current_state = {}
+    if state_file.exists():
+        with open(state_file, 'r') as f:
+            current_state = yaml.safe_load(f) or {}
+    
+    current_state['updated_at'] = datetime.now().isoformat()
+    current_state['status'] = 'running'
     
     with open(state_file, 'w') as f:
-        yaml.dump(state_data, f, default_flow_style=False)
-    
-    logger = get_module_logger(__name__)
-    logger.info(f"State file updated: {state_file}")
+        yaml.dump(current_state, f)
 
-def run_pipeline(config):
-    """Execute the full research pipeline."""
-    logger = get_module_logger(__name__)
+def run_pipeline() -> int:
+    """
+    Runs the full pipeline: Ingestion -> Validation -> Feature Eng -> Training -> Evaluation.
+    """
     logger.info("Starting full pipeline...")
-    
-    # Check disk space before starting
-    estimated_size = 2 * 1024 * 1024 * 1024 # 2GB estimate
-    check_disk_space(estimated_size)
+    update_state_file()
     
     try:
-        # 1. Ingestion
+        # Step 1: Ingestion
         logger.info("Step 1: Ingestion")
-        run_ingestion(config)
+        run_ingestion_pipeline()
         
-        # 2. Validation
+        # Step 2: Validation
         logger.info("Step 2: Validation")
-        run_validation(config)
+        run_validation_pipeline()
         
-        # 3. Preprocessing
-        logger.info("Step 3: Preprocessing")
-        run_preprocessing(config)
+        # Step 3: Feature Engineering (VIF, Aggregation)
+        logger.info("Step 3: Feature Engineering")
+        aggregate_to_population_level()
+        run_vif_analysis()
         
-        # 4. Training
+        # Step 4: Training
         logger.info("Step 4: Training")
-        run_training(config)
+        model = train_model()
+        extract_top_predictors(model)
         
-        # 5. Evaluation
+        # Step 5: Evaluation
         logger.info("Step 5: Evaluation")
-        run_evaluation(config)
+        run_permutation_test()
+        run_sensitivity_analysis()
+        
+        # Update Manifest
+        logger.info("Updating Manifest")
+        update_manifest()
+        
+        update_state_file()
+        with open("state/PROJ-475-predicting-plant-defense-compound-produc.yaml", 'r') as f:
+            state = yaml.safe_load(f)
+            state['status'] = 'completed'
+        with open("state/PROJ-475-predicting-plant-defense-compound-produc.yaml", 'w') as f:
+            yaml.dump(state, f)
         
         logger.info("Pipeline completed successfully.")
-        return True
-        
+        return 0
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        return False
+        logger.error(f"Pipeline failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
-def main():
+def main() -> int:
+    """
+    CLI entry point.
+    """
     configure_root_logger()
-    config = get_config()
-    
-    success = run_pipeline(config)
-    
-    if success:
-        update_state_file(config)
-        sys.exit(0)
-    else:
-        sys.exit(1)
+    return run_pipeline()
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
