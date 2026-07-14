@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.02381",
+  "judged_at": "2026-07-14T05:11:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting adsorption isotherm parameters from molecular features chemistry",
+  "rationale": "The paper focuses on a general methodology for interpreting machine learning models using energy landscape concepts, but it does not measure adsorption isotherm parameters, molecular features related to adsorption, or the specific predictive relationship requested. It fails to satisfy any inclusion criteria (a-f) as it lacks the specific domain variables (adsorption) and does not provide a baseline or canonical reference for the specific task of predicting isotherm parameters from molecular feat",
+  "relevant": false
+}

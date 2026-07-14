@@ -1,0 +1,97 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AdsorptionDatasetSchema
+description: Schema for the processed adsorption dataset used in training and testing.
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source:
+        type: string
+        description: "Source of the data (e.g., 'synthetic', 'nist', 'mof1000', 'literature')"
+      version:
+        type: string
+        description: "Version of the dataset schema"
+      generated_at:
+        type: string
+        format: date-time
+        description: "Timestamp of dataset generation"
+    required:
+      - source
+      - version
+      - generated_at
+  columns:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Column name"
+        dtype:
+          type: string
+          enum:
+            - float64
+            - int64
+            - object
+            - bool
+          description: "Data type"
+        description:
+          type: string
+          description: "Human-readable description"
+        unit:
+          type: string
+          description: "Physical unit if applicable"
+        nullable:
+          type: boolean
+          description: "Whether the column allows null values"
+      required:
+        - name
+        - dtype
+        - description
+        - nullable
+    description: "List of column definitions"
+  constraints:
+    type: object
+    properties:
+      is_type_i_only:
+        type: boolean
+        description: "True if only Type I isotherms are included"
+      no_missing_targets:
+        type: boolean
+        description: "True if langmuir_capacity and henry_constant are not null"
+      material_split:
+        type: boolean
+        description: "True if train/test split is by material_id"
+    required:
+      - is_type_i_only
+      - no_missing_targets
+      - material_split
+required:
+  - metadata
+  - columns
+  - constraints
+examples:
+  - metadata:
+      source: "synthetic"
+      version: "1.0.0"
+      generated_at: "2026-07-14T12:00:00Z"
+    columns:
+      - name: "smiles"
+        dtype: "object"
+        description: "SMILES string of the adsorbate"
+        nullable: false
+      - name: "polarizability"
+        dtype: "float64"
+        description: "Polarizability"
+        unit: "Å³"
+        nullable: false
+      - name: "langmuir_capacity"
+        dtype: "float64"
+        description: "Langmuir capacity"
+        unit: "mmol/g"
+        nullable: false
+    constraints:
+      is_type_i_only: true
+      no_missing_targets: true
+      material_split: true

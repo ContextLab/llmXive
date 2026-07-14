@@ -1,0 +1,136 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelOutputSchema
+description: Schema for the model performance metrics and SHAP analysis results.
+type: object
+properties:
+  model_performance:
+    type: object
+    properties:
+      best_model:
+        type: string
+        description: "Name of the best performing model (e.g., 'RandomForest')"
+      metrics:
+        type: object
+        properties:
+          r2:
+            type: number
+            description: "R-squared value on the test set"
+          rmse:
+            type: number
+            description: "Root Mean Squared Error"
+          mae:
+            type: number
+            description: "Mean Absolute Error"
+          cv_r2_mean:
+            type: number
+            description: "Mean R-squared from 5-fold cross-validation"
+          cv_r2_std:
+            type: number
+            description: "Standard deviation of CV R-squared"
+        required:
+          - r2
+          - rmse
+          - mae
+          - cv_r2_mean
+          - cv_r2_std
+      null_model_rmse:
+        type: number
+        description: "RMSE of the null model (predicting mean)"
+      improvement_over_null:
+        type: number
+        description: "Percentage improvement over null model (target >= 20%)"
+    required:
+      - best_model
+      - metrics
+      - null_model_rmse
+      - improvement_over_null
+  feature_importance:
+    type: object
+    properties:
+      top_5_features:
+        type: array
+        items:
+          type: object
+          properties:
+            feature_name:
+              type: string
+              description: "Name of the feature"
+            mean_abs_shap:
+              type: number
+              description: "Mean absolute SHAP value"
+            p_value:
+              type: number
+              description: "Permutation-based p-value"
+            adjusted_p_value:
+              type: number
+              description: "FDR-adjusted p-value (q-value)"
+            is_significant:
+              type: boolean
+              description: "True if adjusted_p_value < 0.05"
+          required:
+            - feature_name
+            - mean_abs_shap
+            - p_value
+            - adjusted_p_value
+            - is_significant
+        description: "List of top 5 features with statistical significance"
+      literature_match:
+        type: object
+        properties:
+          consensus_list:
+            type: array
+            items:
+              type: string
+            description: "List of known dominant drivers from literature"
+          top_3_matches:
+            type: array
+            items:
+              type: string
+            description: "Features from top 3 that match the consensus list"
+          match_count:
+            type: integer
+            description: "Number of matches (target >= 2)"
+        required:
+          - consensus_list
+          - top_3_matches
+          - match_count
+    required:
+      - top_5_features
+      - literature_match
+required:
+  - model_performance
+  - feature_importance
+examples:
+  - model_performance:
+      best_model: "RandomForest"
+      metrics:
+        r2: 0.75
+        rmse: 0.12
+        mae: 0.09
+        cv_r2_mean: 0.73
+        cv_r2_std: 0.02
+      null_model_rmse: 0.15
+      improvement_over_null: 0.20
+    feature_importance:
+      top_5_features:
+        - feature_name: "polarizability"
+          mean_abs_shap: 0.45
+          p_value: 0.001
+          adjusted_p_value: 0.005
+          is_significant: true
+        - feature_name: "kinetic_diameter"
+          mean_abs_shap: 0.30
+          p_value: 0.01
+          adjusted_p_value: 0.02
+          is_significant: true
+      literature_match:
+        consensus_list:
+          - "polarizability"
+          - "kinetic_diameter"
+          - "Lennard-Jones energy parameter"
+          - "quadrupole moment"
+          - "molecular volume"
+        top_3_matches:
+          - "polarizability"
+          - "kinetic_diameter"
+        match_count: 2

@@ -1,0 +1,370 @@
+{
+  "fetched_at": "2026-07-14T05:11:07Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Adsorption Isotherm Parameters from Molecular Features",
+      "target_n": 5
+    },
+    "duration_seconds": 50.611,
+    "ended_at": "2026-07-14T05:11:07Z",
+    "expansion": null,
+    "extracted_queries": [
+      "adsorption capacity Henry constant isotherm fitting",
+      "Langmuir Freundlich BET surface area",
+      "QSAR molecular descriptors adsorption energy",
+      "isotherm model parameter regression machine learning",
+      "micropore volume surface heterogeneity adsorption mechanism"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2111.06657"
+      ]
+    },
+    "per_query_hit_count": {
+      "Langmuir Freundlich BET surface area": 3,
+      "Predicting Adsorption Isotherm Parameters from Molecular Features chemistry": 3,
+      "QSAR molecular descriptors adsorption energy": 2,
+      "adsorption capacity Henry constant isotherm fitting": 2,
+      "isotherm model parameter regression machine learning": 3,
+      "micropore volume surface heterogeneity adsorption mechanism": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2504.20713",
+          "rationale": "The paper focuses on a software tool (GUI) for fitting isotherm models and simulating breakthrough curves using experimental data, rather than developing or evaluating methods to predict isotherm parameters directly from molecular features (e.g., using QSAR, machine learning, or quantum chemical descriptors). While it deals with the same domain (adsorption isotherms), it addresses the application of existing models rather than the specific mechanism of parameter prediction from molecular structu",
+          "title": "AIM: A User-friendly GUI Workflow program for Isotherm Fitting, Mixture Prediction, Isosteric Heat of Adsorption Estimation, and Breakthrough Simulation"
+        },
+        {
+          "primary_pointer": "2304.02381",
+          "rationale": "The paper focuses on a general methodology for interpreting machine learning models using energy landscape concepts, but it does not measure adsorption isotherm parameters, molecular features related to adsorption, or the specific predictive relationship requested. It fails to satisfy any inclusion criteria (a-f) as it lacks the specific domain variables (adsorption) and does not provide a baseline or canonical reference for the specific task of predicting isotherm parameters from molecular feat",
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-14T05:10:16Z",
+    "term_input": {
+      "normalized": "predicting adsorption isotherm parameters from molecular features chemistry",
+      "raw": "Predicting Adsorption Isotherm Parameters from Molecular Features chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-07-14T05:10:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Brunn-Minkowski theory in convex geometry concerns, among other things, the volumes, mixed volumes, and surface area measures of convex bodies. We study generalizations of these concepts to Borel measures with density in $\\mathbb{R}^n$-- in particular, the weighted versions of mixed volumes (the so-called mixed measures) when dealing with up to three distinct convex bodies. We then formulate and analyze weighted versions of classical surface area measures, and obtain a new integral formula for the mixed measure of three bodies. As an application, we prove a Bézout-type inequality for rotational invariant log-concave measures, generalizing a result by Artstein-Avidan, Florentin and Ostrover. The results are new and interesting even for the special case of the standard Gaussian measure.",
+          "claimed_authors": [
+            "Matthieu Fradelizi",
+            "Dylan Langharst",
+            "Mokshay Madiman",
+            "Artem Zvavitch"
+          ],
+          "claimed_title": "Weighted Brunn-Minkowski Theory I: On Weighted Surface Area Measures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.13522"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Weighted Brunn-Minkowski Theory I: On Weighted Surface Area Measures')",
+        "failed_at": "2026-07-14T05:10:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Consider a random smooth Gaussian field $G(x):F\\to\\mathbb{R}$, where $F$ is a compact in $\\mathbb{R}^d$. We derive a formula for average area of a surface generated by the equation $G(x)=0$ and give some applications. As an auxiliary result we obtain an integral expression for area of a surface induced by zeros of a \\emph{non-random} smooth field.",
+          "claimed_authors": [
+            "Ildar Ibragimov",
+            "Dmitry Zaporozhets"
+          ],
+          "claimed_title": "On random surface area",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1102.3509"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='On random surface area')",
+        "failed_at": "2026-07-14T05:10:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report the study of the equilibrium and dynamic properties of Langmuir monolayers of poly (styrene-co-maleic anhydride) partial 2-buthoxy ethyl ester cumene terminated polymer and the effect of the Mg(NO3)2 addition in the water subphase on the film properties. Results show that the polymer monolayer becomes more expanded when the electrolyte concentration in the subphase increases. Dense polymer films aggregate at the interface. The aggregates are transferred onto Silicon wafers using the Langmuir-Blodgett methodology and the morphology is observed by AFM. The structure of aggregates depends on the subphase composition of the Langmuir film transferred onto the silicon wafer.",
+          "claimed_authors": [
+            "Beatriz Martín-García",
+            "M. Mercedes Velázquez",
+            "Jose Antonio Pérez-Hernández",
+            "Juan Hernández-Toro"
+          ],
+          "claimed_title": "Langmuir and Langmuir-Blodgett films of a maleic anhydride derivative: effect of subphase divalent cations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.14761"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Langmuir and Langmuir-Blodgett films of a maleic anhydride derivative: effect of subphase divalent cations')",
+        "failed_at": "2026-07-14T05:10:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
+          "claimed_authors": [
+            "Marcelo T. de Oliveira",
+            "Edson Katekawa"
+          ],
+          "claimed_title": "On the Virtues of Automated QSAR The New Kid on the Block",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.02639"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='On the Virtues of Automated QSAR The New Kid on the Block')",
+        "failed_at": "2026-07-14T05:10:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-07-14T05:10:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-07-14T05:10:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-07-14T05:10:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a self-consistent model taking into account variations in adsorption properties of the adsorbent surface in the process of adsorption--desorption of molecules of gas on it. We introduce a dimensionless coupling parameter that characterizes the interaction of an adsorbed molecule with polarized medium. It is established that the system can be bistable if the coupling parameter is greater than a critical value and the concentration of gas belongs to a certain interval. We show that the adsorption isotherms obtained within the framework of the proposed model essentially differ from the Langmuir isotherms and establish that the Zeldovich hysteresis is possible. The kinetics of the surface coverage is analyzed in detail. We show that taking account of variations in adsorption properties of the surface in the process of adsorption--desorption leads to new phenomena: a \"quasistationary\" state in the case of the overdamped approximation and self-oscillations of the system in the general case.",
+          "claimed_authors": [
+            "A. S. Usenko"
+          ],
+          "claimed_title": "Adsorption on a Surface with Varying Properties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0907.5569"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Adsorption on a Surface with Varying Properties')",
+        "failed_at": "2026-07-14T05:10:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Numerical tests of volume formulae are presented to compute efficiently the volume enclosed between flux surfaces for integrable 3D vector fields with various degrees of symmetry. In the process, a new case is proposed and tested.",
+          "claimed_authors": [
+            "David Martinez-del-Rio",
+            "Robert S. MacKay"
+          ],
+          "claimed_title": "Numerical tests of formulae for volume enclosed by flux surfaces of integrable magnetic fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.01957"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Adsorption Isotherm Parameters from Molecular Features chemistry', candidate_title='Numerical tests of formulae for volume enclosed by flux surfaces of integrable magnetic fields')",
+        "failed_at": "2026-07-14T05:10:50Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Svetlana Yu Tsareva",
+            "Edward Mcrae",
+            "Fabrice Valsaque",
+            "Xavier Devaux"
+          ],
+          "title": "Dose-dependent isotherm of Kr adsorption on heterogeneous bundles of closed single-walled carbon nanotubes",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2111.06657",
+        "summary": "We present 77 K isotherms of krypton adsorption on bundles of closed highly-pure HiPco single-walled carbon nanotubes (SWCNTs). Two volumetric adsorption protocols were used, one with an increasing Kr dose per injection (IAD), one with a constant dose (CAD). Detailed microstructural examination showed that the SWCNTs combine into small bundles (of 25-30 SWCNTs) which are heterogeneous in diameter with a consequential range of interstitial channel (IC) shapes and sizes. The IC-sites are the subnanoscaled pores with alternating enlargements and constrictions along the tube axes. This results in adsorption dosing (AD) dependent characteristics of the low-pressure region of the isotherm. In the IAD protocol the switch-back behavior of the isotherm stemmed from metastable adsorption. Using the CAD protocol, different branches are observed. Well-pronounced substeps were established which we interpret as corresponding to the formation of various phases of confined Kr with different atoms arrangement. The height of a given substep obtained in different measurements depends on the AD value which can strongly influence the population of the site. Some substeps existing only for certain values of AD suggests the existence of a certain selectivity or of a preferential phase formation according to this value.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2111.06657",
+          "http_status": 200,
+          "pdf_sample_score": 0.281,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T05:10:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andriy V. Kityk",
+            "Gennady Y. Gor",
+            "Patrick Huber"
+          ],
+          "title": "Adsorption from Binary Liquid Solutions into Mesoporous Silica: A Capacitance Isotherm on 5CB Nematogen/Methanol Mixtures",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2102.06908",
+        "summary": "We present a capacitance method to measure the adsorption of rod-like nematogens (4-cyano-4'-pentylbiphenyl, 5CB) from a binary liquid 5CB/methanol solution into a monolithic mesoporous silica membrane traversed by tubular pores with radii of 5.4 nm at room temperature. The resulting adsorption isotherm is reminiscent of classical type II isotherms of gas adsorption in mesoporous media. Its analysis by a model for adsorption from binary solutions, as inspired by the Brunauer-Emmett-Teller (BET) approach for gas adsorption on solid surfaces, indicates that the first adsorbed monolayer consists of flat-lying (homogeneously anchored) 5CB molecules at the pore walls. An underestimation of the adsorbed 5CB amount by the adsorption model compared to the measured isotherm for high 5CB concentrations hints towards a capillary filling transition in the mesopores similar to capillary condensation, i.e. film-growth at the pore walls is replaced by filling of the pore centers by the liquid crystal. The experimental method and thermodynamic analysis presented here can easily be adapted to other binary liquid solutions and thus allows a controlled filling of mesoporous materials with non-volatile molecular systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2102.06908",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T05:10:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Martin A. Mosquera"
+          ],
+          "title": "Simple isotherm equations to fit type I adsorption data",
+          "venue": "arXiv",
+          "year": 2009
+        },
+        "primary_pointer": "0911.2012",
+        "summary": "A simple model to fit experimental data of adsorption of gases and vapours on microporous adsorbents (type I isotherms) is proposed. The main assumption is that the adsorbate phase can be divided into identical and non-interacting effective subsystems. This gives rise to a simple multiparametric isotherm based on the grand canonical ensemble statistics, whose functional form is a ratio of two polynomial functions. The parameters are interpreted as effective equilibrium constants. A simplified isotherm that reduces the number of adjustable parameters with respect to the general isotherm is also proposed. We show how to use these isotherms to fit the adsorption data in such way that the parameters have statistical significance. Due to their high accuracy, both isotherms can be used to estimate thermodynamic properties like isosteric and differential heats of adsorption. A simple method is presented for systems that show an apparent variation in the coverage limit with temperature. This method avoids overparametrization and improves fitting deviations. Finally, several applications to fitting data, taken from literature, of adsorption of some gases on activated carbon, molecular sieving carbon, silica gel, and pillared clays are presented.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/0911.2012",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T05:10:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yu. E. Lozovik",
+            "A. M. Popov"
+          ],
+          "title": "Theory, Simulation and Nanotechnological Applications of Adsorption on a Surface with Defects",
+          "venue": "arXiv",
+          "year": 1998
+        },
+        "primary_pointer": "physics/9804012",
+        "summary": "Theory of adsorption on a surface with nanolocal defects is proposed. Two efficacy parameters of surface modification for nanotechnological purposes are introduced, where the modification is a creation of nanolocal artificial defects. The first parameter corresponds to applications where it is necessary to increase the concentration of certain particles on the modified surface. And the second one corresponds to the pattern transfer with the help of particle self-organization on the modified surface. The analytical expressions for both parameters are derived with the help of the thermodynamic and the kinetic approaches for two cases: jump diffusion and free motion of adsorbed particles over the surface. The possibility of selective adsorption of molecules is shown with the help of simulation of the adsorption of acetylene and benzene molecules in the pits on the graphite surface. The process of particle adsorption from the surface into the pit is theoretically studied by molecular dynamic technique. Some possible nanotechnological applications of adsorption on the surface with artificial defects are considered: fabrication of sensors for trace molecule detection, separation of isomers, and pattern transfer.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/physics/9804012",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T05:10:50Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting adsorption isotherm parameters from molecular features chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

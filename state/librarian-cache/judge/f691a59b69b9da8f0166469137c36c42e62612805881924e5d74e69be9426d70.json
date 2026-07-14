@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2102.06908",
+  "judged_at": "2026-07-14T05:10:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting adsorption isotherm parameters from molecular features chemistry",
+  "rationale": "This paper satisfies criterion (a) and (b) as it empirically measures adsorption isotherms and analyzes them using thermodynamic models (BET-inspired) to derive parameters for specific molecular systems (5CB nematogens) in mesoporous silica, directly addressing the domain of predicting or characterizing adsorption behavior from molecular features.",
+  "relevant": true
+}

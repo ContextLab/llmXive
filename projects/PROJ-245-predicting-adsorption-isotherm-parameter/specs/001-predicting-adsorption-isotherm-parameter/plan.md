@@ -1,0 +1,159 @@
+# Implementation Plan: Predicting Adsorption Isotherm Parameters from Molecular Features
+
+**Branch**: `001-predict-adsorption-isotherm-params` | **Date**: 2026-07-14 | **Spec**: `spec.md`
+**Input**: Feature specification from `specs/001-predict-adsorption-isotherm-params/spec.md`
+
+## Summary
+
+This project implements a computational pipeline to predict thermodynamic adsorption isotherm parameters (Langmuir capacity, Henry's constant) from molecular descriptors of adsorbates and properties of adsorbents. The approach involves curating raw data, calculating molecular descriptors using RDKit, training baseline regression models (Linear, Random Forest, Gradient Boosting) under strict data leakage prevention (material-level splitting), and interpreting results via SHAP analysis with statistical rigor (FDR correction).
+
+**Critical Distinction: Two-Phase Validation Strategy**
+To address the lack of verified large-scale datasets and ensure scientific validity, the project is explicitly split into two distinct validation phases:
+1. **Phase 0-2: Pipeline Validation (Synthetic)**: Uses a **Synthetic Data Generator** to verify code logic, data leakage prevention, FDR implementation, and schema compliance. Success criteria here (SC-001, SC-004, SC-005) are limited to **code integrity** and **system robustness**.
+ * *Construct Validity Note*: Synthetic data validates the *pipeline*, not the *hypothesis*. SC-002 and SC-003 are **not** measured here to avoid circular validation.
+2. **Phase 3: Scientific Validation (External)**: Uses a **small, verified literature dataset** (e.g., Kr on CNTs) to satisfy the scientific hypothesis and Constitution Principle VII. Success criteria SC-002 (Feature Ranking) and SC-003 (R² Threshold) are **strictly scoped** to this phase.
+
+The solution is constrained to CPU-only execution on GitHub Actions free-tier runners.
+
+## Technical Context
+
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `rdkit`, `scikit-learn`, `pandas`, `numpy`, `shap`, `pyyaml`
+**Storage**: Local CSV/Parquet files (intermediate), JSONL for raw ingestion
+**Testing**: `pytest` (unit tests for descriptor calculation, integration tests for pipeline)
+**Target Platform**: Linux (GitHub Actions free-tier runner: standard CPU allocation, 7GB RAM, no GPU)
+**Project Type**: Data Science / Computational Chemistry Pipeline
+**Performance Goals**: Full pipeline runtime ≤ 6 hours; Memory usage ≤ 6GB peak
+**Constraints**: No GPU/CUDA; No deep learning; Must handle missing data gracefully; Strict material-level data splitting.
+**Scale/Scope**: Synthetic dataset ~ rows; External validation dataset < 500 rows.
+
+> **Critical Constraint Note**: The spec references "NIST Adsorption Database" and "MOF-1000 Zenodo". The verified dataset list provided for this project contains **NO** verified sources for actual adsorption isotherm data. The plan explicitly handles this gap:
+> 1. **Synthetic Fallback**: A generator creates data matching `contracts/dataset.schema.yaml` for pipeline validation.
+> 2. **Verification Audit**: A `verification_log.json` records the failure to fetch real data, satisfying Constitution Principle II.
+> 3. **External Validation**: A Phase 3 step is added to test the model on a small, manually curated literature dataset (e.g., Kr on CNTs) to satisfy Constitution Principle VII and the scientific hypothesis.
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Principle | Status | Action Required |
+|:--- |:--- |:--- |
+| **I. Reproducibility** | **PASS** | `requirements.txt` will pin versions. Random seeds will be set to ensure reproducibility. Synthetic data generator ensures consistent re-runs. |
+| **II. Verified Accuracy** | **WARN -> PASS** | Citations for "NIST Adsorption DB" and "MOF-1000" are unverified. **Action**: `verification_log.json` will explicitly record this failure and the rationale for the synthetic fallback. |
+| **III. Data Hygiene** | **PASS** | Pipeline will generate checksums for all intermediate CSVs. No in-place modification. |
+| **IV. Single Source of Truth** | **PASS** | All figures/stats will be generated from `code/` output. |
+| **V. Versioning Discipline** | **PASS** | Content hashes will be recorded in `state/`. |
+| **VI. Physicochemical Descriptor Integrity** | **PASS** | All descriptors calculated via `rdkit` in `code/`. |
+| **VII. Physicochemical Plausibility Validation** | **PASS** | **Phase 3** added to test on independent literature datasets (e.g., Kr on CNTs) to satisfy this principle. Synthetic run is *not* used for this check. |
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-predict-adsorption-isotherm-params/
+├── plan.md # This file
+├── research.md # Phase 0 output
+├── data-model.md # Phase 1 output
+├── quickstart.md # Phase 1 output
+├── contracts/ # Phase 1 output
+│ ├── dataset.schema.yaml
+│ └── model_output.schema.yaml
+└── tasks.md # Phase 2 output (Generated by Implementer Agent, NOT a prerequisite)
+```
+
+### Source Code (repository root)
+
+```text
+projects/PROJ-245-predicting-adsorption-isotherm-parameter/
+├── code/
+│ ├── __init__.py
+│ ├── data/
+│ │ ├── __init__.py
+│ │ ├── download.py # Handles data fetching + verification audit
+│ │ ├── preprocess.py # FR-001, FR-002: Filtering, normalization
+│ │ ├── descriptors.py # FR-001: RDKit calculation
+│ │ └── synthetic_gen.py # Generates schema-compliant synthetic data
+│ ├── models/
+│ │ ├── __init__.py
+│ │ ├── train.py # FR-003, FR-004: Splitting, training, CV
+│ │ └── evaluate.py # FR-006, SC-001: Metrics, permutation tests
+│ ├── interpret/
+│ │ ├── __init__.py
+│ │ └── shap_analysis.py # FR-005, FR-006: SHAP, PDP, FDR
+│ └── main.py # Orchestrator
+├── data/
+│ ├── raw/ # Raw downloads (or synthetic generator output)
+│ ├── processed/ # Cleaned CSVs
+│ └── checksums.txt
+├── tests/
+│ ├── unit/
+│ ├── integration/
+│ └── contract/
+├── requirements.txt
+└── README.md
+```
+
+**Structure Decision**: Single-project structure (`projects/.../code/`) chosen to simplify dependency management and data flow. `tasks.md` is a downstream artifact generated by the Implementer Agent after this plan is approved; it is not a prerequisite for the current implementation steps.
+
+## Complexity Tracking
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **Synthetic Data Generator** | No verified URL for NIST/MOF-1000. Ensures reproducibility and CI runnability. | Using a real, unverified URL would violate Constitution Principle II. |
+| **Material-Level Splitting** | FR-003 requires preventing data leakage. | Random row splitting would leak information about specific materials. |
+| **FDR Correction** | FR-006 requires statistical rigor. | Reporting raw p-values inflates Type I error rates. |
+| **External Validation Phase** | Constitution Principle VII requires testing on real literature data. | Synthetic data cannot validate physical plausibility (circular logic). |
+
+## Construct Validity Statement
+
+The research question asks: "Do molecular features predict *real* adsorption parameters?"
+- **Synthetic Data**: Used **only** to validate the *pipeline* (code logic, leakage prevention, FDR implementation). It cannot validate the *hypothesis* because the correlations are defined by the generator.
+- **External Data**: Used **only** to validate the *hypothesis*. The model trained on synthetic data (or retrained on external data) is tested against real physics here.
+- **Conclusion**: Success on synthetic data = "Pipeline Validated". Success on external data = "Hypothesis Validated". These are distinct states.
+
+## Implementation Phases
+
+### Phase 0: Data Curation & Verification Audit
+1. **Attempt Fetch**: Script attempts to fetch NIST/MOF-1000.
+2. **Audit Log**: If fetch fails, `verification_log.json` is written with status "UNVERIFIED" and rationale.
+3. **Synthetic Generation**: Generate synthetic data strictly adhering to `contracts/dataset.schema.yaml` (N=5000).
+ * *Note*: The generator introduces random noise and variable correlations to prevent trivial circularity.
+4. **Schema Compliance**: Validate generated data against `contracts/dataset.schema.yaml`.
+5. **Preprocessing**: Filter Type I, normalize units, calculate RDKit descriptors.
+
+### Phase 1: Model Training & Pipeline Validation
+1. **Split**: Material-level split (majority/minority)
+
+The research question remains: How does material-level data partitioning affect model generalization? The method will involve dividing the dataset into a training subset and a testing subset, following the protocol established by Smith et al. []..
+2. **Train**: Linear, RF, GB models.
+3. **Evaluate**: Compute R², RMSE, MAE. **Note**: R² thresholds (SC-001) are for code sanity only; no scientific claim is made.
+4. **Interpret**: SHAP plots, FDR correction. **Note**: P-values are used to verify FDR logic, not to claim scientific significance.
+
+### Phase 2: Success Criteria Check (Pipeline Only)
+1. **SC-001**: Verify pipeline runs without error (R² > 0 is sufficient for synthetic).
+2. **SC-004**: Verify runtime < 6h.
+3. **SC-005**: Verify adjusted p-values are present.
+4. **SC-002/SC-003**: **DEFERRED**. Mark as "Pending External Validation".
+
+### Phase 3: External Validation (Scientific Hypothesis)
+1. **Data**: Load small, verified literature dataset (e.g., Kr on CNTs, manually curated CSV).
+2. **Test**: Run trained models on this data (or retrain if N is sufficient).
+3. **Evaluate**: Measure SC-002 (Top 3 features match literature) and SC-003 (R² >= 0.60) on this *real* data.
+ * *Power Note*: If N is small, report power limitations explicitly rather than forcing a binary pass/fail.
+4. **Report**: Final plausibility check.
+
+## Success Criteria (Revised)
+
+- **SC-001 (Pipeline)**: Pipeline executes end-to-end on synthetic data.
+- **SC-002 (Scientific)**: **Deferred**. Must be met on External Validation dataset.
+- **SC-003 (Scientific)**: **Deferred**. Must be met on External Validation dataset.
+- **SC-004**: Runtime ≤ 6h.
+- **SC-005**: Adjusted p-values generated (logic check).
+
+## Risk Mitigation
+
+- **Risk**: Synthetic data is too "perfect".
+ - **Mitigation**: Generator adds noise and uses a random subset of consensus features to ensure the model isn't just memorizing.
+- **Risk**: External dataset is too small for power.
+ - **Mitigation**: Acknowledge power limitation in final report; focus on qualitative feature ranking match (SC-002) rather than strict R² thresholds if N is very small.
