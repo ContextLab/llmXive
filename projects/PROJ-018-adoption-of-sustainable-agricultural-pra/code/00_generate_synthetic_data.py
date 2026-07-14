@@ -1,10 +1,13 @@
 """
-Synthetic Data Generator for Development and Testing.
+Synthetic Data Generator for Development and Testing (FALLBACK ONLY).
 
-NOTE: This script generates synthetic data ONLY when real data sources 
+NOTE: This script generates synthetic data ONLY when real data sources
 (World Bank LSMS, FAO FIES) are unavailable or explicitly requested via --synthetic.
-It does NOT replace real data collection but serves as a fallback for pipeline 
+It does NOT replace real data collection but serves as a fallback for pipeline
 validation and development.
+
+IMPORTANT: Per project constraints, this generator is the ONLY authorized source
+for synthetic input data. All data must be clearly labeled as synthetic in metadata.
 """
 from __future__ import annotations
 

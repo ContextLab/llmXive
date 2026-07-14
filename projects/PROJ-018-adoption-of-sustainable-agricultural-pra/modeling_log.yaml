@@ -1,5 +1,22 @@
 sections:
-  feature_engineering:
-    error: 'The method must be one of the following: [''ml'', ''mle'', ''uls'', ''minres'',
-      ''principal'']'
+  data_cleaning:
+    error: 'Input file not found: data/raw/survey_data.csv'
+    last_updated: '2026-07-14T13:07:26.566651'
     status: failed
+  data_cleaning_main:
+    last_updated: '2026-07-14T13:07:26.561993'
+    status: started
+    timestamp: '2026-07-14T13:07:26.560387'
+  feature_engineering:
+    error: check_array() got an unexpected keyword argument 'force_all_finite'
+    last_updated: '2026-07-14T13:07:23.413378'
+    status: failed
+  model_analysis:
+    error: Engineered data file not found at data/processed/engineered_data.csv. Please
+      ensure T036/T037 (US2) has completed successfully.
+    last_updated: '2026-07-14T13:07:25.390042'
+    status: failed
+  model_analysis_main:
+    last_updated: '2026-07-14T13:07:25.392342'
+    status: completed
+    timestamp: '2026-07-14T13:07:25.391050'

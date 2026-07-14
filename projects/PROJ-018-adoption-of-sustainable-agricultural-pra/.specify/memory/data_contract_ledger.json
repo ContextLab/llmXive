@@ -4,6 +4,14 @@
     "required": []
   },
   {
+    "data_file": "data/processed/engineered_data.csv",
+    "required": []
+  },
+  {
+    "data_file": "data/raw/survey_data.csv",
+    "required": []
+  },
+  {
     "data_file": "engineered_data.csv",
     "required": [
       "results_dir"
