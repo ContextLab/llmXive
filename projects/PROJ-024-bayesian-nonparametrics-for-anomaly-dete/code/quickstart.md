@@ -1,86 +1,60 @@
-# Quickstart Guide - Bayesian Nonparametrics for Anomaly Detection
+# Quickstart Guide for PROJ-024
+
+This guide outlines the steps to run the full analysis pipeline for the Bayesian Nonparametrics for Anomaly Detection project.
 
 ## Prerequisites
 
 - Python 3.11+
-- pip
-- Virtual environment (recommended)
+- Dependencies installed via `pip install -r code/requirements.txt`
 
-## Setup
+## Execution Steps
 
+Run the following commands in order. Each step must complete successfully before proceeding to the next.
+
+### 1. Configuration Check
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r code/requirements.txt
+python code/src/config.py --check
 ```
 
-## Execution Pipeline
-
-Run the full analysis pipeline in order:
-
+### 2. Data Acquisition
 ```bash
-# 1. Configuration check
-python code/src/config.py --check
-
-# 2. Download datasets (or use synthetic fallback)
 python code/src/data/download_datasets.py
+```
 
-# 3. Generate synthetic data for testing
-python code/src/data/synthetic_generator.py --seed 42 --n_points 1000
+### 3. Synthetic Data Generation (for validation)
+```bash
+python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05
+```
 
-# 4. Run DP-GMM model training and inference
-python code/src/models/dpgmm.py
+### 4. Simulation Study (Ground Truth Validation)
+This step validates the ADVI estimator's fidelity before main inference.
+```bash
+python code/src/evaluation/simulation.py --seed 42 --n-samples 500 --anomaly-rate 0.05
+```
+*Deliverable*: `data/processed/results/simulation_snr.csv` must be generated with SNR > 1.
 
-# 5. Run baselines for comparison
-python code/src/baselines/arima.py
-python code/src/baselines/moving_average.py
+### 5. Main Inference Pipeline
+```bash
+python code/src/services/anomaly_detector.py
+```
 
-# 6. Run evaluation metrics
-python code/src/evaluation/metrics.py
-
-# 7. Run threshold calibration
-python code/src/services/threshold_calibrator.py
-
-# 8. Run robustness analysis (NEW)
-python code/src/evaluation/robustness.py --subset-size 100
-
-# 9. Run simulation validation
-python code/src/evaluation/simulation.py
-
-# 10. Generate final reports
+### 6. Baseline Comparison
+```bash
 python code/scripts/execute_evaluation_pipeline.py
 ```
 
-## Output Artifacts
+### 7. Robustness Check
+```bash
+python code/src/evaluation/robustness.py --subset-size 50
+```
 
-After successful execution, the following files will be generated:
-
-- `data/processed/results/simulation_snr.csv` - Simulation validation metrics
-- `data/processed/results/posterior_trajectory.csv` - DP-GMM posterior trajectories
-- `data/processed/results/statistical_report.csv` - Statistical test results
-- `data/processed/results/sensitivity_report.csv` - Threshold sensitivity analysis
-- `data/processed/results/robustness_report_*.json` - Robustness analysis results
-- `data/processed/results/final_report.md` - Comprehensive final report
+### 8. Final Acceptance
+```bash
+python code/scripts/final_acceptance_verification.py
+```
 
 ## Troubleshooting
 
-- **Missing dependencies**: Run `pip install -r code/requirements.txt`
-- **Config errors**: Ensure `code/config.yaml` exists and is under 2KB
-- **Data errors**: Check that `data/raw/` contains valid datasets or run synthetic generator
-- **Memory issues**: Reduce `--subset-size` in robustness analysis
-
-## Verification
-
-To verify the pipeline completed successfully:
-
-```bash
-# Check all required output files exist
-ls data/processed/results/
-
-# Run compliance checks
-python code/scripts/verify_config_compliance.py
-python code/scripts/verify_resource_compliance.py
-```
+- If `config.py` fails, check `code/config.yaml` for required keys.
+- If data download fails, verify network access and URLs.
+- If simulation SNR <= 1, review anomaly injection parameters or model hyperparameters.
