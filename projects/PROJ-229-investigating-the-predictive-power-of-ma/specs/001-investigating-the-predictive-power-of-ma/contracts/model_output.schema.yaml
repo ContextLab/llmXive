@@ -1,36 +1,143 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Output Schema"
-type: "object"
-properties:
-  model_id:
-    type: "string"
-    description: "Unique model identifier"
-  model_type:
-    type: "string"
-    enum:
-      - "random_forest"
-      - "gradient_boosting"
-      - "symbolic_regression"
-    description: "Type of model"
-  r2_score:
-    type: "number"
-    description: "R² score on validation set"
-  feature_importance:
-    type: "object"
-    additionalProperties:
-      type: "number"
-    description: "Dictionary of feature importance"
-  symbolic_formula:
-    type: ["string", "null"]
-    description: "Explicit mathematical formula (nullable)"
-  shap_values:
-    type: ["array", "null"]
-    items:
-      type: "number"
-    description: "SHAP values for interpretation (nullable)"
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: |
+  Schema for model training results, including performance metrics, 
+  feature importances, and symbolic regression formulas.
+type: object
 required:
-  - model_id
-  - model_type
-  - r2_score
+  - metadata
+  - model_info
+  - performance_metrics
   - feature_importance
-additionalProperties: false
+  - artifacts
+properties:
+  metadata:
+    type: object
+    required:
+      - model_type
+      - timestamp
+      - config_snapshot
+    properties:
+      model_type:
+        type: string
+        description: Type of model (e.g., "RandomForest", "GradientBoosting", "PySR")
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of training completion
+      config_snapshot:
+        type: object
+        description: Snapshot of hyperparameters and configuration used
+  model_info:
+    type: object
+    required:
+      - n_features
+      - n_samples_trained
+      - n_samples_validated
+    properties:
+      n_features:
+        type: integer
+        minimum: 0
+        description: Number of features used in training
+      n_samples_trained:
+        type: integer
+        minimum: 0
+        description: Number of samples in training set
+      n_samples_validated:
+        type: integer
+        minimum: 0
+        description: Number of samples in validation set
+  performance_metrics:
+    type: object
+    required:
+      - r2_score
+      - mean_squared_error
+      - mean_absolute_error
+    properties:
+      r2_score:
+        type: number
+        description: Coefficient of determination (R²)
+      mean_squared_error:
+        type: number
+        description: Mean Squared Error (MSE)
+      mean_absolute_error:
+        type: number
+        description: Mean Absolute Error (MAE)
+      rmse:
+        type: number
+        description: Root Mean Squared Error
+      training_time_seconds:
+        type: number
+        description: Total wall-clock time for training
+  feature_importance:
+    type: array
+    description: Ranked list of feature importances (SHAP or model-based)
+    items:
+      type: object
+      required:
+        - feature_name
+        - importance_score
+        - rank
+      properties:
+        feature_name:
+          type: string
+          description: Name of the feature
+        importance_score:
+          type: number
+          description: Normalized importance score (0.0 to 1.0)
+        rank:
+          type: integer
+          minimum: 1
+          description: Rank order (1 = most important)
+  symbolic_formula:
+    type: object
+    nullable: true
+    description: Only present for PySR or symbolic regression models
+    required:
+      - expression
+      - complexity
+      - r2_on_test
+    properties:
+      expression:
+        type: string
+        description: Mathematical formula as a string (e.g., "x1 + 2*x2")
+      complexity:
+        type: integer
+        description: Number of nodes in the expression tree
+      r2_on_test:
+        type: number
+        description: R² score on the test set for this specific formula
+  artifacts:
+    type: object
+    required:
+      - model_path
+      - scaler_path
+      - shap_summary_path
+    properties:
+      model_path:
+        type: string
+        format: uri
+        description: Relative path to the saved model file (e.g., "data/results/model_rf.joblib")
+      scaler_path:
+        type: string
+        format: uri
+        description: Relative path to the saved scaler (e.g., "data/results/scaler.joblib")
+      shap_summary_path:
+        type: string
+        format: uri
+        nullable: true
+        description: Relative path to SHAP summary plot (e.g., "figures/shap_summary.png")
+  validation_summary:
+    type: object
+    nullable: true
+    description: Summary of external validation if performed
+    properties:
+      n_literature_tested:
+        type: integer
+        description: Number of literature PCMs tested
+      accuracy_top_n:
+        type: number
+        description: Accuracy on top-N PCMs
+      notes:
+        type: string
+        description: Any limitations or observations

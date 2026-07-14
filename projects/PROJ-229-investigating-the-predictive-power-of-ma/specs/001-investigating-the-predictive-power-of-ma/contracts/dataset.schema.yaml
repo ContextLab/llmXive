@@ -1,56 +1,114 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "PCM Dataset Schema"
-type: "object"
-properties:
-  mp_id:
-    type: "string"
-    description: "Unique Materials Project ID"
-  formula:
-    type: "string"
-    description: "Chemical formula"
-  melting_point:
-    type: "number"
-    description: "Melting point in Kelvin"
-  heat_capacity:
-    type: "number"
-    description: "Heat capacity in J/(mol·K)"
-  latent_heat:
-    type: "number"
-    description: "Latent heat of fusion in J/mol (nullable)"
-  atomic_number_mean:
-    type: "number"
-    description: "Mean atomic number of constituent elements"
-  electronegativity_mean:
-    type: "number"
-    description: "Mean electronegativity"
-  atomic_radius_mean:
-    type: "number"
-    description: "Mean atomic radius"
-  graph_features:
-    type: "array"
-    items:
-      type: "number"
-    description: "Vector of graph-based descriptors"
-  symmetry_features:
-    type: "array"
-    items:
-      type: "number"
-    description: "Vector of symmetry-based descriptors"
-  structure_hash:
-    type: "string"
-    description: "SHA-256 hash of the raw crystal structure for integrity verification"
-  structure_url:
-    type: "string"
-    description: "URL or path to the raw structure file (CIF/POSCAR) referenced by this record"
+$schema: http://json-schema.org/draft-07/schema#
+title: Phase Change Materials Dataset Schema
+description: |
+  Schema for the processed Materials Project dataset used for training and validation.
+  Includes elemental descriptors, structural features, and target properties.
+type: object
 required:
-  - mp_id
-  - formula
-  - melting_point
-  - atomic_number_mean
-  - electronegativity_mean
-  - atomic_radius_mean
-  - graph_features
-  - symmetry_features
-  - structure_hash
-additionalProperties: false
-
+  - metadata
+  - columns
+  - data_types
+  - sample_records
+properties:
+  metadata:
+    type: object
+    required:
+      - version
+      - source
+      - created_at
+      - row_count
+      - feature_count
+    properties:
+      version:
+        type: string
+        description: Schema version (e.g., "1.0.0")
+      source:
+        type: string
+        description: Origin of the data (e.g., "Materials Project API")
+      created_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of dataset creation
+      row_count:
+        type: integer
+        minimum: 0
+        description: Total number of compounds in the dataset
+      feature_count:
+        type: integer
+        minimum: 0
+        description: Total number of feature columns
+  columns:
+    type: array
+    description: List of column definitions in the dataset
+    items:
+      type: object
+      required:
+        - name
+        - description
+        - unit
+      properties:
+        name:
+          type: string
+          description: Column name (snake_case)
+        description:
+          type: string
+          description: Human-readable description
+        unit:
+          type: string
+          nullable: true
+          description: Physical unit (e.g., "K", "J/g", "None" for dimensionless)
+        category:
+          type: string
+          enum:
+            - identifier
+            - target
+            - elemental_descriptor
+            - structural_feature
+            - derived_feature
+          description: Functional category of the feature
+  data_types:
+    type: object
+    description: Expected data types for each column
+    additionalProperties:
+      type: string
+      enum:
+        - integer
+        - float
+        - string
+        - boolean
+        - object
+  sample_records:
+    type: array
+    description: Example records to validate schema compliance
+    minItems: 1
+    items:
+      type: object
+      description: A single record matching the schema
+examples:
+  - metadata:
+      version: "1.0.0"
+      source: "Materials Project API"
+      created_at: "2023-10-27T10:00:00Z"
+      row_count: 5000
+      feature_count: 25
+    columns:
+      - name: mp_id
+        description: Materials Project ID
+        unit: None
+        category: identifier
+      - name: melting_point
+        description: Melting point temperature
+        unit: K
+        category: target
+      - name: mean_electronegativity
+        description: Mean electronegativity of elements
+        unit: None
+        category: elemental_descriptor
+    data_types:
+      mp_id: string
+      melting_point: float
+      mean_electronegativity: float
+    sample_records:
+      - mp_id: "mp-12345"
+        melting_point: 1200.5
+        mean_electronegativity: 1.85

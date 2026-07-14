@@ -1,0 +1,9 @@
+random_seed: 42
+max_memory_gb: 7
+time_limit_hours: 6
+materials_project_api_key: "YOUR_MP_API_KEY_HERE"
+paths:
+  raw_data: data/raw
+  processed_data: data/processed
+  results: data/results
+  figures: data/figures

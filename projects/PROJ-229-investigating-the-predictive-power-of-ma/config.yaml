@@ -1,0 +1,47 @@
+# Configuration for llmXive Phase-Change Material Prediction Pipeline
+# Generated during T004 setup
+
+# General settings
+project:
+  name: "llmXive-phase-change"
+  version: "0.1.0"
+  random_seed: 42
+
+# API Keys (Replace with actual keys or use environment variables)
+api_keys:
+  materials_project: ""  # Set via env var MP_API_KEY or here
+  nist: ""               # Set via env var NIST_API_KEY or here
+
+# Logging Configuration
+logging:
+  level: "INFO"          # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file: "logs/pipeline.log"
+  console: true
+
+# Resource Constraints
+resources:
+  max_memory_gb: 7
+  time_limit_hours: 6
+  cpu_cores: 4
+
+# Data Paths (Relative to project root)
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  results_dir: "data/results"
+  external_validation_file: "data/raw/literature_pcms.csv"
+
+# Model Configuration
+models:
+  baseline:
+    n_estimators: 100
+    max_depth: 10
+  symbolic:
+    timeout_hours: 4
+    max_evals: 10000
+
+# Validation Thresholds
+validation:
+  min_r2: 0.0
+  min_n_overlap: 500
+  target_metric: "melting_point" # Options: "melting_point", "latent_heat"
