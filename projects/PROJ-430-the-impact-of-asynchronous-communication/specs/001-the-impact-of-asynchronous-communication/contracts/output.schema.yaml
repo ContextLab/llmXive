@@ -1,0 +1,48 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Results Schema
+description: Schema for the output of the correlation and regression analysis.
+type: object
+properties:
+  test_id:
+    type: string
+    description: Unique identifier for the test run.
+  test_type:
+    type: string
+    enum: ["spearman", "regression", "stratified_language", "stratified_size"]
+    description: Type of statistical test performed.
+  coefficient:
+    type: number
+    description: Correlation coefficient (r) or regression beta.
+  p_value:
+    type: number
+    description: P-value of the test.
+  confidence_interval_low:
+    type: number
+    description: Lower bound of the 95% confidence interval.
+  confidence_interval_high:
+    type: number
+    description: Upper bound of the 95% confidence interval.
+  vif_values:
+    type: object
+    description: Variance Inflation Factor scores for control variables.
+    additionalProperties:
+      type: number
+  fdr_corrected:
+    type: boolean
+    description: Whether Benjamini-Hochberg correction was applied.
+  q_value:
+    type: ["number", "null"]
+    description: Adjusted p-value (q-value) if FDR correction applied.
+  status:
+    type: string
+    enum: ["success", "halted_vif", "insufficient_data"]
+    description: Status of the analysis.
+required:
+  - test_id
+  - test_type
+  - coefficient
+  - p_value
+  - confidence_interval_low
+  - confidence_interval_high
+  - status
+additionalProperties: false

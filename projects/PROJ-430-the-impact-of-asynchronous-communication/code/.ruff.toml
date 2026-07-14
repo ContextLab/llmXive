@@ -1,0 +1,46 @@
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) rules
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude specific files or directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+    "figures",
+]
+
+# Same as `--line-length`
+line-length = 100
+
+# Allow unused variables when they start with an underscore
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true
+lines-after-imports = 2

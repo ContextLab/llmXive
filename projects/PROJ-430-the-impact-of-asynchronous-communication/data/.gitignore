@@ -1,0 +1,19 @@
+# Data directories - keep structure but ignore content
+# Raw data: downloaded from external sources (large files)
+raw/
+# Derived data: processed datasets
+derived/
+# Validation data: manual annotations and ground truth
+validation/
+
+# Exclude all files except this .gitignore
+!**/.gitkeep
+
+# Optional: ignore common temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Ignore parquet files if they grow too large (optional)
+# *.parquet

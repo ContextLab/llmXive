@@ -1,0 +1,54 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Project Metrics Dataset Schema
+description: Schema for the aggregated project-level metrics used in statistical analysis.
+type: object
+properties:
+  project_id:
+    type: string
+    description: Unique identifier for the GitHub repository.
+  project_name:
+    type: string
+    description: Repository name (owner/repo).
+  team_size:
+    type: integer
+    description: Number of unique contributors.
+  project_age_days:
+    type: number
+    description: Age of the repository in days.
+  primary_language:
+    type: string
+    description: Primary programming language (e.g., Python, JavaScript).
+  response_time_variance:
+    type: number
+    description: Interaction-weighted mean of pair-level response time variances (hours^2).
+  mean_delay:
+    type: number
+    description: Interaction-weighted mean of pair-level mean delays (hours).
+  cohesion_proxy_score:
+    type: number
+    description: Composite score (sentiment stability + reciprocity + density) ranging from 0 to 1.
+  sentiment_stability:
+    type: number
+    description: Standard deviation of VADER compound scores.
+  reciprocity_ratio:
+    type: number
+    description: Ratio of mutual responses to total responses.
+  network_density:
+    type: number
+    description: Density of the interaction graph.
+  exclusion_reason:
+    type: ["string", "null"]
+    description: Reason for exclusion if any (e.g., "insufficient_data").
+required:
+  - project_id
+  - project_name
+  - team_size
+  - project_age_days
+  - primary_language
+  - response_time_variance
+  - mean_delay
+  - cohesion_proxy_score
+  - sentiment_stability
+  - reciprocity_ratio
+  - network_density
+additionalProperties: false
