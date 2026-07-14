@@ -1,269 +1,185 @@
 import argparse
 import sys
 import time
+import json
+import os
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+from typing import Dict, Any
 
 from config import (
-    get_raw_dir, get_results_dir, get_features_dir, get_stratified_dir,
-    ensure_directories, get_config_summary, get_max_ram_mb
+    get_project_root, get_raw_dir, get_results_dir, 
+    get_features_dir, get_stratified_dir, ensure_directories
 )
-from utils.seeds import set_global_seed
-from utils.memory_monitor import MemoryMonitor
-
-# Import phase modules
 from data.download import main as download_main
 from data.stratify import main as stratify_main
 from data.extract_features import main as extract_features_main
-from eval.download_dense_baseline import main as download_dense_baseline_main
-from geometry.run_pipeline import main as geometry_main
+from geometry.solver import main as solver_main
+from geometry.warp import main as warp_main
 from geometry.aggregate_warps import main as aggregate_warps_main
+from eval.download_dense_baseline import main as download_dense_main
 from eval.metrics import main as metrics_main
 from eval.anova import main as anova_main
 from eval.sensitivity import main as sensitivity_main
 from eval.report import main as report_main
+from utils.memory_monitor import MemoryMonitor, parse_memory_logs
 
 def parse_args():
     parser = argparse.ArgumentParser(description="llmXive Pipeline Orchestrator")
     parser.add_argument("--phase", type=str, required=True, 
-                        choices=["data_prepare", "extract_features", "compute_geometry", "evaluate"],
-                        help="Which phase of the pipeline to run")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+                        choices=["data_prepare", "extract_features", "compute_geometry", 
+                                 "download_dense_baseline", "evaluate", "all"])
+    parser.add_argument("--debug", action="store_true")
     return parser.parse_args()
 
-def parse_memory_logs(log_path: Path) -> Dict[str, Any]:
-    """
-    Parse raw memory_profiler logs from T005 and aggregate them.
-    Returns a dict with peak RAM and other stats.
-    """
-    if not log_path.exists():
-        return {"peak_ram_mb": 0.0, "log_path": str(log_path), "status": "missing"}
+def parse_memory_logs() -> Dict[str, Any]:
+    """Aggregate memory logs from all phases."""
+    results_dir = get_results_dir()
+    logs = []
+    for f in results_dir.glob("mem_*.json"):
+        try:
+            with open(f, 'r') as file:
+                logs.append(json.load(file))
+        except Exception:
+            pass
     
-    try:
-        content = log_path.read_text()
-        # Simple heuristic: look for "Maximum memory usage" or similar patterns
-        # Depending on memory_profiler output format, adjust parsing
-        lines = content.splitlines()
-        max_mem = 0.0
-        for line in lines:
-            if "MB" in line:
-                try:
-                    # Extract number before MB
-                    parts = line.split()
-                    for i, part in enumerate(parts):
-                        if part == "MB" and i > 0:
-                            val = float(parts[i-1])
-                            if val > max_mem:
-                                max_mem = val
-                except ValueError:
-                    continue
-        
-        return {
-            "peak_ram_mb": max_mem,
-            "log_path": str(log_path),
-            "status": "parsed",
-            "raw_lines_analyzed": len(lines)
-        }
-    except Exception as e:
-        return {"peak_ram_mb": 0.0, "log_path": str(log_path), "status": "error", "error": str(e)}
+    total_peak = max([l.get('peak_ram_mb', 0) for l in logs] + [0])
+    total_time = sum([l.get('elapsed_seconds', 0) for l in logs])
+    return {
+        "peak_ram_mb": total_peak,
+        "total_elapsed_seconds": total_time,
+        "logs": logs
+    }
 
 def phase_data_prepare():
-    """Phase 1 & 2: Download data and prepare dense baseline."""
-    print("Starting Phase: Data Preparation")
-    ensure_directories()
-    set_global_seed(42) # Default seed if not passed via args
-
-    # 1. Download RealEstate10K (T007)
-    print("Running: Download Dataset")
-    try:
-        download_main()
-    except Exception as e:
-        print(f"Warning: Dataset download may have issues: {e}")
-        # Continue, as T016b (dense baseline) might still run or we might have cached data
-
-    # 2. Download/Generate Dense Baseline (T016b) - CRITICAL FOR US3
-    print("Running: Download/Generate Dense Baseline")
-    ret = download_dense_baseline_main()
-    if ret != 0:
-        print("ERROR: Dense baseline generation failed. Pipeline cannot proceed for US3.")
-        return 1
-
-    # 3. Stratify Dataset (T008) - Optional if we just need baseline, but part of flow
-    print("Running: Stratify Dataset")
-    try:
-        stratify_main()
-    except SystemExit as e:
-        if e.code == 1:
-            print("INFO: Stratification aborted (n<50). Skipping to geometry if possible.")
-        else:
-            raise
-
-    print("Phase: Data Preparation Complete")
-    return 0
+    print("=== Phase: Data Preparation ===")
+    ensure_directories(get_raw_dir(), get_stratified_dir())
+    # Download
+    print("Downloading dataset...")
+    download_main()
+    # Stratify
+    print("Stratifying dataset...")
+    stratify_main()
+    print("Data preparation complete.")
 
 def phase_extract_features():
-    """Phase 3: Extract sparse features."""
-    print("Starting Phase: Extract Features")
-    ensure_directories()
-    
-    print("Running: Extract Sparse Features")
-    ret = extract_features_main()
-    if ret != 0:
-        print("ERROR: Feature extraction failed.")
-        return 1
-    
-    print("Phase: Extract Features Complete")
-    return 0
+    print("=== Phase: Extract Features ===")
+    ensure_directories(get_features_dir())
+    extract_features_main()
+    print("Feature extraction complete.")
 
 def phase_compute_geometry():
-    """Phase 4: Compute geometry and warp."""
-    print("Starting Phase: Compute Geometry")
-    ensure_directories()
+    print("=== Phase: Compute Geometry ===")
+    ensure_directories(get_results_dir())
+    # Solver
+    print("Running Solver...")
+    solver_main()
+    # Warp
+    print("Running Warp...")
+    warp_main()
+    # Aggregate
+    print("Aggregating Warps...")
+    aggregate_warps_main()
+    print("Geometry computation complete.")
 
-    # 1. Run Solver (T010)
-    print("Running: Geometry Solver")
-    try:
-        geometry_main()
-    except Exception as e:
-        print(f"Error in geometry solver: {e}")
-        return 1
-
-    # 2. Aggregate Warps (T012)
-    print("Running: Aggregate Warped Frames")
-    try:
-        aggregate_warps_main()
-    except Exception as e:
-        print(f"Error in aggregation: {e}")
-        return 1
-
-    print("Phase: Compute Geometry Complete")
-    return 0
+def phase_download_dense_baseline():
+    print("=== Phase: Download Dense Baseline ===")
+    ensure_directories(get_raw_dir())
+    download_dense_main()
+    print("Dense baseline download complete.")
 
 def phase_evaluate():
-    """Phase 5 & 6: Metrics, ANOVA, Sensitivity, Report."""
-    print("Starting Phase: Evaluation")
-    ensure_directories()
+    print("=== Phase: Evaluation ===")
+    ensure_directories(get_results_dir())
+    
+    # Run Metrics
+    print("Calculating Metrics...")
+    metrics_main()
+    
+    # Run ANOVA
+    print("Running ANOVA...")
+    anova_main()
+    
+    # Run Sensitivity
+    print("Running Sensitivity Analysis...")
+    sensitivity_main()
+    
+    # Generate Report
+    print("Generating Report...")
+    report_main()
+    
+    print("Evaluation complete.")
 
-    # 1. Compute Metrics (T017) - Requires dense baseline and sparse warps
-    print("Running: Compute Metrics")
-    try:
-        metrics_main()
-    except Exception as e:
-        print(f"Error in metrics computation: {e}")
-        return 1
-
-    # 2. ANOVA (T018)
-    print("Running: ANOVA Analysis")
-    try:
-        anova_main()
-    except Exception as e:
-        print(f"Error in ANOVA: {e}")
-        return 1
-
-    # 3. Sensitivity (T019)
-    print("Running: Sensitivity Analysis")
-    try:
-        sensitivity_main()
-    except Exception as e:
-        print(f"Error in sensitivity analysis: {e}")
-        return 1
-
-    # 4. Report (T021)
-    print("Running: Generate Report")
-    try:
-        report_main()
-    except Exception as e:
-        print(f"Error in report generation: {e}")
-        return 1
-
-    print("Phase: Evaluation Complete")
-    return 0
+def aggregate_final_metrics():
+    print("=== Aggregating Final Metrics ===")
+    results_dir = get_results_dir()
+    ensure_directories(results_dir)
+    
+    memory_stats = parse_memory_logs()
+    
+    # Load metrics (primary metrics from metrics.py)
+    metrics_path = results_dir / "metrics.json"
+    metrics = {}
+    if metrics_path.exists():
+        with open(metrics_path, 'r') as f:
+            metrics = json.load(f)
+    
+    # Load ANOVA results
+    anova_path = results_dir / "anova_results.json"
+    anova = {}
+    if anova_path.exists():
+        with open(anova_path, 'r') as f:
+            anova = json.load(f)
+    
+    # Load Sensitivity Analysis results
+    sens_path = results_dir / "sensitivity_analysis.json"
+    sensitivity = {}
+    if sens_path.exists():
+        with open(sens_path, 'r') as f:
+            sensitivity = json.load(f)
+    
+    # Compile the final report according to MetricReport schema
+    final_report = {
+        "memory_stats": memory_stats,
+        "metrics": metrics,
+        "anova": anova,
+        "sensitivity": sensitivity,
+        "timestamp": time.time()
+    }
+    
+    # Write the final aggregated report to data/results/metrics.json
+    # as per task T020 requirement to parse logs and aggregate into metrics.json
+    out_path = results_dir / "metrics.json"
+    with open(out_path, 'w') as f:
+        json.dump(final_report, f, indent=2)
+    
+    print(f"Final aggregated metrics saved to {out_path}")
+    return final_report
 
 def main():
     args = parse_args()
-    
-    # Initialize Memory Monitor
-    monitor = MemoryMonitor()
+    monitor = MemoryMonitor(log_path=get_results_dir() / "main_monitor.json")
     monitor.start()
-
-    start_time = time.time()
-    ret_code = 0
-
+    
     try:
         if args.phase == "data_prepare":
-            ret_code = phase_data_prepare()
+            phase_data_prepare()
         elif args.phase == "extract_features":
-            ret_code = phase_extract_features()
+            phase_extract_features()
         elif args.phase == "compute_geometry":
-            ret_code = phase_compute_geometry()
+            phase_compute_geometry()
+        elif args.phase == "download_dense_baseline":
+            phase_download_dense_baseline()
         elif args.phase == "evaluate":
-            ret_code = phase_evaluate()
-    except Exception as e:
-        print(f"FATAL ERROR in {args.phase}: {e}")
-        import traceback
-        traceback.print_exc()
-        ret_code = 1
+            phase_evaluate()
+        elif args.phase == "all":
+            phase_data_prepare()
+            phase_extract_features()
+            phase_compute_geometry()
+            phase_download_dense_baseline()
+            phase_evaluate()
+            aggregate_final_metrics()
     finally:
-        elapsed = time.time() - start_time
         monitor.stop()
-        
-        # Log final stats
-        print(f"Phase {args.phase} finished in {elapsed:.2f}s")
-        
-        # Aggregate Memory Profiler logs (T020 specific requirement)
-        # The memory monitor usually writes to a log file or we can read from the standard location
-        # Assuming the memory monitor writes to a file in the results or a standard location.
-        # We will construct the path based on the project structure.
-        results_dir = get_results_dir()
-        log_path = results_dir / "memory_profile.log"
-        
-        memory_stats = parse_memory_logs(log_path)
-        monitor_stats = {
-            "peak_ram_mb": monitor.get_peak_memory_mb() if hasattr(monitor, 'get_peak_memory_mb') else memory_stats.get("peak_ram_mb", 0.0),
-            "wall_clock_seconds": elapsed
-        }
-        
-        # Merge stats
-        final_stats = {
-            "phase": args.phase,
-            "wall_clock_seconds": elapsed,
-            "memory": {
-                "peak_ram_mb": monitor_stats["peak_ram_mb"],
-                "log_parsed": memory_stats
-            }
-        }
-        
-        # Write to metrics.json (or update existing if we are in evaluate phase)
-        # The task says "aggregate them into the final data/results/metrics.json"
-        # We will append/update this file.
-        metrics_path = results_dir / "metrics.json"
-        
-        existing_metrics = {}
-        if metrics_path.exists():
-            try:
-                with open(metrics_path, 'r') as f:
-                    existing_metrics = json.load(f)
-            except (json.JSONDecodeError, IOError):
-                existing_metrics = {}
-        
-        # Update or add the current phase stats
-        phase_key = f"phase_{args.phase}"
-        existing_metrics[phase_key] = final_stats
-        
-        with open(metrics_path, 'w') as f:
-            json.dump(existing_metrics, f, indent=2)
-        
-        print(f"Memory stats aggregated to {metrics_path}")
-
-        if ret_code == 0:
-            print("SUCCESS")
-        else:
-            print("FAILED")
-    
-    sys.exit(ret_code)
 
 if __name__ == "__main__":
     main()

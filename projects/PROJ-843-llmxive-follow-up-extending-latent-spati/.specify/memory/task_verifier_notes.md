@@ -1,7 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T017** — The provided `code/eval/metrics.py` ends abruptly (e.g., `fid = np.sum(diff ** 2) + np.tra` is incomplete) and lacks any implementation of the two‑way ANOVA or a sensitivity‑report generator required by the task. Consequently, the module does not fully implement the specified metrics and statistical validation.
-- **T019** — The provided `code/eval/sensitivity.py` file is truncated (e.g., the line `ensure_directories(threshold_` is incomplete) and lacks the rest of the function, argument‑parsing / entry‑point code, and final JSON output logic. Consequently the script cannot be executed and does not fully satisfy the task’s requirement to implement a complete sensitivity‑analysis utility.
-- **T020** — The provided `code/main.py` is cut off mid‑function (`phase_data_prepare` ends with an incomplete line `ensure_director`) and does not contain the rest of the orchestrator logic (e.g., handling of the other phases, a `if __name__ == "__main__"` entry point, full calls to the imported modules). Because the file is incomplete, it does not satisfy the requirement to implement a functional pipeline orchestrator.

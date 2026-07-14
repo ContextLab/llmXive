@@ -1420,3 +1420,166 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T16:29:11Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: motion magnitude and texture entropy calculation
+  claim_id: c_f1276cbc
+  context: 'Implement `code/data/stratify.py` to: - Calculate motion magnitude (optical
+    flow) and texture entropy for sequences - **Rank** all available sequences by
+    motion magnitude and texture entropy within each category to ensure statistical
+    power'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Motion_magnitude_and_texture_entropy_calculation
+  kind: entity_fact
+  raw_text: Calculate motion magnitude (optical flow) and texture entropy for sequences
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:09:27Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: Stratification requires at least 50 sequences per stratum
+  claim_id: c_3030eb89
+  context: "Implement `code/data/stratify.py` to: - Calculate motion magnitude (optical\
+    \ flow) and texture entropy for sequences - **Rank** all available sequences by\
+    \ motion magnitude and texture entropy within each category to ensure statistical\
+    \ power - **ABORT execution** with error code 1 if any stratum has fewer than\
+    \ 50 sequences in the source pool (strict n\u226550 enforcement)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratification_requires_at_least_50_sequences_per_stratum
+  kind: magnitude
+  raw_text: ABORT execution with error code 1 if any stratum has fewer than 50 sequences
+    in the source pool
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:09:56Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: 50 sequences per stratum
+  claim_id: c_12ec7ae9
+  context: "Implement `code/data/stratify.py` to: - Calculate motion magnitude (optical\
+    \ flow) and texture entropy for sequences - **Rank** all available sequences by\
+    \ motion magnitude and texture entropy within each category to ensure statistical\
+    \ power - **ABORT execution** with error code 1 if any stratum has fewer than\
+    \ 50 sequences in the source pool (strict n\u226550 enforcement) - **Select**\
+    \ a fixed number of sequences per stratum (N=50)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a fixed number of sequences per stratum (N=50)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:10:46Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: Batch processing for memory management
+  claim_id: c_9b3c72ad
+  context: 'Implement `code/data/extract_features.py` to: - Iterate over `data/stratified/`
+    keyframes - Extract sparse SIFT/ORB descriptors and 2D coordinates - **Explicitly
+    skip** dense depth map generation - **Implement batch processing mode**: process
+    frames in chunks to manage memory'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Batch_processing_for_memory_management
+  kind: entity_fact
+  raw_text: 'Implement batch processing mode: process frames in chunks to manage memory'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:11:29Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: WorldScore calculation
+  claim_id: c_e84e75f0
+  context: 'Implement `code/eval/metrics.py` to: - **Compute WorldScore** for the
+    dense baseline by reading `data/raw/dense_baseline_frames.npy` and applying the
+    topological fidelity metric defined in spec.md'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/WorldScore_calculation
+  kind: entity_fact
+  raw_text: Compute WorldScore for the dense baseline
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:12:02Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: FID calculation
+  claim_id: c_f1a979a6
+  context: "Implement `code/eval/metrics.py` to: - **Compute WorldScore** for the\
+    \ dense baseline by reading `data/raw/dense_baseline_frames.npy` and applying\
+    \ the topological fidelity metric defined in spec.md - **Compute Sparse-Consistency\
+    \ Score** for the sparse method using the re-projection error defined in spec.md,\
+    \ reading `data/results/sparse_warped_frames.npy` - **Calculate Fr\xE9chet Inception\
+    \ Distance (FID)** by comparing the **distribution** of sparse warped frames against\
+    \ the **distribution** of dense baseline frames (using Inception-v3) **only after\
+    \ ensuring both sets of frames have been processed through the same feature extraction/warping\
+    \ pipeline** to quantify the relative pixel-level reconstruction quality trade-off\
+    \ (SC-002)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FID_calculation
+  kind: entity_fact
+  raw_text: "Calculate Fr\xE9chet Inception Distance (FID)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:12:27Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: Two-Way ANOVA
+  claim_id: c_2783e649
+  context: 'Implement `code/eval/anova.py` to: - Perform Two-Way ANOVA on metrics
+    vs. (Scene Dynamics, Texture Level) - Output p-value for interaction effects (significance
+    threshold p < 0.05)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two-Way_ANOVA
+  kind: entity_fact
+  raw_text: Perform Two-Way ANOVA on metrics vs. (Scene Dynamics, Texture Level)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:12:59Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: 40% threshold for inference time reduction
+  claim_id: c_5033c014
+  context: 'Implement `code/eval/report.py` to: - Read `data/results/metrics.json`
+    - Calculate the percentage reduction in inference time (Sparse vs Dense) - **Compare
+    against the 40% threshold** to produce a `pass` or `fail` boolean for SC-003'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compare against the 40% threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:12:59Z'

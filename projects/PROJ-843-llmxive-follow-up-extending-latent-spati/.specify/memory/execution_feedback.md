@@ -13,49 +13,58 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/eval/download_dense_baseline.py: synthetic/fake INPUT data not authorized by the spec — “…dataset is to          # generate synthetic depth maps that follow t…”
 - code/eval/download_dense_baseline.py: synthetic/fake INPUT data not authorized by the spec — “…# Let's create a synthetic dataset of 100 frames (H=480, W=…”
 - code/eval/download_dense_baseline.py: synthetic/fake INPUT data not authorized by the spec — “…th) -> bool:     """     Generates a minimal synthetic baseline if all else fai…”
+- code/geometry/warp.py: synthetic/fake INPUT data not authorized by the spec — “…# For robustness, we'll generate synthetic 3D points based on F if…”
+- code/geometry/warp.py: synthetic/fake INPUT data not authorized by the spec — “…# Load 3D points (or generate synthetic for this demo if T010 di…”
+- code/geometry/warp.py: synthetic/fake INPUT data not authorized by the spec — “…10 only saves F, we will generate a synthetic 3D cloud for the warp…”
+
+## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
+
+These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
+
+- `python code/main.py --phase data_prepare`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 fabricated/simulated-result signal(s) — results are not real measurements: code/eval/download_dense_baseline.py: synthetic/fake INPUT data not authorized by the spec — “…For this pipeline, we generate a synthetic but structurally valid…”; code/eval/download_dense_baseline.py: synthetic/fake INPUT data not authorized by the spec — “…milar.         # We will generate a synthetic baseline that passes the…”; code/eval/download_dense_baseline.py: synthetic/fake INPUT data not authorized by the spec — “…dataset is to          # generate synthetic depth maps that follow t…”; 3 command(s) failed: python code/main.py --phase extract_features (rc=1); python code/main.py --phase compute_geometry (rc=1); python code/main.py --phase evaluate (rc=1)
+**Summary**: 8 fabricated/simulated-result signal(s) — results are not real measurements: code/eval/download_dense_baseline.py: synthetic/fake INPUT data not authorized by the spec — “…For this pipeline, we generate a synthetic but structurally valid…”; code/eval/download_dense_baseline.py: synthetic/fake INPUT data not authorized by the spec — “…milar.         # We will generate a synthetic baseline that passes the…”; code/eval/download_dense_baseline.py: synthetic/fake INPUT data not authorized by the spec — “…dataset is to          # generate synthetic depth maps that follow t…”; 4 command(s) failed: python code/main.py --phase data_prepare (rc=1); python code/main.py --phase extract_features (rc=1); python code/main.py --phase compute_geometry (rc=1); 1 declared deliverable(s) absent: data/raw/dense_baseline_frames.npy
 
 ## Failing / missing run-book commands
 
+- python code/main.py --phase data_prepare -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 28, in <module>
+    from eval.anova import main as anova_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/eval/anova.py", line 33, in <module>
+    def run_anova(df: pd.DataFrame) -> Dict[str, Any]:
+                                       ^^^^
+NameError: name 'Dict' is not defined. Did you mean: 'dict'?
 - python code/main.py --phase extract_features -> rc=1
-    Starting Phase: Extract Features
-Running: Extract Sparse Features
-Processing sequences from /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/stratified...
-
-Completed. Aggregated results saved to /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/features/all_features.json
-Total sequences processed: 0
-ERROR: Feature extraction failed.
-Phase extract_features finished in 0.00s
-FAILED
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 28, in <module>
+    from eval.anova import main as anova_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/eval/anova.py", line 33, in <module>
+    def run_anova(df: pd.DataFrame) -> Dict[str, Any]:
+                                       ^^^^
+NameError: name 'Dict' is not defined. Did you mean: 'dict'?
 - python code/main.py --phase compute_geometry -> rc=1
-    Starting Phase: Compute Geometry
-Running: Geometry Solver
-Starting Geometry Pipeline (Solver -> Warp -> Aggregate)
-Running Solver...
-Running solver...
-Solver complete.
-Running Warp...
-Running warp pipeline...
-Warp complete.
-Aggregating Warped Frames...
-Aggregating warped frames...
-Warped frames directory: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/warped_frames
-Unsolvable list: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/unsolvable_sequences.json
-Output path: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy
-Loaded 0 unsolvable sequences.
-No warped frame files found in /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/warped_frames
-ERROR: Aggregation failed. No valid frames produced.
-Phase compute_geometry finished in 0.00s
-SUCCESS
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 28, in <module>
+    from eval.anova import main as anova_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/eval/anova.py", line 33, in <module>
+    def run_anova(df: pd.DataFrame) -> Dict[str, Any]:
+                                       ^^^^
+NameError: name 'Dict' is not defined. Did you mean: 'dict'?
 - python code/main.py --phase evaluate -> rc=1
-    Starting Phase: Evaluation
-Running: Compute Metrics
-Error in metrics computation: Shape mismatch: dense (50, 256, 256) vs sparse (0,)
-Phase evaluate finished in 0.00s
-FAILED
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 28, in <module>
+    from eval.anova import main as anova_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/eval/anova.py", line 33, in <module>
+    def run_anova(df: pd.DataFrame) -> Dict[str, Any]:
+                                       ^^^^
+NameError: name 'Dict' is not defined. Did you mean: 'dict'?
+
+## Declared deliverables still missing
+
+- data/raw/dense_baseline_frames.npy
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -65,26 +74,31 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `ensure_directories` — defined in `code/config.py`; called 17 way(s):
+### `ensure_directories` — defined in `code/config.py`; called 23 way(s):
 
-- code/main.py: ensure_directories()
+- code/main.py: ensure_directories(get_stratified_dir())
+- code/main.py: ensure_directories(get_features_dir())
+- code/main.py: ensure_directories(get_results_dir())
 - code/main.py: ensure_directories(get_raw_dir())
+- code/main.py: ensure_directories(results_dir)
 - code/validate_quickstart.py: ensure_directories()
+- code/geometry/solver.py: ensure_directories(output_dir)
 - code/geometry/run_pipeline.py: ensure_directories()
 - code/geometry/aggregate_warps.py: ensure_directories(output_path.parent)
+- code/geometry/warp.py: ensure_directories(output_dir / "warped_frames")
 - code/data/stratify.py: ensure_directories(output_dir)
 - code/data/stratify.py: ensure_directories(stratum_dir)
 - code/data/stratify.py: ensure_directories(raw_dir, stratified_dir)
 - code/data/stratify.py: ensure_directories(log_path.parent)
 - code/data/schemas.py: ensure_directories()
+- code/data/download.py: ensure_directories(raw_dir)
 - code/data/extract_features.py: ensure_directories(features_dir)
+- code/data/extract_features.py: ensure_directories([features_dir])
 - code/eval/download_dense_baseline.py: ensure_directories(output_dir)
 - code/eval/quickstart_validator.py: ensure_directories()
 - code/eval/run_dense_baseline.py: ensure_directories()
-- code/eval/anova.py: ensure_directories()
-- code/eval/sensitivity.py: ensure_directories(output_path.parent)
-- code/eval/sensitivity.py: ensure_directories(args.output.parent)
-- code/eval/metrics.py: ensure_directories(results_dir)
+- code/eval/sensitivity.py: ensure_directories(results_dir)
+- code/eval/metrics.py: ensure_directories(results_dir, raw_dir)
 
 Make `ensure_directories` in `code/config.py` accept ALL of the above.
 
@@ -107,9 +121,21 @@ Whichever you choose, every call site of `MemoryMonitor` across the codebase mus
 `MemoryMonitor.start` call sites (5):
 - code/main.py: monitor.start()
 - code/utils/memory_monitor.py: self._thread.start()
-- code/geometry/aggregate_warps.py: monitor.start()
 - code/data/stratify.py: monitor.start()
 - code/data/extract_features.py: monitor.start()
+- code/eval/sensitivity.py: monitor.start()
+
+## Declared deliverables NOT produced — make the run-book produce them
+
+Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
+
+- `data/raw/dense_baseline_frames.npy` is declared but was NOT written. Scripts referencing it:
+    - `code/eval/download_dense_baseline.py` — NOT invoked by the run-book
+    - `code/eval/quickstart_validator.py` — NOT invoked by the run-book
+    - `code/eval/run_dense_baseline.py` — NOT invoked by the run-book
+    - `code/eval/sensitivity.py` — NOT invoked by the run-book
+    - `code/eval/metrics.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/dense_baseline_frames.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 
@@ -124,5 +150,5 @@ Consumers waiting on it: `code/eval/download_dense_baseline.py`, `code/eval/quic
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/sensitivity.py`, `code/eval/metrics.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/geometry/run_pipeline.py`, `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/sensitivity.py`, `code/eval/metrics.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/metrics.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/geometry/run_pipeline.py`, `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/metrics.py`.

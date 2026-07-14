@@ -1,173 +1,120 @@
-"""
-Simple memory‑monitoring utility.
-
-The original implementation provided ``start`` and ``stop`` methods.
-To make the class robust against the many different call‑sites in the
-repository, a ``__getattr__`` fallback is added that returns a no‑op
-callable for any undefined attribute.  This satisfies the contract that
-any logger‑style method (e.g. ``info``, ``debug``, ``warning``) can be
-called without raising ``AttributeError``.
-"""
-
 import json
 import os
 import threading
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 
 try:
     from memory_profiler import memory_usage
     HAS_MEMORY_PROFILER = True
 except ImportError:
     HAS_MEMORY_PROFILER = False
-    print("WARNING: memory_profiler not installed. Memory monitoring will be limited.")
 
 class MemoryMonitor:
-    def __init__(self, output_path: Optional[Path] = None):
-        # Default to project results directory
-        self.output_path = output_path or Path("data/results/memory_log.json")
-        self.start_time: Optional[float] = None
-        self.end_time: Optional[float] = None
-        self.peak_ram_mb: float = 0.0
+    """
+    Monitors memory usage and wall-clock time in a background thread.
+    """
+    def __init__(self, log_path: Optional[Path] = None):
+        self.log_path = log_path or Path("data/memory_monitor_log.json")
+        self._start_time: Optional[float] = None
+        self._stop_time: Optional[float] = None
+        self._peak_ram_mb: float = 0.0
         self._thread: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
-        self._samples: List[float] = []
-        self._measurements: List[Dict[str, Any]] = []
+        self._measurements: list = []
+        self._lock = threading.Lock()
 
-    def start(self):
-        """Start monitoring thread."""
-        self.start_time = time.time()
-        self._samples = []
-        self._measurements = []
+    def start(self) -> None:
+        """Start the monitoring thread."""
+        if self._thread and self._thread.is_alive():
+            return
+        self._start_time = time.time()
         self._stop_event.clear()
-        
-        if HAS_MEMORY_PROFILER:
-            self._thread = threading.Thread(target=self._monitor_loop_profiler, daemon=True)
-            self._thread.start()
-        else:
-            # Fallback if library missing
-            self._thread = threading.Thread(target=self._monitor_loop_fallback, daemon=True)
-            self._thread.start()
+        self._measurements = []
+        self._thread = threading.Thread(target=self._monitor_loop, daemon=True)
+        self._thread.start()
 
-    def stop(self):
-        """Stop monitoring and save results."""
-        self.end_time = time.time()
+    def stop(self) -> Dict[str, Any]:
+        """Stop monitoring and return summary."""
         self._stop_event.set()
-        
         if self._thread:
             self._thread.join(timeout=2.0)
+        self._stop_time = time.time()
+        elapsed = self._stop_time - self._start_time if self._start_time else 0
         
-        self._save_log()
-
-    def _monitor_loop_profiler(self):
-        """Background loop to sample memory using memory_profiler."""
-        while not self._stop_event.is_set():
-            try:
-                # memory_usage returns a tuple (usage, ) for a single call
-                # measuring current process (-1)
-                mem = memory_usage(-1, interval=0.5, timeout=1.0, max_usage=False)
-                if mem:
-                    # memory_usage returns a list of values over the interval
-                    # We take the max of the interval for this sample
-                    current_mb = float(max(mem))
-                    self._samples.append(current_mb)
-                    if current_mb > self.peak_ram_mb:
-                        self.peak_ram_mb = current_mb
-                    
-                    self._measurements.append({
-                        "timestamp": time.time(),
-                        "ram_mb": current_mb
-                    })
-            except Exception:
-                pass
-            self._stop_event.wait(0.5)
-
-    def _monitor_loop_fallback(self):
-        """Fallback loop using psutil or os.get_process_memory_info (Linux only)."""
-        try:
-            import psutil
-            process = psutil.Process(os.getpid())
-        except ImportError:
-            # If psutil is not available, try Linux specific
-            if os.name == 'posix' and os.uname().sysname == 'Linux':
-                # Simple Linux fallback reading /proc/self/status
-                def get_linux_rss():
-                    with open('/proc/self/status', 'r') as f:
-                        for line in f:
-                            if line.startswith('VmRSS:'):
-                                # VmRSS is in kB
-                                return int(line.split()[1]) / 1024.0
-                    return 0.0
-                
-                while not self._stop_event.is_set():
-                    try:
-                        current_mb = get_linux_rss()
-                        self._samples.append(current_mb)
-                        if current_mb > self.peak_ram_mb:
-                            self.peak_ram_mb = current_mb
-                        self._measurements.append({
-                            "timestamp": time.time(),
-                            "ram_mb": current_mb
-                        })
-                    except Exception:
-                        pass
-                    self._stop_event.wait(0.5)
-                return
-            else:
-                return # Cannot monitor without psutil or Linux fallback
-
-        while not self._stop_event.is_set():
-            try:
-                mem_info = process.memory_info()
-                current_mb = mem_info.rss / (1024 * 1024)
-                self._samples.append(current_mb)
-                if current_mb > self.peak_ram_mb:
-                    self.peak_ram_mb = current_mb
-                
-                self._measurements.append({
-                    "timestamp": time.time(),
-                    "ram_mb": current_mb
-                })
-            except Exception:
-                pass
-            self._stop_event.wait(0.5)
-
-    def _save_log(self):
-        """Save the monitoring results to JSON."""
-        self.output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        duration = 0.0
-        if self.start_time and self.end_time:
-            duration = self.end_time - self.start_time
-        
-        data = {
-            "start_time": datetime.fromtimestamp(self.start_time).isoformat() if self.start_time else None,
-            "end_time": datetime.fromtimestamp(self.end_time).isoformat() if self.end_time else None,
-            "duration_seconds": duration,
-            "peak_ram_mb": self.peak_ram_mb,
-            "sample_count": len(self._samples),
-            "has_memory_profiler": HAS_MEMORY_PROFILER,
+        summary = {
+            "start_time": datetime.fromtimestamp(self._start_time).isoformat() if self._start_time else None,
+            "stop_time": datetime.fromtimestamp(self._stop_time).isoformat() if self._stop_time else None,
+            "elapsed_seconds": elapsed,
+            "peak_ram_mb": self._peak_ram_mb,
             "measurements": self._measurements
         }
-        
-        with open(self.output_path, 'w') as f:
-            json.dump(data, f, indent=2)
 
-    def get_peak_ram(self) -> float:
-        """Return the recorded peak RAM usage in MB."""
-        return self.peak_ram_mb
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.log_path, 'w') as f:
+            json.dump(summary, f, indent=2)
+        return summary
 
-    def get_duration(self) -> float:
-        """Return the duration in seconds."""
-        if self.start_time and self.end_time:
-            return self.end_time - self.start_time
+    def _monitor_loop(self) -> None:
+        """Background loop to sample memory."""
+        interval = 1.0
+        while not self._stop_event.is_set():
+            if HAS_MEMORY_PROFILER:
+                try:
+                    # memory_usage returns a tuple (pid, mem) or just mem depending on args
+                    # Using default behavior: returns memory usage of current process
+                    mem = memory_usage((os.getpid(),), interval=0.1, timeout=0.1, include_children=True)
+                    # memory_usage returns a list of values over the interval
+                    current_peak = max(mem) if mem else 0
+                except Exception:
+                    current_peak = 0
+            else:
+                # Fallback if memory_profiler not installed (read /proc on Linux)
+                current_peak = self._get_proc_mem()
+
+            with self._lock:
+                if current_peak > self._peak_ram_mb:
+                    self._peak_ram_mb = current_peak
+                self._measurements.append({
+                    "timestamp": time.time(),
+                    "ram_mb": current_peak
+                })
+            
+            self._stop_event.wait(interval)
+
+    def _get_proc_mem(self) -> float:
+        """Fallback memory reading for Linux."""
+        try:
+            with open('/proc/self/status', 'r') as f:
+                for line in f:
+                    if line.startswith('VmRSS:'):
+                        parts = line.split()
+                        return float(parts[1]) / 1024.0 # Convert kB to MB
+        except Exception:
+            return 0.0
         return 0.0
 
-    # --- Tolerant Logger Interface ---
-    # Allows any .info(), .debug(), etc. to be called without AttributeError
-    def __getattr__(self, name: str):
-        def _noop(*args, **kwargs):
-            return None
-        return _noop
+    def info(self, msg: str) -> None:
+        pass # No-op for compatibility
+
+    def debug(self, msg: str) -> None:
+        pass
+
+    def warning(self, msg: str) -> None:
+        pass
+
+    def error(self, msg: str) -> None:
+        pass
+
+    def log(self, msg: str) -> None:
+        pass
+
+def parse_memory_logs(log_path: Optional[Path] = None) -> Dict[str, Any]:
+    """Read the latest memory log file."""
+    path = log_path or Path("data/memory_monitor_log.json")
+    if not path.exists():
+        return {}
+    with open(path, 'r') as f:
+        return json.load(f)

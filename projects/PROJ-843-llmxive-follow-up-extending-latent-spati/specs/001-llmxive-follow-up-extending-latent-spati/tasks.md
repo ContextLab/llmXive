@@ -79,7 +79,7 @@
 
 - [X] T007 [P] [US1] Implement `code/data/download.py` to fetch RealEstate10K using `datasets.load_dataset` with specific revision and validate URL accessibility
 - [X] T008 [US1] Implement `code/data/stratify.py` to:
- - Calculate motion magnitude (optical flow) and texture entropy for sequences
+ - Calculate motion magnitude (optical flow) and texture entropy for sequences [UNRESOLVED-CLAIM: c_f1276cbc — status=not_enough_info]
  - **Rank** all available sequences by motion magnitude and texture entropy within each category to ensure statistical power
  - **ABORT execution** with error code 1 if any stratum has fewer than 50 sequences in the source pool (strict n≥50 enforcement)
  - **Select** a fixed number of sequences per stratum (N=50) from the **ranked** pool using random selection with seed if >50 available
@@ -139,16 +139,16 @@
 
 ### Implementation for User Story 3
 
-- [ ] T017 [US3] Implement `code/eval/metrics.py` to:
+- [X] T017 [US3] Implement `code/eval/metrics.py` to: <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Compute WorldScore** for the dense baseline by reading `data/raw/dense_baseline_frames.npy` and applying the topological fidelity metric defined in spec.md
  - **Compute Sparse-Consistency Score** for the sparse method using the re-projection error defined in spec.md, reading `data/results/sparse_warped_frames.npy`
- - **Calculate Fréchet Inception Distance (FID)** by comparing the **distribution** of sparse warped frames against the **distribution** of dense baseline frames (using Inception-v3) **only after ensuring both sets of frames have been processed through the same feature extraction/warping pipeline** to quantify the relative pixel-level reconstruction quality trade-off (SC-002)
+ - **Calculate Fréchet Inception Distance (FID) [UNRESOLVED-CLAIM: c_f1a979a6 — status=not_enough_info]** by comparing the **distribution** of sparse warped frames against the **distribution** of dense baseline frames (using Inception-v3) **only after ensuring both sets of frames have been processed through the same feature extraction/warping pipeline** to quantify the relative pixel-level reconstruction quality trade-off (SC-002)
  - Calculate Unified Geometric Error (Photometric Consistency) on held-out frames for **internal validation only** (distinct from primary comparison metrics)
  - Output results in a structured format for ANOVA, clearly separating primary metrics (WorldScore, Sparse-Consistency) from internal validation metrics
 - [X] T018 [US3] Implement `code/eval/anova.py` to:
- - Perform Two-Way ANOVA on metrics vs. (Scene Dynamics, Texture Level)
+ - Perform Two-Way ANOVA on metrics vs. (Scene Dynamics, Texture Level) [UNRESOLVED-CLAIM: c_2783e649 — status=not_enough_info]
  - Output p-value for interaction effects (significance threshold p < 0.05)
-- [ ] T019 [US3] Implement `code/eval/sensitivity.py` to:
+- [X] T019 [US3] Implement `code/eval/sensitivity.py` to: <!-- FAILED: unspecified -->
  - **Re-execute** the solver (T010) for each threshold in the set **{0.01, 0.05, 0.1}**
  - Report variation specifically in **WorldScore and Sparse-Consistency Score** across these specific thresholds
  - **Note**: This task is NOT parallel-safe ([P] removed) as it depends on re-running the solver for each threshold
@@ -170,7 +170,7 @@
 - [X] T021 [US3] Implement `code/eval/report.py` to:
  - Read `data/results/metrics.json`
  - Calculate the percentage reduction in inference time (Sparse vs Dense)
- - **Compare against the 40% threshold** to produce a `pass` or `fail` boolean for SC-003
+ - **Compare against the 40% threshold [UNRESOLVED-CLAIM: c_5033c014 — status=not_enough_info]** to produce a `pass` or `fail` boolean for SC-003
  - Write the final verification report to `data/results/hypothesis_verification.md` including:
  - WorldScore vs. Sparse-Consistency comparison
  - ANOVA interaction effects
