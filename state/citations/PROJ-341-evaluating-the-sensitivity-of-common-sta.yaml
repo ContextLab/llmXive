@@ -42,3 +42,14 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-06-30T04:09:16.854430Z'
+- artifact_hash: d5478f1578024af06cd912b774f0ced1314512481b4ddacd0d645cb89147283f
+  artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Power - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Power_
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Power
+  verified_at: '2026-07-14T22:19:06.745160Z'

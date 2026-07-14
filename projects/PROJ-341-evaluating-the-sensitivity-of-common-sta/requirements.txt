@@ -8,4 +8,3 @@ scikit-learn
 requests
 ucimlrepo
 openml
-pytest

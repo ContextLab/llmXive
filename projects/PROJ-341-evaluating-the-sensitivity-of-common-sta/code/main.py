@@ -1,341 +1,264 @@
-"""
-Main entry point for the statistical test sensitivity simulation.
-
-This script orchestrates the simulation pipeline, accepting command-line arguments
-to configure sample sizes, effect sizes, test types, and significance levels.
-It iterates through the parameter grid and delegates execution to the simulation
-engine, ensuring reproducibility and adherence to project constraints.
-"""
-
 import argparse
 import json
 import os
 import sys
-from datetime import datetime
-from typing import List, Dict, Any, Optional
+import gc
+import psutil
 
-# Project imports based on provided API surface
-from code.simulation.data_generator import generate_normal_data, generate_multinomial_data
 from code.simulation.test_runner import run_simulation_condition, aggregate_results
-from code.simulation import get_rng, update_simulation_metadata
-from code.utils.checksum_utils import compute_file_checksum
+from code.simulation.output_writer import write_p_values_raw
+from code.simulation.logging_config import setup_file_logging, get_logger, log_debug, log_warning, log_error
+from code.simulation import get_rng
 
+logger = get_logger("llmXive.main")
+
+def get_memory_usage_mb() -> float:
+    """Returns current memory usage in MB."""
+    process = psutil.Process(os.getpid())
+    return process.memory_info().rss / 1024 / 1024
+
+def check_memory_limit(limit_mb: float = 7000) -> bool:
+    """Checks if current memory usage is within limit."""
+    usage = get_memory_usage_mb()
+    if usage > limit_mb:
+        log_warning(f"Memory usage {usage:.1f}MB exceeds limit {limit_mb}MB")
+        return False
+    return True
+
+def force_gc() -> None:
+    """Forces garbage collection."""
+    gc.collect()
 
 def parse_args() -> argparse.Namespace:
-    """Parse command-line arguments for the simulation."""
-    parser = argparse.ArgumentParser(
-        description="Run sensitivity analysis on statistical tests (t-test, ANOVA, Chi-squared)."
-    )
-
-    # Sample size configuration
-    parser.add_argument(
-        "--n-start", type=int, default=5,
-        help="Starting sample size (default: 5)"
-    )
-    parser.add_argument(
-        "--n-end", type=int, default=500,
-        help="Ending sample size (default: 500)"
-    )
-    parser.add_argument(
-        "--n-step", type=int, default=5,
-        help="Step size for sample size increments (default: 5)"
-    )
-
-    # Effect size configuration
-    parser.add_argument(
-        "--effect-sizes", type=str, nargs="+", default=["0.2", "0.5", "0.8"],
-        help="List of effect sizes (Cohen's d or similar) to test (default: 0.2 0.5 0.8)"
-    )
-
-    # Test type configuration
-    parser.add_argument(
-        "--test-types", type=str, nargs="+", default=["t-test", "anova", "chi-squared"],
-        choices=["t-test", "anova", "chi-squared"],
-        help="Statistical tests to simulate (default: t-test anova chi-squared)"
-    )
-
-    # Significance level
-    parser.add_argument(
-        "--alpha", type=float, default=0.05,
-        help="Significance level alpha (default: 0.05)"
-    )
-
-    # Iterations
-    parser.add_argument(
-        "--iterations", type=int, default=100,
-        help="Number of simulation iterations per condition (default: 100). "
-             "Note: Full production runs require >= 10,000."
-    )
-
-    # Hypothesis configuration
-    parser.add_argument(
-        "--hypothesis", type=str, default="two-sided",
-        choices=["one-sided", "two-sided"],
-        help="Type of hypothesis test (default: two-sided)"
-    )
-
-    # Output directory
-    parser.add_argument(
-        "--output-dir", type=str, default="data/simulation",
-        help="Directory to store output files (default: data/simulation)"
-    )
-
-    # Reproducibility
-    parser.add_argument(
-        "--seed", type=int, default=42,
-        help="Random seed for reproducibility (default: 42)"
-    )
-
+    parser = argparse.ArgumentParser(description="Run statistical test sensitivity simulation.")
+    parser.add_argument("--sample-sizes", type=str, default="5,10,20,50,100,200,500",
+                        help="Comma-separated list of sample sizes.")
+    parser.add_argument("--effect-sizes", type=str, default="0.0,0.2,0.5,0.8",
+                        help="Comma-separated list of effect sizes.")
+    parser.add_argument("--test-types", type=str, default="t-test,ANOVA,chi-squared",
+                        help="Comma-separated list of test types.")
+    parser.add_argument("--alpha", type=float, default=0.05,
+                        help="Significance level alpha.")
+    parser.add_argument("--iterations", type=int, default=1000,
+                        help="Number of iterations per condition (use lower for testing).")
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Base random seed.")
+    parser.add_argument("--output-dir", type=str, default="data/simulation",
+                        help="Directory to save output files.")
+    parser.add_argument("--log-file", action="store_true",
+                        help="Enable file logging.")
     return parser.parse_args()
 
-
 def validate_args(args: argparse.Namespace) -> None:
-    """Validate command-line arguments."""
-    if args.n_start < 2:
-        raise ValueError("n-start must be at least 2 for statistical tests.")
-    if args.n_end < args.n_start:
-        raise ValueError("n-end must be greater than or equal to n-start.")
-    if args.n_step < 1:
-        raise ValueError("n-step must be at least 1.")
-    if args.alpha <= 0 or args.alpha >= 1:
-        raise ValueError("Alpha must be between 0 and 1.")
-    if args.iterations < 1:
-        raise ValueError("Iterations must be at least 1.")
+    if args.iterations < 10:
+        log_warning("Iteration count is very low. Results may be noisy.")
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir)
+        log_debug(f"Created output directory: {args.output_dir}")
 
+def generate_sample_sizes(sizes_str: str) -> List[int]:
+    return [int(x.strip()) for x in sizes_str.split(",")]
 
-def generate_sample_sizes(start: int, end: int, step: int) -> List[int]:
-    """Generate a list of sample sizes from start to end with step increments."""
-    sizes = []
-    current = start
-    while current <= end:
-        sizes.append(current)
-        current += step
-    return sizes
+def parse_effect_sizes(effects_str: str) -> List[float]:
+    return [float(x.strip()) for x in effects_str.split(",")]
 
-
-def parse_effect_sizes(effect_strs: List[str]) -> List[float]:
-    """Parse effect size strings into floats."""
-    try:
-        return [float(x) for x in effect_strs]
-    except ValueError as e:
-        raise ValueError(f"Invalid effect size format: {e}")
-
-
-def run_simulation_grid(
-    sample_sizes: List[int],
-    effect_sizes: List[float],
-    test_types: List[str],
-    alpha: float,
-    iterations: int,
-    hypothesis: str,
-    seed: int,
-    output_dir: str
-) -> Dict[str, Any]:
-    """
-    Execute the simulation across the full parameter grid.
-
-    Returns a dictionary containing raw results and metadata.
-    """
-    results = {
-        "metadata": {
-            "timestamp": datetime.now().isoformat(),
-            "seed": seed,
-            "alpha": alpha,
-            "iterations_per_condition": iterations,
-            "sample_sizes": sample_sizes,
-            "effect_sizes": effect_sizes,
-            "test_types": test_types,
-            "hypothesis": hypothesis
-        },
-        "conditions": [],
-        "aggregated_results": []
-    }
-
-    # Initialize RNG
-    rng = get_rng(seed)
-
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
-
-    total_conditions = len(sample_sizes) * len(effect_sizes) * len(test_types)
-    current_condition = 0
-
-    print(f"Starting simulation grid: {total_conditions} conditions, {iterations} iterations each.")
-    print(f"Output directory: {output_dir}")
-
+def run_simulation_grid(args: argparse.Namespace) -> None:
+    sample_sizes = generate_sample_sizes(args.sample_sizes)
+    effect_sizes = parse_effect_sizes(args.effect_sizes)
+    test_types = [t.strip() for t in args.test_types.split(",")]
+    
+    rng = get_rng(args.seed)
+    
+    all_results = []
+    
     for n in sample_sizes:
-        for effect_size in effect_sizes:
+        for effect in effect_sizes:
             for test_type in test_types:
-                current_condition += 1
-                condition_id = f"{test_type}_n{n}_es{effect_size}"
+                # Determine if this is a null hypothesis scenario
+                # If effect is 0, H0 is true. If effect != 0, H0 is false (Alternative).
+                null_hypothesis = (effect == 0.0)
+                
+                log_debug(f"Running condition: n={n}, effect={effect}, test={test_type}, H0={null_hypothesis}")
+                
+                # Run simulation
+                results = run_simulation_condition(
+                    n=n,
+                    effect_size=effect,
+                    test_type=test_type,
+                    alpha=args.alpha,
+                    iterations=args.iterations,
+                    seed_base=int(rng.integers(0, 2**31 - 1)),
+                    null_hypothesis=null_hypothesis
+                )
+                
+                # Aggregate
+                agg = aggregate_results(results, alpha=args.alpha)
+                
+                # Prepare output record
+                record = {
+                    "sample_size": n,
+                    "effect_size": effect,
+                    "test_type": test_type,
+                    "null_hypothesis": null_hypothesis,
+                    "total_iterations": agg["total_iterations"],
+                    "valid_iterations": agg["valid_iterations"],
+                    "significant_count": agg["significant_count"],
+                    "non_significant_count": agg["non_significant_count"],
+                    "alpha": args.alpha
+                }
+                
+                # Store raw p-values for detailed analysis if needed
+                # (In a real large scale run, we might stream this, but for now we collect)
+                # To save memory, we don't store all p-values in the main record if not needed for summary
+                # But T016 asks for "raw p-values". We will write them to a separate file or append to CSV.
+                # For this implementation, we will write the summary to the main CSV and raw p-values to a separate file if needed,
+                # or just include a subset. The task T016 says "p_values_raw.csv containing ... raw p-values".
+                # Storing 1000 p-values per row in CSV is heavy. We will assume the "raw p-values" column 
+                # might be a JSON string or we write a separate file. 
+                # However, T016 description says "containing sample size, effect size, test type, raw p-values, and hypothesis state".
+                # Let's write a separate file for raw p-values to keep the summary clean, or if the task implies one file,
+                # we'll format p-values as a string.
+                # Given the constraint "Write output results to data/simulation/p_values_raw.csv", let's assume we write the detailed list.
+                # But to be safe and efficient, we will write the summary to error_rates_summary.csv (T018)
+                # and the raw p-values to p_values_raw.csv (T016).
+                
+                all_results.append(record)
+                
+                # Check memory
+                if not check_memory_limit(6000):
+                    force_gc()
+                    if not check_memory_limit(6000):
+                        log_error("Memory limit exceeded after GC. Stopping.")
+                        sys.exit(1)
 
-                print(f"[{current_condition}/{total_conditions}] Running: {condition_id}")
-
-                # Run the specific simulation condition
-                # Note: run_simulation_condition handles data generation and test execution
-                try:
-                    condition_result = run_simulation_condition(
-                        n=n,
-                        effect_size=effect_size,
-                        test_type=test_type,
-                        alpha=alpha,
-                        iterations=iterations,
-                        hypothesis=hypothesis,
-                        rng=rng
-                    )
-
-                    results["conditions"].append({
-                        "condition_id": condition_id,
-                        "n": n,
-                        "effect_size": effect_size,
-                        "test_type": test_type,
-                        "alpha": alpha,
-                        "iterations": iterations,
-                        "hypothesis": hypothesis,
-                        "raw_p_values": condition_result.get("p_values", []),
-                        "rejections": condition_result.get("rejections", []),
-                        "warnings": condition_result.get("warnings", []),
-                        "execution_time": condition_result.get("execution_time", 0)
-                    })
-
-                except Exception as e:
-                    print(f"Error running condition {condition_id}: {e}")
-                    results["conditions"].append({
-                        "condition_id": condition_id,
-                        "n": n,
-                        "effect_size": effect_size,
-                        "test_type": test_type,
-                        "error": str(e)
-                    })
-
-    # Aggregate results
-    aggregated = aggregate_results(results["conditions"], alpha)
-    results["aggregated_results"] = aggregated
-
-    return results
-
-
-def save_results(results: Dict[str, Any], output_dir: str) -> Dict[str, str]:
-    """
-    Save simulation results to JSON and CSV files.
-
-    Returns a dictionary of saved file paths.
-    """
-    output_files = {}
-
-    # Save full results as JSON
-    json_path = os.path.join(output_dir, "simulation_results_full.json")
-    with open(json_path, "w") as f:
-        json.dump(results, f, indent=2, default=str)
-    output_files["full_results"] = json_path
-
-    # Save raw p-values to CSV
-    csv_path = os.path.join(output_dir, "p_values_raw.csv")
-    with open(csv_path, "w") as f:
-        # Write header
-        f.write("condition_id,n,effect_size,test_type,alpha,iteration,p_value,rejected,warning\n")
-
-        for cond in results["conditions"]:
-            if "error" in cond:
-                continue
-
-            cid = cond["condition_id"]
-            n = cond["n"]
-            es = cond["effect_size"]
-            tt = cond["test_type"]
-            alpha = cond["alpha"]
-            warnings_list = cond.get("warnings", [])
-
-            p_values = cond.get("raw_p_values", [])
-            rejections = cond.get("rejections", [])
-
-            for i, (p, rej) in enumerate(zip(p_values, rejections)):
-                warning_str = ";".join(warnings_list) if warnings_list else ""
-                f.write(f"{cid},{n},{es},{tt},{alpha},{i},{p},{int(rej)},{warning_str}\n")
-
-    output_files["raw_p_values"] = csv_path
-
-    # Save aggregated error rates
-    agg_path = os.path.join(output_dir, "error_rates_summary.csv")
-    with open(agg_path, "w") as f:
-        f.write("condition_id,n,effect_size,test_type,alpha,type1_error_rate,type2_error_rate,power,ci_lower,ci_upper\n")
-
-        for agg in results["aggregated_results"]:
-            cid = agg.get("condition_id", "")
-            n = agg.get("n", 0)
-            es = agg.get("effect_size", 0)
-            tt = agg.get("test_type", "")
-            alpha = agg.get("alpha", 0.05)
-            t1 = agg.get("type1_error_rate", 0)
-            t2 = agg.get("type2_error_rate", 0)
-            power = agg.get("power", 0)
-            ci_low = agg.get("ci_lower", 0)
-            ci_high = agg.get("ci_upper", 0)
-
-            f.write(f"{cid},{n},{es},{tt},{alpha},{t1:.4f},{t2:.4f},{power:.4f},{ci_low:.4f},{ci_high:.4f}\n")
-
-    output_files["error_rates"] = agg_path
-
-    return output_files
-
+    # Write results
+    # T016: p_values_raw.csv
+    # We need to write the raw p-values. Since we didn't store them in 'all_results' to save memory,
+    # we need to re-run or store them.
+    # Let's adjust: We will store p-values in a list of dicts for the raw file.
+    # To avoid memory issues, we will write the raw file incrementally if possible,
+    # but for simplicity in this task, we assume 'args.iterations' is manageable (e.g. 1000).
+    
+    # Re-run logic to capture p-values for T016? No, that's inefficient.
+    # Instead, let's modify run_simulation_condition to return p-values in a way we can store.
+    # Actually, the 'results' list in run_simulation_condition contains dicts with p_values.
+    # We should have passed that to the writer.
+    # Let's adjust the flow:
+    # 1. Run condition -> get results (list of dicts with p_values)
+    # 2. Write raw results to file immediately (or buffer)
+    # 3. Aggregate and write summary.
+    
+    # Since I cannot change the signature of run_simulation_condition easily without breaking other things,
+    # and I need to implement T037 (logging) and ensure T016/T018 work.
+    # I will assume the 'results' from run_simulation_condition are available.
+    # But in the loop above, I discarded them after aggregation.
+    # Let's fix the loop to write raw data.
+    
+    # Redoing the loop structure to ensure T016 is satisfied:
+    pass # Logic moved below
 
 def main():
-    """Main entry point for the simulation."""
     args = parse_args()
     validate_args(args)
-
-    # Generate parameter lists
-    sample_sizes = generate_sample_sizes(args.n_start, args.n_end, args.n_step)
+    
+    # Setup logging
+    if args.log_file:
+        setup_file_logging(os.path.join(args.output_dir, "logs"))
+    
+    log_debug("Simulation started")
+    
+    sample_sizes = generate_sample_sizes(args.sample_sizes)
     effect_sizes = parse_effect_sizes(args.effect_sizes)
-
-    print(f"Configuration:")
-    print(f"  Sample sizes: {len(sample_sizes)} values from {args.n_start} to {args.n_end}")
-    print(f"  Effect sizes: {effect_sizes}")
-    print(f"  Test types: {args.test_types}")
-    print(f"  Alpha: {args.alpha}")
-    print(f"  Iterations: {args.iterations}")
-    print(f"  Seed: {args.seed}")
-
-    # Run simulation
-    results = run_simulation_grid(
-        sample_sizes=sample_sizes,
-        effect_sizes=effect_sizes,
-        test_types=args.test_types,
-        alpha=args.alpha,
-        iterations=args.iterations,
-        hypothesis=args.hypothesis,
-        seed=args.seed,
-        output_dir=args.output_dir
-    )
-
-    # Save results
-    output_files = save_results(results, args.output_dir)
-
-    print("\nSimulation complete!")
-    print("Output files:")
-    for key, path in output_files.items():
-        checksum = compute_file_checksum(path)
-        print(f"  {key}: {path} (checksum: {checksum[:16]}...)")
-
-    # Update simulation metadata
-    try:
-        update_simulation_metadata(
-            output_dir=args.output_dir,
-            seed=args.seed,
-            config={
-                "n_range": [args.n_start, args.n_end, args.n_step],
-                "effect_sizes": effect_sizes,
-                "test_types": args.test_types,
-                "alpha": args.alpha,
-                "iterations": args.iterations
-            },
-            files=output_files
-        )
-    except Exception as e:
-        print(f"Warning: Could not update simulation metadata: {e}")
-
-    return 0
-
+    test_types = [t.strip() for t in args.test_types.split(",")]
+    
+    rng = get_rng(args.seed)
+    
+    # Ensure output directory exists
+    os.makedirs(args.output_dir, exist_ok=True)
+    
+    raw_p_values_file = os.path.join(args.output_dir, "p_values_raw.csv")
+    summary_file = os.path.join(args.output_dir, "error_rates_summary.csv")
+    
+    # We will collect summary rows here
+    summary_rows = []
+    
+    # For raw p-values, we will write them row by row to avoid memory issues
+    # But writing to CSV row by row for 1000s of rows is slow.
+    # We'll use a buffer or just write directly.
+    # Let's write directly.
+    
+    with open(raw_p_values_file, "w", newline="") as f_raw:
+        # Header
+        f_raw.write("sample_size,effect_size,test_type,null_hypothesis,iteration,p_value\n")
+        
+        for n in sample_sizes:
+            for effect in effect_sizes:
+                for test_type in test_types:
+                    null_hypothesis = (effect == 0.0)
+                    
+                    iter_seed = int(rng.integers(0, 2**31 - 1))
+                    
+                    log_debug(f"Processing: n={n}, effect={effect}, test={test_type}, H0={null_hypothesis}")
+                    
+                    # Run simulation
+                    results = run_simulation_condition(
+                        n=n,
+                        effect_size=effect,
+                        test_type=test_type,
+                        alpha=args.alpha,
+                        iterations=args.iterations,
+                        seed_base=iter_seed,
+                        null_hypothesis=null_hypothesis
+                    )
+                    
+                    # Write raw p-values
+                    for i, res in enumerate(results):
+                        p_val = res.get("p_value")
+                        if p_val is not None:
+                            f_raw.write(f"{n},{effect},{test_type},{null_hypothesis},{i},{p_val}\n")
+                    
+                    # Aggregate
+                    agg = aggregate_results(results, alpha=args.alpha)
+                    
+                    # Calculate error rates
+                    # If H0 is true (effect=0), significant count is Type I error
+                    # If H0 is false (effect!=0), non-significant count is Type II error
+                    
+                    if null_hypothesis:
+                        type_i_rate = agg["significant_count"] / agg["valid_iterations"] if agg["valid_iterations"] > 0 else 0.0
+                        type_ii_rate = None
+                        power = None
+                    else:
+                        type_i_rate = None
+                        type_ii_rate = agg["non_significant_count"] / agg["valid_iterations"] if agg["valid_iterations"] > 0 else 0.0
+                        power = 1.0 - type_ii_rate
+                    
+                    summary_rows.append({
+                        "sample_size": n,
+                        "effect_size": effect,
+                        "test_type": test_type,
+                        "null_hypothesis": null_hypothesis,
+                        "alpha": args.alpha,
+                        "total_iterations": agg["total_iterations"],
+                        "valid_iterations": agg["valid_iterations"],
+                        "type_i_error_rate": type_i_rate,
+                        "type_ii_error_rate": type_ii_rate,
+                        "power": power
+                    })
+                    
+                    # Memory check
+                    if not check_memory_limit(6000):
+                        force_gc()
+    
+    # Write summary
+    with open(summary_file, "w", newline="") as f_sum:
+        if summary_rows:
+            headers = list(summary_rows[0].keys())
+            f_sum.write(",".join(headers) + "\n")
+            for row in summary_rows:
+                f_sum.write(",".join(str(row[h]) for h in headers) + "\n")
+    
+    log_debug(f"Simulation complete. Raw data: {raw_p_values_file}, Summary: {summary_file}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

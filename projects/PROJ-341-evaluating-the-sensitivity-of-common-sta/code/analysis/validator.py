@@ -7,25 +7,28 @@ from typing import Dict, Any, Optional, Tuple, List
 from scipy import stats
 from ucimlrepo import fetch_ucirepo
 from code.simulation.chi_squared_utils import run_chi_squared_with_fallback
+from code.simulation.test_runner import run_t_test, run_anova
+from code.simulation.output_writer import write_p_values_raw
 
 def ensure_data_raw_dir():
     """Ensure the data/raw directory exists."""
-    os.makedirs('data/raw', exist_ok=True)
+    os.makedirs("data/raw", exist_ok=True)
 
 def load_simulation_metadata():
-    """Load the simulation metadata JSON."""
-    path = 'data/simulation_metadata.json'
-    if os.path.exists(path):
-        with open(path, 'r') as f:
+    """Load simulation metadata from JSON file."""
+    metadata_path = "data/simulation_metadata.json"
+    if os.path.exists(metadata_path):
+        with open(metadata_path, "r") as f:
             return json.load(f)
-    return {"datasets": {}}
+    return {"datasets": {}, "seeds": [], "config": {}}
 
-def save_simulation_metadata(metadata: Dict[str, Any]):
-    """Save the simulation metadata JSON."""
-    with open('data/simulation_metadata.json', 'w') as f:
+def save_simulation_metadata(metadata):
+    """Save simulation metadata to JSON file."""
+    metadata_path = "data/simulation_metadata.json"
+    with open(metadata_path, "w") as f:
         json.dump(metadata, f, indent=2)
 
-def compute_file_checksum(filepath: str) -> str:
+def compute_file_checksum(filepath):
     """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(filepath, "rb") as f:
@@ -33,232 +36,237 @@ def compute_file_checksum(filepath: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def verify_dataset_checksum(filename: str, expected_checksum: str):
-    """Verify a dataset's checksum against the expected value."""
-    filepath = os.path.join('data/raw', filename)
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Dataset {filename} not found in data/raw")
-    actual = compute_file_checksum(filepath)
-    if actual != expected_checksum:
-        raise ValueError(f"Checksum mismatch for {filename}: expected {expected_checksum}, got {actual}")
+def verify_dataset_checksum(metadata, dataset_name):
+    """Verify checksum of a dataset against stored metadata."""
+    if dataset_name not in metadata.get("datasets", {}):
+        return False
+    stored_checksum = metadata["datasets"][dataset_name].get("checksum")
+    if not stored_checksum:
+        return False
+    
+    # Find the file path for this dataset
+    # Assuming datasets are stored in data/raw/ with specific naming
+    file_path = f"data/raw/{dataset_name}.csv"
+    if not os.path.exists(file_path):
+        return False
+    
+    current_checksum = compute_file_checksum(file_path)
+    return current_checksum == stored_checksum
 
 def download_breast_cancer_dataset():
-    """Download UCI Breast Cancer (Wisconsin Diagnostic) dataset (ID: 197)."""
-    ensure_data_raw_dir()
-    filename = 'breast_cancer_wisconsin.csv'
-    filepath = os.path.join('data/raw', filename)
-    
-    if not os.path.exists(filepath):
-        dataset = fetch_ucirepo(id=197)
-        df = dataset.data.features
-        # Add target column if available in features or separate
-        if hasattr(dataset.data, 'labels'):
-            df['target'] = dataset.data.labels
-        df.to_csv(filepath, index=False)
-    
-    checksum = compute_file_checksum(filepath)
-    meta = load_simulation_metadata()
-    meta['datasets']['breast_cancer'] = {'id': 197, 'checksum': checksum, 'path': filepath}
-    save_simulation_metadata(meta)
-    return pd.read_csv(filepath)
+    """Download UCI Breast Cancer (Wisconsin Diagnostic) dataset."""
+    try:
+        # Dataset ID 197: Breast Cancer Wisconsin (Diagnostic)
+        breast_cancer = fetch_ucirepo(id=197)
+        df = breast_cancer.data.features
+        target = breast_cancer.data.targets
+        
+        # Combine features and target
+        df['target'] = target['diagnosis']
+        df.to_csv("data/raw/breast_cancer.csv", index=False)
+        
+        checksum = compute_file_checksum("data/raw/breast_cancer.csv")
+        return df, checksum
+    except Exception as e:
+        raise RuntimeError(f"Failed to download breast cancer dataset: {e}")
 
 def download_wine_dataset():
-    """Download UCI Wine dataset (ID: 198)."""
-    ensure_data_raw_dir()
-    filename = 'wine.csv'
-    filepath = os.path.join('data/raw', filename)
-    
-    if not os.path.exists(filepath):
-        dataset = fetch_ucirepo(id=198)
-        df = dataset.data.features
-        if hasattr(dataset.data, 'labels'):
-            df['target'] = dataset.data.labels
-        df.to_csv(filepath, index=False)
-    
-    checksum = compute_file_checksum(filepath)
-    meta = load_simulation_metadata()
-    meta['datasets']['wine'] = {'id': 198, 'checksum': checksum, 'path': filepath}
-    save_simulation_metadata(meta)
-    return pd.read_csv(filepath)
+    """Download UCI Wine dataset."""
+    try:
+        # Dataset ID 198: Wine
+        wine = fetch_ucirepo(id=198)
+        df = wine.data.features
+        target = wine.data.targets
+        
+        df['target'] = target['class']
+        df.to_csv("data/raw/wine.csv", index=False)
+        
+        checksum = compute_file_checksum("data/raw/wine.csv")
+        return df, checksum
+    except Exception as e:
+        raise RuntimeError(f"Failed to download wine dataset: {e}")
 
 def download_adult_dataset():
-    """Download UCI Adult (Census Income) dataset (ID: 522)."""
-    ensure_data_raw_dir()
-    filename = 'adult.csv'
-    filepath = os.path.join('data/raw', filename)
-    
-    if not os.path.exists(filepath):
-        dataset = fetch_ucirepo(id=522)
-        df = dataset.data.features
-        if hasattr(dataset.data, 'labels'):
-            df['target'] = dataset.data.labels
-        df.to_csv(filepath, index=False)
-    
-    checksum = compute_file_checksum(filepath)
-    meta = load_simulation_metadata()
-    meta['datasets']['adult'] = {'id': 522, 'checksum': checksum, 'path': filepath}
-    save_simulation_metadata(meta)
-    return pd.read_csv(filepath)
+    """Download UCI Adult (Census Income) dataset."""
+    try:
+        # Dataset ID 522: Adult
+        adult = fetch_ucirepo(id=522)
+        df = adult.data.features
+        target = adult.data.targets
+        
+        df['target'] = target['class']
+        df.to_csv("data/raw/adult.csv", index=False)
+        
+        checksum = compute_file_checksum("data/raw/adult.csv")
+        return df, checksum
+    except Exception as e:
+        raise RuntimeError(f"Failed to download adult dataset: {e}")
 
-def prepare_data_for_ttest(df: pd.DataFrame, target_col: str, group_col: str = None):
-    """
-    Prepare data for t-test.
-    If group_col is provided, splits data by that column.
-    Otherwise, splits by target_col if it's binary.
-    Returns two arrays: group1, group2
-    """
-    if group_col:
-        groups = df.groupby(group_col)[target_col].apply(list)
-        if len(groups) < 2:
-            raise ValueError("Need at least two groups for t-test")
-        return groups.iloc[0].values, groups.iloc[1].values
-    else:
-        # Assume target_col is the grouping variable for binary split
-        unique_vals = df[target_col].unique()
-        if len(unique_vals) < 2:
-            raise ValueError("Target column must have at least two unique values for t-test")
-        g1 = df[df[target_col] == unique_vals[0]][df.columns[0]].values # Use first numeric col
-        g2 = df[df[target_col] == unique_vals[1]][df.columns[0]].values
-        return g1, g2
+def save_dataset_to_csv(df, filename):
+    """Save a pandas DataFrame to CSV."""
+    os.makedirs("data/raw", exist_ok=True)
+    filepath = f"data/raw/{filename}"
+    df.to_csv(filepath, index=False)
+    return filepath
 
-def prepare_data_for_anova(df: pd.DataFrame, target_col: str, group_col: str):
-    """
-    Prepare data for ANOVA.
-    Returns a list of arrays, one for each group.
-    """
-    groups = df.groupby(group_col)[target_col].apply(list)
-    return [g.values for _, g in groups.items()]
+def verify_dataset_integrity(df, dataset_name, expected_min_rows=10):
+    """Verify basic integrity of a dataset."""
+    if len(df) < expected_min_rows:
+        raise ValueError(f"Dataset {dataset_name} has fewer than {expected_min_rows} rows")
+    return True
 
-def prepare_data_for_chi_squared(df: pd.DataFrame, col1: str, col2: str):
-    """
-    Prepare data for chi-squared test.
-    Returns a contingency table (2D array).
-    """
-    contingency = pd.crosstab(df[col1], df[col2])
+def prepare_data_for_ttest(df, target_col, group_col, numeric_col):
+    """Prepare data for t-test by splitting into groups."""
+    groups = df.groupby(group_col)[numeric_col].apply(list).to_dict()
+    if len(groups) != 2:
+        raise ValueError("T-test requires exactly two groups")
+    return list(groups.values())
+
+def prepare_data_for_anova(df, target_col, group_col, numeric_col):
+    """Prepare data for ANOVA by splitting into multiple groups."""
+    groups = df.groupby(group_col)[numeric_col].apply(list).to_dict()
+    if len(groups) < 2:
+        raise ValueError("ANOVA requires at least two groups")
+    return list(groups.values())
+
+def prepare_data_for_chi_squared(df, row_col, col_col):
+    """Prepare data for chi-squared test by creating contingency table."""
+    contingency = pd.crosstab(df[row_col], df[col_col])
     return contingency.values
 
-def preprocess_dataset_for_validation(df: pd.DataFrame, dataset_name: str) -> Dict[str, Any]:
-    """
-    Preprocess a dataset for validation tests.
-    Returns a dictionary containing prepared data for t-test, ANOVA, and chi-squared.
-    """
-    # Select numeric columns for continuous tests
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+def preprocess_dataset_for_validation(df, dataset_name):
+    """Preprocess dataset for validation tests."""
+    # Clean data: remove rows with missing values
+    df = df.dropna()
     
-    result = {}
+    # Convert categorical columns to numeric where needed
+    for col in df.select_dtypes(include=['object']).columns:
+        if col != 'target':
+            df[col] = df[col].astype('category').cat.codes
     
-    # For T-Test: Need two groups and one continuous variable
-    if len(numeric_cols) >= 1 and len(categorical_cols) >= 1:
-        group_col = categorical_cols[0]
-        target_col = numeric_cols[0]
-        try:
-            g1, g2 = prepare_data_for_ttest(df, target_col, group_col)
-            if len(g1) > 1 and len(g2) > 1:
-                result['ttest'] = {'group1': g1, 'group2': g2, 'col1': target_col, 'group_col': group_col}
-        except Exception as e:
-            pass
-
-    # For ANOVA: Need one grouping variable and one continuous variable with >2 groups
-    if len(numeric_cols) >= 1 and len(categorical_cols) >= 1:
-        group_col = categorical_cols[0]
-        target_col = numeric_cols[0]
-        try:
-            groups = df.groupby(group_col)[target_col].apply(list)
-            if len(groups) > 2:
-                result['anova'] = {'groups': [g.values for _, g in groups.items()], 'col': target_col, 'group_col': group_col}
-        except Exception as e:
-            pass
-
-    # For Chi-Squared: Need two categorical variables
-    if len(categorical_cols) >= 2:
-        try:
-            contingency = prepare_data_for_chi_squared(df, categorical_cols[0], categorical_cols[1])
-            if contingency.size > 0:
-                result['chi_squared'] = {'table': contingency, 'col1': categorical_cols[0], 'col2': categorical_cols[1]}
-        except Exception as e:
-            pass
-    
-    return result
+    return df
 
 def run_validation_tests():
-    """
-    Run t-test, ANOVA, and chi-squared on real datasets and save observed p-value distributions.
-    Output: data/simulation/real_data_pvalues.csv
-    """
+    """Run t-test, ANOVA, and chi-squared on real datasets and save results."""
     datasets = [
-        ('breast_cancer', download_breast_cancer_dataset),
-        ('wine', download_wine_dataset),
-        ('adult', download_adult_dataset)
+        ("breast_cancer", download_breast_cancer_dataset, "target", "radius_mean", "texture_mean"),
+        ("wine", download_wine_dataset, "target", "alcohol", "malic_acid"),
+        ("adult", download_adult_dataset, "target", "age", "education_num")
     ]
     
     results = []
     
-    for name, loader in datasets:
-        print(f"Processing {name}...")
-        df = loader()
-        prep = preprocess_dataset_for_validation(df, name)
-        
-        # Run T-Test
-        if 'ttest' in prep:
-            data = prep['ttest']
+    for dataset_name, download_func, target_col, numeric_col1, numeric_col2 in datasets:
+        try:
+            df, checksum = download_func()
+            df = preprocess_dataset_for_validation(df, dataset_name)
+            
+            # Verify dataset integrity
+            verify_dataset_integrity(df, dataset_name)
+            
+            # Update metadata with checksum
+            metadata = load_simulation_metadata()
+            metadata["datasets"][dataset_name] = {
+                "checksum": checksum,
+                "rows": len(df),
+                "columns": list(df.columns)
+            }
+            save_simulation_metadata(metadata)
+            
+            # T-test: Compare two groups based on target
+            # For breast cancer: M vs B
+            # For wine: class 0 vs 1
+            # For adult: <=50K vs >50K
             try:
-                stat, p_val = stats.ttest_ind(data['group1'], data['group2'])
+                groups = prepare_data_for_ttest(df, target_col, target_col, numeric_col1)
+                t_stat, p_value = run_t_test(groups[0], groups[1])
                 results.append({
-                    'dataset': name,
-                    'test_type': 't-test',
-                    'p_value': p_val,
-                    'statistic': stat,
-                    'sample_size_1': len(data['group1']),
-                    'sample_size_2': len(data['group2'])
+                    "dataset": dataset_name,
+                    "test": "t_test",
+                    "feature": numeric_col1,
+                    "p_value": p_value,
+                    "statistic": t_stat
                 })
             except Exception as e:
-                results.append({'dataset': name, 'test_type': 't-test', 'p_value': None, 'error': str(e)})
-        
-        # Run ANOVA
-        if 'anova' in prep:
-            data = prep['anova']
-            try:
-                stat, p_val = stats.f_oneway(*data['groups'])
                 results.append({
-                    'dataset': name,
-                    'test_type': 'anova',
-                    'p_value': p_val,
-                    'statistic': stat,
-                    'num_groups': len(data['groups'])
+                    "dataset": dataset_name,
+                    "test": "t_test",
+                    "feature": numeric_col1,
+                    "p_value": None,
+                    "error": str(e)
+                })
+            
+            # ANOVA: Compare multiple groups
+            try:
+                groups = prepare_data_for_anova(df, target_col, target_col, numeric_col1)
+                f_stat, p_value = run_anova(groups)
+                results.append({
+                    "dataset": dataset_name,
+                    "test": "anova",
+                    "feature": numeric_col1,
+                    "p_value": p_value,
+                    "statistic": f_stat
                 })
             except Exception as e:
-                results.append({'dataset': name, 'test_type': 'anova', 'p_value': None, 'error': str(e)})
-        
-        # Run Chi-Squared
-        if 'chi_squared' in prep:
-            data = prep['chi_squared']
-            try:
-                stat, p_val, dof, expected = stats.chi2_contingency(data['table'])
                 results.append({
-                    'dataset': name,
-                    'test_type': 'chi-squared',
-                    'p_value': p_val,
-                    'statistic': stat,
-                    'dof': dof
+                    "dataset": dataset_name,
+                    "test": "anova",
+                    "feature": numeric_col1,
+                    "p_value": None,
+                    "error": str(e)
                 })
-            except Exception as e:
-                results.append({'dataset': name, 'test_type': 'chi-squared', 'p_value': None, 'error': str(e)})
+            
+            # Chi-squared: For categorical data
+            # Use target and a categorical feature if available
+            categorical_cols = df.select_dtypes(include=['category', 'object']).columns
+            if len(categorical_cols) >= 2:
+                row_col = categorical_cols[0]
+                col_col = categorical_cols[1]
+                try:
+                    contingency = prepare_data_for_chi_squared(df, row_col, col_col)
+                    chi_stat, p_value, dof, expected = run_chi_squared_with_fallback(contingency)
+                    results.append({
+                        "dataset": dataset_name,
+                        "test": "chi_squared",
+                        "row_feature": row_col,
+                        "col_feature": col_col,
+                        "p_value": p_value,
+                        "statistic": chi_stat
+                    })
+                except Exception as e:
+                    results.append({
+                        "dataset": dataset_name,
+                        "test": "chi_squared",
+                        "row_feature": row_col,
+                        "col_feature": col_col,
+                        "p_value": None,
+                        "error": str(e)
+                    })
+            
+        except Exception as e:
+            print(f"Error processing {dataset_name}: {e}")
+            continue
     
-    # Save results
-    output_path = 'data/simulation/real_data_pvalues.csv'
+    # Save results to CSV
+    output_path = "data/simulation/real_data_pvalues.csv"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
+    # Write results to CSV
     if results:
-        df_res = pd.DataFrame(results)
-        df_res.to_csv(output_path, index=False)
-        print(f"Saved results to {output_path}")
+        df_results = pd.DataFrame(results)
+        df_results.to_csv(output_path, index=False)
+        print(f"Saved p-values to {output_path}")
     else:
-        print("No valid results to save.")
+        print("No results to save")
+    
+    return results
 
 def main():
-    """Main entry point for T031."""
-    run_validation_tests()
+    """Main entry point for validation tests."""
+    print("Running validation tests on real datasets...")
+    results = run_validation_tests()
+    print(f"Completed. Found {len(results)} test results.")
+    return results
 
 if __name__ == "__main__":
     main()

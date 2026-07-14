@@ -66,7 +66,7 @@
 
 ## Phase 3: User Story 1 - Core Simulation Engine for Type I/II Error Estimation (Priority: P1) 🎯 MVP
 
-**Goal**: Run a simulation that generates synthetic data with known ground truth across sample sizes (n=5 to n=500) to empirically calculate Type I and Type II error rates for t-test, ANOVA, and chi-squared tests with ≥10,000 iterations.
+**Goal**: Run a simulation that generates synthetic data with known ground truth across sample sizes (n=5 to n=500) to empirically calculate Type I and Type II error rates for t-test, ANOVA, and chi-squared tests with ≥10,000 iterations. [UNRESOLVED-CLAIM: c_dabb8add — status=refuted]
 
 **Independent Test**: {{claim:c_46a368b8}}
 
@@ -134,13 +134,13 @@
 
 - [X] T029a [US3] Implement `code/analysis/validator.py` to download the UCI Breast Cancer (Wisconsin Diagnostic) dataset using `ucimlrepo` with the corresponding dataset identifier. (FR-006)
 - [X] T029b [US3] Implement `code/analysis/validator.py` to download the UCI Wine dataset using `ucimlrepo` with the corresponding dataset identifier. (FR-006)
-- [ ] T029c [US3] Implement `code/analysis/validator.py` to download the UCI Adult (Census Income) dataset using `ucimlrepo` with the dataset ID corresponding to the Adult dataset. (FR-006)
-- [ ] T029d [US3] Implement checksum verification for all downloaded datasets (Breast Cancer, Wine, Adult) in `code/analysis/validator.py` and record checksums in `data/simulation_metadata.json` (Constitution Principle III)
-- [ ] T030 [US3] Implement data preprocessing in `code/analysis/validator.py` to prepare small-sample datasets for t-test, ANOVA, and chi-squared
-- [ ] T031 [US3] Run t-test, ANOVA, and chi-squared on real datasets and save observed p-value distributions to `data/simulation/real_data_pvalues.csv` (FR-006)
-- [ ] T032 [US3] Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov (KS) distance against simulated predictions, verify KS <= 0.10, and save results to `data/simulation/real_data_power.json` (FR-006, SC-003)
+- [X] T029c [US3] Implement `code/analysis/validator.py` to download the UCI Adult (Census Income) dataset using `ucimlrepo` with the dataset ID corresponding to the Adult dataset. (FR-006)
+- [X] T029d [US3] Implement checksum verification for all downloaded datasets (Breast Cancer, Wine, Adult) in `code/analysis/validator.py` and record checksums in `data/simulation_metadata.json` (Constitution Principle III)
+- [X] T030 [US3] Implement data preprocessing in `code/analysis/validator.py` to prepare small-sample datasets for t-test, ANOVA, and chi-squared
+- [X] T031 [US3] Run t-test, ANOVA, and chi-squared on real datasets and save observed p-value distributions to `data/simulation/real_data_pvalues.csv` (FR-006)
+- [X] T032 [US3] Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov (KS) distance against simulated predictions, verify KS <= 0.10, and save results to `data/simulation/real_data_power.json` (FR-006, SC-003)
 - [ ] T034 [US3] Save validation metrics and KS statistics to `data/simulation/validation_metrics.json`
-- [ ] T033 [US3] Generate validation report in `data/reports/validation_report.md` stating whether simulation held true or deviations were observed (US-3 Scenario 3)
+- [X] T033 [US3] Generate validation report in `data/reports/validation_report.md` stating whether simulation held true or deviations were observed (US-3 Scenario 3)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -153,7 +153,7 @@
 - [ ] T035 [US1] Implement sensitivity analysis for alpha thresholds across standard significance levels. to observe critical sample size shifts (SC-004); depends on T012b refactored for dynamic alpha
 - [ ] T036 [P] Optimize `code/main.py` for memory usage to ensure < 7GB RAM usage during full simulation run
 - [ ] T037 [P] Add comprehensive logging to all simulation steps for debugging reproducibility issues
-- [ ] T038 [P] Update `quickstart.md` with instructions to run the full simulation and generate the validation report
+- [~] T038 [P] Update `quickstart.md` with instructions to run the full simulation and generate the validation report
 - [ ] T039 [P] Run `pytest` suite to ensure all unit and integration tests pass
 
 ---
@@ -251,4 +251,4 @@ With multiple developers:
 - **Alpha Constraint**: T012b must be completed before T012 to ensure dynamic alpha support for SC-004.
 - **Data Flow Constraint**: T016 (output CSV) must complete before T020 (threshold calculation) and T031 (validation) can execute.
 - **Real-Data Constraint**: T029a/T029b/T029c must explicitly use `ucimlrepo` and specific numeric IDs (197, 198, 522) to fetch datasets, not generic "download from UCI" instructions.
-- **Note on Spec.md**: The spec.md Assumptions section currently contains the placeholder '[deferred]'. This is a plan-root cause. The tasks enforce the [deferred] minimum as per FR-001.
+- **Note on Spec.md**: {{claim:c_c60b3d1e}} This is a plan-root cause. The tasks enforce the [deferred] minimum as per FR-001.

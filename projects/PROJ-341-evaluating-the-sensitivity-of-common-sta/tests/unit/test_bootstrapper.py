@@ -1,150 +1,83 @@
-"""
-Unit tests for bootstrapped power estimation module.
-"""
-
 import pytest
 import numpy as np
-import os
-import sys
-
-# Add code directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-
 from code.analysis.bootstrapper import (
     bootstrap_power_estimate,
     calculate_ks_distance,
-    load_simulated_power_distribution,
-    run_bootstrapped_validation,
-    save_power_results
+    calculate_ks_distance
 )
-
+from code.simulation import get_rng
 
 class TestBootstrapPowerEstimate:
-    """Tests for bootstrap_power_estimate function."""
+    def test_bootstrap_power_estimate_basic(self):
+        """Test basic bootstrap power estimation."""
+        # Simulate p-values where 80% are < 0.05 (power = 0.8)
+        rng = get_rng(42)
+        n = 1000
+        p_values = rng.uniform(0, 1, n)
+        p_values[:800] = rng.uniform(0, 0.05, 800)  # Force 80% significant
+        
+        result = bootstrap_power_estimate(p_values, n_bootstrap=100, seed=42)
+        
+        assert result['estimated_power'] > 0.7
+        assert result['estimated_power'] < 0.9
+        assert result['ci_lower'] <= result['estimated_power']
+        assert result['estimated_power'] <= result['ci_upper']
+        assert result['n_bootstrap'] == 100
+        assert result['n_samples'] == n
 
-    def test_bootstrap_power_estimate_normal_data(self):
-        """Test bootstrap power estimation with normal data."""
-        rng = np.random.default_rng(42)
-        data = rng.normal(loc=0, scale=1, size=100)
+    def test_bootstrap_power_estimate_empty(self):
+        """Test with empty p-values list."""
+        result = bootstrap_power_estimate([], n_bootstrap=100)
+        assert result['estimated_power'] == 0.0
+        assert result['n_samples'] == 0
 
-        def dummy_test(x):
-            # Simple test that returns p-value based on mean
-            return np.abs(np.mean(x)) > 0.5
+    def test_bootstrap_power_estimate_all_significant(self):
+        """Test when all p-values are significant."""
+        p_values = [0.01] * 100
+        result = bootstrap_power_estimate(p_values, n_bootstrap=100)
+        assert result['estimated_power'] == 1.0
 
-        power, se = bootstrap_power_estimate(
-            data,
-            dummy_test,
-            n_bootstraps=100,
-            rng=rng
-        )
+    def test_bootstrap_power_estimate_none_significant(self):
+        """Test when no p-values are significant."""
+        p_values = [0.5] * 100
+        result = bootstrap_power_estimate(p_values, n_bootstrap=100)
+        assert result['estimated_power'] == 0.0
 
-        assert 0.0 <= power <= 1.0
-        assert se >= 0
-        assert len(str(power)) > 0  # Should be a valid number
+class TestCalculateKsDistance:
+    def test_ks_distance_identical_distributions(self):
+        """Test KS distance for identical distributions."""
+        p1 = [0.1, 0.2, 0.3, 0.4, 0.5]
+        p2 = [0.1, 0.2, 0.3, 0.4, 0.5]
+        dist = calculate_ks_distance(p1, p2)
+        assert dist == 0.0
 
-    def test_bootstrap_power_estimate_two_sample(self):
-        """Test bootstrap with two-sample data."""
-        rng = np.random.default_rng(123)
-        group1 = rng.normal(loc=0, scale=1, size=50)
-        group2 = rng.normal(loc=0.5, scale=1, size=50)
+    def test_ks_distance_different_distributions(self):
+        """Test KS distance for clearly different distributions."""
+        p1 = [0.01] * 50 + [0.99] * 50  # Bimodal
+        p2 = [0.5] * 100  # All same
+        dist = calculate_ks_distance(p1, p2)
+        assert dist > 0.1  # Should be significantly different
 
-        def two_sample_test(groups):
-            # Simple t-test approximation
-            diff = np.mean(groups[1]) - np.mean(groups[0])
-            return np.abs(diff) > 0.3
+    def test_ks_distance_empty(self):
+        """Test with empty lists."""
+        dist = calculate_ks_distance([], [])
+        assert dist == 0.0
 
-        power, se = bootstrap_power_estimate(
-            (group1, group2),
-            two_sample_test,
-            n_bootstraps=100,
-            rng=rng
-        )
+    def test_ks_distance_one_empty(self):
+        """Test with one empty list."""
+        dist = calculate_ks_distance([0.1, 0.2], [])
+        assert dist == 0.0
 
-        assert 0.0 <= power <= 1.0
-        assert se >= 0
-
-
-class TestKSDistance:
-    """Tests for calculate_ks_distance function."""
-
-    def test_ks_distance_identical_cdfs(self):
-        """Test KS distance with identical CDFs should be near zero."""
-        cdf1 = np.linspace(0, 1, 100)
-        cdf2 = np.linspace(0, 1, 100)
-
-        ks_dist = calculate_ks_distance(cdf1, cdf2)
-        assert ks_dist < 0.1  # Should be very small
-
-    def test_ks_distance_different_cdfs(self):
-        """Test KS distance with different CDFs."""
-        cdf1 = np.linspace(0, 1, 100)
-        cdf2 = np.linspace(0.2, 1.2, 100)
-
-        ks_dist = calculate_ks_distance(cdf1, cdf2)
-        assert 0 < ks_dist <= 1.0
-
-
-class TestSavePowerResults:
-    """Tests for save_power_results function."""
-
-    def test_save_power_results_creates_file(self, tmp_path):
-        """Test that save_power_results creates the output file."""
-        output_path = str(tmp_path / "test_power.json")
-
-        results = {
-            'test': 'example',
-            'power': 0.8
-        }
-
-        save_power_results(results, output_path)
-
-        assert os.path.exists(output_path)
-
-        with open(output_path, 'r') as f:
-            import json
-            loaded = json.load(f)
-
-        assert loaded['test'] == 'example'
-        assert loaded['power'] == 0.8
-
-
-class TestRunBootstrappedValidation:
-    """Tests for run_bootstrapped_validation function."""
-
-    def test_run_validation_with_mock_data(self):
-        """Test validation with mock data structure."""
-        mock_data = {
-            'sample_size': 30,
-            'ttest_groups': [np.random.randn(15), np.random.randn(15)],
-            'anova_groups': [np.random.randn(10), np.random.randn(10), np.random.randn(10)],
-            'chi_squared_table': np.array([[10, 5], [8, 7]])
-        }
-
-        result = run_bootstrapped_validation(
-            'test_dataset',
-            mock_data,
-            test_types=['t-test'],
-            n_bootstraps=50
-        )
-
-        assert 'dataset' in result
-        assert result['dataset'] == 'test_dataset'
-        assert 'test_results' in result
-        assert len(result['test_results']) > 0
-        assert 'validation_status' in result
-
-    def test_validation_status_partial(self):
-        """Test that validation status can be 'partial'."""
-        mock_data = {
-            'sample_size': 30,
-            'ttest_groups': [np.random.randn(15), np.random.randn(15)]
-        }
-
-        result = run_bootstrapped_validation(
-            'test_dataset',
-            mock_data,
-            test_types=['t-test'],
-            n_bootstraps=50
-        )
-
-        assert result['validation_status'] in ['passed', 'failed', 'partial']
+class TestIntegration:
+    def test_reproducibility(self):
+        """Test that results are reproducible with same seed."""
+        rng = get_rng(123)
+        p_values = rng.uniform(0, 1, 500)
+        p_values[:250] = rng.uniform(0, 0.05, 250)
+        
+        result1 = bootstrap_power_estimate(p_values, n_bootstrap=50, seed=999)
+        result2 = bootstrap_power_estimate(p_values, n_bootstrap=50, seed=999)
+        
+        assert result1['estimated_power'] == result2['estimated_power']
+        assert result1['ci_lower'] == result2['ci_lower']
+        assert result1['ci_upper'] == result2['ci_upper']

@@ -1,0 +1,8 @@
+'|power simulated test':
+  quote: This can be done with a variety of software packages. Using this methodology
+    with the values before, setting the sample size to 25 leads to an estimated power
+    of around 0.78. The small discrepancy with the previous section is due mainly
+    to inaccuracies with the normal approximation.
+  source_id: Power (statistics)
+  url: https://en.wikipedia.org/wiki/Power_(statistics)
+  value: '0.78'
