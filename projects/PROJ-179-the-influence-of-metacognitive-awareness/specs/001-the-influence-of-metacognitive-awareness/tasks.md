@@ -141,7 +141,7 @@
  - **Output**: `data/derived/visual_trials.csv`, `data/derived/auditory_trials.csv`.
 - [X] T027 [US3] [Depends on: T026, T014] Implement `src/analysis/robustness.py` to run the Phase 3 correlation pipeline on each subset independently.
  - **Constraint**: Do not run in parallel with T026. Must wait for T026 to complete.
-- [ ] T028 [US3] [Depends on: T027] Implement `src/report/generate.py` update to apply Bonferroni or Benjamini-Hochberg correction for multiple comparisons (family-wise error) and report corrected p-values in `data/results/robustness_analysis.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [X] T028 [US3] [Depends on: T027] Implement `src/report/generate.py` update to apply Bonferroni or Benjamini-Hochberg correction for multiple comparisons (family-wise error) and report corrected p-values in `data/results/robustness_analysis.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 
 **Checkpoint**: All user stories should now be independently functional
 

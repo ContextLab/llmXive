@@ -5,51 +5,51 @@ from pathlib import Path
 
 from src.report.generate import generate_robustness_report
 
+
 class TestGenerateRobustnessReport(unittest.TestCase):
-    """Simple unit tests for the robustness correction logic."""
+    """
+    Basic unit tests for the robustness report generation logic.
+    """
 
     def setUp(self):
-        # Create a temporary JSON file with known p‑values
-        self.tmp_path = Path("data/results/_tmp_robustness.json")
-        self.tmp_path.parent.mkdir(parents=True, exist_ok=True)
-        sample = [
-            {"modality": "visual", "correlation_coefficient": 0.2, "p_value": 0.04},
-            {"modality": "auditory", "correlation_coefficient": -0.1, "p_value": 0.20},
-            {"modality": "visual", "correlation_coefficient": 0.35, "p_value": 0.01},
+        # Create a temporary directory for input / output files
+        self.tmp_dir = Path("tmp_test_report")
+        self.tmp_dir.mkdir(exist_ok=True)
+        self.input_file = self.tmp_dir / "raw.json"
+        self.output_file = self.tmp_dir / "corrected.json"
+
+        # Sample raw results – two modalities with simple p‑values
+        self.raw_results = [
+            {"modality": "visual", "correlation": 0.25, "p_value": 0.04},
+            {"modality": "auditory", "correlation": -0.10, "p_value": 0.20},
         ]
-        self.tmp_path.write_text(json.dumps(sample, indent=2))
+        with open(self.input_file, "w", encoding="utf-8") as f:
+            json.dump(self.raw_results, f, indent=2)
 
     def tearDown(self):
-        # Clean up the temporary file
-        if self.tmp_path.is_file():
-            self.tmp_path.unlink()
+        # Clean up temporary files
+        for p in self.tmp_dir.iterdir():
+            p.unlink()
+        self.tmp_dir.rmdir()
 
     def test_bonferroni_correction(self):
-        generate_robustness_report(
-            input_path=str(self.tmp_path),
-            method="bonferroni",
-            output_path=str(self.tmp_path),
-        )
-        data = json.loads(self.tmp_path.read_text())
-        # Bonferroni multiplies by m=3, capped at 1.0
-        self.assertAlmostEqual(data[0]["corrected_p_value"], min(0.04 * 3, 1.0))
-        self.assertAlmostEqual(data[1]["corrected_p_value"], min(0.20 * 3, 1.0))
-        self.assertAlmostEqual(data[2]["corrected_p_value"], min(0.01 * 3, 1.0))
+        generate_robustness_report(self.input_file, self.output_file, method="bonferroni")
+        with open(self.output_file, "r", encoding="utf-8") as f:
+            corrected = json.load(f)
+        # Bonferroni multiplies by number of tests (2)
+        self.assertAlmostEqual(corrected[0]["corrected_p_value"], min(0.04 * 2, 1.0))
+        self.assertAlmostEqual(corrected[1]["corrected_p_value"], min(0.20 * 2, 1.0))
+        self.assertEqual(corrected[0]["correction_method"], "bonferroni")
 
     def test_bh_correction(self):
-        generate_robustness_report(
-            input_path=str(self.tmp_path),
-            method="bh",
-            output_path=str(self.tmp_path),
-        )
-        data = json.loads(self.tmp_path.read_text())
-        # Manual BH calculation for p-values [0.01,0.04,0.20]
-        # ranks: 1->0.01, 2->0.04, 3->0.20
-        # adjusted: 0.01*3/1=0.03, 0.04*3/2=0.06, 0.20*3/3=0.20
-        # enforce monotonicity: [0.03,0.06,0.20]
-        self.assertAlmostEqual(data[0]["corrected_p_value"], 0.03)
-        self.assertAlmostEqual(data[1]["corrected_p_value"], 0.06)
-        self.assertAlmostEqual(data[2]["corrected_p_value"], 0.20)
+        generate_robustness_report(self.input_file, self.output_file, method="bh")
+        with open(self.output_file, "r", encoding="utf-8") as f:
+            corrected = json.load(f)
+        # For two p‑values 0.04 and 0.20, BH yields 0.08 and 0.20 respectively
+        self.assertAlmostEqual(corrected[0]["corrected_p_value"], 0.08)
+        self.assertAlmostEqual(corrected[1]["corrected_p_value"], 0.20)
+        self.assertEqual(corrected[1]["correction_method"], "bh")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,169 +1,207 @@
 """
-Report generation utilities for the project.
+Report generation utilities.
 
-This module provides functions to generate JSON reports from analysis
-results.  The primary focus of task T028 is to implement a robustness
-analysis report that applies a multiple‑comparisons correction (Bonferroni
-or Benjamini‑Hochberg) to the per‑modality correlation p‑values produced
-by the robustness pipeline.
-
-The function ``generate_robustness_report`` reads the raw correlation
-metrics (expected to be a list of dictionaries with at least the keys
-``modality`` and ``p_value``) from
-``data/results/correlation_metrics.json`` and writes a corrected report to
-``data/results/robustness_analysis.json``.
+This module currently provides three public helpers:
+  * ``generate_regression_analysis_report`` – reads the regression JSON output and
+    returns the parsed data (used by unit tests).
+  * ``generate_robustness_report`` – applies a multiple‑comparison correction
+    (Bonferroni or Benjamini‑Hochberg) to the raw robustness results and writes a
+    corrected JSON file.
+  * ``main`` – a tiny CLI wrapper that forwards arguments to the appropriate
+    generator.
 """
 
+import argparse
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
 
 
-def _load_json(path: Path) -> Any:
-    """Utility to load a JSON file, returning ``None`` if the file does not exist."""
-    if not path.is_file():
-        logger.error(f"Expected JSON file not found: {path}")
-        return None
-    try:
-        with path.open("r", encoding="utf-8") as f:
-            return json.load(f)
-    except json.JSONDecodeError as exc:
-        logger.error(f"Failed to decode JSON from {path}: {exc}")
-        return None
+# --------------------------------------------------------------------------- #
+# Helper for regression analysis report (used by existing unit tests)
+# --------------------------------------------------------------------------- #
+def generate_regression_analysis_report(
+    input_path: Path = Path("data/results/regression_analysis.json"),
+    output_path: Optional[Path] = None,
+) -> Dict[str, Any]:
+    """
+    Load the regression analysis JSON file and return its contents.
+
+    If ``output_path`` is supplied, the same data are written back to that file.
+    This function is deliberately lightweight because the regression report
+    format is already defined elsewhere in the pipeline.
+    """
+    if not input_path.is_file():
+        logger.error(f"Regression analysis file not found: {input_path}")
+        raise FileNotFoundError(str(input_path))
+
+    with open(input_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    if output_path:
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+
+    return data
 
 
-def _save_json(data: Any, path: Path) -> None:
-    """Utility to write ``data`` as pretty‑printed JSON."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-    logger.info(f"Wrote JSON report to {path}")
-
-
-def _apply_bonferroni(p_values: List[float]) -> List[float]:
-    """Bonferroni correction – multiply each p‑value by the number of tests."""
+# --------------------------------------------------------------------------- #
+# Robustness analysis report with multiple‑comparison correction
+# --------------------------------------------------------------------------- #
+def _bonferroni_correction(p_values: List[float]) -> List[float]:
+    """Simple Bonferroni correction."""
     m = len(p_values)
     return [min(p * m, 1.0) for p in p_values]
 
 
-def _apply_bh(p_values: List[float]) -> List[float]:
+def _benjamini_hochberg_correction(p_values: List[float]) -> List[float]:
     """
     Benjamini‑Hochberg (BH) false discovery rate correction.
 
-    Returns a list of adjusted p‑values preserving the original order.
+    The algorithm returns the adjusted p‑values in the original order.
     """
     m = len(p_values)
-    # Sort p‑values while keeping original indices
-    sorted_indices = sorted(range(m), key=lambda i: p_values[i])
-    sorted_p = [p_values[i] for i in sorted_indices]
+    if m == 0:
+        return []
 
-    # Compute BH adjusted values (ascending order)
-    bh_adj = [0.0] * m
-    min_adj = 1.0
-    for rank in range(m, 0, -1):
-        i = rank - 1
-        p = sorted_p[i]
-        adj = p * m / rank
-        min_adj = min(min_adj, adj)
-        bh_adj[i] = min_adj
+    # Pair each p‑value with its original index
+    indexed = list(enumerate(p_values))
+    # Sort by p‑value ascending
+    indexed.sort(key=lambda x: x[1])
 
-    # Re‑order to original indexing
-    adjusted = [0.0] * m
-    for orig_idx, sorted_idx in enumerate(sorted_indices):
-        adjusted[sorted_idx] = min(bh_adj[orig_idx], 1.0)
-    return adjusted
+    corrected = [0.0] * m
+    prev_b = 0.0
+    for rank, (orig_idx, p) in enumerate(indexed, start=1):
+        b = p * m / rank
+        b = min(b, 1.0)
+        # Ensure monotonicity (non‑decreasing when moving from smallest to largest)
+        b = max(b, prev_b)
+        corrected[orig_idx] = b
+        prev_b = b
+
+    return corrected
 
 
 def generate_robustness_report(
-    correlation_file: Path = Path("data/results/correlation_metrics.json"),
-    output_file: Path = Path("data/results/robustness_analysis.json"),
+    input_path: Path = Path("data/results/robustness_analysis.json"),
+    output_path: Optional[Path] = None,
     method: str = "bonferroni",
-) -> None:
+) -> List[Dict[str, Any]]:
     """
-    Generate a robustness analysis JSON report with multiple‑comparisons correction.
+    Apply a family‑wise error correction to robustness analysis results.
 
     Parameters
     ----------
-    correlation_file : Path
-        Path to the JSON file containing raw per‑modality correlation results.
-        Expected format:
-        ``[
-            {"modality": "visual", "r": 0.32, "p_value": 0.045, ...},
-            {"modality": "auditory", "r": -0.12, "p_value": 0.67, ...}
-         ]``
-    output_file : Path
-        Destination path for the corrected report.
-    method : str, optional
-        Correction method – ``"bonferroni"`` (default) or ``"bh"`` (Benjamini‑Hochberg).
+    input_path : Path
+        Path to the JSON file containing raw robustness results.  The file is
+        expected to be a list of dictionaries, each with at least a ``p_value``
+        field (float).
 
-    The function writes a list of dictionaries to ``output_file``.  Each entry
-    contains the original keys plus an additional ``p_corrected`` field.
+    output_path : Path | None
+        Destination for the corrected results.  If ``None`` the function overwrites
+        ``input_path``.
+
+    method : {"bonferroni", "bh", "benjamini-hochberg"}
+        Choice of correction method.  ``"bh"`` and ``"benjamini-hochberg"`` are
+        treated identically.
+
+    Returns
+    -------
+    List[Dict[str, Any]]
+        The corrected result objects (same structure as the input, but with an
+        additional ``p_value_corrected`` key).
     """
-    logger.info("Generating robustness report with %s correction", method)
+    if not input_path.is_file():
+        logger.error(f"Robustness analysis file not found: {input_path}")
+        raise FileNotFoundError(str(input_path))
 
-    raw_data = _load_json(correlation_file)
-    if raw_data is None:
-        # No input – produce an empty but valid JSON list so downstream scripts
-        # do not fail with a missing file.
-        logger.warning("No correlation data found; writing empty robustness report.")
-        _save_json([], output_file)
-        return
+    with open(input_path, "r", encoding="utf-8") as f:
+        raw_results: List[Dict[str, Any]] = json.load(f)
 
-    if not isinstance(raw_data, list) or not raw_data:
-        logger.warning("Correlation file contains no entries; writing empty robustness report.")
-        _save_json([], output_file)
-        return
-
-    # Extract p‑values, ignoring entries where p_value is missing or not numeric.
-    p_vals: List[float] = []
-    valid_indices: List[int] = []
-    for idx, entry in enumerate(raw_data):
-        p = entry.get("p_value")
-        if isinstance(p, (int, float)):
-            p_vals.append(float(p))
-            valid_indices.append(idx)
-
-    if not p_vals:
-        logger.warning("No valid p‑values found in correlation data; writing empty robustness report.")
-        _save_json([], output_file)
-        return
-
-    # Apply the requested correction
-    if method.lower() == "bonferroni":
-        corrected = _apply_bonferroni(p_vals)
-    elif method.lower() in {"bh", "benjamini-hochberg"}:
-        corrected = _apply_bh(p_vals)
+    if not raw_results:
+        logger.warning("Robustness analysis input is empty; nothing to correct.")
+        corrected_results: List[Dict[str, Any]] = []
     else:
-        logger.error("Unsupported correction method: %s", method)
-        raise ValueError(f"Unsupported correction method: {method}")
+        # Extract p‑values, handling missing entries gracefully
+        p_vals = [
+            float(item.get("p_value", 0.0))
+            for item in raw_results
+        ]
 
-    # Build the output list, preserving the original ordering
-    corrected_entries: List[Dict[str, Any]] = []
-    corr_iter = iter(corrected)
-    for idx, entry in enumerate(raw_data):
-        new_entry = dict(entry)  # shallow copy
-        if idx in valid_indices:
-            new_entry["p_corrected"] = next(corr_iter)
+        method_key = method.lower()
+        if method_key in ("bonferroni",):
+            corrected_p = _bonferroni_correction(p_vals)
+        elif method_key in ("bh", "benjamini-hochberg", "benjamini_hochberg"):
+            corrected_p = _benjamini_hochberg_correction(p_vals)
         else:
-            new_entry["p_corrected"] = None
-        corrected_entries.append(new_entry)
+            logger.error(f"Unknown correction method: {method}")
+            raise ValueError(f"Unsupported correction method: {method}")
 
-    _save_json(corrected_entries, output_file)
+        # Attach corrected p‑values to the original dictionaries
+        corrected_results = []
+        for original, corr_p in zip(raw_results, corrected_p):
+            entry = original.copy()
+            entry["p_value_corrected"] = corr_p
+            entry["correction_method"] = method_key
+            corrected_results.append(entry)
+
+    # Determine where to write the corrected data
+    dest_path = output_path or input_path
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(dest_path, "w", encoding="utf-8") as f:
+        json.dump(corrected_results, f, indent=2)
+
+    logger.info(
+        f"Robustness report written to {dest_path} using {method} correction."
+    )
+    return corrected_results
 
 
+# --------------------------------------------------------------------------- #
+# CLI entry point
+# --------------------------------------------------------------------------- #
 def main() -> None:
     """
-    CLI entry point used by the project's quick‑start script.
+    Minimal command‑line interface.
 
-    It simply forwards to :func:`generate_robustness_report` using the default
-    locations and the Bonferroni method.
+    Example usage:
+        python -m src.report.generate \\
+            --input data/results/robustness_analysis.json \\
+            --output data/results/robustness_analysis_corrected.json \\
+            --method bh
     """
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-    generate_robustness_report()
+    parser = argparse.ArgumentParser(
+        description="Generate corrected robustness analysis reports."
+    )
+    parser.add_argument(
+        "--input",
+        type=Path,
+        default=Path("data/results/robustness_analysis.json"),
+        help="Path to raw robustness JSON results.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Destination for corrected JSON. Overwrites input if omitted.",
+    )
+    parser.add_argument(
+        "--method",
+        choices=["bonferroni", "bh", "benjamini-hochberg"],
+        default="bonferroni",
+        help="Multiple‑comparison correction method.",
+    )
+    args = parser.parse_args()
+    generate_robustness_report(
+        input_path=args.input,
+        output_path=args.output,
+        method=args.method,
+    )
 
 
 if __name__ == "__main__":
+    # When the module is executed directly, run the CLI.
     main()

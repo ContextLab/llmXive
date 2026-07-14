@@ -8,5 +8,4 @@ seaborn
 requests
 pyyaml
 pybids
-# Added for robustness report correction
-# (none needed beyond the existing dependencies)
+# Added for report generation (standard library only, no extra deps)

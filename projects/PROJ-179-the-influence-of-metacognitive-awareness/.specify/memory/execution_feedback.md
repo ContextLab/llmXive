@@ -9,7 +9,6 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- code/data/results/robustness_analysis.json: results file is EMPTY ([]) — the analysis produced no values
 - data/derived/auditory_trials.csv: header only, ZERO data rows — the analysis produced no rows
 - data/derived/trial_data.csv: column(s) confidence_rating are EMPTY in every one of 150 rows — that measure was never recorded
 - data/derived/visual_trials.csv: column(s) confidence_rating are EMPTY in every one of 150 rows — that measure was never recorded
@@ -17,7 +16,7 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 hollow-result signal(s) — the analysis ran but computed nothing: code/data/results/robustness_analysis.json: results file is EMPTY ([]) — the analysis produced no values; data/derived/auditory_trials.csv: header only, ZERO data rows — the analysis produced no rows; data/derived/trial_data.csv: column(s) confidence_rating are EMPTY in every one of 150 rows — that measure was never recorded
+**Summary**: 4 hollow-result signal(s) — the analysis ran but computed nothing: data/derived/auditory_trials.csv: header only, ZERO data rows — the analysis produced no rows; data/derived/trial_data.csv: column(s) confidence_rating are EMPTY in every one of 150 rows — that measure was never recorded; data/derived/visual_trials.csv: column(s) confidence_rating are EMPTY in every one of 150 rows — that measure was never recorded
 
 ## Failing / missing run-book commands
 
@@ -61,7 +60,7 @@ Whichever you choose, every call site of `AppConfig` across the codebase must st
 - code/src/analysis/diagnostics.py: homoscedasticity_result.get("is_homoscedastic", False) and
 - code/src/analysis/diagnostics.py: not vif_result.get("collinearity_flag", False)
 - code/src/analysis/diagnostics.py: logger.error(f"Diagnostics failed: {results.get('reason', 'Unknown error')}")
-- code/src/report/generate.py: p = entry.get("p_value")
+- code/src/report/generate.py: float(item.get("p_value", 0.0))
 - code/models/data_models.py: modality_str = str(row.get('stimulus_modality', 'unknown')).lower()
 - code/models/data_models.py: source_str = str(row.get('source_label', 'unknown')).lower()
 - code/models/data_models.py: trial_id=str(row.get('trial_id', str(uuid.uuid4()))),
@@ -69,7 +68,7 @@ Whichever you choose, every call site of `AppConfig` across the codebase must st
 - code/models/data_models.py: participant_response=str(row.get('participant_response', '')),
 - code/models/data_models.py: confidence_rating=float(row.get('confidence_rating', 0.0)),
 - code/models/data_models.py: reaction_time=float(row.get('reaction_time')) if row.get('reaction_time') is not None else None
+- code/config/env_config.py: return self.get(key)
 - code/config/env_config.py: return super().get(key, default)
-- code/config/env_config.py: cfg.get("paths", "base")
-- code/config/env_config.py: cfg.get("paths")                     # returns the sub‑dict
-- code/config/env_config.py: cfg.get("nonexistent", default=42)   # returns 42
+- code/config/env_config.py: config.get("paths.base", "projects/PROJ-179-the-influence-of-metacognitive-awareness")
+- code/config/env_config.py: current = current.get(part, default)
