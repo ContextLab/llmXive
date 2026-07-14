@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ProblemInstance Dataset Schema"
+description: "Schema for the raw problem instances loaded from MathVista."
+type: "object"
+properties:
+  problem_id:
+    type: "string"
+    description: "Unique identifier for the problem instance."
+  thinking_prefix:
+    type: "string"
+    description: "The agent's internal reasoning trace. May be empty if missing in source."
+  ground_truth_tools:
+    type: "array"
+    description: "List of correct tool identifiers for the problem (user-provided or synthetic)."
+    items:
+      type: "string"
+  difficulty:
+    type: "number"
+    description: "Normalized difficulty score (0‑1) extracted from MathVista metadata."
+    minimum: 0.0
+    maximum: 1.0
+  metadata:
+    type: "object"
+    description: "Additional metadata from the source dataset."
+    additionalProperties: true
+required:
+  - problem_id
+  - thinking_prefix
+  - ground_truth_tools
+  - difficulty

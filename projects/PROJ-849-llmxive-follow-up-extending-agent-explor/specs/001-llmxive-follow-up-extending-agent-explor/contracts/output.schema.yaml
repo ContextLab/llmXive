@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Semantic Divergence Output Schema"
+description: "Schema for the computed divergence metrics and analysis results."
+type: "object"
+properties:
+  problem_id:
+    type: "string"
+    description: "Reference to the problem instance."
+  thinking_embedding:
+    type: "array"
+    description: "DistilBERT embedding of the thinking prefix."
+    items:
+      type: "number"
+  tool_centroid_embedding:
+    type: "array"
+    description: "Centroid embedding of the top‑10 retrieved tools (DistilBERT)."
+    items:
+      type: "number"
+  cosine_similarity:
+    type: "number"
+    description: "Cosine similarity between thinking and tool centroids."
+  semantic_divergence_score:
+    type: "number"
+    description: "Defined as 1 - cosine_similarity."
+  rl_failure_rate:
+    type: "number"
+    description: "External or synthetic failure rate from the RL experiment."
+  predicted_outcome:
+    type: "string"
+    description: "Predicted binary outcome: 'Success' or 'Failure'."
+  prediction_probability:
+    type: "number"
+    description: "Probability score for the predicted outcome."
+  risk_cluster_label:
+    type: "string"
+    description: "K‑Means derived risk group: 'High‑Divergence' or 'Low‑Divergence'."
+    enum:
+      - "High-Divergence"
+      - "Low-Divergence"
+required:
+  - problem_id
+  - cosine_similarity
+  - semantic_divergence_score

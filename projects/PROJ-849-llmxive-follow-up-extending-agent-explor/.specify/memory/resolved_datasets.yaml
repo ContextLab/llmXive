@@ -1,0 +1,287 @@
+resolved_at: '2026-07-14T22:37:59.191517+00:00'
+datasets:
+- intent: BM25
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/iohadrubin/nq_reranking_bm25/resolve/main/data/train-00000-of-00003-2005afc34e0ba73a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/iohadrubin/qampari_reranking_bm25/resolve/main/data/test-00000-of-00001-b3b6f3cf40bbf653.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/iohadrubin/pg19_bm25_candidates_val_v2/resolve/main/data/test-00000-of-00001-560cce0ac2f8e2e6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/621ffdd236468d709f182298/652b68f699859bc519dda3bfaed63ce5ec9717077438aa5bc2021a935fcd9206?Expires=1784072178&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYyMWZmZGQyMzY0NjhkNzA5ZjE4MjI5OC82NTJiNjhmNjk5ODU5YmM1MTlkZGEzYmZhZWQ2M2NlNWVjOTcxNzA3NzQzOGFhNWJjMjAyMWE5MzVmY2Q5MjA2KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDA3MjE3OH19fV19&Signature=MEQCIE3XCIefkrYjec6vcnAJjT4oKvq00LRlT-F709nlpopTAiAy4SRqHMEWgB2NwF~PW~~l90V9W80lLJLB6-bv0Nmp~A__&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27klue_bm25.csv%3B+filename%3D%22klue_bm25.csv%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T223618Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d3105e99e7891797042c3eb1c7620f6d9999602cefa00d6121ac8dc46878ffb4
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/iohadrubin/nq_reranking_bm25/resolve/main/data/train-00000-of-00003-2005afc34e0ba73a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/iohadrubin/qampari_reranking_bm25/resolve/main/data/test-00000-of-00001-b3b6f3cf40bbf653.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/iohadrubin/pg19_bm25_candidates_val_v2/resolve/main/data/test-00000-of-00001-560cce0ac2f8e2e6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/crystina-z/miracl_bm25_negative/resolve/main/miracl_train_bm25_neg_top100_random30.ar.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://figshare.com/articles/presentation/Busca_de_arquivos_inteligente_e_facilitada/32987972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Coulombic_Metal_Organic_Frameworks_Assembled_from_Stacked_Organic_Nodes_and_Polyoxometalate_Inorganic_Linkers/32987973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Reality_Drift_Project_Indexes_and_Reference_Guides/32987957
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_New_Hierarchical_Matheuristic_Applied_to_the_Helicopter_Routing_Problems_HRP_/32899955
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Unlocking_Sydney_Basin_s_Permian_early_Triassic_evolution_insights_into_palaeoenvironmental_conditions_and_hydrocarbon_formation_mechanisms/31593559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18221720
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7988108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17832907
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17386406
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18039351
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.10233
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.09908
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341411
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341411
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341218
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/presentation/Busca_de_arquivos_inteligente_e_facilitada/32987972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Coulombic_Metal_Organic_Frameworks_Assembled_from_Stacked_Organic_Nodes_and_Polyoxometalate_Inorganic_Linkers/32987973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Reality_Drift_Project_Indexes_and_Reference_Guides/32987957
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_New_Hierarchical_Matheuristic_Applied_to_the_Helicopter_Routing_Problems_HRP_/32899955
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Unlocking_Sydney_Basin_s_Permian_early_Triassic_evolution_insights_into_palaeoenvironmental_conditions_and_hydrocarbon_formation_mechanisms/31593559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21364855
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21364855
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21364202
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21364202
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21363368
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MathVista
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AI4Math/MathVista/resolve/main/data/test-00000-of-00002-6b81bd7f7e2065e6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HuggingFaceM4/debug_MathVista_open_ended_to_remove/resolve/main/data/test-00000-of-00001-586baaaed4950730.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HuggingFaceM4/debug_MathVista_mcq_to_remove/resolve/main/data/test-00000-of-00001-91b301626b424e85.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AI4Math/MathVista/resolve/main/data/test-00000-of-00002-6b81bd7f7e2065e6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/VIM-Bench/VIM-MathVista/resolve/main/data/vim_mathvista_test-00000-of-00005.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/HuggingFaceM4/debug_MathVista_open_ended_to_remove/resolve/main/data/test-00000-of-00001-586baaaed4950730.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HuggingFaceM4/debug_MathVista_mcq_to_remove/resolve/main/data/test-00000-of-00001-91b301626b424e85.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/weijiezz/mathvista_testmini_split_test/resolve/main/data/testmini-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/presentation/Busca_de_arquivos_inteligente_e_facilitada/32987972
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Coulombic_Metal_Organic_Frameworks_Assembled_from_Stacked_Organic_Nodes_and_Polyoxometalate_Inorganic_Linkers/32987973
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Reality_Drift_Project_Indexes_and_Reference_Guides/32987957
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_New_Hierarchical_Matheuristic_Applied_to_the_Helicopter_Routing_Problems_HRP_/32899955
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Unlocking_Sydney_Basin_s_Permian_early_Triassic_evolution_insights_into_palaeoenvironmental_conditions_and_hydrocarbon_formation_mechanisms/31593559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20565996
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20436792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20431010
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20433690
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20432042
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21365121
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21365121
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/121701-mathcoder-vl-bridging-vision-and-code-for-enhanced-multimodal-mathematical-reasoning
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/116968-mmevalpro-calibrating-multimodal-benchmarks-towards-trustworthy-and-efficient-evaluation
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/108901-geogpt4v-towards-geometric-multi-modal-large-language-models-with-geometric-image-generation
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
