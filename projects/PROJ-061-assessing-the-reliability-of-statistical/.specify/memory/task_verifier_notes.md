@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T007** — The evidence does not include the two required schema files (`contracts/power_estimate.schema.yaml` and `contracts/violation_config.schema.yaml`); no content, file listings, or non‑empty definitions are provided, so the task’s deliverables are missing.
+- **T008** — The `code/validators.py` file exists and contains some functions, but `bootstrap_validity_check` is explicitly marked as a placeholder for a future implementation, indicating the required validation logic is not fully realized. The module likely lacks the complete set of validation features expected for power estimate assessment.
+- **T031a** — The file `code/power_empirical.py` exists but the displayed content stops mid‑comment and never defines any synthetic‑test mode logic (data generation, true‑power calculation, or a 5 % recovery check). The required functionality for FR‑008 is absent.
+- **T031b** — No execution output, recovery‑rate metric, or any artifact proving that the Synthetic Ground Truth test (T031a) was run and that the recovery rate was checked against the 5 % threshold is present. Without such evidence the blocking gate condition cannot be verified.
+- **T010** — No `tests/contract/test_schemas.py` file containing PowerEstimate JSON schema validation code is present; without the required test file the contract test cannot be run, so the task is not satisfied.
+- **T011** — No `tests/integration/test_pipeline.py` file or its contents were presented; without the actual test code we cannot verify that a baseline pipeline integration test for the iris dataset exists, is correctly written, and is set to initially fail as required. The implementer must supply the test file with the expected code.

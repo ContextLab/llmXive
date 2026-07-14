@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PowerEstimate"
+description: "Schema for power estimation results comparing theoretical vs empirical power"
+type: "object"
+required:
+  - theoretical_power
+  - empirical_power
+  - absolute_error
+properties:
+  theoretical_power:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Theoretical power calculated from analytical formulas"
+  empirical_power:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Empirical power estimated via bootstrap simulation"
+  absolute_error:
+    type: number
+    minimum: 0
+    description: "Absolute difference between theoretical and empirical power"
+  dataset_id:
+    type: string
+    description: "Identifier of the dataset used for estimation"
+  sample_size:
+    type: integer
+    minimum: 1
+    description: "Sample size of the dataset"
+  effect_size:
+    type: number
+    description: "Effect size (e.g., Cohen's d) used in calculation"
+  bootstrap_iterations:
+    type: integer
+    minimum: 1
+    description: "Number of bootstrap iterations performed"
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of when the estimate was generated"
+
+additionalProperties: true

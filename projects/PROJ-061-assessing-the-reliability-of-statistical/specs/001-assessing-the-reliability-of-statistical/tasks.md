@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directories: `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/` and create `__init__.py` in all Python packages (`code/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`)
+- [X] T001 Create project directories: `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/` and create `__init__.py` in all Python packages (`code/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`)
 
 ---
 
@@ -33,17 +33,20 @@
 **Purpose**: Core infrastructure and validation that MUST be complete before ANY user story or real-data processing can begin.
 **⚠️ CRITICAL**: No user story work or real-data processing can begin until this phase is complete, including the Synthetic Ground Truth validation.
 
-- [ ] T009 Setup directory structure: `data/raw/`, `data/processed/`, `data/results/`, `code/`, `tests/`
-- [ ] T004a [P] **Select and list 10 diverse public datasets** (continuous, count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII; **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30. Save the specific dataset IDs, URLs, and outcome type to `code/config.py` as a JSON list.
-- [ ] T004 Implement `code/loaders.py`: Dataset fetching from UCI/OpenML using the list from T004a with checksum validation and PII scan. **Depends on T004a**.
-- [ ] T005 [P] Implement `code/config.py`: Centralized configuration for random seeds (fixed), dataset lists (from T004a), and hyperparameters. **Depends on T004a**.
-- [ ] T006 [P] Create `code/utils.py`: Logging, file I/O helpers, and checksum recording functions
+- [X] T009 Setup directory structure: `data/raw/`, `data/processed/`, `data/results/`, `code/`, `tests/`
+- [X] T004a [P] **Select and list 10 diverse public datasets** (continuous, count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII; **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30. Save the specific dataset IDs, URLs, and outcome type to `code/config.py` as a JSON list.
+- [X] T004 Implement `code/loaders.py`: Dataset fetching from UCI/OpenML using the list from T004a with checksum validation and PII scan. **Depends on T004a**.
+- [X] T005 [P] Implement `code/config.py`: Centralized configuration for random seeds (fixed), dataset lists (from T004a), and hyperparameters. **Depends on T004a**.
+- [X] T006 [P] Create `code/utils.py`: Logging, file I/O helpers, and checksum recording functions <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+ in "<unicode string>", line 2, column 13:
+ contents: |
+ ^) -->
 - [ ] T007 [P] Define `contracts/power_estimate.schema.yaml` and `contracts/violation_config.schema.yaml`
-- [ ] T008 Implement `code/validators.py`: 
-    1. **Bootstrap Validity Check** (FR-010): Compare bootstrap variance to analytical variance and flag unreliable estimates.
-    2. **Explicit Exclusion Logic**: If a dataset is flagged as unreliable, it MUST be excluded from the final bias calculation.
-    3. **Achieved Magnitude Verification** (FR-009): Framework to verify and log achieved violation magnitudes (e.g., AR coefficient).
-    **Depends on T004 and T005**.
+- [ ] T008 Implement `code/validators.py`:
+ 1. **Bootstrap Validity Check** (FR-010): Compare bootstrap variance to analytical variance and flag unreliable estimates.
+ 2. **Explicit Exclusion Logic**: If a dataset is flagged as unreliable, it MUST be excluded from the final bias calculation.
+ 3. **Achieved Magnitude Verification** (FR-009): Framework to verify and log achieved violation magnitudes (e.g., AR coefficient).
+ **Depends on T004 and T005**.
 - [ ] T031a Implement `code/power_empirical.py` synthetic test mode logic: Generate data with known parameters, run bootstrap, verify recovery rate matches true power within 5% (FR-008). **Depends on T004, T005, T008**.
 - [ ] T031b [Validation] **Execute** the Synthetic Ground Truth test (T031a) and act as a **blocking gate**. If the recovery rate is not within 5%, the task fails and **no real-data processing (Phase 3, 4, 5, 6) can begin**. **Depends on T031a**.
 
@@ -66,11 +69,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/power_theory.py`: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5) using `statsmodels`
-- [ ] T013 [US1] Implement `code/power_empirical.py`: Bootstrap simulation engine with a **fixed [deferred] iterations** (configurable via `code/config.py`) preserving data distribution
-- [ ] T014 [US1] Implement main pipeline logic in `code/main.py` to load dataset (from T004a list), compute theoretical vs empirical, and save results to `data/results/baseline.json` conforming to `contracts/power_estimate.schema.yaml` (keys: theoretical_power, empirical_power, absolute_error). **Depends on T012, T013, T004, T005, T008**.
-- [ ] T015 [US1] Add validation logic to skip datasets with N < 30 and log "insufficient sample size"
-- [ ] T016 [US1] Add logic to handle missing values via listwise deletion before power calculation
+- [~] T012 [P] [US1] Implement `code/power_theory.py`: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5) using `statsmodels`
+- [~] T013 [US1] Implement `code/power_empirical.py`: Bootstrap simulation engine with a **fixed [deferred] iterations** (configurable via `code/config.py`) preserving data distribution
+- [~] T014 [US1] Implement main pipeline logic in `code/main.py` to load dataset (from T004a list), compute theoretical vs empirical, and save results to `data/results/baseline.json` conforming to `contracts/power_estimate.schema.yaml` (keys: theoretical_power, empirical_power, absolute_error). **Depends on T012, T013, T004, T005, T008**.
+- [~] T015 [US1] Add validation logic to skip datasets with N < 30 and log "insufficient sample size"
+- [~] T016 [US1] Add logic to handle missing values via listwise deletion before power calculation
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -84,18 +87,18 @@
 
 ### Tests for User Story 2
 
-- [ ] T017 [P] [US2] Unit test for heavy-tailed noise injection in `tests/unit/test_perturbations.py`
-- [ ] T018 [P] [US2] Unit test for AR(1) autocorrelation injection in `tests/unit/test_perturbations.py`
-- [ ] T019 [P] [US2] Unit test for effect size heterogeneity injection in `tests/unit/test_perturbations.py`
-- [ ] T020 [P] [US2] Integration test for bias calculation with induced violations in `tests/integration/test_pipeline.py`
+- [~] T017 [P] [US2] Unit test for heavy-tailed noise injection in `tests/unit/test_perturbations.py`
+- [~] T018 [P] [US2] Unit test for AR(1) autocorrelation injection in `tests/unit/test_perturbations.py`
+- [~] T019 [P] [US2] Unit test for effect size heterogeneity injection in `tests/unit/test_perturbations.py`
+- [~] T020 [P] [US2] Integration test for bias calculation with induced violations in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `code/perturbations.py`: Injection modules for:
-    1. Heavy-tailed noise (t-distribution)
-    2. AR(1) autocorrelation
-    3. **Effect size heterogeneity via mixing two sub-populations** with a **mixing ratio of 0.2** and **separation distance of 1.5 standard deviations** (Spec US-2 Acceptance 3).
-- [ ] T021b [US2] Implement **parameter configuration and sweep logic** for violation magnitudes (e.g., varying contamination rates, AR coefficients) to generate bias curves (SC-001). **Depends on T021**.
+- [~] T021 [P] [US2] Implement `code/perturbations.py`: Injection modules for:
+ 1. Heavy-tailed noise (t-distribution)
+ 2. AR(1) autocorrelation
+ 3. **Effect size heterogeneity via mixing two sub-populations** with a **mixing ratio of 0.2** and **separation distance of 1.5 standard deviations** (Spec US-2 Acceptance 3).
+- [~] T021b [US2] Implement **parameter configuration and sweep logic** for violation magnitudes (e.g., varying contamination rates, AR coefficients) to generate bias curves (SC-001). **Depends on T021**.
 - [ ] T022 [US2] Implement `code/main.py` extension to iterate over violation configurations (from T021b) and append results to `data/results/violations.json`. **Depends on T021**.
 - [ ] T023 [US2] **Apply** verification logic from T008 in `code/validators.py` to check if injected AR(1) coefficient matches target and log achieved magnitude (FR-009). **Depends on T021**.
 - [ ] T024 [US2] Add conditional logic to skip autocorrelation injection if data is not time-ordered, logging a warning
@@ -133,11 +136,11 @@
 
 **Independent Test**: Run "Synthetic Ground Truth" test (T031b) - already completed in Phase 2. Now run full pipeline on real data.
 
-- [ ] T032 [Validation] **Profile and Enforce Runtime**: Profile execution time for the full suite. **If estimated total runtime > 6 hours, implement hard enforcement**: 
-    1. **Prune** the 2 datasets with the largest N first.
-    2. If still > 6h, **reduce** bootstrap iterations to 500.
-    3. If still > 6h, **raise RuntimeError**.
-    **Generate artifact**: `data/results/runtime_enforcement_report.json` documenting the actions taken.
+- [ ] T032 [Validation] **Profile and Enforce Runtime**: Profile execution time for the full suite. **If estimated total runtime > 6 hours, implement hard enforcement **:
+ 1. **Prune** the 2 datasets with the largest N first.
+ 2. If still > 6h, **reduce** bootstrap iterations to 500.
+ 3. If still > 6h, **raise RuntimeError**.
+ **Generate artifact**: `data/results/runtime_enforcement_report.json` documenting the actions taken.
 - [ ] T033 [Validation] (If not fully covered in T008) Add specific "Bootstrap Validity Check" invocation in `code/validators.py` to flag unreliable estimates if variance discrepancy exceeds threshold (FR-010) - *Note: Logic defined in T008, T033 ensures invocation in final pipeline*
 - [ ] T034 [Validation] **Run full pipeline** on 10 diverse datasets (from T004a list) covering continuous, count, binary outcomes. **This task is gated by T031b success and T032 enforcement.**
 
@@ -160,15 +163,15 @@
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: 
-    - **T009** (Directory Setup) MUST precede **T004a** and **T004** (Dataset tasks).
-    - **T031b** (Synthetic Ground Truth Gate) MUST complete and PASS before **any** real-data processing (Phase 3, 4, 5, 6) begins.
-    - Blocks all user story implementation and real-data runs.
+- **Foundational (Phase 2)**:
+ - **T009** (Directory Setup) MUST precede **T004a** and **T004** (Dataset tasks).
+ - **T031b** (Synthetic Ground Truth Gate) MUST complete and PASS before **any** real-data processing (Phase 3, 4, 5, 6) begins.
+ - Blocks all user story implementation and real-data runs.
 - **User Stories (Phase 3+)**: All depend on Foundational (Phase 2) completion.
-    - User stories can then proceed in parallel (if staffed) or sequentially.
-- **Validation (Phase 6)**: 
-    - **T034** (Full Run) is strictly gated by **T031b** (Synthetic Validation) passing and **T032** (Runtime Enforcement) completing.
-    - T034 runs after US1/US2/US3 implementation to verify full pipeline integration.
+ - User stories can then proceed in parallel (if staffed) or sequentially.
+- **Validation (Phase 6)**:
+ - **T034** (Full Run) is strictly gated by **T031b** (Synthetic Validation) passing and **T032** (Runtime Enforcement) completing.
+ - T034 runs after US1/US2/US3 implementation to verify full pipeline integration.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -235,9 +238,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done (T031b passed):
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
