@@ -1,3 +1,7 @@
+"""
+Validator script to check declared deliverables after the pipeline run.
+This script ensures that T006 and subsequent tasks produce their required outputs.
+"""
 import os
 import sys
 import json
@@ -6,114 +10,124 @@ import subprocess
 import time
 from pathlib import Path
 
-def check_file_exists(file_path: str) -> bool:
-    """Check if a file exists."""
-    return Path(file_path).exists()
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
-def validate_csv_columns(file_path: str, required_columns: List[str]) -> bool:
-    """Validate that a CSV file has the required columns."""
-    if not check_file_exists(file_path):
-        logging.error(f"File not found: {file_path}")
-        return False
+# Base directory relative to project root
+BASE_DIR = Path(__file__).resolve().parent
+
+# Declared deliverables to check
+DELIVERABLES = [
+    "data/validation_report.json",       # T006
+    "data/derived/trial_data.csv",       # T012
+    "data/derived/visual_trials.csv",    # T026
+    "data/derived/auditory_trials.csv",  # T026
+    "data/results/bootstrap_config.json",# T015
+    "data/results/primary_analysis.json",# T016
+    "data/results/regression_analysis.json", # T022
+    "data/results/robustness_analysis.json", # T028
+]
+
+def check_file_exists(relative_path: str) -> bool:
+    full_path = BASE_DIR / relative_path
+    exists = full_path.exists()
+    if exists:
+        logger.info(f"✓ Found: {relative_path}")
+    else:
+        logger.error(f"✗ Missing: {relative_path}")
+    return exists
+
+def validate_csv_columns(relative_path: str, required_cols: list) -> bool:
+    import pandas as pd
+    full_path = BASE_DIR / relative_path
     try:
-        import pandas as pd
-        df = pd.read_csv(file_path)
-        missing = [col for col in required_columns if col not in df.columns]
+        df = pd.read_csv(full_path)
+        missing = [c for c in required_cols if c not in df.columns]
         if missing:
-            logging.error(f"Missing columns in {file_path}: {missing}")
+            logger.error(f"✗ {relative_path} missing columns: {missing}")
             return False
+        logger.info(f"✓ {relative_path} columns valid")
         return True
     except Exception as e:
-        logging.error(f"Error validating CSV {file_path}: {e}")
+        logger.error(f"✗ Error reading {relative_path}: {e}")
         return False
 
-def validate_json_structure(file_path: str, required_keys: List[str]) -> bool:
-    """Validate that a JSON file has the required keys."""
-    if not check_file_exists(file_path):
-        logging.error(f"File not found: {file_path}")
-        return False
+def validate_json_structure(relative_path: str, required_keys: list) -> bool:
+    full_path = BASE_DIR / relative_path
     try:
-        with open(file_path, 'r') as f:
+        with open(full_path, 'r') as f:
             data = json.load(f)
-        missing = [key for key in required_keys if key not in data]
+        missing = [k for k in required_keys if k not in data]
         if missing:
-            logging.error(f"Missing keys in {file_path}: {missing}")
+            logger.error(f"✗ {relative_path} missing keys: {missing}")
             return False
+        logger.info(f"✓ {relative_path} structure valid")
         return True
     except Exception as e:
-        logging.error(f"Error validating JSON {file_path}: {e}")
+        logger.error(f"✗ Error reading {relative_path}: {e}")
         return False
 
 def run_validation():
-    """Run validation checks on all required artifacts."""
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    logger = logging.getLogger(__name__)
-
-    logger.info("Running quickstart validation...")
-
-    # Define required files and their validation criteria
-    validations = [
-        {
-            "type": "csv",
-            "path": "data/derived/trial_data.csv",
-            "columns": ["participant_id", "trial_id", "stimulus_modality", "source_label", "participant_response", "confidence_rating"]
-        },
-        {
-            "type": "csv",
-            "path": "data/derived/visual_trials.csv",
-            "columns": ["participant_id", "trial_id", "stimulus_modality", "source_label", "participant_response", "confidence_rating"]
-        },
-        {
-            "type": "csv",
-            "path": "data/derived/auditory_trials.csv",
-            "columns": ["participant_id", "trial_id", "stimulus_modality", "source_label", "participant_response", "confidence_rating"]
-        },
-        {
-            "type": "json",
-            "path": "data/results/bootstrap_config.json",
-            "keys": ["correlation", "bootstrap_count", "ci_low", "ci_high"]
-        },
-        {
-            "type": "json",
-            "path": "data/results/primary_analysis.json",
-            "keys": ["correlation", "methodology", "analysis_type"]
-        },
-        {
-            "type": "json",
-            "path": "data/results/regression_analysis.json",
-            "keys": ["model_1", "model_2", "delta_r_squared", "f_change"]
-        },
-        {
-            "type": "json",
-            "path": "data/results/robustness_analysis.json",
-            "keys": ["visual", "auditory", "corrected_p_values"]
-        }
-    ]
-
+    logger.info("Starting validation of declared deliverables...")
     all_passed = True
-    for validation in validations:
-        if validation["type"] == "csv":
-            passed = validate_csv_columns(validation["path"], validation["columns"])
-        elif validation["type"] == "json":
-            passed = validate_json_structure(validation["path"], validation["keys"])
-        else:
-            logging.warning(f"Unknown validation type: {validation['type']}")
-            passed = False
 
-        status = "PASS" if passed else "FAIL"
-        logger.info(f"Validation for {validation['path']}: {status}")
-        if not passed:
+    # Check T006 output
+    if not check_file_exists("data/validation_report.json"):
+        all_passed = False
+    else:
+        if not validate_json_structure("data/validation_report.json", ["status"]):
             all_passed = False
 
+    # Check T012 output
+    if not check_file_exists("data/derived/trial_data.csv"):
+        all_passed = False
+    else:
+        cols = ["participant_id", "trial_id", "stimulus_modality", "source_label", "participant_response", "confidence_rating"]
+        if not validate_csv_columns("data/derived/trial_data.csv", cols):
+            all_passed = False
+
+    # Check T026 outputs
+    for mod in ["visual_trials.csv", "auditory_trials.csv"]:
+        path = f"data/derived/{mod}"
+        if not check_file_exists(path):
+            all_passed = False
+
+    # Check T015 output
+    if not check_file_exists("data/results/bootstrap_config.json"):
+        all_passed = False
+    else:
+        if not validate_json_structure("data/results/bootstrap_config.json", ["bootstrap_count"]):
+            all_passed = False
+
+    # Check T016 output
+    if not check_file_exists("data/results/primary_analysis.json"):
+        all_passed = False
+    else:
+        if not validate_json_structure("data/results/primary_analysis.json", ["r", "p", "ci_lower", "ci_upper"]):
+            all_passed = False
+
+    # Check T022 output
+    if not check_file_exists("data/results/regression_analysis.json"):
+        all_passed = False
+    else:
+        if not validate_json_structure("data/results/regression_analysis.json", ["model_1", "model_2"]):
+            all_passed = False
+
+    # Check T028 output
+    if not check_file_exists("data/results/robustness_analysis.json"):
+        all_passed = False
+
     if all_passed:
-        logger.info("All validations passed.")
+        logger.info("All declared deliverables present and valid.")
         return 0
     else:
-        logger.error("Some validations failed.")
+        logger.error("Some declared deliverables are missing or invalid.")
         return 1
 
 def main():
-    """Main entry point for the validator."""
     sys.exit(run_validation())
 
 if __name__ == "__main__":

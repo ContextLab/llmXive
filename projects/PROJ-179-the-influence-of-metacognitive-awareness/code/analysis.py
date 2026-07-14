@@ -9,29 +9,39 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from config.env_config import load_config, setup_logging
+# Import config safely; handle potential missing file gracefully
+try:
+    from config.env_config import load_config, setup_logging
+except ImportError:
+    # Fallback if config module is missing or broken
+    def load_config():
+        return {}
+    def setup_logging(level=None):
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        return logging.getLogger(__name__)
 
 def main():
     """
     Main entry point for the analysis pipeline.
     Executes the sequence: Download -> Validate -> Preprocess -> Correlation -> Bootstrap -> Regression -> Filter -> Robustness -> Report
     """
-    # Fix for T035: Use the correct setup_logging signature that accepts no args or a config dict,
-    # but since the existing code calls it with a string "INFO" and fails due to config loading issues,
-    # we will initialize logging manually here to ensure the pipeline starts,
-    # then delegate to the module's internal logging setup if possible,
-    # or simply configure root logger to avoid the AttributeError on CONFIG.get.
-    
-    # The error was: AttributeError: 'str' object has no attribute 'get'
-    # This happened in code/config/env_config.py line 114: level = config.get("logging", {}).get("level", "INFO")
-    # Because setup_logging was called with a string "INFO", but the function expected a dict or the config wasn't loaded properly.
-    # We will configure the root logger directly to ensure the pipeline runs.
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    logger = logging.getLogger(__name__)
+    # Initialize logging immediately to ensure we have a logger for the pipeline
+    try:
+        config = load_config()
+        logger = setup_logging(config)
+    except Exception as e:
+        # Fallback to basic config if setup fails
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Config setup failed ({e}), using default logging.")
     
     logger.info("Starting full analysis pipeline...")
     
@@ -39,6 +49,10 @@ def main():
     try:
         from data.validate_data_availability import main as validate_avail_main
         validate_avail_main()
+    except SystemExit as e:
+        if e.code != 0:
+            logger.error("Data availability check failed. Aborting pipeline.")
+            sys.exit(1)
     except Exception as e:
         logger.error(f"Data availability check failed: {e}")
         sys.exit(1)
@@ -47,6 +61,10 @@ def main():
     try:
         from data.download import main as download_main
         download_main()
+    except SystemExit as e:
+        if e.code != 0:
+            logger.error("Data download failed. Aborting pipeline.")
+            sys.exit(1)
     except Exception as e:
         logger.error(f"Data download failed: {e}")
         sys.exit(1)
@@ -55,6 +73,10 @@ def main():
     try:
         from data.validate_data import main as validate_data_main
         validate_data_main()
+    except SystemExit as e:
+        if e.code != 0:
+            logger.error("Data validation failed. Aborting pipeline.")
+            sys.exit(1)
     except Exception as e:
         logger.error(f"Data validation failed: {e}")
         sys.exit(1)
@@ -63,6 +85,10 @@ def main():
     try:
         from data.preprocess import main as preprocess_main
         preprocess_main()
+    except SystemExit as e:
+        if e.code != 0:
+            logger.error("Preprocessing failed. Aborting pipeline.")
+            sys.exit(1)
     except Exception as e:
         logger.error(f"Preprocessing failed: {e}")
         sys.exit(1)

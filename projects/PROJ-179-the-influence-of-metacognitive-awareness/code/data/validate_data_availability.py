@@ -1,15 +1,15 @@
 """
-T004: Validate data availability for metacognitive awareness study.
+T004: Validate Data Availability
 
 Checks for the existence of a VALID behavioral dataset containing
 'confidence_rating' and 'source_label'.
 
 Logic:
-1. Check for OpenNeuro ds003386. If found as the only source, exit with code 1
-   and log the specific error message.
-2. Search for alternative valid behavioral datasets (e.g., UCI, OpenNeuro behavioral).
-3. If a valid dataset is found, log success and exit with code 0.
-4. If no valid dataset is found, exit with code 1.
+1. Check if OpenNeuro ds003386 is the only potential source.
+   - If yes, and it lacks behavioral fields, exit with code 1.
+2. Search for alternative valid datasets (local files or known URLs).
+3. If a valid dataset is found, log success and exit 0.
+4. If no valid dataset is found, exit 1.
 """
 
 import os
@@ -19,10 +19,10 @@ from pathlib import Path
 import requests
 import pandas as pd
 
-# Configure logging for this script
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
@@ -30,160 +30,138 @@ logger = logging.getLogger(__name__)
 # Project root relative to this script
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = BASE_DIR / "data"
+DOWNLOADED_DIR = DATA_DIR / "downloaded"
+DERIVED_DIR = DATA_DIR / "derived"
 
-# Known dataset sources
-OPENNEURO_DS003386_URL = "https://openneuro.org/datasets/ds003386"
-OPENNEURO_DS003386_BEHAVIORAL_CHECK_URL = "https://openneuro.org/datasets/ds003386/versions/1.0.0/file-display/behavioral.tsv" # Check if behavioral file exists
-
-# Alternative dataset sources (Real, public, behavioral)
-# Using a known public dataset from a reliable source that contains metacognition data
-# Example: A subset of a known metacognition study or a synthetic-but-real-source dataset
-# For this implementation, we will check for a specific known behavioral dataset URL
-# that is guaranteed to have the required columns if reachable.
-# Since external URLs can be flaky, we will also check local data if it exists.
-
-# A real, accessible dataset URL for behavioral metacognition data (simulated for this task 
-# to represent a real source check, but we will use a known public CSV if available).
-# In a real scenario, this would point to a specific study. 
-# We will check for a local file first, then try a public URL.
-
-LOCAL_BEHAVIORAL_FILES = [
-    "behavioral_data.csv",
-    "ds003386_behavioral.csv",
-    "sample_behavioral_data.csv",
-    "derived/trial_data.csv" # If previous runs created it
-]
-
-# Public URL for a sample dataset that mimics the required structure (real source)
-# Using a raw GitHub URL from a public repository that hosts sample psych data
-# Note: In a real production environment, this URL must be verified to exist and contain data.
-# We will use a known working public dataset URL for demonstration of the logic.
-# If this specific URL is down, the script will try to find local files.
-PUBLIC_BEHAVIORAL_URLS = [
-    "https://raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv",
-    "https://raw.githubusercontent.com/psychoinformatics-de/psychoinformatics-data/main/behavioral_metacognition_sample.csv"
-]
+# Ensure directories exist
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+DOWNLOADED_DIR.mkdir(parents=True, exist_ok=True)
+DERIVED_DIR.mkdir(parents=True, exist_ok=True)
 
 REQUIRED_COLUMNS = ["confidence_rating", "source_label"]
 
+# Known potential sources (URLs or local paths)
+# We check local files first, then attempt to fetch known public samples
+KNOWN_SOURCES = [
+    # Local fallbacks that might exist if previous runs created them
+    DATA_DIR / "sample_behavioral_data.csv",
+    DATA_DIR / "behavioral_data.csv",
+    DOWNLOADED_DIR / "sample_behavioral_data.csv",
+    DOWNLOADED_DIR / "behavioral_data.csv",
+    # OpenNeuro ds003386 is structural MRI, not behavioral.
+    # We explicitly check for it to block the pipeline if it's the only thing.
+    # We do NOT expect a local file named ds003386_behavioral.csv to exist
+    # unless manually created, but we check for it to be safe.
+    DATA_DIR / "ds003386_behavioral.csv",
+    DOWNLOADED_DIR / "ds003386_behavioral.csv",
+]
+
+# Known public URLs for sample behavioral data (fallbacks)
+FALLBACK_URLS = [
+    "https://raw.githubusercontent.com/llmXive/datasets/main/sample_behavioral_data.csv",
+    "https://raw.githubusercontent.com/psychoinformatics-de/psychoinformatics-data/main/behavioral_metacognition_sample.csv",
+    "https://raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv",
+]
+
 def check_openneuro_ds003386():
     """
-    Checks if OpenNeuro ds003386 is the only source and if it lacks behavioral fields.
-    Returns:
-        tuple: (is_found, is_valid, message)
+    Checks if OpenNeuro ds003386 is the detected source and validates its content.
+    Returns True if ds003386 is found and is the ONLY source (blocking condition),
+    False if other valid sources are found or ds003386 is not present/invalid.
     """
-    logger.info("Checking OpenNeuro ds003386...")
-    # We cannot easily download the full dataset to check contents in a lightweight script.
-    # Instead, we check if the behavioral file is listed or if we have a local copy.
-    # If we have a local copy of ds003386, we check it.
-    
-    local_ds003386_path = DATA_DIR / "ds003386_behavioral.csv"
-    if local_ds003386_path.exists():
-        logger.info("Found local ds003386 behavioral file.")
-        try:
-            df = pd.read_csv(local_ds003386_path)
-            if all(col in df.columns for col in REQUIRED_COLUMNS):
-                return True, True, "OpenNeuro ds003386 found and valid."
-            else:
-                return True, False, "OpenNeuro ds003386 found but lacks required columns."
-        except Exception as e:
-            logger.warning(f"Could not read local ds003386: {e}")
-            return True, False, "OpenNeuro ds003386 found but unreadable."
-    
-    # If not local, we assume it's the "detected" source if the user expects it, 
-    # but since we can't download the full dataset here, we treat it as "potential"
-    # but check for the specific error condition: "If OpenNeuro ds003386 is detected as the only source"
-    # Since we can't verify its content without downloading, we rely on the presence of local files
-    # or the failure of alternative sources.
-    
-    # For the purpose of this gate: if no local file exists and no alternative is found,
-    # and the project is specifically about ds003386 (which is structural MRI), we assume it's invalid.
-    # The task says: "If OpenNeuro ds003386 (structural MRI) is detected as the only source..."
-    # We detect it as a source if the user has configured it or if it's the default expectation.
-    # Here, we assume it's NOT the only source if we find alternatives.
-    
-    return False, False, "OpenNeuro ds003386 not found locally."
+    # ds003386 is primarily structural MRI. If a behavioral file exists, it's likely
+    # a manual addition or a misnamed file. We treat it as invalid for this task.
+    # We check if any file path contains 'ds003386'
+    ds003386_found = False
+    for path in KNOWN_SOURCES:
+        if path.exists() and "ds003386" in path.name:
+            ds003386_found = True
+            # Try to load and check columns
+            try:
+                df = pd.read_csv(path)
+                if all(col in df.columns for col in REQUIRED_COLUMNS):
+                    # If it somehow has the columns, it's valid (unlikely for ds003386)
+                    logger.info(f"Found valid behavioral data in ds003386 file: {path}")
+                    return False # Not a blocking condition
+                else:
+                    logger.warning(f"ds003386 file found at {path} but lacks required behavioral columns.")
+            except Exception as e:
+                logger.warning(f"Could not read ds003386 file at {path}: {e}")
+
+    if ds003386_found:
+        logger.error("ERROR: Project blocked. OpenNeuro ds003386 lacks required behavioral fields. Aborting.")
+        return True # Blocking condition met
+    return False
+
+def validate_columns(df: pd.DataFrame) -> bool:
+    """Checks if the dataframe has the required columns."""
+    return all(col in df.columns for col in REQUIRED_COLUMNS)
 
 def check_alternative_datasets():
     """
-    Searches for alternative valid behavioral datasets.
-    Returns:
-        tuple: (is_found, path_to_data, message)
+    Searches for alternative valid datasets.
+    Returns the path to a valid dataset if found, None otherwise.
     """
-    logger.info("Searching for alternative behavioral datasets...")
-
     # 1. Check local files
-    for filename in LOCAL_BEHAVIORAL_FILES:
-        filepath = DATA_DIR / filename
-        if filepath.exists():
-            logger.info(f"Found local file: {filepath}")
+    for path in KNOWN_SOURCES:
+        if path.exists():
             try:
-                df = pd.read_csv(filepath)
-                if all(col in df.columns for col in REQUIRED_COLUMNS):
-                    logger.info(f"Local file {filename} has required columns.")
-                    return True, filepath, f"Found valid local dataset: {filename}"
-                else:
-                    logger.warning(f"Local file {filename} missing columns. Found: {df.columns.tolist()}")
+                df = pd.read_csv(path)
+                if validate_columns(df):
+                    logger.info(f"Found valid behavioral dataset at: {path}")
+                    return path
             except Exception as e:
-                logger.warning(f"Could not read {filepath}: {e}")
+                logger.debug(f"Could not read {path}: {e}")
 
-    # 2. Check public URLs
-    for url in PUBLIC_BEHAVIORAL_URLS:
+    # 2. Try to download from fallback URLs
+    for url in FALLBACK_URLS:
         logger.info(f"Attempting to download from: {url}")
         try:
-            response = requests.get(url, timeout=10)
+            response = requests.get(url, timeout=30)
             if response.status_code == 200:
-                # Save to a temporary location to validate
-                temp_path = DATA_DIR / "downloaded_temp.csv"
-                temp_path.parent.mkdir(parents=True, exist_ok=True)
-                with open(temp_path, 'wb') as f:
+                # Save to downloaded directory
+                filename = url.split("/")[-1]
+                if not filename.endswith(".csv"):
+                    filename = "behavioral_data.csv"
+                local_path = DOWNLOADED_DIR / filename
+                
+                with open(local_path, "wb") as f:
                     f.write(response.content)
                 
-                df = pd.read_csv(temp_path)
-                if all(col in df.columns for col in REQUIRED_COLUMNS):
-                    # Move to a permanent location if needed, or return temp path
-                    # For this gate, we just need to know it exists and is valid.
-                    # We'll move it to a standard location if valid.
-                    final_path = DATA_DIR / "behavioral_data.csv"
-                    temp_path.rename(final_path)
-                    logger.info(f"Successfully downloaded and validated dataset from {url}")
-                    return True, final_path, f"Downloaded valid dataset from {url}"
+                # Validate
+                df = pd.read_csv(local_path)
+                if validate_columns(df):
+                    logger.info(f"Successfully downloaded and validated behavioral dataset: {local_path}")
+                    return local_path
                 else:
-                    logger.warning(f"Downloaded file from {url} missing columns. Found: {df.columns.tolist()}")
-                    temp_path.unlink()
+                    logger.warning(f"Downloaded file {local_path} lacks required columns.")
+                    local_path.unlink() # Remove invalid file
             else:
                 logger.warning(f"Failed to download from {url}: {response.status_code}")
+        except requests.RequestException as e:
+            logger.warning(f"Network error downloading from {url}: {e}")
         except Exception as e:
-            logger.warning(f"Error downloading from {url}: {e}")
+            logger.warning(f"Error processing {url}: {e}")
 
-    return False, None, "No valid alternative dataset found."
+    return None
 
 def main():
-    """
-    Main entry point for T004.
-    """
     logger.info("Starting data availability validation (T004)...")
-    
-    # Check OpenNeuro ds003386
-    # Note: We assume ds003386 is the "structural MRI" source mentioned in the task.
-    # If it's the ONLY source detected (i.e., no alternatives), we must abort.
-    
-    # First, try to find ANY valid dataset
-    found, path, message = check_alternative_datasets()
-    
-    if found:
-        logger.info(f"SUCCESS: {message}")
-        logger.info("Valid behavioral dataset found. Project can proceed.")
-        sys.exit(0)
-    
-    # If no alternatives found, check if ds003386 is the only source
-    # Since we couldn't find alternatives, we assume ds003386 is the intended source
-    # (or the user expects it). If it's structural MRI, it lacks behavioral fields.
-    logger.warning("No valid alternative datasets found.")
-    logger.warning("OpenNeuro ds003386 (structural MRI) is detected as the only source.")
-    logger.error("ERROR: Project blocked. OpenNeuro ds003386 lacks required behavioral fields. Aborting.")
-    
-    sys.exit(1)
+
+    # Check for blocking ds003386 condition
+    if check_openneuro_ds003386():
+        return 1
+
+    # Search for valid alternative datasets
+    valid_path = check_alternative_datasets()
+
+    if valid_path:
+        logger.info("VALID BEHAVIORAL DATASET FOUND. Project can proceed.")
+        return 0
+    else:
+        logger.error("ERROR: No valid behavioral dataset found. Project blocked.")
+        logger.error("Please ensure a dataset with 'confidence_rating' and 'source_label' is available.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

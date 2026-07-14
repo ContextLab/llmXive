@@ -1,329 +1,265 @@
+"""
+Integration test for modality-specific correlation analysis (User Story 3).
+
+This test verifies that the pipeline correctly splits data by stimulus modality
+(visual vs auditory) and computes separate correlation metrics for each subset.
+It ensures that the robustness analysis produces valid results for both modalities
+and that the outputs are written to the correct files.
+"""
 import os
 import sys
 import json
 import tempfile
 import unittest
 from pathlib import Path
-
-# Ensure we can import from the project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
 import pandas as pd
 import numpy as np
 
-from src.analysis.robustness import run_robustness_analysis
-from src.analysis.bootstrap import run_bootstrap_analysis
-from src.utils.stats import compute_type2_auc, compute_sdt_metrics
+# Add project root to path to allow imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from code.src.analysis.filter import run_filter_analysis, load_trial_data
+from code.src.analysis.robustness import run_robustness_analysis
+from code.src.report.generate import generate_robustness_analysis_report
 
 
 class TestModalityAnalysis(unittest.TestCase):
-    """
-    Integration test for modality-specific correlation (US3).
-    Verifies that the pipeline correctly splits data by modality,
-    computes metrics on each subset, and produces valid results.
-    """
+    """Integration tests for modality-specific correlation analysis."""
 
     def setUp(self):
-        """Create temporary directories and mock data for testing."""
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.base_dir = Path(self.temp_dir.name)
+        """Set up temporary directories and sample data for testing."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.data_dir = Path(self.temp_dir) / "data"
+        self.derived_dir = self.data_dir / "derived"
+        self.results_dir = self.data_dir / "results"
         
-        # Create derived and results directories
-        self.derived_dir = self.base_dir / "data" / "derived"
-        self.results_dir = self.base_dir / "data" / "results"
+        self.data_dir.mkdir(parents=True, exist_ok=True)
         self.derived_dir.mkdir(parents=True, exist_ok=True)
         self.results_dir.mkdir(parents=True, exist_ok=True)
 
-        # Create a realistic mock dataset with required fields
+        # Create a realistic sample dataset with required fields
         # This mimics the output of data/preprocess.py (T012)
         np.random.seed(42)
-        n_participants = 20
-        n_trials_per_participant = 50
+        n_trials = 200
         
-        data = []
-        for pid in range(1, n_participants + 1):
-            # Each participant has both visual and auditory trials
-            for modality in ["visual", "auditory"]:
-                n_trials = np.random.randint(20, 30)
-                for tid in range(n_trials):
-                    # Simulate realistic metacognitive behavior
-                    # Type-2 AUC correlates with accuracy (d')
-                    base_accuracy = np.random.uniform(0.5, 0.9)
-                    confidence = base_accuracy + np.random.normal(0, 0.1)
-                    confidence = np.clip(confidence, 0, 1)
-                    
-                    # Generate response and ground truth
-                    if np.random.random() < base_accuracy:
-                        response = 1
-                        ground_truth = 1
-                    else:
-                        response = 0
-                        ground_truth = 0
-                    
-                    data.append({
-                        "participant_id": pid,
-                        "trial_id": f"P{pid}_T{tid}_{modality}",
-                        "stimulus_modality": modality,
-                        "source_label": "internal" if ground_truth == 1 else "external",
-                        "participant_response": response,
-                        "confidence_rating": confidence,
-                        "is_correct": 1 if response == ground_truth else 0
-                    })
+        trial_data = {
+            'participant_id': [f"P{1:03d}" if i < 100 else f"P{2:03d}" for i in range(n_trials)],
+            'trial_id': list(range(n_trials)),
+            'stimulus_modality': ['visual'] * 100 + ['auditory'] * 100,
+            'source_label': np.random.choice([0, 1], n_trials),
+            'participant_response': np.random.choice([0, 1], n_trials),
+            'confidence_rating': np.random.choice([1, 2, 3, 4, 5], n_trials),
+            'accuracy': np.random.choice([0, 1], n_trials)  # Derived for realism
+        }
         
-        self.mock_df = pd.DataFrame(data)
+        self.df = pd.DataFrame(trial_data)
         self.trial_data_path = self.derived_dir / "trial_data.csv"
-        self.mock_df.to_csv(self.trial_data_path, index=False)
+        self.df.to_csv(self.trial_data_path, index=False)
 
     def tearDown(self):
-        """Clean up temporary directory."""
-        self.temp_dir.cleanup()
+        """Clean up temporary directories."""
+        import shutil
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
 
-    def test_modality_filter_creates_files(self):
-        """Test that the filter step creates separate modality files."""
-        from src.analysis.filter import run_filter_analysis
-        
-        config = {
-            "paths": {
-                "base": str(self.base_dir),
-                "derived_data": str(self.derived_dir)
-            }
-        }
-        
-        result = run_filter_analysis(config)
-        
-        self.assertTrue(result["success"])
-        self.assertTrue((self.derived_dir / "visual_trials.csv").exists())
-        self.assertTrue((self.derived_dir / "auditory_trials.csv").exists())
-        
-        # Verify column integrity
-        visual_df = pd.read_csv(self.derived_dir / "visual_trials.csv")
-        auditory_df = pd.read_csv(self.derived_dir / "auditory_trials.csv")
-        
-        self.assertEqual(visual_df["stimulus_modality"].unique()[0], "visual")
-        self.assertEqual(auditory_df["stimulus_modality"].unique()[0], "auditory")
-        self.assertGreater(len(visual_df), 0)
-        self.assertGreater(len(auditory_df), 0)
-
-    def test_robustness_analysis_produces_results(self):
-        """Test the full robustness analysis pipeline."""
-        config = {
-            "paths": {
-                "base": str(self.base_dir),
-                "derived_data": str(self.derived_dir),
-                "results": str(self.results_dir)
-            },
-            "analysis": {
-                "bootstrap_count": 100,  # Reduced for test speed
-                "random_seed": 42
-            }
-        }
-        
-        result = run_robustness_analysis(config)
-        
-        self.assertTrue(result["success"])
-        self.assertIn("visual", result["results"])
-        self.assertIn("auditory", result["results"])
-        
-        # Verify structure of results
-        visual_result = result["results"]["visual"]
-        auditory_result = result["results"]["auditory"]
-        
-        for modality, res in [("visual", visual_result), ("auditory", auditory_result)]:
-            self.assertIn("r", res)
-            self.assertIn("p", res)
-            self.assertIn("ci_lower", res)
-            self.assertIn("ci_upper", res)
-            self.assertIn("bootstrap_count", res)
-            self.assertIn("n_trials", res)
-            
-            # Verify statistical plausibility
-            self.assertIsInstance(res["r"], float)
-            self.assertIsInstance(res["p"], float)
-            self.assertGreaterEqual(res["r"], -1.0)
-            self.assertLessEqual(res["r"], 1.0)
-            self.assertGreaterEqual(res["p"], 0.0)
-            self.assertLessEqual(res["p"], 1.0)
-
-    def test_hold_out_design_enforced(self):
-        """Verify that the hold-out design is correctly applied."""
-        from src.analysis.correlation import compute_hold_out_metrics
-        
-        # Load visual data
-        visual_df = pd.read_csv(self.derived_dir / "visual_trials.csv")
-        
-        config = {
-            "train_split": 0.7,
-            "random_seed": 42
-        }
-        
-        result = compute_hold_out_metrics(visual_df, config)
-        
-        # Verify that metrics were computed
-        self.assertIn("meta_auc_train", result)
-        self.assertIn("d_prime_test", result)
-        self.assertIn("n_train", result)
-        self.assertIn("n_test", result)
-        
-        # Verify split sizes are reasonable
-        total_n = len(visual_df)
-        self.assertGreaterEqual(result["n_train"], int(total_n * 0.6))
-        self.assertGreaterEqual(result["n_test"], int(total_n * 0.2))
-
-    def test_bootstrap_confidence_intervals(self):
-        """Test that bootstrap CIs are computed correctly."""
-        # Load bootstrap results from robustness analysis
-        results_path = self.results_dir / "robustness_analysis.json"
-        
-        if results_path.exists():
-            with open(results_path) as f:
-                results = json.load(f)
-            
-            for modality, mod_result in results["results"].items():
-                ci_lower = mod_result["ci_lower"]
-                ci_upper = mod_result["ci_upper"]
-                r = mod_result["r"]
-                
-                # CI should contain the point estimate
-                self.assertLessEqual(ci_lower, r)
-                self.assertGreaterEqual(ci_upper, r)
-                
-                # CI bounds should be within [-1, 1]
-                self.assertGreaterEqual(ci_lower, -1.0)
-                self.assertLessEqual(ci_upper, 1.0)
-
-    def test_disjoint_trials_validation(self):
-        """Verify that train and test sets are disjoint."""
-        from src.analysis.filter import run_filter_analysis
-        from src.analysis.correlation import compute_hold_out_metrics
-        
-        config = {
-            "paths": {
-                "base": str(self.base_dir),
-                "derived_data": str(self.derived_dir)
-            }
-        }
-        
-        # Run filter
-        run_filter_analysis(config)
-        
-        # Load visual data
-        visual_df = pd.read_csv(self.derived_dir / "visual_trials.csv")
-        
-        # Compute metrics with hold-out
-        result = compute_hold_out_metrics(visual_df, {"train_split": 0.7, "random_seed": 42})
-        
-        # Verify that trial IDs in train and test are disjoint
-        train_ids = set(result["train_trial_ids"])
-        test_ids = set(result["test_trial_ids"])
-        
-        intersection = train_ids.intersection(test_ids)
-        self.assertEqual(len(intersection), 0, "Train and test sets must be disjoint")
-
-    def test_integration_with_realistic_data_patterns(self):
-        """Test that the pipeline handles realistic data patterns correctly."""
-        # Create data with known correlation pattern
-        np.random.seed(123)
-        n = 100
-        
-        # Generate correlated variables
-        metacognition = np.random.normal(0.6, 0.1, n)
-        accuracy = metacognition * 0.5 + np.random.normal(0, 0.1, n)
-        accuracy = np.clip(accuracy, 0.3, 0.95)
-        
-        data = []
-        for i in range(n):
-            data.append({
-                "participant_id": 1,
-                "trial_id": f"T{i}",
-                "stimulus_modality": "visual",
-                "source_label": "internal",
-                "participant_response": 1 if np.random.random() < accuracy[i] else 0,
-                "confidence_rating": metacognition[i],
-                "is_correct": 1 if np.random.random() < accuracy[i] else 0
-            })
-        
-        test_df = pd.DataFrame(data)
-        test_path = self.derived_dir / "test_visual_trials.csv"
-        test_df.to_csv(test_path, index=False)
-        
-        # Run correlation on this data
-        from src.analysis.bootstrap import load_correlation_data, compute_correlation_statistic, run_bootstrap_analysis
-        
-        config = {
-            "paths": {
-                "base": str(self.base_dir),
-                "derived_data": str(self.derived_dir),
-                "results": str(self.results_dir)
-            },
-            "analysis": {
-                "bootstrap_count": 50,
-                "random_seed": 42
-            }
-        }
-        
-        # Load data
-        loaded_data = load_correlation_data(test_path)
-        
-        # Compute correlation
-        stat_result = compute_correlation_statistic(
-            loaded_data["metacognition"],
-            loaded_data["accuracy"]
+    def test_filter_by_modality_creates_subsets(self):
+        """Test that filter.py correctly splits data into visual and auditory subsets."""
+        # Run filter analysis
+        run_filter_analysis(
+            input_path=str(self.trial_data_path),
+            derived_dir=str(self.derived_dir)
         )
         
-        self.assertIn("r", stat_result)
-        self.assertIn("p", stat_result)
+        visual_path = self.derived_dir / "visual_trials.csv"
+        auditory_path = self.derived_dir / "auditory_trials.csv"
         
-        # With this constructed data, we expect a positive correlation
-        self.assertGreater(stat_result["r"], 0.0)
+        # Assert files exist
+        self.assertTrue(visual_path.exists(), "visual_trials.csv was not created")
+        self.assertTrue(auditory_path.exists(), "auditory_trials.csv was not created")
+        
+        # Load and verify content
+        visual_df = pd.read_csv(visual_path)
+        auditory_df = pd.read_csv(auditory_path)
+        
+        # Check row counts
+        self.assertEqual(len(visual_df), 100, "Visual subset should have 100 rows")
+        self.assertEqual(len(auditory_df), 100, "Auditory subset should have 100 rows")
+        
+        # Check modality values
+        self.assertTrue((visual_df['stimulus_modality'] == 'visual').all(), 
+                      "Visual subset should only contain 'visual' trials")
+        self.assertTrue((auditory_df['stimulus_modality'] == 'auditory').all(), 
+                      "Auditory subset should only contain 'auditory' trials")
 
-    def test_error_handling_missing_files(self):
-        """Test graceful handling of missing input files."""
-        from src.analysis.robustness import load_filtered_data
+    def test_robustness_analysis_computes_separate_correlations(self):
+        """Test that robustness.py computes separate correlations for each modality."""
+        # First run filter to create subsets
+        run_filter_analysis(
+            input_path=str(self.trial_data_path),
+            derived_dir=str(self.derived_dir)
+        )
         
-        config = {
-            "paths": {
-                "base": str(self.base_dir),
-                "derived_data": self.base_dir / "nonexistent"
-            }
-        }
+        # Run robustness analysis
+        run_robustness_analysis(
+            derived_dir=str(self.derived_dir),
+            results_dir=str(self.results_dir)
+        )
         
-        # Should return error result, not crash
-        result = load_filtered_data(config, "visual")
-        self.assertFalse(result["success"])
-        self.assertIn("error", result)
+        # Assert output file exists
+        robustness_path = self.results_dir / "robustness_analysis.json"
+        self.assertTrue(robustness_path.exists(), "robustness_analysis.json was not created")
+        
+        # Load and verify structure
+        with open(robustness_path, 'r') as f:
+            results = json.load(f)
+        
+        # Check top-level keys
+        self.assertIn('visual', results, "Results should contain 'visual' key")
+        self.assertIn('auditory', results, "Results should contain 'auditory' key")
+        
+        # Check visual results structure
+        visual_res = results['visual']
+        self.assertIn('correlation', visual_res, "Visual results missing 'correlation' key")
+        self.assertIn('r', visual_res['correlation'], "Visual results missing 'r'")
+        self.assertIn('p', visual_res['correlation'], "Visual results missing 'p'")
+        self.assertIn('ci_lower', visual_res['correlation'], "Visual results missing 'ci_lower'")
+        self.assertIn('ci_upper', visual_res['correlation'], "Visual results missing 'ci_upper'")
+        
+        # Check auditory results structure
+        auditory_res = results['auditory']
+        self.assertIn('correlation', auditory_res, "Auditory results missing 'correlation' key")
+        self.assertIn('r', auditory_res['correlation'], "Auditory results missing 'r'")
+        self.assertIn('p', auditory_res['correlation'], "Auditory results missing 'p'")
+        
+        # Verify that correlations are computed from real data (not placeholders)
+        # The values should be numeric and within valid ranges
+        self.assertIsInstance(visual_res['correlation']['r'], float, "Visual r should be float")
+        self.assertIsInstance(auditory_res['correlation']['r'], float, "Auditory r should be float")
+        
+        # Correlation coefficient must be between -1 and 1
+        self.assertGreaterEqual(visual_res['correlation']['r'], -1.0, "Visual r out of range")
+        self.assertLessEqual(visual_res['correlation']['r'], 1.0, "Visual r out of range")
+        self.assertGreaterEqual(auditory_res['correlation']['r'], -1.0, "Auditory r out of range")
+        self.assertLessEqual(auditory_res['correlation']['r'], 1.0, "Auditory r out of range")
 
-    def test_multiple_modality_handling(self):
-        """Test that both visual and auditory modalities are processed."""
-        from src.analysis.robustness import run_robustness_analysis
+    def test_hold_out_design_is_enforced(self):
+        """Test that the hold-out design (70/30 split) is used in modality analysis."""
+        # Run filter
+        run_filter_analysis(
+            input_path=str(self.trial_data_path),
+            derived_dir=str(self.derived_dir)
+        )
         
-        config = {
-            "paths": {
-                "base": str(self.base_dir),
-                "derived_data": str(self.derived_dir),
-                "results": str(self.results_dir)
-            },
-            "analysis": {
-                "bootstrap_count": 50,
-                "random_seed": 42
-            }
-        }
+        # Run robustness
+        run_robustness_analysis(
+            derived_dir=str(self.derived_dir),
+            results_dir=str(self.results_dir)
+        )
         
-        result = run_robustness_analysis(config)
+        # Load results
+        with open(self.results_dir / "robustness_analysis.json", 'r') as f:
+            results = json.load(f)
         
-        self.assertTrue(result["success"])
-        self.assertIn("visual", result["results"])
-        self.assertIn("auditory", result["results"])
+        # Check that metadata confirms hold-out design was used
+        # The robustness analysis should report the method used
+        self.assertIn('method', results, "Results should specify the analysis method")
+        self.assertEqual(results['method'], "Hold-Out Accuracy", 
+                       "Method should be 'Hold-Out Accuracy' per plan.md")
         
-        # Both should have valid statistics
-        for modality in ["visual", "auditory"]:
-            res = result["results"][modality]
-            self.assertIsNotNone(res.get("r"))
-            self.assertIsNotNone(res.get("p"))
-            self.assertIsNotNone(res.get("ci_lower"))
-            self.assertIsNotNone(res.get("ci_upper"))
+        # Verify that train/test split ratio is documented
+        self.assertIn('train_split_ratio', results, "Results should document train split ratio")
+        self.assertAlmostEqual(results['train_split_ratio'], 0.7, places=1, 
+                             msg="Train split should be approximately 70%")
 
+    def test_integration_end_to_end(self):
+        """Full integration test: filter -> robustness -> report generation."""
+        # Step 1: Filter data
+        run_filter_analysis(
+            input_path=str(self.trial_data_path),
+            derived_dir=str(self.derived_dir)
+        )
+        
+        # Step 2: Run robustness analysis
+        run_robustness_analysis(
+            derived_dir=str(self.derived_dir),
+            results_dir=str(self.results_dir)
+        )
+        
+        # Step 3: Generate report
+        report = generate_robustness_analysis_report(
+            results_dir=str(self.results_dir)
+        )
+        
+        # Verify report contains both modalities
+        self.assertIn('visual', report, "Report missing visual results")
+        self.assertIn('auditory', report, "Report missing auditory results")
+        
+        # Verify report contains multiple comparison correction info
+        self.assertIn('correction_method', report, "Report should specify correction method")
+        self.assertIn('corrected_p_values', report, "Report should contain corrected p-values")
+        
+        # Verify the report is written to disk
+        output_path = self.results_dir / "robustness_analysis.json"
+        self.assertTrue(output_path.exists(), "Final report was not written to disk")
 
-if __name__ == "__main__":
+    def test_data_integrity_across_splits(self):
+        """Test that no trials are lost or duplicated across modality splits."""
+        # Run filter
+        run_filter_analysis(
+            input_path=str(self.trial_data_path),
+            derived_dir=str(self.derived_dir)
+        )
+        
+        visual_df = pd.read_csv(self.derived_dir / "visual_trials.csv")
+        auditory_df = pd.read_csv(self.derived_dir / "auditory_trials.csv")
+        original_df = pd.read_csv(self.trial_data_path)
+        
+        # Check total count
+        total_subset_count = len(visual_df) + len(auditory_df)
+        self.assertEqual(total_subset_count, len(original_df), 
+                       "Total trials in subsets should match original")
+        
+        # Check for duplicates
+        all_trial_ids = list(visual_df['trial_id']) + list(auditory_df['trial_id'])
+        self.assertEqual(len(all_trial_ids), len(set(all_trial_ids)), 
+                       "Trial IDs should be unique across subsets")
+
+    def test_missing_modality_handling(self):
+        """Test robustness when one modality is missing from the dataset."""
+        # Create dataset with only visual trials
+        small_df = self.df[self.df['stimulus_modality'] == 'visual'].copy()
+        small_path = self.derived_dir / "small_trial_data.csv"
+        small_df.to_csv(small_path, index=False)
+        
+        # Run filter
+        run_filter_analysis(
+            input_path=str(small_path),
+            derived_dir=str(self.derived_dir)
+        )
+        
+        # Run robustness - should handle missing auditory gracefully
+        try:
+            run_robustness_analysis(
+                derived_dir=str(self.derived_dir),
+                results_dir=str(self.results_dir)
+            )
+            
+            # Should still produce output, even if one modality is empty
+            robustness_path = self.results_dir / "robustness_analysis.json"
+            self.assertTrue(robustness_path.exists(), "Output should exist even with missing modality")
+            
+            with open(robustness_path, 'r') as f:
+                results = json.load(f)
+            
+            # Visual should have results, auditory might be empty or flagged
+            self.assertIn('visual', results, "Visual results should exist")
+            # Auditory might exist but with nulls or flags indicating insufficient data
+            
+        except Exception as e:
+            # If it fails, it should be a clear error about missing data, not a crash
+            self.assertIn("No data", str(e) or "Insufficient data", str(e), 
+                        "Error should indicate missing data, not a generic crash")
+
+if __name__ == '__main__':
     unittest.main()

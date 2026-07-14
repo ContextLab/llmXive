@@ -1,64 +1,87 @@
-# Quickstart Guide: The Influence of Metacognitive Awareness on Reality Testing
+# Quick Start Guide for PROJ-179
 
-This guide provides the commands to run the full analysis pipeline for PROJ-179.
-Ensure all dependencies are installed and the project structure is correct before running.
+This guide shows how to run the complete analysis pipeline for the metacognitive awareness study.
 
 ## Prerequisites
 
-1. Python 3.9+
-2. Install dependencies:
+- Python 3.9+
+- Install dependencies: `pip install -r requirements.txt`
+
+## Data Pipeline
+
+1. **Download dataset** (T005):
  ```bash
- pip install -r requirements.txt
+ python code/data/download.py
  ```
 
-## Execution Flow
+2. **Validate dataset** (T006):
+ ```bash
+ python code/data/validate_data.py
+ ```
 
-The pipeline consists of the following steps executed in order:
+3. **Preprocess data** (T012):
+ ```bash
+ python code/data/preprocess.py
+ ```
 
-1. **Data Availability Check (T004)**: Validates that a real behavioral dataset is available.
-2. **Data Download (T005)**: Downloads the dataset if not present.
-3. **Data Validation (T006)**: Checks for required columns (`confidence_rating`, `source_label`).
-4. **Preprocessing (T012)**: Extracts trial-level data.
-5. **Correlation Analysis (T014)**: Computes Hold-Out correlation (Type-2 AUC vs d').
-6. **Bootstrap (T015)**: Generates 95% confidence intervals.
-7. **Regression (T020)**: Hierarchical regression with covariates.
-8. **Filter (T026)**: Splits data by stimulus modality.
-9. **Robustness (T027)**: Modality-specific analysis.
-10. **Report Generation (T016, T022, T028)**: Generates final JSON reports.
+## Analysis Pipeline
 
-## Running the Pipeline
+4. **Compute correlation metrics** (T014):
+ ```bash
+ python code/src/analysis/correlation.py
+ ```
 
-Execute the main analysis script which orchestrates all steps:
+5. **Run bootstrap analysis** (T015):
+ ```bash
+ python code/src/analysis/bootstrap.py
+ ```
 
-```bash
-python code/analysis.py
-```
+6. **Run regression analysis** (T020):
+ ```bash
+ python code/src/analysis/regression.py
+ ```
 
-This single command runs the full sequence:
-`validate_data_availability` -> `download` -> `validate_data` -> `preprocess` -> `correlation` -> `bootstrap` -> `regression` -> `filter` -> `robustness` -> `generate_report`.
+7. **Run diagnostics** (T021):
+ ```bash
+ python code/src/analysis/diagnostics.py
+ ```
 
-## Output Artifacts
+8. **Filter by modality** (T026):
+ ```bash
+ python code/src/analysis/filter.py
+ ```
 
-Upon successful completion, the following files will be generated:
+9. **Run robustness analysis** (T027):
+ ```bash
+ python code/src/analysis/robustness.py
+ ```
 
-- `data/derived/trial_data.csv`: Preprocessed trial data.
-- `data/derived/visual_trials.csv`: Visual modality subset.
-- `data/derived/auditory_trials.csv`: Auditory modality subset.
-- `data/results/bootstrap_config.json`: Bootstrap configuration and counts.
-- `data/results/primary_analysis.json`: Primary correlation results.
-- `data/results/regression_analysis.json`: Regression coefficients and diagnostics.
-- `data/results/robustness_analysis.json`: Modality-specific results with corrections.
-
-## Troubleshooting
-
-- **Data Download Failed**: Check network connectivity and ensure the dataset URL in `code/data/download.py` is accessible.
-- **Validation Failed**: Ensure the downloaded dataset contains `confidence_rating` and `source_label` columns.
-- **Runtime Errors**: Check logs for specific traceback details.
+10. **Generate reports** (T016, T022, T028):
+ ```bash
+ python code/src/report/generate.py
+ ```
 
 ## Validation
 
-To verify the outputs:
+11. **Run quickstart validator**:
+ ```bash
+ python code/quickstart_validator.py
+ ```
 
-```bash
-python code/quickstart_validator.py
-```
+## Expected Outputs
+
+After successful completion, the following files will be created:
+
+- `data/derived/trial_data.csv`
+- `data/derived/visual_trials.csv`
+- `data/derived/auditory_trials.csv`
+- `data/results/bootstrap_config.json`
+- `data/results/primary_analysis.json`
+- `data/results/regression_analysis.json`
+- `data/results/robustness_analysis.json`
+
+## Notes
+
+- All scripts exit with code 0 on success, non-zero on failure.
+- Logs are printed to stdout with timestamps.
+- The pipeline requires a valid behavioral dataset with `confidence_rating` and `source_label` columns.
