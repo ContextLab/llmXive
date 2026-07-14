@@ -1,8 +1,3 @@
-"""
-IO utilities used across the project.
-Added missing ``load_pickle`` helper required by the sensitivity analysis.
-"""
-
 from __future__ import annotations
 
 import csv
@@ -11,61 +6,48 @@ import pickle
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence, Union
 
-import pandas as pd
+def ensure_dir(path: Union[str, Path]) -> Path:
+    """Ensure directory exists."""
+    p = Path(path)
+    if not p.exists():
+        p.mkdir(parents=True, exist_ok=True)
+    return p
 
+def load_csv(path: Union[str, Path], delimiter: str = ',') -> list[dict]:
+    """Load CSV file into list of dicts."""
+    with open(path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f, delimiter=delimiter)
+        return list(reader)
 
-def ensure_dir(dir_path: Union[str, Path]) -> None:
-    """Create a directory if it does not exist."""
-    path = Path(dir_path)
-    path.mkdir(parents=True, exist_ok=True)
-
-
-def load_csv(csv_path: Union[str, Path]) -> list[dict[str, Any]]:
-    """Read a CSV file into a list of dictionaries."""
-    path = Path(csv_path)
-    with path.open(newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        return [row for row in reader]
-
-
-def save_csv(data: Sequence[Mapping[str, Any]], csv_path: Union[str, Path]) -> None:
-    """Write a sequence of dicts to CSV."""
-    if not data:
-        raise ValueError("No data supplied to save_csv")
-    path = Path(csv_path)
-    ensure_dir(path.parent)
-    with path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=list(data[0].keys()))
+def save_csv(path: Union[str, Path], data: Iterable[Mapping], delimiter: str = ',') -> None:
+    """Save list of dicts to CSV."""
+    ensure_dir(path)
+    with open(path, 'w', newline='', encoding='utf-8') as f:
+        if not data:
+            return
+        fieldnames = list(data[0].keys())
+        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=delimiter)
         writer.writeheader()
-        for row in data:
-            writer.writerow(row)
+        writer.writerows(data)
 
-
-def load_json(json_path: Union[str, Path]) -> Any:
-    """Load a JSON file."""
-    path = Path(json_path)
-    with path.open(encoding="utf-8") as f:
+def load_json(path: Union[str, Path]) -> Any:
+    """Load JSON file."""
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
+def save_json(path: Union[str, Path], data: Any) -> None:
+    """Save data to JSON file."""
+    ensure_dir(path)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, default=str)
 
-def save_json(obj: Any, json_path: Union[str, Path]) -> None:
-    """Save an object as pretty‑printed JSON."""
-    path = Path(json_path)
-    ensure_dir(path.parent)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(obj, f, indent=2, ensure_ascii=False)
-
-
-def load_pickle(pickle_path: Union[str, Path]) -> Any:
-    """Load a pickled Python object."""
-    path = Path(pickle_path)
-    with path.open("rb") as f:
+def load_pickle(path: Union[str, Path]) -> Any:
+    """Load pickle file."""
+    with open(path, 'rb') as f:
         return pickle.load(f)
 
-
-def save_pickle(obj: Any, pickle_path: Union[str, Path]) -> None:
-    """Save an object using pickle."""
-    path = Path(pickle_path)
-    ensure_dir(path.parent)
-    with path.open("wb") as f:
-        pickle.dump(obj, f)
+def save_pickle(path: Union[str, Path], data: Any) -> None:
+    """Save data to pickle file."""
+    ensure_dir(path)
+    with open(path, 'wb') as f:
+        pickle.dump(data, f)

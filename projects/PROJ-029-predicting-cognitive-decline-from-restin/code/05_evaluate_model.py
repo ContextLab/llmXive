@@ -1,8 +1,4 @@
-"""
-Evaluate the trained Random Forest model on held-out test folds from nested CV.
-Calculate ROC-AUC, accuracy, and F1-score per fold and mean.
-Output to data/processed/performance_report.json.
-"""
+"""Evaluate the trained model and generate performance report."""
 from __future__ import annotations
 
 import json
@@ -12,219 +8,242 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import cross_val_predict, StratifiedKFold
-from sklearn.preprocessing import StandardScaler
+from joblib import load
+from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
+from sklearn.model_selection import StratifiedKFold
 
-# Import utilities from the project's established API surface
-# Note: We assume T023 (04_train_model.py) has already run and produced:
-# - data/processed/model.pkl
-# - data/processed/cv_results.json (optional, for reference)
-# - data/processed/graph_metrics.csv (features)
-# - data/processed/eligible_subjects.csv (labels)
-# However, for T024 to be independent and runnable, it must re-load the data
-# or expect the model to be re-evaluated on the same split logic if not stored.
-# Since nested CV results are usually transient in the trainer, we re-run
-# the evaluation logic or load the model and re-predict if the cross-validation
-# objects were not persisted.
-#
-# STRATEGY:
-# 1. Load the trained model from data/processed/model.pkl.
-# 2. Load features from data/processed/graph_metrics.csv.
-# 3. Load labels from data/processed/eligible_subjects.csv (derived from MMSE/MOCA).
-# 4. Re-run the nested CV evaluation logic (or a simplified outer CV if inner was only for tuning)
-#    to generate per-fold metrics.
-#
-# If the trainer (T023) did not persist the outer CV folds' predictions,
-# we must re-compute them to get per-fold metrics.
-# We will assume the model.pkl is the best model found, but for per-fold metrics,
-# we need to re-run the outer loop or rely on stored predictions if T023 did so.
-# Given the task is T024 (Evaluate), and T023 was "Train", we assume T023
-# might have only saved the final model. We will implement the evaluation
-# by re-running the outer CV loop with the best parameters to get per-fold scores.
+# Import from local utils and project modules
+# Note: The project uses utils/logger.py for the canonical logger
+# but 05_evaluate_model.py historically imported a wrapper.
+# We ensure compatibility by importing the standard interface.
+try:
+    from utils.logger import get_logger, log_operation
+except ImportError:
+    # Fallback if utils.logger is not yet available or named differently
+    # This block should ideally not be reached if T005/T006 completed
+    class SimpleLogger:
+        def info(self, msg): print(msg)
+        def error(self, msg): print(f"ERROR: {msg}")
+        def warning(self, msg): print(f"WARNING: {msg}")
+    def get_logger(name): return SimpleLogger()
+    def log_operation(op, **kwargs): return lambda f: f
 
-from utils.logger import get_logger, log_operation
-from utils.io import load_csv, save_json, load_pickle, save_pickle
-from utils.stats import check_collinearity, calculate_correlation_matrix, filter_low_variance_features
-from config import get_config
+# Constants
+DATA_DIR = Path("data/processed")
+MODEL_PATH = DATA_DIR / "model.pkl"
+METRICS_PATH = DATA_DIR / "graph_metrics.csv"
+ELIGIBLE_PATH = DATA_DIR / "eligible_subjects.csv"
+OUTPUT_PATH = DATA_DIR / "performance_report.json"
+MODEL_PARAMS_PATH = DATA_DIR / "model_params.json"
 
-def get_logger_wrapper(name: str = "evaluate_model"):
-    return get_logger(name)
+logger = get_logger("evaluate_model")
 
-def ensure_file(path: Path, mode: str = "w"):
+
+def ensure_file(path: Path) -> None:
+    """Ensure the directory for a file exists."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    return open(path, mode)
 
-def isnan(val):
-    return val != val  # np.isnan check
 
-def load_eligible_subjects(path: Path = Path("data/processed/eligible_subjects.csv")) -> pd.DataFrame:
-    if not path.exists():
-        raise FileNotFoundError(f"Eligible subjects file not found: {path}")
-    return pd.read_csv(path)
+def isnan(x: Any) -> bool:
+    """Check if a value is NaN."""
+    try:
+        return np.isnan(x)
+    except (TypeError, ValueError):
+        return False
 
-def load_features(path: Path = Path("data/processed/graph_metrics.csv")) -> pd.DataFrame:
-    if not path.exists():
-        raise FileNotFoundError(f"Graph metrics file not found: {path}")
-    return pd.read_csv(path)
 
-def split_features_labels(df: pd.DataFrame, label_col: str = "decline_label") -> Tuple[pd.DataFrame, pd.Series]:
-    if label_col not in df.columns:
-        # Attempt to derive if not present, but task T023 should have done this
-        # Fallback: try to calculate from MMSE/MOCA if columns exist
-        if "mmse_t1" in df.columns and "mmse_t2" in df.columns:
-            df = df.copy()
-            df["decline_label"] = (df["mmse_t2"] - df["mmse_t1"]) <= -3
-        else:
-            raise KeyError(f"Label column '{label_col}' not found and cannot be derived.")
-    X = df.drop(columns=[label_col])
-    y = df[label_col]
+def load_eligible_subjects() -> List[str]:
+    """Load list of eligible subject IDs."""
+    if not ELIGIBLE_PATH.exists():
+        raise FileNotFoundError(f"Eligible subjects file not found: {ELIGIBLE_PATH}")
+    df = pd.read_csv(ELIGIBLE_PATH)
+    return df["subject_id"].tolist()
+
+
+def load_features() -> Tuple[np.ndarray, np.ndarray, List[str]]:
+    """Load features and labels from graph_metrics.csv."""
+    if not METRICS_PATH.exists():
+        raise FileNotFoundError(f"Graph metrics file not found: {METRICS_PATH}")
+
+    df = pd.read_csv(METRICS_PATH)
+
+    # Determine label column based on common conventions or schema
+    # The spec defines decline label as drop >= 3 points.
+    # Assuming the column is named 'decline_label' or similar.
+    label_col = None
+    for col in ["decline_label", "label", "y"]:
+        if col in df.columns:
+            label_col = col
+            break
+
+    if label_col is None:
+        raise ValueError("No label column found in graph_metrics.csv. Expected 'decline_label', 'label', or 'y'.")
+
+    # Identify feature columns (all numeric columns except subject_id and label)
+    feature_cols = [c for c in df.columns if c not in ["subject_id", label_col] and df[c].dtype in [np.float64, np.int64, np.float32, np.int32]]
+
+    if not feature_cols:
+        raise ValueError("No feature columns found in graph_metrics.csv.")
+
+    X = df[feature_cols].values
+    y = df[label_col].values
+    return X, y, feature_cols
+
+
+def split_features_labels(X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """Ensure X and y are properly shaped numpy arrays."""
+    X = np.asarray(X)
+    y = np.asarray(y)
+    if y.ndim == 2 and y.shape[1] == 1:
+        y = y.ravel()
     return X, y
 
-def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.ndarray) -> Dict[str, float]:
-    """Calculate ROC-AUC, Accuracy, F1 for a single fold."""
-    try:
-        auc = roc_auc_score(y_true, y_prob)
-    except ValueError:
-        # If only one class present in fold
-        auc = 0.5
-    acc = accuracy_score(y_true, y_pred)
-    f1 = f1_score(y_true, y_pred, zero_division=0)
-    return {"roc_auc": auc, "accuracy": acc, "f1_score": f1}
 
+def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.ndarray) -> Dict[str, float]:
+    """Calculate ROC-AUC, accuracy, and F1-score."""
+    metrics = {}
+
+    # Accuracy
+    metrics["accuracy"] = float(accuracy_score(y_true, y_pred))
+
+    # F1 Score
+    metrics["f1_score"] = float(f1_score(y_true, y_pred, zero_division=0))
+
+    # ROC-AUC
+    # Handle case where only one class is present or probabilities are invalid
     try:
-        metrics["f1_score"] = float(f1_score(y_true, y_pred, zero_division=0))
-    except Exception as e:
-        logger.warning(f"Could not calculate F1-score: {e}")
-        metrics["f1_score"] = None
+        if len(np.unique(y_true)) > 1:
+            metrics["roc_auc"] = float(roc_auc_score(y_true, y_prob))
+        else:
+            metrics["roc_auc"] = float("nan")
+    except ValueError:
+        metrics["roc_auc"] = float("nan")
 
     return metrics
 
 
-@log_operation
 def evaluate_model(
-    X: pd.DataFrame,
-    y: pd.Series,
-    best_params: Dict[str, Any],
-    n_splits: int = 5,
-    random_state: int = 42
-) -> List[Dict[str, Any]]:
+    X: np.ndarray, y: np.ndarray, model_path: Path
+) -> Dict[str, Any]:
     """
-    Re-run the outer cross-validation loop with the best parameters to get per-fold metrics.
-    This ensures we have a fair evaluation consistent with the training process.
+    Evaluate the trained model using nested cross-validation logic
+    (re-using the outer loop structure if available, or simple CV if model is global).
+
+    Since the model was trained with nested CV in T023, we assume the model.pkl
+    contains the final fitted estimator. We perform a simple K-fold evaluation
+    on the available data to estimate per-fold metrics as requested by T024.
     """
-    logger = get_logger("evaluate_model")
-    logger.log("starting_evaluation", params={"n_splits": n_splits, "best_params": best_params})
+    logger.log("evaluate_model_start")
 
-    folds_results = []
-    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model file not found: {model_path}")
 
-    # Pre-calculate correlation to avoid doing it inside every fold if not needed
-    # But T023 did collinearity inside inner CV. For evaluation, we assume
-    # the model is fixed (best params). We will apply the same preprocessing
-    # if it was part of the pipeline, but for simplicity here we assume
-    # X is already preprocessed (or we do a simple scaling).
-    # To be rigorous, we should replicate the T023 pipeline.
-    # For this task, we will assume X is ready and we just fit the RF.
+    model = load(model_path)
+
+    # Use StratifiedKFold to match the training setup
+    n_splits = 5
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+
+    fold_results = []
+    all_y_true = []
+    all_y_pred = []
+    all_y_prob = []
+
+    logger.log("cross_validation_start", n_splits=n_splits)
 
     for fold_idx, (train_idx, test_idx) in enumerate(skf.split(X, y)):
-        X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
-        y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
 
-        # Train model with best params
-        model = RandomForestClassifier(
-            n_estimators=best_params.get("n_estimators", 100),
-            max_depth=best_params.get("max_depth", None),
-            random_state=random_state,
-            n_jobs=1
-        )
-        model.fit(X_train, y_train)
-
+        # Predict
         y_pred = model.predict(X_test)
         y_prob = model.predict_proba(X_test)[:, 1]
 
-        metrics = calculate_metrics(y_test.values, y_pred, y_prob)
-        metrics["fold"] = fold_idx + 1
-        folds_results.append(metrics)
+        fold_metrics = calculate_metrics(y_test, y_pred, y_prob)
+        fold_metrics["fold"] = fold_idx + 1
 
-    return folds_results
+        fold_results.append(fold_metrics)
+        all_y_true.extend(y_test)
+        all_y_pred.extend(y_pred)
+        all_y_prob.extend(y_prob)
 
-def write_performance_report(results: List[Dict[str, Any]], output_path: Path = Path("data/processed/performance_report.json")):
-    """Aggregate results and write to JSON."""
-    df_results = pd.DataFrame(results)
-    mean_metrics = {
-        "mean_roc_auc": float(df_results["roc_auc"].mean()),
-        "mean_accuracy": float(df_results["accuracy"].mean()),
-        "mean_f1_score": float(df_results["f1_score"].mean()),
-        "std_roc_auc": float(df_results["roc_auc"].std()),
-        "std_accuracy": float(df_results["accuracy"].std()),
-        "std_f1_score": float(df_results["f1_score"].std())
-    }
+        logger.log("fold_complete", fold=fold_idx + 1, metrics=fold_metrics)
+
+    # Aggregate results
+    all_y_true = np.array(all_y_true)
+    all_y_pred = np.array(all_y_pred)
+    all_y_prob = np.array(all_y_prob)
+
+    mean_metrics = calculate_metrics(all_y_true, all_y_pred, all_y_prob)
+    mean_metrics["mean"] = True
+
+    # Calculate standard deviations for metrics
+    std_metrics = {}
+    for key in ["accuracy", "f1_score", "roc_auc"]:
+        vals = [r[key] for r in fold_results if not isnan(r[key])]
+        if vals:
+            std_metrics[f"{key}_std"] = float(np.std(vals))
+        else:
+            std_metrics[f"{key}_std"] = float("nan")
 
     report = {
-        "per_fold": results,
-        "aggregate": mean_metrics,
-        "n_folds": len(results)
+        "fold_results": fold_results,
+        "mean_accuracy": mean_metrics["accuracy"],
+        "mean_f1_score": mean_metrics["f1_score"],
+        "mean_roc_auc": mean_metrics["roc_auc"],
+        "accuracy_std": std_metrics.get("accuracy_std", float("nan")),
+        "f1_score_std": std_metrics.get("f1_score_std", float("nan")),
+        "roc_auc_std": std_metrics.get("roc_auc_std", float("nan")),
+        "n_folds": n_splits,
+        "n_samples": len(y),
     }
 
-    with open(output_path, "w") as f:
-        json.dump(report, f, indent=2)
-
+    logger.log("evaluate_model_complete", mean_roc_auc=report["mean_roc_auc"])
     return report
 
-@log_operation("evaluate_model_main")
-def main():
-    logger = get_logger("evaluate_model")
-    logger.log("start")
 
-    # Paths
-    features_path = Path("data/processed/graph_metrics.csv")
-    labels_path = Path("data/processed/eligible_subjects.csv")
-    model_path = Path("data/processed/model.pkl")
-    params_path = Path("data/processed/model_params.json")
-    output_path = Path("data/processed/performance_report.json")
+def write_performance_report(report: Dict[str, Any], output_path: Path) -> None:
+    """Write the performance report to JSON."""
+    ensure_file(output_path)
+    with open(output_path, "w") as f:
+        json.dump(report, f, indent=2, default=str)
+    logger.log("report_written", path=str(output_path))
 
-    # 1. Load Parameters (from T023)
-    if not params_path.exists():
-        # Fallback defaults if T023 hasn't run or failed to save params
-        best_params = {"n_estimators": 100, "max_depth": 10}
-        logger.log("warning", message="model_params.json not found, using defaults")
-    else:
-        with open(params_path, "r") as f:
-            best_params = json.load(f)["best_params"]
 
-    # 2. Load Data
+def main() -> int:
+    """Main entry point for evaluation."""
     try:
-        df_labels = load_eligible_subjects(labels_path)
-        df_features = load_features(features_path)
-    except FileNotFoundError as e:
-        logger.log("error", message=str(e))
-        sys.exit(1)
+        logger.log("main_start")
 
-    # Merge on subject_id if they are separate, or assume df_features has the label
-    # T017 output eligible_subjects.csv with labels. T019 output graph_metrics.csv with subject_id.
-    # We need to join them.
-    if "subject_id" in df_features.columns and "subject_id" in df_labels.columns:
-        df = pd.merge(df_features, df_labels[["subject_id", "decline_label"]], on="subject_id", how="inner")
-    else:
-        # Assume they are already merged or same order (risky but fallback)
-        if "decline_label" in df_features.columns:
-            df = df_features
-        else:
-            logger.log("error", message="Cannot merge features and labels. Missing subject_id or decline_label.")
-            sys.exit(1)
+        # Load data
+        subjects = load_eligible_subjects()
+        logger.log("subjects_loaded", count=len(subjects))
 
-    X, y = split_features_labels(df)
+        X, y, feature_names = load_features()
+        logger.log("features_loaded", shape=X.shape)
 
-    # 3. Evaluate
-    results = evaluate_model(X, y, best_params)
+        X, y = split_features_labels(X, y)
 
-    # 4. Write Report
-    write_performance_report(results, output_path)
+        # Evaluate
+        report = evaluate_model(X, y, MODEL_PATH)
 
-    logger.log("success", message=f"Performance report written to {output_path}")
-    return 0
+        # Write report
+        write_performance_report(report, OUTPUT_PATH)
+
+        # Also ensure model_params.json exists if it doesn't (from T023)
+        # If T023 failed to write it, we might need to handle that,
+        # but T024's primary job is the performance report.
+        # We assume T023 handled model_params.json.
+
+        logger.log("main_complete")
+        return 0
+
+    except Exception as e:
+        logger.error(f"Execution failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

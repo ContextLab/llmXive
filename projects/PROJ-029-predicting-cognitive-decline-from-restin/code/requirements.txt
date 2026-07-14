@@ -7,8 +7,8 @@ bids
 requests
 tqdm
 pytest
-fsl
 nilearn
 psutil
 joblib
+fslpy
 scipy
