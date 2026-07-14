@@ -1,53 +1,75 @@
-# Quickstart Guide: Quantifying the Impact of Data Cleaning
+# Quickstart Guide for Quantifying the Impact of Data Cleaning on Statistical Inference
 
 ## Prerequisites
 - Python 3.11+
-- Dependencies installed via `pip install -r requirements.txt`
+- Project dependencies installed (see `requirements.txt`)
 
-## Execution Steps
+## Setup
+1. Clone the repository.
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+3. Ensure data is available (run T011 if needed):
+ ```bash
+ python code/t011_ensure_data.py
+ ```
 
-### 1. Ensure Data Exists
-```bash
-python code/t011_ensure_data.py
-```
+## Pipeline Execution
+Run the following commands in order to execute the full pipeline and generate all artifacts:
 
-### 2. Run Baseline Analysis (T012)
-Downloads/loads raw data and computes baseline statistics.
-```bash
-python code/t012_run_baseline_analysis.py
-```
-*Output: `data/processed/baseline_metrics.json`*
+1. **Baseline Analysis**:
+ ```bash
+ python code/t012_run_baseline_analysis.py
+ ```
 
-### 3. Record Baseline Metrics (T013)
-Formats and validates baseline metrics.
-```bash
-python code/t013_record_baseline_metrics.py
-```
-*Output: `data/processed/baseline_metrics.json` (updated)*
+2. **Cleaning & Re-analysis**:
+ ```bash
+ python code/t022_save_cleaned_datasets.py
+ python code/t023_reanalyze_cleaned_variants.py
+ ```
 
-### 4. Clean Data (T017-T022)
-Applies cleaning strategies.
-```bash
-python code/t022_save_cleaned_datasets.py
-```
-*Output: `data/processed/dataset_cleaned_*.csv`*
+3. **Comparison & Reporting**:
+ ```bash
+ python code/t027_run_comparison.py
+ python code/t036_pvalue_shift_reporting.py
+ python code/t037_ci_width_reporting.py
+ python code/t038_effect_size_reporting.py
+ ```
 
-### 5. Re-analyze Cleaned Data (T023)
-Computes statistics on cleaned variants.
-```bash
-python code/t023_reanalyze_cleaned_variants.py
-```
-*Output: `data/processed/cleaned_metrics.json`*
+4. **Sensitivity Analysis**:
+ ```bash
+ python code/t030_dataset_size_sensitivity.py
+ python code/t031_bootstrap_variance.py
+ ```
 
-### 6. Generate Reports (T027-T041)
-Compares metrics and generates visualizations.
-```bash
-python code/t041_generate_final_report.py
-```
-*Output: `data/processed/final_report.txt`, `figures/*.png`*
+5. **Null Hypothesis & Threshold Sweep**:
+ ```bash
+ python code/t032_permutation_null_fpr.py
+ python code/t033_outlier_threshold_sweep.py
+ ```
 
-## Validation
-Run the validation script to ensure all artifacts are present.
+6. **Visualizations**:
+ ```bash
+ python code/t034_generate_forest_plot.py
+ python code/t035_generate_ci_heatmap.py
+ ```
+
+7. **Final Report**:
+ ```bash
+ python code/t041_generate_final_report.py
+ ```
+
+## Verification
+Validate all artifacts:
 ```bash
 python code/run_quickstart_validation.py
 ```
+
+## Output Artifacts
+- `data/processed/baseline_metrics.json`
+- `data/processed/cleaned_metrics.json`
+- `data/processed/null_fpr_metrics.json`
+- `data/processed/outlier_threshold_sweep.json`
+- `figures/` (PNG plots)
+- `data/processed/final_report.md`

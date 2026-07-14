@@ -6,5 +6,9 @@
   {
     "symbol": "run_baseline_analysis",
     "owner": null
+  },
+  {
+    "symbol": "setup_logging",
+    "owner": null
   }
 ]

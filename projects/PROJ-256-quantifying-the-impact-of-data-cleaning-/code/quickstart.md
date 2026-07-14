@@ -1,131 +1,173 @@
-# Quickstart Guide
+# llmXive Research Pipeline - Quickstart Guide
 
-This guide outlines the steps to run the full pipeline for the project "Quantifying the Impact of Data Cleaning on Statistical Inference".
+This guide explains how to run the full research pipeline to quantify the impact of data cleaning on statistical inference.
 
 ## Prerequisites
 
 - Python 3.11+
-- pip
-- Virtual environment (recommended)
+- All dependencies installed via `pip install -r requirements.txt`
 
-## Setup
+## Project Structure
 
-1. Clone the repository.
-2. Create a virtual environment:
- ```bash
- python -m venv.venv
- source.venv/bin/activate # On Windows:.venv\Scripts\activate
- ```
-3. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+```
+.
+├── code/ # Source code
+│ ├── utils.py # Utility functions
+│ ├── config.py # Configuration management
+│ ├── models.py # Data models
+│ ├── data_loader.py # Data acquisition
+│ ├── cleaning.py # Cleaning strategies
+│ ├── analysis.py # Statistical analysis
+│ ├── reporting.py # Metrics comparison
+│ └── main.py # Pipeline orchestrator
+├── data/
+│ ├── raw/ # Original downloaded datasets
+│ └── processed/ # Cleaned data and analysis results
+├── tests/ # Test suites
+└── docs/ # Documentation
+```
 
-## Pipeline Execution
+## Running the Pipeline
 
-The pipeline is executed via a series of scripts. Run them in order:
+The pipeline consists of several sequential steps. You can run them individually or use the main orchestrator.
 
-1. **Ensure Data Exists** (Downloads datasets if missing):
- ```bash
- python code/t011_ensure_data.py
- ```
+### Step 1: Ensure Data Exists (T011)
 
-2. **Run Baseline Analysis** (Computes metrics on raw data):
- ```bash
- python code/t012_run_baseline_analysis.py
- ```
+Download or verify the presence of raw datasets.
 
-3. **Record Baseline Metrics** (Saves baseline to JSON):
- ```bash
- python code/t013_record_baseline_metrics.py
- ```
+```bash
+python code/t011_ensure_data.py
+```
 
-4. **Save Cleaned Datasets** (Applies cleaning strategies):
- ```bash
- python code/t022_save_cleaned_datasets.py
- ```
+This script will:
+- Attempt to download datasets from OpenML or UCI
+- Validate checksums
+- Store files in `data/raw/`
 
-5. **Reanalyze Cleaned Variants** (Computes metrics on cleaned data):
- ```bash
- python code/t023_reanalyze_cleaned_variants.py
- ```
+### Step 2: Run Baseline Analysis (T012)
 
-6. **Run Comparison** (Compares baseline vs cleaned):
- ```bash
- python code/t027_run_comparison.py
- ```
+Perform statistical analysis on raw, uncleaned data.
 
-7. **Dataset Size Sensitivity**:
- ```bash
- python code/t030_dataset_size_sensitivity.py
- ```
+```bash
+python code/t012_run_baseline_analysis.py
+```
 
-8. **Bootstrap Variance Estimation**:
- ```bash
- python code/t031_bootstrap_variance.py
- ```
+This script will:
+- Load all datasets from `data/raw/`
+- Run t-tests and linear regressions
+- Output `data/processed/baseline_metrics.json`
 
-9. **Permutation Null FPR**:
- ```bash
- python code/t032_permutation_null_fpr.py
- ```
+### Step 3: Record Baseline Metrics (T013)
 
-10. **Outlier Threshold Sweep** (T033):
- ```bash
- python code/t033_outlier_threshold_sweep.py
- ```
+Aggregate and format baseline results.
 
-11. **Generate Forest Plot**:
- ```bash
- python code/t034_generate_forest_plot.py
- ```
+```bash
+python code/t013_record_baseline_metrics.py
+```
 
-12. **Generate CI Heatmap**:
- ```bash
- python code/t035_generate_ci_heatmap.py
- ```
+This script will:
+- Read baseline analysis results
+- Format metrics with ≥3 decimal precision
+- Write `data/processed/baseline_metrics.json`
 
-13. **Per-Dataset Reporting**:
- ```bash
- python code/t036_pvalue_shift_reporting.py
- python code/t037_ci_width_reporting.py
- python code/t038_effect_size_reporting.py
- ```
+### Step 4: Apply Cleaning Strategies (T017-T022)
 
-14. **Log Excluded Datasets**:
- ```bash
- python code/t039_log_excluded_datasets.py
- ```
+Apply outlier removal and imputation strategies.
 
-15. **Create Comparison Report**:
- ```bash
- python code/t040_create_comparison_report.py
- ```
+```bash
+python code/t022_save_cleaned_datasets.py
+```
 
-16. **Generate Final Report**:
- ```bash
- python code/t041_generate_final_report.py
- ```
+This script will:
+- Apply IQR outlier removal
+- Apply mean/median/KNN imputation
+- Save cleaned variants to `data/processed/`
 
-17. **Verify Checksums and State**:
- ```bash
- python code/t048_verify_checksums_and_state.py
- ```
+### Step 5: Re-analyze Cleaned Data (T023)
 
-## Output Artifacts
+Run statistical tests on cleaned datasets.
 
-All processed data and reports are saved in `data/processed/`:
-- `baseline_metrics.json`
-- `cleaned_metrics.json`
-- `null_fpr_metrics.json`
-- `threshold_sweep_metrics.json`
-- `comparison_report.json`
-- `final_report.txt`
-- `forest_plot.png`
-- `ci_heatmap.png`
+```bash
+python code/t023_reanalyze_cleaned_variants.py
+```
+
+This script will:
+- Load cleaned datasets
+- Run identical tests as baseline
+- Output `data/processed/cleaned_metrics.json`
+
+### Step 6: Generate Null Datasets for FPR (T032)
+
+Create permutation-based null datasets.
+
+```bash
+python code/t032_permutation_null_fpr.py
+```
+
+This script will:
+- Shuffle outcome variables
+- Run analysis on null data
+- Output `data/processed/null_fpr_metrics.json`
+
+### Step 7: Run Full Comparison (T027)
+
+Compare baseline vs cleaned metrics.
+
+```bash
+python code/t027_run_comparison.py
+```
+
+### Step 8: Generate Visualizations (T034-T035)
+
+Create forest plots and heatmaps.
+
+```bash
+python code/t034_generate_forest_plot.py
+python code/t035_generate_ci_heatmap.py
+```
+
+### Step 9: Generate Final Report (T041)
+
+Aggregate all results into a final summary.
+
+```bash
+python code/t041_generate_final_report.py
+```
+
+## Running the Full Pipeline
+
+You can also run the entire pipeline via the main orchestrator:
+
+```bash
+python code/main.py
+```
+
+This will execute all steps in the correct order.
+
+## Expected Artifacts
+
+After successful execution, the following files should exist:
+
+- `data/raw/*.csv` - Original datasets
+- `data/processed/baseline_metrics.json` - Baseline analysis results
+- `data/processed/cleaned_metrics.json` - Cleaned data analysis results
+- `data/processed/null_fpr_metrics.json` - Null dataset FPR estimates
+- `figures/*.png` - Visualization outputs
+- `output/final_report.md` - Final research report
 
 ## Troubleshooting
 
-- If data download fails, check your internet connection and the dataset URLs in `code/t011_ensure_data.py`.
-- If analysis fails, ensure all required Python packages are installed.
-- For logging issues, check the `LOG_LEVEL` environment variable or the `setup_logging` function in `code/utils.py`.
+If you encounter errors:
+
+1. Check that all dependencies are installed: `pip install -r requirements.txt`
+2. Verify data exists in `data/raw/`
+3. Check log output for specific error messages
+4. Ensure environment variables are set correctly (see `.env.example`)
+
+## Validation
+
+Run the validation script to verify all artifacts:
+
+```bash
+python code/run_quickstart_validation.py
+```

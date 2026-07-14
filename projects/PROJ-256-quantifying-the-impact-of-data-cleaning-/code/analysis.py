@@ -5,34 +5,30 @@ Implements t-tests, linear regression, and effect size calculations.
 import os
 import json
 import logging
-from datetime import datetime
-from typing import List, Dict, Any, Optional, Tuple, Union
-import numpy as np
 import pandas as pd
 import numpy as np
-from scipy import stats
-import statsmodels.api as sm
-from sklearn.preprocessing import LabelEncoder
+from datetime import datetime
+from typing import List, Dict, Any, Optional, Tuple, Union
+import scipy.stats as stats
+from sklearn.linear_model import LinearRegression
+from utils import setup_logging, pin_random_seed, compute_file_checksum
+from config import Config, get_config
 
-from utils import setup_logging, pin_random_seed
-from config import Config
+logger = setup_logging()
 
-# Configure logger for this module
-logger = logging.getLogger(__name__)
-
-def load_datasets_from_raw(raw_dir: str) -> List[Tuple[pd.DataFrame, str]]:
+def load_datasets_from_raw(raw_dir: str) -> List[Dict[str, Any]]:
     """
-    Load all CSV files from the raw data directory.
-
+    Load datasets from the raw data directory.
+    
     Args:
         raw_dir: Path to the raw data directory.
-
+    
     Returns:
-        List of tuples (DataFrame, dataset_name).
+        List of dictionaries containing dataset info (name, df, checksum).
     """
     datasets = []
     if not os.path.exists(raw_dir):
-        logger.warning(f"Raw data directory not found: {raw_dir}")
+        logger.warning(f"Raw data directory {raw_dir} does not exist.")
         return datasets
 
     for filename in os.listdir(raw_dir):
@@ -40,9 +36,14 @@ def load_datasets_from_raw(raw_dir: str) -> List[Tuple[pd.DataFrame, str]]:
             filepath = os.path.join(raw_dir, filename)
             try:
                 df = pd.read_csv(filepath)
-                dataset_name = os.path.splitext(filename)[0]
-                datasets.append((df, dataset_name))
-                logger.info(f"Loaded dataset: {dataset_name} with shape {df.shape}")
+                checksum = compute_file_checksum(filepath)
+                datasets.append({
+                    'name': os.path.splitext(filename)[0],
+                    'df': df,
+                    'checksum': checksum,
+                    'path': filepath
+                })
+                logger.info(f"Loaded dataset: {filename} (rows: {len(df)}, checksum: {checksum[:8]}...)")
             except Exception as e:
                 logger.error(f"Failed to load {filename}: {e}")
 
@@ -59,58 +60,221 @@ def identify_categorical_columns(df: pd.DataFrame) -> List[str]:
 def run_t_test(df: pd.DataFrame, predictor_col: str, outcome_col: str) -> Dict[str, Any]:
     """
     Run an independent samples t-test.
-
+    
     Args:
         df: DataFrame containing the data.
         predictor_col: Name of the binary predictor column.
         outcome_col: Name of the outcome column.
-
+    
     Returns:
-        Dictionary with t-statistic, p-value, and confidence interval.
+        Dictionary with p-value, confidence interval, and effect size.
     """
     if predictor_col not in df.columns or outcome_col not in df.columns:
-        logger.warning(f"Columns {predictor_col} or {outcome_col} not found in DataFrame.")
-        return {}
-
+        raise ValueError(f"Columns {predictor_col} or {outcome_col} not found in dataset.")
+    
     # Ensure binary predictor
     unique_vals = df[predictor_col].unique()
     if len(unique_vals) != 2:
         logger.warning(f"Predictor {predictor_col} is not binary. Skipping t-test.")
-        return {}
-
-    group1 = df[df[predictor_col] == unique_vals[0]][outcome_col].dropna()
-    group2 = df[df[predictor_col] == unique_vals[1]][outcome_col].dropna()
-
-    if len(group1) < 2 or len(group2) < 2:
-        logger.warning(f"Insufficient data for t-test on {outcome_col}.")
-        return {}
-
-    t_stat, p_val = stats.ttest_ind(group1, group2)
-
-    # Calculate 95% CI for difference in means
-    mean1, mean2 = group1.mean(), group2.mean()
-    std1, std2 = group1.std(), group2.std()
-    n1, n2 = len(group1), len(group2)
-
-    se_diff = np.sqrt((std1**2 / n1) + (std2**2 / n2))
-    ci_lower = (mean1 - mean2) - 1.96 * se_diff
-    ci_upper = (mean1 - mean2) + 1.96 * se_diff
-
-    # Validate p-value
+        return {'p_value': None, 'ci': None, 'effect_size': None, 'error': 'Not binary'}
+    
+    group_0 = df[df[predictor_col] == unique_vals[0]][outcome_col].dropna()
+    group_1 = df[df[predictor_col] == unique_vals[1]][outcome_col].dropna()
+    
+    if len(group_0) < 2 or len(group_1) < 2:
+        logger.warning("One of the groups has fewer than 2 samples. Skipping t-test.")
+        return {'p_value': None, 'ci': None, 'effect_size': None, 'error': 'Insufficient samples'}
+    
+    # Welch's t-test (assumes unequal variances)
+    t_stat, p_val = stats.ttest_ind(group_0, group_1, equal_var=False)
+    
+    # 95% CI for difference in means
+    mean_diff = group_1.mean() - group_0.mean()
+    # Standard error of difference
+    se_diff = np.sqrt(group_0.var() / len(group_0) + group_1.var() / len(group_1))
+    # Degrees of freedom (Welch-Satterthwaite)
+    df_val = (group_0.var()**2 / len(group_0)) + (group_1.var()**2 / len(group_1))
+    df_val /= (group_0.var()**2 / (len(group_0)**2 * (len(group_0) - 1))) + \
+              (group_1.var()**2 / (len(group_1)**2 * (len(group_1) - 1)))
+    
+    t_crit = stats.t.ppf(0.975, df_val)
+    ci_lower = mean_diff - t_crit * se_diff
+    ci_upper = mean_diff + t_crit * se_diff
+    
+    # Cohen's d
+    pooled_std = np.sqrt(((len(group_0) - 1) * group_0.var() + (len(group_1) - 1) * group_1.var()) / (len(group_0) + len(group_1) - 2))
+    if pooled_std == 0:
+        cohens_d = 0.0
+    else:
+        cohens_d = mean_diff / pooled_std
+    
+    # Validate results
     if not (0 < p_val < 1):
-        logger.warning(f"P-value {p_val} out of expected range (0, 1) for {outcome_col}.")
-
+        logger.warning(f"P-value {p_val} out of bounds (0, 1).")
+        p_val = max(0.0, min(1.0, p_val)) # Clamp for safety
+    
+    if not (np.isfinite(ci_lower) and np.isfinite(ci_upper)):
+        logger.warning(f"CI bounds [{ci_lower}, {ci_upper}] are not finite.")
+        ci_lower, ci_upper = None, None
+    
     return {
-        't_statistic': float(t_stat),
         'p_value': float(p_val),
-        'ci_95': [float(ci_lower), float(ci_upper)],
-        'ci_width': float(ci_upper - ci_lower),
-        'n1': n1,
-        'n2': n2
+        'ci': [float(ci_lower), float(ci_upper)] if ci_lower is not None else None,
+        'effect_size': float(cohens_d),
+        't_statistic': float(t_stat),
+        'degrees_of_freedom': float(df_val)
     }
-    return result
 
 def run_linear_regression(df: pd.DataFrame, predictor_cols: List[str], outcome_col: str) -> Dict[str, Any]:
+    """
+    Run a linear regression.
+    
+    Args:
+        df: DataFrame containing the data.
+        predictor_cols: List of predictor column names.
+        outcome_col: Name of the outcome column.
+    
+    Returns:
+        Dictionary with R-squared, coefficients, and p-values for coefficients.
+    """
+    if outcome_col not in df.columns:
+        raise ValueError(f"Outcome column {outcome_col} not found in dataset.")
+    for col in predictor_cols:
+        if col not in df.columns:
+            raise ValueError(f"Predictor column {col} not found in dataset.")
+    
+    X = df[predictor_cols].dropna()
+    y = df.loc[X.index, outcome_col].dropna()
+    
+    # Align indices after dropna
+    common_idx = X.index.intersection(y.index)
+    X = X.loc[common_idx]
+    y = y.loc[common_idx]
+    
+    if len(X) < len(predictor_cols) + 1:
+        logger.warning("Insufficient samples for regression.")
+        return {'r_squared': None, 'coefficients': [], 'p_values': [], 'error': 'Insufficient samples'}
+    
+    model = LinearRegression()
+    model.fit(X, y)
+    
+    r_squared = model.score(X, y)
+    coefficients = model.coef_.tolist()
+    intercept = float(model.intercept_)
+    
+    # Calculate p-values for coefficients using statsmodels-like approach (approx)
+    # We'll use a simple t-test for each coefficient against 0
+    # Residuals
+    residuals = y - model.predict(X)
+    n = len(y)
+    p = len(predictor_cols)
+    mse = np.sum(residuals**2) / (n - p - 1)
+    
+    # Covariance matrix of coefficients: MSE * (X'X)^-1
+    try:
+        X_with_intercept = np.column_stack([np.ones(len(X)), X])
+        XtX_inv = np.linalg.inv(X_with_intercept.T @ X_with_intercept)
+        var_covar = mse * XtX_inv
+        
+        std_errors = np.sqrt(np.diag(var_covar))
+        # t-statistics
+        t_stats = np.append(intercept, coefficients) / std_errors
+        # p-values (two-tailed)
+        p_values = 2 * (1 - stats.t.cdf(np.abs(t_stats), n - p - 1))
+        
+        # Validate p-values
+        p_values = [max(0.0, min(1.0, float(p))) for p in p_values]
+        
+    except np.linalg.LinAlgError:
+        logger.warning("Singular matrix in regression. P-values not computed.")
+        p_values = [None] * (p + 1)
+    
+    return {
+        'r_squared': float(r_squared),
+        'coefficients': coefficients,
+        'intercept': intercept,
+        'p_values': p_values,
+        'std_errors': std_errors.tolist() if 'std_errors' in locals() else []
+    }
+
+def compute_effect_size_cohen_d(group1: pd.Series, group2: pd.Series) -> float:
+    """
+    Compute Cohen's d effect size.
+    
+    Args:
+        group1: Series for group 1.
+        group2: Series for group 2.
+    
+    Returns:
+        Cohen's d value.
+    """
+    mean1, mean2 = group1.mean(), group2.mean()
+    var1, var2 = group1.var(), group2.var()
+    n1, n2 = len(group1), len(group2)
+    
+    pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+    if pooled_std == 0:
+        return 0.0
+    return (mean2 - mean1) / pooled_std
+
+def analyze_dataset(df: pd.DataFrame, dataset_name: str, config: Optional[Config] = None) -> Dict[str, Any]:
+    """
+    Run full analysis on a single dataset.
+    
+    Args:
+        df: DataFrame to analyze.
+        dataset_name: Name of the dataset.
+        config: Configuration object.
+    
+    Returns:
+        Dictionary containing analysis results.
+    """
+    if config is None:
+        config = get_config()
+    
+    # Identify numeric columns for outcome and binary for predictor
+    # Heuristic: Last numeric column is outcome, first binary-like column is predictor
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    if len(numeric_cols) < 2:
+        logger.warning(f"Not enough numeric columns in {dataset_name} for analysis.")
+        return {'dataset': dataset_name, 'error': 'Insufficient numeric columns'}
+    
+    # Simple heuristic: try to find a binary column
+    binary_col = None
+    for col in numeric_cols:
+        if df[col].nunique() == 2:
+            binary_col = col
+            break
+    
+    if binary_col is None:
+        # Fallback: use first column as predictor, second as outcome
+        binary_col = numeric_cols[0]
+        outcome_col = numeric_cols[1]
+        logger.warning(f"No binary column found. Using {binary_col} as predictor.")
+    else:
+        outcome_col = [c for c in numeric_cols if c != binary_col][0]
+    
+    logger.info(f"Analyzing {dataset_name}: Predictor={binary_col}, Outcome={outcome_col}")
+    
+    t_test_result = run_t_test(df, binary_col, outcome_col)
+    regression_result = run_linear_regression(df, [binary_col], outcome_col)
+    
+    return {
+        'dataset_name': dataset_name,
+        'predictor': binary_col,
+        'outcome': outcome_col,
+        'n_rows': len(df),
+        't_test': t_test_result,
+        'regression': regression_result
+    }
+
+def run_baseline_analysis(
+    input_data: Union[str, pd.DataFrame],
+    output_file: Optional[str] = None,
+    dataset_name: Optional[str] = None,
+    config: Optional[Config] = None
+) -> Union[bool, Dict[str, Any]]:
     """
     Run a linear regression.
 
@@ -130,219 +294,83 @@ def run_linear_regression(df: pd.DataFrame, predictor_cols: List[str], outcome_c
     df_encoded = df.copy()
     categorical_cols = [c for c in predictor_cols if c in df_encoded.select_dtypes(include=['object', 'category']).columns]
     
-    for col in categorical_cols:
-        le = LabelEncoder()
-        df_encoded[col] = le.fit_transform(df_encoded[col].astype(str))
-
-    X = df_encoded[predictor_cols].dropna()
-    y = df_encoded.loc[X.index, outcome_col].dropna()
-    X = X.loc[y.index]
-
-    if len(X) < 2:
-        logger.warning("Insufficient data for regression.")
-        return {}
-
-    X = sm.add_constant(X)
-    model = sm.OLS(y, X)
-    result = model.fit()
-
-    if not np.isfinite(result.rsquared):
-        logger.warning(f"R-squared is not finite for regression on {outcome_col}.")
-
-    return {
-        'coefficients': {
-            'intercept': float(result.params.get('const', 0.0)),
-            **{col: float(result.params[col]) for col in predictor_cols if col in result.params.index}
-        },
-        'r_squared': float(result.rsquared) if np.isfinite(result.rsquared) else None,
-        'p_values': {col: float(result.pvalues[col]) for col in predictor_cols if col in result.pvalues.index},
-        'n_observations': int(result.nobs)
-    }
-
-def compute_effect_size_cohen_d(df: pd.DataFrame, predictor_col: str, outcome_col: str) -> Optional[float]:
-    """
-    Compute Cohen's d effect size for a binary predictor.
-
-    Args:
-        df: DataFrame.
-        predictor_col: Binary predictor column.
-        outcome_col: Outcome column.
-
-    Returns:
-        Cohen's d value or None.
-    """
-    t_result = run_t_test(df, predictor_col, outcome_col)
-    if not t_result or 't_statistic' not in t_result:
-        return None
-
-    # Cohen's d = t * sqrt(1/n1 + 1/n2)
-    n1, n2 = t_result['n1'], t_result['n2']
-    t_stat = t_result['t_statistic']
-    d = t_stat * np.sqrt(1/n1 + 1/n2)
-    return float(d)
-
-def analyze_dataset(
-    df: pd.DataFrame,
-    dataset_name: str,
-    predictor_col: str,
-    outcome_col: str,
-    additional_predictors: Optional[List[str]] = None
-) -> Dict[str, Any]:
-    """
-    Run a full analysis on a single dataset.
-
-    Args:
-        df: DataFrame.
-        dataset_name: Name of the dataset.
-        predictor_col: Primary binary predictor.
-        outcome_col: Outcome variable.
-        additional_predictors: Optional list of additional predictors for regression.
-
-    Returns:
-        Analysis results dictionary.
-    """
-    result = {
-        'dataset_name': dataset_name,
-        'dataset_size': len(df),
-        't_test': {},
-        'regression': {},
-        'effect_size': None
-    }
-
-    # T-test
-    t_result = run_t_test(df, predictor_col, outcome_col)
-    if t_result:
-        result['t_test'] = t_result
-
-    # Effect size
-    if t_result:
-        result['effect_size'] = compute_effect_size_cohen_d(df, predictor_col, outcome_col)
-
-    # Regression
-    if additional_predictors:
-        predictors = [predictor_col] + additional_predictors
-        reg_result = run_linear_regression(df, predictors, outcome_col)
-        if reg_result:
-            result['regression'] = reg_result
-
-    return result
-
-def write_output(data: Dict[str, Any], output_path: str) -> bool:
-    """Write analysis results to a JSON file."""
-    try:
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(data, f, indent=2)
-        logger.info(f"Wrote output to {output_path}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to write output: {e}")
-        return False
-
-def run_baseline_analysis(
-    input_data: Union[str, pd.DataFrame],
-    output_file: Optional[str] = None,
-    dataset_name: Optional[str] = None,
-    config: Optional[Config] = None
-) -> Union[bool, Dict[str, Any]]:
-    """
-    Run baseline analysis on raw or processed data.
-
-    This function is overloaded to support multiple call patterns:
+    Handles multiple calling conventions:
     1. run_baseline_analysis(raw_dir, output_file, config) -> writes file, returns bool
     2. run_baseline_analysis(df, dataset_name=..., config=config) -> returns dict
     3. run_baseline_analysis(df_cleaned, dataset_name=..., config=config) -> returns dict
-
+    
     Args:
-        input_data: Path to raw directory OR DataFrame.
-        output_file: Path to write JSON output (optional for DataFrame input).
-        dataset_name: Name of the dataset (required for DataFrame input).
+        input_data: Path to raw directory OR a DataFrame.
+        output_file: Path to output JSON file (required if input_data is a path).
+        dataset_name: Name of the dataset (required if input_data is a DataFrame).
         config: Configuration object.
-
+    
     Returns:
-        True/False if writing file, or Dict if analyzing DataFrame.
+        If input was a path: True if successful, False otherwise.
+        If input was a DataFrame: Dictionary of results.
     """
-    if config:
-        setup_logging(config.get("LOG_LEVEL", "INFO"))
-        pin_random_seed(config.get("RANDOM_SEED", 42))
-
-    # Case 1: Input is a path (string) -> load and analyze multiple datasets
+    if config is None:
+        config = get_config()
+    
+    # Case 1: input_data is a path (string)
     if isinstance(input_data, str):
+        if not output_file:
+            raise ValueError("output_file is required when input_data is a path.")
+        
         raw_dir = input_data
         datasets = load_datasets_from_raw(raw_dir)
         
         if not datasets:
-            logger.error("No datasets found to analyze.")
+            logger.error(f"No datasets found in {raw_dir}")
             return False
-
+        
         all_results = {
-            'analysis_timestamp': datetime.now().isoformat(),
+            'timestamp': datetime.now().isoformat(),
+            'source_directory': raw_dir,
             'datasets': []
         }
-
-        for df, name in datasets:
-            # Identify primary binary predictor and outcome
-            num_cols = identify_numerical_columns(df)
-            if len(num_cols) < 2:
-                logger.warning(f"Skipping {name}: insufficient numerical columns.")
-                continue
-
-            # Assume first two numerical columns are predictor and outcome
-            predictor = num_cols[0]
-            outcome = num_cols[1]
-
-            # Check if predictor is binary
-            if len(df[predictor].unique()) != 2:
-                logger.warning(f"Predictor {predictor} in {name} is not binary. Skipping.")
-                continue
-
-            analysis = analyze_dataset(df, name, predictor, outcome)
-            all_results['datasets'].append(analysis)
-
-        if output_file:
-            return write_output(all_results, output_file)
-        else:
-            return all_results
-
-    # Case 2: Input is a DataFrame -> analyze single dataset
+        
+        for ds in datasets:
+            result = analyze_dataset(ds['df'], ds['name'], config)
+            result['checksum'] = ds['checksum']
+            all_results['datasets'].append(result)
+        
+        # Write to file
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        with open(output_file, 'w') as f:
+            json.dump(all_results, f, indent=2)
+        
+        logger.info(f"Baseline metrics written to {output_file}")
+        return True
+    
+    # Case 2: input_data is a DataFrame
     elif isinstance(input_data, pd.DataFrame):
         if not dataset_name:
-            logger.error("dataset_name is required when input is a DataFrame.")
-            return {}
-
-        df = input_data
-        num_cols = identify_numerical_columns(df)
-        if len(num_cols) < 2:
-            logger.warning(f"Insufficient numerical columns in {dataset_name}.")
-            return {}
-
-        predictor = num_cols[0]
-        outcome = num_cols[1]
-
-        # Check binary
-        if len(df[predictor].unique()) != 2:
-            logger.warning(f"Predictor {predictor} in {dataset_name} is not binary.")
-            return {}
-
-        analysis = analyze_dataset(df, dataset_name, predictor, outcome)
+            raise ValueError("dataset_name is required when input_data is a DataFrame.")
         
-        if output_file:
-            return write_output(analysis, output_file)
-        else:
-            return analysis
-
+        result = analyze_dataset(input_data, dataset_name, config)
+        return result
+    
     else:
-        logger.error(f"Unsupported input type: {type(input_data)}")
-        return {}
+        raise TypeError("input_data must be a string (path) or pandas DataFrame.")
 
 def main():
-    """Main entry point for baseline analysis script."""
-    config = Config()
+    """Main entry point for analysis module."""
+    logger = setup_logging("INFO")
+    config = get_config()
+    
+    # Example: Run on raw data if exists
     raw_dir = config.get("RAW_DATA_PATH", "data/raw")
-    output_file = config.get("PROCESSED_DATA_PATH", "data/processed") + "/baseline_metrics.json"
-
-    success = run_baseline_analysis(raw_dir, output_file, config=config)
-    return 0 if success else 1
+    output_file = config.get("OUTPUT_PATH", "data/processed/baseline_metrics.json")
+    
+    if os.path.exists(raw_dir):
+        success = run_baseline_analysis(raw_dir, output_file, config=config)
+        if success:
+            logger.info("Analysis complete.")
+        else:
+            logger.error("Analysis failed.")
+    else:
+        logger.warning(f"Raw data directory {raw_dir} not found. Skipping analysis.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

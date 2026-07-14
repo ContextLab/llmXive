@@ -1,65 +1,77 @@
+"""
+Main pipeline orchestrator.
+Executes the sequence of scripts defined in the run-book.
+"""
 import os
 import sys
 import logging
 import subprocess
 from typing import List
 from utils import setup_logging
+from config import get_config
 
 logger = logging.getLogger(__name__)
 
-def run_script(script_name: str, description: str = "") -> bool:
-    """Run a Python script and return True if successful."""
-    script_path = os.path.join("code", script_name)
-    if not os.path.exists(script_path):
-        logger.error(f"Script not found: {script_path}")
-        return False
+# Define the sequence of scripts to run
+# This list must ensure all required artifacts are produced.
+SCRIPTS = [
+    "t011_ensure_data.py",
+    "t012_run_baseline_analysis.py",
+    "t023_reanalyze_cleaned_variants.py",
+    "t032_permutation_null_fpr.py",
+    "t034_generate_forest_plot.py",
+    "t035_generate_ci_heatmap.py",
+    "t036_pvalue_shift_reporting.py",
+    "t037_ci_width_reporting.py",
+    "t038_effect_size_reporting.py",
+    "t041_generate_final_report.py"
+]
 
-    logger.info(f"Running {description}: {script_name}")
+def run_script(script_name: str) -> bool:
+    """Run a specific script and return success status."""
+    logger.info(f"Running {script_name}...")
     try:
         result = subprocess.run(
-            [sys.executable, script_path],
+            [sys.executable, f"code/{script_name}"],
             check=True,
-            capture_output=False,
+            capture_output=True,
             text=True
         )
-        return result.returncode == 0
+        if result.stdout:
+            logger.info(result.stdout)
+        if result.stderr:
+            logger.warning(result.stderr)
+        return True
     except subprocess.CalledProcessError as e:
         logger.error(f"Script {script_name} failed with return code {e.returncode}")
+        if e.stdout:
+            logger.error(e.stdout)
+        if e.stderr:
+            logger.error(e.stderr)
         return False
 
 def main():
-    """Main pipeline orchestrator."""
-    setup_logging("INFO")
-
     logger.info("Starting llmXive research pipeline")
-
-    # Define the pipeline steps
-    # Order matters: data must exist, baseline must run, cleaning must run, reanalysis must run, null generation must run.
-    pipeline_steps = [
-        ("t011_ensure_data.py", "Data acquisition"),
-        ("t012_run_baseline_analysis.py", "Baseline analysis"),
-        ("t022_save_cleaned_datasets.py", "Save cleaned datasets"),
-        ("t023_reanalyze_cleaned_variants.py", "Reanalyze cleaned variants"),
-        ("t032_permutation_null_fpr.py", "Permutation null FPR estimation"),
-        ("t036_pvalue_shift_reporting.py", "P-value shift reporting"),
-        ("t037_ci_width_reporting.py", "CI width reporting"),
-        ("t038_effect_size_reporting.py", "Effect size reporting"),
-        ("t041_generate_final_report.py", "Generate final report"),
-    ]
-
-    all_success = True
-    for script, description in pipeline_steps:
-        if not run_script(script, description):
+    
+    config = get_config()
+    setup_logging(config.get("LOG_LEVEL", "INFO"))
+    
+    failed_scripts = []
+    
+    for script in SCRIPTS:
+        if not run_script(script):
+            failed_scripts.append(script)
             logger.error(f"Pipeline failed at {script}")
-            all_success = False
             break
-
-    if all_success:
-        logger.info("Pipeline completed successfully")
-        return 0
-    else:
-        logger.error("Pipeline failed")
+    
+    if failed_scripts:
+        logger.error(f"Pipeline failed. Failed scripts: {failed_scripts}")
         return 1
+    
+    logger.info("Pipeline completed successfully.")
+    return 0
 
 if __name__ == "__main__":
+    # Initialize logging early
+    setup_logging("INFO")
     sys.exit(main())
