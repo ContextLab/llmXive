@@ -19,7 +19,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 88 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 6 command(s) failed: python code/src/config.py --check (rc=1); python code/src/data/download_datasets.py (rc=1); python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 (rc=2); 2 declared deliverable(s) absent: data/processed/results/simulation_snr.csv; data/raw/pems_sf.csv
+**Summary**: 84 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 6 command(s) failed: python code/src/config.py --check (rc=1); python code/src/data/download_datasets.py (rc=1); python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 (rc=1); 1 declared deliverable(s) absent: data/processed/results/simulation_snr.csv
 
 ## Failing / missing run-book commands
 
@@ -33,28 +33,41 @@ Configuration Check
 ERROR: Missing required key: base_paths
 ❌ FAIL: Configuration structure validation failed
 - python code/src/data/download_datasets.py -> rc=1
-    xpected error downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00258/synthetic_control.data: urlretrieve() got an unexpected keyword argument 'context'
-2026-07-14 04:25:53,067 - WARNING - pems_sf: Dataset is deprecated and will be skipped
-2026-07-14 04:25:53,067 - INFO - Saved checksum cache to state/checksums.json
-2026-07-14 04:25:53,067 - INFO - ======================================================================
-2026-07-14 04:25:53,067 - INFO - Download Summary:
-2026-07-14 04:25:53,067 - INFO - ======================================================================
-2026-07-14 04:25:53,067 - ERROR -   electricity: FAILED - Download failed
-2026-07-14 04:25:53,067 - ERROR -   traffic: FAILED - Download failed
-2026-07-14 04:25:53,067 - ERROR -   synthetic_control_chart: FAILED - Download failed
-2026-07-14 04:25:53,067 - INFO -   pems_sf: SKIPPED - Dataset is deprecated
-2026-07-14 04:25:53,068 - ERROR - ======================================================================
-2026-07-14 04:25:53,068 - ERROR - ✗ 3 download(s) failed. Check error messages above.
-2026-07-14 04:25:53,068 - ERROR - ======================================================================
-- python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 -> rc=2
-    usage: synthetic_generator.py [-h] [--n_points N_POINTS] [--seed SEED]
-                              [--output OUTPUT]
-                              [--type {sine,linear,random_walk}]
-                              [--anomaly-type {point,contextual,collective}]
-synthetic_generator.py: error: unrecognized arguments: --anomaly-rate 0.05
+    ic.csv: module 'urllib.request' has no attribute 'report_hook'
+2026-07-14 06:44:48,823 - ERROR -   ✗ traffic: Download failed
+2026-07-14 06:44:48,823 - INFO - Processing dataset: synthetic_control_chart
+2026-07-14 06:44:48,840 - INFO - Downloading from https://archive.ics.uci.edu/ml/machine-learning-databases/00258/synthetic_control.data to /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/raw/synthetic_control.csv
+2026-07-14 06:44:48,840 - ERROR - Unexpected error downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00258/synthetic_control.data: module 'urllib.request' has no attribute 'report_hook'
+2026-07-14 06:44:48,841 - ERROR -   ✗ synthetic_control_chart: Download failed
+2026-07-14 06:44:48,841 - INFO - ======================================================================
+2026-07-14 06:44:48,841 - INFO - Download Summary: 0/3 datasets successful
+2026-07-14 06:44:48,841 - INFO - ======================================================================
+2026-07-14 06:44:48,841 - INFO - 
+Verifying integrity of downloaded datasets...
+2026-07-14 06:44:48,841 - ERROR - 
+✗ Some datasets failed download or verification.
+- python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 -> rc=1
+    s/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/data/synthetic_generator.py", line 240, in save_synthetic_dataset
+    json.dump({
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/__init__.py", line 179, in dump
+    for chunk in iterable:
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 432, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 326, in _iterencode_list
+    yield from chunks
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type int64 is not JSON serializable
 - python code/src/services/anomaly_detector.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 23, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 28, in <module>
     from models.dp_gmm import DPGMMModel, DPGMMConfig
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/dp_gmm.py", line 21, in <module>
     from models.anomaly_score import AnomalyScore
@@ -70,29 +83,21 @@ NameError: name 'List' is not defined. Did you mean: 'list'?
     from models.dpgmm import DPGMMModel, DPGMMConfig
 ModuleNotFoundError: No module named 'models.dpgmm'
 - python code/src/evaluation/robustness.py --subset-size 50 -> rc=1
-    4-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/robustness.py", line 444, in save_report
-    json.dump(report_dict, f, indent=2)
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/__init__.py", line 179, in dump
-    for chunk in iterable:
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 432, in _iterencode
-    yield from _iterencode_dict(o, _current_indent_level)
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
-    yield from chunks
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 326, in _iterencode_list
-    yield from chunks
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
-    yield from chunks
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 439, in _iterencode
-    o = _default(o)
-        ^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 180, in default
-    raise TypeError(f'Object of type {o.__class__.__name__} '
-TypeError: Object of type bool is not JSON serializable
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/robustness.py", line 32, in <module>
+    from ..data.windowing import sliding_window
+ImportError: attempted relative import with no known parent package
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/robustness.py", line 37, in <module>
+    from code.src.data.windowing import sliding_window
+ModuleNotFoundError: No module named 'code.src.data.windowing'
 
 ## Declared deliverables still missing
 
 - data/processed/results/simulation_snr.csv
-- data/raw/pems_sf.csv
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -129,8 +134,3 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/evaluation/simulation.py` — IS a run-book command
     - `code/src/simulation/ground_truth.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/results/simulation_snr.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/pems_sf.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/download_datasets.py` — NOT invoked by the run-book
-    - `code/scripts/verify_project_structure.py` — NOT invoked by the run-book
-    - `code/src/data/download_datasets.py` — IS a run-book command
-  Make ONE of these WRITE `data/raw/pems_sf.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

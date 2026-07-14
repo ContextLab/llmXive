@@ -2,7 +2,8 @@
 Migrate derived statistics from config.yaml to the state file.
 
 This script moves keys 'dataset_stats', 'inference_results', and 'simulation_metrics'
-from code/config.yaml to state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml,
+from projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/config.yaml 
+to state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml,
 then verifies the config file size is under 2048 bytes.
 
 If the keys do not exist in config.yaml, it creates empty placeholders in the state file
@@ -24,6 +25,7 @@ logger = logging.getLogger(__name__)
 # Define paths relative to project root
 # The script is at code/src/utils/migrate_config.py
 # Project root is 4 levels up: code/src/utils/ -> code/src/ -> code/ -> projects/.../
+# Note: The project structure is projects/PROJ-024-.../code/...
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 CONFIG_PATH = PROJECT_ROOT / "projects" / "PROJ-024-bayesian-nonparametrics-for-anomaly-dete" / "code" / "config.yaml"
 STATE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml"
@@ -37,7 +39,10 @@ def load_yaml(path: Path) -> dict:
         logger.warning(f"File not found: {path}. Returning empty dict.")
         return {}
     with open(path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f) or {}
+        content = f.read()
+        if not content.strip():
+            return {}
+        return yaml.safe_load(content) or {}
 
 def save_yaml(path: Path, data: dict) -> None:
     """Save data to a YAML file."""
@@ -53,6 +58,10 @@ def migrate_config() -> bool:
         True if migration was successful and config size is compliant, False otherwise.
     """
     logger.info(f"Loading config from {CONFIG_PATH}")
+    if not CONFIG_PATH.exists():
+        logger.error(f"Config file not found at {CONFIG_PATH}")
+        return False
+        
     config = load_yaml(CONFIG_PATH)
     
     logger.info(f"Loading state from {STATE_PATH}")
@@ -85,23 +94,16 @@ def migrate_config() -> bool:
             if key not in derived_stats:
                 derived_stats[key] = {}
     
-    # If no keys were found in config, we still ensure the state structure is populated 
-    # with empty dicts if they were missing, and we save the config as is (it's already clean).
-    # However, if the config DOES contain these keys, we removed them.
+    # Save state to ensure structure is updated (even if just initializing empty dicts)
+    logger.info(f"Saving updated state to {STATE_PATH}")
+    save_yaml(STATE_PATH, state)
     
-    if migrated_count > 0 or keys_found == 0:
-        # Always save state to ensure structure is updated (even if just initializing empty dicts)
-        logger.info(f"Saving updated state to {STATE_PATH}")
-        save_yaml(STATE_PATH, state)
-        
-        # Only save config if we actually removed keys
-        if migrated_count > 0:
-            logger.info(f"Saving updated config to {CONFIG_PATH}")
-            save_yaml(CONFIG_PATH, config)
-        else:
-            logger.info("No keys to migrate from config. Config remains unchanged.")
+    # Only save config if we actually removed keys
+    if migrated_count > 0:
+        logger.info(f"Saving updated config to {CONFIG_PATH}")
+        save_yaml(CONFIG_PATH, config)
     else:
-        logger.info("Migration logic completed without changes to files.")
+        logger.info("No keys to migrate from config. Config remains unchanged.")
     
     # Verify config size
     if not CONFIG_PATH.exists():
