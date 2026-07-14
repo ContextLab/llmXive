@@ -13,7 +13,10 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 CONFIG_PATH = PROJECT_ROOT / "code" / "config.yaml"
 SIZE_LIMIT = 2048  # bytes
 
-REQUIRED_KEYS = ['hyperparameters', 'seeds', 'paths']
+# Updated required keys to match the actual config.yaml structure (T007)
+# T007 specifies: "ONLY hyperparameters, seeds, and base paths"
+# We check for 'hyperparameters', 'seeds', and 'base_paths' as per the spec.
+REQUIRED_KEYS = ['hyperparameters', 'seeds', 'base_paths']
 
 def main():
     parser = argparse.ArgumentParser(description="Check project configuration validity.")
@@ -38,6 +41,7 @@ def main():
         
         if file_size > SIZE_LIMIT:
             print(f"ERROR: Configuration file size exceeds limit ({SIZE_LIMIT} bytes).")
+            print("Note: Derived statistics must be migrated to the state file per FR-009.")
             return 1
         
         print("✓ Configuration file size is within limits")

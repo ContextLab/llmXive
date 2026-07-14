@@ -13,13 +13,13 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”
 - code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…())                  # Return placeholder result         return EvaluationResu…”
 - code/scripts/verify_confusion_matrix.py: metric `y_scores` assigned from an RNG draw (line 50)
-- code/src/data/synthetic_generator.py: metric `duration` assigned from an RNG draw (line 196)
-- code/src/data/synthetic_generator.py: metric `duration` assigned from an RNG draw (line 242)
+- code/src/data/synthetic_generator.py: metric `duration` assigned from an RNG draw (line 214)
 - code/src/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363)
+- code/src/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348)
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 90 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 6 command(s) failed: python code/src/config.py --check (rc=1); python code/src/data/download_datasets.py (rc=1); python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 (rc=1); 1 declared deliverable(s) absent: data/processed/results/simulation_snr.csv
+**Summary**: 92 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 4 command(s) failed: python code/src/config.py --check (rc=1); python code/src/services/anomaly_detector.py (rc=1); python code/src/evaluation/simulation.py (rc=1); 1 declared deliverable(s) absent: data/processed/results/simulation_snr.csv
 
 ## Failing / missing run-book commands
 
@@ -27,43 +27,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
     ============================================================
 Configuration Check
 ============================================================
-✓ Configuration file exists: /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/config.yaml
-  Current size: 653 bytes (limit: 2048 bytes)
-✓ Configuration file size is within limits
-ERROR: Missing required key: base_paths
-❌ FAIL: Configuration structure validation failed
-- python code/src/data/download_datasets.py -> rc=1
-    2026-07-14 12:28:35,962 - INFO - Downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt to data/raw/electricity_load.csv
-2026-07-14 12:28:36,330 - ERROR - Download failed: HTTP Error 404: Not Found
-2026-07-14 12:28:36,348 - INFO - Downloading https://pems.dot.ca.gov/data/traffic_data.csv to data/raw/traffic_data.csv
-2026-07-14 12:28:36,577 - ERROR - Download failed: HTTP Error 404: Not Found
-2026-07-14 12:28:36,595 - INFO - Downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00258/synthetic_control.data to data/raw/synthetic_control.csv
-2026-07-14 12:28:36,820 - ERROR - Download failed: HTTP Error 404: Not Found
-2026-07-14 12:28:36,821 - INFO - Download Summary: 0/3 datasets successful
-2026-07-14 12:28:36,821 - ERROR - 
-✗ Some datasets failed download or verification.
-- python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 -> rc=1
-    /code/src/data/synthetic_generator.py", line 490, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/data/synthetic_generator.py", line 480, in main
-    dataset = generate_synthetic_timeseries(signal_config, anomaly_config, args.length)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/data/synthetic_generator.py", line 296, in generate_synthetic_timeseries
-    values, ground_truth = inject_collective_anomalies(values, anomaly_config, ground_truth)
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/data/synthetic_generator.py", line 242, in inject_collective_anomalies
-    duration = np.random.randint(config.anomaly_duration_min * 2, config.anomaly_duration_max * 2 + 1)
-                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'AnomalyConfig' object has no attribute 'anomaly_duration_min'
+ERROR: Configuration file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/code/config.yaml
 - python code/src/services/anomaly_detector.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 24, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 25, in <module>
     from models.anomaly_score import AnomalyScore
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/models/__init__.py", line 5, in <module>
-    from .dp_gmm import DPGMMConfig, DPGMMModel, ELBOHistory, ClusterAnomalyResult, main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/models/dp_gmm.py", line 125, in <module>
-    import _winapi
-ModuleNotFoundError: No module named '_winapi'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/anomaly_score.py", line 8, in <module>
+    class AnomalyScore:
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/anomaly_score.py", line 27, in AnomalyScore
+    component_assignments: Optional[List[int]] = field(default=None)
+                                    ^^^^
+NameError: name 'List' is not defined. Did you mean: 'list'?
 - python code/src/evaluation/simulation.py -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/simulation.py", line 27, in <module>

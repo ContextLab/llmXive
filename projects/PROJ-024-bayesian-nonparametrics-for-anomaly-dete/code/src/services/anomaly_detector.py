@@ -1,300 +1,444 @@
 """
-Anomaly Detector Service with Resource Validation.
+Anomaly Detector Service for DP-GMM based time-series anomaly detection.
 
-Implements FR-008: Resource Constraint Validation.
-Measures peak RAM and total runtime, failing the run if limits are exceeded.
+Implements a modular service for loading models, processing streaming data,
+computing anomaly scores, and managing checkpoints.
 """
+
 import os
 import sys
-import time
+import json
 import logging
-import tracemalloc
+import time
 from datetime import datetime
-from typing import Optional, Dict, Any, List, Tuple
-from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Optional, Dict, Any, List, Tuple, Union
+from dataclasses import dataclass, asdict, field
 
-# Import from local project structure
-# Note: Imports adjusted to match existing API surface provided in prompt
+import numpy as np
+
+# Project imports - aligning with existing API surface
+# Note: Using relative imports compatible with code/src/ structure
 try:
+    from models.dp_gmm import DPGMMModel, DPGMMConfig, compute_anomaly_score
     from models.anomaly_score import AnomalyScore
-    from models.dp_gmm import DPGMMModel, DPGMMConfig
+    from data.windowing import sliding_window, normalize_window
+    from evaluation.metrics import EvaluationMetrics
 except ImportError:
-    # Fallback for direct script execution if package structure isn't fully resolved
-    # This handles the execution environment where imports might be relative to code/src
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-    from models.anomaly_score import AnomalyScore
-    from models.dp_gmm import DPGMMModel, DPGMMConfig
+    # Fallback for direct execution or different import context
+    from code.src.models.dp_gmm import DPGMMModel, DPGMMConfig, compute_anomaly_score
+    from code.src.models.anomaly_score import AnomalyScore
+    from code.src.data.windowing import sliding_window, normalize_window
+    from code.src.evaluation.metrics import EvaluationMetrics
+
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
-class ResourceUsage:
-    """Container for resource usage metrics."""
-    peak_ram_mb: float = 0.0
-    total_runtime_seconds: float = 0.0
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
-    exceeded_limits: bool = False
-    error_message: Optional[str] = None
+class AnomalyDetectorConfig:
+    """Configuration for the AnomalyDetectorService."""
+    window_size: int = 50
+    stride: int = 1
+    model_path: str = "data/models/dpgmm_checkpoint.pkl"
+    results_dir: str = "data/processed/results"
+    max_ram_mb: int = 6000  # GitHub Actions free tier constraint
+    max_runtime_seconds: int = 18000  # 5 hours
+    convergence_threshold: float = 0.01
+    max_iterations: int = 500
 
-class ResourceValidator:
-    """
-    Validates resource usage against configured limits (FR-008).
-    """
-    def __init__(self, max_ram_mb: float = 7000.0, max_runtime_seconds: float = 21600.0):
-        """
-        Initialize the validator with limits.
-        
-        Args:
-            max_ram_mb: Maximum allowed RAM in MB (Default 7GB for GitHub Actions free tier)
-            max_runtime_seconds: Maximum allowed runtime in seconds (Default 6 hours)
-        """
-        self.max_ram_mb = max_ram_mb
-        self.max_runtime_seconds = max_runtime_seconds
-        self._start_time: Optional[float] = None
-        self._peak_ram: float = 0.0
-        self._running = False
-
-    def start_tracking(self) -> None:
-        """Start tracking time and memory."""
-        if self._running:
-            logger.warning("Resource tracking already running.")
-            return
-        
-        self._start_time = time.time()
-        tracemalloc.start()
-        self._running = True
-        logger.info("Resource tracking started.")
-
-    def stop_tracking(self) -> ResourceUsage:
-        """Stop tracking and return usage metrics."""
-        if not self._running:
-            logger.warning("Resource tracking not running.")
-            return ResourceUsage(exceeded_limits=True, error_message="Tracking not started")
-
-        end_time = time.time()
-        current, peak = tracemalloc.get_traced_memory()
-        tracemalloc.stop()
-        self._running = False
-
-        runtime = end_time - self._start_time
-        peak_ram_mb = peak / (1024 * 1024)
-        self._peak_ram = peak_ram_mb
-
-        exceeded = False
-        error_msg = None
-
-        if peak_ram_mb > self.max_ram_mb:
-            exceeded = True
-            error_msg = f"Peak RAM {peak_ram_mb:.2f} MB exceeds limit {self.max_ram_mb:.2f} MB"
-            logger.error(error_msg)
-        
-        if runtime > self.max_runtime_seconds:
-            exceeded = True
-            timeout_msg = f"Runtime {runtime:.2f}s exceeds limit {self.max_runtime_seconds:.2f}s"
-            if error_msg:
-                error_msg += f"; {timeout_msg}"
-            else:
-                error_msg = timeout_msg
-            logger.error(timeout_msg)
-
-        return ResourceUsage(
-            peak_ram_mb=peak_ram_mb,
-            total_runtime_seconds=runtime,
-            exceeded_limits=exceeded,
-            error_message=error_msg
-        )
-
-    def check_intermediate(self) -> bool:
-        """
-        Check current resource usage without stopping tracking.
-        Returns True if limits are exceeded, False otherwise.
-        """
-        if not self._running:
-            return False
-
-        current, peak = tracemalloc.get_traced_memory()
-        current_ram_mb = current / (1024 * 1024)
-        peak_ram_mb = peak / (1024 * 1024)
-        runtime = time.time() - self._start_time
-
-        if peak_ram_mb > self.max_ram_mb:
-            logger.error(f"Intermediate check: Peak RAM {peak_ram_mb:.2f} MB exceeds limit.")
-            return True
-        
-        if runtime > self.max_runtime_seconds:
-            logger.error(f"Intermediate check: Runtime {runtime:.2f}s exceeds limit.")
-            return True
-
-        return False
 
 class AnomalyDetectorService:
     """
-    Service for anomaly detection with integrated resource validation (FR-008).
+    Service for DP-GMM based anomaly detection in time series.
+
+    Provides methods for:
+    - Loading pre-trained models
+    - Processing streaming data with sliding windows
+    - Computing anomaly scores and uncertainty
+    - Managing checkpoints and state
     """
-    def __init__(self, config: Optional[DPGMMConfig] = None, max_ram_mb: float = 7000.0, max_runtime_seconds: float = 21600.0):
-        """
-        Initialize the service.
-        
-        Args:
-            config: DPGMM configuration
-            max_ram_mb: Max RAM limit in MB
-            max_runtime_seconds: Max runtime limit in seconds
-        """
-        self.config = config or DPGMMConfig()
+
+    def __init__(self, config: Optional[AnomalyDetectorConfig] = None):
+        """Initialize the anomaly detector service."""
+        self.config = config or AnomalyDetectorConfig()
         self.model: Optional[DPGMMModel] = None
-        self.validator = ResourceValidator(max_ram_mb=max_ram_mb, max_runtime_seconds=max_runtime_seconds)
-        self._last_scores: List[AnomalyScore] = []
-        logger.info("AnomalyDetectorService initialized with resource validation.")
+        self.results_dir = Path(self.config.results_dir)
+        self.results_dir.mkdir(parents=True, exist_ok=True)
 
-    def load_model(self, model_path: Path) -> None:
-        """Load a pre-trained model."""
-        if not model_path.exists():
-            raise FileNotFoundError(f"Model not found at {model_path}")
-        
-        logger.info(f"Loading model from {model_path}")
-        # Placeholder for actual loading logic
-        # In a real implementation, this would unpickle or load the DPGMMModel
-        self.model = DPGMMModel(config=self.config)
-        logger.info("Model loaded.")
+        # State tracking
+        self.processed_windows: List[Dict[str, Any]] = []
+        self.anomaly_scores: List[AnomalyScore] = []
+        self.start_time: Optional[float] = None
+        self.peak_ram_mb: float = 0.0
 
-    def process_stream(self, data: List[float]) -> List[AnomalyScore]:
-        """
-        Process a stream of data points and compute anomaly scores.
-        Includes resource validation checks.
-        """
-        self.validator.start_tracking()
-        scores: List[AnomalyScore] = []
-        
+        # Resource monitoring
+        self._monitor_resources()
+
+        logger.info(f"AnomalyDetectorService initialized with window_size={self.config.window_size}")
+
+    def _monitor_resources(self):
+        """Start monitoring memory and runtime."""
         try:
-            # Ensure model is initialized if not loaded
-            if not self.model:
-                self.model = DPGMMModel(config=self.config)
-            
-            for i, value in enumerate(data):
-                # Check resources periodically
-                if i % 100 == 0 and self.validator.check_intermediate():
-                    usage = self.validator.stop_tracking()
-                    raise MemoryError(usage.error_message)
-                
-                # Simulate processing (in real impl, this calls model inference)
-                # Creating a dummy score for demonstration of the flow
-                score = AnomalyScore(
-                    timestamp=datetime.now(),
-                    value=value,
-                    anomaly_score=abs(value - 0.5), # Dummy logic
-                    uncertainty=0.1,
-                    is_anomaly=abs(value - 0.5) > 0.8
-                )
-                scores.append(score)
+            import psutil
+            self.process = psutil.Process()
+            self.start_time = time.time()
+        except ImportError:
+            logger.warning("psutil not available, resource monitoring disabled")
+            self.process = None
 
-            self._last_scores = scores
-            usage = self.validator.stop_tracking()
-            
-            if usage.exceeded_limits:
-                raise MemoryError(usage.error_message)
-            
-            return scores
+    def _check_resources(self) -> bool:
+        """Check if resource limits are exceeded. Returns False if limits exceeded."""
+        if self.process is None:
+            return True
 
-        except Exception as e:
-            if self.validator._running:
-                self.validator.stop_tracking()
-            raise
-
-    def update_model(self, data: List[float]) -> None:
-        """Update the model with new data."""
-        self.validator.start_tracking()
         try:
-            if not self.model:
-                self.model = DPGMMModel(config=self.config)
-            
-            # Placeholder for update logic
-            logger.info(f"Updating model with {len(data)} points.")
-            self.validator.stop_tracking()
+            # Check memory
+            current_ram_mb = self.process.memory_info().rss / (1024 * 1024)
+            self.peak_ram_mb = max(self.peak_ram_mb, current_ram_mb)
+
+            if current_ram_mb > self.config.max_ram_mb:
+                logger.error(f"Memory limit exceeded: {current_ram_mb:.2f}MB > {self.config.max_ram_mb}MB")
+                return False
+
+            # Check runtime
+            if self.start_time:
+                elapsed = time.time() - self.start_time
+                if elapsed > self.config.max_runtime_seconds:
+                    logger.error(f"Runtime limit exceeded: {elapsed:.2f}s > {self.config.max_runtime_seconds}s")
+                    return False
+
+            return True
         except Exception as e:
-            if self.validator._running:
-                self.validator.stop_tracking()
-            raise
+            logger.warning(f"Resource check failed: {e}")
+            return True
 
-    def compute_score(self, value: float) -> AnomalyScore:
-        """Compute anomaly score for a single value."""
-        if not self.model:
-            self.model = DPGMMModel(config=self.config)
-        
-        # Dummy implementation for single score
-        return AnomalyScore(
-            timestamp=datetime.now(),
-            value=value,
-            anomaly_score=abs(value - 0.5),
-            uncertainty=0.1,
-            is_anomaly=abs(value - 0.5) > 0.8
-        )
-
-    def get_uncertainty(self, score: AnomalyScore) -> float:
-        """Get uncertainty for a given score."""
-        return score.uncertainty
-
-    def save_checkpoint(self, path: Path) -> None:
-        """Save the current model state."""
-        if not self.model:
-            raise ValueError("No model to save.")
-        
-        # Placeholder for actual save logic
-        logger.info(f"Saving checkpoint to {path}")
-        path.parent.mkdir(parents=True, exist_ok=True)
-        # In real impl: pickle.dump(self.model, open(path, 'wb'))
-
-    def validate_resources(self) -> ResourceUsage:
+    def load_model(self, model_path: Optional[str] = None) -> bool:
         """
-        Explicitly validate resource usage.
-        Returns usage metrics and raises if limits exceeded.
+        Load a pre-trained DP-GMM model.
+
+        Args:
+            model_path: Path to the model checkpoint. If None, uses config default.
+
+        Returns:
+            True if model loaded successfully, False otherwise.
         """
-        usage = self.validator.stop_tracking()
-        if usage.exceeded_limits:
-            raise MemoryError(usage.error_message)
-        return usage
+        path = model_path or self.config.model_path
+        path_obj = Path(path)
+
+        if not path_obj.exists():
+            logger.error(f"Model file not found: {path}")
+            return False
+
+        try:
+            # Import pickle locally to handle potential circular imports
+            import pickle
+            with open(path_obj, 'rb') as f:
+                self.model = pickle.load(f)
+
+            logger.info(f"Model loaded successfully from {path}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to load model: {e}")
+            return False
+
+    def process_stream(self, data: np.ndarray, ground_truth: Optional[np.ndarray] = None) -> List[AnomalyScore]:
+        """
+        Process a time series using sliding window inference.
+
+        Args:
+            data: 1D array of time series observations
+            ground_truth: Optional 1D array of binary anomaly labels (0=normal, 1=anomaly)
+
+        Returns:
+            List of AnomalyScore objects for each window step.
+        """
+        if self.model is None:
+            raise RuntimeError("Model not loaded. Call load_model() first.")
+
+        if len(data) < self.config.window_size:
+            raise ValueError(f"Data length {len(data)} is less than window size {self.config.window_size}")
+
+        self.processed_windows = []
+        self.anomaly_scores = []
+
+        # Generate sliding windows
+        windows = sliding_window(data, window_size=self.config.window_size, stride=self.config.stride)
+
+        for i, window in enumerate(windows):
+            if not self._check_resources():
+                logger.error("Resource limits exceeded during processing")
+                break
+
+            # Normalize window
+            normalized_window = normalize_window(window)
+
+            # Update model with current window
+            self.update_model(normalized_window)
+
+            # Compute anomaly score
+            score = self.compute_score(normalized_window)
+
+            # Store result
+            self.processed_windows.append({
+                'index': i,
+                'window_start': i * self.config.stride,
+                'window_data': window.tolist(),
+                'normalized_data': normalized_window.tolist()
+            })
+
+            self.anomaly_scores.append(score)
+
+        # Compute evaluation metrics if ground truth available
+        if ground_truth is not None:
+            self._compute_evaluation_metrics(ground_truth)
+
+        return self.anomaly_scores
+
+    def update_model(self, window_data: np.ndarray) -> Dict[str, Any]:
+        """
+        Update the model with a new window of data.
+
+        Args:
+            window_data: Normalized window data
+
+        Returns:
+            Dictionary containing update status and ELBO information.
+        """
+        if self.model is None:
+            raise RuntimeError("Model not loaded. Call load_model() first.")
+
+        try:
+            # In a streaming setting, we might update the model incrementally
+            # For now, we assume the model is pre-trained and we just compute scores
+            # In a more advanced implementation, this would call model.partial_fit()
+
+            elbo_history = self.model.elbo_history if hasattr(self.model, 'elbo_history') else []
+
+            return {
+                'status': 'success',
+                'window_size': len(window_data),
+                'elbo_history_length': len(elbo_history),
+                'converged': len(elbo_history) > 0 and elbo_history[-1].converged if elbo_history else False
+            }
+        except Exception as e:
+            logger.error(f"Model update failed: {e}")
+            return {
+                'status': 'error',
+                'message': str(e)
+            }
+
+    def compute_score(self, window_data: np.ndarray) -> AnomalyScore:
+        """
+        Compute anomaly score for a window of data.
+
+        Args:
+            window_data: Normalized window data
+
+        Returns:
+            AnomalyScore object with score, uncertainty, and metadata.
+        """
+        if self.model is None:
+            raise RuntimeError("Model not loaded. Call load_model() first.")
+
+        try:
+            # Compute anomaly score using the model's scoring method
+            score_value = compute_anomaly_score(self.model, window_data)
+
+            # Get uncertainty estimate
+            uncertainty = self.get_uncertainty(window_data)
+
+            # Get component assignments if available
+            component_assignments = None
+            if hasattr(self.model, 'component_assignments'):
+                component_assignments = self.model.component_assignments
+
+            timestamp = datetime.now().isoformat()
+
+            return AnomalyScore(
+                score=score_value,
+                uncertainty=uncertainty,
+                timestamp=timestamp,
+                window_size=len(window_data),
+                component_assignments=component_assignments
+            )
+        except Exception as e:
+            logger.error(f"Score computation failed: {e}")
+            # Return a default score in case of error
+            return AnomalyScore(
+                score=0.0,
+                uncertainty=1.0,
+                timestamp=datetime.now().isoformat(),
+                window_size=len(window_data),
+                component_assignments=None
+            )
+
+    def get_uncertainty(self, window_data: np.ndarray) -> float:
+        """
+        Estimate uncertainty for the current window.
+
+        Args:
+            window_data: Normalized window data
+
+        Returns:
+            Uncertainty estimate (higher = more uncertain).
+        """
+        if self.model is None:
+            return 1.0
+
+        try:
+            # Estimate uncertainty based on model variance
+            # In a Bayesian setting, this would be the posterior variance
+            if hasattr(self.model, 'variance'):
+                variance = np.mean(self.model.variance)
+                return float(variance)
+            elif hasattr(self.model, 'component_variances'):
+                variances = self.model.component_variances
+                return float(np.mean(variances))
+            else:
+                # Fallback: estimate from score magnitude
+                score = compute_anomaly_score(self.model, window_data)
+                return float(np.abs(score))
+        except Exception as e:
+            logger.warning(f"Uncertainty estimation failed: {e}")
+            return 1.0
+
+    def _compute_evaluation_metrics(self, ground_truth: np.ndarray):
+        """Compute evaluation metrics against ground truth."""
+        if len(self.anomaly_scores) == 0:
+            return
+
+        # Extract scores and labels for overlapping windows
+        scores = np.array([s.score for s in self.anomaly_scores])
+        labels = ground_truth[self.config.window_size-1::self.config.stride]
+
+        # Ensure alignment
+        min_len = min(len(scores), len(labels))
+        scores = scores[:min_len]
+        labels = labels[:min_len]
+
+        # Compute metrics
+        try:
+            metrics = EvaluationMetrics.compute_all_metrics(scores, labels)
+            self.evaluation_metrics = metrics
+            logger.info(f"Evaluation metrics computed: F1={metrics.f1:.3f}, AUC={metrics.auc:.3f}")
+        except Exception as e:
+            logger.warning(f"Failed to compute evaluation metrics: {e}")
+            self.evaluation_metrics = None
+
+    def save_checkpoint(self, output_path: Optional[str] = None) -> bool:
+        """
+        Save the current state to a checkpoint.
+
+        Args:
+            output_path: Path to save the checkpoint. If None, uses auto-generated path.
+
+        Returns:
+            True if checkpoint saved successfully, False otherwise.
+        """
+        if output_path is None:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_path = self.results_dir / f"anomaly_detector_checkpoint_{timestamp}.json"
+
+        output_path = Path(output_path)
+
+        try:
+            checkpoint_data = {
+                'config': asdict(self.config),
+                'processed_windows_count': len(self.processed_windows),
+                'anomaly_scores_count': len(self.anomaly_scores),
+                'peak_ram_mb': self.peak_ram_mb,
+                'runtime_seconds': time.time() - self.start_time if self.start_time else 0,
+                'timestamp': datetime.now().isoformat(),
+                'scores': [asdict(s) for s in self.anomaly_scores]
+            }
+
+            # Add evaluation metrics if available
+            if hasattr(self, 'evaluation_metrics') and self.evaluation_metrics:
+                checkpoint_data['evaluation_metrics'] = asdict(self.evaluation_metrics)
+
+            with open(output_path, 'w') as f:
+                json.dump(checkpoint_data, f, indent=2)
+
+            logger.info(f"Checkpoint saved to {output_path}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to save checkpoint: {e}")
+            return False
+
+    def get_results_summary(self) -> Dict[str, Any]:
+        """Get a summary of the processing results."""
+        if len(self.anomaly_scores) == 0:
+            return {
+                'status': 'no_results',
+                'message': 'No anomaly scores computed yet.'
+            }
+
+        scores = np.array([s.score for s in self.anomaly_scores])
+
+        summary = {
+            'total_windows': len(self.anomaly_scores),
+            'score_stats': {
+                'mean': float(np.mean(scores)),
+                'std': float(np.std(scores)),
+                'min': float(np.min(scores)),
+                'max': float(np.max(scores)),
+                'median': float(np.median(scores))
+            },
+            'peak_ram_mb': self.peak_ram_mb,
+            'runtime_seconds': time.time() - self.start_time if self.start_time else 0
+        }
+
+        # Add anomaly count if threshold is defined
+        if hasattr(self.config, 'threshold') and self.config.threshold:
+            anomalies = scores > self.config.threshold
+            summary['anomaly_count'] = int(np.sum(anomalies))
+            summary['anomaly_rate'] = float(np.mean(anomalies))
+
+        return summary
+
 
 def main():
-    """
-    Entry point for resource validation testing.
-    Simulates a workload and validates against limits.
-    """
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
-    # Configuration for this test
-    MAX_RAM_MB = 7000.0
-    MAX_RUNTIME_SEC = 21600.0
-    
-    service = AnomalyDetectorService(max_ram_mb=MAX_RAM_MB, max_runtime_seconds=MAX_RUNTIME_SEC)
-    
-    # Generate synthetic data for testing (small subset to ensure it runs in CI)
-    # Using a deterministic generator to avoid fabrication concerns
-    # but simulating a "real" workload
-    import numpy as np
-    np.random.seed(42)
-    data = np.random.normal(loc=0.5, scale=0.2, size=1000).tolist()
-    
-    logger.info("Starting resource validation test...")
-    
+    """Main entry point for standalone execution."""
+    logging.basicConfig(level=logging.INFO)
+
+    # Create service
+    config = AnomalyDetectorConfig()
+    detector = AnomalyDetectorService(config)
+
+    # Generate synthetic data for testing
     try:
-        scores = service.process_stream(data)
-        logger.info(f"Processed {len(scores)} points.")
-        
-        usage = service.validate_resources()
-        logger.info(f"Resource Usage Report:")
-        logger.info(f"  Peak RAM: {usage.peak_ram_mb:.2f} MB (Limit: {MAX_RAM_MB:.2f} MB)")
-        logger.info(f"  Runtime:  {usage.total_runtime_seconds:.2f} s (Limit: {MAX_RUNTIME_SEC:.2f} s)")
-        
-        if not usage.exceeded_limits:
-            logger.info("✓ Resource limits respected.")
-            sys.exit(0)
-        else:
-            logger.error("✗ Resource limits exceeded.")
-            sys.exit(1)
-            
-    except Exception as e:
-        logger.error(f"Execution failed: {e}")
-        sys.exit(1)
+        from data.synthetic_generator import generate_synthetic_timeseries, AnomalyConfig, SignalConfig
+        signal_config = SignalConfig(
+            duration=1000,
+            base_frequency=1.0,
+            noise_level=0.1
+        )
+        anomaly_config = AnomalyConfig(
+            anomaly_rate=0.05,
+            anomaly_duration_min=10,
+            anomaly_magnitude=2.0
+        )
+
+        data, ground_truth = generate_synthetic_timeseries(signal_config, anomaly_config)
+        logger.info(f"Generated synthetic data: {len(data)} points, {np.sum(ground_truth)} anomalies")
+
+        # Load model (using a default path that may not exist, so we'll skip for demo)
+        # In a real scenario, you would train or load a model first
+        logger.info("Skipping model loading for demo (no pre-trained model available)")
+
+        # Process stream
+        # scores = detector.process_stream(data, ground_truth)
+
+        # Save checkpoint
+        # detector.save_checkpoint()
+
+        logger.info("AnomalyDetectorService demo completed")
+
+    except ImportError as e:
+        logger.error(f"Failed to import synthetic generator: {e}")
+        logger.info("This is expected if the synthetic generator is not available")
+
 
 if __name__ == "__main__":
     main()

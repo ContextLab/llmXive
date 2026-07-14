@@ -12,7 +12,6 @@ This script performs the following steps:
 """
 import os
 import sys
-import json
 import yaml
 from pathlib import Path
 from datetime import datetime
@@ -60,7 +59,7 @@ def main():
         print(f"Note: Keys not found in config (already migrated?): {missing_keys}")
     
     if not migrated_data:
-        print("No derived statistics found to migrate.")
+        print("No derived statistics found to migrate (keys were empty or missing).")
     else:
         print(f"Migrating keys: {list(migrated_data.keys())}")
 

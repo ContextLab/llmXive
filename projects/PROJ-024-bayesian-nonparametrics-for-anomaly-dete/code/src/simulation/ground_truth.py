@@ -1,36 +1,21 @@
 """
-Ground Truth Simulation for Bayesian Nonparametrics Anomaly Detection.
+Ground Truth Simulation Study for Bayesian Nonparametric Anomaly Detection.
 
-This module implements a simulation study to verify the Signal-to-Noise Ratio (SNR)
-of the derivative of the concentration parameter (dot_alpha) under the null hypothesis.
-It generates synthetic time-series data with known anomaly characteristics, runs the
-simulation pipeline, and validates that the SNR > 1, ensuring the estimator can
-distinguish signal from noise.
+This module implements the simulation study to verify the Signal-to-Noise Ratio (SNR)
+of the time-varying concentration parameter derivative (d_alpha/dt) under the null
+hypothesis (no anomaly) and alternative hypothesis (anomaly present).
 
-Deliverable: data/processed/results/simulation_snr.csv
+Deliverable: Generates `data/processed/results/simulation_snr.csv` and asserts SNR > 1.
 """
 
 import os
 import sys
 import logging
-import argparse
-from pathlib import Path
-from dataclasses import dataclass, field
-from typing import Tuple, List, Optional, Dict, Any
 import numpy as np
 import pandas as pd
-
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(project_root / "code"))
-
-from src.data.synthetic_generator import (
-    AnomalyConfig,
-    SignalConfig,
-    SyntheticDataset,
-    generate_synthetic_timeseries
-)
-from src.utils.config_loader import load_config
+from pathlib import Path
+from typing import Tuple, Dict, List, Optional
+from dataclasses import dataclass, field
 
 # Configure logging
 logging.basicConfig(
@@ -39,212 +24,214 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Ensure paths are relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+DATA_OUTPUT_DIR = PROJECT_ROOT / "data" / "processed" / "results"
+DATA_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
 @dataclass
 class SimulationConfig:
     """Configuration for the ground truth simulation study."""
-    seed: int = 42
-    n_simulations: int = 100
+    n_windows: int = 100
     window_size: int = 50
-    anomaly_rate: float = 0.05
-    signal_strength: float = 2.0  # SNR target
-    noise_scale: float = 1.0
-    output_path: str = "data/processed/results/simulation_snr.csv"
-    min_snr_threshold: float = 1.0
+    anomaly_duration: int = 10
+    anomaly_magnitude: float = 3.0
+    noise_std: float = 1.0
+    seed: int = 42
+    n_replications: int = 5  # Number of simulation runs for averaging
 
-def generate_null_hypothesis_data(config: SimulationConfig) -> Tuple[np.ndarray, np.ndarray]:
+def generate_null_hypothesis_data(config: SimulationConfig) -> np.ndarray:
     """
-    Generate data under the null hypothesis (no anomaly) and alternative (anomaly).
-    
-    Returns:
-        Tuple of (signal_values, ground_truth_labels)
+    Generate time series data under the null hypothesis (no anomaly).
+    Returns a 1D array of length n_windows * window_size.
     """
     np.random.seed(config.seed)
-    
-    # Use the existing synthetic generator but with controlled parameters
-    # to simulate a known signal-to-noise scenario
-    
-    # Generate base signal (null hypothesis: normal behavior)
-    t = np.linspace(0, 10, 1000)
-    base_signal = np.sin(t) + 0.1 * np.random.randn(len(t))
-    
-    # Inject anomalies for alternative hypothesis
-    anomaly_indices = []
-    n_anomalies = int(len(t) * config.anomaly_rate)
-    anomaly_start = np.random.choice(len(t) - 20, n_anomalies)
-    
-    for start in anomaly_start:
-        end = min(start + 10, len(t))
-        # Inject a shift proportional to signal_strength
-        base_signal[start:end] += config.signal_strength * np.random.randn(end - start)
-        anomaly_indices.extend(range(start, end))
-    
-    ground_truth = np.zeros(len(t), dtype=int)
-    ground_truth[anomaly_indices] = 1
-    
-    return base_signal, ground_truth
+    total_length = config.n_windows * config.window_size
+    # Simple Gaussian noise process
+    data = np.random.normal(loc=0.0, scale=config.noise_std, size=total_length)
+    return data
 
-def compute_derivative_alpha(signal: np.ndarray, window_size: int) -> np.ndarray:
+def generate_alternative_hypothesis_data(config: SimulationConfig) -> np.ndarray:
     """
-    Compute the first derivative of the estimated alpha parameter.
-    
-    This is a simplified proxy for the actual DP-GMM alpha derivative,
-    calculated as the rate of change in signal variance within sliding windows.
+    Generate time series data under the alternative hypothesis (anomaly present).
+    Injects a collective anomaly (shift in mean) at a random location.
     """
-    n_windows = len(signal) - window_size + 1
-    derivatives = np.zeros(n_windows)
-    
+    np.random.seed(config.seed + 1)  # Different seed for anomaly injection
+    total_length = config.n_windows * config.window_size
+    data = np.random.normal(loc=0.0, scale=config.noise_std, size=total_length)
+
+    # Inject anomaly in the middle third of the series
+    start_idx = total_length // 3
+    end_idx = start_idx + config.anomaly_duration * config.window_size
+
+    # Ensure bounds
+    end_idx = min(end_idx, total_length)
+
+    # Inject a mean shift
+    data[start_idx:end_idx] += config.anomaly_magnitude * config.noise_std
+
+    return data
+
+def simulate_window_statistics(data: np.ndarray, config: SimulationConfig) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Simulate the extraction of window-level statistics that would be produced
+    by the DPGMM model. Specifically, we simulate the posterior mean of alpha
+    and its first derivative (d_alpha/dt).
+
+    Under the null hypothesis, alpha is stable (low derivative).
+    Under the alternative, alpha changes rapidly (high derivative).
+
+    We simulate this by:
+    1. Computing a simple rolling mean of the data as a proxy for the 'signal'.
+    2. Adding noise to simulate posterior uncertainty.
+    3. Computing the first difference (derivative) of this signal.
+
+    Returns:
+        alpha_means: Simulated posterior mean of alpha for each window.
+        alpha_derivatives: Simulated first derivative of alpha for each window.
+    """
+    window_size = config.window_size
+    n_windows = config.n_windows
+
+    # Extract windows
+    windows = []
     for i in range(n_windows):
-        window = signal[i:i + window_size]
-        # Estimate local variance as a proxy for alpha behavior
-        local_var = np.var(window)
-        if i > 0:
-            prev_window = signal[i-1:i-1+window_size]
-            prev_var = np.var(prev_window)
-            derivatives[i] = local_var - prev_var
-        else:
-            derivatives[i] = local_var
-    
-    return derivatives
+        start = i * window_size
+        end = start + window_size
+        if end > len(data):
+            break
+        windows.append(data[start:end])
 
-def calculate_snr(signal: np.ndarray, ground_truth: np.ndarray, 
-                 derivatives: np.ndarray) -> float:
+    windows = np.array(windows)
+
+    # Simulate alpha_mean: proportional to the mean of the window + noise
+    # Under null: mean ~ 0
+    # Under alt: mean ~ magnitude
+    window_means = np.mean(windows, axis=1)
+    alpha_means = window_means + np.random.normal(0, 0.1, size=n_windows)
+
+    # Simulate alpha_derivative: first difference of alpha_means
+    # We pad the first value to keep length consistent
+    alpha_derivatives = np.diff(alpha_means, prepend=alpha_means[0])
+
+    return alpha_means, alpha_derivatives
+
+def compute_snr(alpha_derivatives: np.ndarray, label: str) -> float:
     """
-    Calculate Signal-to-Noise Ratio for the derivative estimator.
-    
-    SNR = mean(|derivative| in anomaly regions) / std(derivative in normal regions)
+    Compute the Signal-to-Noise Ratio (SNR) for the derivative series.
+
+    SNR = |Mean(derivatives)| / Std(derivatives)
+
+    Under the null hypothesis, the mean derivative should be close to 0,
+    resulting in a low SNR.
+    Under the alternative hypothesis, the mean derivative should be non-zero,
+    resulting in a higher SNR.
+
+    Note: This is a simplified SNR definition for the simulation study.
+    In practice, the 'signal' is the systematic change in alpha, and 'noise'
+    is the stochastic variation.
     """
-    anomaly_mask = ground_truth == 1
-    normal_mask = ground_truth == 0
-    
-    # Avoid division by zero
-    if np.sum(normal_mask) == 0:
-        logger.warning("No normal samples found for noise estimation")
-        return 0.0
-    
-    if np.sum(anomaly_mask) == 0:
-        logger.warning("No anomaly samples found for signal estimation")
-        return 0.0
-    
-    signal_part = np.mean(np.abs(derivatives[anomaly_mask]))
-    noise_part = np.std(derivatives[normal_mask])
-    
-    if noise_part == 0:
-        logger.warning("Noise variance is zero, SNR undefined")
-        return float('inf')
-    
-    return signal_part / noise_part
+    mean_deriv = np.mean(alpha_derivatives)
+    std_deriv = np.std(alpha_derivatives)
+
+    if std_deriv == 0:
+        return float('inf') if mean_deriv != 0 else 0.0
+
+    snr = abs(mean_deriv) / std_deriv
+    return snr
 
 def run_simulation_study(config: SimulationConfig) -> pd.DataFrame:
     """
-    Run the full simulation study across multiple random seeds.
-    
-    Returns:
-        DataFrame with simulation results including SNR metrics.
+    Run the full simulation study across null and alternative hypotheses.
     """
-    results = []
-    
-    for sim_idx in range(config.n_simulations):
-        logger.info(f"Running simulation {sim_idx + 1}/{config.n_simulations}")
-        
-        # Generate data
-        signal, ground_truth = generate_null_hypothesis_data(
-            SimulationConfig(
-                seed=config.seed + sim_idx,
-                anomaly_rate=config.anomaly_rate,
-                signal_strength=config.signal_strength
-            )
-        )
-        
-        # Compute derivative proxy
-        derivatives = compute_derivative_alpha(signal, config.window_size)
-        
-        # Calculate SNR
-        snr = calculate_snr(signal, ground_truth, derivatives)
-        
-        results.append({
-            'simulation_id': sim_idx,
-            'seed': config.seed + sim_idx,
-            'snr': snr,
-            'signal_strength': config.signal_strength,
-            'anomaly_rate': config.anomaly_rate,
-            'window_size': config.window_size,
-            'passed': snr > config.min_snr_threshold
-        })
-    
-    return pd.DataFrame(results)
+    logger.info(f"Starting simulation study with config: {config}")
 
-def validate_results(df: pd.DataFrame, config: SimulationConfig) -> bool:
+    results = []
+
+    for rep in range(config.n_replications):
+        logger.info(f"Running replication {rep + 1}/{config.n_replications}")
+
+        # 1. Null Hypothesis (No Anomaly)
+        data_null = generate_null_hypothesis_data(config)
+        alpha_means_null, alpha_derivs_null = simulate_window_statistics(data_null, config)
+        snr_null = compute_snr(alpha_derivs_null, "null")
+
+        # 2. Alternative Hypothesis (Anomaly Present)
+        data_alt = generate_alternative_hypothesis_data(config)
+        alpha_means_alt, alpha_derivs_alt = simulate_window_statistics(data_alt, config)
+        snr_alt = compute_snr(alpha_derivs_alt, "alternative")
+
+        results.append({
+            "replication": rep + 1,
+            "hypothesis": "null",
+            "snr": snr_null,
+            "mean_derivative": np.mean(alpha_derivs_null),
+            "std_derivative": np.std(alpha_derivs_null)
+        })
+        results.append({
+            "replication": rep + 1,
+            "hypothesis": "alternative",
+            "snr": snr_alt,
+            "mean_derivative": np.mean(alpha_derivs_alt),
+            "std_derivative": np.std(alpha_derivs_alt)
+        })
+
+    df = pd.DataFrame(results)
+    return df
+
+def validate_results(df: pd.DataFrame) -> bool:
     """
-    Validate that the simulation results meet the SNR threshold.
-    
-    Returns:
-        True if average SNR > threshold, False otherwise.
+    Validate the simulation results.
+    The task requires that the SNR under the alternative hypothesis is > 1.
+    (Note: The prompt says "assert SNR > 1 in logs", implying the metric
+    of interest is the ability to detect the anomaly. We check the average
+    SNR across replications for the alternative hypothesis).
     """
-    avg_snr = df['snr'].mean()
-    passed_count = df['passed'].sum()
-    total_count = len(df)
-    
-    logger.info(f"Simulation Study Results:")
-    logger.info(f"  Total simulations: {total_count}")
-    logger.info(f"  Passed (SNR > {config.min_snr_threshold}): {passed_count}")
-    logger.info(f"  Average SNR: {avg_snr:.4f}")
-    
-    if avg_snr <= config.min_snr_threshold:
-        logger.error(f"CRITICAL: Average SNR ({avg_snr:.4f}) <= threshold ({config.min_snr_threshold})")
+    alt_snr = df[df["hypothesis"] == "alternative"]["snr"].mean()
+    null_snr = df[df["hypothesis"] == "null"]["snr"].mean()
+
+    logger.info(f"Average SNR (Null): {null_snr:.4f}")
+    logger.info(f"Average SNR (Alternative): {alt_snr:.4f}")
+
+    if alt_snr <= 1.0:
+        logger.error(f"VALIDATION FAILED: Average SNR ({alt_snr:.4f}) is not > 1.0 under alternative hypothesis.")
         return False
-    
-    logger.info(f"SUCCESS: Average SNR ({avg_snr:.4f}) > threshold ({config.min_snr_threshold})")
+
+    logger.info("VALIDATION PASSED: SNR > 1 under alternative hypothesis.")
     return True
 
-def save_results(df: pd.DataFrame, output_path: str) -> None:
-    """Save simulation results to CSV."""
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Results saved to: {output_path}")
-
 def main():
-    parser = argparse.ArgumentParser(description="Ground Truth Simulation Study")
-    parser.add_argument('--seed', type=int, default=42, help='Random seed')
-    parser.add_argument('--n-simulations', type=int, default=100, help='Number of simulations')
-    parser.add_argument('--window-size', type=int, default=50, help='Window size for derivative calculation')
-    parser.add_argument('--anomaly-rate', type=float, default=0.05, help='Anomaly injection rate')
-    parser.add_argument('--signal-strength', type=float, default=2.0, help='Signal strength for anomaly injection')
-    parser.add_argument('--output', type=str, default='data/processed/results/simulation_snr.csv', 
-                      help='Output CSV path')
-    parser.add_argument('--min-snr', type=float, default=1.0, help='Minimum SNR threshold for pass')
-    
-    args = parser.parse_args()
-    
+    """Main entry point for the simulation study."""
     config = SimulationConfig(
-        seed=args.seed,
-        n_simulations=args.n_simulations,
-        window_size=args.window_size,
-        anomaly_rate=args.anomaly_rate,
-        signal_strength=args.signal_strength,
-        output_path=args.output,
-        min_snr_threshold=args.min_snr
+        n_windows=100,
+        window_size=50,
+        anomaly_duration=10,
+        anomaly_magnitude=3.0,
+        noise_std=1.0,
+        seed=42,
+        n_replications=5
     )
-    
-    logger.info("Starting Ground Truth Simulation Study")
-    logger.info(f"Configuration: {config}")
-    
-    # Run simulation
-    results_df = run_simulation_study(config)
-    
-    # Validate results
-    is_valid = validate_results(results_df, config)
-    
-    # Save results
-    save_results(results_df, config.output_path)
-    
-    # Exit with appropriate code
-    if not is_valid:
-        logger.error("Simulation validation failed. Pipeline must halt.")
+
+    try:
+        df_results = run_simulation_study(config)
+
+        # Save to CSV
+        output_path = DATA_OUTPUT_DIR / "simulation_snr.csv"
+        df_results.to_csv(output_path, index=False)
+        logger.info(f"Simulation results saved to: {output_path}")
+
+        # Validate
+        is_valid = validate_results(df_results)
+
+        if not is_valid:
+            logger.error("Simulation study failed validation. Exiting with error.")
+            sys.exit(1)
+
+        logger.info("Ground Truth Simulation Study completed successfully.")
+
+    except Exception as e:
+        logger.error(f"Simulation study failed with exception: {e}", exc_info=True)
         sys.exit(1)
-    
-    logger.info("Simulation study completed successfully.")
-    sys.exit(0)
 
 if __name__ == "__main__":
     main()
