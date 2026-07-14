@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T009** — No `tests/contract/test_schemas.py` file or any test code validating `aligned_dataset.schema.yaml` is present in the provided evidence, and the schema file itself is not shown. Consequently the required contract test artifact is missing, so the task is not satisfied.
+- **T010** — No evidence of a `tests/integration/test_pipeline.py` file containing an integration test for data alignment is provided; the claim lacks the required test artifact, so the task is not satisfied.
+- **T011a** — The required output file `data/raw/reanalysis.nc` is missing, so the data fetching step was not performed and no artifact was produced. The task’s core requirement—saving the reanalysis dataset to the specified path—remains unmet.
+- **T011b** — The required output file `data/raw/modis.nc` does not exist, so the MODIS data was not fetched and saved as specified. The implementer must create the file by loading the dataset and writing it to the indicated path.
+- **T011** — The required output file `data/raw/seabass.csv` does not exist, so no data was fetched or saved. Without this CSV, the task of retrieving SeaBASS in‑situ measurements and storing them in the specified location is not satisfied. The implementer must create the file with the requested variables.
+- **T012** — The `code/02_preprocessing.py` stops mid‑function and contains a placeholder `interpolate_gaps` that never performs real interpolation or writes error metrics, and the required `data/logs/interpolation_error.log` file is absent. Consequently, the script does not fully implement grid coarsening, monthly compositing, gap interpolation with error quantification, or flagging of larger gaps as specified.

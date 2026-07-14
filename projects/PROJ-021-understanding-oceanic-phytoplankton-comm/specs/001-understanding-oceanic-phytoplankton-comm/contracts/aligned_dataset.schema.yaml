@@ -1,72 +1,181 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "AlignedDataset"
-description: "Schema for the final aligned dataset (root object)."
-type: "object"
+# Schema definition for the aligned phytoplankton dataset
+# Used for contract testing in T009
+required_keys:
+  - metadata
+  - data
+  - basins
+
 properties:
   metadata:
-    type: "object"
-    properties:
-      source:
-        type: "string"
-        description: "Data sources used (e.g., SeaBASS)."
-      processing_date:
-        type: "string"
-        description: "ISO8601 date."
-      missingness_rate:
-        type: "number"
-        description: "Percentage of missing values (must be ≤ 5)."
-      power_analysis_status:
-        type: "string"
-        description: "Status of power analysis (e.g., 'sufficient', 'reduced_scope')."
+    type: object
     required:
       - source
-      - processing_date
-      - missingness_rate
-  data:
-    type: "array"
-    items:
-      $ref: "#/definitions/PhytoplanktonSample"
-definitions:
-  PhytoplanktonSample:
-    type: "object"
+      - timestamp
+      - version
     properties:
-      sample_id:
-        type: "string"
-      latitude:
-        type: "number"
-      longitude:
-        type: "number"
+      source:
+        type: string
+        description: "Data source identifier (e.g., 'MODIS-SeaBASS-Copernicus')"
       timestamp:
-        type: "string"
-      chlorophyll_a:
-        type: "number"
-      temperature:
-        type: "number"
-      salinity:
-        type: "number"
-      nutrients:
-        type: "object"
-        properties:
-          nitrate:
-            type: "number"
-          phosphate:
-            type: "number"
-      basin:
-        type: "string"
-      quality_flag:
-        type: "string"
-      image_patch_path:
-        type: "string"
-        description: "Path to the real satellite patch file."
-    required:
-      - sample_id
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of dataset creation"
+      version:
+        type: string
+        description: "Semantic version of the dataset"
+      processing_steps:
+        type: array
+        items:
+          type: string
+        description: "List of processing steps applied"
+      spatial_resolution:
+        type: string
+        description: "Spatial resolution of the grid (e.g., '0.25deg')"
+      temporal_resolution:
+        type: string
+        description: "Temporal resolution of the composites (e.g., 'monthly')"
+      total_samples:
+        type: integer
+        description: "Total number of samples in the dataset"
+      basins_included:
+        type: array
+        items:
+          type: string
+        description: "List of ocean basin IDs included"
+
+  data:
+    type: array
+    description: "List of aligned sample records"
+    required_columns:
       - latitude
       - longitude
-      - timestamp
+      - depth
       - chlorophyll_a
       - temperature
       - salinity
-      - nutrients
-      - basin
-      - quality_flag
-      - image_patch_path
+      - basin_id
+    critical_columns:
+      - chlorophyll_a
+      - latitude
+      - longitude
+      - basin_id
+    properties:
+      latitude:
+        type: number
+        minimum: -90
+        maximum: 90
+        description: "Latitude in degrees"
+      longitude:
+        type: number
+        minimum: -180
+        maximum: 180
+        description: "Longitude in degrees"
+      depth:
+        type: number
+        minimum: 0
+        description: "Depth in meters"
+      chlorophyll_a:
+        type: number
+        minimum: 0
+        description: "Chlorophyll-a concentration in mg/m^3"
+      temperature:
+        type: number
+        description: "Sea surface temperature in degrees Celsius"
+      salinity:
+        type: number
+        description: "Salinity in PSU"
+      basin_id:
+        type: string
+        pattern: "^[A-Z]{4}$"
+        description: "Ocean basin identifier (e.g., NATL, SPAC, INDO)"
+      month:
+        type: integer
+        minimum: 1
+        maximum: 12
+        description: "Month of observation"
+      year:
+        type: integer
+        description: "Year of observation"
+      data_source:
+        type: string
+        enum:
+          - "MODIS"
+          - "SeaBASS"
+          - "Copernicus"
+          - "Interpolated"
+        description: "Primary data source for this record"
+      interpolation_flag:
+        type: boolean
+        description: "True if value was interpolated to fill gap"
+      interpolation_error_estimate:
+        type: number
+        minimum: 0
+        description: "Estimated error from interpolation (if applicable)"
+
+  basins:
+    type: object
+    description: "Stratification statistics by ocean basin"
+    expected_ids:
+      - "NATL"
+      - "SATL"
+      - "NPRC"
+      - "SPRC"
+      - "INDO"
+      - "ARCT"
+      - "MEDIT"
+    properties:
+      basin_id:
+        type: object
+        required:
+          - count
+          - bbox
+        properties:
+          count:
+            type: integer
+            minimum: 0
+            description: "Number of samples in this basin"
+          bbox:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+            minItems: 2
+            maxItems: 2
+            description: "Bounding box [[min_lon, min_lat], [max_lon, max_lat]]"
+          mean_chl_a:
+            type: number
+            description: "Mean chlorophyll-a for this basin"
+          std_chl_a:
+            type: number
+            description: "Standard deviation of chlorophyll-a"
+          temporal_coverage:
+            type: object
+            properties:
+              start_year:
+                type: integer
+              end_year:
+                type: integer
+
+# Validation rules
+rules:
+  - name: "no_missing_critical_values"
+    description: "Critical columns must not have missing values"
+    applies_to: "data"
+  - name: "basin_stratification"
+    description: "All samples must be assigned to a valid basin"
+    applies_to: "data.basin_id"
+  - name: "temporal_overlap"
+    description: "Dataset must cover at least 10 years of data"
+    applies_to: "metadata"
+  - name: "spatial_consistency"
+    description: "Coordinates must be within valid ranges"
+    applies_to: "data.latitude, data.longitude"
+
+# Metadata about the schema itself
+_schema_info:
+  version: "1.0.0"
+  created: "2023-10-15"
+  updated: "2023-10-15"
+  author: "llmXive Pipeline"
+  description: "Schema for aligned phytoplankton dataset combining satellite and in-situ data"

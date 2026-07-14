@@ -1,0 +1,42 @@
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files that are intentionally generated or third-party
+exclude = [
+    "data/",
+    "docs/",
+    ".eggs",
+    "*.egg-info",
+    "build",
+    "dist",
+    "venv",
+]
+
+per-file-ignores = {}
+
+# Same as Black.
+line-length = 88
+
+# Assume Python 3.11
+target-version = "py311"
+
+[lint.isort]
+known-first-party = ["utils"]
+force-sort-within-sections = false
+lines-after-imports = 2

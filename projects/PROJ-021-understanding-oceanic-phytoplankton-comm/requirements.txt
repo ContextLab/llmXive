@@ -1,0 +1,10 @@
+pandas
+numpy
+scikit-learn
+torch
+transformers
+xarray
+netCDF4
+matplotlib
+seaborn
+datasets

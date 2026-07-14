@@ -1,44 +1,121 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "ModelPerformance"
-description: "Schema for model evaluation results."
-type: "object"
-properties:
-  model_type:
-    type: "string"
-    enum:
-      - "RandomForest"
-      - "VLM"
-    description: "Type of model evaluated."
-  dataset_split:
-    type: "string"
-    enum:
-      - "train"
-      - "val"
-      - "test"
-    description: "Dataset split used for evaluation."
-  rmse:
-    type: "number"
-    description: "Root Mean Square Error."
-  r_squared:
-    type: "number"
-    description: "R-squared coefficient."
-  mae:
-    type: "number"
-    description: "Mean Absolute Error."
-  basin:
-    type: "string"
-    description: "Ocean basin (or 'global')."
-  timestamp:
-    type: "string"
-    description: "ISO8601 timestamp of evaluation."
-  fdr_corrected_p_value:
-    type: "number"
-    description: "Benjamini-Hochberg corrected p-value."
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://llmxive.org/schemas/model_performance.schema.yaml
+title: Model Performance Schema
+description: |
+  Schema for model evaluation metrics and performance results.
+  Captures regression metrics, statistical tests, and basin-stratified scores.
+type: object
 required:
+  - model_name
   - model_type
-  - dataset_split
-  - rmse
-  - r_squared
-  - mae
-  - basin
-  - timestamp
+  - evaluation_timestamp
+  - metrics
+  - basin_metrics
+properties:
+  model_name:
+    type: string
+    description: Name/identifier of the trained model
+  model_type:
+    type: string
+    enum:
+      - RANDOM_FOREST
+      - VLM_CLIP
+      - BASELINE
+    description: Type of model architecture
+  evaluation_timestamp:
+    type: string
+    format: date-time
+    description: Timestamp when evaluation was performed
+  dataset_version:
+    type: string
+    description: Version hash of the dataset used for evaluation
+  metrics:
+    type: object
+    required:
+      - rmse
+      - r_squared
+      - mae
+      - n_samples
+    properties:
+      rmse:
+        type: number
+        minimum: 0
+        description: Root Mean Square Error
+      r_squared:
+        type: number
+        description: Coefficient of determination (R²)
+      mae:
+        type: number
+        minimum: 0
+        description: Mean Absolute Error
+      n_samples:
+        type: integer
+        minimum: 1
+        description: Number of samples in the test set
+      runtime_seconds:
+        type: number
+        minimum: 0
+        description: Wall-clock time for inference
+  basin_metrics:
+    type: object
+    description: Performance metrics stratified by ocean basin
+    additionalProperties:
+      type: object
+      required:
+        - rmse
+        - r_squared
+        - mae
+        - n_samples
+      properties:
+        rmse:
+          type: number
+          minimum: 0
+        r_squared:
+          type: number
+        mae:
+          type: number
+          minimum: 0
+        n_samples:
+          type: integer
+          minimum: 1
+  statistical_tests:
+    type: object
+    description: Results of statistical significance tests
+    properties:
+      paired_t_test:
+        type: object
+        properties:
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          confidence_interval:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+          significant_at_005:
+            type: boolean
+      bootstrap:
+        type: object
+        properties:
+          mean_difference:
+            type: number
+          ci_lower:
+            type: number
+          ci_upper:
+            type: number
+  hyperparameters:
+    type: object
+    description: Model hyperparameters used for training
+  artifacts:
+    type: object
+    properties:
+      model_path:
+        type: string
+      config_path:
+        type: string
+      log_path:
+        type: string
+additionalProperties: false

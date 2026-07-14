@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "phytoplankton-research"
+version = "0.1.0"
+description = "Understanding Oceanic Phytoplankton Communities through Remote Sensing"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "torch",
+    "transformers",
+    "xarray",
+    "netCDF4",
+    "matplotlib",
+    "seaborn",
+    "datasets",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+)/
+'''
+
+[tool.ruff]
+# Path to the configuration file for Ruff
+# This file is also referenced in the root, but this ensures project-local settings
+extend = ".ruff.toml"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]
+addopts = "-v"
+
+[tool.setuptools.packages.find]
+where = ["code"]

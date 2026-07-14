@@ -1,0 +1,31 @@
+# Standalone ruff configuration file for IDE compatibility
+# This file mirrors settings in pyproject.toml
+
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
+
+[lint.isort]
+known-first-party = ["utils", "01_fetch_modis", "02_preprocessing", "03_model_training", "04_evaluation", "05_versioning_state"]
+force-sort-within-sections = true
+
+[format]
+exclude = [
+    "data",
+    "figures",
+    "specs",
+]
