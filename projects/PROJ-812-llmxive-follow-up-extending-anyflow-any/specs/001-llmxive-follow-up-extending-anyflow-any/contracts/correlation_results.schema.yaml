@@ -1,0 +1,30 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+properties:
+  pearson_r:
+    type: number
+    description: "Pearson correlation coefficient"
+  spearman_rho:
+    type: number
+    description: "Spearman rank correlation coefficient"
+  p_value:
+    type: number
+    description: "P-value for the correlation test"
+    minimum: 0.0
+    maximum: 1.0
+  relationship_type:
+    type: string
+    description: "Type of relationship (must be 'Associational')"
+    const: "Associational"
+  variance_score:
+    type: number
+    description: "Variance of the continuity scores"
+    minimum: 0.0
+required:
+  - pearson_r
+  - spearman_rho
+  - p_value
+  - relationship_type
+  - variance_score
+additionalProperties: false
+description: "Schema for data/processed/correlation_results.json"

@@ -1,26 +1,37 @@
-resolved_at: '2026-07-11T20:22:21.349460+00:00'
+resolved_at: '2026-07-14T20:59:36.570027+00:00'
 datasets:
 - intent: AnyFlow
-  status: unresolved
-  candidates: []
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/simbahuang/anyflow-p0-status/resolve/main/experiments/anyflow-aapt-go24h-20260712T0235/a-dynamics500-s0/manifests/a_checkpoint_manifest.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 911
+      parsed: true
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
+  - url: https://huggingface.co/datasets/simbahuang/anyflow-p0-status/resolve/main/experiments/anyflow-aapt-go24h-20260712T0235/a-dynamics500-s0/manifests/a_checkpoint_manifest.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_Five-year_timeseries_of_sap-flux-scaled_transpiration_reveals_inter-annual_variation_between_tree_water_use_and_precipitation_in_a_pinyon_and_juniper_woodland/29175224
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
+  - url: https://figshare.com/articles/thesis/From_Observation_to_Governed_Operational_Control_A_Core-Defense_Template_Verification_Workflow_for_GPT-5_6_Linking_Possibility-Space_Reconstruction_Feedback_Loops_and_Human_Governance/32987768
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
+  - url: https://figshare.com/articles/online_resource/Supplemental_File_to_Baseline_Phenotypes_and_Short-Term_Respiratory_Outcomes_After_Hydrocortisone_in_Ventilated_Extremely_Preterm_Infants_/32987762
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964425
+  - url: https://figshare.com/articles/book/_b_The_Longevity_Code_b_How_SIRT1_and_Computational_Science_are_Reshaping_the_Search_for_Longevity/32987759
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Polarization_Engineering_of_Second-Harmonic_Generation_in_3R-MoS_sub_2_sub_Waveguides/32964422
+  - url: https://figshare.com/articles/dataset/Data_and_code_from_Horizontally_acquired_mitochondrial_alternative_oxidase_contributes_to_springtail_bioenergetics_and_life_belowground/32536254
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -36,23 +47,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_Five-year_timeseries_of_sap-flux-scaled_transpiration_reveals_inter-annual_variation_between_tree_water_use_and_precipitation_in_a_pinyon_and_juniper_woodland/29175224
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
+  - url: https://figshare.com/articles/thesis/From_Observation_to_Governed_Operational_Control_A_Core-Defense_Template_Verification_Workflow_for_GPT-5_6_Linking_Possibility-Space_Reconstruction_Feedback_Loops_and_Human_Governance/32987768
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
+  - url: https://figshare.com/articles/online_resource/Supplemental_File_to_Baseline_Phenotypes_and_Short-Term_Respiratory_Outcomes_After_Hydrocortisone_in_Ventilated_Extremely_Preterm_Infants_/32987762
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964425
+  - url: https://figshare.com/articles/book/_b_The_Longevity_Code_b_How_SIRT1_and_Computational_Science_are_Reshaping_the_Search_for_Longevity/32987759
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Polarization_Engineering_of_Second-Harmonic_Generation_in_3R-MoS_sub_2_sub_Waveguides/32964422
+  - url: https://figshare.com/articles/dataset/Data_and_code_from_Horizontally_acquired_mitochondrial_alternative_oxidase_contributes_to_springtail_bioenergetics_and_life_belowground/32536254
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -72,27 +83,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
+  - url: https://zenodo.org/records/10199277
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21313048
+  - url: https://arxiv.org/abs/2607.05920
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21313048
+  - url: https://arxiv.org/abs/2606.17390
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21308155
+  - url: https://arxiv.org/abs/2607.10615
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21308155
+  - url: https://arxiv.org/abs/2607.10044
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21307430
+  - url: https://arxiv.org/abs/2607.09835
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -126,23 +137,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Cuadro_suplementario_3_Cobertura_estimada_de_vacunaci_n_por_biol_gico_en_NN_por_subgrupos_de_edad_de_medici_n_m_todo_y_edici_n_de_Ensanut_M_xico_Ensanut_continua_2021-2024_/32964419
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_Five-year_timeseries_of_sap-flux-scaled_transpiration_reveals_inter-annual_variation_between_tree_water_use_and_precipitation_in_a_pinyon_and_juniper_woodland/29175224
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964431
+  - url: https://figshare.com/articles/thesis/From_Observation_to_Governed_Operational_Control_A_Core-Defense_Template_Verification_Workflow_for_GPT-5_6_Linking_Possibility-Space_Reconstruction_Feedback_Loops_and_Human_Governance/32987768
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964428
+  - url: https://figshare.com/articles/online_resource/Supplemental_File_to_Baseline_Phenotypes_and_Short-Term_Respiratory_Outcomes_After_Hydrocortisone_in_Ventilated_Extremely_Preterm_Infants_/32987762
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Organophotoredox-Catalyzed_Carbamoylative_Carboxylation_of_Alkenes_at_Ambient_Pressure_of_CO_sub_2_sub_/32964425
+  - url: https://figshare.com/articles/book/_b_The_Longevity_Code_b_How_SIRT1_and_Computational_Science_are_Reshaping_the_Search_for_Longevity/32987759
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Polarization_Engineering_of_Second-Harmonic_Generation_in_3R-MoS_sub_2_sub_Waveguides/32964422
+  - url: https://figshare.com/articles/dataset/Data_and_code_from_Horizontally_acquired_mitochondrial_alternative_oxidase_contributes_to_springtail_bioenergetics_and_life_belowground/32536254
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -162,27 +173,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15741207
+  - url: https://zenodo.org/records/3899507
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21304302
+  - url: https://zenodo.org/records/21363368
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21304302
+  - url: https://zenodo.org/records/21363368
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21298970
+  - url: https://zenodo.org/records/21361683
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21298970
+  - url: https://zenodo.org/records/21361683
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21297959
+  - url: https://zenodo.org/records/21359199
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

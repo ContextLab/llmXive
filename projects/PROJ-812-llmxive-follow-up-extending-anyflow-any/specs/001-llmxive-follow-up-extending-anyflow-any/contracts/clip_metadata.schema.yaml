@@ -1,0 +1,34 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+properties:
+  video_id:
+    type: string
+    description: "Unique identifier for the video clip"
+  source_url:
+    type: string
+    description: "Original URL of the video source"
+  file_path:
+    type: string
+    description: "Local path to the 16-frame clip"
+  frame_count:
+    type: integer
+    description: "Number of frames in the clip (always 16)"
+    minimum: 16
+    maximum: 16
+  fps:
+    type: integer
+    description: "Frames per second (always 30)"
+    minimum: 30
+    maximum: 30
+  has_cut:
+    type: boolean
+    description: "Whether the clip contains an abrupt scene cut"
+required:
+  - video_id
+  - source_url
+  - file_path
+  - frame_count
+  - fps
+  - has_cut
+additionalProperties: false
+description: "Schema for data/raw/clip_metadata.csv"

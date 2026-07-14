@@ -39,6 +39,23 @@ properties:
   conclusion:
     type: "string"
     description: "Text summary of the findings, explicitly stating associational nature"
+  stability_check:
+    type: "object"
+    description: "Result of the Constitution VI stability check"
+    properties:
+      stability_met:
+        type: "boolean"
+        description: "True if correlation stability is within ±0.05 tolerance"
+      noise_level:
+        type: "number"
+        description: "Noise level applied (e.g., 0.01)"
+      delta_r:
+        type: "number"
+        description: "Change in Pearson r after noise"
+    required:
+      - stability_met
+      - noise_level
+      - delta_r
 required:
   - pearson_r
   - pearson_p
@@ -47,4 +64,5 @@ required:
   - n_samples
   - thresholds
   - conclusion
+  - stability_check
 additionalProperties: false

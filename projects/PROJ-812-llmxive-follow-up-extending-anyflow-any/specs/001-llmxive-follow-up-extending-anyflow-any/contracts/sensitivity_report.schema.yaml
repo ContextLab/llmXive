@@ -1,0 +1,26 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+properties:
+  threshold:
+    type: number
+    description: "Classification threshold value"
+    enum:
+      - 0.01
+      - 0.05
+      - 0.1
+  false_positive_rate:
+    type: number
+    description: "False positive rate at this threshold"
+    minimum: 0.0
+    maximum: 1.0
+  false_negative_rate:
+    type: number
+    description: "False negative rate at this threshold"
+    minimum: 0.0
+    maximum: 1.0
+required:
+  - threshold
+  - false_positive_rate
+  - false_negative_rate
+additionalProperties: false
+description: "Schema for data/processed/sensitivity_report.csv"

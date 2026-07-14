@@ -1,0 +1,19 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+properties:
+  metric:
+    type: string
+    description: "Name of the metric (e.g., 'continuity_score')"
+  variance:
+    type: number
+    description: "Calculated variance of the metric"
+    minimum: 0.0
+  threshold_met:
+    type: boolean
+    description: "Whether variance >= 0.05"
+required:
+  - metric
+  - variance
+  - threshold_met
+additionalProperties: false
+description: "Schema for data/processed/variance_report.csv"

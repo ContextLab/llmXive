@@ -1,0 +1,35 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+properties:
+  video_id:
+    type: string
+    description: "Foreign key to VideoClip"
+  divergence_score:
+    type: number
+    description: "L2 distance between model prediction and Euler baseline"
+    minimum: 0.0
+  euler_steps:
+    type: integer
+    description: "Number of steps used in Euler baseline (500 or 200)"
+    enum:
+      - 200
+      - 500
+  inference_time_sec:
+    type: number
+    description: "Time taken for inference in seconds"
+    minimum: 0.0
+  status:
+    type: string
+    description: "Status of the inference"
+    enum:
+      - success
+      - error
+      - skipped
+required:
+  - video_id
+  - divergence_score
+  - euler_steps
+  - inference_time_sec
+  - status
+additionalProperties: false
+description: "Schema for data/processed/divergence_metrics.csv"

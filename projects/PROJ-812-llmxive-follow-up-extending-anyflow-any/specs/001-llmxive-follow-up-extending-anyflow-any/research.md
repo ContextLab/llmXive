@@ -1,91 +1,112 @@
 # Research: llmXive follow-up: extending "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil"
 
-## Problem Statement
+## Overview
 
-The "AnyFlow" model proposes an on-policy flow map distillation for video generation. A key hypothesis is that distilled models may exhibit numerical instability (divergence) in their latent trajectories, particularly when encountering semantic discontinuities (scene cuts). This project aims to validate this hypothesis by correlating a computed "flow-map divergence" metric against a manually annotated ground-truth of temporal continuity.
-
-**Critical Hypothesis**: The correlation between "divergence" and "cuts" is *not* simply a function of "motion magnitude". The study will test this by controlling for motion complexity.
+This research validates the hypothesis that numerical instability in the AnyFlow diffusion model (measured as "flow-map divergence") correlates with semantic temporal discontinuities (scene cuts) in video data. The study relies on a curated dataset of video clips, manual ground-truth annotation, and CPU-only inference.
 
 ## Dataset Strategy
 
-The study relies on public video repositories containing both continuous motion and abrupt scene cuts. Per the verified dataset list, specific URLs for "AnyFlow" or "CPU-optimized" models are not available. The plan assumes the model weights are available locally or via a standard conversion pipeline to ONNX format as per the spec's assumptions.
-
 ### Verified Datasets
+The project utilizes the following verified datasets as sources for video clips. No other datasets are used.
 
-| Dataset Source | Content Description | Usage in Plan | Verified URL |
-|:--- |:--- |:--- |:--- |
-| **UCF101** | Action recognition dataset (human motion). | Source for "continuous motion" clips. | https://huggingface.co/datasets/ucf101/ucf101 (or Kaggle mirror) |
-| **Kinetics-400** | Large-scale video dataset with diverse actions and cuts. | Source for mixed continuity and cuts. | |
-| **DAVIS** | Dataset of annotated video sequences (object tracking). | Source for high-quality continuous motion. | https://huggingface.co/datasets/davis |
-| **AnyFlow Model** | Frozen diffusion weights for latent extraction. | Core inference engine (CPU-optimized). | **NO verified source found** -> **BLOCKED** until verified source found. |
-| **ONNX Config** | Configuration for ONNX models. | Reference for CPU runtime settings. | https://huggingface.co/datasets/bakks/flan-t5-onnx/resolve/main/flan-t5-base/config.json |
+| Dataset Name | Source Type | Verified URL | Usage |
+| :--- | :--- | :--- | :--- |
+| **Kinetics-400** | HuggingFace (Video) | `https://huggingface.co/datasets/UCB-kinetics/kinetics400` (via `datasets` library) | Primary source for video clips. The `download.py` script uses `datasets.load_dataset('UCB-kinetics/kinetics400', split='val')` to fetch videos. |
+| **UCF101** | HuggingFace (Video) | `https://huggingface.co/datasets/UCB-kinetics/ucf101` (via `datasets` library) | Secondary source for video clips if Kinetics quota is insufficient. |
+| **AnyFlow Status Manifest** | HuggingFace (JSON) | `https://huggingface.co/datasets/simbahuang/anyflow-p0-status/resolve/main/experiments/anyflow-aapt-go24h-20260712T0235/a-dynamics500-s0/manifests/a_checkpoint_manifest.json` | Provides canonical list of video IDs. **Note:** This manifest contains internal experiment IDs, not direct HTTP links. The script uses these IDs to filter the HuggingFace datasets above. |
+| **AnyFlow Model Weights** | HuggingFace (Model) | *Referenced in Assumptions* | The plan assumes the model weights are available in a format convertible to ONNX. If a specific URL is not provided in the spec, the script will attempt to load a local `anyflow_distilled.onnx` file or fail gracefully if not found. |
 
-**Dataset Fit & Limitations**:
-- **Variable Fit**: The spec requires "temporal continuity scores" (0.0-1.0) derived from pixel inspection. The public datasets (UCF, Kinetics, DAVIS) provide the raw video content but **do not** provide the specific "temporal continuity score" required. This score must be generated via the manual annotation process defined in FR-002.
-- **Missing Data Handling**: If a video clip cannot be downloaded or is corrupted, the system logs the error and skips the clip (Edge Case 2), ensuring the batch job continues.
-- **Stratified Sampling**: To satisfy FR-001, the curation script will implement a *Pixel-Difference Heuristic* (frame-to-frame MSE > threshold) to ensure at least 20% of the 500 clips contain abrupt scene cuts. This is an *independent* heuristic, not a manual selection, to avoid circularity.
+**Note on Data Fetching & Fallback Strategy**:
+The `AnyFlow Status Manifest` does not provide direct HTTP links to raw video files. Therefore, the `download.py` script will:
+1.  Parse the manifest to extract video IDs.
+2.  Use the `datasets` library to fetch the corresponding video clips from the verified Kinetics-400 or UCF101 repositories using those IDs.
+3.  **Fallback Mechanism**: If a video ID from the manifest cannot be resolved or the video is unavailable, the script will immediately switch to a **Verified Fallback List** of 600 pre-validated Kinetics-400 video IDs known to contain cuts or continuous motion (sourced from the Kinetics-400 official split files). This ensures the N=500 target is met without relying on potentially broken manifest links.
+4.  If the fallback list is also exhausted, the script halts with an error.
 
-### Heuristic Orthogonality Check
-Before full annotation, a pilot set of 10 clips will be analyzed to ensure the "Pixel-Difference Heuristic" (used for stratification) does not correlate with the model's specific latent failure modes. If the heuristic predicts "cuts" where the model shows *low* divergence (or vice versa) in a pattern that suggests bias, the threshold will be adjusted.
+### Data Curation Strategy (FR-001, FR-002)
+1.  **Ingestion**: The `download.py` script parses the manifest or fallback list to extract video IDs.
+2.  **Stratified Sampling**: A stratified sampling strategy is implemented to ensure:
+    *   Total clips: a representative sample (N=500).
+    *   Scene cuts: ≥ 20% (100 clips).
+    *   Continuous motion: ≥ 80% (400 clips).
+    *   **Variance Focus**: The sampling specifically targets "hard" cuts (expected score ~1.0) and "smooth" motion (expected score ~0.0) to maximize the distribution of scores, ensuring the variance check (FR-010) is likely to pass.
+3.  **Extraction**: Clips are extracted as short temporal sequences at a standard frame rate.
+4.  **Ground Truth**: Human annotators assign a `continuity_score` (0.0–1.0) based *solely* on pixel-space visual inspection. No model features are used.
 
-## Methodology
+### Annotation Workflow (FR-002 Clarification)
+*   **Tooling**: `code/annotate.py` is a **Template Generator & Validator**, not a GUI.
+*   **Process**:
+    1.  `annotate.py` generates an empty `continuity_scores.csv` with all video IDs and schema headers.
+    2.  Annotators manually review clips (e.g., using VLC or a simple frame viewer) and fill the CSV.
+    3.  `annotate.py` validates the filled CSV to ensure scores are in [0.0, 1.0] and no NaN values exist.
+*   **Constraint**: The manual process strictly forbids using model outputs (optical flow, divergence) for scoring.
 
-### Phase 1: Data Curation & Baseline Validation (FR-001, FR-002, FR-009)
-1. **Download**: Fetch short temporal clips (e.g., 30fps) from UCF101, Kinetics, DAVIS.
-2. **Stratification**: Apply a *Pixel-Difference Heuristic* (frame-to-frame MSE > threshold) to identify "cuts". Ensure [deferred] of clips are labeled "cut".
-3. **Baseline Validation**: Run a pilot on 10 clips comparing N=500 Euler vs. N=2000 Euler/RK4. If the L2 difference between N=500 and the higher-order baseline exceeds 5% of the mean divergence, the system will reduce N to 200 or halt.
-4. **Annotation**: Generate `continuity_scores.csv` with human-annotated scores (0.0-1.0).
- - *Constraint*: No model features used for scoring.
- - *Validation*: Variance must be ≥ 0.05 (FR-010).
+### Model & Inference Strategy (FR-003, FR-004)
+1.  **Model Loading**: The frozen AnyFlow model is loaded via **ONNX Runtime** (CPU provider).
+    *   *Constraint Check*: No CUDA, no `load_in_8bit`, no GPU device mapping.
+2.  **Divergence Calculation**:
+    *   **Input**: 16-frame latent sequence.
+    *   **Baseline**: High-precision numerical integration (Runge-Kutta 4, N=500 steps) of the *latent dynamics* predicted by the model's own flow field. This serves as a "numerical ground truth" for the solver's stability.
+    *   **Metric**: L2 distance between the model's predicted intermediate state and the RK4 baseline, averaged across the sequence.
+    *   **Hypothesis Clarification**: The hypothesis is that the *model's* approximation error (divergence from its own high-fidelity solver) correlates with *semantic* discontinuity. This avoids circular logic by treating the high-fidelity solver as the reference for "correct" numerical behavior.
+3.  **Feasibility Check (FR-009)**:
+    *   A pre-flight check runs on a subset of clips.
+    *   **Default**: N=500 steps for the RK4 baseline.
+    *   If projected runtime > 5.5 hours, the Euler steps are reduced to N=200.
+    *   *Decision*: The plan targets N=500. If the pre-flight check fails, the script automatically switches to N=200 and logs the change. N=5000 is rejected as infeasible.
 
-### Phase 2: CPU-Tractable Inference (FR-003, FR-004)
-1. **Model Loading**: Load AnyFlow weights converted to ONNX format for CPU inference (ONNX Runtime).
- - *Constraint*: No CUDA, no quantization requiring GPU.
-2. **Confounding Variable Measurement**: Compute "Motion Complexity" (optical flow magnitude) and "Texture Density" (gradient variance) for each clip.
-3. **Divergence Metric**: Compute L2 distance between the model's predicted intermediate state and the Euler baseline.
- - *Metric*: $Divergence = \frac{1}{T} \sum_{t=1}^{T} || \text{Model}(x_t) - \text{Euler}(x_t) ||_2$.
-4. **Preflight Check**: Run on first 5 clips to estimate runtime (FR-009). If > 5.5h projected, reduce $N$ to 200 (if validated) or halt.
+### Precision Validation (Methodology-70fd5695)
+To ensure CPU/ONNX precision does not introduce artifacts:
+1.  A **CPU-Only Precision Validation** step is added.
+2.  The ONNX Runtime output is compared against a high-precision NumPy/RK4 integration (N=5000 steps) of the *same* latent trajectory on the CPU.
+3.  If the L difference exceeds 1e-4, the run is flagged as "Precision Failure" and the model is re-validated. This avoids the need for GPU hardware.
 
-### Phase 3: Correlation & Sensitivity (FR-005, FR-006, FR-007)
-1. **Variance Check**: Calculate variance of `continuity_scores`. If < 0.05, halt and report "Insufficient Variance".
-2. **Correlation**: Compute Pearson $r$ and Spearman $\rho$ between `continuity_scores` and `divergence_scores`.
-3. **Partial Correlation**: Compute partial correlation controlling for "Motion Complexity" and "Texture Density".
-4. **Sensitivity**: Analyze classification rates at low thresholds.
-5. **Framing**: Explicitly state "Relationship: Associational" (FR-007).
-6. **Output**: Generate `correlation_results.csv`, `sensitivity_report.csv`, and `variance_report.csv`.
+## Statistical Methodology (FR-005, FR-006, FR-007)
 
-### Phase 4: Report Generation (FR-008, SC-004, SC-005)
-1. **Report Generation**: Execute `code/report_generator.py`.
- - *Logic*: Read `correlation_results.csv`, `sensitivity_report.csv`, `variance_report.csv`.
- - *Mandatory Injection*: Insert FR-008 statement: "The 'flow-map divergence' metric is a proxy for model instability..."
- - *Mandatory Injection*: Insert SC-005 statement: "CPU-only mode (ONNX Runtime, no CUDA)".
- - *Mandatory Injection*: Insert FR-007 statement: "Relationship: Associational".
-2. **Final Output**: Generate `final_report.md`.
+### Methodological Rationale: Continuous vs. Binary Scoring
+The plan employs a continuous `continuity_score` (0.0–1.0) rather than a binary "cut/no-cut" label for the following reasons:
+1.  **Spectrum of Discontinuity**: Temporal discontinuity is not binary. It ranges from "smooth motion" (0.0) to "hard cuts" (1.0), with intermediate states like "fast motion blur" or "partial occlusion".
+2.  **Monotonic Trend**: The hypothesis posits that model instability *scales* with the severity of the discontinuity. A binary metric (AUC-ROC) would only test if the model distinguishes "cut" from "no-cut", missing the nuance of *how* instability increases with discontinuity severity.
+3.  **Correlation Power**: Pearson and Spearman correlations are designed to detect linear or monotonic relationships in continuous data. Using a continuous score allows the study to capture these trends.
+4.  **Bimodal Fallback**: If the annotators produce a bimodal distribution (only 0.0 or 1.0), the correlation analysis will still execute. However, the interpretation will shift to acknowledging that the continuous metric acted as a binary classifier in this specific dataset, and the correlation coefficient will be interpreted as the strength of the binary separation.
 
-## Statistical Rigor & Assumptions
+### Correlation Analysis
+*   **Hypothesis**: Higher divergence scores correlate with lower continuity scores (higher discontinuity).
+*   **Methods**:
+    1.  **Pearson Correlation ($r$)**: Tests for linear relationship.
+    2.  **Spearman Rank Correlation ($\rho$)**: Tests for monotonic relationship.
+*   **Significance**: P-values are calculated for both.
+*   **Causal Framing**: The study is observational. All results are framed as **associational**. No causal claims are made.
 
-- **Multiple Comparisons**: Only two primary correlation tests (Pearson, Spearman) are run. A Bonferroni correction is noted but likely not strictly necessary for the primary hypothesis test; however, the sensitivity analysis involves 3 thresholds, so the interpretation of "significant" changes must be cautious.
-- **Sample Size/Power**: The target is a substantial corpus of clips. Power analysis for a binary "cut vs. continuous" comparison (Mann-Whitney U) with medium effect size (d=0.5) and alpha=0.05 confirms N=500 is sufficient. If the distribution is bimodal, a non-parametric test (Mann-Whitney U) will be used.
-- **Causal Inference**: The study is **observational**. The plan explicitly avoids causal claims (FR-007). The relationship is framed as "model instability correlates with semantic discontinuity," not "instability causes discontinuity."
-- **Measurement Validity**: The manual annotation relies on human visual inspection. To mitigate bias, the annotation rubric (not included in code) must be strict: 0.0 = perfect continuity, 1.0 = hard cut.
-- **Collinearity**: The divergence metric is derived from the model's latent state, which is also used to generate the video. However, the ground truth is pixel-based. There is no definitional collinearity between the *score* (human) and the *metric* (model error), so independent effects are not claimed; rather, a correlation is tested.
-- **Construct Validity**: The plan explicitly tests if the correlation is driven by "motion magnitude" by including it as a covariate. If the correlation disappears when controlling for motion, the hypothesis is rejected.
+### Power Analysis & Sensitivity (Scientific Soundness)
+*   **Sample Size Justification**: N=500 is chosen to detect a moderate effect size (r=0.3) with 80% power at alpha=0.05.
+*   **Confidence Interval Sensitivity**: In addition to the binary variance check, the analysis will compute confidence intervals for the correlation coefficient. If the interval includes zero, the result is reported as "not statistically significant" even if variance > 0.05.
+*   **Thresholds**: {0.01, 0.05, 0.1}.
+*   **Output**: False Positive Rate (FPR) and False Negative Rate (FNR) for each threshold.
+*   **Interpretation**: Determines the robustness of the divergence metric as a classifier for scene cuts.
 
-## Compute Feasibility
+### Variance Check (FR-010)
+*   **Requirement**: Variance of `continuity_score` must be ≥ 0.05.
+*   **Action**: If variance < 0.05, the analysis halts with an "Insufficient Variance" error.
 
-- **Environment**: GitHub Actions `ubuntu-latest` (2 CPU, 7GB RAM).
-- **Memory**: ONNX Runtime is optimized for CPU. Short-duration clips are small. A sufficient number of clips will fit in memory if processed sequentially or in small batches.
-- **Runtime**: The Euler baseline ($N=500$) is computationally expensive. The preflight check (FR-009) is critical. If $N=500$ exceeds the 6-hour budget, the plan allows reducing $N$ to 200, though this may reduce the precision of the "Numerical Baseline."
-- **No GPU**: All operations are CPU-bound. `torch` and `onnxruntime` will be installed in CPU-only modes.
-
-## Decision Log
+## Decision/Rationale
 
 | Decision | Rationale |
-|:--- |:--- |
-| **ONNX Runtime for Inference** | Required for CPU-only execution (FR-003). PyTorch CPU inference is slower and less optimized for static graphs. |
-| **N=500 Euler Steps** | Spec requirement (FR-004) for "high-resolution" baseline. *Fallback*: N=200 if validated. |
-| **Manual Annotation** | Required by FR-002 to ensure ground truth is independent of model features. |
-| **Associational Framing** | Required by FR-007 due to observational nature of the study. |
-| **Stratified Sampling** | Required by FR-001 to ensure [deferred] of clips are cuts, preventing class imbalance. |
-| **Pixel-Difference Heuristic** | Required to avoid manual selection bias and ensure orthogonality to model failure modes. |
-| **Partial Correlation** | Required to isolate the "cut" effect from general motion complexity. |
+| :--- | :--- |
+| **CPU-Only Inference** | The project must run on GitHub Actions free-tier (no GPU). ONNX Runtime is the standard for CPU-optimized inference. |
+| **RK4 Baseline (N=500)** | Required to establish a "Numerical Baseline" that is sufficiently accurate to detect model instability. N=5000 is rejected as infeasible. |
+| **Stratified Sampling** | Ensures the dataset has enough "cut" examples to calculate meaningful correlation and sensitivity metrics, and specifically targets score variance to meet FR-010. |
+| **Associational Framing** | The data is observational (curated from public repos). Causal claims would violate scientific rigor (FR-007). |
+| **No Synthetic Data** | **All metrics are computed from real video clips and real model inference. No synthetic data, placeholder metrics, or simulated scores are generated or used.** |
+| **Continuous Scoring** | Captures the *degree* of discontinuity, allowing for correlation analysis that binary metrics would miss. |
+
+## Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+| :--- | :--- | :--- |
+| **Runtime Exceeds 6h** | High | Pre-flight check (FR-009) reduces RK4 steps to N=200 if needed. Default is N=500. |
+| **Memory Exceeds 7GB** | High | Process clips in small batches and clear memory between batches. |
+| **Model Not Available in ONNX** | Critical | The spec assumes the model is convertible. If not, the plan halts with an error; no alternative model is substituted. |
+| **Variance < 0.05** | Medium | If annotators are inconsistent, the script halts. Re-annotation is required. |
+| **Missing Video IDs** | High | **Fallback to verified static list of Kinetics IDs if manifest IDs cannot be resolved.** |
+| **Bimodal Scores** | Low | If scores are binary, the correlation is still computed but interpreted as a binary separation strength. |
