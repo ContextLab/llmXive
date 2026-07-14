@@ -629,7 +629,7 @@
   verification_status: verified
   verified_against_url: https://physionet.org/content/mitdb/1.0.0/
   verified_at: '2026-07-11T03:14:24.790585Z'
-- artifact_hash: 44a1c5769e80ab84b338c9d3db0de84a876fc624068fce5c3cba3d3f67c4cd1f
+- artifact_hash: 120c147f27ceb154262629b97d7743fb1e0c1886e05dfeff4eec4201ab521cd1
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -639,8 +639,8 @@
   value: https://arxiv.org/abs/1210.4347
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1210.4347
-  verified_at: '2026-07-13T20:40:28.333531Z'
-- artifact_hash: 44a1c5769e80ab84b338c9d3db0de84a876fc624068fce5c3cba3d3f67c4cd1f
+  verified_at: '2026-07-14T01:29:08.851493Z'
+- artifact_hash: 120c147f27ceb154262629b97d7743fb1e0c1886e05dfeff4eec4201ab521cd1
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -651,8 +651,8 @@
   value: https://arxiv.org/abs/1501.05788
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1501.05788
-  verified_at: '2026-07-13T20:40:28.333531Z'
-- artifact_hash: 44a1c5769e80ab84b338c9d3db0de84a876fc624068fce5c3cba3d3f67c4cd1f
+  verified_at: '2026-07-14T01:29:08.851493Z'
+- artifact_hash: 120c147f27ceb154262629b97d7743fb1e0c1886e05dfeff4eec4201ab521cd1
   artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -662,4 +662,4 @@
   value: https://arxiv.org/abs/2109.05633
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2109.05633
-  verified_at: '2026-07-13T20:40:28.333531Z'
+  verified_at: '2026-07-14T01:29:08.851493Z'
