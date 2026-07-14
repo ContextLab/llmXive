@@ -17,15 +17,9 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/src/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348)
 - code/src/services/threshold_calibrator.py: metric `normal_scores` assigned from an RNG draw (line 418)
 
-## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
-
-These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
-
-- `python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 88 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 6 command(s) failed: python code/src/config.py --check (rc=1); python code/src/data/download_datasets.py (rc=1); python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 (rc=2); 1 declared deliverable(s) absent: data/processed/results/simulation_snr.csv
+**Summary**: 88 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 6 command(s) failed: python code/src/config.py --check (rc=1); python code/src/data/download_datasets.py (rc=1); python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 (rc=2); 2 declared deliverable(s) absent: data/processed/results/simulation_snr.csv; data/raw/pems_sf.csv
 
 ## Failing / missing run-book commands
 
@@ -39,32 +33,28 @@ Configuration Check
 ERROR: Missing required key: base_paths
 ❌ FAIL: Configuration structure validation failed
 - python code/src/data/download_datasets.py -> rc=1
-    xpected checksum available for traffic. Verification skipped.
-2026-07-14 02:16:26,438 - WARNING - No expected checksum available for synthetic_control_chart. Verification skipped.
-2026-07-14 02:16:26,438 - INFO - ======================================================================
-2026-07-14 02:16:26,438 - INFO - Download Summary:
-2026-07-14 02:16:26,438 - INFO - ======================================================================
-2026-07-14 02:16:26,438 - INFO -   electricity: ✗ FAILED
-2026-07-14 02:16:26,438 - INFO -   traffic: ✗ FAILED
-2026-07-14 02:16:26,438 - INFO -   synthetic_control_chart: ✗ FAILED
-2026-07-14 02:16:26,438 - INFO -   pems_sf: ✗ FAILED
-2026-07-14 02:16:26,438 - INFO - ======================================================================
-2026-07-14 02:16:26,438 - INFO - Verification Summary:
-2026-07-14 02:16:26,438 - INFO - ======================================================================
-2026-07-14 02:16:26,438 - INFO -   electricity: ✗ FAILED
-2026-07-14 02:16:26,438 - INFO -   traffic: ✗ FAILED
-2026-07-14 02:16:26,438 - INFO -   synthetic_control_chart: ✗ FAILED
-2026-07-14 02:16:26,438 - ERROR - ✗ Some downloads failed. Check error messages above.
+    xpected error downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00258/synthetic_control.data: urlretrieve() got an unexpected keyword argument 'context'
+2026-07-14 04:25:53,067 - WARNING - pems_sf: Dataset is deprecated and will be skipped
+2026-07-14 04:25:53,067 - INFO - Saved checksum cache to state/checksums.json
+2026-07-14 04:25:53,067 - INFO - ======================================================================
+2026-07-14 04:25:53,067 - INFO - Download Summary:
+2026-07-14 04:25:53,067 - INFO - ======================================================================
+2026-07-14 04:25:53,067 - ERROR -   electricity: FAILED - Download failed
+2026-07-14 04:25:53,067 - ERROR -   traffic: FAILED - Download failed
+2026-07-14 04:25:53,067 - ERROR -   synthetic_control_chart: FAILED - Download failed
+2026-07-14 04:25:53,067 - INFO -   pems_sf: SKIPPED - Dataset is deprecated
+2026-07-14 04:25:53,068 - ERROR - ======================================================================
+2026-07-14 04:25:53,068 - ERROR - ✗ 3 download(s) failed. Check error messages above.
+2026-07-14 04:25:53,068 - ERROR - ======================================================================
 - python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 -> rc=2
-    usage: synthetic_generator.py [-h] [--output OUTPUT] [--n-samples N_SAMPLES]
+    usage: synthetic_generator.py [-h] [--n_points N_POINTS] [--seed SEED]
+                              [--output OUTPUT]
+                              [--type {sine,linear,random_walk}]
                               [--anomaly-type {point,contextual,collective}]
-                              [--anomaly-start ANOMALY_START]
-                              [--anomaly-end ANOMALY_END]
-                              [--magnitude MAGNITUDE] [--seed SEED]
 synthetic_generator.py: error: unrecognized arguments: --anomaly-rate 0.05
 - python code/src/services/anomaly_detector.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 22, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 23, in <module>
     from models.dp_gmm import DPGMMModel, DPGMMConfig
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/dp_gmm.py", line 21, in <module>
     from models.anomaly_score import AnomalyScore
@@ -75,34 +65,34 @@ synthetic_generator.py: error: unrecognized arguments: --anomaly-rate 0.05
                                     ^^^^
 NameError: name 'List' is not defined. Did you mean: 'list'?
 - python code/src/evaluation/simulation.py -> rc=1
-    2026-07-14 02:16:27,236 - INFO - Starting simulation study with seed=42, n_samples=1000
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/simulation.py", line 210, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/simulation.py", line 182, in main
-    result = run_simulation_study(
-             ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/simulation.py", line 95, in run_simulation_study
-    signal_config = SignalConfig(
-                    ^^^^^^^^^^^^^
-TypeError: SignalConfig.__init__() got an unexpected keyword argument 'length'
-- python code/src/evaluation/robustness.py --subset-size 50 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/robustness.py", line 32, in <module>
-    from models.dp_gmm import DPGMMModel, DPGMMConfig
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/dp_gmm.py", line 21, in <module>
-    from models.anomaly_score import AnomalyScore
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/anomaly_score.py", line 8, in <module>
-    class AnomalyScore:
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/anomaly_score.py", line 27, in AnomalyScore
-    component_assignments: Optional[List[int]] = field(default=None)
-                                    ^^^^
-NameError: name 'List' is not defined. Did you mean: 'list'?
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/simulation.py", line 33, in <module>
+    from models.dpgmm import DPGMMModel, DPGMMConfig
+ModuleNotFoundError: No module named 'models.dpgmm'
+- python code/src/evaluation/robustness.py --subset-size 50 -> rc=1
+    4-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/robustness.py", line 444, in save_report
+    json.dump(report_dict, f, indent=2)
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/__init__.py", line 179, in dump
+    for chunk in iterable:
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 432, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 326, in _iterencode_list
+    yield from chunks
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type bool is not JSON serializable
 
 ## Declared deliverables still missing
 
 - data/processed/results/simulation_snr.csv
+- data/raw/pems_sf.csv
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -139,3 +129,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/evaluation/simulation.py` — IS a run-book command
     - `code/src/simulation/ground_truth.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/results/simulation_snr.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/pems_sf.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/download_datasets.py` — NOT invoked by the run-book
+    - `code/scripts/verify_project_structure.py` — NOT invoked by the run-book
+    - `code/src/data/download_datasets.py` — IS a run-book command
+  Make ONE of these WRITE `data/raw/pems_sf.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
