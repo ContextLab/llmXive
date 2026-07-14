@@ -13,3 +13,5 @@ flake8>=6.1.0
 isort>=5.12.0
 pyyaml>=6.0.0
 joblib>=1.3.0
+requests  # auto-added: imported by run-book but missing from venv
+tqdm  # auto-added: imported by run-book but missing from venv

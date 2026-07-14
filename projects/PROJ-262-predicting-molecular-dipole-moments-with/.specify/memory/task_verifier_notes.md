@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T020** — The required file `data/processed/molecules_10k.parquet` is missing, and there is no evidence that `features_3d.parquet` or `features_2d.parquet` were created. Without these non‑empty output files, the task’s core requirement is not satisfied.
+- **T028** — The provided `train_gnn.py` file defines the required constants (5 seeds, 50 epochs, patience = 10) but the excerpt ends abruptly during data loading and does not show any loop over the seeds, early‑stopping logic, RMSE computation per seed, variance calculation, or recording of that variance. Without those sections the task’s core requirement is not satisfied. The next implementer must add the training loop for the five seeds, implement early stopping, compute the RMSE for each seed, calculate the variance across seeds, and persist that metric (e.g., in a results CSV or log).
