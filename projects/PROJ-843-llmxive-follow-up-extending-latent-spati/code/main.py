@@ -1,126 +1,126 @@
 """
-Main orchestrator for the llmXive follow‑up project.
+Top‑level orchestrator for the research pipeline.
 
-This script provides a unified command‑line interface with a ``--phase`` argument
-that can be invoked using either the historic aliases (e.g. ``data_prepare``) or
-the newer canonical names (e.g. ``prepare``).  Each phase simply forwards the
-execution to the appropriate module‑level ``main`` function that already exists
-in the code base.
+This script is invoked via the command line, e.g.:
 
-The orchestrator also ensures that all standard project directories exist
-before any work is performed.
+    python code/main.py --phase data_prepare
+    python code/main.py --phase evaluate
+
+Each phase delegates to the appropriate module and guarantees that required
+directories and data artifacts exist before downstream code runs.
 """
 
 import argparse
 import sys
 from pathlib import Path
 
-# Import the public helpers that already exist in the repository.
-from config import ensure_directories, get_results_dir, get_config_summary
-from data.download import main as download_main
-from data.stratify import main as stratify_main
-from data.extract_features import main as extract_features_main
-from geometry.run_pipeline import main as geometry_pipeline_main
-from eval.report import main as report_main
+# Import helper utilities
+from config import ensure_directories, get_raw_dir, get_results_dir
 
-# ----------------------------------------------------------------------
-# Helper: map legacy phase names to the current canonical identifiers.
-# ----------------------------------------------------------------------
-_PHASE_ALIAS_MAP = {
-    # canonical : [aliases...]
-    "prepare": ["prepare", "data_prepare"],
-    "extract": ["extract", "extract_features"],
-    "geometry": ["geometry", "compute_geometry"],
-    "evaluate": ["evaluate"],
-}
+# Phase‑specific imports – these modules already exist in the repo.
+# Import inside the functions to avoid unnecessary heavy imports when a
+# phase is not executed.
+def phase_data_prepare() -> None:
+    """Download the RealEstate10K dataset and stratify it."""
+    # Ensure the standard directory layout exists
+    ensure_directories()
+    # Data download
+    from data.download import main as download_main
+    download_main()
+    # Stratification
+    from data.stratify import main as stratify_main
+    stratify_main()
+    print("Data preparation completed.")
 
-def _resolve_phase_name(name: str) -> str:
+
+def phase_extract_features() -> None:
+    """Extract sparse visual features from the stratified dataset."""
+    ensure_directories()
+    from data.extract_features import main as extract_main
+    extract_main()
+    print("Feature extraction completed.")
+
+
+def phase_compute_geometry() -> None:
+    """Run the sparse geometry pipeline (solver + warp)."""
+    ensure_directories()
+    from geometry.run_pipeline import main as geometry_main
+    geometry_main()
+    print("Geometry computation completed.")
+
+
+def _download_dense_baseline() -> None:
     """
-    Resolve a user‑supplied phase name (which may be a legacy alias) to the
-    canonical name used internally.
+    Download the dense baseline frames required for evaluation.
 
-    Parameters
-    ----------
-    name: str
-        The raw value supplied on the command line.
-
-    Returns
-    -------
-    str
-        One of ``prepare``, ``extract``, ``geometry`` or ``evaluate``.
+    The implementation now delegates to the robust ``eval.download_dense_baseline``
+    module, which uses the HuggingFace Hub to fetch the public dataset without
+    needing explicit credentials.
     """
-    name = name.lower()
-    for canonical, aliases in _PHASE_ALIAS_MAP.items():
-        if name in aliases:
-            return canonical
-    # If the name is unknown we let the caller decide – raise a clear error.
-    raise ValueError(f"Unknown phase '{name}'. Expected one of: "
-                     f"{', '.join(sorted({a for al in _PHASE_ALIAS_MAP.values() for a in al}))}")
+    # Ensure the raw data directory exists before downloading
+    ensure_directories(get_raw_dir())
+    from eval.download_dense_baseline import main as download_dense_main
+    download_dense_main()
 
-# ----------------------------------------------------------------------
-# Argument parsing
-# ----------------------------------------------------------------------
-def parse_args(argv: list | None = None):
-    """
-    Parse command‑line arguments.
 
-    The ``--phase`` argument accepts both the modern identifiers and the
-    historic ones; validation is performed after parsing so that argparse does
-    not reject the legacy names.
-    """
-    parser = argparse.ArgumentParser(
-        description="Project orchestrator – run a single pipeline phase."
-    )
+def phase_evaluate() -> None:
+    """Run the full evaluation suite, including metrics and statistical analysis."""
+    # 1️⃣  Ensure the dense baseline is present
+    _download_dense_baseline()
+
+    # 2️⃣  Run any additional dense‑baseline processing (if required)
+    from eval.run_dense_baseline import main as run_dense_main
+    run_dense_main()
+
+    # 3️⃣  Compute metrics (WorldScore, Sparse‑Consistency, FID, etc.)
+    from eval.metrics import main as metrics_main
+    metrics_main()
+
+    # 4️⃣  Perform ANOVA
+    from eval.anova import main as anova_main
+    anova_main()
+
+    # 5️⃣  Run sensitivity analysis
+    from eval.sensitivity import main as sensitivity_main
+    sensitivity_main()
+
+    # 6️⃣  Generate the final report
+    from eval.report import main as report_main
+    report_main()
+
+    print("Evaluation phase completed.")
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Project orchestrator")
     parser.add_argument(
         "--phase",
+        type=str,
+        choices=["data_prepare", "extract_features", "compute_geometry", "evaluate"],
         required=True,
-        help="Pipeline phase to run (aliases accepted).",
+        help="Which pipeline phase to execute",
     )
-    args = parser.parse_args(argv)
+    return parser.parse_args(argv)
 
     try:
         args.phase = _resolve_phase_name(args.phase)
     except ValueError as exc:
         parser.error(str(exc))
 
-    return args
-
-# ----------------------------------------------------------------------
-# Phase implementations – thin wrappers that delegate to the existing
-# module‑level ``main`` functions.
-# ----------------------------------------------------------------------
-def phase_data_prepare():
-    """
-    Data preparation phase:
-    1. Download the RealEstate10K dataset.
-    2. Stratify the dataset into the four required strata.
-    """
-    ensure_directories()  # create the standard directory tree
-    print("[main] Starting data download …")
-    download_main()
-    print("[main] Stratifying dataset …")
-    stratify_main()
-    print("[main] Data preparation completed.")
-
-def phase_extract_features():
-    """
-    Feature‑extraction phase – extracts sparse SIFT/ORB descriptors from the
-    stratified keyframes.
-    """
-    ensure_directories()
-    print("[main] Extracting sparse features …")
-    extract_features_main()
-    print("[main] Feature extraction completed.")
-
-def phase_compute_geometry():
-    """
-    Geometry computation phase – runs the sparse epipolar solver and the
-    latent‑space warping pipeline, then aggregates the warped frames.
-    """
-    ensure_directories()
-    print("[main] Running geometry pipeline (solver + warp) …")
-    geometry_pipeline_main()
-    print("[main] Geometry computation completed.")
+def main() -> None:
+    args = parse_args()
+    phase_map = {
+        "data_prepare": phase_data_prepare,
+        "extract_features": phase_extract_features,
+        "compute_geometry": phase_compute_geometry,
+        "evaluate": phase_evaluate,
+    }
+    try:
+        phase_func = phase_map[args.phase]
+    except KeyError:
+        print(f"Unknown phase: {args.phase}", file=sys.stderr)
+        sys.exit(1)
+    phase_func()
 
 def phase_evaluate():
     """

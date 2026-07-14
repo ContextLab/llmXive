@@ -1,15 +1,14 @@
 {
   "project_id": "PROJ-843-llmxive-follow-up-extending-latent-spati",
   "ok": false,
-  "reason": "4 command(s) failed: python code/main.py --phase data_prepare (rc=1); python code/main.py --phase extract_features (rc=1); python code/main.py --phase compute_geometry (rc=1)",
-  "artifacts": [],
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/config.py: self-declared fabricated metric \u2014 \u201c\u2026Thresholds / memory limits \u2013 placeholder values (real values are defined # e\u2026\u201d; 1 command(s) failed: python code/main.py --phase evaluate (rc=1); 1 declared deliverable(s) absent: data/raw/dense_baseline_frames.npy",
+  "artifacts": [
+    "data/results/sparse_warped_frames.npy"
+  ],
   "failures": [
-    "python code/main.py --phase data_prepare -> rc=1\n    [main] Starting data download \u2026\nDownloading dataset...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 163, in <module>\n    main(sys.argv[1:])\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 158, in main\n    phase_func()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 100, in phase_data_prep",
-    "python code/main.py --phase extract_features -> rc=1\n    [main] Extracting sparse features \u2026\nExtracting features...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 163, in <module>\n    main(sys.argv[1:])\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 158, in main\n    phase_func()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 112, in phase_e",
-    "python code/main.py --phase compute_geometry -> rc=1\n    ome/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 158, in main\n    phase_func()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 122, in phase_compute_geometry\n    geometry_pipeline_main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/geometry/run_pipeline.py\", line 47, in main\n    raise e\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843",
-    "python code/main.py --phase evaluate -> rc=1\n    [main] Running evaluation and reporting \u2026\nLoading metrics data...\n\nUnexpected error during report generation: unsupported operand type(s) for /: 'str' and 'str'"
+    "python code/main.py --phase evaluate -> rc=1\n    ine frames...\n\n[download_dense_baseline] Failed to download from HF Hub: 401 Client Error. (Request ID: Root=1-6a566072-14d33021312cc764498f10c3;6746a3b4-e705-4ee0-9123-2bc3a5e9250e)\n\nRepository Not Found for url: https://huggingface.co/realestate10k/dense_baseline_v1/resolve/main/dense_baseline_frames.npy.\nPlease make sure you specified the correct `repo_id` and `repo_type`.\nIf you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.\nFor more details, see https://huggingface."
   ],
   "fix_rounds": 12,
   "model_tier": 1,
-  "updated_at": "2026-07-14T16:09:13Z"
+  "updated_at": "2026-07-14T16:14:45Z"
 }

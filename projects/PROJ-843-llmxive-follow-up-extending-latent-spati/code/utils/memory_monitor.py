@@ -1,12 +1,12 @@
 """
 Simple memory‑monitoring utility.
 
-The implementation records peak RAM usage and elapsed wall‑clock time using the
-``memory_profiler`` package.  It provides a ``start`` method that begins
-background sampling and a ``stop`` method that stops sampling and writes a JSON
-log file.  Any unknown attribute accesses (e.g. ``info``, ``debug``) are handled
-gracefully by returning a no‑op callable, making the class tolerant of varied
-logger‑style usage throughout the code base.
+The original implementation provided ``start`` and ``stop`` methods.
+To make the class robust against the many different call‑sites in the
+repository, a ``__getattr__`` fallback is added that returns a no‑op
+callable for any undefined attribute.  This satisfies the contract that
+any logger‑style method (e.g. ``info``, ``debug``, ``warning``) can be
+called without raising ``AttributeError``.
 """
 
 import json
@@ -15,31 +15,29 @@ import threading
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Union
-
-from memory_profiler import memory_usage
+from typing import Optional
 
 class MemoryMonitor:
     """
-    Record peak memory usage and elapsed wall‑clock time.
+    Monitors peak RAM usage and wall‑clock time.
 
-    Example
-    -------
-    >>> monitor = MemoryMonitor(log_path="data/results/memory_log.json")
-    >>> monitor.start()
-    >>> # ... code to profile ...
-    >>> monitor.stop()
+    Typical usage::
+
+        monitor = MemoryMonitor()
+        monitor.start()
+        # ... code to profile ...
+        monitor.stop()
     """
 
-    def __init__(self, log_path: Union[str, os.PathLike] = "data/results/memory_log.json"):
-        self.log_path = Path(log_path)
-        self._start_time: float | None = None
-        self._peak_memory: float | None = None
+    def __init__(self, log_path: Optional[Path] = None):
+        self.log_path = log_path or Path("memory_profile.log")
+        self._start_time: Optional[float] = None
+        self._peak_memory: Optional[float] = None
         self._running = False
-        self._thread: threading.Thread | None = None
+        self._thread: Optional[threading.Thread] = None
 
     # ------------------------------------------------------------------
-    # Public API expected by existing scripts
+    # Core public API
     # ------------------------------------------------------------------
     def start(self) -> None:
         """Begin monitoring in a background thread."""
@@ -55,7 +53,7 @@ class MemoryMonitor:
         if not self._running:
             return
         self._running = False
-        if self._thread is not None:
+        if self._thread:
             self._thread.join()
         self._write_log()
 
@@ -63,37 +61,45 @@ class MemoryMonitor:
     # Internals
     # ------------------------------------------------------------------
     def _monitor(self) -> None:
-        """Continuously sample memory usage while monitoring is active."""
-        # ``memory_usage`` returns a tuple (list_of_memories, timestamps) when
-        # ``retval=True``.  We only need the maximum memory observed.
-        samples = memory_usage(
-            -1, interval=0.1, timeout=None, max_iterations=None, retval=True
-        )
-        mem_samples = samples[0] if isinstance(samples, tuple) else samples
-        self._peak_memory = max(mem_samples) if mem_samples else 0.0
+        """Continuously record maximum RSS memory."""
+        import psutil  # Imported lazily to avoid a hard dependency elsewhere
+
+        max_mem = 0.0
+        while self._running:
+            mem = psutil.Process(os.getpid()).memory_info().rss / (1024 ** 2)  # MB
+            if mem > max_mem:
+                max_mem = mem
+            time.sleep(0.5)
+        self._peak_memory = max_mem
 
     def _write_log(self) -> None:
-        """Serialise the collected metrics as JSON."""
-        end_time = time.time()
-        elapsed = end_time - (self._start_time or end_time)
-        log = {
+        """Serialize the profiling information as JSON."""
+        if self._start_time is None:
+            return
+        elapsed = time.time() - self._start_time
+        data = {
+            "elapsed_seconds": elapsed,
+            "peak_memory_mb": self._peak_memory,
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "elapsed_seconds": elapsed,
             "peak_memory_mb": self._peak_memory,
         }
-        self.log_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.log_path, "w", encoding="utf-8") as fp:
-            json.dump(log, fp, indent=2, sort_keys=True)
+        try:
+            with self.log_path.open("w") as f:
+                json.dump(data, f, indent=2)
+        except Exception as exc:
+            # Logging failures should never crash the pipeline.
+            print(f"[MemoryMonitor] Failed to write log: {exc}")
 
     # ------------------------------------------------------------------
-    # Graceful fallback for unexpected attribute access
+    # Tolerant fallback for any undefined attribute
     # ------------------------------------------------------------------
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         """
-        Return a no‑op callable for any undefined attribute.
+        Return a no‑op callable for any attribute that does not exist.
 
-        This makes the class tolerant of arbitrary logger‑style calls
-        (e.g., ``monitor.info(...)``) used elsewhere in the code base.
+        This makes the monitor usable as a generic logger across the code
+        base without having to implement every possible method name.
         """
         def _noop(*args, **kwargs):
             return None

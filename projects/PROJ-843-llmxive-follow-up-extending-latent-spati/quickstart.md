@@ -1,73 +1,38 @@
-# Quickstart for the Latent Spatial Memory Project
+# Quickstart for llmXive Follow‑up Project
 
-This document describes the minimal commands required to run the full
-research pipeline on a CPU‑only environment. All commands are expected
-to succeed and produce the artefacts listed in the specification.
+This document describes the commands needed to run the full research pipeline on a
+CPU‑only environment. Run each command from the repository root.
 
-## 1. Prepare directories
-
+## 1️⃣ Prepare data & download resources
 ```bash
-python -c "import code.config as cfg; cfg.ensure_directories()"
+python code/data/download.py # RealEstate10K download
+python code/eval/download_dense_baseline.py # Dense baseline frames
 ```
 
-## 2. Download datasets
-
-```bash
-python code/data/download.py
-```
-
-## 3. Stratify the dataset
-
+## 2️⃣ Stratify & extract features
 ```bash
 python code/data/stratify.py
-```
-
-## 4. Extract sparse features
-
-```bash
 python code/data/extract_features.py
 ```
 
-## 5. Run geometry pipeline (solver + warp)
-
+## 3️⃣ Geometry pipeline (solver + warp)
 ```bash
 python code/geometry/run_pipeline.py
 ```
 
-## 6. Aggregate warped frames (produces the missing artefact)
-
+## 4️⃣ Evaluation
 ```bash
-python code/geometry/aggregate_warps.py
+python code/eval/metrics.py # Compute WorldScore, Sparse‑Consistency, FID, etc.
+python code/eval/anova.py # Two‑Way ANOVA
+python code/eval/report.py # Final verification report
 ```
 
-## 7. Compute evaluation metrics
-
+## 5️⃣ End‑to‑end orchestration (optional)
 ```bash
-python code/eval/metrics.py
+python code/main.py --phase evaluate # Runs the full evaluation phase
 ```
 
-## 8. Perform ANOVA analysis
-
-```bash
-python code/eval/anova.py
-```
-
-## 9. Sensitivity sweep
-
-```bash
-python code/eval/sensitivity.py
-```
-
-## 10. Final report
-
-```bash
-python code/eval/report.py
-```
-
-After the above steps complete, you should find the following files:
-
-- `data/results/sparse_warped_frames.npy` (produced by step 6)
-- `data/results/metrics.json` (produced by step 7)
-- `data/results/metrics_anova.json` (produced by step 8)
-- `data/results/sensitivity.json` (produced by step 9)
-- `data/results/hypothesis_verification.md` (produced by step 10)
+After the pipeline finishes, you will find:
+- `data/results/metrics.json` – all computed metrics.
+- `data/results/metrics.json` will be consumed by `code/eval/report.py` to
+ generate `data/results/hypothesis_verification.md`.

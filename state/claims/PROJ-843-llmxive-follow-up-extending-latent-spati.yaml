@@ -371,23 +371,6 @@
   updated_at: '2026-07-14T13:29:57Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
   attempts: 1
-  canonical: four folders each containing 50 sequences
-  claim_id: c_342521b4
-  context: 'Independent Test: Run code/data/stratify.py and code/data/extract_features.py
-    on a small subset; verify 4 folders exist with N=50 sequences each, and .npy files
-    contain valid coordinate/descriptor pairs.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: verify 4 folders exist with N=50 sequences each
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T13:30:21Z'
-- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
-  attempts: 1
   canonical: four folders with fifty sequences each
   claim_id: c_53cf7847
   context: 'Goal: Ingest RealEstate10K, stratify into 4 subsets (Static/Slow/Fast
@@ -581,25 +564,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T14:20:36Z'
-- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
-  attempts: 1
-  canonical: 4 folders with 50 sequences each
-  claim_id: c_378325dd
-  context: 'Independent Test: Run `code/data/stratify.py` and `code/data/extract_features.py`
-    on a small subset; verify 4 folders exist with N=50 sequences each, and `.npy`
-    files contain valid coordinate/descriptor pairs.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Independent Test: Run `code/data/stratify.py` and `code/data/extract_features.py`
-    on a small subset; verify 4 folders exist with N=50 sequences each, and `.npy`
-    files contain valid coordinate/descriptor pairs.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T14:21:39Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
   attempts: 1
   canonical: realestate10k stratified into four subsets with fifty sequences each
@@ -865,44 +829,10 @@
   updated_at: '2026-07-14T14:41:52Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
   attempts: 1
-  canonical: four subsets stratified by motion and texture
-  claim_id: c_5b7481db
+  canonical: RealEstate10K stratified into four subsets with 50 sequences each
+  claim_id: c_0e2aeb11
   context: 'Goal: Ingest RealEstate10K, stratify into 4 subsets (Static/Slow/Fast
     x High/Low texture), and extract sparse SIFT/ORB descriptors without dense depth.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Stratify into 4 subsets (Static/Slow/Fast x High/Low texture)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T15:53:20Z'
-- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
-  attempts: 3
-  canonical: four folders each containing fifty sequences
-  claim_id: c_e21a943c
-  context: 'Independent Test: Run code/data/stratify.py and code/data/extract_features.py
-    on a small subset; verify 4 folders exist with N=50 sequences each, and .npy files
-    contain valid coordinate/descriptor pairs.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: verify 4 folders exist with N=50 sequences each
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T15:53:44Z'
-- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
-  attempts: 1
-  canonical: 4 subsets each containing 50 sequences
-  claim_id: c_c208b3fc
-  context: Implement code/data/stratify.py to ... Stratify into 4 subsets (Static-High,
-    Static-Low, Fast-High, Fast-Low) and verify 4 folders exist with N=50 sequences
-    each
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -913,191 +843,374 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T15:54:40Z'
+  updated_at: '2026-07-14T15:57:45Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
   attempts: 1
-  canonical: dense baseline downloaded from HuggingFace realestate10k/dense_baseline_v1
-  claim_id: c_39d28c35
-  context: "Strictly download the pre\u2011computed dense baseline from external source\
-    \ (e.g., HuggingFace realestate10k/dense_baseline_v1 or official URL) and save\
-    \ to data/raw/dense_baseline_frames.npy"
+  canonical: dense baseline downloaded from realestate10k/dense_baseline_v1
+  claim_id: c_6bf9aae5
+  context: Strictly download the pre-computed dense baseline from external source
+    (e.g., HuggingFace realestate10k/dense_baseline_v1 or official URL).
   evidence:
-    fill:
-      channel: wikidata
-      conflicts: []
-      quote: 'P8408: DownloadingAFile'
-      source_id: Q1188265
-      url: https://www.wikidata.org/wiki/Q1188265
-      value: DownloadingAFile
-    filled: true
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dense_baseline_downloaded_from_realestate10k/dense_baseline
   kind: entity_fact
-  raw_text: "Download the pre\u2011computed dense baseline from external source (e.g.,\
-    \ HuggingFace realestate10k/dense_baseline_v1) and save to data/raw/dense_baseline_frames.npy"
-  resolved_value: DownloadingAFile
-  resolver: fill:wikidata
+  raw_text: Download dense baseline results from external source realestate10k/dense_baseline_v1
+  resolved_value: null
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
-  updated_at: '2026-07-14T15:54:52Z'
+  status: not_enough_info
+  updated_at: '2026-07-14T15:58:12Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
   attempts: 1
-  canonical: 4 folders each containing 50 sequences after stratification
-  claim_id: c_c7efc03e
+  canonical: 4 folders each contain 50 sequences
+  claim_id: c_6efcb92c
+  context: 'Independent Test: Run stratify and extract_features on a small subset;
+    verify 4 folders exist with N=50 sequences each, and .npy files contain valid
+    coordinate/descriptor pairs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify 4 folders exist with N=50 sequences each
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:59:11Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: 4 subsets stratified by motion and texture
+  claim_id: c_0c37272b
+  context: 'Goal: Ingest RealEstate10K, stratify into 4 subsets (Static/Slow/Fast
+    x High/Low texture).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stratify into 4 subsets (Static-High, Static-Low, Fast-High, Fast-Low)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:59:33Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: four subsets based on motion speed and texture level
+  claim_id: c_9f7aafec
+  context: The task T008 implements code/data/stratify.py to calculate motion magnitude
+    and texture entropy, then stratify into 4 subsets (Static-High, Static-Low, Fast-High,
+    Fast-Low).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratify into 4 subsets (Static/Slow/Fast x High/Low texture)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:00:06Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: four folders each containing fifty sequences
+  claim_id: c_6c93ebb0
+  context: 'Independent Test for User Story 1: run stratify and feature extraction
+    scripts and verify 4 folders exist with N=50 sequences each, and .npy files contain
+    valid coordinate/descriptor pairs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify 4 folders exist with N=50 sequences each
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:00:06Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: abort if any stratum has fewer than fifty sequences
+  claim_id: c_01ed1b4b
+  context: "Task T008 specifies that execution should abort with error code 1 if any\
+    \ stratum has fewer than 50 sequences in the source pool (strict n\u226550 enforcement)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_any_stratum_has_fewer_than_fifty_sequences
+  kind: magnitude
+  raw_text: ABORT execution with error code 1 if any stratum has fewer than 50 sequences
+    in the source pool
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:00:37Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: four folders exist with fifty sequences each
+  claim_id: c_c52aac65
+  context: 'Independent Test: Run `code/data/stratify.py` and `code/data/extract_features.py`
+    on a small subset; verify 4 folders exist with N=50 sequences each, and `.npy`
+    files contain valid coordinate/descriptor pairs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify 4 folders exist with N=50 sequences each
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:01:02Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: abort if any stratum has fewer than fifty sequences
+  claim_id: c_da9493c0
+  context: "Implement `code/data/stratify.py` to calculate motion magnitude and texture\
+    \ entropy, and **ABORT execution** with error code 1 if any stratum has fewer\
+    \ than 50 sequences in the source pool (strict n\u226550 enforcement)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_any_stratum_has_fewer_than_fifty_sequences
+  kind: magnitude
+  raw_text: "ABORT execution with error code 1 if any stratum has fewer than 50 sequences\
+    \ in the source pool (strict n\u226550 enforcement)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:01:04Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: trigger sequential processing when RAM usage exceeds six gigabytes
+  claim_id: c_05082f46
+  context: 'Implement batch processing mode: trigger sequential frame processing if
+    RAM usage > 6GB to prevent OOM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Trigger_sequential_processing_when_RAM_usage_exceeds_six_gig
+  kind: entity_fact
+  raw_text: trigger sequential frame processing if RAM usage > 6GB to prevent OOM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:01:33Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: four folders each containing 50 sequences after stratification
+  claim_id: c_8e467087
+  context: User Story 1 specifies an independent test where the pipeline should produce
+    four stratified folders, each with fifty sequences, and the feature files should
+    hold valid coordinate/descriptor data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small
+    subset; verify 4 folders exist with N=50 sequences each, and `.npy` files contain
+    valid coordinate/descriptor pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:03:20Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: each stratified folder contains fifty sequences
+  claim_id: c_25a66695
+  context: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small
+    subset; verify 4 folders exist with N=50 sequences each, and `.npy` files contain
+    valid coordinate/descriptor pairs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: each folder contains N=50 sequences
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:07:16Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: four stratified folders each containing fifty sequences
+  claim_id: c_88dca26a
+  context: 'Independent Test: Run `code/data/stratify.py` and `code/data/extract_features.py`
+    on a small subset; verify 4 folders exist with N=50 sequences each, and `.npy`
+    files contain valid coordinate/descriptor pairs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small
+    subset; verify 4 folders exist with N=50 sequences each, and `.npy` files contain
+    valid coordinate/descriptor pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:08:14Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: 4 folders each containing 50 sequences
+  claim_id: c_2840ded8
   context: 'Independent Test: Run code/data/stratify.py and code/data/extract_features.py
     on a small subset; verify 4 folders exist with N=50 sequences each, and .npy files
     contain valid coordinate/descriptor pairs.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Run code/data/stratify.py and code/data/extract_features.py on a small
-    subset; verify 4 folders exist with N=50 sequences each, and .npy files contain
-    valid coordinate/descriptor pairs.
+  raw_text: verify 4 folders exist with N=50 sequences each
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T15:56:04Z'
+  updated_at: '2026-07-14T16:08:54Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
   attempts: 1
-  canonical: verify four stratified folders each containing fifty sequences
-  claim_id: c_b2641b0d
-  context: Phase 3 User Story 1 aims to stratify RealEstate10K into 4 subsets and
-    extract sparse descriptors, with an independent test checking folder count and
-    sequence count per folder.
+  canonical: four folders each containing fifty sequences
+  claim_id: c_d9a91445
+  context: 'Independent Test for User Story 1: Run stratify and extract_features scripts
+    and verify 4 folders exist with N=50 sequences each, and .npy files contain valid
+    coordinate/descriptor pairs.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small
-    subset; verify 4 folders exist with N=50 sequences each, and `.npy` files contain
-    valid coordinate/descriptor pairs.
+  raw_text: verify 4 folders exist with N=50 sequences each
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T15:57:07Z'
+  updated_at: '2026-07-14T16:09:28Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
   attempts: 1
-  canonical: 'four subsets: Static-High, Static-Low, Fast-High, Fast-Low'
-  claim_id: c_d3dd472e
-  context: Phase 3 describes stratifying RealEstate10K into 4 subsets based on motion
-    and texture.
+  canonical: four folders each containing 50 sequences
+  claim_id: c_4eba8d79
+  context: 'Independent Test: Run `code/data/stratify.py` and `code/data/extract_features.py`
+    on a small subset; verify 4 folders exist with N=50 sequences each, and `.npy`
+    files contain valid coordinate/descriptor pairs.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Stratify into 4 subsets (Static-High, Static-Low, Fast-High, Fast-Low)
+  raw_text: verify 4 folders exist with N=50 sequences each
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T15:57:28Z'
+  updated_at: '2026-07-14T16:09:57Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
   attempts: 1
-  canonical: each stratum contains at least 50 sequences
-  claim_id: c_be94a1d0
-  context: Independent test for User Story 1 checks that 4 folders exist with 50 sequences
-    each.
-  evidence:
-    entailment_evidence: Each stratum contains at least 50 sequences
-    entailment_status: grounded
-    source_url: https://en.wikipedia.org/wiki/Each_stratum_contains_at_least_50_sequences
-  kind: magnitude
-  raw_text: Each stratum must contain at least 50 sequences; pipeline verifies 4 folders
-    exist with N=50 sequences each
-  resolved_value: each stratum contains at least 50 sequences
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-07-14T15:57:30Z'
-- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
-  attempts: 1
-  canonical: stratify produces 4 folders each containing 50 sequences and valid .npy
-    descriptor files
-  claim_id: c_b231cc0a
-  context: 'Phase 3: User Story 1 includes an independent test that runs the stratify
-    and feature extraction scripts on a small subset and expects 4 folders with 50
-    sequences each and valid .npy files.'
+  canonical: four folders each containing fifty sequences
+  claim_id: c_4352cb25
+  context: 'Phase 3 independent test: Run stratify and feature extraction scripts
+    and verify 4 folders exist with N=50 sequences each.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small
-    subset; verify 4 folders exist with N=50 sequences each, and `.npy` files contain
-    valid coordinate/descriptor pairs.
+  raw_text: verify 4 folders exist with N=50 sequences each
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T16:02:19Z'
+  updated_at: '2026-07-14T16:10:49Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
   attempts: 1
   canonical: solver produces valid fundamental matrix and smooth RBF interpolation
-    on Static-High sequence without NaNs or GPU
-  claim_id: c_6c20f805
-  context: 'Phase 4: User Story 2 defines an independent test that runs the solver
-    on a "Static-High" sequence and checks for a valid fundamental matrix, 3D points
-    up to scale, and smooth RBF interpolation without NaNs or GPU usage.'
+    without NaNs on a Static-High sequence
+  claim_id: c_a120b05a
+  context: 'Phase 4 independent test: Run the sparse epipolar solver on a Static-High
+    sequence and check that the fundamental matrix is valid, 3D points are recovered
+    up to scale, and the RBF warping yields no NaN values and does not use a GPU.'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
     source_url: https://en.wikipedia.org/wiki/Solver_produces_valid_fundamental_matrix_and_smooth_RBF_inte
   kind: entity_fact
-  raw_text: Run solver on a 'Static-High' sequence; verify valid fundamental matrix,
-    3D points (up to scale), and smooth RBF interpolation without NaNs or GPU usage.
+  raw_text: run solver on a 'Static-High' sequence; verify valid fundamental matrix,
+    3D points (up to scale), and smooth RBF interpolation without NaNs or GPU usage
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T16:02:57Z'
+  updated_at: '2026-07-14T16:11:19Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
   attempts: 1
-  canonical: RealEstate10K dataset is stratified into four subsets based on motion
-    and texture
-  claim_id: c_3a8e57fd
-  context: 'Goal: Ingest RealEstate10K, stratify into 4 subsets (Static/Slow/Fast
-    x High/Low texture), and extract sparse SIFT/ORB descriptors without dense depth.'
+  canonical: four stratified folders each containing fifty sequences
+  claim_id: c_55281ac6
+  context: "Phase 3 (User Story\u202F1) specifies an independent test that checks\
+    \ for four stratified folders, each holding 50 sequences, after running the stratify\
+    \ and feature\u2011extraction scripts."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Ingest RealEstate10K, stratify into 4 subsets (Static/Slow/Fast x High/Low
-    texture)
+  raw_text: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small
+    subset; verify 4 folders exist with N=50 sequences each, and `.npy` files contain
+    valid coordinate/descriptor pairs.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T16:03:39Z'
+  updated_at: '2026-07-14T16:12:15Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
   attempts: 1
-  canonical: Dense baseline frames are obtained from HuggingFace realestate10k/dense_baseline_v1
-  claim_id: c_d1fc1baa
-  context: 'Download dense baseline results: Strictly download the pre-computed dense
-    baseline from external source (e.g., HuggingFace `realestate10k/dense_baseline_v1`
-    or official URL)'
+  canonical: four folders each containing fifty sequences
+  claim_id: c_4a9f1d3a
+  context: 'Goal: Ingest RealEstate10K, stratify into 4 subsets (Static/Slow/Fast
+    x High/Low texture). Independent Test: run stratify and extract_features on a
+    small subset; verify 4 folders exist with N=50 sequences each.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small
+    subset; verify 4 folders exist with N=50 sequences each
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:13:37Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: solver produces valid fundamental matrix and 3D points and smooth RBF
+    interpolation without NaNs or GPU usage for a Static-High sequence
+  claim_id: c_a802ce21
+  context: 'Implementation of sparse epipolar solver and latent warping. Independent
+    Test: run solver on a ''Static-High'' sequence; verify valid fundamental matrix,
+    3D points (up to scale), and smooth RBF interpolation without NaNs or GPU usage.'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Dense_baseline_frames_are_obtained_from_HuggingFace_realesta
+    source_url: https://en.wikipedia.org/wiki/Solver_produces_valid_fundamental_matrix_and_3D_points_and_s
   kind: entity_fact
-  raw_text: Strictly download the pre-computed dense baseline from external source
-    (e.g., HuggingFace `realestate10k/dense_baseline_v1`)
+  raw_text: Run solver on a 'Static-High' sequence; verify valid fundamental matrix,
+    3D points (up to scale), and smooth RBF interpolation without NaNs or GPU usage
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T16:04:06Z'
+  updated_at: '2026-07-14T16:13:40Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
-  attempts: 1
-  canonical: four folders each containing fifty sequences
-  claim_id: c_3855f0d5
-  context: 'Independent Test: Run `code/data/stratify.py` and `code/data/extract_features.py`
-    on a small subset; verify 4 folders exist with N=50 sequences each, and `.npy`
-    files contain valid coordinate/descriptor pairs.'
+  attempts: 2
+  canonical: four stratified folders each containing fifty sequences
+  claim_id: c_63026bcf
+  context: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small
+    subset; verify 4 folders exist with N=50 sequences each, and `.npy` files contain
+    valid coordinate/descriptor pairs.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -1107,29 +1220,30 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T16:04:29Z'
+  updated_at: '2026-07-14T16:14:32Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
   attempts: 1
-  canonical: stratify RealEstate10K into 4 subsets based on motion and texture
-  claim_id: c_c76a2a08
-  context: Goal of User Story 1 is to ingest RealEstate10K, stratify into 4 subsets
-    (Static/Slow/Fast x High/Low texture), and extract sparse SIFT/ORB descriptors
-    without dense depth.
+  canonical: four folders each contain fifty sequences
+  claim_id: c_dc8048f0
+  context: Phase 3 user story 1 test expects that after stratification and feature
+    extraction, there are four folders with fifty sequences each and valid .npy descriptor
+    files.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Ingest RealEstate10K, stratify into 4 subsets (Static/Slow/Fast x High/Low
-    texture), and extract sparse SIFT/ORB descriptors without dense depth.
+  raw_text: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small
+    subset; verify 4 folders exist with N=50 sequences each, and `.npy` files contain
+    valid coordinate/descriptor pairs.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T16:05:43Z'
+  updated_at: '2026-07-14T16:15:04Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
-  attempts: 1
-  canonical: verify that each of 4 stratified folders contains 50 sequences
-  claim_id: c_83d1535f
+  attempts: 2
+  canonical: four folders each containing 50 sequences
+  claim_id: c_342521b4
   context: 'Independent Test: Run code/data/stratify.py and code/data/extract_features.py
     on a small subset; verify 4 folders exist with N=50 sequences each, and .npy files
     contain valid coordinate/descriptor pairs.'
@@ -1142,72 +1256,23 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T16:05:43Z'
+  updated_at: '2026-07-14T16:16:21Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
-  attempts: 1
-  canonical: stratification produces 4 folders each with 50 sequences
-  claim_id: c_644a4005
-  context: Phase 3 User Story 1 specifies an independent test to ensure the stratified
-    dataset contains four subsets with fifty sequences each and that feature files
-    are valid.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run code/data/stratify.py and code/data/extract_features.py on a small
-    subset; verify 4 folders exist with N=50 sequences each, and .npy files contain
-    valid coordinate/descriptor pairs.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T16:06:29Z'
-- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
-  attempts: 1
-  canonical: four subsets are created for stratification
-  claim_id: c_04e13d3a
-  context: Phase 3 implementation for User Story 1 includes stratifying the RealEstate10K
-    dataset into four subsets based on motion and texture.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Stratify into 4 subsets (Static-High, Static-Low, Fast-High, Fast-Low)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T16:06:57Z'
-- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
-  attempts: 1
-  canonical: each of the four folders contains 50 sequences
-  claim_id: c_42248f91
-  context: The independent test for User Story 1 checks that after stratification,
-    four folders are present and each contains fifty sequences.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: verify 4 folders exist with N=50 sequences each
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T16:06:57Z'
-- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
-  attempts: 5
-  canonical: 4 folders each containing 50 sequences
-  claim_id: c_15d24e19
+  attempts: 2
+  canonical: 4 folders with 50 sequences each
+  claim_id: c_378325dd
   context: 'Independent Test: Run `code/data/stratify.py` and `code/data/extract_features.py`
     on a small subset; verify 4 folders exist with N=50 sequences each, and `.npy`
     files contain valid coordinate/descriptor pairs.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: verify 4 folders exist with N=50 sequences each
+  raw_text: 'Independent Test: Run `code/data/stratify.py` and `code/data/extract_features.py`
+    on a small subset; verify 4 folders exist with N=50 sequences each, and `.npy`
+    files contain valid coordinate/descriptor pairs.'
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T16:11:26Z'
+  updated_at: '2026-07-14T16:17:04Z'
