@@ -1,59 +1,31 @@
+"""
+Setup script to initialize the data directory structure and schemas.
+
+This script is the entry point for T006. It creates the required directory
+hierarchy and generates the initial schema report.
+"""
 import sys
 from pathlib import Path
-import json
-from config import (
-    get_data_dir,
-    get_raw_dir,
-    get_processed_dir,
-    get_stratified_dir,
-    get_features_dir,
-    get_results_dir
-)
-from data.schemas import (
-    create_directories,
-    validate_strata_existence,
-    create_schema_report
-)
-from utils.seeds import set_global_seed
+
+# Add parent to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from data.schemas import main as schema_main
 
 def main():
     """
-    Entry point for initial data setup.
-    Creates directory structure and validates schema compliance.
+    Orchestrates the data setup process.
     """
-    print("Starting data setup...")
+    print("="*60)
+    print("T006: Creating base data schemas and directory structure")
+    print("="*60)
     
-    # Set seed for reproducibility
-    set_global_seed(42)
+    # Run the schema main logic which creates dirs and validates
+    schema_main()
     
-    # Create directories
-    print("Creating directory structure...")
-    dirs = create_directories()
-    
-    success = True
-    for path, status in dirs.items():
-        if status:
-            print(f"  [OK] {path}")
-        else:
-            print(f"  [FAIL] {path}")
-            success = False
-    
-    if not success:
-        print("Error: Failed to create some directories.")
-        return 1
-    
-    # Validate schema
-    print("\nValidating schema compliance...")
-    report = create_schema_report()
-    
-    if report['status'] == 'valid':
-        print("Schema validation passed.")
-    else:
-        print("Schema validation failed. Missing strata may need to be populated by downstream tasks.")
-        # This is not a fatal error for setup, as strata are created by stratify.py
-    
-    print("\nData setup complete.")
-    return 0
+    print("="*60)
+    print("T006: Setup Complete")
+    print("="*60)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

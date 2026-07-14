@@ -1,2 +1,2 @@
-# This file ensures the data/raw directory is tracked by git.
-# Raw downloaded datasets will be placed here by download.py.
+# This directory stores raw downloaded datasets (e.g., RealEstate10K)
+# Files here are managed by code/data/download.py
