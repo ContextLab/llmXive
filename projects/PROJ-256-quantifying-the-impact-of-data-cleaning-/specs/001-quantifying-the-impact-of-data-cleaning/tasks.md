@@ -60,7 +60,7 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [Dependency: Requires T008] Create `code/utils.py` with function `pin_random_seed(seed: int)` for numpy and scipy, ensuring reproducibility.
-- [ ] T005 [Dependency: Requires T008] Create `code/utils.py` with function `compute_file_checksum(filepath: str) -> str` for SHA256 validation of data files.
+- [X] T005 [Dependency: Requires T008] Create `code/utils.py` with function `compute_file_checksum(filepath: str) -> str` for SHA256 validation of data files.
 - [X] T006 [Dependency: Requires T008] Create `code/utils.py` with function `setup_logging(log_level: str)` to initialize the logging infrastructure.
 - [X] T007 [Dependency: Requires T008] Setup environment configuration management in `code/config.py` with env vars for DATASET_URLS, OUTPUT_PATH, RANDOM_SEED, BOOTSTRAP_ITERATIONS.
 - [X] T008 Create base data models/entities per data-model.md (Dataset, CleaningStrategy, AnalysisResult, ComparisonReport schemas) in `code/models.py`.
@@ -86,7 +86,7 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 - [X] T011 [US1] Implement acquisition logic in `code/data_loader.py`. **Action**: Attempt download from OpenML Small Datasets collection first. If unavailable, fallback to UCI HAR (URL: `) and UCI Shopper (URL: `). **Requirement**: Log "Fallback to UCI: OpenML unavailable or empty" if fallback occurs. Validate p-values are in (0,1) and CI bounds are finite. Record checksums.
 - [ ] T012 [US1] Implement baseline analysis in `code/analysis.py` using scipy.stats (t-tests) and statsmodels (linear regression). **Requirement**: Validate p-values in (0,1) and CI bounds finite. Output `data/processed/baseline_metrics.json`. <!-- ATOMIZE: requested -->
-- [ ] T013 [US1] Record baseline metrics (p-value, 95% CI, Cohen's d/R²) to `data/processed/baseline_metrics.json` with ≥3 decimal precision. **Note**: SC-006 requires ≥10 datasets; current multiple datasets flagged as BLOCKING GAP per plan.md Dataset Feasibility Notice. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [~] T013 [US1] Record baseline metrics (p-value, 95% CI, Cohen's d/R²) to `data/processed/baseline_metrics.json` with ≥3 decimal precision. **Note**: SC-006 requires ≥10 datasets; current multiple datasets flagged as BLOCKING GAP per plan.md Dataset Feasibility Notice. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -132,20 +132,20 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 ### Implementation for User Story 3
 
-- [~] T027 [US3] Implement metrics comparison in `code/reporting.py`. **Dependency**: Depends on existence of `cleaned_metrics.json` and `baseline_metrics.json` artifacts. **Requirement**: Compute |p_cleaned - p_baseline| (≥3 decimal precision), CI width change (≥2 decimal precision), effect-size delta, AND inconsistency rate (proportion of datasets where significance status changes) per FR-006. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [~] T027 [US3] Implement metrics comparison in `code/reporting.py`. **Dependency**: Depends on existence of `cleaned_metrics.json` and `baseline_metrics.json` artifacts. **Requirement**: Compute |p_cleaned - p_baseline| (≥3 decimal precision), CI width change (≥2 decimal precision), effect-size delta, AND inconsistency rate (proportion of datasets where significance status changes) per FR-006. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T028 [US3] Implement Bonferroni correction for Family-Wise Error Rate (FWER) in `code/reporting.py`. **Requirement**: Log a warning: "Warning: FR-007 requests FWER control. Benjamini-Hochberg controls FDR. Implemented Bonferroni (FWER) to satisfy FR-007."
 - [X] T029 [US3] Implement missingness rate binning with explicit thresholds: non-missing, low, moderate, and high. **Requirement**: Log warning: "Warning: Missingness bin thresholds [0, 5, 10, 20] used. If bins are empty, log CONSTRAINT_VIOLATION but do not skip logic." **Control Flow**: If bins are empty, log warning and proceed.
 - [~] T030 [US3] Implement dataset size binning sensitivity analysis (n<50, 50-200, >200). **Requirement**: Log warning if <1 dataset per bin. **Control Flow**: If bins are empty, log CONSTRAINT_VIOLATION warning and proceed. **Dependency**: Depends on baseline metrics.
 - [X] T031 [US3] Implement bootstrap variance estimation (≥1000 resamples per dataset, default 1000, fallback to 500 if dataset size > 5000 rows) for metric shifts with 95% CI. **Dependency**: Depends on existence of metric artifacts (T012, T023).
 - [~] T032 [US3] Implement permutation null dataset generation (outcome variable shuffled) for false-positive rate (FPR) estimation per FR-011. **Requirement**: Generate null datasets by shuffling outcomes while keeping predictors fixed. Output `data/processed/null_fpr_metrics.json`.
-- [~] T033 [US3] Implement outlier threshold sweep for k ∈ {, a specific threshold} with FPR calculation AND inconsistency rate per threshold per FR-006. **Requirement**: Calculate FPR as proportion of tests with p ≤ 0.05 in null datasets. Calculate Inconsistency Rate as proportion of datasets where significance status changes. **Dependency**: Depends on cleaning functions (T017-T021) and analysis functions (T012, T023).
+- [ ] T033 [US3] Implement outlier threshold sweep for k ∈ {, a specific threshold} with FPR calculation AND inconsistency rate per threshold per FR-006. **Requirement**: Calculate FPR as proportion of tests with p ≤ 0.05 in null datasets. Calculate Inconsistency Rate as proportion of datasets where significance status changes. **Dependency**: Depends on cleaning functions (T017-T021) and analysis functions (T012, T023).
 - [X] T034 [US3] Generate forest plot of p-value shifts using matplotlib/seaborn and save as PNG to `output/`.
 - [X] T035 [US3] Generate heatmap of CI-width changes across strategies and dataset bins and save as PNG to `output/`.
 - [X] T036 [US3] Implement per-dataset p-value shift reporting. **Requirement**: Calculate Median and IQR of p-value shifts. If n=2, log "STATISTICAL_LIMITATION: Median/IQR calculated on n=2, results are unstable." Do not skip calculation.
 - [X] T037 [US3] Implement per-dataset CI width change reporting. **Requirement**: Calculate Median and IQR of CI width changes. If n=2, log "STATISTICAL_LIMITATION: Median/IQR calculated on n=2, results are unstable." Do not skip calculation.
 - [X] T038 [US3] Implement per-dataset effect-size change reporting. **Requirement**: Calculate Median and IQR of effect-size changes. If n=2, log "STATISTICAL_LIMITATION: Median/IQR calculated on n=2, results are unstable." Do not skip calculation.
 - [X] T039 [US3] Log excluded datasets (>80% missing outcome) with warning and record exclusion reason.
-- [~] T040 [US3] Create comparison report (ComparisonReport entity) with baseline_metrics, cleaned_metrics, absolute_diff, relative_diff, sensitivity_analysis.
+- [ ] T040 [US3] Create comparison report (ComparisonReport entity) with baseline_metrics, cleaned_metrics, absolute_diff, relative_diff, sensitivity_analysis.
 - [X] T041 [US3] Generate final report with all metrics aggregated and visualizations referenced.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -269,4 +269,4 @@ With multiple developers:
 - **BLOCKING GAP**: SC-006 requires ≥10 datasets but only 2 available - median/IQR calculations (T036-T038) now implemented as per-dataset reporting with explicit limitation notes to satisfy SC intent without statistical invalidity.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [~] T050 Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T050 Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

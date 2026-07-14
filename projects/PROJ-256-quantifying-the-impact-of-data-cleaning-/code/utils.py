@@ -1,97 +1,67 @@
+"""
+Utility functions for the project.
+Includes logging setup, random seed pinning, and file checksums.
+"""
 import os
 import hashlib
 import logging
 import numpy as np
 import scipy
-from typing import Optional, Any, Callable
+from typing import Optional, Any, Callable, Union
+import sys
 
-# Ensure logger name extraction is safe
-def _get_logger_name(name: str) -> str:
-    if '.' in name:
-        return name.split('.')[0]
-    return name
+logger = logging.getLogger(__name__)
 
-def setup_logging(log_level: Optional[str] = None) -> logging.Logger:
+def setup_logging(log_level: Union[str, int, None] = None, name: Optional[str] = None) -> logging.Logger:
     """
-    Initialize the logging infrastructure.
+    Setup logging configuration.
+    
+    Accepts multiple signatures for flexibility:
+    - setup_logging() -> uses default INFO
+    - setup_logging("INFO") -> string level
+    - setup_logging(log_level="INFO") -> kwarg
+    - setup_logging(logging.INFO) -> int level
+    - setup_logging(logging.INFO, "name") -> name arg (ignored if passed)
+    - setup_logging(name="my_logger") -> name kwarg (ignored)
     
     Args:
-        log_level: The logging level (e.g., 'INFO', 'DEBUG', 'WARNING').
-                   If None, defaults to 'INFO'.
-                   If passed as positional *args or **kwargs by callers,
-                   we handle it gracefully.
+        log_level: String ("INFO", "DEBUG", etc.) or int (logging.INFO).
+        name: Optional logger name (ignored for global config, but accepted for compatibility).
     
     Returns:
-        The root logger for the project.
+        The root logger instance.
     """
-    # Handle flexible calling conventions
-    if log_level is None:
-        # Check if it was passed as a keyword argument with a different name
-        # or if it's a default call. Default to INFO.
-        level_str = "INFO"
-    elif isinstance(log_level, str):
-        level_str = log_level
-    elif isinstance(log_level, int):
-        # It might have been passed as an int (logging.INFO)
-        level_str = logging.getLevelName(log_level)
-    else:
-        # Fallback for unexpected types
-        level_str = "INFO"
+    # Determine log level
+    level = logging.INFO
+    if log_level is not None:
+        if isinstance(log_level, str):
+            level = getattr(logging, log_level.upper(), logging.INFO)
+        elif isinstance(log_level, int):
+            level = log_level
+        # else: ignore unknown types
     
-    # Map common string inputs to logging constants
-    level_map = {
-        "DEBUG": logging.DEBUG,
-        "INFO": logging.INFO,
-        "WARNING": logging.WARNING,
-        "ERROR": logging.ERROR,
-        "CRITICAL": logging.CRITICAL,
-        "T030_DATASET_SIZE_SENSITIVITY": logging.WARNING, # Special case from logs
-    }
-    
-    log_level_val = level_map.get(level_str.upper(), logging.INFO)
-    
-    logger_name = _get_logger_name(__name__)
-    logger = logging.getLogger(logger_name)
-    
-    # Avoid adding handlers multiple times if this is called repeatedly
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
+    # Configure root logger if not already configured
+    if not logging.getLogger().handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
-        logger.addHandler(handler)
+        logging.getLogger().addHandler(handler)
+        logging.getLogger().setLevel(level)
     
-    logger.setLevel(log_level_val)
-    return logger
+    # If a specific name is requested, return that logger
+    if name:
+        return logging.getLogger(name)
+    
+    return logging.getLogger()
 
 def pin_random_seed(seed: int) -> None:
-    """
-    Pin the random seed for numpy and scipy to ensure reproducibility.
-    
-    Args:
-        seed: The integer seed value.
-    """
+    """Pin the random seed for numpy and scipy to ensure reproducibility."""
     np.random.seed(seed)
-    # SciPy generally relies on numpy's random state, but explicit setting is good practice
-    # Some scipy modules have their own generators, but standard seed pinning covers most
-    if hasattr(np.random, 'default_rng'):
-        # For newer numpy versions, we can also set the global state if needed
-        pass
+    # Scipy uses numpy's random state, so setting numpy's seed is usually sufficient
+    # For older scipy versions or specific modules, we might need more, but this covers most.
 
 def compute_file_checksum(filepath: str) -> str:
-    """
-    Compute the SHA256 checksum of a file for validation.
-    
-    Args:
-        filepath: Path to the file.
-    
-    Returns:
-        Hexadecimal string of the SHA256 hash.
-    
-    Raises:
-        FileNotFoundError: If the file does not exist.
-    """
+    """Compute SHA256 checksum of a file."""
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"File not found: {filepath}")
     
@@ -99,22 +69,15 @@ def compute_file_checksum(filepath: str) -> str:
     with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
+    
     return sha256_hash.hexdigest()
 
 def main():
-    """Main entry point for testing utils."""
+    """Main entry point for testing."""
     logger = setup_logging("INFO")
-    logger.info("Utils module loaded successfully.")
+    logger.info("Utils module loaded.")
     pin_random_seed(42)
-    logger.info("Random seed pinned.")
-    
-    # Test checksum on a dummy file if it exists, otherwise skip
-    test_file = "test_checksum.txt"
-    if os.path.exists(test_file):
-        checksum = compute_file_checksum(test_file)
-        logger.info(f"Checksum of {test_file}: {checksum}")
-    else:
-        logger.warning(f"Test file {test_file} not found, skipping checksum test.")
+    logger.info(f"Random seed pinned. Numpy version: {np.__version__}")
 
 if __name__ == "__main__":
     main()

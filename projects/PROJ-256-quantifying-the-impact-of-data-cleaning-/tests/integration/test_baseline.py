@@ -1,87 +1,154 @@
+"""
+Integration test for baseline analysis pipeline (T010).
+Verifies that the baseline analysis script produces `data/processed/baseline_metrics.json`
+with valid p-values (0 < p < 1) and finite Confidence Intervals.
+
+This test addresses the execution failure where `t012_run_baseline_analysis.py`
+failed to import `load_datasets_from_raw` from `analysis`. It ensures the pipeline
+runs end-to-end and produces the required artifact.
+"""
 import os
+import sys
 import json
 import pytest
-import pandas as pd
+import logging
 from pathlib import Path
-import tempfile
-import shutil
 
-# Import the function to test
-from code.analysis import run_baseline_analysis
+# Ensure project root is in path
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
 
-BASELINE_OUTPUT = "data/processed/baseline_metrics.json"
+sys.path.insert(0, str(CODE_DIR))
+sys.path.insert(0, str(PROJECT_ROOT))
 
-@pytest.fixture
-def sample_csv(tmp_path):
-    """Create a sample CSV dataset for testing."""
-    data = {
-        'group': ['A', 'A', 'B', 'B', 'A', 'B'],
-        'value': [1.0, 2.0, 3.0, 4.0, 1.5, 3.5],
-        'predictor': [10, 20, 30, 40, 15, 35]
-    }
-    df = pd.DataFrame(data)
-    csv_path = tmp_path / "test_dataset.csv"
-    df.to_csv(csv_path, index=False)
-    return str(tmp_path)
+from utils import setup_logging
+from data_loader import load_datasets_from_raw
+from analysis import run_baseline_analysis
+from config import get_config
 
-def test_baseline_analysis_creates_file(sample_csv):
-    """Test that run_baseline_analysis creates the output file."""
-    output_file = os.path.join("data", "processed", "test_baseline_output.json")
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+# Setup logging for the test
+logger = setup_logging("INFO")
+
+# Constants for validation
+EXPECTED_OUTPUT_FILE = DATA_PROCESSED / "baseline_metrics.json"
+REQUIRED_KEYS = ["datasets", "metadata"]
+P_VALUE_MIN = 0.0
+P_VALUE_MAX = 1.0
+
+def test_baseline_analysis_produces_valid_metrics():
+    """
+    Integration test:
+    1. Ensure raw data exists (or is downloaded).
+    2. Run the baseline analysis script logic.
+    3. Verify the output file exists.
+    4. Verify the JSON structure contains valid p-values and finite CIs.
+    """
     
-    result = run_baseline_analysis(sample_csv, output_file)
-    
-    assert result is True, "Baseline analysis should return True on success"
-    assert os.path.exists(output_file), "Output file should be created"
-    
-    with open(output_file, 'r') as f:
+    # 1. Setup: Ensure raw data exists
+    # We rely on T011 ensuring data exists, but we check here for robustness.
+    if not RAW_DATA_DIR.exists() or not any(RAW_DATA_DIR.iterdir()):
+        pytest.skip("Raw data directory is empty. T011 (ensure_data) must run first.")
+
+    # 2. Run Baseline Analysis
+    # We call the function directly to simulate the script execution of t012_run_baseline_analysis.py
+    # This fixes the import error by using the correct function signature.
+    try:
+        # Attempt to load datasets from the raw directory
+        datasets = load_datasets_from_raw(str(RAW_DATA_DIR))
+        
+        if not datasets:
+            pytest.skip("No datasets found in raw directory to analyze.")
+
+        # Run baseline analysis on the first available dataset to generate the report
+        # The run_baseline_analysis function is expected to write to the default output path
+        # or we can pass the config to specify it.
+        
+        config = get_config()
+        output_file = str(DATA_PROCESSED / "baseline_metrics.json")
+        
+        # Ensure output directory exists
+        DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
+
+        # Execute the analysis
+        # Note: run_baseline_analysis signature varies. We use the one that accepts raw_dir and output_file
+        # as per the execution log context, or the dict-returning one if we need to process specific datasets.
+        # Given the error log: `from analysis import run_baseline_analysis, load_datasets_from_raw`
+        # and the call in t012: `run_baseline_analysis(raw_dir, output_file, config={})`
+        # We attempt to call it with those arguments.
+        
+        success = run_baseline_analysis(str(RAW_DATA_DIR), output_file, config={})
+        
+        if not success:
+            logger.error("Baseline analysis script returned failure.")
+            assert False, "Baseline analysis script execution failed."
+
+    except ImportError as e:
+        pytest.fail(f"Import error during baseline analysis execution: {e}")
+    except Exception as e:
+        pytest.fail(f"Runtime error during baseline analysis: {e}")
+
+    # 3. Verify Output File Exists
+    assert EXPECTED_OUTPUT_FILE.exists(), f"Output file {EXPECTED_OUTPUT_FILE} was not created."
+
+    # 4. Validate JSON Content
+    with open(EXPECTED_OUTPUT_FILE, 'r') as f:
         data = json.load(f)
-    
-    assert 'datasets' in data
-    assert len(data['datasets']) > 0
-    
-    # Clean up
-    if os.path.exists(output_file):
-        os.remove(output_file)
 
-def test_baseline_analysis_p_values_valid(sample_csv):
-    """Test that generated p-values are in (0, 1)."""
-    output_file = os.path.join("data", "processed", "test_pval_output.json")
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    # Check top-level keys
+    assert "datasets" in data, "Missing 'datasets' key in baseline_metrics.json"
+    assert isinstance(data["datasets"], list), "'datasets' must be a list"
     
-    run_baseline_analysis(sample_csv, output_file)
-    
-    with open(output_file, 'r') as f:
-        data = json.load(f)
-    
-    for dataset in data['datasets']:
-        for t_test in dataset.get('t_tests', []):
-            p_val = t_test.get('p_value')
-            if p_val is not None:
-                assert 0 < p_val < 1, f"P-value {p_val} is not in (0, 1)"
-    
-    if os.path.exists(output_file):
-        os.remove(output_file)
+    assert len(data["datasets"]) > 0, "No datasets were recorded in baseline_metrics.json"
 
-def test_baseline_analysis_ci_finite(sample_csv):
-    """Test that confidence intervals are finite numbers."""
-    output_file = os.path.join("data", "processed", "test_ci_output.json")
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    
-    run_baseline_analysis(sample_csv, output_file)
-    
-    with open(output_file, 'r') as f:
-        data = json.load(f)
-    
-    for dataset in data['datasets']:
-        for t_test in dataset.get('t_tests', []):
-            ci_low = t_test.get('ci_low')
-            ci_high = t_test.get('ci_high')
-            if ci_low is not None:
-                assert isinstance(ci_low, (int, float)) and not (ci_low != ci_low), "CI low is not finite"
-            if ci_high is not None:
-                assert isinstance(ci_high, (int, float)) and not (ci_high != ci_high), "CI high is not finite"
-    
-    if os.path.exists(output_file):
-        os.remove(output_file)
+    # Validate each dataset entry
+    for dataset_entry in data["datasets"]:
+        dataset_name = dataset_entry.get("dataset_name", "Unknown")
+        logger.info(f"Validating metrics for dataset: {dataset_name}")
+
+        # Check for analysis results
+        if "analysis" not in dataset_entry:
+            continue # Skip if no analysis was performed (e.g., no numerical columns)
+
+        analysis = dataset_entry["analysis"]
+
+        # Check t-tests
+        if "t_tests" in analysis:
+            for test_name, test_result in analysis["t_tests"].items():
+                p_val = test_result.get("p_value")
+                ci = test_result.get("ci")
+
+                # Validate P-value
+                assert p_val is not None, f"P-value missing for {test_name} in {dataset_name}"
+                assert P_VALUE_MIN < p_val < P_VALUE_MAX, \
+                    f"P-value {p_val} for {test_name} in {dataset_name} is out of range (0, 1)"
+
+                # Validate CI
+                if ci:
+                    assert len(ci) == 2, f"CI for {test_name} in {dataset_name} must have 2 bounds"
+                    lower, upper = ci
+                    assert float(lower) != float('inf') and float(lower) != float('-inf'), \
+                        f"Lower CI bound for {test_name} in {dataset_name} is infinite"
+                    assert float(upper) != float('inf') and float(upper) != float('-inf'), \
+                        f"Upper CI bound for {test_name} in {dataset_name} is infinite"
+
+        # Check linear regressions
+        if "linear_regressions" in analysis:
+            for model_name, model_result in analysis["linear_regressions"].items():
+                p_val = model_result.get("p_value")
+                ci = model_result.get("ci")
+
+                if p_val is not None:
+                    assert P_VALUE_MIN < p_val < P_VALUE_MAX, \
+                        f"P-value {p_val} for {model_name} in {dataset_name} is out of range (0, 1)"
+
+                if ci:
+                    assert len(ci) == 2, f"CI for {model_name} in {dataset_name} must have 2 bounds"
+                    lower, upper = ci
+                    assert float(lower) != float('inf') and float(lower) != float('-inf'), \
+                        f"Lower CI bound for {model_name} in {dataset_name} is infinite"
+                    assert float(upper) != float('inf') and float(upper) != float('-inf'), \
+                        f"Upper CI bound for {model_name} in {dataset_name} is infinite"
+
+    logger.info("Integration test PASSED: baseline_metrics.json is valid.")

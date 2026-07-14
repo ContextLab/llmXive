@@ -7,19 +7,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-    2026-07-14 04:41:56 - utils - INFO - Logging initialized at level 20
-2026-07-14 04:41:56 - __main__ - INFO - Starting llmXive research pipeline
-2026-07-14 04:41:56 - __main__ - INFO - Running Data acquisition: t011_ensure_data.py
+    dataset: data/raw/shopper.csv
+2026-07-14 05:42:24 - __main__ - INFO - Checksum for uci_har.csv: 3164eb174cfafd15dc48a641c4d81e27dbcbb57c5afecb2ef2c3dfc32aef5dfb
+2026-07-14 05:42:24 - __main__ - INFO - Checksum for shopper.csv: e498a912b91494ecac7c73969a3c10341919634dc9d43fec521a9e576cf98ab3
+2026-07-14 05:42:24 - __main__ - INFO - Data acquisition completed successfully.
+2026-07-14 05:42:24 - llmXive - INFO - Running t012_run_baseline_analysis.py
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t011_ensure_data.py", line 84, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t011_ensure_data.py", line 79, in main
-    setup_logging()
-TypeError: setup_logging() missing 1 required positional argument: 'log_level'
-2026-07-14 04:41:56 - __main__ - ERROR - Script t011_ensure_data.py failed with return code 1
-2026-07-14 04:41:56 - __main__ - ERROR - Pipeline failed at t011_ensure_data.py
-2026-07-14 04:41:56 - __main__ - ERROR - Pipeline failed
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py", line 10, in <module>
+    from analysis import run_baseline_analysis, load_datasets_from_raw
+ImportError: cannot import name 'load_datasets_from_raw' from 'analysis' (/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/analysis.py)
+2026-07-14 05:42:26 - llmXive - ERROR - Script t012_run_baseline_analysis.py failed with return code 1
+2026-07-14 05:42:26 - llmXive - ERROR - Pipeline failed at t012_run_baseline_analysis.py
+2026-07-14 05:42:26 - llmXive - ERROR - Pipeline failed. Failed scripts: ['t012_run_baseline_analysis.py']
 
 ## Declared deliverables still missing
 
@@ -35,17 +34,18 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `run_baseline_analysis` — defined in `code/analysis.py`; called 9 way(s):
+### `run_baseline_analysis` — defined in `code/analysis.py`; called 10 way(s):
 
-- code/t023_reanalyze_cleaned_variants.py: return run_baseline_analysis(df, dataset_name=dataset_name, config=config)
-- code/t012_run_baseline_analysis.py: success = run_baseline_analysis(raw_dir, output_file, config)
+- code/t023_reanalyze_cleaned_variants.py: # Signature: run_baseline_analysis(df, dataset_name=..., config=config)
+- code/t023_reanalyze_cleaned_variants.py: result = run_baseline_analysis(
+- code/t012_run_baseline_analysis.py: success = run_baseline_analysis(raw_dir, output_file, config={})
+- code/t013_record_baseline_metrics.py: # The signature from analysis.py: run_baseline_analysis(raw_dir, output_file, config)
+- code/t013_record_baseline_metrics.py: # or run_baseline_analysis(df, dataset_name, config)
 - code/t013_record_baseline_metrics.py: results = run_baseline_analysis(df, dataset_name=dataset_name, config=config)
-- code/t013_record_baseline_metrics.py: # We need to load the dataframe here to pass to run_baseline_analysis(df, ...)
 - code/analysis.py: 1. run_baseline_analysis(raw_dir, output_file, config) -> writes file, returns bool
 - code/analysis.py: 2. run_baseline_analysis(df, dataset_name=..., config=config) -> returns dict
 - code/analysis.py: 3. run_baseline_analysis(df_cleaned, dataset_name=..., config=config) -> returns dict
-- code/analysis.py: success = run_baseline_analysis(raw_dir, output_file, config)
-- code/t032_permutation_null_fpr.py: result = run_baseline_analysis(df=df_null, dataset_name=dataset_name, config=config)
+- code/t032_permutation_null_fpr.py: result = run_baseline_analysis(
 
 Make `run_baseline_analysis` in `code/analysis.py` accept ALL of the above.
 
@@ -58,24 +58,24 @@ Make `run_baseline_analysis` in `code/analysis.py` accept ALL of the above.
 - code/t022_save_cleaned_datasets.py: setup_logging("INFO")
 - code/t034_generate_forest_plot.py: logger = setup_logging(log_level)
 - code/t045_conditional_bootstrap_reduction.py: setup_logging("INFO")
-- code/t012_run_baseline_analysis.py: setup_logging(log_level="INFO")
-- code/utils.py: setup_logging("INFO")
+- code/t023_reanalyze_cleaned_variants.py: logger = setup_logging(log_level)
+- code/t012_run_baseline_analysis.py: logger = setup_logging("INFO")
+- code/utils.py: - setup_logging() -> uses default INFO
+- code/utils.py: - setup_logging("INFO") -> string level
+- code/utils.py: - setup_logging(log_level="INFO") -> kwarg
+- code/utils.py: - setup_logging(logging.INFO) -> int level
+- code/utils.py: - setup_logging(logging.INFO, "name") -> name arg (ignored if passed)
+- code/utils.py: - setup_logging(name="my_logger") -> name kwarg (ignored)
+- code/utils.py: logger = setup_logging("INFO")
 - code/t044_runtime_profiling.py: setup_logging()
 - code/cleanup_utils.py: setup_logging(log_level)
 - code/t035_generate_ci_heatmap.py: logger = setup_logging("INFO")
 - code/t031_bootstrap_variance.py: logger = setup_logging("INFO")
 - code/profiler.py: setup_logging()
-- code/reporting.py: setup_logging()
 - code/t048_verify_checksums_and_state.py: logger = setup_logging("INFO")
 - code/t041_generate_final_report.py: logger = setup_logging("INFO")
-- code/main.py: setup_logging("INFO")
+- code/main.py: logger = setup_logging("INFO")
 - code/data_loader.py: setup_logging("INFO")
-- code/t013_record_baseline_metrics.py: setup_logging()
-- code/t040_create_comparison_report.py: setup_logging(logging.INFO)
-- code/t030_dataset_size_sensitivity.py: logger = setup_logging("T030_DATASET_SIZE_SENSITIVITY")
-- code/t039_log_excluded_datasets.py: setup_logging(config.LOG_LEVEL)
-- code/t011_ensure_data.py: setup_logging()
-- code/t033_outlier_threshold_sweep.py: setup_logging("INFO")
 
 Make `setup_logging` in `code/utils.py` accept ALL of the above.
 
@@ -117,10 +117,10 @@ Whichever you choose, every call site of `Config` across the codebase must stop 
 - code/t034_generate_forest_plot.py: strategy = cleaned_item.get('strategy', cleaned_item.get('cleaning_strategy', 'Unknown'))
 - code/t034_generate_forest_plot.py: output_dir = config.get('OUTPUT_PATH', 'data/processed')
 - code/t045_conditional_bootstrap_reduction.py: size = data.get('dataset_size') or data.get('n_rows')
-- code/t023_reanalyze_cleaned_variants.py: processed_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
 - code/t023_reanalyze_cleaned_variants.py: seed = config.get("RANDOM_SEED", 42)
-- code/t023_reanalyze_cleaned_variants.py: if result and result.get('success', True):
-- code/t012_run_baseline_analysis.py: raw_dir = config.get("RAW_DATA_PATH", "data/raw")
+- code/t023_reanalyze_cleaned_variants.py: if not result or not result.get('success'):
+- code/t023_reanalyze_cleaned_variants.py: analysis_data = result.get('results', {})
+- code/t023_reanalyze_cleaned_variants.py: processed_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -149,7 +149,5 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/null_fpr_metrics.json` is declared but was NOT written. Scripts referencing it:
     - `code/run_quickstart_validation.py` — NOT invoked by the run-book
     - `code/t041_generate_final_report.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
-    - `code/t040_create_comparison_report.py` — NOT invoked by the run-book
     - `code/t032_permutation_null_fpr.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/null_fpr_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

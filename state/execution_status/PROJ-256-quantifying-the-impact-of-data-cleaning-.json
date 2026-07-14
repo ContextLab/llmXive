@@ -2,11 +2,14 @@
   "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
   "ok": false,
   "reason": "1 command(s) failed: python code/main.py (rc=1); 3 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json",
-  "artifacts": [],
-  "failures": [
-    "python code/main.py -> rc=1\n    2026-07-14 04:41:56 - utils - INFO - Logging initialized at level 20\n2026-07-14 04:41:56 - __main__ - INFO - Starting llmXive research pipeline\n2026-07-14 04:41:56 - __main__ - INFO - Running Data acquisition: t011_ensure_data.py\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t011_ensure_data.py\", line 84, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t011_en"
+  "artifacts": [
+    "data/raw/shopper.csv",
+    "data/raw/uci_har.csv"
   ],
-  "fix_rounds": 8,
+  "failures": [
+    "python code/main.py -> rc=1\n    dataset: data/raw/shopper.csv\n2026-07-14 05:42:24 - __main__ - INFO - Checksum for uci_har.csv: 3164eb174cfafd15dc48a641c4d81e27dbcbb57c5afecb2ef2c3dfc32aef5dfb\n2026-07-14 05:42:24 - __main__ - INFO - Checksum for shopper.csv: e498a912b91494ecac7c73969a3c10341919634dc9d43fec521a9e576cf98ab3\n2026-07-14 05:42:24 - __main__ - INFO - Data acquisition completed successfully.\n2026-07-14 05:42:24 - llmXive - INFO - Running t012_run_baseline_analysis.py\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-"
+  ],
+  "fix_rounds": 9,
   "model_tier": 0,
-  "updated_at": "2026-07-14T04:41:58Z"
+  "updated_at": "2026-07-14T05:42:27Z"
 }

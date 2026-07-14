@@ -1,75 +1,84 @@
-# Quickstart Guide for Quantifying the Impact of Data Cleaning on Statistical Inference
+# Quickstart Guide for PROJ-256
+
+This guide walks you through the automated science pipeline for quantifying the impact of data cleaning.
 
 ## Prerequisites
-- Python 3.11+
-- Project dependencies installed (see `requirements.txt`)
 
-## Setup
-1. Clone the repository.
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-3. Ensure data is available (run T011 if needed):
+- Python 3.11+
+- Install dependencies: `pip install -r requirements.txt`
+
+## Execution Steps
+
+Run the following commands in order to execute the full pipeline:
+
+1. **Ensure Data**: Download and prepare raw datasets.
  ```bash
  python code/t011_ensure_data.py
  ```
 
-## Pipeline Execution
-Run the following commands in order to execute the full pipeline and generate all artifacts:
-
-1. **Baseline Analysis**:
+2. **Run Baseline Analysis**: Analyze raw data to establish reference metrics.
  ```bash
  python code/t012_run_baseline_analysis.py
  ```
 
-2. **Cleaning & Re-analysis**:
+3. **Record Baseline Metrics**: Save baseline metrics to JSON.
+ ```bash
+ python code/t013_record_baseline_metrics.py
+ ```
+
+4. **Apply Cleaning Strategies**: Clean data and save variants.
  ```bash
  python code/t022_save_cleaned_datasets.py
+ ```
+
+5. **Re-analyze Cleaned Variants**: Analyze cleaned data.
+ ```bash
  python code/t023_reanalyze_cleaned_variants.py
  ```
 
-3. **Comparison & Reporting**:
+6. **Record Cleaned Metrics**: Save cleaned metrics.
  ```bash
  python code/t027_run_comparison.py
- python code/t036_pvalue_shift_reporting.py
- python code/t037_ci_width_reporting.py
- python code/t038_effect_size_reporting.py
  ```
 
-4. **Sensitivity Analysis**:
+7. **Run Comparison & Sensitivity**: Compare baseline vs cleaned.
  ```bash
- python code/t030_dataset_size_sensitivity.py
+ python code/t027_run_comparison.py
+ ```
+
+8. **Bootstrap Variance**: Estimate variance of metric shifts.
+ ```bash
  python code/t031_bootstrap_variance.py
  ```
 
-5. **Null Hypothesis & Threshold Sweep**:
+9. **Permutation Null FPR**: Estimate false positive rate via permutation.
  ```bash
  python code/t032_permutation_null_fpr.py
- python code/t033_outlier_threshold_sweep.py
  ```
 
-6. **Visualizations**:
+10. **Generate Visualizations**: Create forest plots and heatmaps.
  ```bash
  python code/t034_generate_forest_plot.py
  python code/t035_generate_ci_heatmap.py
  ```
 
-7. **Final Report**:
+11. **Generate Reports**: Create per-dataset and final reports.
  ```bash
+ python code/t036_pvalue_shift_reporting.py
+ python code/t037_ci_width_reporting.py
+ python code/t038_effect_size_reporting.py
  python code/t041_generate_final_report.py
  ```
 
-## Verification
-Validate all artifacts:
-```bash
-python code/run_quickstart_validation.py
-```
+12. **Verify Artifacts**: Check checksums and state.
+ ```bash
+ python code/t048_verify_checksums_and_state.py
+ ```
 
-## Output Artifacts
+## Expected Outputs
+
 - `data/processed/baseline_metrics.json`
 - `data/processed/cleaned_metrics.json`
 - `data/processed/null_fpr_metrics.json`
-- `data/processed/outlier_threshold_sweep.json`
-- `figures/` (PNG plots)
-- `data/processed/final_report.md`
+- `figures/` (plots)
+- `data/reports/` (final reports)
