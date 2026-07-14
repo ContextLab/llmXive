@@ -1,0 +1,390 @@
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Nside=128 downgraded map fits in less than 100MB RAM
+  claim_id: c_03a7f72c
+  context: 'Independent Test: Verify the downloaded map exists with correct Nside=2048,
+    mask application excludes correct regions, and the Nside=128 downgraded map fits
+    in <100MB RAM and has no NaN/inf values.'
+  evidence:
+    candidates:
+    - - ''
+      - 128.0
+    - - ''
+      - 100.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Nside=128_downgraded_map_fits_in_less_than_100MB_RAM
+  kind: magnitude
+  raw_text: The independent test for User Story 1 verifies the Nside=128 downgraded
+    map fits in <100MB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-14T20:26:54Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Downloaded map must have Nside=2048
+  claim_id: c_18bcd3a1
+  context: 'Independent Test: Verify the downloaded map exists with correct Nside=2048,
+    mask application excludes correct regions, and the Nside=128 downgraded map fits
+    in <100MB RAM and has no NaN/inf values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 1 requires Nside=2048 for the downloaded
+    map.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:27:11Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Mask statistics logged to data/processed/mask_stats.json
+  claim_id: c_ed1928db
+  context: 'Implement apply_galactic_mask() in code/data_loader.py using Commander
+    mask to exclude foregrounds. Deliverable: Log mask statistics to data/processed/mask_stats.json
+    and raise ValueError if unmasked sky retention < 95%.'
+  evidence:
+    entailment_evidence: Mask statistics logged to data/processed/mask stats.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Mask_statistics_logged_to_data/processed/mask_stats.json
+  kind: entity_fact
+  raw_text: The implementation of apply_galactic_mask() must log mask statistics to
+    data/processed/mask_stats.json.
+  resolved_value: Mask statistics logged to data/processed/mask_stats.json
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T20:27:13Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Unmasked sky retention must be at least 95%
+  claim_id: c_90792e09
+  context: 'Implement apply_galactic_mask() in code/data_loader.py using Commander
+    mask to exclude foregrounds. Deliverable: Log mask statistics to data/processed/mask_stats.json
+    and raise ValueError if unmasked sky retention < 95%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unmasked_sky_retention_must_be_at_least_95%25
+  kind: magnitude
+  raw_text: The implementation requires unmasked sky retention to be at least 95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:27:50Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: At least 95% of masked pixels must be excluded
+  claim_id: c_74a2af24
+  context: "Verify both: (1) \u226595% of masked pixels are excluded, AND (2) remaining\
+    \ unmasked region is \u226595% of the sky."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_95%25_of_masked_pixels_must_be_excluded
+  kind: magnitude
+  raw_text: The implementation requires that at least 95% of masked pixels are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:28:17Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Remaining unmasked region must be at least 95% of the sky
+  claim_id: c_1b8b7f5c
+  context: "Verify both: (1) \u226595% of masked pixels are excluded, AND (2) remaining\
+    \ unmasked region is \u226595% of the sky."
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Remaining_unmasked_region_must_be_at_least_95%25_of_the_sky
+  kind: magnitude
+  raw_text: The implementation requires the remaining unmasked region to be at least
+    95% of the sky.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-14T20:29:11Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Spherical harmonic decomposition computed for l from 2 to 128
+  claim_id: c_853a32f6
+  context: Unit test for map2alm stability and range [2, 128] in tests/test_harmonics.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The spherical harmonic decomposition is computed for l \u2208 [2, 128]."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:29:59Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Healpy map2alm used with iter=3
+  claim_id: c_12bc8b40
+  context: "Implement compute_alm() in code/harmonics.py using healpy map2alm with\
+    \ iter=3 for l \u2208 [low, 128]."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses healpy map2alm with iter=3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:30:18Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: C_l recovery from isotropic simulation within 1% error
+  claim_id: c_1604d5d0
+  context: 'Independent Test: Compute C_l from a known isotropic simulation and verify
+    recovery within 1% error; verify hemispherical splits produce valid spectra.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 2 requires verifying recovery of C_l
+    from a known isotropic simulation within 1% error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:30:40Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Anisotropy injection test requires greater than 80% detection power
+  claim_id: c_44eba5f5
+  context: 'Independent Test: Run analysis on simulated isotropic data to verify uniform
+    p-value distribution; inject anisotropy to verify power (>80% detection).'
+  evidence:
+    candidates:
+    - - ''
+      - 80.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Anisotropy_injection_test_requires_greater_than_80%25_detectio
+  kind: magnitude
+  raw_text: The independent test for User Story 3 requires injecting anisotropy to
+    verify power greater than 80% detection.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-14T20:31:09Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Synalm generation speed less than 30 seconds per simulation
+  claim_id: c_9a2f3ccd
+  context: Unit test for synalm generation speed (<30s per sim) in tests/test_simulations.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synalm_generation_speed_less_than_30_seconds_per_simulation
+  kind: magnitude
+  raw_text: The unit test for synalm generation requires speed of less than 30 seconds
+    per simulation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:31:28Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: "Sensitivity analysis tests thresholds 2.5\u03C3, 3.0\u03C3, and 3.5\u03C3"
+  claim_id: c_93d148c0
+  context: "Independent Test: Run pipeline with thresholds {2.5\u03C3, 3.0\u03C3,\
+    \ 3.5\u03C3} and verify documented variation in rejection rates."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis tests thresholds across a range of 2.5\u03C3\
+    , 3.0\u03C3, and 3.5\u03C3."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:31:48Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Planck 2018 best-fit Lambda-CDM power spectrum used for simulations
+  claim_id: c_8caafd96
+  context: "Implement generate_isotropic_sims() in code/simulations.py using Planck\
+    \ 2018 best-fit \u039BCDM power spectrum and fixed seed"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Planck_2018_best-fit_Lambda-CDM_power_spectrum_used_for_simu
+  kind: magnitude
+  raw_text: "The project uses the Planck 2018 best-fit \u039BCDM power spectrum for\
+    \ generating isotropic Gaussian simulations."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:33:05Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Nside=2048 SMICA map fetched from ESA archive
+  claim_id: c_5ffd06d8
+  context: Implement download_planck_map() in code/data_loader.py to fetch Nside=2048
+    SMICA map from ESA archive with SHA-256 validation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses the ESA archive to fetch the Nside=2048 SMICA map.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:33:24Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: SHA-256 validation used for downloaded Planck map
+  claim_id: c_8e0a05a1
+  context: Implement download_planck_map() in code/data_loader.py to fetch Nside=2048
+    SMICA map from ESA archive with SHA-256 validation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses SHA-256 validation for the downloaded Planck map.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:33:58Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Commander mask used to exclude foregrounds
+  claim_id: c_9938742b
+  context: Implement apply_galactic_mask() in code/data_loader.py using Commander
+    mask to exclude foregrounds.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Commander_mask_used_to_exclude_foregrounds
+  kind: entity_fact
+  raw_text: The project uses the Commander mask to exclude foregrounds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:34:34Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction replaced with Maximum Statistic approach
+  claim_id: c_807916cf
+  context: 'Update spec.md FR-009: Replace ''Benjamini-Hochberg correction'' with
+    ''Maximum Statistic approach (max of N/S and E/W asymmetries)'' to align with
+    plan.md and statistical best practices.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_replaced_with_Maximum_Statisti
+  kind: entity_fact
+  raw_text: The project replaces the Benjamini-Hochberg correction with the Maximum
+    Statistic approach.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:34:58Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Healpy used for resolution downgrade
+  claim_id: c_82d025e2
+  context: Implement downgrade_resolution() in code/data_loader.py to convert masked
+    map to Nside=128 using healpy
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Healpy_used_for_resolution_downgrade
+  kind: entity_fact
+  raw_text: The project uses the healpy library for resolution downgrade.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:35:32Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: MASTER algorithm used for hemispherical power spectra
+  claim_id: c_f117fdc6
+  context: Implement compute_hemisphere_cl() in code/harmonics.py using pseudo-C_l
+    (MASTER) estimator to correct for mode coupling.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MASTER_algorithm_used_for_hemispherical_power_spectra
+  kind: entity_fact
+  raw_text: The project uses the MASTER algorithm for hemispherical power spectra.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:36:00Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: All tasks must run on CPU-only CI
+  claim_id: c_5d03c6f3
+  context: 'Critical Constraint: All tasks must run on CPU-only CI (a limited number
+    of cores, limited RAM, no GPU).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_tasks_must_run_on_CPU-only_CI
+  kind: entity_fact
+  raw_text: The project requires all tasks to run on CPU-only CI with limited cores
+    and RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:36:25Z'
+- artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  attempts: 1
+  canonical: Planck 2018 SMICA source used for all inputs
+  claim_id: c_8754a2b4
+  context: 'Data Integrity: No fake data generation. All inputs must come from real
+    Planck 2018 SMICA source.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses the Planck 2018 SMICA source for all inputs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:37:06Z'

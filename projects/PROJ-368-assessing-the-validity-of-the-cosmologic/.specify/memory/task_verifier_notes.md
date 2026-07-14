@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No evidence of a `spec.md` file (or its contents) was provided, and there is no proof that the phrase “Benjamini-Hochberg correction” was replaced with “Maximum Statistic approach (max of N/S and E/W asymmetries)”. The required artifact is missing.
+- **T002** — No updated `spec.md` file is presented, and there is no evidence that the phrase “Benjamini-Hochberg correction applied” was replaced with “Maximum Statistic approach applied”. The required artifact (the modified specification document) is missing.
+- **T003** — The claim refers to an update in `spec.md`, but no version of `spec.md` (or a diff showing the replacement of “Benjamini‑Hochberg” with “Maximum Statistic”) is provided. Without the actual file content, we cannot confirm that the required change was made. The necessary artifact is missing.
+- **T004** — No directory structure or file listings were provided to confirm that the required folders (`code`, `tests`, `data/raw`, `data/processed`, `data/simulations`, `data/reports`, `docs`) actually exist; the claim is unsubstantiated. The next implementer must create the directories and supply evidence (e.g., a directory tree listing).
+- **T005** — No `pyproject.toml` file was presented in the evidence, and there is no content showing a compatible Python version or the required pinned dependencies (`healpy`, `numpy`, `scipy`, `astropy`, `requests`, `pyyaml`). Without the actual file, the task requirement is not satisfied.
+- **T006** — No `pyproject.toml` file (or its contents) was provided showing flake8/black configuration, so the required linting and formatting setup cannot be confirmed. The implementer must add a `pyproject.toml` with appropriate `[tool.flake8]` and `[tool.black]` sections (or equivalent) to satisfy the task.
