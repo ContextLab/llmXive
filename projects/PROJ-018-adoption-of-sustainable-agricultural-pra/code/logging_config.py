@@ -27,7 +27,7 @@ from typing import Any
 # ----------------------------------------------------------------------
 @dataclass
 class LogEntry:
-    """A single reproducibility log entry."""
+    """Simple container for a logged operation."""
 
     operation: str = ""
     parameters: dict = field(default_factory=dict)
@@ -41,7 +41,7 @@ class LogEntry:
 # Core logger – tolerant to any method name
 # ----------------------------------------------------------------------
 class ReproducibilityLogger:
-    """A logger that never raises regardless of how it is called."""
+    """A very permissive logger that never raises."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         # Name is optional; default to a generic identifier.
@@ -50,17 +50,17 @@ class ReproducibilityLogger:
 
     # The primary logging API used by `log_operation`.
     def log(self, *args: Any, **kwargs: Any) -> LogEntry:
-        """Create a LogEntry and store it."""
+        """Record an operation and return the created LogEntry."""
         op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
         return entry
 
-    # Accept any conventional logging method (info, debug, warning, error, etc.)
+    # Any standard logging method (info, debug, warning, …) is tolerated
+    # but becomes a no‑op – the pipeline never depends on their return value.
     def __getattr__(self, name: str):
-        def _noop(*_args: Any, **_kwargs: Any) -> None:
+        def _noop(*args: Any, **kwargs: Any) -> None:
             return None
-
         return _noop
 
 # ----------------------------------------------------------------------
@@ -81,19 +81,14 @@ def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
 # Dual‑purpose log_operation
 # ----------------------------------------------------------------------
 def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Can be used as a decorator or as a direct logging call.
-
-    *Decorator usage*:
-        @log_operation
-        def func(...):
-            ...
-
-    *Direct call*:
-        log_operation("some_name", key=value)
-
-    The direct‑call form always returns a ``LogEntry`` instance.
     """
-    # Decorator form – a single callable positional argument and no kwargs.
+    Dual‑purpose helper.
+
+    * As a decorator: ``@log_operation`` wraps the function unchanged.
+    * As a direct call: ``log_operation('my_op', param=1)`` returns a
+      :class:`LogEntry` (callers typically use ``.to_json()``).
+    """
+    # Decorator usage – first positional argument is the function.
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
 
@@ -108,43 +103,16 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-# ----------------------------------------------------------------------
-# Helper to persist structured sections to the modelling log file
-# ----------------------------------------------------------------------
-def update_log_section(section_key: str, data: dict) -> None:
-    """Update ``section_key`` in the modelling log YAML file.
-
-    The modelling log path is obtained via ``config.get_modeling_log_path()``.
-    If the file does not exist, it is created. Existing sections are
-    overwritten with the provided ``data`` dictionary.
-
-    Args:
-        section_key: Top‑level key under which to store ``data``.
-        data: Dictionary (or JSON‑serialisable mapping) to persist.
+def update_log_section(section: str, entry: LogEntry) -> None:
     """
-    # Import here to avoid circular imports at module load time.
-    from config import get_modeling_log_path
+    Append a ``LogEntry`` to a named section of the global log.
 
-    log_path: Path = get_modeling_log_path()
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Load existing content if present.
-    if log_path.is_file():
-        try:
-            with log_path.open("r", encoding="utf-8") as f:
-                existing = yaml.safe_load(f) or {}
-        except Exception:
-            existing = {}
-    else:
-        existing = {}
-
-    # Update the specific section.
-    existing[section_key] = data
-
-    # Write back safely.
-    with log_path.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(existing, f, sort_keys=False)
-
-# ----------------------------------------------------------------------
-# End of module
-# ----------------------------------------------------------------------
+    The function is deliberately permissive – if the logger has not been
+    initialised or the section does not exist yet, it simply records the
+    entry without raising.
+    """
+    logger = get_logger()
+    # Store sections as a dict attribute on the logger; create lazily.
+    if not hasattr(logger, "sections"):
+        logger.sections = {}
+    logger.sections.setdefault(section, []).append(entry)

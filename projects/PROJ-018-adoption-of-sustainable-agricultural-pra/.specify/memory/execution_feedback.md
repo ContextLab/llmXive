@@ -8,65 +8,56 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Developmen…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…back (T005)  This module generates synthetic survey data conforming t…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…t[str, Any]:     """     Generate a single synthetic respondent record.…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Assemble a full synthetic dataset with ``n`` respondents.…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…: generate a CSV file of synthetic survey data.      The function respe…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…er(         description="Generate synthetic survey data (fallback wh…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…print(f"Generating {n} synthetic records with seed {random_seed}.…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…index=False)     print(f"Synthetic data written to {output_path}…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator (T005)  This s…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Produce a single synthetic respondent record.      The field names ar…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Build a full synthetic dataset with ``n`` respondents.…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…n() -> None:     """     Generate a synthetic CSV file and record prov…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…er(         description="Generate synthetic agricultural survey data…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…ination CSV file for the synthetic dataset.",     )     parser.add_…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…index=False)     print(f"Synthetic dataset written to: {output_path…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"1.0",         "note": "Synthetic data generated as a fallback…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 25 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Developmen…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…back (T005)  This module generates synthetic survey data conforming t…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…t[str, Any]:     """     Generate a single synthetic respondent record.…”; 5 command(s) failed: python code/01_download_data.py --synthetic (rc=1); python code/02_clean_data.py (rc=1); python code/03_engineer_features.py (rc=1); 1 declared deliverable(s) absent: data/processed/cleaned_data.csv
+**Summary**: 20 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator (T005)  This s…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Produce a single synthetic respondent record.      The field names ar…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Build a full synthetic dataset with ``n`` respondents.…”; 6 command(s) failed: python code/01_download_data.py --synthetic (rc=1); python code/02_clean_data.py (rc=1); python code/03_engineer_features.py (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/01_download_data.py --synthetic -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/01_download_data.py", line 25, in <module>
-    from config import Config, get_config, load_config_from_yaml, set_random_seed
-ImportError: cannot import name 'load_config_from_yaml' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/01_download_data.py", line 21, in <module>
+    @log_operation("download_real_data")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'LogEntry' object is not callable
 - python code/02_clean_data.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 32, in <module>
-    from logging_config import log_operation, update_log_section
-ImportError: cannot import name 'update_log_section' from 'logging_config' (/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/logging_config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 30, in <module>
+    @log_operation("load_config")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'LogEntry' object is not callable
 - python code/03_engineer_features.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 17, in <module>
-    from logging_config import log_operation, update_log_section
-ImportError: cannot import name 'update_log_section' from 'logging_config' (/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/logging_config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 28, in <module>
+    @log_operation("load_cleaned_data")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'LogEntry' object is not callable
 - python code/04_model_analysis.py -> rc=1
-    mXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/logging_config.py", line 69, in _wrapper
-    return func(*a, **k)
-           ^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 87, in load_engineered_data
-    raise CustomDataError(f"Engineered data not found at {input_path}")
-CustomDataError: Engineered data not found at data/processed/engineered_data.csv
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 302, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/logging_config.py", line 69, in _wrapper
-    return func(*a, **k)
-           ^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 298, in main
-    logging.error(f"Model analysis aborted: {err}")
-    ^^^^^^^
-NameError: name 'logging' is not defined
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 27, in <module>
+    from .config import (
+ImportError: attempted relative import with no known parent package
+- python code/05_generate_report.py -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/05_generate_report.py", line 38, in <module>
+    @log_operation("load_cleaned_data")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'LogEntry' object is not callable
 - python code/02_clean_data.py --input data/raw/survey_data.csv -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 32, in <module>
-    from logging_config import log_operation, update_log_section
-ImportError: cannot import name 'update_log_section' from 'logging_config' (/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/logging_config.py)
-
-## Declared deliverables still missing
-
-- data/processed/cleaned_data.csv
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 30, in <module>
+    @log_operation("load_config")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'LogEntry' object is not callable
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -78,84 +69,68 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 ### `get_config` — defined in `code/config.py`; called 20 way(s):
 
-- code/02_clean_data.py: return get_config()
-- code/config.py: * ``get_config()`` → returns the entire config dict.
-- code/config.py: * ``get_config('some_key')`` → returns the value for ``some_key`` or
-- code/config.py: * ``get_config('some_key', fallback)`` → returns the value or the
-- code/config.py: base = get_config("project_root", ".")
-- code/config.py: return Path(base) / get_config("data_path", "data")
-- code/config.py: return Path(base) / get_config("raw_data_path", "data/raw")
-- code/config.py: return Path(base) / get_config("processed_data_path", "data/processed")
-- code/config.py: return Path(base) / get_config("results_path", "results")
-- code/config.py: return Path(base) / get_config("modeling_log_path", "modeling_log.yaml")
+- code/02_clean_data.py: cfg = get_config()
+- code/config.py: - ``get_config()`` → returns the full configuration dict.
+- code/config.py: - ``get_config(key)`` → returns the value for *key* or ``None``.
+- code/config.py: - ``get_config(key, default)`` → returns the value or *default*.
+- code/config.py: - ``get_config(key=..., default=...)`` → same as above.
+- code/config.py: - ``get_config(key='my_key')`` → value or ``None``.
+- code/config.py: return Path(get_config("project_root", "."))
+- code/config.py: return _base_path() / get_config("data_path", "data")
+- code/config.py: return _base_path() / get_config("raw_data_path", "data/raw")
+- code/config.py: return _base_path() / get_config("processed_data_path", "data/processed")
+- code/config.py: return _base_path() / get_config("results_path", "results")
+- code/config.py: return _base_path() / get_config("modeling_log_path", "modeling_log.yaml")
+- code/03_engineer_features.py: cfg_proxies: List[str] = get_config("proxy_variables", default_proxies)
+- code/03_engineer_features.py: weights_cfg: Dict[str, float] = get_config("engagement_weights", {})
 - code/06_finalize_results.py: config = get_config()
 - code/00_generate_synthetic_data.py: config_path = Path(get_config("config_path", "code/config.yaml"))
 - code/00_generate_synthetic_data.py: log_path = Path(get_config("modeling_log_path", "modeling_log.yaml"))
 - code/validate_quickstart.py: config = get_config()
-- code/01_download_data.py: self.config = config or get_config()
-- code/04_model_analysis.py: base = Path(get_config("project_root", "."))
-- code/04_model_analysis.py: "raw_data": base / get_config("raw_data_path", "data/raw"),
-- code/04_model_analysis.py: "processed_data": base / get_config("processed_data_path", "data/processed"),
-- code/04_model_analysis.py: "results": base / get_config("results_path", "results"),
-- code/04_model_analysis.py: "modeling_log": base / get_config("modeling_log_path", "modeling_log.yaml"),
+- code/01_download_data.py: cfg = get_config()
+- code/04_model_analysis.py: figures_dir = Path(get_config().get("figures_path", "figures"))
 
 Make `get_config` in `code/config.py` accept ALL of the above.
 
 ### `log_operation` — defined in `code/logging_config.py`; called 8 way(s):
 
-- code/02_clean_data.py: @log_operation
-- code/03_engineer_features.py: @log_operation
-- code/logging_config.py: When used as ``@log_operation('name')`` it returns the wrapped function.
-- code/logging_config.py: When called directly ``log_operation('name', key=value)`` it logs and
-- code/00_generate_synthetic_data.py: @log_operation("synthetic_data_generation_main")
-- code/01_download_data.py: @log_operation("data_acquisition_main")
-- code/04_model_analysis.py: @log_operation
-- code/04_model_analysis.py: log_entry: LogEntry = log_operation(
+- code/02_clean_data.py: @log_operation("load_config")
+- code/02_clean_data.py: @log_operation("load_raw_data")
+- code/02_clean_data.py: @log_operation("validate_variables")
+- code/02_clean_data.py: @log_operation("calculate_missingness")
+- code/02_clean_data.py: @log_operation("handle_missing_values")
+- code/02_clean_data.py: @log_operation("normalize_categorical_codes")
+- code/02_clean_data.py: @log_operation("calculate_power_analysis")
+- code/02_clean_data.py: @log_operation("export_cleaned_data")
+- code/02_clean_data.py: @log_operation("data_cleaning_pipeline")
+- code/03_engineer_features.py: @log_operation("load_cleaned_data")
+- code/03_engineer_features.py: @log_operation("identify_practice_columns")
+- code/03_engineer_features.py: @log_operation("create_adoption_binary")
+- code/03_engineer_features.py: @log_operation("select_engagement_proxies")
+- code/03_engineer_features.py: @log_operation("create_engagement_score")
+- code/03_engineer_features.py: @log_operation("cronbach_alpha")
+- code/03_engineer_features.py: @log_operation("run_efa")
+- code/03_engineer_features.py: @log_operation("convergent_validity")
+- code/03_engineer_features.py: @log_operation("export_engineered_data")
+- code/03_engineer_features.py: @log_operation("write_validity_metrics")
+- code/03_engineer_features.py: @log_operation("update_modeling_log")
+- code/03_engineer_features.py: @log_operation("feature_engineering_main")
+- code/logging_config.py: * As a decorator: ``@log_operation`` returns the wrapped function.
+- code/logging_config.py: * As a direct call: ``log_operation('my_op', key=value)`` returns a LogEntry.
+- code/05_generate_report.py: @log_operation("load_cleaned_data")
+- code/05_generate_report.py: @log_operation("load_engineered_data")
 
 Make `log_operation` in `code/logging_config.py` accept ALL of the above.
 
-### class `Config` (in `code/config.py`) — accessed via method/attribute names this round: `get`
+### `update_log_section` — defined in `code/logging_config.py`; called 5 way(s):
 
-`Config` is used like a logger: different scripts call DIFFERENT method names on it, and the set grows every round. Adding only the name(s) above will fail next round on the NEXT name. Make the class tolerant of ANY method name **without removing the ones it already has**, by either:
-  1. defining the full method set explicitly (keep existing methods like the ones already in `code/config.py` AND add the missing ones), or
-  2. adding a permissive fallback so unknown attributes resolve to a no-op callable, e.g.:
+- code/02_clean_data.py: update_log_section(
+- code/03_engineer_features.py: update_log_section(
+- code/05_generate_report.py: update_log_section(
+- code/01_download_data.py: update_log_section(
+- code/04_model_analysis.py: update_log_section(
 
-     ```python
-     def __getattr__(self, name):
-         # any logger-style call (.info/.debug/.warning/.error/...) becomes a tolerant no-op
-         def _noop(*args, **kwargs):
-             return None
-         return _noop
-     ```
-
-Whichever you choose, every call site of `Config` across the codebase must stop raising `AttributeError`/`TypeError`.
-
-`Config.get` call sites (25):
-- code/code_00_generate_synthetic_data.py: random.seed(config.get("random_seed", 42))
-- code/code_00_generate_synthetic_data.py: n = config.get("n_respondents", 1000)
-- code/config.py: return self._data.get(key, default)
-- code/config.py: return self._data.get(name, None)
-- code/config.py: return cfg.get(key, default)
-- code/logging_config.py: self.name = args[0] if args else kwargs.get("name", "reproducibility")
-- code/06_finalize_results.py: "random_seed": config.get("random_seed"),
-- code/06_finalize_results.py: "data_source": config.get("data_source", "unknown"),
-- code/06_finalize_results.py: "seed_value": config.get("random_seed"),
-- code/06_finalize_results.py: set_random_seed(config.get("random_seed", 42))
-- code/06_finalize_results.py: project_root = Path(config.get("project_root", "."))
-- code/05_generate_report.py: coeffs = regression_dict.get("coefficients", [])
-- code/05_generate_report.py: row.get("var", ""),
-- code/05_generate_report.py: f"{row.get('coef', 0):.4f}",
-- code/05_generate_report.py: f"{row.get('std_err', 0):.4f}",
-- code/05_generate_report.py: f"{row.get('z', 0):.2f}",
-- code/05_generate_report.py: f"{row.get('p', 0):.4f}",
-- code/05_generate_report.py: Paragraph(f"Observations: {regression_dict.get('n', 'NA')}", styles["Normal"]),
-- code/05_generate_report.py: Paragraph(f"AIC: {regression_dict.get('aic', 'NA')}", styles["Normal"]),
-- code/05_generate_report.py: Paragraph(f"BIC: {regression_dict.get('bic', 'NA')}", styles["Normal"]),
-- code/05_generate_report.py: fpr = roc_data.get("fpr")
-- code/05_generate_report.py: tpr = roc_data.get("tpr")
-- code/05_generate_report.py: auc = roc_data.get("auc")
-- code/05_generate_report.py: ["Indirect Effect", f"{mediation_dict.get('indirect_effect', 'NA'):.4f}"],
-- code/05_generate_report.py: ["95% CI", f"{mediation_dict.get('indirect_ci', ['NA', 'NA'])[0]:.4f} – {mediation_dict.get('indirect_ci', ['NA', 'NA'])[1]:.4f}"],
+Make `update_log_section` in `code/logging_config.py` accept ALL of the above.
 
 ## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module
 
@@ -236,18 +211,6 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)
 ```
-
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/processed/cleaned_data.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/02_clean_data.py` — IS a run-book command
-    - `code/03_engineer_features.py` — IS a run-book command
-    - `code/06_finalize_results.py` — NOT invoked by the run-book
-    - `code/05_generate_report.py` — IS a run-book command
-    - `code/validate_quickstart.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/cleaned_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 

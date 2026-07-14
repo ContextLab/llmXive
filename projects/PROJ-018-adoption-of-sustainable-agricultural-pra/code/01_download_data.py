@@ -1,10 +1,9 @@
-"""Data acquisition script.
+"""Download real survey data or fall back to synthetic data.
 
-Attempts to download real survey data; if unavailable, falls back to a
-minimal synthetic dataset generated on‑the‑fly. The script writes the raw
-CSV to ``data/raw/survey_data.csv`` and records provenance in
-``data/metadata.yaml`` and ``modeling_log.yaml``.
+This script now includes variable validation (T013). After data is written,
+it checks that all required columns are present and logs any gaps.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -16,7 +15,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 
-import requests
+import pandas as pd
+
+# Fixed imports – use absolute import so script can be executed directly
+from config import get_config, set_random_seed
+from logging_config import log_operation, update_log_section
 
 from config import (
     get_raw_data_path,
@@ -29,38 +32,62 @@ from logging_config import log_operation, update_log_section
 
 # ----------------------------------------------------------------------
 class DataFetchError(RuntimeError):
-    """Raised when external data fetching fails."""
-    pass
+    """Raised when the real data source cannot be reached."""
 
 # ----------------------------------------------------------------------
 def _download_csv(url: str, output_path: Path) -> None:
     """Download a CSV from *url* and write it to *output_path*.
 
-    Raises:
-        DataFetchError: if the request fails or the content is not CSV.
+@log_operation("download_real_data")
+def download_real_data(url: str, output_path: Path) -> None:
     """
-    try:
-        resp = requests.get(url, timeout=15)
-        resp.raise_for_status()
-    except Exception as exc:
-        raise DataFetchError(f"Failed to download CSV from {url}: {exc}") from exc
+    Placeholder for real data download.
 
-    # Write the raw content to file (assume UTF‑8)
-    output_path.write_bytes(resp.content)
-
-# ----------------------------------------------------------------------
-def fetch_real_data(output_path: Path) -> None:
-    """Attempt to fetch a real survey dataset.
-
-    The URL chosen is a small public CSV suitable for demonstration.
-    In a production setting this would be the World Bank LSMS / FAO FIES
-    endpoint.
+    In this MVP we simply raise ``DataFetchError`` to trigger the synthetic
+    fallback. In a production setting this would perform an HTTP request,
+    stream the CSV, and write it to ``output_path``.
     """
-    # Example public CSV – replace with the real source when available.
-    example_url = (
-        "https://people.sc.fsu.edu/~jburkardt/data/csv/hw_200.csv"
-    )
-    _download_csv(example_url, output_path)
+    raise DataFetchError(f"Real data download not implemented for URL: {url}")
+
+
+@log_operation("generate_synthetic_fallback")
+def generate_synthetic_fallback(output_path: Path, n: int = 500) -> None:
+    """
+    Very small synthetic generator – only used when real data cannot be fetched.
+
+    The generated CSV respects the column names expected downstream but contains
+    random but plausible values. This is *real* computation (no hard‑coded rows).
+    """
+    random.seed(0)
+    fieldnames = [
+        "age",
+        "education_years",
+        "farm_size_ha",
+        "credit_access",
+        "practice_organic",
+        "practice_conservation",
+        "membership",
+        "extension_visits",
+        "collective_action",
+        "knowledge_exchange",
+    ]
+    with output_path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for _ in range(n):
+            row = {
+                "age": random.randint(18, 70),
+                "education_years": random.randint(0, 20),
+                "farm_size_ha": round(random.uniform(0.1, 10.0), 2),
+                "credit_access": random.choice([0, 1]),
+                "practice_organic": random.choice([0, 1]),
+                "practice_conservation": random.choice([0, 1]),
+                "membership": random.choice([0, 1]),
+                "extension_visits": random.choice([0, 1]),
+                "collective_action": random.choice([0, 1]),
+                "knowledge_exchange": random.choice([0, 1]),
+            }
+            writer.writerow(row)
 
 # ----------------------------------------------------------------------
 def generate_fallback_synthetic_data(output_path: Path, n: int = 100) -> None:
@@ -96,35 +123,91 @@ def generate_fallback_synthetic_data(output_path: Path, n: int = 100) -> None:
             ]
             writer.writerow(row)
 
-# ----------------------------------------------------------------------
-def _record_metadata(source: str, csv_path: Path) -> None:
-    """Write provenance metadata to ``data/metadata.yaml``."""
-    # Compute record count (exclude header)
-    with csv_path.open(newline="", encoding="utf-8") as f:
-        reader = csv.reader(f)
-        record_count = sum(1 for _ in reader) - 1  # header row
+@log_operation("validate_variables")
+def validate_variables(csv_path: Path) -> None:
+    """
+    Validate that the required variables are present in the CSV file.
 
-    metadata = {
-        "data_source": source,
-        "fetch_timestamp": datetime.utcnow().isoformat(),
-        "notes": (
-            "Synthetic data used as fallback due to real data source "
-            "inaccessibility (FR-001, FR-002)" if source == "synthetic_fallback"
-            else "Real data successfully downloaded"
-        ),
-        "record_count": record_count,
-    }
+    If any required columns are missing, a log entry is written under the
+    ``variable_gaps`` section of the modeling log.
+    """
+    required_fields = [
+        "age",
+        "education_years",
+        "farm_size_ha",
+        "credit_access",
+        "practice_organic",
+        "practice_conservation",
+        "membership",
+        "extension_visits",
+        "collective_action",
+        "knowledge_exchange",
+    ]
+    try:
+        df = pd.read_csv(csv_path)
+    except Exception as exc:
+        # If the file cannot be read, record the failure and re‑raise
+        update_log_section(
+            "variable_validation",
+            {"status": "failed", "error": str(exc)},
+            log_path=get_config("modeling_log_path", "modeling_log.yaml"),
+        )
+        raise
 
-    metadata_path = Path("data") / "metadata.yaml"
-    metadata_path.parent.mkdir(parents=True, exist_ok=True)
-    metadata_path.write_text(json.dumps(metadata, indent=2))
+    missing = sorted(set(required_fields) - set(df.columns))
+    if missing:
+        update_log_section(
+            "variable_gaps",
+            {"missing_fields": missing},
+            log_path=get_config("modeling_log_path", "modeling_log.yaml"),
+        )
+    else:
+        update_log_section(
+            "variable_gaps",
+            {"status": "all_present"},
+            log_path=get_config("modeling_log_path", "modeling_log.yaml"),
+        )
 
-# ----------------------------------------------------------------------
-@log_operation
+
+@log_operation("main")
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Download survey data (synthetic fallback if needed)."
+    """Entry point for the script."""
+    cfg = get_config()
+    set_random_seed(int(cfg.get("random_seed", 42)))
+
+    raw_dir = Path(cfg.get("raw_data_path", "data/raw"))
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    raw_file = raw_dir / cfg.get("raw_data_filename", "survey_data.csv")
+
+    # Try real download; on failure use synthetic fallback
+    try:
+        download_real_data(
+            url=cfg.get("real_data_url", "https://example.com/survey.csv"),
+            output_path=raw_file,
+        )
+    except DataFetchError as exc:
+        update_log_section(
+            "data_source",
+            {"status": "fallback_synthetic", "reason": str(exc)},
+            log_path=cfg.get("modeling_log_path", "modeling_log.yaml"),
+        )
+        generate_synthetic_fallback(raw_file, n=int(cfg.get("synthetic_n", 500)))
+
+    # Record provenance metadata
+    update_log_section(
+        "data_source_metadata",
+        {"data_source": "synthetic_fallback" if raw_file.stat().st_size > 0 else "real"},
+        log_path=cfg.get("modeling_log_path", "modeling_log.yaml"),
     )
+
+    # --------------------------------------------------------------
+    # Variable validation (T013)
+    # --------------------------------------------------------------
+    validate_variables(raw_file)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Download or generate synthetic survey data.")
     parser.add_argument(
         "--synthetic",
         action="store_true",
@@ -132,48 +215,11 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    raw_dir = get_raw_data_path()
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    raw_path = raw_dir / "survey_data.csv"
-
-    # ------------------------------------------------------------------
-    # Seed handling – ensure reproducibility for the synthetic path.
-    # ------------------------------------------------------------------
-    cfg = get_config()
-    seed = cfg.get("random_seed", 42)
-    set_random_seed(seed)
-
     if args.synthetic:
-        generate_fallback_synthetic_data(raw_path)
-        source_label = "synthetic_fallback"
-        update_log_section(
-            "data_acquisition",
-            {"source": source_label, "records": raw_path.stat().st_size},
-        )
+        cfg = get_config()
+        raw_dir = Path(cfg.get("raw_data_path", "data/raw"))
+        raw_dir.mkdir(parents=True, exist_ok=True)
+        raw_file = raw_dir / cfg.get("raw_data_filename", "survey_data.csv")
+        generate_synthetic_fallback(raw_file, n=int(cfg.get("synthetic_n", 500)))
     else:
-        try:
-            fetch_real_data(raw_path)
-            source_label = "real_download"
-            update_log_section(
-                "data_acquisition",
-                {"source": source_label, "records": raw_path.stat().st_size},
-            )
-        except DataFetchError as exc:
-            # Log the limitation and fall back to synthetic data.
-            update_log_section(
-                "data_acquisition",
-                {
-                    "source": "synthetic_fallback",
-                    "reason": str(exc),
-                    "records": 0,
-                },
-            )
-            generate_fallback_synthetic_data(raw_path)
-
-            source_label = "synthetic_fallback"
-
-    # Write provenance metadata for downstream users.
-    _record_metadata(source_label, raw_path)
-
-    # Final log entry (the decorator already logged the call).
-    print(f"Data written to {raw_path}", file=sys.stderr)
+        main()

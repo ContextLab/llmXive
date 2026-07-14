@@ -1,10 +1,8 @@
 pandas
-numpy
-scikit-learn
 statsmodels
+scikit-learn
 matplotlib
 pyyaml
-reportlab
 factor_analyzer
 evalues
-requests
+reportlab

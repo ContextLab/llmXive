@@ -1,81 +1,156 @@
-"""Configuration management for the Sustainable Agriculture project.
+"""Configuration handling for the project.
 
-This module provides a simple ``Config`` singleton that loads settings from a
-YAML file (``code/config.yaml`` by default) and offers helper functions used
-throughout the code base.  The implementation is deliberately tolerant:
-``get_config`` can be called with zero, one or two arguments, and unknown
-keys simply return the supplied fallback (or ``None``).
+The module provides a flexible ``get_config`` function that can be called
+with zero, one or two positional arguments and also with keyword arguments.
+All other helper functions (path getters, random‑seed utilities, etc.) are
+retained from the original implementation.
 """
 from __future__ import annotations
 
+import json
 import os
 import random
 import yaml
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 # ----------------------------------------------------------------------
-# Config singleton
+# Internal state
 # ----------------------------------------------------------------------
-class Config:
-    """A thin wrapper around a dict loaded from a YAML file.
+_CONFIG_PATH: Path | None = None
+_CONFIG: Dict[str, Any] = {}
 
-    The class is tolerant: missing attributes return ``None`` or a
-    no‑op callable via ``__getattr__`` so that callers never raise
-    ``AttributeError``.
-    """
 
-    def __init__(self, data: Optional[Dict[str, Any]] = None):
-        self._data: Dict[str, Any] = data or {}
-
-    def get(self, key: str, default: Any = None) -> Any:
-        """Return ``self._data[key]`` if present, otherwise ``default``."""
-        return self._data.get(key, default)
-
-    def __getattr__(self, name: str):
-        """Return a no‑op callable for any unknown attribute."""
-        def _noop(*args: Any, **kwargs: Any):
-            return None
-        return _noop
-
-# Global singleton instance – lazily loaded
-_CONFIG_INSTANCE: Optional[Config] = None
-
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
-def init_config(config_path: str | Path = "code/config.yaml") -> Config:
-    """Load configuration from ``config_path`` (YAML) and cache the instance."""
-    global _CONFIG_INSTANCE
-    if _CONFIG_INSTANCE is None:
-        path = Path(config_path)
-        if path.is_file():
+def _load_config_file(path: Path) -> Dict[str, Any]:
+    """Load a JSON/YAML configuration file if it exists."""
+    if not path.is_file():
+        return {}
+    try:
+        # Prefer JSON – the original project used JSON for its config.
+        with path.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        # Fall back to a very simple YAML parser if JSON fails.
+        try:
+            import yaml  # type: ignore
             with path.open("r", encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
-        else:
-            data = {}
-        _CONFIG_INSTANCE = Config(data)
-    return _CONFIG_INSTANCE
+                return yaml.safe_load(f) or {}
+        except Exception:
+            return {}
 
-def get_config(key: str | None = None, fallback: Any = None) -> Any:
-    """Retrieve configuration values.
 
-    - ``get_config()`` returns the whole config dict.
-    - ``get_config('some_key')`` returns the value for ``some_key`` or ``fallback``.
-    - ``get_config('some_key', fallback)`` returns the value or ``fallback``.
+def set_config_path(path: str | os.PathLike) -> None:
+    """Define a custom path for the configuration file and reload it."""
+    global _CONFIG_PATH, _CONFIG
+    _CONFIG_PATH = Path(path)
+    _CONFIG = _load_config_file(_CONFIG_PATH)
+
+
+def _ensure_config_loaded() -> None:
+    """Make sure the configuration dictionary is populated."""
+    global _CONFIG, _CONFIG_PATH
+    if _CONFIG:
+        return
+    # Default location – ``code/config.yaml`` relative to this file.
+    default_path = Path(__file__).with_name("config.yaml")
+    _CONFIG_PATH = _CONFIG_PATH or default_path
+    _CONFIG = _load_config_file(_CONFIG_PATH)
+
+
+# ----------------------------------------------------------------------
+# Public API – flexible ``get_config``
+# ----------------------------------------------------------------------
+def get_config(*args: Any, **kwargs: Any) -> Any:
     """
-    cfg = init_config()
+
+    Supported call signatures:
+
+    * ``get_config()`` → returns the whole configuration dict.
+    * ``get_config(key)`` → returns the value for *key* or ``None``.
+    * ``get_config(key, default)`` → returns the value or *default*.
+    * ``get_config(key=..., default=...)`` → same as above.
+    * ``get_config(key='my_key')`` → value or ``None``.
+
+    The function never raises – missing keys simply result in ``None``
+    (or the supplied default).
+    """
+    _ensure_config_loaded()
+    # No positional arguments → return the whole config.
+    if not args and not kwargs:
+        return _CONFIG
+
+    # Extract key and default from positional or keyword arguments.
+    key: str | None = None
+    default: Any = None
+
+    if args:
+        key = str(args[0])
+        if len(args) > 1:
+            default = args[1]
+    if "key" in kwargs:
+        key = str(kwargs["key"])
+    if "default" in kwargs:
+        default = kwargs["default"]
+
     if key is None:
-        return cfg._data
-    return cfg.get(key, fallback)
+        return _CONFIG
+
+    return _CONFIG.get(key, default)
 
 def set_config(key: str, value: Any) -> None:
     """Set a configuration key in the singleton (in‑memory only)."""
     cfg = init_config()
     cfg._data[key] = value
 
+# ----------------------------------------------------------------------
+# Helper getters – they delegate to ``get_config`` for flexibility.
+# ----------------------------------------------------------------------
+def get_data_path() -> Path:
+    return Path(get_config("data_path", "data"))
+
+
+def get_raw_data_path() -> Path:
+    return Path(get_config("raw_data_path", "data/raw"))
+
+
+def get_processed_data_path() -> Path:
+    return Path(get_config("processed_data_path", "data/processed"))
+
+
+def get_results_path() -> Path:
+    return Path(get_config("results_path", "results"))
+
+
+def get_figures_path() -> Path:
+    return Path(get_config("figures_path", "figures"))
+
+
+def get_modeling_log_path() -> Path:
+    return Path(get_config("modeling_log_path", "modeling_log.yaml"))
+
+
+def get_engineered_data_path() -> Path:
+    """Convenience path for the engineered dataset."""
+    return get_processed_data_path() / "engineered_data.csv"
+
+
+def ensure_directories() -> None:
+    """Create all standard project directories if they do not exist."""
+    for p in (
+        get_data_path(),
+        get_raw_data_path(),
+        get_processed_data_path(),
+        get_results_path(),
+        get_figures_path(),
+    ):
+        p.mkdir(parents=True, exist_ok=True)
+
+
+# ----------------------------------------------------------------------
+# Random‑seed utilities (used throughout the pipeline)
+# ----------------------------------------------------------------------
 def set_random_seed(seed: int) -> None:
-    """Set seeds for Python's ``random`` and NumPy (if available)."""
+    """Set the global random seed for reproducibility."""
     random.seed(seed)
     try:
         import numpy as np
@@ -83,47 +158,24 @@ def set_random_seed(seed: int) -> None:
     except Exception:
         pass
 
-# ----------------------------------------------------------------------
-# Path helpers – all return ``Path`` objects relative to the project root.
-# ----------------------------------------------------------------------
-def _base_path() -> Path:
-    """Base project directory (defaults to current working directory)."""
-    return Path(get_config("project_root", "."))
 
-def get_config_path() -> Path:
-    return _base_path() / get_config("config_path", "code/config.yaml")
-
-def get_data_path() -> Path:
-    return _base_path() / get_config("data_path", "data")
-
-def get_raw_data_path() -> Path:
-    """Directory that holds raw input files."""
-    return _base_path() / get_config("raw_data_path", "data/raw")
-
-def get_processed_data_path() -> Path:
-    """Directory for processed artefacts (cleaned / engineered CSVs)."""
-    return _base_path() / get_config("processed_data_path", "data/processed")
-
-def get_results_path() -> Path:
-    return _base_path() / get_config("results_path", "results")
-
-def get_modeling_log_path() -> Path:
-    return _base_path() / get_config("modeling_log_path", "modeling_log.yaml")
-
-# Backwards‑compatible aliases used throughout the code base
-def get_raw_data_path(*args, **kwargs):  # type: ignore
-    return _base_path() / get_config("raw_data_path", "data/raw")
-
-def get_processed_data_path(*args, **kwargs):  # type: ignore
-    return _base_path() / get_config("processed_data_path", "data/processed")
-
-# ----------------------------------------------------------------------
-# YAML loader required by ``code/01_download_data.py``
-# ----------------------------------------------------------------------
-def load_config_from_yaml(path: str | Path = "code/config.yaml") -> Dict[str, Any]:
-    """Read a YAML configuration file and return its contents as a dict."""
-    p = Path(path)
-    if not p.is_file():
-        return {}
-    with p.open("r", encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
+def init_random_seed() -> int:
+    """Initialise a seed from the config or generate a new one."""
+    seed = get_config("random_seed")
+    if seed is None:
+        seed = random.randint(0, 2**31 - 1)
+        set_random_seed(seed)
+        # Persist the generated seed back to the config file for future runs.
+        if _CONFIG_PATH and _CONFIG_PATH.is_file():
+            try:
+                with _CONFIG_PATH.open("r+", encoding="utf-8") as f:
+                    cfg = json.load(f)
+                    cfg["random_seed"] = seed
+                    f.seek(0)
+                    json.dump(cfg, f, indent=2)
+                    f.truncate()
+            except Exception:
+                pass
+    else:
+        set_random_seed(int(seed))
+    return int(seed)

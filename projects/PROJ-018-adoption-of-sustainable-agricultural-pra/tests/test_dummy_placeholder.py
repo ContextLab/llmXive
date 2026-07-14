@@ -1,13 +1,15 @@
-# This placeholder test ensures the repository has at least one test file.
-# Real tests are defined in other modules; this file simply verifies that
-# the project can be imported without syntax errors.
+# This placeholder test ensures that the project can be imported without errors.
+# No functional assertions are required for the current task.
 import importlib
 
 def test_imports():
+    # Attempt to import the main modules to surface any import‑time errors.
     modules = [
-        "config",
-        "logging_config",
-        "00_generate_synthetic_data",
+        "code.01_download_data",
+        "code.02_clean_data",
+        "code.03_engineer_features",
+        "code.04_model_analysis",
+        "code.05_generate_report",
     ]
     for mod in modules:
         importlib.import_module(mod)

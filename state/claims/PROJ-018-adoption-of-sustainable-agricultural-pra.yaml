@@ -370,13 +370,80 @@
   updated_at: '2026-07-14T18:11:02Z'
 - artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
   attempts: 1
-  canonical: "pipeline produces cleaned CSV with at least 95% of low\u2011income country\
-    \ records"
-  claim_id: c_20b3f02a
-  context: "Goal: Obtain relevant agricultural survey dataset, filter to low\u2011\
-    income countries, and prepare a cleaned CSV; the independent test passes if the\
-    \ file contains \u2265 95% of all available records matching the low\u2011income\
-    \ country filter."
+  canonical: no GPU or 8-bit quantization tasks are included in the project
+  claim_id: c_af442b95
+  context: 'Feasibility Note: {{claim:c_cc99e695}} {{claim:c_284abde1}} (Wikidata
+    Q21159976, https://www.wikidata.org/wiki/Q21159976) No GPU or 8-bit quantization
+    tasks are included.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:41:28Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: No GPU or 8-bit quantization tasks are included
+  claim_id: c_6cd051c3
+  context: Feasibility Note referencing Wikidata Q21159976 states that no GPU or 8-bit
+    quantization tasks are included in the project.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: 'Feasibility Note: {{claim:c_cc99e695}} {{claim:c_284abde1}} (Wikidata
+    Q21159976, https://www.wikidata.org/wiki/Q21159976) No GPU or 8-bit quantization
+    tasks are included.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:42:34Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: no GPU or 8-bit quantization tasks included
+  claim_id: c_924d7c89
+  context: Feasibility Note states that no GPU or 8-bit quantization tasks are included.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:44:53Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: No GPU or 8-bit quantization tasks are included
+  claim_id: c_807b35e2
+  context: Feasibility Note referencing Wikidata Q21159976, stating that no GPU or
+    8-bit quantization tasks are included.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:45:27Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: pipeline produces cleaned CSV with at least 95% of records matching low-income
+    country filter
+  claim_id: c_7365375c
+  context: 'Goal: Obtain relevant agricultural survey dataset (or synthetic equivalent),
+    filter to low-income countries, and prepare a cleaned CSV with no missing values
+    for required variables. Independent Test: ...'
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
@@ -558,4 +625,220 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T18:17:11Z'
+  updated_at: '2026-07-14T17:47:50Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: project does not include GPU or 8-bit quantization tasks
+  claim_id: c_d8507ff0
+  context: The feasibility note states that no GPU or 8-bit quantization tasks are
+    included, citing Wikidata Q21159976.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:00:35Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: "pipeline produces cleaned CSV containing at least 95 percent of records\
+    \ that match the low\u2011income country filter"
+  claim_id: c_0befbf2e
+  context: "Goal of User Story 1 includes an independent test: the pipeline must generate\
+    \ a cleaned CSV and the test passes if the file contains \u2265 95% of all available\
+    \ records matching the low\u2011income country filter."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_cleaned_CSV_containing_at_least_95_percent
+  kind: magnitude
+  raw_text: "The pipeline can be executed end-to-end to produce a cleaned CSV file\
+    \ containing all required variables, and the test passes if the file is generated\
+    \ without errors and contains \u2265 95% of all available records matching the\
+    \ low-income country filter in the source API (or synthetic equivalent)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:03:04Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: No GPU or 8-bit quantization tasks are included.
+  claim_id: c_df81192f
+  context: 'Feasibility Note: {{claim:c_cc99e695}} {{claim:c_284abde1}} (Wikidata
+    Q21159976, https://www.wikidata.org/wiki/Q21159976) No GPU or 8-bit quantization
+    tasks are included.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:06:29Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: No GPU or 8-bit quantization tasks are included in the project
+  claim_id: c_ac173955
+  context: 'Feasibility Note: {{claim:c_cc99e695}} {{claim:c_284abde1}} (Wikidata
+    Q21159976, https://www.wikidata.org/wiki/Q21159976) No GPU or 8-bit quantization
+    tasks are included.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:09:24Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: no GPU or 8-bit quantization tasks are included
+  claim_id: c_33886d48
+  context: Feasibility Note mentions that no GPU or 8-bit quantization tasks are included.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:12:58Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: No GPU or 8-bit quantization tasks are included
+  claim_id: c_e0d591a5
+  context: Feasibility Note ... No GPU or 8-bit quantization tasks are included.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:18:34Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: pipeline produces cleaned CSV with at least 95% of records matching low-income
+    country filter
+  claim_id: c_c42151fb
+  context: "Independent Test: The pipeline can be executed end-to-end to produce a\
+    \ cleaned CSV file ... contains \u2265 95% of all available records matching the\
+    \ low-income country filter in the source API."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_cleaned_CSV_with_at_least_95%25_of_records_m
+  kind: magnitude
+  raw_text: "The pipeline can be executed end-to-end to produce a cleaned CSV file\
+    \ containing all required variables, and the test passes if the file is generated\
+    \ without errors and contains \u2265 95% of all available records matching the\
+    \ low-income country filter in the source API (or synthetic equivalent)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:18:59Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: pipeline produces cleaned CSV with at least 95 percent of records matching
+    low-income filter
+  claim_id: c_50b7b1b1
+  context: Phase 3 describes the goal of User Story 1 and defines the independent
+    test for the data pipeline.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_cleaned_CSV_with_at_least_95_percent_of_re
+  kind: magnitude
+  raw_text: "Independent Test: The pipeline can be executed end-to-end to produce\
+    \ a cleaned CSV file containing all required variables, and the test passes if\
+    \ the file is generated without errors and contains \u2265 95% of all available\
+    \ records matching the low-income country filter in the source API (or synthetic\
+    \ equivalent)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:20:47Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: no GPU or 8-bit quantization tasks included
+  claim_id: c_3239de3a
+  context: Feasibility Note mentions that the project does not involve GPU or 8-bit
+    quantization tasks.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:20:47Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 11
+  canonical: no GPU or 8-bit quantization tasks are included
+  claim_id: c_6ecd26ea
+  context: 'Feasibility Note: {{claim:c_cc99e695}} {{claim:c_284abde1}} (Wikidata
+    Q21159976, https://www.wikidata.org/wiki/Q21159976) No GPU or 8-bit quantization
+    tasks are included.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:21:24Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 2
+  canonical: No GPU or 8-bit quantization tasks are included
+  claim_id: c_9c905878
+  context: 'Feasibility Note: {{claim:c_cc99e695}} {{claim:c_284abde1}} (Wikidata
+    Q21159976, https://www.wikidata.org/wiki/Q21159976) No GPU or 8-bit quantization
+    tasks are included.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:23:40Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 5
+  canonical: no GPU or 8-bit quantization tasks included
+  claim_id: c_5c677650
+  context: 'Feasibility Note: {{claim:c_cc99e695}} {{claim:c_284abde1}} (Wikidata
+    Q21159976, https://www.wikidata.org/wiki/Q21159976) No GPU or 8-bit quantization
+    tasks are included.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T18:24:58Z'

@@ -1,8 +1,4 @@
 pandas
-statsmodels
-scikit-learn
-matplotlib
 pyyaml
-factor_analyzer
-evalues
-# other existing requirements may already be present; ensure evalues is available for mediation sensitivity analysis.
+numpy
+# existing requirements from earlier phases (if any) are retained elsewhere
