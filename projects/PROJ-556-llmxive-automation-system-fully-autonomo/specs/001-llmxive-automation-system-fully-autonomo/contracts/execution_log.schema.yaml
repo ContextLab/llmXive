@@ -1,0 +1,44 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Execution Log Schema
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier (UUID)"
+  hypothesis_id:
+    type: string
+    description: "Reference to the Hypothesis"
+  code:
+    type: string
+    description: "The generated Python script"
+  status:
+    type: string
+    enum:
+      - "Pass"
+      - "Fail"
+    description: "Execution outcome"
+  error_type:
+    type: string
+    enum:
+      - "None"
+      - "ModuleNotFoundError"
+      - "RuntimeError"
+      - "NonDeterministic"
+      - "MemoryError"
+      - "LogicalError"
+      - "Timeout"
+      - "ResourceExceeded"
+    description: "Specific error type if failed"
+  runtime_duration:
+    type: number
+    description: "Execution time in seconds"
+  output:
+    type: string
+    description: "stdout/stderr snippet"
+required:
+  - id
+  - hypothesis_id
+  - code
+  - status
+  - error_type
+  - runtime_duration

@@ -1,0 +1,46 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Hypothesis Schema
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier (UUID)"
+  text:
+    type: string
+    description: "The hypothesis string"
+  variables:
+    type: array
+    items:
+      type: string
+    description: "List of variables involved"
+  novelty_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Semantic similarity score (0.0–1.0)"
+  novelty_status:
+    type: string
+    enum:
+      - "novel"
+      - "non_novel"
+      - "inconclusive"
+    description: "Status based on novelty score and corpus availability"
+  plausibility_score:
+    type: number
+    description: "Perplexity-based plausibility score"
+  arch_config:
+    type: object
+    description: "LLM parameters used (model, temp, rag, context_window)"
+  source:
+    type: string
+    enum:
+      - "generated"
+      - "human_baseline"
+    description: "Source of the hypothesis"
+required:
+  - id
+  - text
+  - variables
+  - novelty_score
+  - arch_config
+  - source

@@ -1,0 +1,43 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schema
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier (UUID)"
+  source_url:
+    type: string
+    description: "Verified URL (e.g., HuggingFace)"
+  file_path:
+    type: string
+    description: "Local path to the file"
+  checksum:
+    type: string
+    description: "SHA-256 hash of the file"
+  schema:
+    type: array
+    items:
+      type: object
+      properties:
+        column_name:
+          type: string
+        column_type:
+          type: string
+      required:
+        - column_name
+        - column_type
+    description: "List of column names and types"
+  sample_size:
+    type: integer
+    description: "Number of rows used (if sampled)"
+  splits:
+    type: array
+    items:
+      type: string
+    description: "List of splits fetched (e.g., train, test)"
+required:
+  - id
+  - source_url
+  - file_path
+  - checksum
+  - schema
