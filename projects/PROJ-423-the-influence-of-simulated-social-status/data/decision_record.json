@@ -1,0 +1,6 @@
+{
+  "decision_id": "FR-001b-exclusion",
+  "timestamp": "2023-10-27T10:00:00",
+  "rationale": "Discarded FR-001(b) meta-analysis path due to Plan's constraint against external API calls and unavailability of a single public dataset with the required factorial design.",
+  "alternative": "Simulation based on meta-analytic effect sizes from research.md."
+}

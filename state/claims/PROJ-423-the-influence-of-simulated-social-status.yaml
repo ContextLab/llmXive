@@ -1,0 +1,410 @@
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: synthetic dataset sample size is 800 with between-subjects design
+  claim_id: c_fd9168c4
+  context: 'T010b [P] [US1] Implement code/generate_data.py: Synthetic data generator
+    using parameters from T010a, ensuring N=800 and between-subjects design.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic data generator ensures N=800 and between-subjects design.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T03:59:39Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factors flagged if greater than 5.0
+  claim_id: c_961795b5
+  context: 'T022 [US2] Implement code/analysis.py: Calculate Variance Inflation Factors
+    (VIF) for all predictors and flag if > 5.0.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_Inflation_Factors_flagged_if_greater_than_5.0
+  kind: magnitude
+  raw_text: Variance Inflation Factors (VIF) are flagged if greater than 5.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:00:59Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: analysis pipeline runtime less than 6 hours
+  claim_id: c_56143a3e
+  context: T042 Performance optimization across all scripts (ensure < 6h runtime)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_pipeline_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: The analysis pipeline must ensure a runtime of less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:02:30Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: synthetic dataset sample size of 800 with between-subjects design
+  claim_id: c_93a0918f
+  context: 'Phase 3: User Story 1 - Data Synthesis and Preprocessing. Implementation
+    for User Story 1 includes task T010b which specifies generating synthetic data
+    with N=800.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/generate_data.py: Synthetic data generator using parameters
+    from T010a, ensuring N=800 and between-subjects design.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:05:15Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold set to 5.0
+  claim_id: c_d0e62c6c
+  context: 'Phase 4: User Story 2 - Adaptive Mixed-Effects Regression Analysis. Task
+    T022 specifies calculating VIF and flagging values exceeding 5.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/analysis.py: Calculate Variance Inflation Factors (VIF)
+    for all predictors and flag if > 5.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:05:15Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps outlier exclusion threshold over standard
+    deviations relative to cell means
+  claim_id: c_9b9c5e72
+  context: 'Phase 5: User Story 3 - Sensitivity Analysis and Reporting. Task T030
+    describes the sensitivity analysis module logic.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_outlier_exclusion_threshold_over
+  kind: entity_fact
+  raw_text: 'Implement code/analysis.py: Sensitivity analysis module to sweep outlier
+    exclusion threshold over a range of standard deviations, explicitly calculating
+    deviations relative to the cell mean within each of the experimental conditions.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:06:42Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: post-hoc pairwise comparisons with Bonferroni correction performed unconditionally
+  claim_id: c_eff46836
+  context: 'Phase 5: User Story 3. Task T031 specifies performing post-hoc comparisons
+    with Bonferroni correction regardless of significance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Post-hoc_pairwise_comparisons_with_Bonferroni_correction_per
+  kind: entity_fact
+  raw_text: Perform post-hoc pairwise comparisons with Bonferroni correction for all
+    condition combinations, executing this logic UNCONDITIONALLY regardless of the
+    primary interaction significance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:07:27Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: forest plot of condition means with 95% confidence intervals
+  claim_id: c_3a73455f
+  context: 'Phase 5: User Story 3. Task T032 specifies generating a forest plot with
+    95% Confidence Intervals.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate forest plot of condition means with 95% Confidence Intervals
+    using matplotlib/seaborn.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:07:27Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: estimated coefficient matches injected parameter within 95% confidence
+    interval
+  claim_id: c_a1fc02f9
+  context: 'Phase 4: User Story 2 Independent Test. The test goal is to verify the
+    model output matches the injected parameter within the 95% CI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the estimated coefficient matches the injected parameter within
+    the 95% CI, and that the p-value is correctly calculated against the null.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:07:27Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: total pipeline runtime under 6 hours
+  claim_id: c_09b90a5d
+  context: 'Phase N: Polish & Cross-Cutting Concerns. Task T042 specifies performance
+    optimization to ensure runtime is less than 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure < 6h runtime for performance optimization across all scripts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:07:27Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: N=800 between-subjects design for synthetic data
+  claim_id: c_5f75d2cf
+  context: 'Phase 3: User Story 1 - Data Synthesis and Preprocessing. Task T010b:
+    Implement code/generate_data.py: Synthetic data generator using parameters from
+    T010a, ensuring N=800 and between-subjects design.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic data generator using parameters from T010a, ensuring N=800 and
+    between-subjects design.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:09:09Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: synthetic dataset size of 800 with between-subjects design
+  claim_id: c_c3d05524
+  context: 'Phase 3: User Story 1 - Data Synthesis and Preprocessing. Task T010b requires
+    generating a synthetic dataset based on meta-analytic effect sizes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/generate_data.py: Synthetic data generator using parameters
+    from T010a, ensuring N=800 and between-subjects design.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:27:42Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset size N=800 with between-subjects design
+  claim_id: c_c8c56e7f
+  context: 'T010b [P] [US1] Implement code/generate_data.py: Synthetic data generator
+    using parameters from T010a, ensuring N=800 and between-subjects design.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic data generator using parameters from T010a, ensuring N=800 and
+    between-subjects design.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:27:59Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold set to 5.0
+  claim_id: c_82aa3df4
+  context: 'T022 [US2] Implement code/analysis.py: Calculate Variance Inflation Factors
+    (VIF) for all predictors and flag if > 5.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if Variance Inflation Factors (VIF) for all predictors are > 5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:27:59Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Maximum runtime 6 hours
+  claim_id: c_ad29001b
+  context: T042 Performance optimization across all scripts (ensure < 6h runtime)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure < 6h runtime for performance optimization across all scripts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:27:59Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: flag Variance Inflation Factors greater than 5.0
+  claim_id: c_4871097a
+  context: 'Implement code/analysis.py: Calculate Variance Inflation Factors (VIF)
+    for all predictors and flag if > 5.0.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_Variance_Inflation_Factors_greater_than_5.0
+  kind: magnitude
+  raw_text: flag if > 5.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:29:01Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: generate forest plot with 95% Confidence Intervals
+  claim_id: c_c84152a2
+  context: 'Implement code/report.py: Generate forest plot of condition means with
+    95% Confidence Intervals using matplotlib/seaborn.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% Confidence Intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:29:01Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: synthetic dataset size of 800 participants with between-subjects design
+  claim_id: c_a47a4818
+  context: 'T010b [P] [US1] Implement `code/generate_data.py`: Synthetic data generator
+    using parameters from T010a, ensuring N=800 and between-subjects design.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic data generator using parameters from T010a, ensuring N=800 and
+    between-subjects design.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:29:55Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold of 5.0 for flagging predictors
+  claim_id: c_edc13bd7
+  context: 'T022 [US2] Implement `code/analysis.py`: Calculate Variance Inflation
+    Factors (VIF) for all predictors and flag if > 5.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if Variance Inflation Factors (VIF) for all predictors are > 5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:29:55Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: total runtime under 6 hours
+  claim_id: c_7104cfa2
+  context: T042 Performance optimization across all scripts (ensure < 6h runtime)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure < 6h runtime for performance optimization across all scripts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:29:55Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: synthetic dataset with N=800 and between-subjects design
+  claim_id: c_b152dedc
+  context: 'Implement code/generate_data.py: Synthetic data generator using parameters
+    from T010a, ensuring N=800 and between-subjects design.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=800 and between-subjects design.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:32:19Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factors flagged if greater than 5.0
+  claim_id: c_e27d19eb
+  context: Calculate Variance Inflation Factors (VIF) for all predictors and flag
+    if > 5.0.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_Inflation_Factors_flagged_if_greater_than_5.0
+  kind: magnitude
+  raw_text: flag if > 5.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:32:21Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: forest plot with 95% Confidence Intervals
+  claim_id: c_a7951d80
+  context: Generate forest plot of condition means with 95% Confidence Intervals using
+    matplotlib/seaborn.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% Confidence Intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:32:21Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: runtime less than 6 hours
+  claim_id: c_685f0dd7
+  context: Performance optimization across all scripts (ensure < 6h runtime)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: < 6h runtime
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T04:32:44Z'

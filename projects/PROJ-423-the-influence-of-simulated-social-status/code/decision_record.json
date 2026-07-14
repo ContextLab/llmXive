@@ -1,0 +1,15 @@
+{
+  "decision_id": "DEC-001",
+  "date": "2023-10-27",
+  "related_requirement": "FR-001(b)",
+  "requirement_description": "Perform meta-analysis on existing public datasets to establish baseline effect sizes for social status and risk-taking.",
+  "decision": "EXCLUDED",
+  "rationale": [
+    "Constraint: The project plan explicitly prohibits external API calls during the automated pipeline execution to ensure reproducibility and offline capability.",
+    "Constraint: No single public dataset was found that contains the specific factorial design required (crossed 2x2: Status Level x Observed Behavior) with the necessary granularity for direct meta-analysis without complex, non-standardized merging.",
+    "Alternative: The project will proceed with a simulation-based approach (US1) using effect sizes derived from a literature review (research.md) as constants (T010a), which satisfies the need for realistic data generation without violating the 'no external API' constraint."
+  ],
+  "impact": "The pipeline uses synthetic data generation based on literature-derived parameters rather than direct extraction from a raw public dataset. This ensures the simulation is grounded in established theory while maintaining the project's strict reproducibility and offline execution standards.",
+  "approved_by": "System Architect",
+  "status": "Final"
+}
