@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Report Schema"
+description: "Schema for the final statistical analysis report comparing symbolic and baseline methods."
+type: object
+properties:
+  metric:
+    type: string
+    enum:
+      - "success_rate"
+      - "latency"
+    description: "The metric being analyzed."
+  method_symbolic:
+    type: number
+    description: "Mean success rate or median latency for the symbolic method."
+  method_baseline:
+    type: number
+    description: "Mean success rate or median latency for the baseline method."
+  p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value from the statistical test (Fisher's Exact, Wilcoxon, or Log-Rank)."
+  confidence_interval:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "95% Confidence Interval [lower, upper]."
+  effect_size:
+    type: number
+    description: "Cliff's Delta (for latency) or Odds Ratio (for success)."
+  significance:
+    type: boolean
+    description: "True if p-value < 0.05."
+  test_type:
+    type: string
+    enum:
+      - "fisher_exact"
+      - "wilcoxon"
+      - "kaplan_meier"
+    description: "The specific statistical test used."
+required:
+  - metric
+  - method_symbolic
+  - method_baseline
+  - p_value
+  - confidence_interval
+  - effect_size
+  - significance
+  - test_type
+additionalProperties: false

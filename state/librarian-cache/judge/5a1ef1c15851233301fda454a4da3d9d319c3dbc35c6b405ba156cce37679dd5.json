@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.22882",
+  "judged_at": "2026-07-14T01:10:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geometric action model for robot policy learning\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it directly addresses the \"Geometric Action Model\" mechanism for robot policy learning by proposing a geometry-grounded video world model (GEM-4D) that explicitly injects geometric supervision to improve action execution, serving as a canonical follow-up or foundational reference for this specific research direction.",
+  "relevant": true
+}

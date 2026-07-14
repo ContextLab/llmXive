@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.17046",
+  "judged_at": "2026-07-14T01:10:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geometric action model for robot policy learning\" computer science",
+  "rationale": "The candidate paper is the foundational work that the user's question explicitly references as the subject of a \"follow-up\" study, satisfying category (d) as the canonical reference for the \"Geometric Action Model\" framework. Additionally, it directly addresses the specific domain and mechanism (robot policy learning using geometric foundation models) mentioned in the user's query.",
+  "relevant": true
+}

@@ -1,0 +1,549 @@
+{
+  "fetched_at": "2026-07-14T01:11:01Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\"",
+      "target_n": 5
+    },
+    "duration_seconds": 374.16,
+    "ended_at": "2026-07-14T01:11:01Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Geometric Action Model for robotic control"
+        ],
+        [
+          2,
+          "geometric action spaces in robot policy learning"
+        ],
+        [
+          3,
+          "manifold-based robot policy optimization"
+        ],
+        [
+          4,
+          "geometric representation learning for robotics"
+        ],
+        [
+          5,
+          "structure-preserving robot action models"
+        ],
+        [
+          6,
+          "differential geometry in robot learning"
+        ],
+        [
+          7,
+          "geometric priors for robotic motion planning"
+        ],
+        [
+          8,
+          "equivariant neural networks for robot control"
+        ],
+        [
+          9,
+          "Lie group based robot policy learning"
+        ],
+        [
+          10,
+          "geometric deep learning for embodied AI"
+        ],
+        [
+          11,
+          "Riemannian geometry in robotic action generation"
+        ],
+        [
+          12,
+          "geometric constraints in reinforcement learning for robots"
+        ],
+        [
+          13,
+          "action manifold learning for robotic agents"
+        ],
+        [
+          14,
+          "geometric structure in robot imitation learning"
+        ],
+        [
+          15,
+          "symmetry-aware robot policy learning"
+        ],
+        [
+          16,
+          "geometric action embeddings for robotics"
+        ],
+        [
+          17,
+          "curvature-based robot action modeling"
+        ],
+        [
+          18,
+          "geometric inductive biases in robotic control"
+        ],
+        [
+          19,
+          "topological action spaces for robot learning"
+        ],
+        [
+          20,
+          "geometrically structured policy networks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Geometric Action Model for robotic control": 2,
+        "llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "geometric action representation policy learning",
+      "robot policy learning geometric latent manifold",
+      "equivariant neural networks geometric group theory robotics",
+      "imitation learning geometric action space evaluation",
+      "geometric action model world model dynamics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1907.03423"
+      ]
+    },
+    "per_query_hit_count": {
+      "equivariant neural networks geometric group theory robotics": 3,
+      "geometric action model world model dynamics": 2,
+      "geometric action representation policy learning": 3,
+      "imitation learning geometric action space evaluation": 3,
+      "llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" computer science": 3,
+      "robot policy learning geometric latent manifold": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "1902.06026",
+          "rationale": "The paper focuses on control theory and optimization for water distribution networks using geometric programming, which is an off-domain application distinct from the user's question about robot policy learning and geometric action models in computer science. While both use the term \"geometric,\" the underlying constructs (hydraulic flow equations vs. robot kinematics/dynamics) and domains (civil engineering vs. robotics/ML) are entirely different, satisfying the rejection rule for distinct const",
+          "title": "Geometric Programming-Based Control for Nonlinear, DAE-Constrained Water Distribution Networks"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-14T01:04:46Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"geometric action model for robot policy learning\" computer science",
+      "raw": "llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-14T01:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-14T01:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-14T01:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A significant roadblock in multilingual neural language modeling is the lack of labeled non-English data. One potential method for overcoming this issue is learning cross-lingual text representations that can be used to transfer the performance from training on English tasks to non-English tasks, despite little to no task-specific non-English data. In this paper, we explore a natural setup for learning cross-lingual sentence representations: the dual-encoder. We provide a comprehensive evaluation of our cross-lingual representations on a number of monolingual, cross-lingual, and zero-shot/few-shot learning tasks, and also give an analysis of different learned cross-lingual embedding spaces.",
+          "claimed_authors": [
+            "Muthuraman Chidambaram",
+            "Yinfei Yang",
+            "Daniel Cer",
+            "Steve Yuan",
+            "Yun-Hsuan Sung",
+            "Brian Strope",
+            "Ray Kurzweil"
+          ],
+          "claimed_title": "Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.12836"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model')",
+        "failed_at": "2026-07-14T01:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
+          "claimed_authors": [
+            "Kasun Amarasinghe",
+            "Kit Rodolfa",
+            "Hemank Lamba",
+            "Rayid Ghani"
+          ],
+          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14374"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
+        "failed_at": "2026-07-14T01:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery relies on iterative expert workflows that are slow to parallelize and difficult to scale. Here we introduce Latent-Y, an AI agent that autonomously executes complete antibody design campaigns from text prompts, covering literature review, target analysis, epitope identification, candidate design, computational validation, and selection of lab-ready sequences. Latent-Y is integrated into the Latent Labs Platform, where it operates in the same environment as drug-discovery experts with access to bioinformatics tools, biological databases, and scientific literature. The agent can run fully autonomously end-to-end, or collaboratively, where researchers review progress, provide feedback, and direct subsequent steps. Candidate antibodies are generated using Latent-X2, our frontier generative model for drug-like antibody design. We demonstrate the agent's capability across three distinct campaign types: epitope discovery guided by therapeutic specifications, cross-species binder design, and autonomous design from a scientific publication targeting human transferrin receptor for blood-brain barrier crossing. Across nine targets, Latent-Y produced lab-confirmed nanobody binders against six, achieving a 67% target-level success rate with binding affinities reaching the single-digit nanomolar range, without human filtering or intervention. In user studies, experts working with Latent-Y completed design campaigns 56 times faster than independent expert time estimates, compressing weeks of work into hours. Because Latent-X2 is a general-purpose atomic-level model for biologics design, the same agent architecture naturally extends to macrocyclic peptide and mini-binder design campaigns, broadening autonomous discovery across therapeutic modalities. Latent-Y is available to selected partners at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Sebastian M. Schmon",
+            "Daniella Pretorius",
+            "Simon Mathis",
+            "Rebecca Bartke-Croughan",
+            "Aishaini Puvanendran",
+            "James Vuckovic",
+            "Henry Kenlay",
+            "Mária Vlachynská",
+            "Alex Bridgland",
+            "Ivan Grishin",
+            "Sven Over",
+            "David Li",
+            "Bridget Li",
+            "Jonathan Crabbé",
+            "Agrin Hilmkil",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29727"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
+        "failed_at": "2026-07-14T01:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, model-free reinforcement learning algorithms have been shown to solve challenging problems by learning from extensive interaction with the environment. A significant issue with transferring this success to the robotics domain is that interaction with the real world is costly, but training on limited experience is prone to overfitting. We present a method for learning to navigate, to a fixed goal and in a known environment, on a mobile robot. The robot leverages an interactive world model built from a single traversal of the environment, a pre-trained visual feature encoder, and stochastic environmental augmentation, to demonstrate successful zero-shot transfer under real-world environmental variations without fine-tuning.",
+          "claimed_authors": [
+            "Jake Bruce",
+            "Niko Suenderhauf",
+            "Piotr Mirowski",
+            "Raia Hadsell",
+            "Michael Milford"
+          ],
+          "claimed_title": "One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.10137"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay')",
+        "failed_at": "2026-07-14T01:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-07-14T01:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+          "claimed_authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05639"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
+        "failed_at": "2026-07-14T01:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning continuously during all model lifetime is fundamental to deploy machine learning solutions robust to drifts in the data distribution. Advances in Continual Learning (CL) with recurrent neural networks could pave the way to a large number of applications where incoming data is non stationary, like natural language processing and robotics. However, the existing body of work on the topic is still fragmented, with approaches which are application-specific and whose assessment is based on heterogeneous learning protocols and datasets. In this paper, we organize the literature on CL for sequential data processing by providing a categorization of the contributions and a review of the benchmarks. We propose two new benchmarks for CL with sequential data based on existing datasets, whose characteristics resemble real-world applications. We also provide a broad empirical evaluation of CL and Recurrent Neural Networks in class-incremental scenario, by testing their ability to mitigate forgetting with a number of different strategies which are not specific to sequential data processing. Our results highlight the key role played by the sequence length and the importance of a clear specification of the CL scenario.",
+          "claimed_authors": [
+            "Andrea Cossu",
+            "Antonio Carta",
+            "Vincenzo Lomonaco",
+            "Davide Bacciu"
+          ],
+          "claimed_title": "Continual Learning for Recurrent Neural Networks: an Empirical Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.07492"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='Continual Learning for Recurrent Neural Networks: an Empirical Evaluation')",
+        "failed_at": "2026-07-14T01:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Imitation learning is an effective alternative approach to learn a policy when the reward function is sparse. In this paper, we consider a challenging setting where an agent and an expert use different actions from each other. We assume that the agent has access to a sparse reward function and state-only expert observations. We propose a method which gradually balances between the imitation learning cost and the reinforcement learning objective. In addition, this method adapts the agent's policy based on either mimicking expert behavior or maximizing sparse reward. We show, through navigation scenarios, that (i) an agent is able to efficiently leverage sparse rewards to outperform standard state-only imitation learning, (ii) it can learn a policy even when its actions are different from the expert, and (iii) the performance of the agent is not bounded by that of the expert, due to the optimized usage of sparse rewards.",
+          "claimed_authors": [
+            "Konrad Zolna",
+            "Negar Rostamzadeh",
+            "Yoshua Bengio",
+            "Sungjin Ahn",
+            "Pedro O. Pinheiro"
+          ],
+          "claimed_title": "Reinforced Imitation in Heterogeneous Action Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.03438"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='Reinforced Imitation in Heterogeneous Action Space')",
+        "failed_at": "2026-07-14T01:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Imitation Learning techniques enable programming the behavior of agents through demonstrations rather than manual engineering. However, they are limited by the quality of available demonstration data. Interactive Imitation Learning techniques can improve the efficacy of learning since they involve teachers providing feedback while the agent executes its task. In this work, we propose a novel Interactive Learning technique that uses human feedback in state-space to train and improve agent behavior (as opposed to alternative methods that use feedback in action-space). Our method titled Teaching Imitative Policies in State-space~(TIPS) enables providing guidance to the agent in terms of `changing its state' which is often more intuitive for a human demonstrator. Through continuous improvement via corrective feedback, agents trained by non-expert demonstrators using TIPS outperformed the demonstrator and conventional Imitation Learning agents.",
+          "claimed_authors": [
+            "Snehal Jauhri",
+            "Carlos Celemin",
+            "Jens Kober"
+          ],
+          "claimed_title": "Interactive Imitation Learning in State-Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.00524"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='Interactive Imitation Learning in State-Space')",
+        "failed_at": "2026-07-14T01:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we present a complete study of an end-to-end imitation learning system for speed control of a real car, based on a neural network with a Long Short Term Memory (LSTM). To achieve robustness and generalization from expert demonstrations, we propose data augmentation and label augmentation that are relevant for imitation learning in longitudinal control context. Based on front camera image only, our system is able to correctly control the speed of a car in simulation environment, and in a real car on a challenging test track. The system also shows promising results in open road context.",
+          "claimed_authors": [
+            "Laurent George",
+            "Thibault Buhet",
+            "Emilie Wirbel",
+            "Gaetan Le-Gall",
+            "Xavier Perrotton"
+          ],
+          "claimed_title": "Imitation Learning for End to End Vehicle Longitudinal Control with Forward Camera",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.05841"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='Imitation Learning for End to End Vehicle Longitudinal Control with Forward Camera')",
+        "failed_at": "2026-07-14T01:10:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Latent Action Models (LAMs) enable the learning of world models from unlabeled video by inferring abstract actions between consecutive frames. However, LAMs face a fundamental trade-off between action abstraction and generation fidelity. Existing methods typically circumvent this issue by using two-stage training with pre-trained world models or by limiting predictions to optical flow. In this paper, we introduce DiLA, a novel Disentangled Latent Action world model that aims to resolve this trade-off via content-structure disentanglement. Our key insight is that disentanglement and latent action learning are co-evolving: the predictive bottleneck inherent in latent action learning serves as a driving force for disentanglement, compelling the model to distill spatial layouts into the structure pathway while offloading visual details to a separate content pathway for generation. This synergy yields a continuous, semantically structured latent action space without compromising generative quality. DiLA achieves superior results in video generation quality, action transfer, visual planning, and manifold interpretability. These findings establish DiLA as a unified framework that simultaneously achieves high-level action abstraction and high-fidelity generation, advancing the frontier of self-supervised world model learning.",
+          "claimed_authors": [
+            "Tianqiu Zhang",
+            "Muyang Lyu",
+            "Yufan Zhang",
+            "Fang Fang",
+            "Si Wu"
+          ],
+          "claimed_title": "DiLA: Disentangled Latent Action World Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.15725"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Geometric Action Model for Robot Policy Learning\" ', candidate_title='DiLA: Disentangled Latent Action World Models')",
+        "failed_at": "2026-07-14T01:10:42Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jisang Han",
+            "Seonghu Jeon",
+            "Jaewoo Jung",
+            "René Zurbrügg",
+            "Honggyu An",
+            "Tifanny Portela",
+            "Marco Hutter",
+            "Marc Pollefeys",
+            "Seungryong Kim",
+            "Sunghwan Hong"
+          ],
+          "title": "Geometric Action Model for Robot Policy Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.17046",
+        "summary": "Generalist robot policies must follow user instructions while reasoning about how objects, cameras, and robot actions interact in the 3D physical world. Recent vision-language-action models (VLAs) and video world-action models (WAMs) inherit strong semantic or temporal priors from large-scale foundation models, but they still operate primarily on 2D image frames or 2D-derived latent spaces, leaving implicit the 3D geometry required for contact-rich manipulation. We propose the Geometric Action Model (GAM), a language-conditioned manipulation policy that directly repurposes a pretrained geometric foundation model (GFM) as a shared substrate for perception, temporal prediction, and action decoding. GAM splits the GFM at an intermediate layer: the shallow layers serve as an observation encoder, and a causal future predictor inserted at the split layer forecasts future latent tokens conditioned on language, proprioception, and action history. The predicted future tokens are then routed through the remaining GFM blocks for feature propagation and decoding, allowing a single backbone to produce both future geometry and actions. This design equips the GFM with language-conditioned temporal world modeling through minimal architectural modification while preserving its rich geometric priors. Across a broad suite of simulation and real-robot manipulation benchmarks, GAM is more accurate, more robust, faster, and lighter than current foundation-model-scale baselines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.17046",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6364,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T01:10:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ashwin Balakrishna",
+            "Brijen Thananjeyan",
+            "Jonathan Lee",
+            "Felix Li",
+            "Arsh Zahed",
+            "Joseph E. Gonzalez",
+            "Ken Goldberg"
+          ],
+          "title": "On-Policy Robot Imitation Learning from a Converging Supervisor",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1907.03423",
+        "summary": "Existing on-policy imitation learning algorithms, such as DAgger, assume access to a fixed supervisor. However, there are many settings where the supervisor may evolve during policy learning, such as a human performing a novel task or an improving algorithmic controller. We formalize imitation learning from a \"converging supervisor\" and provide sublinear static and dynamic regret guarantees against the best policy in hindsight with labels from the converged supervisor, even when labels during learning are only from intermediate supervisors. We then show that this framework is closely connected to a class of reinforcement learning (RL) algorithms known as dual policy iteration (DPI), which alternate between training a reactive learner with imitation learning and a model-based supervisor with data from the learner. Experiments suggest that when this framework is applied with the state-of-the-art deep model-based RL algorithm PETS as an improving supervisor, it outperforms deep RL baselines on continuous control tasks and provides up to an 80-fold speedup in policy evaluation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1907.03423",
+          "http_status": 200,
+          "pdf_sample_score": 0.2781,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T01:10:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kaichen Zhou",
+            "Yuzhen Chen",
+            "Fangneng Zhan",
+            "Hang Hua",
+            "Grace Chen",
+            "Xinhai Chang",
+            "Ao Qu",
+            "Yilun Du",
+            "Zhuang Liu",
+            "Paul Pu Liang",
+            "Mengyu Wang"
+          ],
+          "title": "GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.22882",
+        "summary": "Video world models can generate realistic futures from a single instruction, but they often fail to track the same physical points consistently across time. As a result, the generated videos appear plausible, yet lack the physical grounding required for reliable action execution, such as robot manipulation. We present GEM-4D, a geometry-grounded video world model that resolves this limitation by injecting dense 4D correspondence supervision distilled from a pretrained geometry foundation model into the video generative backbone during training. This supervision enables the model to jointly capture appearance and geometric structure while retaining a single-stream architecture with no additional inference cost. We further introduce an inverse dynamics module that converts correspondence-consistent video rollouts into executable robot trajectories, enabling direct deployment in both real-world and simulated manipulation. GEM-4D achieves state-of-the-art performance on both video prediction and geometric consistency across both simulation and realistic scenarios and improves real-world manipulation success from 61% to 81%. Additional results are available at https://gem-4d.github.io/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.22882",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T01:10:41Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"geometric action model for robot policy learning\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

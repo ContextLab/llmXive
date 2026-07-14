@@ -1307,6 +1307,10 @@
     "classified_at": "2026-07-14T00:14:35Z",
     "verdict": false
   },
+  "PROJ-898-llmxive-follow-up-extending-geometric-ac::1.6.0": {
+    "classified_at": "2026-07-14T01:10:41Z",
+    "verdict": false
+  },
   "PROJ-899-llmxive-follow-up-extending-evalverse-pi::1.6.0": {
     "classified_at": "2026-07-05T00:58:56Z",
     "verdict": false

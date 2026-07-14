@@ -1,0 +1,369 @@
+resolved_at: '2026-07-14T01:19:53.781724+00:00'
+datasets:
+- intent: GAM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/markov-ai/gaming-500-hours/resolve/main/metadata.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/internlm/RNGBench-Game-Trajectories/resolve/main/data/3D_Maze_Optimal.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/KlingTeam/GameFactory-Dataset/resolve/main/GF-Minecraft/data_269.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/markov-ai/gaming-500-hours/resolve/main/metadata.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/internlm/RNGBench-Game-Trajectories/resolve/main/data/3D_Maze_Optimal.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/KlingTeam/GameFactory-Dataset/resolve/main/GF-Minecraft/data_269.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/test-time-compute/game-of-24/resolve/main/game24.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/sandbagging-games/evaluation_logs/resolve/main/evaluation_transcripts/handover_evals/baobab/bundle/logs/listing.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://irr.singaporetech.edu.sg/articles/dataset/Raw_data_from_the_student_task_scenario_transcripts_for_The_Ngee_Ann_Kongsi_Library_Usability_Study_/29362826
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Micheal_Cecilia_Ibru_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979308
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://irr.singaporetech.edu.sg/articles/journal_contribution/Usability_testing_of_an_academic_library_website_A_study_of_student_navigation_behaviours_with_AI-assisted_data_analysis/32978942
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Mountain_Top_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979299
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Ritman_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979284
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14975408
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20738286
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4247468
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18160617
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15132866
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.dz08kps9j
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/44260
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=9697c1b721b9435498bb2ed7c2382c59
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/An_analysis_of_multidimensional_poverty_and_its_vulnerability_in_Chinese_Households/31825216
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/An_analysis_of_multidimensional_poverty_and_its_vulnerability_in_Chinese_Households/31825216/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-based
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/Caught_in_the_middle_immigrant_entrepreneurship_and_the_costs_of_diversifying_beyond_the_enclave_market/32952713
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Bioaccumulation_of_microplastic_particles_and_trace_metals_in_the_little_penguin_Eudyptula_minor_from_two_South-Eastern_Australian_colonies/32972567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://irr.singaporetech.edu.sg/articles/dataset/Raw_data_from_the_student_task_scenario_transcripts_for_The_Ngee_Ann_Kongsi_Library_Usability_Study_/29362826
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Micheal_Cecilia_Ibru_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979308
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://irr.singaporetech.edu.sg/articles/journal_contribution/Usability_testing_of_an_academic_library_website_A_study_of_student_navigation_behaviours_with_AI-assisted_data_analysis/32978942
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14811831
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12759131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/33247
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12770771
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18777228
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18777228
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieee-dataport.org/documents/coolantcpu-measurement-data-thermoelectric-cooling-12x-utx6-24-f1-5555-integrated-desktop
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21346661
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21346661
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PyBullet
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pranjalipathre/pybullet_img2img/resolve/main/data/video_00.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bensprenger/gym_pybullet_drones/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 17241
+      parsed: true
+  - url: https://huggingface.co/datasets/xfu314/pybullet_ring_task/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16448
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pranjalipathre/pybullet_img2img/resolve/main/data/video_00.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/bensprenger/gym_pybullet_drones/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/xfu314/pybullet_ring_task/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/akl5062/pybullet_ring_task/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/Caught_in_the_middle_immigrant_entrepreneurship_and_the_costs_of_diversifying_beyond_the_enclave_market/32952713
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Bioaccumulation_of_microplastic_particles_and_trace_metals_in_the_little_penguin_Eudyptula_minor_from_two_South-Eastern_Australian_colonies/32972567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://irr.singaporetech.edu.sg/articles/dataset/Raw_data_from_the_student_task_scenario_transcripts_for_The_Ngee_Ann_Kongsi_Library_Usability_Study_/29362826
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Micheal_Cecilia_Ibru_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979308
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://irr.singaporetech.edu.sg/articles/journal_contribution/Usability_testing_of_an_academic_library_website_A_study_of_student_navigation_behaviours_with_AI-assisted_data_analysis/32978942
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/9431048/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15066474
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10159261
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20198748
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10966588
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18652306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18652306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21325216
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21325216
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234932
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GFM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/GFM-Bench/EuroSAT/resolve/main/EuroSAT.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/GFM-Bench/DFC2020/resolve/main/data/DFC2020.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/marcov/tmu_gfm_dataset_promptsource/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/GFM-Bench/EuroSAT/resolve/main/EuroSAT.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/GFM-Bench/DFC2020/resolve/main/data/DFC2020.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/marcov/tmu_gfm_dataset_promptsource/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/Caught_in_the_middle_immigrant_entrepreneurship_and_the_costs_of_diversifying_beyond_the_enclave_market/32952713
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Bioaccumulation_of_microplastic_particles_and_trace_metals_in_the_little_penguin_Eudyptula_minor_from_two_South-Eastern_Australian_colonies/32972567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://irr.singaporetech.edu.sg/articles/dataset/Raw_data_from_the_student_task_scenario_transcripts_for_The_Ngee_Ann_Kongsi_Library_Usability_Study_/29362826
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Micheal_Cecilia_Ibru_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979308
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://irr.singaporetech.edu.sg/articles/journal_contribution/Usability_testing_of_an_academic_library_website_A_study_of_student_navigation_behaviours_with_AI-assisted_data_analysis/32978942
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/10400798/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7573600
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5721516
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1043285
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4579627
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.09249
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.09134
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.09058
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21318799
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/101236
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

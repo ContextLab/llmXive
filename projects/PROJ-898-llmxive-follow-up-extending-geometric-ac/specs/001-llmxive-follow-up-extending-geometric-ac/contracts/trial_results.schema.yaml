@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Trial Results Schema"
+description: "Schema for the aggregated trial results (success, latency) for symbolic and baseline methods."
+type: object
+properties:
+  trial_id:
+    type: string
+    description: "Unique identifier for the trial (e.g., sym_001, base_001)."
+  method:
+    type: string
+    enum:
+      - "symbolic"
+      - "baseline"
+    description: "The planner method used."
+  topology_id:
+    type: string
+    description: "Reference to the topology configuration."
+  success:
+    type: boolean
+    description: "True if the manipulation task was completed successfully."
+  failure_reason:
+    type: string
+    nullable: true
+    enum:
+      - "timeout"
+      - "infeasible"
+      - "collision"
+      - "drift"
+      - null
+    description: "Reason for failure if success is false."
+  total_latency_ms:
+    type: number
+    minimum: 0.0
+    nullable: true
+    description: "Total inference latency for the trial in milliseconds (null if timeout)."
+  steps_executed:
+    type: integer
+    minimum: 1
+    description: "Number of timesteps executed before completion or failure."
+  is_censored:
+    type: boolean
+    description: "True if the trial was a timeout (for survival analysis)."
+required:
+  - trial_id
+  - method
+  - topology_id
+  - success
+  - failure_reason
+  - steps_executed
+  - is_censored
+additionalProperties: false
