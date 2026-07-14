@@ -1,0 +1,12 @@
+status: none
+intent: UCI Machine Learning Repository Human Activity Recognition dataset Hugging
+  Face python package dataset
+required_fields:
+- subject_id
+- activity_label
+- accelerometer_x
+- accelerometer_y
+- accelerometer_z
+- gyroscope_x
+- gyroscope_y
+- gyroscope_z

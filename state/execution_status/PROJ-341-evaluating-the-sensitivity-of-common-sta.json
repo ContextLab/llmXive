@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-341-evaluating-the-sensitivity-of-common-sta",
+  "ok": false,
+  "reason": "3 command(s) failed: python code/main.py (rc=1); python code/main.py --test t-test --min-n 5 --max-n 50 --iterations 1000 (rc=1); python code/main.py --mode validation (rc=1); 7 declared deliverable(s) absent: data/simulation/error_rates_summary.csv; data/simulation/p_values_raw.csv; data/simulation/real_data_power.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py\", line 14, in <module>\n    from code.simulation.logging_config import (\nModuleNotFoundError: No module named 'code.simulation'; 'code' is not a package",
+    "python code/main.py --test t-test --min-n 5 --max-n 50 --iterations 1000 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py\", line 14, in <module>\n    from code.simulation.logging_config import (\nModuleNotFoundError: No module named 'code.simulation'; 'code' is not a package",
+    "python code/main.py --mode validation -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/code/main.py\", line 14, in <module>\n    from code.simulation.logging_config import (\nModuleNotFoundError: No module named 'code.simulation'; 'code' is not a package"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "updated_at": "2026-07-14T23:34:29Z"
+}

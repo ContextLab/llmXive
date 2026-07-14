@@ -1,0 +1,5 @@
+matplotlib  # auto-added: imported by run-book but missing from venv
+numpy  # auto-added: imported by run-book but missing from venv
+pandas  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
+ucimlrepo  # auto-added: imported by run-book but missing from venv

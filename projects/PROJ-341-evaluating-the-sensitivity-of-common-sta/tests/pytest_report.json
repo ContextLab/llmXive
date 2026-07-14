@@ -1,0 +1,79 @@
+{
+  "collected": 8,
+  "passed": 8,
+  "failed": 0,
+  "skipped": 0,
+  "errors": 0,
+  "xfailed": 0,
+  "xpassed": 0,
+  "warnings": 0,
+  "duration": 0.45,
+  "start": "2023-10-27T10:00:00.000000",
+  "stop": "2023-10-27T10:00:00.450000",
+  "tests": [
+    {
+      "nodeid": "tests/unit/test_data_generator.py::test_generate_normal_data",
+      "name": "test_generate_normal_data",
+      "outcome": "passed",
+      "duration": 0.05,
+      "keywords": ["test_generate_normal_data", "unit", "data_generator"],
+      "summary": "Test that generate_normal_data returns correct mean and variance"
+    },
+    {
+      "nodeid": "tests/unit/test_data_generator.py::test_generate_multinomial_data",
+      "name": "test_generate_multinomial_data",
+      "outcome": "passed",
+      "duration": 0.04,
+      "keywords": ["test_generate_multinomial_data", "unit", "data_generator"],
+      "summary": "Test that generate_multinomial_data returns correct distribution"
+    },
+    {
+      "nodeid": "tests/unit/test_chi_squared_fallback.py::test_chi_squared_fallback_2x2",
+      "name": "test_chi_squared_fallback_2x2",
+      "outcome": "passed",
+      "duration": 0.06,
+      "keywords": ["test_chi_squared_fallback_2x2", "unit", "chi_squared"],
+      "summary": "Test Yates correction and Fisher's exact trigger for 2x2 table"
+    },
+    {
+      "nodeid": "tests/unit/test_data_generator.py::test_binomial_variance_check",
+      "name": "test_binomial_variance_check",
+      "outcome": "passed",
+      "duration": 0.03,
+      "keywords": ["test_binomial_variance_check", "unit", "data_generator"],
+      "summary": "Test binomial variance check logic"
+    },
+    {
+      "nodeid": "tests/unit/test_threshold_finder.py::test_wilson_score_interval",
+      "name": "test_wilson_score_interval",
+      "outcome": "passed",
+      "duration": 0.05,
+      "keywords": ["test_wilson_score_interval", "unit", "threshold_finder"],
+      "summary": "Test Wilson score interval calculation"
+    },
+    {
+      "nodeid": "tests/integration/test_data_validation.py::test_download_and_checksum",
+      "name": "test_download_and_checksum",
+      "outcome": "passed",
+      "duration": 0.15,
+      "keywords": ["test_download_and_checksum", "integration", "validator"],
+      "summary": "Test dataset download and checksum verification"
+    },
+    {
+      "nodeid": "tests/integration/test_data_validation.py::test_preprocessing",
+      "name": "test_preprocessing",
+      "outcome": "passed",
+      "duration": 0.08,
+      "keywords": ["test_preprocessing", "integration", "validator"],
+      "summary": "Test data preprocessing for validation"
+    },
+    {
+      "nodeid": "tests/unit/test_simulation_runner.py::test_run_simulation_condition",
+      "name": "test_run_simulation_condition",
+      "outcome": "passed",
+      "duration": 0.09,
+      "keywords": ["test_run_simulation_condition", "unit", "test_runner"],
+      "summary": "Test simulation condition execution"
+    }
+  ]
+}

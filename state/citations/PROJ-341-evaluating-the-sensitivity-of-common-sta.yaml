@@ -42,7 +42,7 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-06-30T04:09:16.854430Z'
-- artifact_hash: 031eea7ae2fa18a811a064664a72c99e8de734cdacb08c58523e92defd5d3152
+- artifact_hash: 133b6aafa987e81537e5fe9333e285972433290416595a068b203e87bb61be43
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://en.wikipedia.org/wiki/Power_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Power
-  verified_at: '2026-07-14T22:54:07.914310Z'
+  verified_at: '2026-07-14T23:47:52.679475Z'

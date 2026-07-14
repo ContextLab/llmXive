@@ -1,7 +1,7 @@
 """
-Comprehensive logging configuration for the simulation pipeline.
-Ensures reproducibility debugging by capturing all simulation steps,
-parameters, seeds, and outcomes.
+Logging configuration and utility functions for the simulation pipeline.
+Provides centralized logging setup, logger retrieval, and specific logging helpers
+for reproducibility debugging and simulation step tracking.
 """
 import logging
 import sys
@@ -10,199 +10,272 @@ from datetime import datetime
 from typing import Optional, Dict, Any
 import json
 
-# Global logger instance
+# Global logger instance to be configured once
 _logger: Optional[logging.Logger] = None
 _log_file_path: Optional[str] = None
 
-# Log format with timestamp, level, module, and message
-LOG_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-def setup_logging(log_level: str = "INFO", log_dir: str = "data/logs") -> str:
+def setup_logging(
+    log_level: int = logging.INFO,
+    log_file: Optional[str] = None,
+    console_output: bool = True
+) -> logging.Logger:
     """
     Configure the root logger for the simulation pipeline.
     
     Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        log_dir: Directory to store log files
+        log_level: Logging level (e.g., logging.DEBUG, logging.INFO)
+        log_file: Path to log file. If None, logs to stdout only.
+        console_output: Whether to log to console as well.
     
     Returns:
-        Path to the created log file
+        Configured logger instance.
     """
     global _logger, _log_file_path
     
-    # Ensure log directory exists
-    os.makedirs(log_dir, exist_ok=True)
+    # Create logger
+    _logger = logging.getLogger('llmXive_simulation')
+    _logger.setLevel(log_level)
     
-    # Generate log filename with timestamp
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    _log_file_path = os.path.join(log_dir, f"simulation_{timestamp}.log")
+    # Clear existing handlers to avoid duplicates on re-calls
+    _logger.handlers.clear()
     
-    # Configure root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(getattr(logging, log_level.upper()))
+    # Formatter with detailed info for reproducibility debugging
+    formatter = logging.Formatter(
+        '%(asctime)s | %(levelname)-8s | %(name)s | %(funcName)s:%(lineno)d | %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
     
-    # Clear existing handlers to avoid duplicates
-    root_logger.handlers.clear()
+    # Console handler
+    if console_output:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(log_level)
+        console_handler.setFormatter(formatter)
+        _logger.addHandler(console_handler)
     
     # File handler
-    file_handler = logging.FileHandler(_log_file_path)
-    file_handler.setLevel(logging.DEBUG)  # Capture all levels in file
-    file_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-    root_logger.addHandler(file_handler)
+    if log_file:
+        # Ensure directory exists
+        log_dir = os.path.dirname(log_file)
+        if log_dir and not os.path.exists(log_dir):
+            os.makedirs(log_dir, exist_ok=True)
+        
+        file_handler = logging.FileHandler(log_file, mode='a')
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+        _logger.addHandler(file_handler)
+        _log_file_path = log_file
     
-    # Console handler (optional, for immediate feedback)
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-    root_logger.addHandler(console_handler)
-    
-    _logger = root_logger
-    
-    # Log initialization
-    root_logger.info(f"Logging initialized at {_log_file_path}")
-    root_logger.info(f"Log level set to {log_level}")
-    
-    return _log_file_path
+    _logger.info("Logging system initialized")
+    return _logger
 
-def get_logger(name: str = "llmXive.simulation") -> logging.Logger:
+def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get a named logger instance for a specific module.
+    Get a logger instance, optionally with a specific name.
     
     Args:
-        name: Logger name (typically module name)
+        name: Optional name for the logger (e.g., 'simulation.test_runner')
     
     Returns:
-        Configured logger instance
+        Logger instance.
     """
     global _logger
     if _logger is None:
-        # Auto-setup if not initialized
+        # Auto-initialize if not set
         setup_logging()
     
-    return logging.getLogger(name)
+    if name:
+        return _logger.getChild(name)
+    return _logger
 
-def log_simulation_params(params: Dict[str, Any]) -> None:
+def log_simulation_params(
+    sample_sizes: list,
+    effect_sizes: list,
+    test_types: list,
+    alpha: float,
+    iterations: int,
+    seed: int,
+    logger: Optional[logging.Logger] = None
+):
     """
-    Log simulation configuration parameters.
+    Log the simulation configuration parameters.
     
     Args:
-        params: Dictionary of simulation parameters
+        sample_sizes: List of sample sizes to test
+        effect_sizes: List of effect sizes to test
+        test_types: List of test types (t-test, anova, chi-squared)
+        alpha: Significance level
+        iterations: Number of iterations per condition
+        seed: Random seed
+        logger: Logger instance (uses default if None)
     """
-    logger = get_logger("simulation.config")
-    logger.info("Starting simulation with parameters:")
-    logger.info(json.dumps(params, indent=2, default=str))
+    log = logger or get_logger('simulation.config')
+    log.info("=== Simulation Configuration ===")
+    log.info(f"Sample sizes: {sample_sizes}")
+    log.info(f"Effect sizes: {effect_sizes}")
+    log.info(f"Test types: {test_types}")
+    log.info(f"Alpha level: {alpha}")
+    log.info(f"Iterations per condition: {iterations}")
+    log.info(f"Random seed: {seed}")
+    log.info("================================")
 
-def log_seed_usage(seed: int, context: str = "") -> None:
+def log_seed_usage(seed: int, iteration: int, logger: Optional[logging.Logger] = None):
     """
-    Log the usage of a random seed for reproducibility tracking.
+    Log the usage of a specific random seed for an iteration.
     
     Args:
-        seed: The random seed value
-        context: Description of where the seed is used
+        seed: The seed value used
+        iteration: The iteration number
+        logger: Logger instance (uses default if None)
     """
-    logger = get_logger("simulation.seeds")
-    msg = f"Seed {seed} used for {context}"
-    logger.debug(msg)
+    log = logger or get_logger('simulation.seeds')
+    log.debug(f"Iteration {iteration}: Seed {seed} used")
 
-def log_iteration_status(iteration: int, total: int, condition: Dict[str, Any]) -> None:
+def log_iteration_status(
+    iteration: int,
+    total_iterations: int,
+    current_n: int,
+    current_effect: float,
+    current_test: str,
+    logger: Optional[logging.Logger] = None
+):
     """
-    Log progress of simulation iterations.
+    Log the progress of the simulation iteration.
     
     Args:
         iteration: Current iteration number
-        total: Total iterations
-        condition: Current condition parameters
+        total_iterations: Total number of iterations
+        current_n: Current sample size
+        current_effect: Current effect size
+        current_test: Current test type
+        logger: Logger instance (uses default if None)
     """
-    logger = get_logger("simulation.progress")
-    percent = (iteration / total) * 100
-    logger.info(f"Iteration {iteration}/{total} ({percent:.1f}%) | Condition: {condition}")
+    log = logger or get_logger('simulation.progress')
+    progress = (iteration / total_iterations) * 100
+    log.info(f"[{iteration:05d}/{total_iterations:05d}] ({progress:5.1f}%) "
+             f"n={current_n}, effect={current_effect:.3f}, test={current_test}")
 
-def log_test_result(test_name: str, sample_size: int, effect_size: float, 
-                    p_value: float, hypothesis: str, seed: int, 
-                    fallback_triggered: bool = False) -> None:
+def log_test_result(
+    test_type: str,
+    n: int,
+    effect_size: float,
+    p_value: float,
+    alpha: float,
+    rejected: bool,
+    fallback_used: bool = False,
+    warning_issued: bool = False,
+    logger: Optional[logging.Logger] = None
+):
     """
     Log the result of a single statistical test.
     
     Args:
-        test_name: Name of the statistical test
-        sample_size: Sample size used
-        effect_size: Effect size parameter
-        p_value: Resulting p-value
-        hypothesis: 'null' or 'alternative'
-        seed: Random seed used
-        fallback_triggered: Whether fallback logic was triggered
+        test_type: Type of test performed
+        n: Sample size
+        effect_size: Effect size used
+        p_value: Calculated p-value
+        alpha: Significance threshold
+        rejected: Whether null hypothesis was rejected
+        fallback_used: Whether a fallback test was used (e.g., Fisher's)
+        warning_issued: Whether a warning about assumptions was issued
+        logger: Logger instance (uses default if None)
     """
-    logger = get_logger("simulation.results")
-    msg = (f"Test: {test_name} | n={sample_size} | effect={effect_size} | "
-           f"p={p_value:.6f} | H={hypothesis} | seed={seed}")
-    if fallback_triggered:
-        msg += " | FALLBACK TRIGGERED"
-    logger.debug(msg)
+    log = logger or get_logger('simulation.results')
+    status = "REJECTED" if rejected else "FAILED"
+    fallback_str = " [FALLBACK]" if fallback_used else ""
+    warning_str = " [WARNING]" if warning_issued else ""
+    
+    log.debug(f"{test_type} (n={n}, effect={effect_size:.3f}): "
+             f"p={p_value:.6f} -> {status} (alpha={alpha}){fallback_str}{warning_str}")
 
-def log_warning_assumption_violated(test_name: str, assumption: str, 
-                                    sample_size: int) -> None:
+def log_warning_assumption_violated(
+    assumption: str,
+    condition: str,
+    recommended_action: str,
+    logger: Optional[logging.Logger] = None
+):
     """
-    Log a warning when a statistical test assumption is violated.
+    Log a warning about a violated statistical assumption.
     
     Args:
-        test_name: Name of the statistical test
-        assumption: Which assumption was violated
-        sample_size: Current sample size
+        assumption: Name of the violated assumption
+        condition: Description of the condition causing violation
+        recommended_action: Suggested action to take
+        logger: Logger instance (uses default if None)
     """
-    logger = get_logger("simulation.warnings")
-    msg = f"WARNING: {test_name} assumption '{assumption}' violated at n={sample_size}"
-    logger.warning(msg)
+    log = logger or get_logger('simulation.warnings')
+    log.warning(f"ASSUMPTION VIOLATED: {assumption}")
+    log.warning(f"  Condition: {condition}")
+    log.warning(f"  Recommended: {recommended_action}")
 
-def log_fallback_triggered(test_name: str, fallback_method: str, reason: str) -> None:
+def log_fallback_triggered(
+    test_type: str,
+    reason: str,
+    fallback_test: str,
+    logger: Optional[logging.Logger] = None
+):
     """
-    Log when a fallback statistical method is triggered.
+    Log when a fallback statistical test is triggered.
     
     Args:
-        test_name: Original test name
-        fallback_method: Fallback method used
+        test_type: Original test type
         reason: Reason for fallback
+        fallback_test: Name of fallback test used
+        logger: Logger instance (uses default if None)
     """
-    logger = get_logger("simulation.fallbacks")
-    msg = f"FALLBACK: {test_name} -> {fallback_method} | Reason: {reason}"
-    logger.warning(msg)
+    log = logger or get_logger('simulation.fallbacks')
+    log.info(f"FALLBACK TRIGGERED: {test_type} -> {fallback_test}")
+    log.info(f"  Reason: {reason}")
 
-def log_output_file_written(filepath: str, record_count: int) -> None:
+def log_output_file_written(
+    file_path: str,
+    record_count: int,
+    logger: Optional[logging.Logger] = None
+):
     """
-    Log when output files are written.
+    Log when an output file is written.
     
     Args:
-        filepath: Path to the output file
+        file_path: Path to the output file
         record_count: Number of records written
+        logger: Logger instance (uses default if None)
     """
-    logger = get_logger("simulation.io")
-    logger.info(f"Output written to {filepath} ({record_count} records)")
+    log = logger or get_logger('simulation.io')
+    log.info(f"OUTPUT WRITTEN: {file_path} ({record_count} records)")
 
-def log_error_details(error: Exception, context: str = "") -> None:
+def log_error_details(
+    error_type: str,
+    error_message: str,
+    context: Dict[str, Any],
+    logger: Optional[logging.Logger] = None
+):
     """
     Log detailed error information for debugging.
     
     Args:
-        error: The exception object
-        context: Additional context about where the error occurred
+        error_type: Type of error (e.g., ValueError, RuntimeError)
+        error_message: Error message
+        context: Dictionary of contextual variables at error time
+        logger: Logger instance (uses default if None)
     """
-    logger = get_logger("simulation.errors")
-    logger.error(f"ERROR in {context}: {type(error).__name__}: {str(error)}", exc_info=True)
+    log = logger or get_logger('simulation.errors')
+    log.error(f"ERROR: {error_type} - {error_message}")
+    log.error(f"Context: {json.dumps(context, default=str)}")
 
-def log_shutdown() -> None:
+def log_shutdown(logger: Optional[logging.Logger] = None):
     """
-    Log simulation shutdown and summary.
+    Log when the simulation process is shutting down.
+    
+    Args:
+        logger: Logger instance (uses default if None)
     """
-    logger = get_logger("simulation.lifecycle")
-    logger.info("Simulation pipeline shutdown complete.")
-    if _log_file_path:
-        logger.info(f"Log file available at: {_log_file_path}")
+    log = logger or get_logger('simulation.system')
+    log.info("Simulation process shutting down. All logging handlers flushed.")
 
 def get_log_file_path() -> Optional[str]:
     """
-    Get the path to the current log file.
+    Get the path to the log file if one was configured.
     
     Returns:
-        Path to log file or None if not initialized
+        Path to log file or None if logging to console only.
     """
     return _log_file_path
