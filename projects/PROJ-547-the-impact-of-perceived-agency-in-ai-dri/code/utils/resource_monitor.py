@@ -1,8 +1,7 @@
 """
-Resource monitoring utilities for the pipeline.
+Resource monitoring utilities for the llmXive automated science pipeline.
 
-Provides functions to monitor and enforce resource limits such as memory usage
-and CPU cores, ensuring the pipeline operates within specified constraints.
+This module enforces system resource limits (RAM, CPU) to ensure stable execution.
 """
 
 from __future__ import annotations
@@ -15,55 +14,49 @@ import psutil
 from logging.pipeline_logger import get_logger
 from utils.error_handler import PipelineError, log_and_exit
 
+
 def enforce_limits(
     max_memory_gb: float = 6.0,
-    max_cpu_cores: int = 2,
-    check_interval: float = 1.0,
+    max_cpu_cores: float = 2.0,
+    check_interval_seconds: float = 1.0,
 ) -> None:
     """
-    Enforce resource limits for the pipeline.
+    Monitor system resources and abort if limits are exceeded.
 
-    This function monitors the current process's resource usage and raises
-    a PipelineError if the limits are exceeded. It is intended to be called
-    periodically during long-running operations.
+    This function checks memory usage and CPU count against specified limits.
+    If limits are breached, it logs an error and exits.
 
     Args:
-        max_memory_gb: Maximum allowed memory usage in gigabytes. Default is 6.0.
-        max_cpu_cores: Maximum allowed number of CPU cores. Default is 2.
-        check_interval: Interval in seconds between checks. Default is 1.0.
+        max_memory_gb: Maximum allowed RAM in GB.
+        max_cpu_cores: Maximum allowed CPU cores.
+        check_interval_seconds: Interval between checks (not used in this blocking check).
 
     Raises:
-        PipelineError: If memory usage exceeds max_memory_gb or CPU usage
-            exceeds max_cpu_cores.
+        PipelineError: If limits are exceeded.
     """
     logger = get_logger()
-    process = psutil.Process(os.getpid())
+
+    # Check CPU count
+    cpu_count = psutil.cpu_count(logical=False) or psutil.cpu_count(logical=True)
+    if cpu_count is None:
+        log_and_exit("Could not determine CPU count", "E007")
+
+    if cpu_count > max_cpu_cores:
+        log_and_exit(
+            f"CPU core limit exceeded: {cpu_count} > {max_cpu_cores}",
+            "E008",
+        )
 
     # Check memory usage
-    memory_info = process.memory_info()
-    memory_gb = memory_info.rss / (1024**3)
+    mem_info = psutil.virtual_memory()
+    memory_used_gb = mem_info.used / (1024**3)
 
-    if memory_gb > max_memory_gb:
-        error_msg = (
-            f"Memory usage ({memory_gb:.2f} GB) exceeds limit ({max_memory_gb} GB)"
+    if memory_used_gb > max_memory_gb:
+        log_and_exit(
+            f"Memory limit exceeded: {memory_used_gb:.2f} GB > {max_memory_gb} GB",
+            "E009",
         )
-        logger.error(error_msg)
-        raise PipelineError(error_msg)
 
-    # Check CPU usage
-    cpu_percent = process.cpu_percent(interval=check_interval)
-    cpu_cores_used = cpu_percent / 100.0
-
-    if cpu_cores_used > max_cpu_cores:
-        error_msg = (
-            f"CPU usage ({cpu_cores_used:.2f} cores) exceeds limit ({max_cpu_cores} cores)"
-        )
-        logger.warning(error_msg)
-        # Note: We log a warning for CPU usage rather than raising an error,
-        # as CPU usage can fluctuate and may not always indicate a problem.
-        # However, if this becomes a critical issue, it can be changed to an error.
-
-    logger.debug(
-        f"Resource check: Memory={memory_gb:.2f}GB/{max_memory_gb}GB, "
-        f"CPU={cpu_cores_used:.2f}/{max_cpu_cores} cores"
+    logger.info(
+        f"Resource check passed: CPU={cpu_count}, Memory Used={memory_used_gb:.2f} GB"
     )

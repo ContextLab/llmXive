@@ -1,3 +1,1 @@
-"""
-Validation Module
-"""
+"""Validation Module."""

@@ -1,90 +1,113 @@
 # The Impact of Perceived Agency in AI-Driven Cognitive Behavioral Therapy on Treatment Adherence
 
-**Project ID**: PROJ-547
+**Project ID:** PROJ-547
+**Status:** Active Research Pipeline
+**Python Version:** 3.11+
 
-This research project investigates whether perceived agency in an AI therapist influences treatment adherence in Cognitive Behavioral Therapy (CBT). The pipeline ingests conversation transcripts, computes agency scores based on linguistic markers, extracts adherence metrics from usage logs, and performs statistical regression analysis to test the hypothesis.
+## Overview
 
-## Quickstart
+This project investigates whether perceived agency in an AI-driven CBT therapist influences patient treatment adherence. The pipeline ingests conversation transcripts, computes linguistic agency scores, extracts adherence metrics from usage logs, and performs regression analysis to test the hypothesis that higher perceived agency correlates with better adherence outcomes.
 
-To run the full pipeline:
+## Quick Start
 
-1. **Setup Environment**:
- ```bash
- bash setup_env.sh
- source venv/bin/activate
- pip install -r requirements.txt
- ```
+### 1. Environment Setup
 
-2. **Download Data**:
- ```bash
- python code/data_acquisition/download_datasets.py
- python code/data_acquisition/validate_metadata.py
- ```
+```bash
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
 
-3. **Run Agency Scoring (US1)**:
- ```bash
- python code/agency_scoring/ingest_transcripts.py --input data/raw/transcripts.json --output data/processed/agency_scores.csv
- python code/agency_scoring/compute_scores.py --input data/processed/agency_scores.csv --output data/processed/agency_scores_final.csv
- ```
+# Install dependencies
+pip install -r requirements.txt
+```
 
-4. **Run Adherence Extraction (US2)**:
- ```bash
- python code/adherence_extraction/extract_metrics.py --input data/raw/usage_logs.json --output data/processed/adherence_metrics.csv
- ```
+### 2. Run the Full Pipeline
 
-5. **Validation (US4)**:
- ```bash
- python code/validation/select_subset.py --agency data/processed/agency_scores_final.csv --external data/external/agency_scale.csv --output data/processed/validation_subset.csv
- python code/validation/compute_reliability.py --input data/processed/validation_subset.csv
- python code/validation/compute_convergent.py --input data/processed/validation_subset.csv
- python code/validation/generate_report.py
- ```
+The pipeline executes in sequential stages. Run the main orchestration script:
 
-6. **Run Regression Analysis (US3)**:
- ```bash
- python code/analysis/merge_datasets.py --agency data/processed/agency_scores_final.csv --adherence data/processed/adherence_metrics.csv --demo data/processed/demographics.csv --output data/processed/merged_data.csv
- python code/analysis/run_regression.py --input data/processed/merged_data.csv --output output/
- ```
+```bash
+python code/pipeline/run_pipeline.py
+```
 
-## Output Directory
+**Note:** Ensure `configs/pipeline_config.yaml` is configured with valid input paths before running.
 
-All final results, including regression coefficients, plots, and validation reports, are stored in the `output/` directory:
+### 3. Output Location
 
-- `output/regression_summary.csv`: Main statistical results with FDR-corrected p-values.
-- `output/plots/`: Visualizations of agency scores vs. adherence.
-- `output/provenance.yaml`: Metadata linking statistics to source data and scripts.
-- `validation/report.pdf`: Comprehensive validation report for the agency metric.
+All processed data, statistical results, and visualizations are written to the `output/` directory:
+
+- `output/processed/`: Cleaned and merged datasets
+- `output/results/`: Regression summaries and statistical tables
+- `output/plots/`: Visualization figures (PNG)
+- `output/validation/`: Validation reports and metrics
+- `output/provenance.yaml`: Metadata linking results to source data
+
+See `docs/quickstart.md` for detailed step-by-step instructions.
 
 ## Project Structure
 
 ```
 .
 ├── code/ # Source code modules
-│ ├── agency_scoring/ # US1: Compute agency scores
-│ ├── adherence_extraction/ # US2: Extract adherence metrics
-│ ├── analysis/ # US3: Regression and merging
-│ ├── validation/ # US4: Metric validation
-│ ├── logging/ # Centralized logging
-│ └── utils/ # Shared utilities
+│ ├── agency_scoring/ # Linguistic marker detection & scoring
+│ ├── adherence_extraction/ # Usage metric extraction
+│ ├── analysis/ # Regression models & statistical tests
+│ ├── validation/ # Reliability & validity checks
+│ ├── data_acquisition/ # External data download & verification
+│ ├── logging/ # Centralized logging infrastructure
+│ ├── utils/ # Shared utilities & error handling
+│ └── pipeline/ # Orchestration scripts
 ├── data/
+│ ├── external/ # External agency scale datasets
 │ ├── raw/ # Downloaded raw data
-│ ├── processed/ # Intermediate processed files
-│ └── external/ # External datasets (agency scale)
-├── output/ # Final analysis results and plots
-├── tests/ # Unit and integration tests
-├── configs/ # Configuration files
+│ └── processed/ # Intermediate processed files
+├── configs/ # YAML configuration files
 ├── docs/ # Documentation
-├── README.md
-└── requirements.txt
+├── logs/ # Runtime logs (JSON lines)
+├── output/ # Final results and figures
+├── tests/ # Unit and integration tests
+└── contracts/ # JSON schema definitions
 ```
+
+## Key Modules
+
+### Agency Scoring (US1)
+- `code/agency_scoring/ingest_transcripts.py`: Parses CSV/JSON transcripts
+- `code/agency_scoring/detect_markers.py`: Detects modal verbs, choice constructions
+- `code/agency_scoring/compute_scores.py`: Aggregates weighted markers into [0,1] scores
+
+### Adherence Extraction (US2)
+- `code/adherence_extraction/extract_metrics.py`: Computes session completion rates
+- `code/adherence_extraction/impute_confounders.py`: Handles missing confounder data
+
+### Regression Analysis (US3)
+- `code/analysis/run_regression.py`: Executes model selection, fitting, FDR correction
+- `code/analysis/generate_results.py`: Produces human-readable summaries and plots
+
+### Validation (US4)
+- `code/validation/compute_reliability.py`: Split-half reliability (Spearman-Brown)
+- `code/validation/compute_convergent.py`: Pearson correlation with external scale
 
 ## Verification
 
-To verify the pipeline execution:
-- Check `logs/run_<timestamp>.log` for complete audit trails.
-- Run `python code/logging/verify_logging.py` to ensure logging completeness.
-- Run `pytest tests/` to verify unit and integration tests.
+Run the test suite to verify functionality:
 
-## License
+```bash
+pytest tests/
+```
 
-This project is for research purposes only.
+To check logging completeness:
+
+```bash
+python code/logging/verify_logging.py
+```
+
+## License & Ethics
+
+This research adheres to ethical guidelines for AI in mental health. All data processing includes consent verification (see `data/consent/`). Refer to `docs/ethics_statement.md` for details.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Ensure `pre-commit` hooks pass (`ruff`, `black`, `mypy`)
+4. Submit a pull request with test coverage

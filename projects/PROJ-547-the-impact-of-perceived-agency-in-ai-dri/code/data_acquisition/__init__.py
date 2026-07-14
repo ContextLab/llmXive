@@ -1,3 +1,1 @@
-"""
-Data Acquisition Module
-"""
+"""Data Acquisition Module."""

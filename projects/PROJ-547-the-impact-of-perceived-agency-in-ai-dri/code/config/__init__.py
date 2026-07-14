@@ -1,3 +1,1 @@
-"""
-Configuration Module
-"""
+"""Configuration Module."""

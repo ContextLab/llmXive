@@ -1,6 +1,6 @@
 """
-Legacy setup.py for compatibility with older pip versions and tools that
-still rely on it, though pyproject.toml is the primary configuration.
+Setup script for llmxive-agency-cbt package.
+This file is kept for legacy compatibility, but pyproject.toml is the source of truth.
 """
 from setuptools import setup
 

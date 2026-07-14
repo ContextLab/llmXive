@@ -1,12 +1,6 @@
-'|accuracy show test tolerance within':
-  quote: "Tolerances for the profile symbols are equal bilateral unless otherwise\
-    \ specified, and for the position symbol tolerances are always equal bilateral.\
-    \ For example, the position of a hole has a tolerance of .020 inches. This means\
-    \ the hole can move \xB1.010 inches, which is an equal bilateral tolerance. It\
-    \ does not mean the hole can move +.015/\u2212.005 inches, which is an unequal\
-    \ bilateral tolerance. Unequal bilateral and unilateral tolerances for profile\
-    \ are specified by adding further information to clearly show this is what is\
-    \ required."
-  source_id: Geometric dimensioning and tolerancing
-  url: https://en.wikipedia.org/wiki/Geometric_dimensioning_and_tolerancing
-  value: .010 inches
+'|accuracy benchmark metric tolerance':
+  quote: "Sequential Randomized Coordinate Shrinking SRACOS global stochasticn sre\
+    \ = 5;\u03BB= 0.01;\u03B1= 0.5ZOOpt 0.4.2 [40]"
+  source_id: '2511.17226'
+  url: https://arxiv.org/abs/2511.17226
+  value: '0.01'

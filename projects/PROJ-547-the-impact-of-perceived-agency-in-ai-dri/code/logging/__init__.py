@@ -1,3 +1,1 @@
-"""
-Logging Module
-"""
+"""Logging Module."""

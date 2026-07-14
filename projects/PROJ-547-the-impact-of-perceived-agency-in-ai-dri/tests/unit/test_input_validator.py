@@ -1,6 +1,7 @@
 """
-Unit tests for the input validation utilities.
+Unit tests for the input_validator module.
 """
+
 import json
 import tempfile
 from pathlib import Path
@@ -10,74 +11,101 @@ import yaml
 
 from utils.error_handler import PipelineError
 from utils.input_validator import (
-    validate_file_path,
-    validate_file_extension,
+    validate_file_type,
     validate_json_schema,
-    load_and_validate_yaml,
+    validate_yaml_file,
 )
 
 
-def test_validate_file_path_missing():
-    """Test validation of a missing required file."""
-    path = Path("/nonexistent/file.txt")
-    with pytest.raises(PipelineError) as exc_info:
-        validate_file_path(path, required=True)
-    assert "Required file not found" in str(exc_info.value.message)
+class TestValidateFileType:
+    def test_valid_csv(self):
+        with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as f:
+            f.write(b"col1,col2\n1,2")
+            path = Path(f.name)
 
+        try:
+            assert validate_file_type(path, ["text/csv"]) is True
+        finally:
+            path.unlink()
 
-def test_validate_file_path_not_file():
-    """Test validation of a path that is a directory."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        path = Path(tmpdir)
+    def test_invalid_type(self):
+        with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as f:
+            f.write(b"text")
+            path = Path(f.name)
+
+        try:
+            with pytest.raises(PipelineError) as exc_info:
+                validate_file_type(path, ["text/csv"])
+            assert "Invalid file type" in str(exc_info.value)
+        finally:
+            path.unlink()
+
+    def test_file_not_found(self):
+        path = Path("/nonexistent/file.csv")
         with pytest.raises(PipelineError) as exc_info:
-            validate_file_path(path, required=True)
-        assert "not a file" in str(exc_info.value.message)
+            validate_file_type(path, ["text/csv"])
+        assert "File not found" in str(exc_info.value)
 
 
-def test_validate_file_extension_invalid():
-    """Test validation of a file with an invalid extension."""
-    path = Path("file.txt")
-    with pytest.raises(PipelineError) as exc_info:
-        validate_file_extension(path, allowed_extensions=[".csv", ".json"])
-    assert "Invalid file extension" in str(exc_info.value.message)
+class TestValidateJsonSchema:
+    def test_valid_schema(self):
+        data = {"name": "Alice", "age": 30}
+        schema = {
+            "required": ["name", "age"],
+            "properties": {
+                "name": {"type": "string"},
+                "age": {"type": "number"},
+            },
+        }
+        assert validate_json_schema(data, schema) is True
+
+    def test_missing_required(self):
+        data = {"name": "Alice"}
+        schema = {"required": ["name", "age"]}
+        with pytest.raises(PipelineError) as exc_info:
+            validate_json_schema(data, schema)
+        assert "Missing required field" in str(exc_info.value)
+
+    def test_wrong_type(self):
+        data = {"name": 123}
+        schema = {
+            "properties": {"name": {"type": "string"}},
+        }
+        with pytest.raises(PipelineError) as exc_info:
+            validate_json_schema(data, schema)
+        assert "must be a string" in str(exc_info.value)
 
 
-def test_validate_json_schema_missing_key():
-    """Test JSON schema validation with a missing required key."""
-    data = {"a": 1}
-    schema = {"required": ["a", "b"]}
-    with pytest.raises(PipelineError) as exc_info:
-        validate_json_schema(data, schema)
-    assert "Missing required key" in str(exc_info.value.message)
+class TestValidateYamlFile:
+    def test_valid_yaml(self):
+        with tempfile.NamedTemporaryFile(
+            suffix=".yaml", delete=False, mode="w"
+        ) as f:
+            yaml.dump({"key": "value"}, f)
+            path = Path(f.name)
 
+        try:
+            result = validate_yaml_file(path)
+            assert result == {"key": "value"}
+        finally:
+            path.unlink()
 
-def test_validate_json_schema_type_mismatch():
-    """Test JSON schema validation with a type mismatch."""
-    data = {"a": "1"}
-    schema = {"required": ["a"], "properties": {"a": "integer"}}
-    with pytest.raises(PipelineError) as exc_info:
-        validate_json_schema(data, schema)
-    assert "Type mismatch" in str(exc_info.value.message)
+    def test_invalid_yaml(self):
+        with tempfile.NamedTemporaryFile(
+            suffix=".yaml", delete=False, mode="w"
+        ) as f:
+            f.write("invalid: yaml: content: [")
+            path = Path(f.name)
 
+        try:
+            with pytest.raises(PipelineError) as exc_info:
+                validate_yaml_file(path)
+            assert "Invalid YAML" in str(exc_info.value)
+        finally:
+            path.unlink()
 
-def test_load_and_validate_yaml_success():
-    """Test loading a valid YAML file."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
-        yaml.dump({"key": "value"}, f)
-        path = Path(f.name)
-
-    data = load_and_validate_yaml(path)
-    assert data == {"key": "value"}
-    path.unlink()
-
-
-def test_load_and_validate_yaml_invalid_format():
-    """Test loading a YAML file that is not a dictionary."""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
-        f.write("just a string")
-        path = Path(f.name)
-
-    with pytest.raises(PipelineError) as exc_info:
-        load_and_validate_yaml(path)
-    assert "did not resolve to a dictionary" in str(exc_info.value.message)
-    path.unlink()
+    def test_file_not_found(self):
+        path = Path("/nonexistent/file.yaml")
+        with pytest.raises(PipelineError) as exc_info:
+            validate_yaml_file(path)
+        assert "YAML file not found" in str(exc_info.value)

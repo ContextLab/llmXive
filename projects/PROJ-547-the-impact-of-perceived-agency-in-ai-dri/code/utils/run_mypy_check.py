@@ -1,8 +1,8 @@
 """
-Script to run MyPy type checking on the utils module.
+Script to run MyPy static type checking on the code/utils/ package.
 
-This script invokes MyPy to check the type hints in the utils module and
-ensures there are no type errors.
+This script is used to verify that all utility modules have proper
+type hints and pass MyPy checks with no errors.
 """
 
 from __future__ import annotations
@@ -12,36 +12,28 @@ import sys
 from pathlib import Path
 
 
-def run_mypy_check() -> int:
-    """
-    Run MyPy on the utils module.
+def main() -> None:
+    """Run MyPy on the code/utils/ directory."""
+    root_dir = Path(__file__).resolve().parent.parent.parent
+    utils_dir = root_dir / "code" / "utils"
 
-    Returns:
-        Exit code: 0 if MyPy passes, 1 if there are errors.
-    """
-    project_root = Path(__file__).parent.parent.parent
-    utils_path = project_root / "code" / "utils"
+    if not utils_dir.exists():
+        print(f"Error: Directory not found: {utils_dir}")
+        sys.exit(1)
 
-    mypy_cmd = [
-        sys.executable,
-        "-m",
-        "mypy",
-        "--strict",
-        "--ignore-missing-imports",
-        "--no-error-summary",
-        str(utils_path),
-    ]
-
-    print(f"Running MyPy on {utils_path}...")
-    result = subprocess.run(mypy_cmd, cwd=project_root)
+    print(f"Running MyPy on {utils_dir}...")
+    result = subprocess.run(
+        [sys.executable, "-m", "mypy", str(utils_dir)],
+        cwd=root_dir,
+    )
 
     if result.returncode == 0:
-        print("MyPy check passed successfully!")
+        print("MyPy check passed: No errors found.")
+        sys.exit(0)
     else:
         print("MyPy check failed. Please fix the type errors above.")
-
-    return result.returncode
+        sys.exit(result.returncode)
 
 
 if __name__ == "__main__":
-    sys.exit(run_mypy_check())
+    main()

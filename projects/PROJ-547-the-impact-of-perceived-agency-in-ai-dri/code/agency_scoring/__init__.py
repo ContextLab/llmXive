@@ -1,3 +1,1 @@
-"""
-Agency Scoring Module
-"""
+"""Agency Scoring Module."""

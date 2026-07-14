@@ -1,0 +1,9 @@
+# Metadata file for downloaded datasets
+# This file is updated automatically by download_datasets.py and download_benchmark.py
+
+# Entries will be added here after successful downloads
+# Format:
+# dataset_name:
+#   path: relative/path/to/file
+#   checksum: sha256_checksum
+#   downloaded_at: ISO8601_timestamp

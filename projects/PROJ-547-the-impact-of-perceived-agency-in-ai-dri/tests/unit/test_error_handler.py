@@ -1,38 +1,36 @@
 """
-Unit tests for the error handling utilities.
+Unit tests for the error_handler module.
 """
-import sys
-from unittest.mock import patch
 
 import pytest
 
 from utils.error_handler import PipelineError, handle_error, log_and_exit
 
 
-def test_pipeline_error_init():
+def test_pipeline_error_initialization():
     """Test that PipelineError initializes correctly."""
-    error = PipelineError("Test error", code=42)
+    error = PipelineError("Test error", code=5)
     assert error.message == "Test error"
-    assert error.code == 42
+    assert error.code == 5
     assert str(error) == "Test error"
 
 
-def test_handle_error_logs():
-    """Test that handle_error logs the error message."""
-    error = PipelineError("Test error", code=42)
-    with patch("utils.error_handler.logger") as mock_logger:
-        handle_error(error)
-        mock_logger.error.assert_called_once()
-        call_args = mock_logger.error.call_args[0][0]
-        assert "Test error" in call_args
-        assert "42" in call_args
+def test_handle_error():
+    """Test that handle_error logs and raises PipelineError."""
+    original_error = ValueError("Original")
+    with pytest.raises(PipelineError) as exc_info:
+        handle_error(original_error, "Custom message", code=2)
+
+    assert exc_info.value.message == "Custom message"
+    assert exc_info.value.code == 2
+    assert exc_info.value.__cause__ is original_error
 
 
-def test_log_and_exit_exits():
-    """Test that log_and_exit calls sys.exit."""
-    error = PipelineError("Fatal error", code=99)
-    with patch("utils.error_handler.logger") as mock_logger:
-        with patch("utils.error_handler.sys.exit") as mock_exit:
-            log_and_exit(error, exit_code=99)
-            mock_logger.critical.assert_called()
-            mock_exit.assert_called_once_with(99)
+def test_handle_error_default_message():
+    """Test that handle_error uses exception message if none provided."""
+    original_error = ValueError("Original error message")
+    with pytest.raises(PipelineError) as exc_info:
+        handle_error(original_error)
+
+    assert exc_info.value.message == "Original error message"
+    assert exc_info.value.__cause__ is original_error

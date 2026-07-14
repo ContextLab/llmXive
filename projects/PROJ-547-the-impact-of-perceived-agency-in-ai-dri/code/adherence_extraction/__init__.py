@@ -1,3 +1,1 @@
-"""
-Adherence Extraction Module
-"""
+"""Adherence Extraction Module."""
