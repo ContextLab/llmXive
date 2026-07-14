@@ -1,0 +1,24 @@
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/docs/spec_override_SC001.md
+  attempts: 1
+  canonical: Literature distinguishes CLR transformation for feature matrices from
+    standard tests for alpha diversity scalars
+  claim_id: c_5f7ab2ae
+  context: 'Statistical Consistency: Standard ecological and microbiome literature
+    (e.g., McMurdie & Holmes, 2014; Gloor et al., 2017) distinguishes between transforming
+    feature matrices (taxa abundances) via CLR for regression/correlation, and analyzing
+    alpha diversity (scalars) using standard parametric or non-parametric tests (e.g.,
+    Spearman, t-test) on the raw index values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Standard ecological and microbiome literature (e.g., McMurdie & Holmes,
+    2014; Gloor et al., 2017) distinguishes between transforming feature matrices
+    (taxa abundances) via CLR for regression/correlation, and analyzing alpha diversity
+    (scalars) using standard parametric or non-parametric tests (e.g., Spearman, t-test)
+    on the raw index values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:32:08Z'
