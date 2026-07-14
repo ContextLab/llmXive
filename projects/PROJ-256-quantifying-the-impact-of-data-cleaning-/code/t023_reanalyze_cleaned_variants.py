@@ -17,9 +17,9 @@ from typing import List, Dict, Any
 
 import pandas as pd
 
-from analysis import run_baseline_analysis
-from config import get_config
-from utils import setup_logging, pin_random_seed
+from .analysis import run_baseline_analysis
+from .config import get_config
+from .utils import setup_logging, pin_random_seed
 
 __all__ = ["main"]
 
@@ -109,6 +109,17 @@ def main() -> None:
             logger.debug("Processed %s – metrics: %s", csv_path.name, metrics)
         except Exception as e:
             logger.error("Failed to analyse %s: %s", csv_path.name, e)
+            # Record failure in processing_log.json
+            log_path = Path(cfg.get("PROCESSING_LOG_PATH", "data/processed/processing_log.json"))
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                with open(log_path, "r", encoding="utf-8") as lf:
+                    log_data = json.load(lf)
+            except (FileNotFoundError, json.JSONDecodeError):
+                log_data = {"generated_at": pd.Timestamp.utcnow().isoformat(), "failures": []}
+            log_data["failures"].append({"dataset": csv_path.name, "error": str(e)})
+            with open(log_path, "w", encoding="utf-8") as lf:
+                json.dump(log_data, lf, indent=2)
 
     # 6. Write consolidated JSON
     output_path = Path(cfg.get("CLEANED_METRICS_PATH", "data/processed/cleaned_metrics.json"))

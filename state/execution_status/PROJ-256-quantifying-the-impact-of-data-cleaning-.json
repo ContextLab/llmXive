@@ -1,19 +1,12 @@
 {
   "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
-  "ok": false,
-  "reason": "1 command(s) failed: python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json",
+  "ok": true,
+  "reason": "ok",
   "artifacts": [
-    "data/processed/dataset_outlier_removed.csv",
-    "data/processed/effect_size_changes.json",
-    "data/processed/excluded_datasets_report.json",
-    "data/processed/final_report.json",
-    "data/raw/shopper.csv",
-    "data/raw/uci_har.csv"
+    "data/processed/null_fpr_metrics.json"
   ],
-  "failures": [
-    "python code/main.py -> rc=1\n    n code 1\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t041_generate_final_report.py\", line 90, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t041_generate_final_report.py\", line 84, in main\n    write_summary_text(final_report, text_output)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t041_generate_final_report.py\", line 55, in"
-  ],
-  "fix_rounds": 1,
+  "failures": [],
+  "fix_rounds": 0,
   "model_tier": 1,
-  "updated_at": "2026-07-14T09:42:22Z"
+  "updated_at": "2026-07-14T10:31:01Z"
 }

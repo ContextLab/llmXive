@@ -1,0 +1,134 @@
+schema_version: '1'
+project_id: PROJ-256-quantifying-the-impact-of-data-cleaning-
+rounds:
+- round_number: 1
+  ran_at: '2026-07-14T10:30:59.959758Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-07-14)
+  tasks_done: 17
+  tasks_failed: 0
+  tasks_skipped: 4
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-256-quantifying-the-impact-of-data-cleaning-/round-1/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: done
+    text: 'Address action item **[89d750f473f2]** (severity: writing): Refactor code/
+      to consolidate the logic from the 30+ t0*.py scripts into the core modules (code/cleaning.py,
+      code/analysis.py, code/sensitiv'
+  - id: '002'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[4f10901ec826]** (severity: writing): Implement a
+      single, robust entry point in code/main.py (or a CLI tool) that orchestrates
+      the full pipeline (acquisition -> baseline -> clean'
+  - id: '003'
+    severity: writing
+    status: done
+    text: 'Address action item **[1287d713f214]** (severity: writing): Add unit tests
+      in tests/unit/ for the core logic functions (e.g., outlier removal, imputation,
+      p-value shift calculation) to verify correctn'
+  - id: '004'
+    severity: writing
+    status: done
+    text: 'Address action item **[efa7b16dd1e7]** (severity: writing): Update data/raw/README.md
+      to explicitly document the source URL, version, and expected row count for shopper.csv
+      and uci_har.csv.'
+  - id: '005'
+    severity: writing
+    status: done
+    text: 'Address action item **[76f90c5deee6]** (severity: writing): Create data/artifacts/checksums.json
+      with SHA-256 hashes for all files in data/raw/ and data/processed/ to ensure
+      data integrity and reprodu'
+  - id: '006'
+    severity: writing
+    status: done
+    text: 'Address action item **[5e00985ecfeb]** (severity: writing): Modify code/t023_reanalyze_cleaned_variants.py
+      and code/t027_run_comparison.py to ensure they produce valid, non-empty cleaned_metrics.json '
+  - id: '007'
+    severity: writing
+    status: done
+    text: 'Address action item **[f7360780f884]** (severity: writing): Consolidate
+      the logic from all code/t*.py scripts (e.g., t011_ensure_data.py, t031_bootstrap_variance.py)
+      into the appropriate modular files'
+  - id: 008
+    severity: writing
+    status: done
+    text: 'Address action item **[dd0a3082e44c]** (severity: writing): Move maintenance
+      and CLI wrapper scripts (code/quickstart_fix.py, code/run_lint.py, code/run_quickstart_validation.py)
+      to a dedicated code/s'
+  - id: 009
+    severity: writing
+    status: skipped
+    text: 'Address action item **[f4bcca15b0c8]** (severity: writing): Update .gitignore
+      to explicitly exclude __pycache__/, *.pyc, *.pyo, and any temporary files generated
+      by the execution scripts.'
+  - id: '010'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[d0cfbbb7fc3d]** (severity: writing): Verify that
+      all generated figures and reports are saved to output/figures/ and output/reports/
+      respectively, and move any misplaced artifact'
+  - id: '011'
+    severity: writing
+    status: done
+    text: 'Address action item **[57d2c2e4696f]** (severity: writing): Edit specs/001-quantify-cleaning-impact/spec.md:
+      Remove all instances of the unrelated research questions found in the body of
+      User Story 1,'
+  - id: '012'
+    severity: writing
+    status: done
+    text: 'Address action item **[4584e934df27]** (severity: writing): Edit specs/001-quantify-cleaning-impact/spec.md:
+      Add a explicit Hypothesis section or statement in the "User Scenarios" or "Requirements"
+      ar'
+  - id: '013'
+    severity: writing
+    status: done
+    text: 'Address action item **[2ad0d9cc7b02]** (severity: writing): Edit specs/001-quantify-cleaning-impact/spec.md:
+      Update Success Criteria SC-006 and FR-001 to reflect the actual available data
+      scope (n=2) '
+  - id: '014'
+    severity: writing
+    status: done
+    text: 'Address action item **[50c47aeea2db]** (severity: writing): Re-implement
+      code/data_loader.py: Ensure it downloads full datasets (not headers) from the
+      verified UCI URLs. Verify data/raw/ files are >10'
+  - id: '015'
+    severity: writing
+    status: done
+    text: 'Address action item **[2b22c605ec55]** (severity: writing): Consolidate
+      Logic: Move the actual statistical logic from the t0XX_*.py scripts into the
+      designated modules (code/cleaning.py, code/analysis'
+  - id: '016'
+    severity: writing
+    status: done
+    text: 'Address action item **[6e5d56abf38e]** (severity: writing): Fix code/main.py:
+      Implement the full pipeline orchestration in code/main.py to call the cleaning,
+      analysis, and reporting functions sequenti'
+  - id: '017'
+    severity: writing
+    status: done
+    text: 'Address action item **[34904dd6931b]** (severity: writing): Regenerate
+      Artifacts: Re-run the pipeline to produce data/processed/cleaned_metrics.json
+      (must contain valid p-values, CIs, effect sizes for'
+  - id: 018
+    severity: writing
+    status: skipped
+    text: 'Address action item **[20c382c9d614]** (severity: writing): Validate Output
+      Sizes: Ensure cleaned_metrics.json is >500 bytes and null_fpr_metrics.json contains
+      the required statistical aggregates befo'
+  - id: 019
+    severity: writing
+    status: done
+    text: 'Address action item **[5c32456f434a]** (severity: writing): File: code/t023_reanalyze_cleaned_variants.py
+      and code/t032_permutation_null_fpr.py'
+  - id: '020'
+    severity: writing
+    status: done
+    text: 'Address action item **[aef77ddca3c0]** (severity: writing): File: code/t027_run_comparison.py'
+  - id: '021'
+    severity: writing
+    status: done
+    text: 'Address action item **[d0d052f69d50]** (severity: writing): File: data/processed/cleaned_metrics.json
+      and data/processed/null_fpr_metrics.json'

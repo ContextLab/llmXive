@@ -1,6 +1,8 @@
 """
 Unit tests for cleaning strategies (T014, T015, T016, T019).
 """
+"""Unit tests for core cleaning logic: outlier removal, imputation, and p-value shifts."""
+
 import pytest
 import pandas as pd
 import numpy as np

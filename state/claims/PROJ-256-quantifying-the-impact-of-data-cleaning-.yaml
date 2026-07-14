@@ -162,3 +162,22 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T09:58:46Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline metrics recorded with at least three decimal precision
+  claim_id: c_01ad4d2f
+  context: "Record baseline metrics (p-value, 95% CI, Cohen's d/R\xB2) to data/processed/baseline_metrics.json\
+    \ with \u22653 decimal precision."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_metrics_recorded_with_at_least_three_decimal_precis
+  kind: magnitude
+  raw_text: "Record baseline metrics (p-value, 95% CI, Cohen's d/R\xB2) to data/processed/baseline_metrics.json\
+    \ with \u22653 decimal precision."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T10:23:32Z'

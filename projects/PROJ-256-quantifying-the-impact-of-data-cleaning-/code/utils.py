@@ -1,29 +1,17 @@
 import logging
 import os
 import hashlib
-import numpy as np
+import random
 from typing import Any
+import numpy as np
 
-# ----------------------------------------------------------------------
-# Utility functions for the project
-# ----------------------------------------------------------------------
-
-def pin_random_seed(seed: int = 42) -> None:
+def pin_random_seed(seed: int) -> None:
     """
-    Set the random seed for reproducibility across numpy and the standard
-    library ``random`` module.
-
-    Parameters
-    ----------
-    seed : int, optional
-        Seed value to use. Default is 42.
+    Set the random seed for reproducibility across numpy, random, and the
+    built‑in ``random`` module.
     """
-    import random
-
     random.seed(seed)
     np.random.seed(seed)
-    # If other libraries (e.g., torch) are added later they can be seeded here.
-
 
 def compute_file_checksum(filepath: str) -> str:
     """
@@ -31,13 +19,13 @@ def compute_file_checksum(filepath: str) -> str:
 
     Parameters
     ----------
-    filepath : str
+    filepath: str
         Path to the file.
 
     Returns
     -------
     str
-        Hexadecimal SHA256 checksum.
+        Hex‑encoded SHA256 checksum.
     """
     sha256 = hashlib.sha256()
     with open(filepath, "rb") as f:
@@ -45,41 +33,43 @@ def compute_file_checksum(filepath: str) -> str:
             sha256.update(chunk)
     return sha256.hexdigest()
 
-
-def setup_logging(log_level: str = "INFO", *args: Any, **kwargs: Any) -> logging.Logger:
+def setup_logging(*args, **kwargs) -> logging.Logger:
     """
-    Initialise logging for the project.
+    Initialise a logger.  The function is deliberately permissive to satisfy
+    the many different call‑sites throughout the project.  It accepts:
 
-    This function is deliberately tolerant: it accepts a positional
-    ``log_level`` argument, a keyword ``log_level`` argument, or no argument
-    at all.  Additional ``*args``/``**kwargs`` are ignored so that callers
-    with different signatures do not raise errors.
-
-    Parameters
-    ----------
-    log_level : str, optional
-        Logging level name (e.g., "INFO", "DEBUG"). If omitted, defaults
-        to "INFO".
+    * No arguments – defaults to INFO level.
+    * A single positional argument – interpreted as the log level.
+    * Keyword argument ``log_level`` – explicit log level.
+    * Any additional ``*args``/``**kwargs`` – ignored.
 
     Returns
     -------
     logging.Logger
-        Configured root logger.
+        Configured logger instance.
     """
-    # Resolve the log level (positional takes precedence, then keyword)
-    if args:
-        level = str(args[0])
+    # Resolve log level
+    if args and isinstance(args[0], str):
+        log_level = args[0]
     else:
-        level = str(kwargs.get("log_level", log_level))
+        log_level = kwargs.get("log_level", "INFO")
 
-    level = level.upper()
-    numeric_level = getattr(logging, level, logging.INFO)
+    # Normalise to a valid level name
+    log_level = log_level.upper()
+    if log_level not in {"CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"}:
+        log_level = "INFO"
 
-    logging.basicConfig(
-        level=numeric_level,
-        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-    logger = logging.getLogger()
-    logger.setLevel(numeric_level)
+    logger = logging.getLogger("llmXive")
+    logger.setLevel(getattr(logging, log_level, logging.INFO))
+
+    # Configure a simple console handler if not already present
+    if not logger.handlers:
+        ch = logging.StreamHandler()
+        ch.setLevel(getattr(logging, log_level, logging.INFO))
+        formatter = logging.Formatter(
+            "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+        )
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+
     return logger

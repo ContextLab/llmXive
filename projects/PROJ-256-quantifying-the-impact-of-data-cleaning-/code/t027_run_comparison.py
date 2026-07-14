@@ -30,7 +30,9 @@ def main() -> int:
     logger = setup_logging("INFO")
 
     # Resolve the default output location for the comparison report.
+    # Ensure the output directory exists before writing.
     output_path = Path("data/processed/comparison_report.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Load the two metric artefacts.
     baseline = load_baseline_metrics()

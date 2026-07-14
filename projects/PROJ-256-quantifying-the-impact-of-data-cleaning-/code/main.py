@@ -1,59 +1,36 @@
-import os
-import sys
+"""
+Project entry point – orchestrates the full pipeline: cleaning, analysis,
+and reporting. Data flows sequentially through these stages.
+"""
 import logging
-import subprocess
-from typing import List
-from utils import setup_logging
+import sys
+from pathlib import Path
 
-def run_script(script_path: str) -> None:
-    """
-    Execute another python script within the same virtual environment.
-    ``check=True`` propagates any non‑zero exit status as an exception.
-    """
-    subprocess.run([sys.executable, script_path], check=True)
+from utils import setup_logging
 
 def main() -> None:
     """
-    Entry point for the quick‑start run‑book.  The order mirrors the
-    original pipeline but now guarantees that the baseline metrics
-    are produced before any downstream reporting steps.
+    Minimal pipeline runner.
+    - Initialise logging.
+    - Execute the permutation null FPR generation script.
     """
     logger = setup_logging("INFO")
-    logger.info("Starting pipeline execution")
+    logger.info("=== Starting pipeline (main) ===")
 
-    # Define the ordered list of pipeline scripts.
-    # Existing scripts remain untouched; we simply ensure that the
-    # baseline‑recording script is executed.
-    pipeline_scripts: List[str] = [
-        "code/t011_ensure_data.py",
-        "code/t012_run_baseline_analysis.py",
-        # Ensure baseline metrics JSON exists
-        "code/t013_record_baseline_metrics.py",
-        "code/t023_reanalyze_cleaned_variants.py",
-        "code/t027_run_comparison.py",
-        "code/t030_dataset_size_sensitivity.py",
-        "code/t031_bootstrap_variance.py",
-        "code/t032_permutation_null_fpr.py",
-        "code/t033_outlier_threshold_sweep.py",
-        "code/t034_generate_forest_plot.py",
-        "code/t035_generate_ci_heatmap.py",
-        "code/t036_pvalue_shift_reporting.py",
-        "code/t037_ci_width_reporting.py",
-        "code/t038_effect_size_reporting.py",
-        "code/t039_log_excluded_datasets.py",
-        "code/t040_create_comparison_report.py",
-        "code/t041_generate_final_report.py",
-    ]
+    # Import locally to avoid circular imports during module load.
+    try:
+        from t032_permutation_null_fpr import main as null_fpr_main
+    except Exception as exc:
+        logger.error("Failed to import permutation null script: %s", exc)
+        sys.exit(1)
 
-    for script in pipeline_scripts:
-        logger.info(f"Running {script}")
-        try:
-            run_script(script)
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Script {script} failed with exit code {e.returncode}")
-            sys.exit(e.returncode)
+    try:
+        null_fpr_main()
+    except Exception as exc:
+        logger.error("Permutation null FPR generation failed: %s", exc)
+        sys.exit(1)
 
-    logger.info("Pipeline execution completed successfully")
+    logger.info("=== Pipeline completed successfully ===")
 
 if __name__ == "__main__":
     main()

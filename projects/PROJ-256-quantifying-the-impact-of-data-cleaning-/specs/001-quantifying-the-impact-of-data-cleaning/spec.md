@@ -11,11 +11,13 @@
 
 Researcher downloads a small number of public datasets from UCI Machine Learning Repository and OpenML.
 
-The research question is: Can transfer learning improve the performance of machine learning models on low-resource text classification tasks?
+The research question is: How do different data cleaning strategies (outlier removal, missing value imputation, data type correction) quantitatively affect p-values, confidence intervals, and effect sizes in common statistical tests?
 
-The method is: We will evaluate transfer learning techniques—specifically fine-tuning pre-trained language models—on a collection of publicly available text classification datasets. Performance will be measured using F-score and accuracy.
+The method is: We will evaluate the impact of systematic data cleaning on statistical inference by applying outlier removal, missing value imputation, and data type correction to public datasets. Performance will be measured by comparing p-values, confidence intervals, and effect sizes before and after cleaning.
 
-References: (Devlin et al., 2019); (Radford et al., 2019) https://doi.org/10.48550/arXiv.1907.11692., then runs baseline statistical analyses (t‑tests, linear regressions) on raw, uncleaned data to establish reference metrics.
+**Hypothesis**: We predict that outlier removal will result in a statistically significant reduction in p-values and an increase in effect sizes compared to the baseline, particularly in datasets with n < 50.
+
+References: (as of 2024‑01‑26), then runs baseline statistical analyses (t‑tests, linear regressions) on raw, uncleaned data to establish reference metrics.
 
 **Why this priority**: Without a baseline comparison, no cleaning‑induced shifts can be measured. This is the foundation for all downstream analysis.
 
@@ -103,7 +105,7 @@ The method will involve integrating genomic, transcriptomic, and proteomic data,
 - **SC-003**: Median effect‑size change (Cohen's d or ΔR²) per cleaning strategy and dataset‑size bin is reported with IQR (See US‑3)
 - **SC-004**: Family‑wise error rate is controlled at α ≤ 0.05 using Benjamini‑Hochberg correction across all hypothesis tests (See US‑3)
 - **SC-005**: Sensitivity analysis across the three outlier thresholds (k ∈ {1.0, 1.5, 2.0}) reports the false‑positive rate variation (median across datasets) (See US‑3)
-- **SC-006**: Baseline metrics (p‑value, 95 % CI, effect size) are recorded for ≥10 datasets with valid numeric values (≥3 decimal places for p‑values) (See US‑1)
+- **SC-006**: Baseline metrics (p‑value, 95 % CI, effect size) are recorded for the available datasets (current n=2) with valid numeric values (≥3 decimal places for p‑values). If n≥10 datasets become available in future expansion, report median and IQR; otherwise, report per-dataset deltas with a limitation note (See US‑1)
 - **SC-007**: Cleaning application is validated: outlier removal logs rows removed; each imputation strategy results in zero missing values in the imputed columns; categorical recoding yields factor‑encoded columns (See US‑2)
 - **SC-008**: Bootstrap variance estimates (≥1000 iterations) are provided for each metric shift with a 95 % confidence interval (See US‑3, Constitution Principle VI)
 - **SC-009**: Summary visualizations (forest plot of p‑value shifts, heatmap of CI‑width changes) are generated and saved as PNG files (See US‑3)
