@@ -58,3 +58,13 @@
 {"at": "2026-07-14T12:34:27.977329+00:00", "from_stage": "in_progress", "last_run_id": "ccf6b004-001d-447f-8d4d-95568948fc32", "to_stage": "research_complete"}
 {"at": "2026-07-14T12:34:28.205968+00:00", "from_stage": "research_complete", "last_run_id": "a0866ce4-a0af-4857-ac20-af4dd301dacc", "to_stage": "research_full_revision"}
 {"at": "2026-07-14T12:34:28.210968+00:00", "from_stage": "research_full_revision", "last_run_id": "a0866ce4-a0af-4857-ac20-af4dd301dacc", "to_stage": "in_progress"}
+{"at": "2026-07-14T13:02:18.205737+00:00", "from_stage": "in_progress", "last_run_id": "e2deb6b6-25be-4144-b849-99372ba694b7", "to_stage": "research_complete"}
+{"at": "2026-07-14T13:02:18.376380+00:00", "from_stage": "research_complete", "last_run_id": "7a12717a-098f-4ba2-a3b8-03952290f034", "to_stage": "research_full_revision"}
+{"at": "2026-07-14T13:02:18.379823+00:00", "from_stage": "research_full_revision", "last_run_id": "7a12717a-098f-4ba2-a3b8-03952290f034", "to_stage": "in_progress"}
+{"at": "2026-07-14T13:02:18.384591+00:00", "from_stage": "in_progress", "last_run_id": "94515a59-91f0-4f89-b9c6-1a78045a17b0", "to_stage": "research_complete"}
+{"at": "2026-07-14T13:02:18.541626+00:00", "from_stage": "research_complete", "last_run_id": "5c2d30db-1ffd-41d2-92d0-0f96123a6c50", "to_stage": "research_full_revision"}
+{"at": "2026-07-14T13:02:18.545100+00:00", "from_stage": "research_full_revision", "last_run_id": "5c2d30db-1ffd-41d2-92d0-0f96123a6c50", "to_stage": "in_progress"}
+{"at": "2026-07-14T13:02:18.549859+00:00", "from_stage": "in_progress", "last_run_id": "06f27df5-2c0c-411b-8e36-05161d13adb8", "to_stage": "research_complete"}
+{"at": "2026-07-14T13:02:18.706985+00:00", "from_stage": "research_complete", "last_run_id": "fafab331-1e58-40f9-941c-f7f5160d9cc8", "to_stage": "research_full_revision"}
+{"at": "2026-07-14T13:02:18.710475+00:00", "from_stage": "research_full_revision", "last_run_id": "fafab331-1e58-40f9-941c-f7f5160d9cc8", "to_stage": "in_progress"}
+{"at": "2026-07-14T13:02:18.715393+00:00", "from_stage": "in_progress", "last_run_id": "10bce8d4-cc06-4687-9c50-5aad3340e72a", "to_stage": "research_complete"}
