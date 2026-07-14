@@ -1,0 +1,11 @@
+type: object
+required:
+  - story_id
+  - text
+properties:
+  story_id:
+    type: string
+  text:
+    type: string
+  source:
+    type: string

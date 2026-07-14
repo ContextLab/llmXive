@@ -1,0 +1,26 @@
+[project]
+name = "neural-narrative-networks"
+version = "0.1.0"
+description = "Brain-inspired neural narrative networks for cognitive control research"
+requires-python = ">=3.11"
+dependencies = [
+    "torch",
+    "nibabel",
+    "nilearn",
+    "scikit-learn",
+    "datasets",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "sentence-transformers",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "F", "W"]
+ignore = []
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]

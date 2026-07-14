@@ -1,0 +1,16 @@
+type: object
+required:
+  - model_type
+  - distance
+  - p_value
+properties:
+  model_type:
+    type: string
+  distance:
+    type: number
+  p_value:
+    type: number
+  variance:
+    type: number
+  status:
+    type: string

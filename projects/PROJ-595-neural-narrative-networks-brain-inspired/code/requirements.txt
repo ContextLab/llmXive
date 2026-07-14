@@ -1,0 +1,16 @@
+torch==2.2.0+cpu
+torchvision==0.17.0+cpu
+torchaudio==2.2.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+nibabel
+nilearn
+scikit-learn
+datasets
+pandas
+numpy
+matplotlib
+sentence-transformers
+ruff
+black
+pytest
+pyyaml

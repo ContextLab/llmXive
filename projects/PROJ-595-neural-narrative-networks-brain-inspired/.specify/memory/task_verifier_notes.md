@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T009** — The file `code/utils/logging_config.py` exists and creates a logger that writes to `logs/pipeline.log`, but the console handler’s `ErrorFormatter` overwrites the log message (including any passed error code) with a line‑number based code, so specific error codes like “E001” are not reliably printed to stderr. The implementation therefore does not meet the requirement of printing given error codes to stderr.
+- **T010** — No evidence of a `tests/test_ingestion.py` file containing a contract test for data schema validation is provided; the artifact is missing or empty, so the requirement is not satisfied.
+- **T011** — No `tests/test_ingestion.py` file or its contents were provided, so there is no evidence that an integration test for the full download pipeline exists or validates the required data ingestion steps. The required artifact is missing.
+- **T012** — The provided `code/01_data_ingestion.py` only implements ROCStories downloading; the OpenNeuro dataset download (and ROI extraction) is left as a placeholder comment and never executed, so the required neural data files are not produced. The task’s core requirement—to download and process the OpenNeuro dataset—is missing.

@@ -1,0 +1,16 @@
+type: object
+required:
+  - subject_id
+  - roi
+  - timepoints
+properties:
+  subject_id:
+    type: string
+  roi:
+    type: string
+  timepoints:
+    type: array
+    items:
+      type: number
+  event_id:
+    type: string

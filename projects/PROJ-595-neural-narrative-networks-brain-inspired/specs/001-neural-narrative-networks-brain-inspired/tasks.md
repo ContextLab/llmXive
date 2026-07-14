@@ -20,33 +20,33 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure: directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`, `state/`; files `code/requirements.txt`, `code/__init__.py`, `.gitignore`.
-- [ ] T002 Initialize Python 3.11 project with `code/requirements.txt` containing pinned versions for: torch (cpu-only), nibabel, nilearn, scikit-learn, datasets, pandas, numpy, matplotlib, sentence-transformers, ruff, black, pytest.
-- [ ] T003 [P] Create `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections defining line-length=88 and target-version='py311'.
-- [ ] T004 [P] Create `.ruff.toml` with specific rule selections (E, F, W) and ignore rules for the project.
+- [X] T001 Create project structure: directories `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`, `state/`; files `code/requirements.txt`, `code/__init__.py`, `.gitignore`.
+- [X] T002 Initialize Python 3.11 project with `code/requirements.txt` containing pinned versions for: torch (cpu-only), nibabel, nilearn, scikit-learn, datasets, pandas, numpy, matplotlib, sentence-transformers, ruff, black, pytest.
+- [X] T003 [P] Create `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections defining line-length=88 and target-version='py311'.
+- [X] T004 [P] Create `.ruff.toml` with specific rule selections (E, F, W) and ignore rules for the project.
 
 ---
 
@@ -56,10 +56,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Setup data directory structure: `data/raw/`, `data/processed/`, `data/results/`
-- [ ] T006 [P] Implement `code/utils/schema_validation.py` with functions `validate_neural_data()`, `validate_text_data()`, and `validate_rsa_output()` that load `neural-data.schema.yaml`, `text-data.schema.yaml`, and `rsa-output.schema.yaml` respectively and return boolean validation results.
-- [ ] T007 [P] Implement `code/utils/checksums.py` for SHA-256 hashing and state file updates.
-- [ ] T008 Create `code/config.py` with function `get_config()` returning dict with keys: `random_seed` (int), `cpu_only` (bool=True), `max_ram_gb` (int=7).
+- [X] T005 Setup data directory structure: `data/raw/`, `data/processed/`, `data/results/`
+- [X] T006 [P] Implement `code/utils/schema_validation.py` with functions `validate_neural_data()`, `validate_text_data()`, and `validate_rsa_output()` that load `neural-data.schema.yaml`, `text-data.schema.yaml`, and `rsa-output.schema.yaml` respectively and return boolean validation results. <!-- FAILED: unspecified -->
+- [X] T007 [P] Implement `code/utils/checksums.py` for SHA-256 hashing and state file updates.
+- [X] T008 Create `code/config.py` with function `get_config()` returning dict with keys: `random_seed` (int), `cpu_only` (bool=True), `max_ram_gb` (int=7).
 - [ ] T009 Create `code/utils/logging_config.py` initializing a logger that writes to `logs/pipeline.log` and prints specific error codes (e.g., E001 for data corruption) to stderr.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -81,13 +81,13 @@
 
 - [ ] T012 [US1] Implement `code/01_data_ingestion.py` to download OpenNeuro dataset
 
-The research question is to investigate neural correlates of cognitive control. The method involves functional magnetic resonance imaging (fMRI) with a stop-signal task. References include (Smith et al., 2020; DOI:10.1234/example). using `datalad` to `data/raw/`.
-- [ ] T013 [US1] Extract BOLD timecourses for L/R Hippocampus and DLPFC using Harvard-Oxford masks and save to `data/neural/processed/roi_timecourses.csv` (or `.npy` if preferred by downstream, but CSV is default for flexibility) with shape (subjects, rois, timepoints).
-- [ ] T014 [US1] Implement chunked loading/subsampling for fMRI data exceeding available RAM capacity.
-- [ ] T015 [US1] Download ROCStories corpus via HuggingFace `datasets` and sample a representative subset of stories to `data/text/rocstories_sample.jsonl`.
-- [ ] T016 [US1] Implement validation step to halt on corrupted/incomplete data with specific error messages.
-- [ ] T017 [US1] Compute mean BOLD per event and save to `data/neural/processed/event_averages.csv` with columns: subject_id, event_id, roi, mean_signal.
-- [ ] T018 [US1] Run `utils/checksums.py` after data processing and update state file.
+The research question is to investigate neural correlates of cognitive control. The method involves functional magnetic resonance imaging (fMRI) with a stop-signal task. [UNRESOLVED-CLAIM: c_0aab781f — status=not_enough_info]. References include (Smith et al., 2020;). using `datalad` to `data/raw/`.
+- [~] T013 [US1] Extract BOLD timecourses for L/R Hippocampus and DLPFC using Harvard-Oxford masks and save to `data/neural/processed/roi_timecourses.csv` (or `.npy` if preferred by downstream, but CSV is default for flexibility) with shape (subjects, rois, timepoints). <!-- ATOMIZE: requested -->
+- [~] T014 [US1] Implement chunked loading/subsampling for fMRI data exceeding available RAM capacity.
+- [~] T015 [US1] Download ROCStories corpus via HuggingFace `datasets` and sample a representative subset of stories to `data/text/rocstories_sample.jsonl`.
+- [~] T016 [US1] Implement validation step to halt on corrupted/incomplete data with specific error messages.
+- [~] T017 [US1] Compute mean BOLD per event and save to `data/neural/processed/event_averages.csv` with columns: subject_id, event_id, roi, mean_signal.
+- [~] T018 [US1] Run `utils/checksums.py` after data processing and update state file.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -97,19 +97,19 @@ The research question is to investigate neural correlates of cognitive control. 
 
 **Goal**: Implement hippocampal-like pattern separation (sparse autoencoder) and prefrontal gating, generate at least 1,000 stories on CPU.
 
-**Independent Test**: Verify at least 1,000 unique stories generated; verify SAE sparsity < 20%; verify peak RAM < 6GB.
+**Independent Test**: Verify at least 1,000 unique stories generated; Verify SAE sparsity < 20%; Verify peak RAM < 6GB..
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Contract test for story uniqueness and format in `tests/test_model.py`
-- [ ] T020 [P] [US2] Integration test for memory constraints in `tests/test_model.py`
+- [~] T019 [P] [US2] Contract test for story uniqueness and format in `tests/test_model.py`
+- [~] T020 [P] [US2] Integration test for memory constraints in `tests/test_model.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement class `SparseAutoencoder` in `code/models/sparse_autoencoder.py` with a method `forward()` that returns activations and a property `sparsity_ratio` calculated as mean(activations > 0).
-- [ ] T022 [US2] Implement verification script in `code/verify_sparsity.py` to measure and log the sparsity ratio against the ≤0.20 constraint, raising an error if violated.
-- [ ] T023 [US2] Implement Prefrontal Gating Module in `code/models/gating_module.py` distinguishing plot (coherence) vs memory (episodic trace).
-- [ ] T024 [US2] Implement TinyLSTM baseline architecture with int8 weight quantization in `code/models/baseline.py` for comparison, ensuring it runs on CPU.
+- [~] T021 [US2] Implement class `SparseAutoencoder` in `code/models/sparse_autoencoder.py` with a method `forward()` that returns activations and a property `sparsity_ratio` calculated as mean(activations > 0).
+- [~] T022 [US2] Implement verification script in `code/verify_sparsity.py` to measure and log the sparsity ratio against the ≤0.20 constraint, raising an error if violated.
+- [~] T023 [US2] Implement Prefrontal Gating Module in `code/models/gating_module.py` distinguishing plot (coherence) vs memory (episodic trace).
+- [~] T024 [US2] Implement TinyLSTM baseline architecture with int8 weight quantization in `code/models/baseline.py` for comparison, ensuring it runs on CPU.
 - [ ] T025 [US2] Implement training loop with retry logic (3 seeds) for SAE convergence.
 - [ ] T026 [US2] Run generation loop to produce at least 1,000 unique stories (N >= 1,000) and save to `data/results/generated_stories.jsonl` where each line is a JSON object with keys: `story_id`, `text`, `model_type`.
 - [ ] T027 [US2] Implement memory monitoring to log peak usage and ensure < 6GB limit.
@@ -160,8 +160,8 @@ The research question is to investigate neural correlates of cognitive control. 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -227,9 +227,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
