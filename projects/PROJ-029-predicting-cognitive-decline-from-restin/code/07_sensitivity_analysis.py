@@ -1,13 +1,7 @@
 """
-code/07_sensitivity_analysis.py (Part 1)
-
-Implements decision threshold sweep over {0.45, 0.50, 0.55} on the trained model.
-Reports false-positive/false-negative rates for each threshold.
-
-This script assumes a pre-trained model exists at `data/processed/model.pkl`
-and corresponding feature data at `data/processed/graph_metrics.csv`.
+code/07_sensitivity_analysis.py
+Implements T030a: Decision threshold sweep analysis on the trained model.
 """
-
 import os
 import sys
 import json
@@ -15,143 +9,152 @@ import argparse
 import warnings
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
 
 import numpy as np
 import pandas as pd
 import joblib
 from sklearn.metrics import confusion_matrix, roc_auc_score
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
+# Project imports
 from utils.logger import get_logger
-from utils.io import load_csv, save_json
+from utils.io import ensure_dir, load_csv, load_json
 
-# Constants
-MODEL_PATH = project_root / "data" / "processed" / "model.pkl"
-DATA_PATH = project_root / "data" / "processed" / "graph_metrics.csv"
-ELIGIBLE_PATH = project_root / "data" / "processed" / "eligible_subjects.csv"
-OUTPUT_PATH = project_root / "data" / "processed" / "sensitivity_report.json"
-
+# --- Configuration ---
 THRESHOLDS = [0.45, 0.50, 0.55]
-DECLINE_LABEL_COL = "decline_label"  # Assuming this column exists in graph_metrics or derived
+MODEL_PATH = Path("data/processed/model.pkl")
+DATA_PATH = Path("data/processed/graph_metrics.csv")
+LABEL_COLUMN = "decline_label"  # Expected column in graph_metrics.csv
+OUTPUT_PATH = Path("data/processed/sensitivity_report.json")
 
-logger = get_logger(__name__)
+# --- Logger Setup ---
+def get_logger_wrapper():
+    logger = logging.getLogger(__name__)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    return logger
 
+logger = get_logger_wrapper()
 
-def load_model_and_data() -> Tuple[Any, pd.DataFrame, pd.DataFrame]:
-    """Load the trained model and required data."""
-    if not MODEL_PATH.exists():
-        raise FileNotFoundError(f"Model file not found: {MODEL_PATH}. Run T023 first.")
-    
-    if not DATA_PATH.exists():
-        raise FileNotFoundError(f"Data file not found: {DATA_PATH}. Run T019 first.")
-
-    logger.info(f"Loading model from {MODEL_PATH}")
-    model = joblib.load(MODEL_PATH)
-
-    logger.info(f"Loading data from {DATA_PATH}")
-    df = load_csv(DATA_PATH)
-
-    # Ensure we have the label column
-    if DECLINE_LABEL_COL not in df.columns:
-        raise ValueError(f"Required column '{DECLINE_LABEL_COL}' not found in {DATA_PATH}")
-
-    # Separate features and target
-    # Assuming all columns except subject_id and decline_label are features
-    feature_cols = [c for c in df.columns if c not in ['subject_id', DECLINE_LABEL_COL]]
-    if not feature_cols:
-        raise ValueError("No feature columns found in data.")
-
-    X = df[feature_cols].values
-    y = df[DECLINE_LABEL_COL].values
-
-    return model, X, y, feature_cols
-
-
-def calculate_threshold_metrics(
-    model: Any, 
-    X: np.ndarray, 
-    y: np.ndarray, 
-    threshold: float
-) -> Dict[str, Any]:
+# --- Core Logic ---
+def calculate_fpr_fnr(y_true, y_prob, threshold):
     """
-    Calculate FP and FN rates for a specific decision threshold.
-    
-    Returns:
-        Dictionary with threshold, fp_rate, fn_rate, tn, fp, fn, tn.
+    Calculate False Positive Rate (FPR) and False Negative Rate (FNR)
+    for a given probability threshold.
+
+    Definitions:
+    - Positive class: Decline (Label = 1)
+    - Negative class: No Decline (Label = 0)
+
+    Threshold logic:
+    - Predicted Positive (Decline) if y_prob >= threshold
+    - Predicted Negative (No Decline) if y_prob < threshold
+
+    FPR = FP / (FP + TN)  (False alarms among healthy)
+    FNR = FN / (FN + TP)  (Missed cases among sick)
     """
-    # Get prediction probabilities for the positive class
-    if hasattr(model, 'predict_proba'):
-        probas = model.predict_proba(X)[:, 1]
-    else:
-        # Fallback if model only has predict (should not happen for RF)
-        logger.warning("Model does not support predict_proba. Using predict.")
-        # This is a degenerate case for threshold sweep, but handle gracefully
-        preds = model.predict(X)
-        # Map 0->0.0, 1->1.0 for thresholding
-        probas = preds.astype(float)
+    y_pred = (y_prob >= threshold).astype(int)
 
-    # Apply threshold
-    y_pred = (probas >= threshold).astype(int)
+    # True Positives, True Negatives, False Positives, False Negatives
+    tp = np.sum((y_pred == 1) & (y_true == 1))
+    tn = np.sum((y_pred == 0) & (y_true == 0))
+    fp = np.sum((y_pred == 1) & (y_true == 0))
+    fn = np.sum((y_pred == 0) & (y_true == 1))
 
-    # Calculate confusion matrix: TN, FP, FN, TP
-    # confusion_matrix returns: [[TN, FP], [FN, TP]]
-    tn, fp, fn, tp = confusion_matrix(y, y_pred).ravel()
-
-    total_neg = tn + fp
-    total_pos = fn + tp
-
-    fp_rate = fp / total_neg if total_neg > 0 else 0.0
-    fn_rate = fn / total_pos if total_pos > 0 else 0.0
+    # Calculate rates, handling division by zero
+    fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+    fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
 
     return {
         "threshold": float(threshold),
+        "fpr": float(fpr),
+        "fnr": float(fnr),
+        "tp": int(tp),
         "tn": int(tn),
         "fp": int(fp),
         "fn": int(fn),
-        "tp": int(tp),
-        "fp_rate": float(fp_rate),
-        "fn_rate": float(fn_rate)
+        "total_positive": int(tp + fn),
+        "total_negative": int(tn + fp)
     }
 
+def load_model_and_data():
+    """
+    Load the trained Random Forest model and the graph metrics dataset.
+    """
+    if not MODEL_PATH.exists():
+        logger.error(f"Model file not found: {MODEL_PATH}")
+        logger.error("Please run code/04_train_model.py first.")
+        sys.exit(1)
 
-def run_sensitivity_analysis() -> Dict[str, Any]:
-    """
-    Perform the threshold sweep analysis.
-    
-    Returns:
-        Dictionary containing results for all thresholds.
-    """
-    logger.info("Loading model and data...")
+    if not DATA_PATH.exists():
+        logger.error(f"Data file not found: {DATA_PATH}")
+        logger.error("Please run code/03_compute_graph_metrics.py first.")
+        sys.exit(1)
+
     try:
-        model, X, y, feature_cols = load_model_and_data()
-    except (FileNotFoundError, ValueError) as e:
-        logger.error(str(e))
-        raise
+        model = joblib.load(MODEL_PATH)
+        logger.info(f"Model loaded successfully from {MODEL_PATH}")
+    except Exception as e:
+        logger.error(f"Failed to load model: {e}")
+        sys.exit(1)
 
-    logger.info(f"Loaded {len(y)} samples with {len(feature_cols)} features.")
+    try:
+        df = load_csv(DATA_PATH)
+        logger.info(f"Data loaded successfully from {DATA_PATH} ({len(df)} rows)")
+    except Exception as e:
+        logger.error(f"Failed to load data: {e}")
+        sys.exit(1)
+
+    if LABEL_COLUMN not in df.columns:
+        logger.error(f"Label column '{LABEL_COLUMN}' not found in data.")
+        logger.error(f"Available columns: {list(df.columns)}")
+        sys.exit(1)
+
+    # Identify feature columns (all except subject_id, label, and non-numeric)
+    # Assuming graph_metrics.csv has a 'subject_id' and the label column,
+    # and the rest are numeric features.
+    feature_cols = [col for col in df.columns if col not in ['subject_id', LABEL_COLUMN] and np.issubdtype(df[col].dtype, np.number)]
     
-    results = {
-        "analysis_type": "decision_threshold_sweep",
-        "thresholds_tested": THRESHOLDS,
-        "feature_columns": feature_cols,
-        "total_samples": int(len(y)),
-        "positive_samples": int(np.sum(y)),
-        "negative_samples": int(len(y) - np.sum(y)),
-        "threshold_results": []
-    }
+    if not feature_cols:
+        logger.error("No feature columns found in the dataset.")
+        sys.exit(1)
 
+    X = df[feature_cols].values
+    y = df[LABEL_COLUMN].values
+
+    # Check for NaNs in features
+    if np.isnan(X).any():
+        logger.warning("NaN values detected in features. Dropping rows with NaNs.")
+        mask = ~np.isnan(X).any(axis=1)
+        X = X[mask]
+        y = y[mask]
+
+    return model, X, y
+
+def run_threshold_sweep(model, X, y):
+    """
+    Run the decision threshold sweep over the predefined thresholds.
+    """
+    logger.info(f"Starting threshold sweep over {THRESHOLDS}...")
+    
+    # Get predicted probabilities for the positive class (class 1)
+    if hasattr(model, 'predict_proba'):
+        y_prob = model.predict_proba(X)[:, 1]
+    else:
+        logger.error("Model does not support predict_proba. Cannot run threshold sweep.")
+        sys.exit(1)
+
+    results = []
     for thresh in THRESHOLDS:
         logger.info(f"Calculating metrics for threshold = {thresh}")
-        metrics = calculate_threshold_metrics(model, X, y, thresh)
-        results["threshold_results"].append(metrics)
-        logger.info(
-            f"  Threshold {thresh}: FP Rate = {metrics['fp_rate']:.4f}, "
-            f"FN Rate = {metrics['fn_rate']:.4f}"
-        )
+        metrics = calculate_fpr_fnr(y, y_prob, thresh)
+        results.append(metrics)
+        logger.info(f"  FPR: {metrics['fpr']:.4f}, FNR: {metrics['fnr']:.4f}")
 
     return results
 
@@ -164,25 +167,31 @@ def write_outputs(results: Dict[str, Any]) -> None:
 
 
 def main():
-    """Main entry point."""
-    parser = argparse.ArgumentParser(description="Sensitivity Analysis (Part 1: Threshold Sweep)")
-    parser.add_argument("--thresholds", type=str, default="0.45,0.50,0.55",
-                        help="Comma-separated list of thresholds to test")
-    args = parser.parse_args()
-
-    # Override thresholds if provided
-    global THRESHOLDS
-    THRESHOLDS = [float(t) for t in args.thresholds.split(",")]
-
     logger.info("Starting Sensitivity Analysis (Part 1: Threshold Sweep)")
     
-    try:
-        results = run_sensitivity_analysis()
-        write_outputs(results)
-        logger.info("Sensitivity Analysis completed successfully.")
-    except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        sys.exit(1)
+    # Load data and model
+    model, X, y = load_model_and_data()
+    
+    # Run sweep
+    results = run_threshold_sweep(model, X, y)
+    
+    # Prepare output
+    output_data = {
+        "analysis_type": "decision_threshold_sweep",
+        "thresholds_tested": THRESHOLDS,
+        "results": results,
+        "model_path": str(MODEL_PATH),
+        "data_path": str(DATA_PATH),
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    }
+
+    # Write output
+    ensure_dir(OUTPUT_PATH)
+    with open(OUTPUT_PATH, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    
+    logger.info(f"Sensitivity report written to {OUTPUT_PATH}")
+    logger.info("Threshold sweep completed successfully.")
 
 
 if __name__ == "__main__":

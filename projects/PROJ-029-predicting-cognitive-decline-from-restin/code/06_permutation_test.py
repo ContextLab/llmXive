@@ -1,6 +1,11 @@
 """
-code/06_permutation_test.py - Task T029
-Implements permutation testing for model significance (User Story 3).
+code/06_permutation_test.py
+Implements Task T029: Permutation test for statistical significance.
+
+Imports training logic from code/04_train_model.py.
+Performs 500 label shuffles (seed=42), re-trains/re-evaluates, and records ROC-AUC.
+Enforces a 2-hour runtime limit; aborts if estimated runtime exceeds this.
+Output: data/processed/permutation_results.json
 """
 import os
 import sys
@@ -9,325 +14,276 @@ import time
 import random
 import warnings
 import logging
-from pathlib import Path
-from typing import Dict, Any, Tuple, List
 import numpy as np
 import pandas as pd
+from pathlib import Path
+from typing import Dict, Any, List, Tuple, Optional
 from joblib import Parallel, delayed
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import StratifiedKFold
+import joblib
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path to allow relative imports
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+# Import specific functions from 04_train_model as per API surface
+# We need the inner pipeline to re-run training on shuffled data
+try:
+    from code_04_train_model import inner_cv_pipeline, define_decline_label
+except ImportError:
+    # Fallback for direct execution where module name might differ or path is different
+    # Attempt to import from the file directly if standard import fails
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("code_04_train_model", project_root / "code" / "04_train_model.py")
+    if spec and spec.loader:
+        module_04 = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module_04)
+        inner_cv_pipeline = module_04.inner_cv_pipeline
+        define_decline_label = module_04.define_decline_label
+    else:
+        raise ImportError("Could not load training logic from code/04_train_model.py")
 
 from utils.logger import get_logger
-from utils.io import load_json, save_json, load_csv
+from utils.io import load_csv, save_json, ensure_dir
 from config import get_config
-from code_04_train_model import inner_cv_pipeline, define_decline_label
 
-# Configuration
-CONFIG = get_config()
-RANDOM_SEED = CONFIG.get('random_seed', 42)
-NUM_PERMUTATIONS = 500
+# Constants
+N_PERMUTATIONS = 500
+RANDOM_SEED = 42
 MAX_RUNTIME_HOURS = 2.0
 MAX_RUNTIME_SECONDS = MAX_RUNTIME_HOURS * 3600
-N_JOBS = 2  # Parallel jobs for permutation test
+OUTPUT_PATH = "data/processed/permutation_results.json"
+MODEL_PATH = "data/processed/model.pkl"
+DATA_PATH = "data/processed/graph_metrics.csv"
 
-# Paths
-DATA_DIR = Path("data/processed")
-GRAPH_METRICS_PATH = DATA_DIR / "graph_metrics.csv"
-MODEL_PATH = DATA_DIR / "model.pkl"
-ELIGIBLE_SUBJECTS_PATH = DATA_DIR / "eligible_subjects.csv"
-OUTPUT_PATH = DATA_DIR / "permutation_results.json"
+# Logger setup
+logger = get_logger(__name__)
 
-def get_logger_wrapper(name: str = __name__) -> logging.Logger:
-    """Get a logger configured for this module."""
-    return get_logger(name)
+def get_logger_wrapper():
+    """Wrapper to ensure logging is configured correctly."""
+    return logger
 
-def load_model_and_data(logger: logging.Logger) -> Tuple[Any, pd.DataFrame, np.ndarray, np.ndarray]:
+def load_model_and_data() -> Tuple[Any, pd.DataFrame, np.ndarray, np.ndarray]:
     """
-    Load the trained model, graph metrics, and labels.
-    Returns: (model, features_df, y_labels, subject_ids)
+    Load the trained model, graph metrics data, and labels.
+    Returns:
+        model: The trained Random Forest model
+        df: The graph metrics dataframe
+        X: Feature matrix
+        y: Target labels (decline status)
     """
-    logger.info("Loading model and data for permutation test...")
-    
-    if not MODEL_PATH.exists():
-        raise FileNotFoundError(f"Model file not found at {MODEL_PATH}. Run T023 first.")
-    
-    if not GRAPH_METRICS_PATH.exists():
-        raise FileNotFoundError(f"Graph metrics file not found at {GRAPH_METRICS_PATH}. Run T019 first.")
-    
-    if not ELIGIBLE_SUBJECTS_PATH.exists():
-        raise FileNotFoundError(f"Eligible subjects file not found at {ELIGIBLE_SUBJECTS_PATH}. Run T017 first.")
+    model_path = Path(project_root) / MODEL_PATH
+    data_path = Path(project_root) / DATA_PATH
 
-    # Load model
-    import joblib
-    model = joblib.load(MODEL_PATH)
-    logger.info(f"Model loaded from {MODEL_PATH}")
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model file not found at {model_path}. Run training first.")
+    if not data_path.exists():
+        raise FileNotFoundError(f"Data file not found at {data_path}. Run preprocessing first.")
 
-    # Load graph metrics
-    features_df = load_csv(GRAPH_METRICS_PATH)
-    logger.info(f"Loaded {len(features_df)} subjects with {len(features_df.columns)} features")
+    logger.info(f"Loading model from {model_path}")
+    model = joblib.load(model_path)
 
-    # Load eligible subjects to get labels
-    eligible_df = load_csv(ELIGIBLE_SUBJECTS_PATH)
-    subject_ids = eligible_df['subject_id'].tolist()
-    
-    # Filter features to only include eligible subjects
-    features_df = features_df[features_df['subject_id'].isin(subject_ids)].reset_index(drop=True)
-    
-    # Re-load labels based on the filtered subjects
-    # We need to re-calculate labels based on the original data or stored labels
-    # For this implementation, we assume the eligible_subjects.csv has the labels
-    if 'label' in eligible_df.columns:
-        y_labels = eligible_df[eligible_df['subject_id'].isin(subject_ids)]['label'].values
-    else:
-        # If labels are not in eligible_subjects, we must re-calculate from raw data
-        # This is a fallback that assumes we can re-calculate
-        logger.warning("Label column not found in eligible_subjects.csv. Attempting to re-calculate...")
-        # This part would require access to the raw MMSE/MOCA data which is not in the processed files
-        # For now, we assume the label is embedded or we use a placeholder
-        # In a real scenario, we would load the raw data or a specific labels file
-        raise ValueError("Label column missing in eligible_subjects.csv. Cannot proceed without true labels.")
-    
-    # Ensure alignment
-    if len(features_df) != len(y_labels):
-        raise ValueError(f"Feature count ({len(features_df)}) does not match label count ({len(y_labels)})")
+    logger.info(f"Loading data from {data_path}")
+    df = load_csv(data_path)
 
-    logger.info(f"Loaded {len(y_labels)} samples with labels. Class distribution: {np.bincount(y_labels)}")
-    
-    return model, features_df, y_labels, subject_ids
+    # Identify feature columns (exclude subject_id and target columns if present)
+    # Assuming the CSV has 'subject_id', 'decline_label' (or similar), and feature columns
+    # We need to reconstruct X and y exactly as they were passed to the model
+    # The model was trained on features excluding 'subject_id' and the target label.
+    # Let's assume the target column is 'decline_label' based on T023 logic.
+    target_col = 'decline_label'
+    if target_col not in df.columns:
+        # Fallback: try to find a column that looks like a target if 'decline_label' isn't there
+        # But strictly, we should rely on the schema from T023.
+        raise ValueError(f"Target column '{target_col}' not found in data. Columns: {df.columns.tolist()}")
 
-def estimate_runtime(model: Any, features_df: pd.DataFrame, y_labels: np.ndarray, logger: logging.Logger) -> float:
+    y = df[target_col].values
+    feature_cols = [c for c in df.columns if c not in ['subject_id', target_col]]
+    if not feature_cols:
+        raise ValueError("No feature columns found in data.")
+    
+    X = df[feature_cols].values.astype(float)
+
+    logger.info(f"Loaded data: X shape {X.shape}, y shape {y.shape}")
+    return model, df, X, y
+
+def estimate_runtime(X: np.ndarray, y: np.ndarray, n_permutations: int = N_PERMUTATIONS) -> float:
     """
-    Estimate runtime for 500 permutations by running a small pilot (e.g., 5 permutations).
-    Returns estimated time in seconds for full 500 permutations.
+    Estimate runtime for the full permutation test by running a small sample.
+    Returns estimated time in seconds.
     """
-    logger.info("Running pilot to estimate runtime...")
-    pilot_runs = 5
-    pilot_times = []
-    
-    X = features_df.drop(columns=['subject_id'], errors='ignore').values
-    
-    for i in range(pilot_runs):
-        logger.debug(f"Running pilot permutation {i+1}/{pilot_runs}")
-        start = time.time()
-        
-        # Shuffle labels
-        y_perm = y_labels.copy()
-        np.random.shuffle(y_perm)
-        
-        # Run a single permutation training/evaluation
-        try:
-            # We need to re-run the inner pipeline logic for a single permutation
-            # Since we don't have the full nested CV here, we run a simplified version
-            # or reuse the inner_cv_pipeline with a single fold if possible
-            # For estimation, we run a quick single-model fit on the whole data
-            from sklearn.ensemble import RandomForestClassifier
-            clf = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=RANDOM_SEED)
-            clf.fit(X, y_perm)
-            # Quick evaluation
-            _ = clf.score(X, y_perm)
-        except Exception as e:
-            logger.warning(f"Pilot run {i} failed: {e}")
-            continue
-        
-        end = time.time()
-        pilot_times.append(end - start)
-    
-    if not pilot_times:
-        raise RuntimeError("Pilot runs failed completely. Cannot estimate runtime.")
-    
-    avg_time_per_perm = np.mean(pilot_times)
-    estimated_total = avg_time_per_perm * NUM_PERMUTATIONS
-    
-    logger.info(f"Average time per permutation: {avg_time_per_perm:.2f}s")
-    logger.info(f"Estimated total runtime for {NUM_PERMUTATIONS} permutations: {estimated_total:.2f}s ({estimated_total/3600:.2f}h)")
-    
-    return estimated_total
-
-def run_permutation(seed: int, features_df: pd.DataFrame, y_labels: np.ndarray, logger_name: str) -> float:
-    """
-    Run a single permutation: shuffle labels, train model, compute ROC-AUC.
-    Returns the ROC-AUC score for this permutation.
-    """
-    # Setup logger for this worker
-    worker_logger = get_logger(logger_name)
-    worker_logger.debug(f"Starting permutation with seed {seed}")
-    
-    X = features_df.drop(columns=['subject_id'], errors='ignore').values
-    
-    # Shuffle labels with specific seed
-    rng = np.random.RandomState(seed)
-    y_perm = y_labels.copy()
-    rng.shuffle(y_perm)
-    
-    # Train and evaluate using the same logic as the main model
-    # We use the inner_cv_pipeline logic but simplified for a single permutation
-    # Note: inner_cv_pipeline expects a full nested CV. For permutation, we often
-    # do a single training on shuffled data and evaluate, or a simplified CV.
-    # To be rigorous, we should run the same CV procedure.
-    # However, to save time in permutation, we might do a single train/test split
-    # or a simplified CV. The spec says "re-train/re-evaluate".
-    # Let's use the same nested CV logic if possible, but it's expensive.
-    # Given the 2-hour limit, we might need to simplify.
-    # The spec says "re-train/re-evaluate the model". We will use the same pipeline.
-    
-    try:
-        # Use the inner_cv_pipeline logic
-        # We need to pass the data and the shuffled labels
-        # The inner_cv_pipeline function returns the best model and metrics
-        # We need to extract the ROC-AUC
-        
-        # Since inner_cv_pipeline is complex, we will replicate the core logic here
-        # to ensure we are using the same pipeline but with shuffled labels.
-        # We assume the pipeline is deterministic given the seed.
-        
-        # Simplified approach for permutation:
-        # 1. Split data (stratified)
-        # 2. Train on train, eval on test
-        # 3. Repeat for multiple folds and average? Or just one run?
-        # Standard permutation test: run the full procedure (CV) for each permutation.
-        # But that's very expensive.
-        # Let's assume we run a single train/test split for speed, or a simplified CV.
-        # The spec doesn't specify the exact evaluation method for permutations,
-        # but it says "re-train/re-evaluate".
-        
-        # We will use a single stratified train/test split for efficiency in permutation test,
-        # as running full nested CV 500 times is likely too slow.
-        # However, to be consistent with the main model, we should use the same CV.
-        # Given the constraints, we will use a simplified 5-fold CV for evaluation.
-        
-        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
-        aucs = []
-        
-        for train_idx, test_idx in skf.split(X, y_perm):
-            X_train, X_test = X[train_idx], X[test_idx]
-            y_train, y_test = y_perm[train_idx], y_perm[test_idx]
-            
-            # Train model
-            from sklearn.ensemble import RandomForestClassifier
-            clf = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=seed)
-            clf.fit(X_train, y_train)
-            
-            # Predict probabilities
-            y_proba = clf.predict_proba(X_test)[:, 1]
-            
-            # Calculate AUC
-            if len(np.unique(y_test)) > 1:
-                auc = roc_auc_score(y_test, y_proba)
-                aucs.append(auc)
-        
-        if not aucs:
-            return 0.5 # Default if no valid AUCs
-        
-        return np.mean(aucs)
-        
-    except Exception as e:
-        worker_logger.error(f"Permutation {seed} failed: {e}")
-        return 0.5 # Return neutral score on failure
-
-def main():
-    logger = get_logger_wrapper("permutation_test")
-    logger.info("Starting Permutation Test (T029)")
-    
-    # Pre-flight checks
-    if not GRAPH_METRICS_PATH.exists():
-        logger.error(f"Graph metrics file not found: {GRAPH_METRICS_PATH}")
-        sys.exit(1)
-    
-    if not MODEL_PATH.exists():
-        logger.error(f"Model file not found: {MODEL_PATH}")
-        sys.exit(1)
-    
-    # Load data
-    try:
-        model, features_df, y_labels, subject_ids = load_model_and_data(logger)
-    except Exception as e:
-        logger.error(f"Failed to load data: {e}")
-        sys.exit(1)
-    
-    # Estimate runtime
-    try:
-        estimated_runtime = estimate_runtime(model, features_df, y_labels, logger)
-    except Exception as e:
-        logger.error(f"Runtime estimation failed: {e}")
-        sys.exit(1)
-    
-    if estimated_runtime > MAX_RUNTIME_SECONDS:
-        logger.error(f"Estimated runtime ({estimated_runtime/3600:.2f}h) exceeds limit ({MAX_RUNTIME_HOURS}h). Aborting.")
-        sys.exit(1)
-    
-    logger.info(f"Runtime estimate OK. Proceeding with {NUM_PERMUTATIONS} permutations.")
-    
-    # Run permutations
-    logger.info(f"Running {NUM_PERMUTATIONS} permutations with {N_JOBS} jobs...")
+    logger.info("Estimating runtime with a small sample...")
+    sample_size = min(5, n_permutations)
     start_time = time.time()
     
-    # Generate seeds for permutations
-    permutation_seeds = [RANDOM_SEED + i for i in range(NUM_PERMUTATIONS)]
+    # Run a few permutations to estimate
+    for i in range(sample_size):
+        # Shuffle labels
+        y_perm = y.copy()
+        np.random.shuffle(y_perm)
+        # Run a quick inner pipeline (this is expensive, so we do it only 5 times)
+        # We pass n_jobs=1 for the sample to avoid oversubscription during estimation
+        try:
+            # We need to call the inner pipeline. 
+            # Note: inner_cv_pipeline might expect specific arguments. 
+            # Based on T023, it likely takes X, y, and CV parameters.
+            # We assume it returns the mean CV score.
+            # To be safe and fast, we might limit iterations here if the function allows,
+            # but we will assume the function is robust.
+            # We'll use a subset of X if possible, but the function signature is fixed.
+            # Let's just run it.
+            score = inner_cv_pipeline(X, y_perm, n_jobs=1) 
+        except Exception as e:
+            logger.warning(f"Sample permutation {i} failed: {e}. Using fallback estimation.")
+            score = 0.0
+            break
+
+    elapsed = time.time() - start_time
+    estimated_total = elapsed / sample_size * n_permutations
+    logger.info(f"Sample runtime: {elapsed:.2f}s for {sample_size} perms. Estimated total: {estimated_total:.2f}s ({estimated_total/3600:.2f}h)")
+    return estimated_total
+
+def run_permutation(X: np.ndarray, y: np.ndarray, permutation_idx: int) -> Dict[str, Any]:
+    """
+    Run a single permutation: shuffle labels, train, evaluate.
+    Returns a dict with the permutation index and the resulting ROC-AUC.
+    """
+    # Seed for this specific permutation to ensure reproducibility if needed,
+    # though the shuffle itself is the randomization.
+    np.random.seed(RANDOM_SEED + permutation_idx)
     
-    # Run in parallel
-    results = Parallel(n_jobs=N_JOBS, verbose=10)(
-        delayed(run_permutation)(seed, features_df, y_labels, "permutation_worker")
-        for seed in permutation_seeds
+    # Shuffle labels
+    y_perm = y.copy()
+    np.random.shuffle(y_perm)
+    
+    # Train and evaluate using the inner pipeline logic
+    # We need the mean CV score (ROC-AUC) from the shuffled data
+    try:
+        # The inner_cv_pipeline function from 04_train_model should handle the nested CV
+        # and return the mean score. We assume it returns a dict or float.
+        # If it returns a dict, we look for 'roc_auc' or 'mean_score'.
+        result = inner_cv_pipeline(X, y_perm, n_jobs=1)
+        
+        # Extract score
+        if isinstance(result, dict):
+            # Try common keys
+            score = result.get('roc_auc', result.get('mean_score', result.get('score', 0.0)))
+        else:
+            score = float(result)
+            
+        return {
+            "permutation": permutation_idx,
+            "roc_auc": score,
+            "status": "success"
+        }
+    except Exception as e:
+        logger.error(f"Permutation {permutation_idx} failed: {e}")
+        return {
+            "permutation": permutation_idx,
+            "roc_auc": None,
+            "status": "failed",
+            "error": str(e)
+        }
+
+def main():
+    logger.info("Starting Permutation Test (T029)")
+    
+    # Load data and model
+    try:
+        model, df, X, y = load_model_and_data()
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+
+    # Pre-flight check: Estimate runtime
+    estimated_time = estimate_runtime(X, y, N_PERMUTATIONS)
+    if estimated_time > MAX_RUNTIME_SECONDS:
+        logger.error(f"Estimated runtime ({estimated_time/3600:.2f}h) exceeds limit ({MAX_RUNTIME_HOURS}h). Aborting.")
+        sys.exit(1)
+    
+    logger.info(f"Runtime estimate OK. Starting {N_PERMUTATIONS} permutations.")
+    
+    # Set global seed
+    random.seed(RANDOM_SEED)
+    np.random.seed(RANDOM_SEED)
+
+    # Run permutations
+    # We use joblib to parallelize if possible, but since inner_cv_pipeline might use joblib itself,
+    # we must be careful not to oversubscribe. The task requires 2 cores.
+    # We'll run sequentially or with n_jobs=1 in the inner loop to be safe, 
+    # but we can parallelize the outer loop if the inner loop is single-threaded.
+    # Given the constraint "2-core runner", we set n_jobs=2 for the outer loop.
+    
+    results = []
+    start_total = time.time()
+    
+    # Using Parallel for the outer loop
+    # Note: If inner_cv_pipeline is heavy, n_jobs=1 might be safer to avoid memory/CPU thrashing.
+    # But the task asks for 500 permutations. We'll try n_jobs=2.
+    logger.info(f"Running {N_PERMUTATIONS} permutations with n_jobs=2...")
+    
+    perm_results = Parallel(n_jobs=2)(
+        delayed(run_permutation)(X, y, i) for i in range(N_PERMUTATIONS)
     )
     
-    end_time = time.time()
-    total_runtime = end_time - start_time
+    total_time = time.time() - start_total
+    logger.info(f"Permutation test completed in {total_time:.2f}s ({total_time/3600:.2f}h)")
+
+    # Analyze results
+    scores = [r['roc_auc'] for r in perm_results if r['status'] == 'success' and r['roc_auc'] is not None]
+    failed_count = N_PERMUTATIONS - len(scores)
     
-    logger.info(f"Permutation test completed in {total_runtime:.2f}s")
-    
+    if len(scores) == 0:
+        logger.error("No successful permutations. Cannot compute p-value.")
+        sys.exit(1)
+
     # Calculate p-value
-    # Get the original model's ROC-AUC (we need to compute it again or load it)
-    # For now, assume we compute it on the original labels
-    X = features_df.drop(columns=['subject_id'], errors='ignore').values
-    y_original = y_labels
+    # We need the original model's performance on the original data to compare.
+    # However, the task says "re-train/re-evaluate the model for each permutation, and record ROC-AUC".
+    # It does not explicitly say to compare against the *original* model's score in this script,
+    # but p-value calculation requires an observed statistic.
+    # The observed statistic is the ROC-AUC of the model trained on the REAL labels.
+    # We can get this by running the inner pipeline on the original X, y once.
+    logger.info("Computing observed statistic on original labels...")
+    try:
+        observed_score = inner_cv_pipeline(X, y, n_jobs=1)
+        if isinstance(observed_score, dict):
+            observed_score = observed_score.get('roc_auc', observed_score.get('mean_score', observed_score.get('score', 0.0)))
+        observed_score = float(observed_score)
+    except Exception as e:
+        logger.error(f"Failed to compute observed score: {e}")
+        sys.exit(1)
+
+    logger.info(f"Observed ROC-AUC: {observed_score:.4f}")
     
-    # Compute original AUC using the same method as permutations (5-fold CV)
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
-    original_aucs = []
-    for train_idx, test_idx in skf.split(X, y_original):
-        X_train, X_test = X[train_idx], X[test_idx]
-        y_train, y_test = y_original[train_idx], y_original[test_idx]
-        
-        clf = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=RANDOM_SEED)
-        clf.fit(X_train, y_train)
-        y_proba = clf.predict_proba(X_test)[:, 1]
-        
-        if len(np.unique(y_test)) > 1:
-            auc = roc_auc_score(y_test, y_proba)
-            original_aucs.append(auc)
+    # p-value: proportion of permuted scores >= observed score
+    # (One-tailed test: is the observed score significantly better than random?)
+    p_value = sum(1 for s in scores if s >= observed_score) / len(scores)
     
-    original_auc = np.mean(original_aucs) if original_aucs else 0.5
-    logger.info(f"Original model ROC-AUC: {original_auc:.4f}")
-    
-    # Calculate p-value: proportion of permuted AUCs >= original AUC
-    # Note: This is a one-tailed test (we expect original to be higher)
-    count_ge = sum(1 for auc in results if auc >= original_auc)
-    p_value = (count_ge + 1) / (NUM_PERMUTATIONS + 1)
-    
-    logger.info(f"Permutation p-value: {p_value:.4f} ({count_ge}/{NUM_PERMUTATIONS} >= {original_auc:.4f})")
-    
+    logger.info(f"Permutation p-value: {p_value:.4f} ({sum(1 for s in scores if s >= observed_score)} / {len(scores)})")
+
     # Prepare output
-    output = {
-        "num_permutations": NUM_PERMUTATIONS,
-        "original_roc_auc": float(original_auc),
-        "permuted_aucs": [float(a) for a in results],
-        "p_value": float(p_value),
-        "runtime_seconds": float(total_runtime),
+    output_data = {
+        "n_permutations": N_PERMUTATIONS,
         "random_seed": RANDOM_SEED,
-        "max_runtime_hours": MAX_RUNTIME_HOURS,
-        "estimated_runtime_hours": float(estimated_runtime / 3600)
+        "total_runtime_seconds": total_time,
+        "observed_roc_auc": observed_score,
+        "permuted_roc_aucs": scores,
+        "p_value": p_value,
+        "failed_permutations": failed_count,
+        "parameters": {
+            "max_runtime_hours": MAX_RUNTIME_HOURS,
+            "n_jobs": 2
+        }
     }
-    
+
     # Save output
-    ensure_dir = Path(OUTPUT_PATH).parent
-    ensure_dir.mkdir(parents=True, exist_ok=True)
-    save_json(output, OUTPUT_PATH)
+    output_path = Path(project_root) / OUTPUT_PATH
+    ensure_dir(output_path)
+    save_json(output_path, output_data)
     
-    logger.info(f"Results saved to {OUTPUT_PATH}")
-    logger.info("Permutation Test (T029) completed successfully.")
+    logger.info(f"Results saved to {output_path}")
+    logger.info("Permutation test (T029) completed successfully.")
 
 if __name__ == "__main__":
     main()

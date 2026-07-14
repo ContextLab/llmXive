@@ -91,7 +91,8 @@ def main():
 
     logger.info(f"Loading data from {input_path}")
     try:
-        df = load_dataframe(input_path)
+        # Use pandas directly to handle potential schema mismatches robustly
+        df = pd.read_csv(input_path)
     except Exception as e:
         logger.error(f"Failed to load data: {e}")
         sys.exit(1)

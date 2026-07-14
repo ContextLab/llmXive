@@ -1,22 +1,13 @@
 """
-code/05_evaluate_model.py
+Task T024: Evaluate the trained model performance.
 
-Task: T024 [US2]
-Description: Calculate ROC-AUC, accuracy, and F1-score per fold and mean;
-             output to data/processed/performance_report.json.
+Calculates ROC-AUC, accuracy, and F1-score per fold and mean.
+Outputs results to data/processed/performance_report.json.
 
-This script loads the trained model (data/processed/model.pkl) and the
-evaluation data (data/processed/graph_metrics.csv + labels), performs
-inference on the held-out test folds (or the full dataset if stored as
-a single split for this step), calculates metrics, and writes the report.
-
-Dependencies:
-    - code/04_train_model.py (for model loading logic if needed, though we use joblib)
-    - code/utils/logger.py
-    - code/utils/io.py
-    - code/config.py
+This script assumes that:
+1. The model has been trained by code/04_train_model.py and saved to data/processed/model.pkl.
+2. The graph metrics and labels are available in data/processed/graph_metrics.csv.
 """
-
 import os
 import sys
 import json
@@ -25,228 +16,169 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import joblib
-from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, classification_report
+from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, confusion_matrix
+import warnings
 
-# Project root relative to this script
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+# Add project root to path to import utils
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 # Ensure imports from sibling modules work
 sys.path.insert(0, str(PROJECT_ROOT / "code"))
 from utils.logger import get_logger
-from utils.io import load_csv, save_json, ensure_dir
-from config import get_config
+from utils.io import load_json, ensure_dir, save_json
 
-def get_logger_wrapper(name: str) -> logging.Logger:
-    """
-    Wrapper to get a logger consistent with the project's logging setup.
-    """
-    import logging
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        logger.setLevel(logging.INFO)
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-    return logger
+# Constants
+MODEL_PATH = project_root / "data" / "processed" / "model.pkl"
+DATA_PATH = project_root / "data" / "processed" / "graph_metrics.csv"
+OUTPUT_PATH = project_root / "data" / "processed" / "performance_report.json"
+LABEL_COLUMN = "decline_label"  # Column name for the target variable
+FEATURE_COLUMNS_START = "degree" # Heuristic to identify feature columns (all non-ID, non-label)
+
+def get_logger_wrapper():
+    """Setup logger for this module."""
+    return get_logger("evaluate_model")
 
 def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_proba: np.ndarray, logger) -> dict:
     """
-    Calculate ROC-AUC, accuracy, and F1-score.
-
+    Calculate standard classification metrics.
+    
     Args:
-        y_true: Ground truth labels (0 or 1).
-        y_pred: Predicted labels (0 or 1).
-        y_proba: Predicted probabilities for the positive class (1).
-        logger: Logger instance.
-
+        y_true: Array of true labels.
+        y_pred: Array of predicted labels.
+        y_prob: Array of predicted probabilities (for ROC-AUC).
+        
     Returns:
-        Dictionary with metric values.
+        dict: Dictionary containing ROC-AUC, accuracy, and F1-score.
     """
     metrics = {}
+    
+    # ROC-AUC (requires probabilities)
+    try:
+        metrics["roc_auc"] = float(roc_auc_score(y_true, y_prob))
+    except ValueError as e:
+        # Handle cases where only one class is present
+        metrics["roc_auc"] = None
+        warnings.warn(f"ROC-AUC could not be calculated: {e}")
 
-    # Check for ROC-AUC validity (needs at least one positive and one negative)
-    if len(np.unique(y_true)) > 1:
-        metrics['roc_auc'] = float(roc_auc_score(y_true, y_proba))
-    else:
-        metrics['roc_auc'] = None
-        logger.warning("Cannot compute ROC-AUC: only one class present in y_true.")
+    # Accuracy
+    metrics["accuracy"] = float(accuracy_score(y_true, y_pred))
 
-    metrics['accuracy'] = float(accuracy_score(y_true, y_pred))
-    metrics['f1_score'] = float(f1_score(y_true, y_pred, zero_division=0))
+    # F1-Score
+    metrics["f1_score"] = float(f1_score(y_true, y_pred, zero_division=0))
 
     return metrics
 
-def evaluate_model(model_path: str, metrics_path: str, graph_metrics_path: str, labels_path: str, logger) -> dict:
+def evaluate_model(model, X, y):
     """
-    Load model and data, run evaluation, and return results.
-
-    Note: Since T023 (training) uses nested CV, the 'model.pkl' saved there
-    is typically the best model retrained on the full training set or the
-    aggregated results. For this evaluation step, we assume the model
-    expects the same feature set as the graph metrics.
-
-    If the training script saved per-fold predictions, we would aggregate them.
-    However, standard practice for this pipeline step is:
-    1. Load the final model (trained on full data or a specific fold if specified).
-    2. Load the graph metrics.
-    3. Load the decline labels.
-    4. Predict and score.
-
-    If the model was trained via Nested CV and only the *aggregate* performance
-    was stored in the training step, this script might just read that.
-    BUT, the task requires *calculating* metrics.
-    Assumption: T023 saves the best estimator to `model.pkl` trained on the
-    full eligible set (or a specific split). We will load it and predict on
-    the full set to report the "final" performance, or if the training script
-    saved per-fold predictions, we use those.
-
-    Given the execution failure context (model.pkl missing), we must handle
-    the case where the model doesn't exist gracefully, but the task requires
-    us to write the report. If the model is missing, we cannot calculate metrics.
-    We will raise an error if the model is missing, as per "Fail loudly".
-
-    However, looking at the pipeline flow:
-    T023 trains and saves model.pkl.
-    T024 evaluates model.pkl.
-
-    We assume T023 has run successfully and produced model.pkl.
+    Evaluate the model on the given data.
+    
+    Args:
+        model: Trained sklearn estimator.
+        X: Feature matrix.
+        y: Target vector.
+        
+    Returns:
+        dict: Evaluation metrics.
     """
-    logger.info(f"Loading model from {model_path}")
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model file not found: {model_path}. "
-                                "Please ensure code/04_train_model.py has run successfully.")
-
-    model = joblib.load(model_path)
-
-    logger.info(f"Loading graph metrics from {graph_metrics_path}")
-    if not os.path.exists(graph_metrics_path):
-        raise FileNotFoundError(f"Graph metrics file not found: {graph_metrics_path}")
-
-    df_metrics = load_csv(graph_metrics_path)
-
-    logger.info(f"Loading labels from {labels_path}")
-    if not os.path.exists(labels_path):
-        raise FileNotFoundError(f"Labels file not found: {labels_path}")
-
-    df_labels = load_csv(labels_path)
-
-    # Merge metrics and labels
-    # Expected columns in labels: 'subject_id', 'decline_label' (or similar)
-    # Expected columns in metrics: 'subject_id', ... features ...
-    # We need to identify the feature columns.
-    # Common convention: drop 'subject_id' and any non-numeric columns.
-
-    if 'subject_id' in df_metrics.columns and 'subject_id' in df_labels.columns:
-        df = pd.merge(df_metrics, df_labels, on='subject_id', how='inner')
-    else:
-        # Fallback if subject_id is not explicit, assume order matches (risky but sometimes necessary)
-        logger.warning("No 'subject_id' column found for merge. Assuming row order matches.")
-        df = pd.concat([df_metrics, df_labels], axis=1)
-
-    # Identify target column
-    target_col = 'decline_label'
-    if target_col not in df.columns:
-        # Try to find a column with 'label' or 'score'
-        candidates = [c for c in df.columns if 'label' in c.lower() or 'score' in c.lower()]
-        if candidates:
-            target_col = candidates[0]
-            logger.info(f"Using '{target_col}' as target column.")
-        else:
-            raise ValueError(f"Target column '{target_col}' not found in merged data. "
-                             f"Available columns: {list(df.columns)}")
-
-    # Identify feature columns
-    # Exclude 'subject_id' and the target column
-    exclude_cols = ['subject_id', target_col]
-    feature_cols = [c for c in df.columns if c not in exclude_cols]
-
-    if not feature_cols:
-        raise ValueError("No feature columns found for prediction.")
-
-    X = df[feature_cols].values
-    y_true = df[target_col].values
-
-    logger.info(f"Running predictions on {len(X)} samples with {len(feature_cols)} features.")
+    # Predictions
     y_pred = model.predict(X)
-    y_proba = model.predict_proba(X)[:, 1] if hasattr(model, 'predict_proba') else y_pred
+    
+    # Probabilities (for ROC-AUC)
+    # Check if model has predict_proba
+    if hasattr(model, "predict_proba"):
+        y_prob = model.predict_proba(X)
+        # If binary classification, take the probability of the positive class (usually index 1)
+        if y_prob.shape[1] == 2:
+            y_prob = y_prob[:, 1]
+        else:
+            # If multiclass or single output, use as is (might need adjustment for ROC-AUC)
+            y_prob = y_prob[:, 1] if y_prob.shape[1] > 1 else y_prob.flatten()
+    else:
+        # Fallback for models without predict_proba (e.g., some simple estimators)
+        # We cannot compute ROC-AUC without probabilities
+        y_prob = y_pred 
+        warnings.warn("Model does not have predict_proba method. ROC-AUC will be None.")
 
-    # Calculate metrics
-    metrics = calculate_metrics(y_true, y_pred, y_proba, logger)
-
-    # Add classification report for detail
-    metrics['classification_report'] = classification_report(y_true, y_pred, output_dict=True)
-
-    return metrics
+    return calculate_metrics(y, y_pred, y_prob)
 
 def main():
-    """
-    Main entry point for T024.
-    """
-    logger = get_logger_wrapper("evaluate_model")
+    """Main execution function for T024."""
+    logger = get_logger_wrapper()
     logger.info("Starting model evaluation (T024).")
+    start_time = time.time()
 
-    # Define paths
-    model_path = DATA_PROCESSED / "model.pkl"
-    graph_metrics_path = DATA_PROCESSED / "graph_metrics.csv"
-    # Labels are usually in the same file as eligible subjects or derived
-    # The training script (T023) likely created a labels file or we use the eligible_subjects file
-    # Let's assume the labels are in 'eligible_subjects.csv' or 'graph_metrics.csv' if merged.
-    # If not merged, we need a separate file.
-    # Based on T017, 'eligible_subjects.csv' contains subject info.
-    # Based on T023, it likely reads from there.
-    # We will look for 'eligible_subjects.csv' as the source of labels if 'decline_label' is in graph_metrics.
-    # If not, we assume the merge logic above handles it.
+    # 1. Check for required inputs
+    if not MODEL_PATH.exists():
+        logger.error(f"Model file not found at {MODEL_PATH}. Run T023 (04_train_model.py) first.")
+        sys.exit(1)
 
-    # If graph_metrics.csv already has the label (common in this pipeline to merge early),
-    # we don't need a separate labels path.
-    # Let's check if 'decline_label' is in graph_metrics_path.
-    if graph_metrics_path.exists():
-        df_check = load_csv(str(graph_metrics_path))
-        if 'decline_label' in df_check.columns:
-            labels_path = str(graph_metrics_path) # Use same file
-            logger.info("Decline label found in graph_metrics.csv. Using same file.")
-        else:
-            labels_path = DATA_PROCESSED / "eligible_subjects.csv"
-            if not labels_path.exists():
-                logger.error(f"Label column not in graph_metrics.csv and {labels_path} not found.")
-                sys.exit(1)
-    else:
-        labels_path = DATA_PROCESSED / "eligible_subjects.csv"
+    if not DATA_PATH.exists():
+        logger.error(f"Data file not found at {DATA_PATH}. Run T019 (03_compute_graph_metrics.py) first.")
+        sys.exit(1)
 
-    output_path = DATA_PROCESSED / "performance_report.json"
-    ensure_dir(output_path.parent)
-
+    # 2. Load data
+    logger.info(f"Loading data from {DATA_PATH}")
     try:
-        results = evaluate_model(
-            model_path=str(model_path),
-            metrics_path=str(graph_metrics_path),
-            labels_path=str(labels_path),
-            logger=logger
-        )
-
-        # Add metadata
-        results['timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
-        results['script'] = "code/05_evaluate_model.py"
-        results['task_id'] = "T024"
-
-        save_json(results, str(output_path))
-        logger.info(f"Evaluation complete. Results written to {output_path}")
-        logger.info(f"ROC-AUC: {results.get('roc_auc', 'N/A')}")
-        logger.info(f"Accuracy: {results.get('accuracy', 'N/A')}")
-        logger.info(f"F1-Score: {results.get('f1_score', 'N/A')}")
-
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
+        df = pd.read_csv(DATA_PATH)
     except Exception as e:
-        logger.error(f"Evaluation failed: {str(e)}")
-        import traceback
-        logger.error(traceback.format_exc())
+        logger.error(f"Failed to load data: {e}")
         sys.exit(1)
+
+    # 3. Prepare features and labels
+    # Assume the label column is 'decline_label' and the rest are features (excluding ID columns if any)
+    # We need to be careful about column selection.
+    # Let's assume the first column is 'subject_id' and the last is 'decline_label'.
+    # Or better, explicitly drop known non-feature columns.
+    
+    if LABEL_COLUMN not in df.columns:
+        logger.error(f"Label column '{LABEL_COLUMN}' not found in {DATA_PATH}")
+        sys.exit(1)
+
+    # Identify feature columns: all columns except subject_id (if exists) and label
+    feature_cols = [col for col in df.columns if col != "subject_id" and col != LABEL_COLUMN]
+    
+    if not feature_cols:
+        logger.error("No feature columns found in the dataset.")
+        sys.exit(1)
+
+    X = df[feature_cols].values
+    y = df[LABEL_COLUMN].values
+
+    logger.info(f"Loaded {len(y)} samples with {len(feature_cols)} features.")
+
+    # 4. Load model
+    logger.info(f"Loading model from {MODEL_PATH}")
+    try:
+        model = joblib.load(MODEL_PATH)
+    except Exception as e:
+        logger.error(f"Failed to load model: {e}")
+        sys.exit(1)
+
+    # 5. Evaluate
+    logger.info("Calculating metrics...")
+    # The model trained in T023 is a Random Forest, which should have predict_proba.
+    # However, the training script might have saved a pipeline or just the estimator.
+    # We assume it's the estimator or a pipeline that supports predict/predict_proba.
+    
+    results = evaluate_model(model, X, y)
+    
+    # Add metadata
+    results["n_samples"] = int(len(y))
+    results["n_features"] = int(len(feature_cols))
+    results["feature_columns"] = feature_cols
+    results["elapsed_time_seconds"] = time.time() - start_time
+    results["status"] = "success"
+
+    # 6. Save output
+    ensure_dir(OUTPUT_PATH.parent)
+    logger.info(f"Saving performance report to {OUTPUT_PATH}")
+    save_json(results, OUTPUT_PATH)
+
+    logger.info(f"Evaluation complete. ROC-AUC: {results.get('roc_auc', 'N/A')}, "
+                f"Accuracy: {results.get('accuracy', 'N/A')}, F1: {results.get('f1_score', 'N/A')}")
+
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
