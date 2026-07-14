@@ -12,3 +12,8 @@
   source_id: Dhurandhar
   url: https://en.wikipedia.org/wiki/Dhurandhar
   value: 214 minutes
+'|permutation run test':
+  quote: "conservativeness also occurs if very few (e.g. 25\u2013100) random pe rmutations"
+  source_id: '1411.7565'
+  url: https://arxiv.org/abs/1411.7565
+  value: '100'

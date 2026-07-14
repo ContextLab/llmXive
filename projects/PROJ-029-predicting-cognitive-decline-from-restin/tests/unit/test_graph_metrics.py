@@ -1,105 +1,117 @@
-"""Unit tests for graph metric calculation functions."""
+"""
+Unit tests for graph metrics computation.
+"""
 import pytest
 import numpy as np
 import networkx as nx
 from pathlib import Path
 import sys
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from utils.graph import create_graph_from_adjacency, calculate_global_efficiency, calculate_clustering_coefficient, calculate_degree_centrality
-from code_03_compute_graph_metrics import compute_subject_metrics
+from utils.graph import (
+    calculate_degree_centrality,
+    calculate_global_efficiency,
+    calculate_clustering_coefficient,
+    calculate_shortest_path_length
+)
 
-
-def test_create_graph_from_adjacency():
-    """Test graph creation from adjacency matrix."""
-    adj = np.array([
-        [0, 1, 1, 0],
-        [1, 0, 1, 1],
-        [1, 1, 0, 0],
-        [0, 1, 0, 0]
-    ])
-    G = create_graph_from_adjacency(adj)
-    assert G.number_of_nodes() == 4
-    assert G.number_of_edges() == 5
+from code_03_compute_graph_metrics import compute_subject_metrics, check_memory_usage
 
 
-def test_calculate_degree_centrality():
-    """Test degree centrality calculation."""
-    adj = np.array([
-        [0, 1, 1, 0],
-        [1, 0, 1, 1],
-        [1, 1, 0, 0],
-        [0, 1, 0, 0]
-    ])
-    G = create_graph_from_adjacency(adj)
-    degree = calculate_degree_centrality(G)
-    assert len(degree) == 4
-    # Node 1 (index 1) has degree 3, normalized should be 3/3 = 1.0
-    assert degree[1] == 1.0
+class TestGraphMetrics:
+    """Tests for graph metric calculation functions."""
 
+    def test_degree_centrality(self):
+        """Test degree centrality calculation."""
+        # Create a simple star graph
+        G = nx.star_graph(5)
+        degree = calculate_degree_centrality(G)
+        
+        # Center node should have highest centrality
+        assert degree[0] == 1.0  # Center node
+        assert all(d == 0.2 for d in degree[1:])  # Peripheral nodes
 
-def test_calculate_global_efficiency():
-    """Test global efficiency calculation."""
-    # Complete graph should have efficiency 1.0
-    adj = np.ones((4, 4)) - np.eye(4)
-    G = create_graph_from_adjacency(adj)
-    eff = calculate_global_efficiency(G)
-    assert np.isclose(eff, 1.0)
+    def test_global_efficiency(self):
+        """Test global efficiency calculation."""
+        # Complete graph has efficiency = 1
+        G = nx.complete_graph(5)
+        efficiency = calculate_global_efficiency(G)
+        assert efficiency == 1.0
 
+    def test_clustering_coefficient(self):
+        """Test clustering coefficient calculation."""
+        # Triangle has clustering coefficient = 1
+        G = nx.complete_graph(3)
+        clustering = calculate_clustering_coefficient(G)
+        assert clustering == 1.0
 
-def test_calculate_clustering_coefficient():
-    """Test clustering coefficient calculation."""
-    # Triangle graph: all nodes have clustering 1.0
-    adj = np.array([
-        [0, 1, 1],
-        [1, 0, 1],
-        [1, 1, 0]
-    ])
-    G = create_graph_from_adjacency(adj)
-    clustering = calculate_clustering_coefficient(G)
-    # Average clustering should be 1.0
-    assert np.isclose(np.mean(list(clustering.values())), 1.0)
+    def test_shortest_path_length(self):
+        """Test average shortest path length calculation."""
+        # Complete graph has path length = 1
+        G = nx.complete_graph(5)
+        path_length = calculate_shortest_path_length(G)
+        assert path_length == 1.0
 
+    def test_compute_subject_metrics(self):
+        """Test full subject metrics computation."""
+        # Create a random symmetric adjacency matrix
+        np.random.seed(42)
+        n_nodes = 10
+        matrix = np.random.rand(n_nodes, n_nodes)
+        matrix = (matrix + matrix.T) / 2  # Make symmetric
+        np.fill_diagonal(matrix, 0)  # Remove self-loops
+        
+        metrics = compute_subject_metrics(matrix, "test_subject")
+        
+        assert metrics is not None
+        assert metrics["subject_id"] == "test_subject"
+        assert "global_efficiency" in metrics
+        assert "clustering_coefficient" in metrics
+        assert "average_path_length" in metrics
+        assert "mean_degree_centrality" in metrics
+        assert metrics["n_nodes"] == n_nodes
 
-def test_compute_subject_metrics_with_realistic_matrix():
-    """Test metric computation with a realistic connectivity matrix."""
-    # Create a random correlation-like matrix
-    np.random.seed(42)
-    n_regions = 90  # AAL atlas size
-    matrix = np.random.randn(n_regions, 100)
-    corr_matrix = np.corrcoef(matrix)
-    corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
-    
-    metrics = compute_subject_metrics(corr_matrix)
-    
-    assert "degree" in metrics
-    assert "global_efficiency" in metrics
-    assert "clustering_coefficient" in metrics
-    assert "path_length" in metrics
-    
-    # Values should be reasonable
-    assert 0 <= metrics["degree"] <= n_regions - 1
-    assert 0 <= metrics["global_efficiency"] <= 1.0
-    assert 0 <= metrics["clustering_coefficient"] <= 1.0
-    assert metrics["path_length"] >= 0
+    def test_memory_usage_check(self):
+        """Test memory usage monitoring."""
+        ram_gb = check_memory_usage()
+        assert 0 < ram_gb < 100  # Should be reasonable (not negative, not absurdly high)
 
+    def test_disconnected_graph(self):
+        """Test handling of disconnected graph."""
+        # Create a graph with two disconnected components
+        G = nx.Graph()
+        G.add_edges_from([(0, 1), (1, 2)])
+        G.add_edges_from([(3, 4), (4, 5)])
+        
+        # Should not crash
+        efficiency = calculate_global_efficiency(G)
+        assert efficiency is not None
+        assert efficiency >= 0
 
-def test_compute_subject_metrics_with_none():
-    """Test that None input returns zeros."""
-    metrics = compute_subject_metrics(None)
-    assert metrics["degree"] == 0.0
-    assert metrics["global_efficiency"] == 0.0
-    assert metrics["clustering_coefficient"] == 0.0
-    assert metrics["path_length"] == 0.0
+    def test_single_node_graph(self):
+        """Test handling of single node graph."""
+        G = nx.Graph()
+        G.add_node(0)
+        
+        # Should handle gracefully
+        degree = calculate_degree_centrality(G)
+        assert degree[0] == 0.0
 
-
-def test_empty_graph_metrics():
-    """Test metrics computation on empty graph."""
-    adj = np.zeros((5, 5))
-    metrics = compute_subject_metrics(adj)
-    assert metrics["degree"] == 0.0
-    assert metrics["global_efficiency"] == 0.0
-    assert metrics["clustering_coefficient"] == 0.0
-    assert metrics["path_length"] == 0.0
+    def test_metrics_values_in_range(self):
+        """Test that metrics are within expected ranges."""
+        np.random.seed(42)
+        matrix = np.random.rand(10, 10)
+        matrix = (matrix + matrix.T) / 2
+        np.fill_diagonal(matrix, 0)
+        
+        metrics = compute_subject_metrics(matrix, "test")
+        
+        # Efficiency should be between 0 and 1
+        assert 0 <= metrics["global_efficiency"] <= 1
+        
+        # Clustering coefficient should be between 0 and 1
+        assert 0 <= metrics["clustering_coefficient"] <= 1
+        
+        # Path length should be positive
+        assert metrics["average_path_length"] > 0

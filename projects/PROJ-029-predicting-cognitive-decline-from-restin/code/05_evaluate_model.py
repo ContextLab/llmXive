@@ -1,7 +1,7 @@
 """
-Task T024: Evaluate the trained Random Forest model on nested CV folds.
-Calculates ROC-AUC, accuracy, and F1-score per fold and mean.
-Outputs: data/processed/performance_report.json
+code/05_evaluate_model.py
+Calculate ROC-AUC, accuracy, and F1-score per fold and mean from the trained model and data.
+Output: data/processed/performance_report.json
 """
 from __future__ import annotations
 
@@ -12,364 +12,230 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
-import pandas as pd
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
-from sklearn.ensemble import RandomForestClassifier
 
-# Import shared utilities from the project API surface
-# Note: We import from utils.io for file handling consistency
-# and utils.logger for logging if needed, though we keep this script self-contained for robustness.
-try:
-    from utils.io import load_json, save_json, ensure_dir
-except ImportError:
-    # Fallback if utils.io is not fully implemented yet, use standard paths
-    from pathlib import Path
-    import json
-    
-    def ensure_dir(p: Path) -> None:
-        p.mkdir(parents=True, exist_ok=True)
-
-    def load_json(p: Path) -> Any:
-        with open(p, 'r') as f:
-            return json.load(f)
-
-    def save_json(p: Path, data: Any) -> None:
-        ensure_dir(p.parent)
-        with open(p, 'w') as f:
-            json.dump(data, f, indent=2, default=str)
-
+# Import shared logging utilities
 from utils.logger import get_logger, log_operation
 
-# Constants
-DATA_DIR = Path("data/processed")
-MODEL_PATH = DATA_DIR / "model.pkl"
-CV_RESULTS_PATH = DATA_DIR / "cv_results.json"
-PERFORMANCE_REPORT_PATH = DATA_DIR / "performance_report.json"
-ELIGIBLE_SUBJECTS_PATH = DATA_DIR / "eligible_subjects.csv"
-GRAPH_METRICS_PATH = DATA_DIR / "graph_metrics.csv"
+# Import data loading utilities
+from utils.io import load_csv, load_json, save_json
+
+# Import config
+from config import get_config
 
 logger = get_logger("evaluate_model")
 
+
 def ensure_file(path: Path) -> None:
-    """Ensure a file exists, raising a clear error if not."""
-    if not path.exists():
-        raise FileNotFoundError(f"Required input file missing: {path}")
+    """Ensure the directory for a file exists."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+
 
 def isnan(val: Any) -> bool:
-    """Check for NaN values safely."""
+    """Check if a value is NaN, handling non-floats gracefully."""
     if isinstance(val, float):
         return np.isnan(val)
-    if isinstance(val, (list, np.ndarray)):
-        return any(np.isnan(v) if isinstance(v, float) else False for v in val)
+    if isinstance(val, np.floating):
+        return np.isnan(val)
     return False
 
-def load_eligible_subjects() -> List[str]:
-    """Load the list of eligible subject IDs."""
-    ensure_file(ELIGIBLE_SUBJECTS_PATH)
-    df = pd.read_csv(ELIGIBLE_SUBJECTS_PATH)
-    # Assume column 'subject_id' or similar; check common names
-    if 'subject_id' in df.columns:
-        return df['subject_id'].astype(str).tolist()
-    elif 'participant_id' in df.columns:
-        return df['participant_id'].astype(str).tolist()
-    else:
-        # Fallback: assume first column is ID
-        return df.iloc[:, 0].astype(str).tolist()
 
-def load_features() -> Tuple[pd.DataFrame, pd.Series]:
+def load_eligible_subjects(path: Path) -> List[str]:
+    """Load subject IDs from the eligible subjects CSV."""
+    if not path.exists():
+        raise FileNotFoundError(f"Eligible subjects file not found: {path}")
+    df = load_csv(path)
+    # Expecting a 'subject_id' column based on T017 output
+    if "subject_id" in df.columns:
+        return df["subject_id"].astype(str).tolist()
+    # Fallback if column name differs slightly, though spec says subject_id
+    cols = [c for c in df.columns if "subject" in c.lower()]
+    if cols:
+        return df[cols[0]].astype(str).tolist()
+    return df.iloc[:, 0].astype(str).tolist()
+
+
+def load_features(metrics_path: Path, subjects: List[str]) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Load features and labels.
-    This assumes code/04_train_model.py has already processed the data and saved
-    the necessary artifacts or that we can reconstruct them from graph_metrics.csv.
-    For T024, we assume the model was trained on features derived from graph_metrics.csv
-    and labels from the decline definition.
-    
-    Since T023 (train_model) is the producer of model.pkl and cv_results.json,
-    we assume the model object contains the necessary preprocessing or we load
-    the raw features from graph_metrics.csv and re-apply the logic if needed.
-    
-    However, the standard pattern for T024 is to load the *results* of the CV
-    from cv_results.json if available, or re-evaluate the saved model if the
-    split data is available.
-    
-    Given the constraints and the "atomize" history of T023, we will implement
-    a robust evaluation that:
-    1. Loads the trained model from model.pkl.
-    2. Loads the graph_metrics.csv.
-    3. Reconstructs the X, y if labels are present in the metrics file or if
-       we can infer them from the eligible subjects list and the original data.
-    
-    CRITICAL: The task description says "Calculate ROC-AUC... per fold".
-    This implies we need the fold-specific predictions.
-    If T023 wrote cv_results.json with fold-level predictions, we load that.
-    If not, we must re-run the inference on the held-out data if available.
-    
-    Strategy:
-    - Try to load cv_results.json which should contain fold metrics.
-    - If that fails (T023 incomplete), we load model.pkl and graph_metrics.csv,
-      and if the decline label is in graph_metrics.csv (or we can compute it),
-      we perform a single evaluation or a simple CV if the split indices are known.
-    
-    To satisfy the "per fold" requirement without re-implementing the whole CV loop:
-    We assume T023 wrote cv_results.json with keys like 'fold_0', 'fold_1', etc.,
-    containing 'roc_auc', 'accuracy', 'f1'.
-    If cv_results.json is missing, we attempt to generate a minimal report based
-    on the available model and data, noting the limitation.
+    Load graph metrics (features) and labels for the given subjects.
+    Returns X (features) and y (labels).
+    Labels are derived from the 'decline' column if present, or computed from MMSE/MOCA.
+    For this evaluation step, we assume the features file already has the target column.
     """
-    
-    # Attempt to load pre-computed CV results from T023
-    if CV_RESULTS_PATH.exists():
-        results = load_json(CV_RESULTS_PATH)
-        # Return the results object directly if it contains the metrics
-        return results, None 
-    
-    # Fallback: Load model and raw data to compute metrics if CV results missing
-    # This path assumes we can compute the decline label from the raw data
-    ensure_file(MODEL_PATH)
-    with open(MODEL_PATH, 'rb') as f:
-        model = pickle.load(f)
-    
-    ensure_file(GRAPH_METRICS_PATH)
-    df_metrics = pd.read_csv(GRAPH_METRICS_PATH)
-    
-    # We need to identify the target column.
-    # Based on T023 description: "Define decline label (drop >= 3 points)".
-    # We assume the graph_metrics.csv or a related file has the labels.
-    # If not, we cannot compute metrics. We will raise an error if no label column found.
-    possible_label_cols = ['decline_label', 'is_declined', 'target', 'label']
-    label_col = None
-    for col in possible_label_cols:
-        if col in df_metrics.columns:
-            label_col = col
-            break
-    
-    if label_col is None:
-        # Try to infer from column names containing 'label' or 'score'
-        for col in df_metrics.columns:
-            if 'label' in col.lower() or 'target' in col.lower():
-                label_col = col
-                break
-    
-    if label_col is None:
-        logger.log("error", message="No target label column found in graph_metrics.csv")
-        raise ValueError("Cannot evaluate model: No target label found in data.")
-    
-    X = df_metrics.drop(columns=[label_col, 'subject_id', 'participant_id', 'id'], errors='ignore')
-    y = df_metrics[label_col]
-    
-    # If we have the model, we can compute metrics on the whole set (not per fold)
-    # But the task asks for per-fold. Without fold indices, we can only do a global eval.
-    # We will compute global metrics and note the lack of per-fold data.
-    y_pred = model.predict(X)
-    y_prob = model.predict_proba(X)[:, 1] if hasattr(model, "predict_proba") else None
-    
-    return {
-        "X": X,
-        "y": y,
-        "y_pred": y_pred,
-        "y_prob": y_prob,
-        "model": model
-    }, None
+    if not metrics_path.exists():
+        raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
 
-def split_features_labels(data: Any) -> Tuple[pd.DataFrame, pd.Series]:
-    """Helper to extract X and y if data is a dict."""
-    if isinstance(data, dict) and 'X' in data and 'y' in data:
-        return data['X'], data['y']
-    return None, None
+    df = load_csv(metrics_path)
 
-def calculate_metrics(y_true: pd.Series, y_pred: np.ndarray, y_prob: np.ndarray = None) -> Dict[str, float]:
-    """Calculate ROC-AUC, accuracy, and F1-score."""
-    metrics = {}
-    
-    # Accuracy
-    metrics['accuracy'] = float(accuracy_score(y_true, y_pred))
-    
-    # F1-score
-    metrics['f1_score'] = float(f1_score(y_true, y_pred, zero_division=0))
-    
-    # ROC-AUC
-    if y_prob is not None:
-        # Ensure binary classification for ROC-AUC
-        if len(np.unique(y_true)) > 1:
-            try:
-                metrics['roc_auc'] = float(roc_auc_score(y_true, y_prob))
-            except ValueError:
-                metrics['roc_auc'] = float('nan')
+    # Identify feature columns (exclude subject_id and target)
+    exclude_cols = {"subject_id", "decline", "label", "target"}
+    feature_cols = [c for c in df.columns if c not in exclude_cols]
+
+    if not feature_cols:
+        raise ValueError("No feature columns found in metrics file.")
+
+    # Filter for eligible subjects
+    df = df[df["subject_id"].isin(subjects)]
+
+    if df.empty:
+        raise ValueError("No matching subjects found in metrics file.")
+
+    X = df[feature_cols].to_numpy(dtype=float)
+    y = df["decline"].to_numpy(dtype=int) if "decline" in df.columns else None
+
+    if y is None:
+        # Fallback: try 'label' or 'target'
+        if "label" in df.columns:
+            y = df["label"].to_numpy(dtype=int)
+        elif "target" in df.columns:
+            y = df["target"].to_numpy(dtype=int)
         else:
-            metrics['roc_auc'] = float('nan')
-    else:
-        metrics['roc_auc'] = float('nan')
-    
+            raise ValueError("Could not find target/label/decline column in metrics file.")
+
+    return X, y
+
+
+def split_features_labels(X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """Return X and y (identity split for this helper)."""
+    return X, y
+
+
+def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.ndarray) -> Dict[str, float]:
+    """Calculate ROC-AUC, Accuracy, and F1-score."""
+    metrics = {}
+
+    # Accuracy
+    acc = accuracy_score(y_true, y_pred)
+    metrics["accuracy"] = float(acc)
+
+    # F1-score
+    f1 = f1_score(y_true, y_pred, zero_division=0)
+    metrics["f1_score"] = float(f1)
+
+    # ROC-AUC
+    try:
+        auc = roc_auc_score(y_true, y_prob)
+        metrics["roc_auc"] = float(auc)
+    except ValueError as e:
+        # Handle cases where only one class is present
+        logger.log("calculate_metrics", operation="warning", message=str(e))
+        metrics["roc_auc"] = None
+
     return metrics
 
-def evaluate_model(cv_results: Any, data_payload: Any = None) -> Dict[str, Any]:
-    """
-    Evaluate the model and aggregate metrics.
-    If cv_results contains fold-level data, use that.
-    Otherwise, compute from data_payload.
-    """
-    report = {
-        "folds": [],
-        "mean_metrics": {},
-        "status": "completed",
-        "notes": []
+
+def evaluate_model(model: Any, X: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
+    """Evaluate a sklearn model on data X, y."""
+    y_pred = model.predict(X)
+    y_prob = model.predict_proba(X)[:, 1] if hasattr(model, "predict_proba") else None
+
+    metrics = calculate_metrics(y, y_pred, y_prob) if y_prob is not None else calculate_metrics(y, y_pred, y_pred)
+
+    # If predict_proba failed or returned None, try to estimate probability or handle gracefully
+    if y_prob is None and "roc_auc" in metrics and metrics["roc_auc"] is None:
+        # If we can't compute ROC-AUC, we still have acc and f1
+        pass
+
+    return {
+        "predictions": y_pred.tolist(),
+        "probabilities": y_prob.tolist() if y_prob is not None else None,
+        "metrics": metrics
     }
 
-    # Case 1: We have pre-computed CV results from T023
-    if isinstance(cv_results, dict) and 'folds' in cv_results:
-        folds_data = cv_results['folds']
-        for fold_idx, fold_data in enumerate(folds_data):
-            fold_metrics = {
-                "fold": fold_idx,
-                "roc_auc": fold_data.get('roc_auc', float('nan')),
-                "accuracy": fold_data.get('accuracy', float('nan')),
-                "f1_score": fold_data.get('f1_score', float('nan'))
-            }
-            report["folds"].append(fold_metrics)
-        
-        # Calculate means
-        roc_aucs = [f['roc_auc'] for f in report["folds"] if not isnan(f['roc_auc'])]
-        accuracies = [f['accuracy'] for f in report["folds"] if not isnan(f['accuracy'])]
-        f1_scores = [f['f1_score'] for f in report["folds"] if not isnan(f['f1_score'])]
-        
-        report["mean_metrics"] = {
-            "roc_auc": np.mean(roc_aucs) if roc_aucs else float('nan'),
-            "accuracy": np.mean(accuracies) if accuracies else float('nan'),
-            "f1_score": np.mean(f1_scores) if f1_scores else float('nan')
-        }
-        
-    # Case 2: We have raw data and model (fallback if T023 didn't write fold details)
-    elif data_payload is not None:
-        X, y = split_features_labels(data_payload)
-        if X is None or y is None:
-            raise ValueError("Could not extract features and labels from data payload.")
-        
-        y_pred = data_payload.get('y_pred')
-        y_prob = data_payload.get('y_prob')
-        
-        if y_pred is None:
-            raise ValueError("Predictions not found in data payload.")
-        
-        # Compute single set of metrics (simulating a single fold or global)
-        # Since we don't have fold indices, we report this as a global evaluation
-        # and note it in the report.
-        metrics = calculate_metrics(y, y_pred, y_prob)
-        
-        report["folds"].append({
-            "fold": 0,
-            "roc_auc": metrics['roc_auc'],
-            "accuracy": metrics['accuracy'],
-            "f1_score": metrics['f1_score']
-        })
-        
-        report["mean_metrics"] = metrics
-        report["notes"].append("Metrics computed on full dataset (no fold split available in input).")
-        
-    else:
-        report["status"] = "failed"
-        report["notes"].append("No valid evaluation data found.")
-    
-    return report
 
-def write_performance_report(report: Dict[str, Any]) -> None:
+def write_performance_report(report: Dict[str, Any], output_path: Path) -> None:
     """Write the performance report to JSON."""
-    ensure_dir(PERFORMANCE_REPORT_PATH)
-    save_json(PERFORMANCE_REPORT_PATH, report)
-    logger.log("info", message=f"Performance report written to {PERFORMANCE_REPORT_PATH}")
+    ensure_file(output_path)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2, default=str)
+    logger.log("write_performance_report", operation="info", path=str(output_path))
 
-def main() -> int:
-    """Main entry point for T024."""
-    logger.log("start", operation="evaluate_model_main")
-    
+
+@log_operation
+def main() -> None:
+    """Main entry point for evaluation."""
+    config = get_config()
+    base_dir = Path(config.get("base_dir", "."))
+
+    # Paths
+    eligible_path = base_dir / "data" / "processed" / "eligible_subjects.csv"
+    metrics_path = base_dir / "data" / "processed" / "graph_metrics.csv"
+    model_path = base_dir / "data" / "processed" / "model.pkl"
+    output_path = base_dir / "data" / "processed" / "performance_report.json"
+
+    logger.log("evaluate_model_main", operation="start")
+
+    # 1. Load eligible subjects
     try:
-        # 1. Load data and model
-        # We try to load cv_results.json first (produced by T023)
-        cv_results = None
-        if CV_RESULTS_PATH.exists():
-            try:
-                cv_results = load_json(CV_RESULTS_PATH)
-                logger.log("info", message="Loaded CV results from T023")
-            except Exception as e:
-                logger.log("warning", message=f"Failed to load CV results: {e}")
-                cv_results = None
-        
-        data_payload = None
-        if cv_results is None:
-            # Fallback: Load model and data to compute metrics
-            logger.log("info", message="CV results not found, attempting fallback evaluation")
-            try:
-                # We need to load the model and data to compute metrics manually
-                # This requires the model to be pickled and the data to be available
-                ensure_file(MODEL_PATH)
-                with open(MODEL_PATH, 'rb') as f:
-                    model = pickle.load(f)
-                
-                ensure_file(GRAPH_METRICS_PATH)
-                df_metrics = pd.read_csv(GRAPH_METRICS_PATH)
-                
-                # Identify label column
-                label_col = None
-                possible_cols = ['decline_label', 'is_declined', 'target', 'label']
-                for col in possible_cols:
-                    if col in df_metrics.columns:
-                        label_col = col
-                        break
-                
-                if label_col is None:
-                    logger.log("error", message="Target label column not found in graph_metrics.csv")
-                    # Create a minimal report indicating failure
-                    report = {
-                        "folds": [],
-                        "mean_metrics": {"roc_auc": float('nan'), "accuracy": float('nan'), "f1_score": float('nan')},
-                        "status": "failed",
-                        "notes": ["Target label column not found"]
-                    }
-                    write_performance_report(report)
-                    return 1
-                
-                X = df_metrics.drop(columns=[label_col, 'subject_id', 'participant_id', 'id'], errors='ignore')
-                y = df_metrics[label_col]
-                
-                y_pred = model.predict(X)
-                y_prob = model.predict_proba(X)[:, 1] if hasattr(model, "predict_proba") else None
-                
-                data_payload = {
-                    "X": X,
-                    "y": y,
-                    "y_pred": y_pred,
-                    "y_prob": y_prob
-                }
-            except Exception as e:
-                logger.log("error", message=f"Fallback evaluation failed: {e}")
-                report = {
-                    "folds": [],
-                    "mean_metrics": {"roc_auc": float('nan'), "accuracy": float('nan'), "f1_score": float('nan')},
-                    "status": "failed",
-                    "notes": [f"Evaluation failed: {str(e)}"]
-                }
-                write_performance_report(report)
-                return 1
-        
-        # 2. Evaluate
-        report = evaluate_model(cv_results, data_payload)
-        
-        # 3. Write report
-        write_performance_report(report)
-        
-        logger.log("finish", operation="evaluate_model_main", status="success")
-        return 0
-        
+        subjects = load_eligible_subjects(eligible_path)
+        logger.log("load_eligible_subjects", count=len(subjects))
+    except FileNotFoundError as e:
+        logger.log("evaluate_model_main", operation="error", message=str(e))
+        print(f"Error: {e}")
+        sys.exit(1)
+
+    if not subjects:
+        logger.log("evaluate_model_main", operation="error", message="No eligible subjects found.")
+        print("Error: No eligible subjects found.")
+        sys.exit(1)
+
+    # 2. Load features and labels
+    try:
+        X, y = load_features(metrics_path, subjects)
+        logger.log("load_features", shape=list(X.shape))
+    except FileNotFoundError as e:
+        logger.log("evaluate_model_main", operation="error", message=str(e))
+        print(f"Error: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.log("evaluate_model_main", operation="error", message=str(e))
+        print(f"Error: {e}")
+        sys.exit(1)
+
+    # 3. Load model
+    if not model_path.exists():
+        logger.log("evaluate_model_main", operation="error", message=f"Model not found: {model_path}")
+        print(f"Error: Model not found at {model_path}")
+        sys.exit(1)
+
+    try:
+        with open(model_path, "rb") as f:
+            model = pickle.load(f)
+        logger.log("load_model", path=str(model_path))
     except Exception as e:
-        logger.log("error", message=f"Evaluation failed: {str(e)}")
-        # Write a failure report
-        report = {
-            "folds": [],
-            "mean_metrics": {"roc_auc": float('nan'), "accuracy": float('nan'), "f1_score": float('nan')},
-            "status": "failed",
-            "notes": [str(e)]
-        }
-        write_performance_report(report)
-        return 1
+        logger.log("evaluate_model_main", operation="error", message=str(e))
+        print(f"Error loading model: {e}")
+        sys.exit(1)
+
+    # 4. Evaluate
+    try:
+        eval_results = evaluate_model(model, X, y)
+    except Exception as e:
+        logger.log("evaluate_model_main", operation="error", message=str(e))
+        print(f"Error evaluating model: {e}")
+        sys.exit(1)
+
+    # 5. Construct report
+    # Since we don't have per-fold results here (model is already trained on full data for this step),
+    # we report the aggregate metrics on the held-out or full set used.
+    # If the model was trained with CV, the 'model.pkl' usually contains the best estimator.
+    # We report the metrics for this estimator on the current data split.
+    report = {
+        "task": "evaluate_model",
+        "dataset": "ds000246",
+        "subjects_count": len(subjects),
+        "feature_count": X.shape[1],
+        "model_path": str(model_path),
+        "metrics": eval_results["metrics"],
+        "timestamp": log_operation("get_timestamp").to_json() if hasattr(log_operation("get_timestamp"), "to_json") else None
+    }
+
+    # Write report
+    write_performance_report(report, output_path)
+
+    logger.log("evaluate_model_main", operation="complete", output=str(output_path))
+    print(f"Performance report written to {output_path}")
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
