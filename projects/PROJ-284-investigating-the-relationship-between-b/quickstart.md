@@ -1,47 +1,44 @@
 # Quickstart Guide
 
-This guide validates the pipeline execution.
+This guide outlines the steps to run the full analysis pipeline for PROJ-284.
 
 ## Prerequisites
+
 - Python 3.11+
-- Install dependencies: `pip install -r requirements.txt`
+- Dependencies installed: `pip install -r requirements.txt`
 
-## Steps
+## Step-by-Step Execution
 
-### 1. Download and Preprocess (T012, T013)
+### 1. Setup and Data Download
+Run the download and preprocessing pipeline.
 ```bash
-python code/main.py --step download_preprocess --subjects 5
-```
-*Note: This step requires HCP credentials or will use the ADHD dataset fallback for testing.*
-
-### 2. Extract Metrics (T017)
-```bash
-python code/data/metrics.py --subject 100307 --nifti data/processed/sub-100307_preproc.nii.gz
-```
-*Output: data/processed/aggregated_metrics.csv*
-
-### 3. Create Full Metrics (T017 + T023)
-```bash
-python code/analysis/create_full_metrics.py
-```
-*Output: data/analysis/full_metrics.csv*
-
-### 4. Run Correlations (T024)
-```bash
-python code/analysis/run_correlations.py
+python code/main.py --step download_preprocess --subjects 50
 ```
 
-### 5. Generate Report (T033)
+### 2. Extract Metrics
+Calculate graph metrics and aggregate them.
 ```bash
-python code/report/generate.py
+python code/main.py --step metrics
 ```
 
-## Validation
-Verify that `data/analysis/full_metrics.csv` exists and contains columns:
-- subject_id
-- modularity
-- global_efficiency
-- participation_coefficient
-- within_module_degree
-- pca_factor_1
-- pca_factor_2
+### 3. Run Analysis (PCA, Correlations, FDR)
+This step performs PCA, calculates correlations with FD covariate, applies Benjamini-Hochberg FDR correction, and saves all results including `factor_scores.csv`.
+```bash
+python code/main.py --step correlations
+```
+
+### 4. Visualization and Reporting
+Generate scatter plots, network diagrams, and the final report.
+```bash
+python code/main.py --step viz_report
+```
+
+## Output Artifacts
+
+- `data/processed/aggregated_metrics.csv`: Aggregated node-level metrics.
+- `data/analysis/pca_loadings.csv`: PCA component loadings.
+- `data/analysis/factor_scores.csv`: Subject-level PCA factor scores.
+- `data/analysis/full_metrics.csv`: Merged raw metrics and PCA scores.
+- `data/analysis/correlation_results.csv`: Correlation results with FDR correction.
+- `figures/*.png`: Generated plots.
+- `docs/report.md`: Final analysis report.

@@ -1,60 +1,53 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
-
-The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
-
-1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
-2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
-3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
-
-- code/data/metrics.py: self-declared fabricated metric — “…fficiency, etc.     """     # Mock metrics for synthetic data     # In…”
-- code/data/metrics.py: function `extract_time_series` returns a bare RNG draw (line 59) — a reported value computed from no real input
-- code/data/metrics.py: synthetic/fake INPUT data not authorized by the spec — “…unning         # We will generate synthetic time series based on sub…”
-- code/data/metrics.py: synthetic/fake INPUT data not authorized by the spec — “…Mock implementation for synthetic data path     # In real: use…”
-- code/data/metrics.py: synthetic/fake INPUT data not authorized by the spec — “…"     # Mock metrics for synthetic data     # In real: use netwo…”
-- code/data/metrics.py: synthetic/fake INPUT data not authorized by the spec — “…d=subject_id)          # Mock data generation for T021/T022…”
-- code/data/metrics.py: synthetic/fake INPUT data not authorized by the spec — “…us="running")          # Generate synthetic data for testing the pip…”
-- code/data/metrics.py: synthetic/fake INPUT data not authorized by the spec — “…023b             # OR we generate a synthetic motor_score correlated w…”
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 8 fabricated/simulated-result signal(s) — results are not real measurements: code/data/metrics.py: self-declared fabricated metric — “…fficiency, etc.     """     # Mock metrics for synthetic data     # In…”; code/data/metrics.py: function `extract_time_series` returns a bare RNG draw (line 59) — a reported value computed from no real input; code/data/metrics.py: synthetic/fake INPUT data not authorized by the spec — “…unning         # We will generate synthetic time series based on sub…”; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=1); python code/main.py --step analyze (rc=1); 1 declared deliverable(s) absent: data/analysis/full_metrics.csv
+**Summary**: 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=2); python code/main.py --step analyze (rc=2); 1 declared deliverable(s) absent: data/analysis/factor_scores.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --step download_preprocess --subjects 50 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 11, in <module>
-    from code.data.metrics import main as metrics_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/metrics.py", line 11, in <module>
-    from nilearn import datasets
-ImportError: cannot import name 'datasets' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/nilearn/__init__.py)
-- python code/main.py --step extract_metrics -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 11, in <module>
-    from code.data.metrics import main as metrics_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/metrics.py", line 11, in <module>
-    from nilearn import datasets
-ImportError: cannot import name 'datasets' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/nilearn/__init__.py)
-- python code/main.py --step analyze -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 11, in <module>
-    from code.data.metrics import main as metrics_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/metrics.py", line 11, in <module>
-    from nilearn import datasets
-ImportError: cannot import name 'datasets' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/nilearn/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 52, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 48, in main
+    result = run_pipeline(args.step, args.subjects)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 28, in run_pipeline
+    download_pipeline(subjects=subjects)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/download.py", line 61, in download_pipeline
+    logger.log("download_pipeline_start", subjects=len(subjects))
+                                                   ^^^^^^^^^^^^^
+TypeError: object of type 'int' has no len()
+- python code/main.py --step extract_metrics -> rc=2
+    usage: main.py [-h] --step
+               {download_preprocess,metrics,correlations,viz_report}
+               [--subjects SUBJECTS]
+main.py: error: argument --step: invalid choice: 'extract_metrics' (choose from 'download_preprocess', 'metrics', 'correlations', 'viz_report')
+- python code/main.py --step analyze -> rc=2
+    usage: main.py [-h] --step
+               {download_preprocess,metrics,correlations,viz_report}
+               [--subjects SUBJECTS]
+main.py: error: argument --step: invalid choice: 'analyze' (choose from 'download_preprocess', 'metrics', 'correlations', 'viz_report')
 - python code/main.py --step viz_report -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 11, in <module>
-    from code.data.metrics import main as metrics_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/metrics.py", line 11, in <module>
-    from nilearn import datasets
-ImportError: cannot import name 'datasets' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/nilearn/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 52, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 48, in main
+    result = run_pipeline(args.step, args.subjects)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 37, in run_pipeline
+    viz_scatter_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/viz/scatter.py", line 61, in main
+    generate_scatter_plot(**kwargs)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/logging_config.py", line 68, in _wrapper
+    return func(*a, **k)
+           ^^^^^^^^^^^^^
+TypeError: generate_scatter_plot() missing 4 required positional arguments: 'input', 'x', 'y', and 'output'
 
 ## Declared deliverables still missing
 
-- data/analysis/full_metrics.csv
+- data/analysis/factor_scores.csv
 
 ## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
 
@@ -89,6 +82,13 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 **CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
+
+### `generate_scatter_plot` — defined in `code/viz/scatter.py`; called 2 way(s):
+
+- code/viz/scatter.py: generate_scatter_plot(**kwargs)
+- code/viz/scatter.py: generate_scatter_plot(
+
+Make `generate_scatter_plot` in `code/viz/scatter.py` accept ALL of the above.
 
 ### `get_logger` — defined in `code/logging_config.py`; called 25 way(s):
 
@@ -204,13 +204,11 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/analysis/full_metrics.csv` is declared but was NOT written. Scripts referencing it:
+- `data/analysis/factor_scores.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/correlations.py` — NOT invoked by the run-book
     - `code/analysis/generate_full_metrics.py` — NOT invoked by the run-book
-    - `code/analysis/run_correlations.py` — NOT invoked by the run-book
     - `code/analysis/create_full_metrics.py` — NOT invoked by the run-book
-    - `code/tools/verify_batching.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/analysis/full_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+  Make ONE of these WRITE `data/analysis/factor_scores.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 
@@ -220,5 +218,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `data/processed/aggregated_metrics.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/analysis/correlations.py`, `code/data/metrics.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/aggregated_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/analysis/correlations.py`, `code/analysis/pca_runner.py`, `code/analysis/create_full_metrics.py`, `code/tools/verify_batching.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/analysis/correlations.py`, `code/analysis/create_full_metrics.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/aggregated_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/analysis/correlations.py`, `code/analysis/generate_full_metrics.py`, `code/analysis/pca_runner.py`, `code/analysis/create_full_metrics.py`, `code/tools/verify_batching.py`.

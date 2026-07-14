@@ -1,5 +1,9 @@
 [
   {
+    "symbol": "generate_scatter_plot",
+    "owner": null
+  },
+  {
     "symbol": "get_logger",
     "owner": null
   }
