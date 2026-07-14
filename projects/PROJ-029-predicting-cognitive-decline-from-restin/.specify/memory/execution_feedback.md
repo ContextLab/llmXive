@@ -23,59 +23,68 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/01_download_and_filter.py: synthetic/fake INPUT data not authorized by the spec — “…'cognitive_decline_fMRI' simulated dataset hosted on Hugging Face (…”; 7 command(s) failed: python code/01_download_and_filter.py (rc=2); python code/03_compute_graph_metrics.py (rc=1); python code/04_train_model.py (rc=1); 4 declared deliverable(s) absent: data/processed/graph_metrics.csv; data/processed/performance_report.json; data/processed/permutation_results.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/01_download_and_filter.py: synthetic/fake INPUT data not authorized by the spec — “…'cognitive_decline_fMRI' simulated dataset hosted on Hugging Face (…”; 7 command(s) failed: python code/01_download_and_filter.py (rc=2); python code/03_compute_graph_metrics.py (rc=1); python code/04_train_model.py (rc=1); 3 declared deliverable(s) absent: data/processed/graph_metrics.csv; data/processed/performance_report.json; data/processed/permutation_results.json
 
 ## Failing / missing run-book commands
 
 - python code/01_download_and_filter.py -> rc=2
-    07:48:02,021 - 01_download_and_filter - INFO - Checking availability of ds000246...
+    07:55:12,467 - 01_download_and_filter - INFO - Checking availability of ds000246...
 INFO:01_download_and_filter:Checking availability of ds000246...
-2026-07-14 07:48:02,230 - 01_download_and_filter - WARNING - OpenNeuro API check failed: HTTPSConnectionPool(host='api.openneuro.org', port=443): Max retries exceeded with url: /datasets/ds000246 (Caused by NameResolutionError("HTTPSConnection(host='api.openneuro.org', port=443): Failed to resolve 'api.openneuro.org' ([Errno -2] Name or service not known)")). Will try Hugging Face fallback.
+2026-07-14 07:55:12,672 - 01_download_and_filter - WARNING - OpenNeuro API check failed: HTTPSConnectionPool(host='api.openneuro.org', port=443): Max retries exceeded with url: /datasets/ds000246 (Caused by NameResolutionError("HTTPSConnection(host='api.openneuro.org', port=443): Failed to resolve 'api.openneuro.org' ([Errno -2] Name or service not known)")). Will try Hugging Face fallback.
 WARNING:01_download_and_filter:OpenNeuro API check failed: HTTPSConnectionPool(host='api.openneuro.org', port=443): Max retries exceeded with url: /datasets/ds000246 (Caused by NameResolutionError("HTTPSConnection(host='api.openneuro.org', port=443): Failed to resolve 'api.openneuro.org' ([Errno -2] Name or service not known)")). Will try Hugging Face fallback.
-2026-07-14 07:48:02,230 - 01_download_and_filter - ERROR - No data source available.
+2026-07-14 07:55:12,672 - 01_download_and_filter - ERROR - No data source available.
 ERROR:01_download_and_filter:No data source available.
-2026-07-14 07:48:02,230 - 01_download_and_filter - ERROR - Dataset not available. Exiting.
+2026-07-14 07:55:12,672 - 01_download_and_filter - ERROR - Dataset not available. Exiting.
 ERROR:01_download_and_filter:Dataset not available. Exiting.
 - python code/03_compute_graph_metrics.py -> rc=1
-    2026-07-14 07:48:02,997 - graph_metrics - INFO - Starting T035: Compute Graph Metrics (Parallel Optimized)
-2026-07-14 07:48:02,998 - graph_metrics - ERROR - Subject list not found: /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/eligible_subjects.csv
+    2026-07-14 07:55:13,497 - graph_metrics - INFO - Starting T035: Compute Graph Metrics (Parallel Optimized)
+2026-07-14 07:55:13,497 - graph_metrics - ERROR - Unexpected error: 'data'
 - python code/04_train_model.py -> rc=1
-    2026-07-14 07:48:04,414 - 04_train_model - INFO - Starting T023: Train Model with Nested CV
-2026-07-14 07:48:04,414 - 04_train_model - INFO - Loading graph metrics from data/processed/graph_metrics.csv
-2026-07-14 07:48:04,414 - 04_train_model - ERROR - Graph metrics file not found: data/processed/graph_metrics.csv
-2026-07-14 07:48:04,414 - 04_train_model - ERROR - Please run code/03_compute_graph_metrics.py first.
+    2026-07-14 07:55:14,505 - 04_train_model - INFO - Starting T023: Train Model with Nested CV
+2026-07-14 07:55:14,505 - 04_train_model - INFO - Loading graph metrics from data/processed/graph_metrics.csv
+2026-07-14 07:55:14,505 - 04_train_model - ERROR - Graph metrics file not found: data/processed/graph_metrics.csv
+2026-07-14 07:55:14,505 - 04_train_model - ERROR - Please run code/03_compute_graph_metrics.py first.
 - python code/05_evaluate_model.py -> rc=1
-    2026-07-14 07:48:05,590 - evaluate_model - INFO - Starting T024: Evaluate Model
-2026-07-14 07:48:05,590 - evaluate_model - INFO - Model path: /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/model.pkl
-2026-07-14 07:48:05,590 - evaluate_model - INFO - Output path: /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/performance_report.json
-2026-07-14 07:48:05,590 - evaluate_model - INFO - Graph metrics path: /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/graph_metrics.csv
-2026-07-14 07:48:05,590 - evaluate_model - ERROR - Model file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/model.pkl. Run training first.
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py", line 217, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py", line 210, in main
+    model_path = Path(config['data']['processed']) / "model.pkl"
+                      ~~~~~~^^^^^^^^
+KeyError: 'data'
 - python code/06_permutation_test.py -> rc=1
-    {"status": "error", "message": "Model file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/model.pkl. Run training first."}
+    {"status": "error", "message": "Model file not found at data/processed/model.pkl. Run training first."}
 
-2026-07-14 07:48:06,772 - permutation_test - INFO - Starting Permutation Test (T029)
-2026-07-14 07:48:06,772 - permutation_test - ERROR - Permutation test failed
+2026-07-14 07:55:16,381 - permutation_test - INFO - Starting Permutation Test (T029)
+2026-07-14 07:55:16,382 - permutation_test - ERROR - Permutation test failed
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/06_permutation_test.py", line 207, in main
     model, df, X, y = load_model_and_data(logger)
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/06_permutation_test.py", line 62, in load_model_and_data
     raise FileNotFoundError(f"Model file not found at {model_file}. Run training first.")
-FileNotFoundError: Model file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/model.pkl. Run training first.
+FileNotFoundError: Model file not found at data/processed/model.pkl. Run training first.
 - python code/07_sensitivity_analysis.py -> rc=1
-    2026-07-14 07:48:07,955 - 07_sensitivity_analysis - INFO - Starting T030b: Sensitivity Analysis (Part 2)
-2026-07-14 07:48:07,955 - 07_sensitivity_analysis - ERROR - Graph metrics file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/graph_metrics.csv
+    2026-07-14 07:55:17,319 - sensitivity_analysis_part2 - INFO - Starting T030b: Sensitivity Analysis (Part 2)
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py", line 271, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py", line 249, in main
+    df, X, y_base = load_model_and_data(logger)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py", line 55, in load_model_and_data
+    data_path = Path(config["data"]["processed"])
+                     ~~~~~~^^^^^^^^
+KeyError: 'data'
 - python code/08_collinearity_check.py -> rc=1
-    2026-07-14 07:48:08,962 - collinearity_check - INFO - Starting T044: Collinearity Check
-2026-07-14 07:48:08,962 - collinearity_check - ERROR - Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/graph_metrics.csv
-2026-07-14 07:48:08,962 - collinearity_check - ERROR - This script requires 'data/processed/graph_metrics.csv' to be generated first by code/03_compute_graph_metrics.py.
+    2026-07-14 07:55:18,112 - 08_collinearity_check - ERROR - Input file not found: data/processed/graph_metrics.csv
+2026-07-14 07:55:18,112 - 08_collinearity_check - ERROR - This script requires 'data/processed/graph_metrics.csv' to be generated first by code/03_compute_graph_metrics.py.
 
 ## Declared deliverables still missing
 
 - data/processed/graph_metrics.csv
 - data/processed/performance_report.json
 - data/processed/permutation_results.json
-- data/processed/sensitivity_report.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -104,11 +113,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/09_generate_report.py` — IS a run-book command
     - `code/validate_quickstart.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/permutation_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/sensitivity_report.json` is declared but was NOT written. Scripts referencing it:
-    - `code/09_generate_report.py` — IS a run-book command
-    - `code/validate_quickstart.py` — NOT invoked by the run-book
-    - `code/07_sensitivity_analysis.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/sensitivity_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 
@@ -123,6 +127,14 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 - PRODUCER(s) to edit: `code/06_permutation_test.py`, `code/08_collinearity_check.py`, `code/validate_quickstart.py`
 - CONSUMER(s) that read it: `code/06_permutation_test.py`, `code/08_collinearity_check.py`, `code/06_runtime_verifier.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`, `code/07_sensitivity_analysis.py`
   → Edit the producer so every required name [data] is in `graph_metrics.csv`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
+
+### `model.pkl`
+
+- ACTUAL columns/keys the producer wrote: `(file not on disk this run)`
+- REQUIRED by the consumer(s): `[data]`
+- PRODUCER(s) to edit: `code/06_permutation_test.py`, `code/validate_quickstart.py`
+- CONSUMER(s) that read it: `code/06_permutation_test.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
+  → Edit the producer so every required name [data] is in `model.pkl`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
 
 ### `data/processed/eligible_subjects.csv`
 

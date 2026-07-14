@@ -851,3 +851,460 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T06:28:27Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Apply 90-region AAL atlas for parcellation
+  claim_id: c_e884fbfc
+  context: "Implement code/02_preprocess_and_parcellate.py: Load raw BIDS data, perform\
+    \ motion correction using fsl (mcflirt), normalization using nilearn, apply 90\u2011\
+    region AAL atlas, generate 90\xD790 connectivity matrices for each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply 90\u2011region AAL atlas"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:58:58Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Generate 90 by 90 connectivity matrices per subject
+  claim_id: c_2354026a
+  context: "Implement code/02_preprocess_and_parcellate.py: ...apply 90\u2011region\
+    \ AAL atlas, generate 90\xD790 connectivity matrices for each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate 90\xD790 connectivity matrices"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:59:14Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Limit dataset to minimum of 100 or available eligible subjects
+  claim_id: c_e5753cb7
+  context: 'Implement code/01_download_and_filter.py: ...limit to N = min(100, available_eligible),
+    fail if zero eligible subjects.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Limit dataset to N = min(100, available_eligible)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:59:43Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Exclude features with correlation greater than 0.95 keeping higher variance
+    feature
+  claim_id: c_22bfd786
+  context: "Inside the inner CV loop: perform collinearity check (exclude features\
+    \ with correlation > 0.95, keep higher\u2011variance feature)..."
+  evidence:
+    asserted: '0.95'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Keep higher\u2011variance feature when correlation > 0.95"
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T07:59:44Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Apply variance thresholding greater than 0.01
+  claim_id: c_f5cdf94d
+  context: "...apply Variance Thresholding (variance > 0.01) and RFE to select \u2264\
+    \ 20 features..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_variance_thresholding_greater_than_0.01
+  kind: magnitude
+  raw_text: Apply Variance Thresholding with variance > 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:00:22Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Select less than or equal to 20 features
+  claim_id: c_ccf454fd
+  context: "...apply Variance Thresholding (variance > 0.01) and RFE to select \u2264\
+    \ 20 features, then fit Random Forest."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_less_than_or_equal_to_20_features
+  kind: magnitude
+  raw_text: "Select \u2264 20 features"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:00:55Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Use nested cross-validation with 5-fold outer loop
+  claim_id: c_1be0625d
+  context: "Implement Nested CV (5\u2011fold outer, grid\u2011search inner for n_estimators\
+    \ \u2208 {50, 100, 200} and max_depth \u2208 {5, 10, None})."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use Nested CV with 5\u2011fold outer loop"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:01:18Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Test n_estimators values 50 100 and 200 in grid search
+  claim_id: c_ff0822d8
+  context: "Implement Nested CV (5\u2011fold outer, grid\u2011search inner for n_estimators\
+    \ \u2208 {50, 100, 200} and max_depth \u2208 {5, 10, None})."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test n_estimators values of 50, 100, and 200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:01:39Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Test max_depth values 5 10 and None in grid search
+  claim_id: c_162c0f58
+  context: "Implement Nested CV (5\u2011fold outer, grid\u2011search inner for n_estimators\
+    \ \u2208 {50, 100, 200} and max_depth \u2208 {5, 10, None})."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test max_depth values of 5, 10, and None
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:01:55Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Define cognitive decline label as drop of 3 points or more
+  claim_id: c_fd61ed01
+  context: "Implement code/04_train_model.py: Define decline label (drop \u2265 3\
+    \ points)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define decline label as drop \u2265 3 points"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:01:55Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Shuffle labels 500 times for permutation test with seed 42
+  claim_id: c_c69eddd2
+  context: "Execution: Shuffle labels 500 times (seed = 42), re\u2011train/re\u2011\
+    evaluate the model for each permutation, and record ROC\u2011AUC."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Shuffle labels 500 times for permutation test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:02:24Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Use random seed 42 for permutation test
+  claim_id: c_e24987aa
+  context: "Execution: Shuffle labels 500 times (seed = 42), re\u2011train/re\u2011\
+    evaluate the model for each permutation, and record ROC\u2011AUC."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random seed 42 for permutation test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:02:51Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Estimate runtime for 500 permutations before execution
+  claim_id: c_7f54a1d1
+  context: 'Pre-flight Check: Estimate runtime for 500 permutations; if > 2 hours,
+    abort with error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate runtime for 500 permutations before execution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:03:05Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Abort permutation test if 500 permutations exceed 2 hours
+  claim_id: c_2cf5fa14
+  context: 'Pre-flight Check: Estimate runtime for 500 permutations; if > 2 hours,
+    abort with error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if 500 permutations exceed 2 hours runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:03:16Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Perform decision threshold sweep over 0.45 0.50 and 0.55
+  claim_id: c_7727b265
+  context: 'Implement code/07_sensitivity_analysis.py (Part 1): Perform decision threshold
+    sweep over {0.45, 0.50, 0.55} on the trained model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform decision threshold sweep over {0.45, 0.50, 0.55}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:03:31Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Vary decline definition threshold by plus or minus 1 point
+  claim_id: c_eeda3278
+  context: "Vary the decline\u2011definition threshold by \xB1 1 point on raw MMSE/MOCA\
+    \ scores."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Vary decline\u2011definition threshold by \xB1 1 point"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:04:03Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Ensure nested cross-validation training completes within 30 minutes on
+    CPU-only runner
+  claim_id: c_055fc579
+  context: "Verify runtime: Ensure nested\u2011CV training completes within 30 minutes\
+    \ on the CPU\u2011only runner (use joblib with n_jobs=2 and monitor elapsed time)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure nested\u2011CV training completes within 30 minutes"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:04:28Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Use n_jobs 2 for parallelization in nested CV
+  claim_id: c_3963c03c
+  context: "Verify runtime: Ensure nested\u2011CV training completes within 30 minutes\
+    \ on the CPU\u2011only runner (use joblib with n_jobs=2 and monitor elapsed time)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use n_jobs=2 for parallelization in nested CV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:04:57Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Ensure total runtime is less than 6 hours
+  claim_id: c_423943a5
+  context: "Check that ROC\u2011AUC > 0.50, p < 0.05, and total runtime < 6 h; write\
+    \ VERIFICATION_STATUS and runtime_report.json."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Cleopatra premiered at the Rivoli Theatre in New York City on June 12,
+        1963, with an estimated audience of 10,000 spectators congregated outside.
+        Among those present at the premiere were Rex Harrison, Walter Wanger, Joseph
+        L. Mankiewicz, Darryl F. Zanuck, Jacob Javits, Richard Rodgers, Joan Fontaine,
+        Louis Nizer and Beatrice Miller. Burton and Taylor were not in attendance;
+        Taylor was in London and Burton was filming Becket (1964). On that night,
+        NBC's The Tonight Show Starring Johnny Carson featured a live telecast of
+        the film's world premiere, with Bert Parks interviewing Mankiewicz and other
+        celebrities. Top ticket prices at the Rivoli were a record $5.50. Soon after
+        the film's premiere, its running time was truncated from 244 to 221 minutes.
+        Two weeks after opening in New York, the film's release was expanded into
+        37 cities.
+      source_id: Cleopatra (1963 film)
+      url: https://en.wikipedia.org/wiki/Cleopatra_(1963_film)
+      value: '244'
+    filled: true
+  kind: magnitude
+  raw_text: Ensure total runtime < 6 hours
+  resolved_value: '244'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T08:05:12Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Require ROC AUC greater than 0.50
+  claim_id: c_8abc2f93
+  context: "Check that ROC\u2011AUC > 0.50, p < 0.05, and total runtime < 6 h; write\
+    \ VERIFICATION_STATUS and runtime_report.json."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Require_ROC_AUC_greater_than_0.50
+  kind: magnitude
+  raw_text: "Require ROC\u2011AUC > 0.50"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:05:48Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Process subject by subject to stay within 7 GB RAM limit
+  claim_id: c_3ef30746
+  context: 'Implement code/03_compute_graph_metrics.py: ...Process subject-by-subject
+    to stay within 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Process subject-by-subject to stay within 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:06:19Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Verify memory usage stays within 7 GB RAM limit on 2 core runner
+  claim_id: c_03b0aae7
+  context: "Add validation: Verify memory usage during graph metric calculation stays\
+    \ within the 7 GB RAM limit on a 2\u2011core runner (use psutil)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify memory usage during graph metric calculation stays within the\
+    \ 7 GB RAM limit on a 2\u2011core runner"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:06:45Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Target runtime less than 30 minutes for 100 subjects
+  claim_id: c_6cacf945
+  context: Refactor code/03_compute_graph_metrics.py to use joblib.Parallel(n_jobs=2)
+    and verify runtime reduction (target < 30 min for 100 subjects)
+  evidence:
+    candidates:
+    - - Target runtime less than 30 minutes for
+      - 100.0
+    - - Log in Target runtime less than
+      - 30.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Target_runtime_less_than_30_minutes_for_100_subjects
+  kind: magnitude
+  raw_text: Target runtime < 30 min for 100 subjects
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-14T08:07:12Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Use n_jobs 2 for parallelization in graph metrics
+  claim_id: c_8bcdd2b0
+  context: Refactor code/03_compute_graph_metrics.py to use joblib.Parallel(n_jobs=2)
+    and verify runtime reduction (target < 30 min for 100 subjects)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use n_jobs=2 for parallelization in graph metrics
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:07:34Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Run integration test on mini-subset of 5 subjects and 20 permutations
+  claim_id: c_5f979df8
+  context: "Add integration test that runs the full permutation pipeline on a mini\u2011\
+    subset (e.g., 5 subjects, 20 permutations) to ensure end\u2011to\u2011end correctness\
+    \ without exceeding CI limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run integration test on mini-subset of 5 subjects and 20 permutations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:07:47Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Ensure all random seeds are pinned to 42
+  claim_id: c_dc889b87
+  context: 'Code cleanup: Remove debug prints, ensure all random seeds are pinned
+    to 42, and enforce PEP 8 compliance via flake8'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure all random seeds are pinned to 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:08:09Z'
