@@ -10,6 +10,7 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
 
 - `python code/data/download.py`
+- `python code/analysis.py`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
@@ -18,31 +19,35 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download.py -> rc=1
-    2026-07-14 03:33:17,880 - INFO - Starting data download (T005)...
-2026-07-14 03:33:17,880 - INFO - Attempting to download from: https://raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv
-2026-07-14 03:33:18,057 - ERROR - Failed to download from https://raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv
-2026-07-14 03:33:18,058 - INFO - Failed to download: PsychoPy Behavioral Metacognition Sample
-2026-07-14 03:33:18,058 - INFO - Skipping OpenNeuro ds004042 (Behavioral) (marked as skip)
-2026-07-14 03:33:18,058 - ERROR - Failed to download and validate any known behavioral dataset.
-2026-07-14 03:33:18,058 - ERROR - Project cannot proceed without valid behavioral data.
+    metacognition_sample.csv
+2026-07-14 04:11:38,551 - ERROR - HTTP Error downloading https://raw.githubusercontent.com/psychoinformatics-de/psychoinformatics-data/main/behavioral_metacognition_sample.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/psychoinformatics-de/psychoinformatics-data/main/behavioral_metacognition_sample.csv
+2026-07-14 04:11:38,552 - INFO - Failed to download: PsychoPy Behavioral Metacognition Sample
+2026-07-14 04:11:38,552 - INFO - Attempting to download: LLMXive sample behavioral data
+2026-07-14 04:11:38,552 - INFO - URL: https://raw.githubusercontent.com/llmXive/datasets/main/sample_behavioral_data.csv
+2026-07-14 04:11:38,595 - ERROR - HTTP Error downloading https://raw.githubusercontent.com/llmXive/datasets/main/sample_behavioral_data.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/llmXive/datasets/main/sample_behavioral_data.csv
+2026-07-14 04:11:38,596 - INFO - Failed to download fallback: LLMXive sample behavioral data
+2026-07-14 04:11:38,596 - ERROR - Failed to download and validate any known behavioral dataset.
+2026-07-14 04:11:38,596 - ERROR - Project cannot proceed without valid behavioral data.
 - python code/data/validate_data.py -> rc=1
-    2026-07-14 03:33:18,407 - INFO - Starting data validation (T006)...
-2026-07-14 03:33:18,407 - ERROR - No valid input dataset found in known locations.
-2026-07-14 03:33:18,408 - INFO - Validation report written to /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/data/validation_report.json
+    2026-07-14 04:11:39,058 - INFO - Starting data validation (T006)...
+2026-07-14 04:11:39,058 - ERROR - Raw data directory not found: /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/data/raw
+2026-07-14 04:11:39,058 - ERROR - No valid input dataset found in known locations.
+2026-07-14 04:11:39,058 - INFO - Validation report written to /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/data/validation_report.json
 - python code/data/preprocess.py -> rc=1
-    2026-07-14 03:33:18,751 - INFO - Starting data preprocessing (T012)...
-2026-07-14 03:33:18,751 - INFO - Ensured output directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/data/derived
-2026-07-14 03:33:18,751 - ERROR - No valid input dataset found in known locations.
-2026-07-14 03:33:18,751 - ERROR - No valid input dataset found. Ensure T005 (download) and T006 (validation) have completed successfully.
+    2026-07-14 04:11:39,490 - INFO - Starting data preprocessing (T012)...
+2026-07-14 04:11:39,491 - INFO - Ensured output directory exists: /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/data/derived
+2026-07-14 04:11:39,491 - ERROR - No valid input dataset found. Ensure T005 (download) and T006 (validation) have completed successfully.
 - python code/analysis.py -> rc=1
-    2026-07-14 03:33:18 - INFO - No config file found at /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/config/config.yaml, using defaults
-2026-07-14 03:33:18 - INFO - Starting full analysis pipeline...
-2026-07-14 03:33:19 - INFO - Starting data availability validation (T004)...
-2026-07-14 03:33:19 - INFO - Checking for OpenNeuro ds003386...
-2026-07-14 03:33:19 - INFO - Searching for alternative behavioral datasets...
-2026-07-14 03:33:19 - ERROR - ERROR: No valid behavioral dataset found containing 'confidence_rating' and 'source_label'.
-2026-07-14 03:33:19 - ERROR - Project cannot proceed without valid data.
-2026-07-14 03:33:19 - ERROR - Data availability check failed. Aborting pipeline.
+    7-14 04:11:40 - INFO - URL: https://raw.githubusercontent.com/llmXive/datasets/main/sample_behavioral_data.csv
+2026-07-14 04:11:40 - ERROR - HTTP Error downloading https://raw.githubusercontent.com/llmXive/datasets/main/sample_behavioral_data.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/llmXive/datasets/main/sample_behavioral_data.csv
+2026-07-14 04:11:40 - INFO - Failed to download fallback: LLMXive sample behavioral data
+2026-07-14 04:11:40 - ERROR - Failed to download and validate any known behavioral dataset.
+2026-07-14 04:11:40 - ERROR - Project cannot proceed without valid behavioral data.
+2026-07-14 04:11:40 - INFO - Starting data validation (T006)...
+2026-07-14 04:11:40 - ERROR - Raw data directory not found: /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/data/raw
+2026-07-14 04:11:40 - ERROR - No valid input dataset found in known locations.
+2026-07-14 04:11:40 - INFO - Validation report written to /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/data/validation_report.json
+2026-07-14 04:11:40 - ERROR - Data validation failed. Aborting pipeline.
 
 ## Declared deliverables still missing
 
@@ -95,7 +100,7 @@ Whichever you choose, every call site of `AppConfig` across the codebase must st
 - code/src/report/generate.py: p = bootstrap_results.get("p", np.nan)
 - code/src/report/generate.py: ci_lower = bootstrap_results.get("ci_lower", np.nan)
 - code/src/report/generate.py: ci_upper = bootstrap_results.get("ci_upper", np.nan)
-- code/src/report/generate.py: "bootstrap_count": bootstrap_results.get("bootstrap_count", 1000)
+- code/src/report/generate.py: "bootstrap_count": bootstrap_results.get("bootstrap_count", 1000),
 - code/src/report/generate.py: model_1 = regression_results.get("model_1", {})
 - code/src/report/generate.py: model_2 = regression_results.get("model_2", {})
 - code/src/report/generate.py: r_squared_1 = model_1.get("r_squared", 0)
@@ -163,20 +168,20 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `raw.githubusercontent.com/llmXive/datasets/main/sample_behavioral_data.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/data/validate_data.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `raw.githubusercontent.com/llmXive/datasets/main/sample_behavioral_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/data/validate_data.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/data/download.py`, `code/data/preprocess.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `raw.githubusercontent.com/llmXive/datasets/main/sample_behavioral_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/data/validate_data_availability.py`, `code/data/download.py`, `code/data/preprocess.py`.
 
 ### `raw.githubusercontent.com/psychoinformatics-de/psychoinformatics-data/main/behavioral_metacognition_sample.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/data/download.py`, `code/data/validate_data.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `raw.githubusercontent.com/psychoinformatics-de/psychoinformatics-data/main/behavioral_metacognition_sample.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/data/download.py`, `code/data/validate_data.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/data/download.py`, `code/data/preprocess.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `raw.githubusercontent.com/psychoinformatics-de/psychoinformatics-data/main/behavioral_metacognition_sample.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/data/validate_data_availability.py`, `code/data/download.py`, `code/data/preprocess.py`.
 
 ### `raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/data/download.py`, `code/data/validate_data.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/data/download.py`, `code/data/validate_data.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/data/download.py`, `code/data/preprocess.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `raw.githubusercontent.com/psychopy/datasets/main/behavioral_metacognition_sample.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/data/validate_data_availability.py`, `code/data/download.py`, `code/data/preprocess.py`.
 
 ### `raw.githubusercontent.com/psychopy/datasets/main/sample_behavioral_data.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/data/validate_data.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `raw.githubusercontent.com/psychopy/datasets/main/sample_behavioral_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/data/validate_data.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/data/download.py`, `code/data/preprocess.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `raw.githubusercontent.com/psychopy/datasets/main/sample_behavioral_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/data/validate_data_availability.py`, `code/data/download.py`, `code/data/preprocess.py`.

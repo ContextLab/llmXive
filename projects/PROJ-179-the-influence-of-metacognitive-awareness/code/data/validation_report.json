@@ -1,9 +1,9 @@
 {
   "status": "FAIL",
-  "message": "No valid input dataset found.",
-  "checked_columns": [
+  "message": "No input dataset found. Ensure T005 (download) has completed successfully.",
+  "required_fields": [
     "confidence_rating",
     "source_label"
   ],
-  "report_path": "/home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/code/data/validation_report.json"
+  "timestamp": "2026-07-14T04:11:40.231750"
 }
