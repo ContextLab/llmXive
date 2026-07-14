@@ -1,5 +1,6 @@
-'|clone code density least measurement perplexity processed segment valid':
-  quote: are 1,000 clone snippets in total. For these snippets, the total
-  source_id: '2409.08555'
-  url: https://arxiv.org/abs/2409.08555
-  value: 1,000
+'|analysi clone detection sensitivity threshold':
+  quote: "are \uFB01ltered by removing those instances where the merged method is\
+    \ not at least 70% similar"
+  source_id: '2006.15682'
+  url: https://arxiv.org/abs/2006.15682
+  value: 70%

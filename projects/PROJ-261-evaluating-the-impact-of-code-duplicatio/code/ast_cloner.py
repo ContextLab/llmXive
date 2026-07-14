@@ -1,146 +1,173 @@
 """
 ast_cloner.py
----------------
-Provides utilities to parse Python source files, normalize identifiers,
-and compute a simple clone‑density metric across a corpus.
-The implementation is deliberately lightweight so that it can run on the
-modest CI resources used for this project while still producing a real
-measurement.
+----------------
+Utilities for detecting AST‑based code clones and computing clone density.
+This module provides:
+* IdentifierNormalizer – a simple AST NodeTransformer that replaces all
+  identifier names with generic placeholders (var_0, var_1, …) so that
+  Type‑1 clones (exact copies) and Type‑2 clones (renamed identifiers) can
+  be detected via string comparison of the normalized source.
+* parse_python_file – reads a Python source file, validates that it is
+  syntactically correct (raises ``SyntaxError`` on failure) and returns the
+  raw text.
+* compute_clone_density_batch – scans a directory of ``.py`` files,
+  groups files that are clones, and writes a CSV file containing the total
+  number of files, the number of files that belong to a clone group, and
+  the clone density (clone_files / total_files).  The function accepts
+  optional ``input_path`` and ``output_path`` arguments; when called with
+  no arguments it falls back to the project‑wide defaults
+  ``data/raw`` and ``data/processed/clone_metrics.csv`` respectively.
+The implementation is deliberately lightweight and relies only on the
+Python standard library so that it can run in constrained CI environments.
 """
+
 from __future__ import annotations
 
 import ast
 import csv
-import hashlib
 import logging
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 
 class IdentifierNormalizer(ast.NodeTransformer):
     """
-    Normalises all identifier names (variables, function names, etc.) to a
-    generic placeholder so that syntactically identical code that only
-    differs by naming is recognised as a Type‑2 clone.
+    Replace all identifier names (variables, function names, arguments, etc.)
+    with generic placeholders ``var_0``, ``var_1`` … to normalise code for
+    Type‑2 clone detection.
     """
-    def visit_Name(self, node: ast.Name) -> ast.AST:  # pragma: no cover
-        return ast.copy_location(ast.Name(id="__VAR__", ctx=node.ctx), node)
 
-    def visit_arg(self, node: ast.arg) -> ast.AST:  # pragma: no cover
-        return ast.copy_location(ast.arg(arg="__ARG__", annotation=node.annotation), node)
+    def __init__(self) -> None:
+        super().__init__()
+        self.counter: int = 0
+        self.mapping: Dict[str, str] = {}
 
-def parse_python_file(source: str) -> ast.AST:
+    def _next_placeholder(self) -> str:
+        placeholder = f"var_{self.counter}"
+        self.counter += 1
+        return placeholder
+
+    def _map_name(self, name: str) -> str:
+        if name not in self.mapping:
+            self.mapping[name] = self._next_placeholder()
+        return self.mapping[name]
+
+    def visit_Name(self, node: ast.Name) -> ast.AST:  # type: ignore[override]
+        new_name = self._map_name(node.id)
+        return ast.copy_location(ast.Name(id=new_name, ctx=node.ctx), node)
+
+    def visit_arg(self, node: ast.arg) -> ast.AST:  # type: ignore[override]
+        new_name = self._map_name(node.arg)
+        return ast.copy_location(ast.arg(arg=new_name, annotation=node.annotation, type_comment=node.type_comment), node)
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> ast.AST:  # type: ignore[override]
+        # Normalise the function name itself
+        node.name = self._map_name(node.name)
+        self.generic_visit(node)
+        return node
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> ast.AST:  # type: ignore[override]
+        node.name = self._map_name(node.name)
+        self.generic_visit(node)
+        return node
+
+def parse_python_file(file_path: Path) -> str:
     """
-    Parse a Python source string and return its normalized AST.
+    Read a Python file and ensure it is syntactically valid.
+
+    Parameters
+    ----------
+    file_path: Path
+        Path to the ``.py`` file.
+
+    Returns
+    -------
+    str
+        The raw file contents.
+
+    Raises
+    ------
+    SyntaxError
+        If the file cannot be parsed as valid Python.
     """
+    source = file_path.read_text(encoding="utf-8")
     try:
-        tree = ast.parse(source)
+        ast.parse(source, filename=str(file_path))
     except SyntaxError as exc:
-        logger.error("Syntax error while parsing source: %s", exc)
+        logger.error("Syntax error in %s: %s", file_path, exc)
+        # Re‑raise so callers (including tests) can react.
         raise
+    return source
+
+def _normalise_source(source: str) -> str:
+    """
+    Normalise source code by parsing it into an AST, applying the
+    ``IdentifierNormalizer`` and unparsing back to source text.
+    """
+    tree = ast.parse(source)
     normaliser = IdentifierNormalizer()
-    normalized = normaliser.visit(tree)
-    ast.fix_missing_locations(normalized)
-    return normalized
-
-def _hash_normalized_ast(tree: ast.AST) -> str:
-    """
-    Produce a deterministic hash for a normalized AST.
-    """
-    dump = ast.dump(tree, include_attributes=False)
-    return hashlib.sha256(dump.encode("utf-8")).hexdigest()
-
-def _load_corpus(
-    input_path: Path,
-) -> List[Tuple[str, str]]:
-    """
-    Load a CSV corpus. Expected columns: ``file_path`` and ``code``.
-    Returns a list of (file_path, source_code) tuples.
-    """
-    if not input_path.is_file():
-        logger.warning("Input corpus %s does not exist – returning empty list.", input_path)
-        return []
-    rows: List[Tuple[str, str]] = []
-    with input_path.open(newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        required = {"file_path", "code"}
-        if not required.issubset(reader.fieldnames or []):
-            logger.error("Input CSV %s missing required columns %s", input_path, required)
-            raise ValueError("Invalid input CSV format")
-        for row in reader:
-            rows.append((row["file_path"], row["code"]))
-    return rows
+    normalised_tree = normaliser.visit(tree)
+    ast.fix_missing_locations(normalised_tree)
+    return ast.unparse(normalised_tree)
 
 def compute_clone_density_batch(
     input_path: Path | None = None,
     output_path: Path | None = None,
-    *args,
-    **kwargs,
 ) -> None:
     """
-    Compute a very simple clone‑density metric for a corpus of Python files.
+    Compute clone density for a batch of Python files.
 
-    Parameters are deliberately flexible:
-    * ``input_path`` – optional Path to a CSV file containing ``file_path`` and ``code`` columns.
-    * ``output_path`` – optional Path where the resulting CSV will be written.
-    * Positional arguments are interpreted in order (input_path, output_path) for backward
-      compatibility with older call‑sites.
-    * Keyword arguments are also accepted.
-
-    If neither ``input_path`` nor ``output_path`` is supplied the function falls back
-    to the default locations used throughout the project:
-
-        input_path  = Path("data/raw/github-code-sample.csv")
-        output_path = Path("data/processed/clone_metrics.csv")
+    Parameters
+    ----------
+    input_path: Path | None
+        Directory containing ``.py`` files.  Defaults to ``data/raw``.
+    output_path: Path | None
+        CSV file to write the results to.  Defaults to
+        ``data/processed/clone_metrics.csv``.
     """
-    # Resolve positional arguments for legacy signatures
-    if args:
-        if len(args) >= 1 and input_path is None:
-            input_path = args[0]
-        if len(args) >= 2 and output_path is None:
-            output_path = args[1]
-
-    # Resolve keyword arguments (already handled by the signature)
-
-    # Apply defaults
+    # Resolve defaults
     if input_path is None:
-        input_path = Path("data/raw/github-code-sample.csv")
+        input_path = Path("data") / "raw"
     if output_path is None:
-        output_path = Path("data/processed/clone_metrics.csv")
+        output_path = Path("data") / "processed" / "clone_metrics.csv"
 
-    logger.info("Computing clone density from %s → %s", input_path, output_path)
+    if not input_path.exists():
+        raise FileNotFoundError(f"Raw sample directory not found: {input_path}")
 
-    corpus = _load_corpus(input_path)
-    total = len(corpus)
-    if total == 0:
-        logger.warning("Empty corpus – writing zero density.")
+    # Gather all .py files recursively
+    py_files: List[Path] = list(input_path.rglob("*.py"))
+    total_files = len(py_files)
+    if total_files == 0:
+        logger.warning("No Python files found in %s", input_path)
+        # Still write a CSV with zeros so downstream scripts do not fail.
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with output_path.open("w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=["clone_density"])
-            writer.writeheader()
-            writer.writerow({"clone_density": 0.0})
+            writer = csv.writer(f)
+            writer.writerow(["total_files", "clone_files", "clone_density"])
+            writer.writerow([0, 0, 0.0])
         return
 
-    # Normalise each file and compute hash
-    hash_counts: Dict[str, int] = {}
-    for _, source in corpus:
+    # Normalise each file's source and map normalised source -> list of files
+    norm_map: Dict[str, List[Path]] = {}
+    for py_file in py_files:
         try:
-            norm_ast = parse_python_file(source)
+            raw_source = parse_python_file(py_file)
+            norm_source = _normalise_source(raw_source)
+            norm_map.setdefault(norm_source, []).append(py_file)
         except SyntaxError:
-            # Skip files that cannot be parsed – they are logged elsewhere.
+            # Syntax‑error files are ignored for clone density calculations
+            # but could be logged elsewhere (parse_failure_logger).
             continue
-        h = _hash_normalized_ast(norm_ast)
-        hash_counts[h] = hash_counts.get(h, 0) + 1
 
-    # Clone density = (total files - number of unique hashes) / total files
-    unique = len(hash_counts)
-    clone_density = (total - unique) / total
+    # Determine how many files belong to a clone group (size >= 2)
+    clone_files = sum(len(files) for files in norm_map.values() if len(files) >= 2)
 
+    clone_density = clone_files / total_files if total_files > 0 else 0.0
+
+    # Write results
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["clone_density"])
-        writer.writeheader()
-        writer.writerow({"clone_density": clone_density})
-
-    logger.info("Clone density computed: %.4f", clone_density)
+        writer = csv.writer(f)
+        writer.writerow(["total_files", "clone_files", "clone_density"])
+        writer.writerow([total_files, clone_files, clone_density])

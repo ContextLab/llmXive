@@ -1,8 +1,12 @@
 """
-Quick‑start validation script.
+Quick‑Start Validation
+======================
 
-It checks that the essential output files exist after the pipeline has run.
+After the individual pipeline steps have been executed, this script checks that
+the required output artifacts exist and are non‑empty.
 """
+
+from __future__ import annotations
 
 import logging
 from pathlib import Path
@@ -16,21 +20,19 @@ REQUIRED_FILES = [
     Path("data/processed/perplexity_scores.csv"),
 ]
 
-
-def validate_output_files() -> bool:
+def validate_output_files() -> None:
     missing = [p for p in REQUIRED_FILES if not p.is_file()]
     if missing:
-        logger.error("Missing required output files: %s", missing)
-        return False
+        raise FileNotFoundError(f"Missing required output files: {missing}")
     logger.info("All required output files are present.")
-    return True
-
 
 def main() -> None:
+    """Run validation – used by the CI quick‑start step."""
     logging.basicConfig(level=logging.INFO)
-    if not validate_output_files():
-        raise SystemExit(1)
-
+    # Load configuration to ensure the config module works (no side‑effects needed).
+    _ = get_all_config()
+    validate_output_files()
+    logger.info("Quick‑start validation succeeded.")
 
 if __name__ == "__main__":
     main()

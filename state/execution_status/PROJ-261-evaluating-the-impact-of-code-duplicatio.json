@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
   "ok": false,
-  "reason": "3 command(s) failed: python code/data_loader.py (rc=1); python code/bug_detection.py (rc=1); python code/quickstart_validation.py (rc=1); 1 declared deliverable(s) absent: data/processed/clone_metrics.csv",
+  "reason": "3 command(s) failed: python code/ast_cloner.py (rc=1); python code/bug_detection.py (rc=1); python code/quickstart_validation.py (rc=1); 1 declared deliverable(s) absent: data/processed/clone_metrics.csv",
   "artifacts": [
     "data/analysis/correlation_results.csv",
     "data/pii_scan_results.csv"
   ],
   "failures": [
-    "python code/data_loader.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/data_loader.py\", line 14, in <module>\n    from datasets import LoadDatasetError, load_dataset\nImportError: cannot import name 'LoadDatasetError' from 'datasets' (/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/datasets/__init__.py)",
-    "python code/bug_detection.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/bug_detection.py\", line 22, in <module>\n    from datasets import LoadDatasetError, load_dataset\nImportError: cannot import name 'LoadDatasetError' from 'datasets' (/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/datasets/__init__.py)",
+    "python code/ast_cloner.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/ast_cloner.py\", line 61, in <module>\n    compute_clone_density_batch()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/ast_cloner.py\", line 39, in compute_clone_density_batch\n    raise FileNotFoundError(f\"Raw sample file not found: {raw_path}\")\nFileNotFoundError: Raw sample file not found: data/raw/github-code-sample.csv",
+    "python code/bug_detection.py -> rc=1\n    ath(url_or_filename)\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/huggingface_hub/hf_file_system.py\", line 305, in resolve_path\n    parsed = parse_hf_uri(f\"{constants.HF_PROTOCOL}{path}\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/huggingface_hub/utils/_hf_uris.py\", li",
     "python code/quickstart_validation.py -> rc=1\n    ERROR:__main__:Missing required output files: [PosixPath('data/processed/clone_metrics.csv'), PosixPath('data/processed/perplexity_scores.csv')]"
   ],
-  "fix_rounds": 8,
+  "fix_rounds": 9,
   "model_tier": 1,
-  "updated_at": "2026-07-14T03:25:49Z"
+  "updated_at": "2026-07-14T04:09:46Z"
 }

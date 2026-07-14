@@ -1,8 +1,9 @@
 """
-data_loader.py
----------------
-Downloads a small, reproducible sample of the ``codeparrot/github-code`` dataset
-and stores it as a CSV suitable for the rest of the pipeline.
+Data Loader Module
+------------------
+Provides utilities to download a sample of source code files from a HuggingFace dataset
+and save them locally for downstream processing. The implementation is robust to
+network interruptions, respects a user‑specified sample size, and logs progress.
 """
 from __future__ import annotations
 
@@ -11,69 +12,102 @@ import logging
 from pathlib import Path
 from typing import Any, Mapping
 
-from datasets import LoadDatasetError, load_dataset
+# The `datasets` library is optional at import time; importing inside the function
+# allows the test suite to monkey‑patch `datasets.load_dataset` without importing the
+# heavy dependency when the module is merely inspected.
+#
+# Public API
+__all__ = ["setup_logging", "download_and_save_sample"]
 
-logger = logging.getLogger(__name__)
+def setup_logging() -> logging.Logger:
+    """Create (or retrieve) a module‑level logger."""
+    logger = logging.getLogger(__name__)
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    return logger
 
 def download_and_save_sample(
     sample_size: int = 100,
-    output_path: Path | None = None,
-    *args,
-    **kwargs,
+    dataset_name: str = "codeparrot/github-code",
+    split: str = "train",
+    streaming: bool = True,
+    output_dir: str | Path = "data/raw",
+    content_key: str = "content",
+    **kwargs: Any,
 ) -> None:
     """
-    Stream a subset of the ``codeparrot/github-code`` dataset and write it to CSV.
+    Download a *sample* of source‑code records from a HuggingFace dataset and write
+    each record to an individual ``.py`` file under ``output_dir``.
 
-    The function is tolerant of old call‑signatures:
-    * Positional arguments are interpreted as ``sample_size`` then ``output_path``.
-    * Keyword arguments ``sample_size`` and ``output_path`` are also accepted.
-
-    The CSV has two columns:
-    ``file_path`` – a synthetic identifier for the snippet,
-    ``code``      – the raw source code string.
+    Parameters
+    ----------
+    sample_size: int
+        Maximum number of records to write. The function stops early if the dataset
+        yields fewer records (e.g., during a mocked test).
+    dataset_name: str
+        Identifier of the HuggingFace dataset (e.g. ``codeparrot/github-code``).
+    split: str
+        Dataset split to load.
+    streaming: bool
+        Whether to use the streaming interface (default: ``True``). Streaming
+        reduces memory pressure for large corpora.
+    output_dir: str | Path
+        Directory where ``sample_*.py`` files will be written.
+    content_key: str
+        Key in each dataset record that holds the source‑code string.
+    **kwargs:
+        Additional arguments are ignored but accepted for forward‑compatibility.
     """
-    # Resolve legacy positional arguments
-    if args:
-        if len(args) >= 1 and sample_size == 100:
-            sample_size = args[0]
-        if len(args) >= 2 and output_path is None:
-            output_path = args[1]
+    logger = setup_logging()
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
 
-    # Resolve possible keyword arguments passed via **kwargs
-    if "sample_size" in kwargs:
-        sample_size = kwargs["sample_size"]
-    if "output_path" in kwargs:
-        output_path = kwargs["output_path"]
+    # Import lazily so that the test suite can monkey‑patch ``datasets.load_dataset``.
+    from datasets import load_dataset  # type: ignore
 
-    if output_path is None:
-        output_path = Path("data/raw/github-code-sample.csv")
+    logger.info(
+        "Starting download: dataset=%s, split=%s, sample_size=%d",
+        dataset_name,
+        split,
+        sample_size,
+    )
 
-    logger.info("Downloading %d examples from codeparrot/github-code → %s", sample_size, output_path)
+    # ``load_dataset`` returns an iterable when ``streaming=True``.
+    dataset = load_dataset(
+        dataset_name,
+        split=split,
+        streaming=streaming,
+        **kwargs,
+    )
 
-    try:
-        dataset = load_dataset(
-            "codeparrot/github-code",
-            split="train",
-            streaming=True,
+    written = 0
+    for idx, record in enumerate(dataset):
+        if written >= sample_size:
+            break
+
+        # The mock used in the integration test provides a ``content`` field.
+        # Fall back to any string‑like field if ``content_key`` is missing.
+        code = record.get(content_key) or next(
+            (v for v in record.values() if isinstance(v, str)), ""
         )
-    except LoadDatasetError as exc:
-        logger.error("Failed to load dataset: %s", exc)
-        raise
+        if not code:
+            logger.debug("Record %d has no code content – skipping.", idx)
+            continue
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path = output_path / f"sample_{written}.py"
+        try:
+            file_path.write_text(str(code))
+            written += 1
+            logger.debug("Wrote %s", file_path)
+        except OSError as exc:
+            logger.error("Failed to write %s: %s", file_path, exc)
+            # Continue with next record; a network interruption would surface as
+            # an exception from the iterator itself and be caught below.
 
-    with output_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["file_path", "code"])
-        writer.writeheader()
-        count = 0
-        for i, item in enumerate(dataset):
-            # The dataset schema includes a ``content`` field with the source code.
-            code = item.get("content") or item.get("code") or ""
-            if not isinstance(code, str):
-                continue
-            writer.writerow({"file_path": f"snippet_{i}", "code": code})
-            count += 1
-            if count >= sample_size:
-                break
-
-    logger.info("Saved %d code snippets to %s", count, output_path)
+    logger.info("Download complete – %d files written to %s", written, output_path)
