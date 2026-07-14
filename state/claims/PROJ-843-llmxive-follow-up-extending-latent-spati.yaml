@@ -105,3 +105,152 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T08:05:49Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: four folders each containing fifty sequences with valid .npy descriptor
+    files
+  claim_id: c_20039775
+  context: 'Independent Test: Run code/data/stratify.py and code/data/extract_features.py
+    on a small subset; verify 4 folders exist with N=50 sequences each, and .npy files
+    contain valid coordinate/descriptor pairs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify 4 folders exist with N=50 sequences each, and .npy files contain
+    valid coordinate/descriptor pairs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:02:15Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: solver on a Static-High sequence produces a valid fundamental matrix,
+    scaled 3D points, and smooth RBF interpolation without NaNs or GPU usage
+  claim_id: c_032a34f1
+  context: 'Independent Test: Run solver on a "Static-High" sequence; verify valid
+    fundamental matrix, 3D points (up to scale), and smooth RBF interpolation without
+    NaNs or GPU usage.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Solver_on_a_Static-High_sequence_produces_a_valid_fundamenta
+  kind: entity_fact
+  raw_text: Run solver on a "Static-High" sequence; verify valid fundamental matrix,
+    3D points (up to scale), and smooth RBF interpolation without NaNs or GPU usage
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:02:55Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
+  attempts: 1
+  canonical: all scripts are CPU-only
+  claim_id: c_fcd377d4
+  context: "Note: All scripts are CPU\u2011only and respect the memory\u2011limit\
+    \ logic defined in code/utils/memory_monitor.py."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_scripts_are_CPU-only
+  kind: entity_fact
+  raw_text: "All scripts are CPU\u2011only"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:04:07Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
+  attempts: 1
+  canonical: pipeline automatically switches to batch-processing mode upon memory
+    warnings
+  claim_id: c_38459779
+  context: "Note: All scripts are CPU\u2011only and respect the memory\u2011limit\
+    \ logic defined in code/utils/memory_monitor.py. If you encounter memory\u2011\
+    related warnings, the pipeline will automatically switch to batch\u2011processing\
+    \ mode."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_automatically_switches_to_batch-processing_mode_upo
+  kind: entity_fact
+  raw_text: "If you encounter memory\u2011related warnings, the pipeline will automatically\
+    \ switch to batch\u2011processing mode."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:04:32Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
+  attempts: 1
+  canonical: final verification report located at data/results/hypothesis_verification.md
+  claim_id: c_431b9ee1
+  context: 'After the above steps finish, the final verification report can be found
+    at: data/results/hypothesis_verification.md'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_verification_report_located_at_data/results/hypothesis
+  kind: entity_fact
+  raw_text: 'After the above steps finish, the final verification report can be found
+    at: data/results/hypothesis_verification.md'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:05:02Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: 4 folders with 50 sequences each
+  claim_id: c_9c5a99db
+  context: 'Independent Test: Run code/data/stratify.py and code/data/extract_features.py
+    on a small subset; verify 4 folders exist with N=50 sequences each, and .npy files
+    contain valid coordinate/descriptor pairs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify 4 folders exist with N=50 sequences each
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:06:33Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: '4 subsets: Static-High, Static-Low, Fast-High, Fast-Low'
+  claim_id: c_4bc703bf
+  context: Implement code/data/stratify.py to calculate motion magnitude and texture
+    entropy, then stratify into 4 subsets (Static-High, Static-Low, Fast-High, Fast-Low).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stratify into 4 subsets (Static-High, Static-Low, Fast-High, Fast-Low)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:07:01Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/specs/001-llmxive-follow-up-extending-latent-spati/tasks.md
+  attempts: 1
+  canonical: four folders each containing fifty sequences
+  claim_id: c_e21a943c
+  context: 'Independent Test: Run code/data/stratify.py and code/data/extract_features.py
+    on a small subset; verify 4 folders exist with N=50 sequences each, and .npy files
+    contain valid coordinate/descriptor pairs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify 4 folders exist with N=50 sequences each
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T12:07:46Z'

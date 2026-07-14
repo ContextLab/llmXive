@@ -1,54 +1,34 @@
-# Quickstart Guide for llmXive Follow-up
+# Quickstart – end‑to‑end run‑book
 
-## Prerequisites
-- Python 3.11+
-- Install dependencies: `pip install -r requirements.txt`
-
-## Running the Pipeline
-
-The pipeline is orchestrated via `code/main.py`. It supports running specific phases or the full suite.
-
-### Full Execution (End-to-End)
-
-This command runs all phases in order: Data Preparation -> Feature Extraction -> Geometry -> Evaluation -> Aggregation.
+The following commands reproduce the full research pipeline on a CPU‑only
+environment. They must be executed **in order** and each command must
+exit with status 0.
 
 ```bash
-python code/main.py
-```
+# 1️⃣ Download the RealEstate10K dataset (handled by T007)
+python code/data/download.py
 
-### Specific Phase Execution
+# 2️⃣ Stratify the dataset (T008)
+python code/data/stratify.py
 
-You can run individual phases for debugging or incremental development:
+# 3️⃣ Extract sparse features (T009)
+python code/data/extract_features.py
 
-```bash
-# 1. Prepare and stratify data
-python code/main.py --phase data_prepare
+# 4️⃣ Solve geometry & warp (T010‑T012)
+python code/geometry/run_pipeline.py # produces data/results/sparse_warped_frames.npy
 
-# 2. Extract SIFT/ORB features
-python code/main.py --phase extract_features
+# 5️⃣ Download dense baseline (T016b)
+python code/eval/download_dense_baseline.py
 
-# 3. Compute Geometry (Solver, Warp, Aggregate)
-python code/main.py --phase compute_geometry
+# 6️⃣ Compute evaluation metrics (T017)
+python code/eval/metrics.py
 
-# 4. Evaluate Metrics (WorldScore, FID, etc.)
-python code/main.py --phase evaluate
-```
+# 7️⃣ Perform ANOVA (T018)
+python code/eval/anova.py
 
-## Deliverables
+# 8️⃣ Sensitivity analysis (T019)
+python code/eval/sensitivity.py
 
-Upon successful completion, the following artifacts will be generated:
-
-- `data/stratified/`: Stratified video sequences
-- `data/features/`: Sparse feature descriptors (.npy)
-- `data/results/sparse_warped_frames.npy`: Aggregated warped frames (US2)
-- `data/raw/dense_baseline_frames.npy`: Dense baseline for comparison (US3)
-- `data/results/metrics.json`: Final aggregated metrics and memory usage (T020)
-- `data/results/hypothesis_verification.md`: Final report (T021)
-
-## Validation
-
-To validate the quickstart process:
-
-```bash
-python code/validate_quickstart.py
+# 9️⃣ Generate final report (T021)
+python code/eval/report.py
 ```

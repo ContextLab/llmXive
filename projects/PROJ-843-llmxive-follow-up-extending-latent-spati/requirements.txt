@@ -9,4 +9,4 @@ imageio
 pytest
 memory_profiler
 scikit-image
-statsmodels
+torchvision

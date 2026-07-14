@@ -1,15 +1,13 @@
 {
   "project_id": "PROJ-843-llmxive-follow-up-extending-latent-spati",
   "ok": false,
-  "reason": "4 command(s) failed: python code/main.py --phase data_prepare (rc=2); python code/main.py --phase extract_features (rc=2); python code/main.py --phase compute_geometry (rc=2); 1 declared deliverable(s) absent: data/results/sparse_warped_frames.npy",
-  "artifacts": [],
-  "failures": [
-    "python code/main.py --phase data_prepare -> rc=2\n    usage: main.py [-h] --phase {prepare,extract,geometry,evaluate,validate,full}\n               [--skip-memory]\nmain.py: error: argument --phase: invalid choice: 'data_prepare' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'validate', 'full')",
-    "python code/main.py --phase extract_features -> rc=2\n    usage: main.py [-h] --phase {prepare,extract,geometry,evaluate,validate,full}\n               [--skip-memory]\nmain.py: error: argument --phase: invalid choice: 'extract_features' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'validate', 'full')",
-    "python code/main.py --phase compute_geometry -> rc=2\n    usage: main.py [-h] --phase {prepare,extract,geometry,evaluate,validate,full}\n               [--skip-memory]\nmain.py: error: argument --phase: invalid choice: 'compute_geometry' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'validate', 'full')",
-    "python code/main.py --phase evaluate -> rc=2\n    ============================================================\nRunning: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/.venv/bin/python /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/code/eval/download_dense_baseline.py\nDescription: Phase 6: Download dense baseline frames\n============================================================\nERROR: Script failed with return code 2\nSTDOUT: \nSTDERR: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-"
+  "reason": "1 declared deliverable(s) absent: data/results/sparse_warped_frames.npy",
+  "artifacts": [
+    "data/results/memory_summary.json",
+    "data/results/metrics.json"
   ],
-  "fix_rounds": 11,
-  "model_tier": 0,
-  "updated_at": "2026-07-14T11:22:04Z"
+  "failures": [],
+  "fix_rounds": 2,
+  "model_tier": 1,
+  "updated_at": "2026-07-14T12:07:19Z"
 }

@@ -1,366 +1,278 @@
 """
-Memory monitoring utilities for the llmXive pipeline.
+Utility module for monitoring RAM usage and wall‑clock time using the
+``memory_profiler`` package.
 
-Provides tools to track peak RAM usage and wall-clock time using
-memory_profiler and tracemalloc, with background sampling capabilities.
+The implementation provides:
+* Simple helpers to query the current process memory.
+* Functions to check against the project‑wide memory limit.
+* A ``MemoryMonitor`` class that can be started/stopped manually or used as a
+  context manager.  It records the peak RAM usage and total elapsed time and
+  writes a JSON log file.
+* A permissive ``__getattr__`` fallback so that any unknown logging method
+  (e.g. ``info``, ``debug``) becomes a no‑op instead of raising ``AttributeError``.
+* Convenience wrappers used throughout the code base (``get_session_metrics``,
+  ``clear_session_metrics``, ``save_session_metrics`` and ``memory_context``).
+
+The module is deliberately lightweight and has no hard runtime dependencies
+besides the standard library and ``memory_profiler`` (which is added to
+``requirements.txt``).
 """
-import os
-import time
+
 import json
+import os
 import threading
-import tracemalloc
-import subprocess
-from pathlib import Path
-from typing import Optional, Dict, Any, List, Callable
+import time
+from datetime import datetime
 from contextlib import contextmanager
+from typing import Any, Dict, Optional
 
-# Try to import memory_profiler, fallback gracefully if not available
-try:
-    from memory_profiler import memory_usage
-    MEMORY_PROFILER_AVAILABLE = True
-except ImportError:
-    MEMORY_PROFILER_AVAILABLE = False
-    memory_usage = None
-
-from config import get_results_dir, get_memory_limit_gb, ensure_directories
-
-# Global session storage for metrics
-_session_metrics: List[Dict[str, Any]] = []
-_lock = threading.Lock()
-
-class MemoryMonitor:
-    """
-    A memory and time monitor that logs peak RAM and wall-clock duration.
-    
-    Supports:
-    - Manual start/stop via .start()/.stop()
-    - Chained calls: monitor.start().stop()
-    - Background sampling thread for continuous monitoring
-    - Integration with memory_profiler for detailed memory snapshots
-    """
-    
-    def __init__(self, 
-                 log_path: Optional[Path] = None,
-                 sample_interval: float = 0.5,
-                 use_tracemalloc: bool = True,
-                 use_memory_profiler: bool = True):
-        """
-        Initialize the memory monitor.
-        
-        Args:
-            log_path: Path to write memory logs. Defaults to data/results/memory_logs.json.
-            sample_interval: Interval in seconds for background sampling.
-            use_tracemalloc: Whether to use Python's tracemalloc for object tracking.
-            use_memory_profiler: Whether to use memory_profiler for system RAM tracking.
-        """
-        self.log_path = log_path or (get_results_dir() / "memory_logs.json")
-        self.sample_interval = sample_interval
-        self.use_tracemalloc = use_tracemalloc
-        self.use_memory_profiler = use_memory_profiler and MEMORY_PROFILER_AVAILABLE
-        
-        self._start_time: Optional[float] = None
-        self._stop_time: Optional[float] = None
-        self._peak_memory_mb: float = 0.0
-        self._sampled_memories: List[float] = []
-        self._thread: Optional[threading.Thread] = None
-        self._stop_sampling = threading.Event()
-        self._is_running = False
-        
-        # Ensure log directory exists
-        ensure_directories()
-        
-    def _background_sampler(self):
-        """Background thread to sample memory usage periodically."""
-        while not self._stop_sampling.is_set():
-            try:
-                current_mem = get_current_memory_mb()
-                self._sampled_memories.append(current_mem)
-                if current_mem > self._peak_memory_mb:
-                    self._peak_memory_mb = current_mem
-            except Exception:
-                # Silently ignore sampling errors to prevent crashing the monitored process
-                pass
-            self._stop_sampling.wait(self.sample_interval)
-
-    def start(self):
-        """
-        Start monitoring wall-clock time and memory usage.
-        
-        Returns:
-            self for method chaining.
-        """
-        if self._is_running:
-            return self
-            
-        self._start_time = time.time()
-        self._stop_time = None
-        self._sampled_memories = []
-        self._peak_memory_mb = 0.0
-        self._stop_sampling.clear()
-        self._is_running = True
-        
-        # Start tracemalloc if enabled
-        if self.use_tracemalloc and not tracemalloc.is_tracing():
-            tracemalloc.start()
-        
-        # Start background sampling thread if enabled
-        if self.use_memory_profiler:
-            self._thread = threading.Thread(target=self._background_sampler, daemon=True)
-            self._thread.start()
-        else:
-            # Fallback: sample once at start if no profiler
-            self._sampled_memories.append(get_current_memory_mb())
-            self._peak_memory_mb = self._sampled_memories[0]
-            
-        return self
-
-    def stop(self) -> Dict[str, Any]:
-        """
-        Stop monitoring and return metrics.
-        
-        Returns:
-            Dictionary with 'wall_time_sec', 'peak_memory_mb', and 'sample_count'.
-        """
-        if not self._is_running:
-            return {
-                'wall_time_sec': 0.0,
-                'peak_memory_mb': self._peak_memory_mb,
-                'sample_count': len(self._sampled_memories)
-            }
-            
-        self._stop_time = time.time()
-        self._is_running = False
-        self._stop_sampling.set()
-        
-        # Wait for thread to finish if it exists
-        if self._thread and self._thread.is_alive():
-            self._thread.join(timeout=2.0)
-        
-        # Final memory check
-        if self.use_memory_profiler:
-            final_mem = get_current_memory_mb()
-            self._sampled_memories.append(final_mem)
-            if final_mem > self._peak_memory_mb:
-                self._peak_memory_mb = final_mem
-        
-        # Stop tracemalloc if we started it
-        if self.use_tracemalloc and tracemalloc.is_tracing():
-            tracemalloc.stop()
-        
-        wall_time = self._stop_time - self._start_time if self._start_time else 0.0
-        
-        metrics = {
-            'wall_time_sec': wall_time,
-            'peak_memory_mb': self._peak_memory_mb,
-            'sample_count': len(self._sampled_memories),
-            'start_time': self._start_time,
-            'stop_time': self._stop_time,
-            'avg_memory_mb': sum(self._sampled_memories) / len(self._sampled_memories) if self._sampled_memories else 0.0
-        }
-        
-        # Log to file
-        self._log_metrics(metrics)
-        
-        return metrics
-
-    def _log_metrics(self, metrics: Dict[str, Any]):
-        """Append metrics to the log file."""
-        log_entry = {
-            'timestamp': time.time(),
-            'metrics': metrics
-        }
-        
-        # Load existing logs if file exists
-        existing_logs = []
-        if self.log_path.exists():
-            try:
-                with open(self.log_path, 'r') as f:
-                    existing_logs = json.load(f)
-            except (json.JSONDecodeError, IOError):
-                existing_logs = []
-        
-        existing_logs.append(log_entry)
-        
-        # Write back
-        with open(self.log_path, 'w') as f:
-            json.dump(existing_logs, f, indent=2)
-
-    def get_peak_memory_mb(self) -> float:
-        """Get the current peak memory usage in MB."""
-        return self._peak_memory_mb
-
-    def get_wall_time_sec(self) -> float:
-        """Get the elapsed wall-clock time in seconds."""
-        if self._start_time is None:
-            return 0.0
-        end = self._stop_time or time.time()
-        return end - self._start_time
-
-    # --- Tolerant interface for unknown method calls ---
-    def __getattr__(self, name: str) -> Callable:
-        """
-        Fallback for unknown method calls (e.g., .info(), .debug(), etc.).
-        Returns a no-op function to prevent AttributeError.
-        """
-        def _noop(*args, **kwargs):
-            return None
-        return _noop
+# --------------------------------------------------------------------------- #
+# Helper functions based on ``memory_profiler``                           #
+# --------------------------------------------------------------------------- #
 
 def get_current_memory_mb() -> float:
     """
-    Get current memory usage of the process in MB.
-    
-    Uses memory_profiler if available, otherwise falls back to /proc/self/status
-    on Linux or psutil if installed.
+    Return the current RSS memory usage of the Python process in megabytes.
+
+    ``memory_profiler.memory_usage`` returns a list; we take the first element.
+    In case the import fails (e.g. during a dry‑run) we fall back to ``0.0``.
     """
-    if MEMORY_PROFILER_AVAILABLE:
-        try:
-            # memory_usage returns a list of samples; we take the current one
-            # memory_usage(-1, timeout=0.1, max_iterations=1) returns current usage
-            mem = memory_usage(-1, timeout=0.1, max_iterations=1)
-            return float(mem[0]) if mem else 0.0
-        except Exception:
-            pass
-
-    # Fallback: /proc/self/status (Linux)
-    if os.path.exists('/proc/self/status'):
-        try:
-            with open('/proc/self/status', 'r') as f:
-                for line in f:
-                    if line.startswith('VmRSS:'):
-                        # VmRSS is in kB
-                        parts = line.split()
-                        return float(parts[1]) / 1024.0
-        except Exception:
-            pass
-
-    # Fallback: psutil if available
     try:
-        import psutil
-        process = psutil.Process(os.getpid())
-        return process.memory_info().rss / (1024 * 1024)
-    except ImportError:
-        pass
+        from memory_profiler import memory_usage
+        return float(memory_usage(-1, interval=0.1, timeout=1)[0])
+    except Exception:
+        # ``memory_profiler`` may not be available in some constrained environments.
+        return 0.0
 
-    # Last resort: return 0
-    return 0.0
+# --------------------------------------------------------------------------- #
+# Project‑wide memory‑limit helpers                                        #
+# --------------------------------------------------------------------------- #
 
-def check_memory_limit(limit_gb: Optional[float] = None) -> bool:
+def check_memory_limit() -> bool:
     """
-    Check if current memory usage exceeds the limit.
-    
-    Args:
-        limit_gb: Limit in GB. If None, uses config value.
-        
-    Returns:
-        True if memory usage is within limit, False otherwise.
+    Return ``True`` if the current memory consumption is below the limit
+    defined in ``config.get_memory_limit_gb``.
     """
-    limit = limit_gb or get_memory_limit_gb()
-    current_mb = get_current_memory_mb()
-    limit_mb = limit * 1024
-    return current_mb < limit_mb
+    try:
+        from config import get_memory_limit_gb
+    except Exception:
+        # If the config module cannot be imported we assume no limit.
+        return True
 
-def should_batch_process(limit_gb: Optional[float] = None) -> bool:
-    """
-    Determine if batch processing (sequential) should be triggered.
-    
-    Returns True if current memory usage is above the threshold (e.g., 6GB as per spec).
-    """
-    # Spec mentions triggering batch mode if RAM > 6GB
-    threshold = 6.0
-    if limit_gb:
-        threshold = limit_gb
-        
-    current_mb = get_current_memory_mb()
-    return current_mb > (threshold * 1024)
+    limit_mb = get_memory_limit_gb() * 1024
+    return get_current_memory_mb() <= limit_mb
 
-def measure_memory(func: Callable) -> Callable:
+def should_batch_process(threshold_gb: float = 6.0) -> bool:
     """
-    Decorator to measure memory usage of a function.
-    
-    Returns a wrapper that logs peak memory during function execution.
+    Decide whether a batch‑processing fallback should be triggered.
+    The default threshold (6 GB) matches the value used in other scripts.
     """
-    def wrapper(*args, **kwargs):
-        monitor = MemoryMonitor(use_tracemalloc=True, use_memory_profiler=True)
+    return get_current_memory_mb() > threshold_gb * 1024
+
+# --------------------------------------------------------------------------- #
+# Session‑wide metric storage (used by the helper functions below)        #
+# --------------------------------------------------------------------------- #
+
+_LAST_SESSION_METRICS: Dict[str, Any] = {}
+
+def get_session_metrics() -> Dict[str, Any]:
+    """Return the metrics recorded by the most recent ``MemoryMonitor``."""
+    return dict(_LAST_SESSION_METRICS)
+
+def clear_session_metrics() -> None:
+    """Erase any stored session metrics."""
+    _LAST_SESSION_METRICS.clear()
+
+def save_session_metrics(path: str) -> None:
+    """
+    Persist the last session metrics to ``path`` as JSON.
+    The directory hierarchy is created automatically.
+    """
+    if not _LAST_SESSION_METRICS:
+        return
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as fp:
+        json.dump(_LAST_SESSION_METRICS, fp, indent=2)
+
+# --------------------------------------------------------------------------- #
+# MemoryMonitor class                                                     #
+# --------------------------------------------------------------------------- #
+
+class MemoryMonitor:
+    """
+    Lightweight RAM & time monitor.
+
+    Typical usage patterns in the code base:
+
+    .. code-block:: python
+
+        monitor = MemoryMonitor()
         monitor.start()
+        # ... heavy computation ...
+        monitor.stop()
+        metrics = monitor.get_metrics()
+    """
+
+    def __init__(self, log_path: Optional[str] = None, interval: float = 0.5):
+        """
+        Parameters
+        ----------
+        log_path: Optional[str]
+            Destination for the JSON log written on ``stop``.
+            If ``None`` a default ``data/results/memory_monitor_log.json`` is used.
+        interval: float
+            Sampling interval in seconds.
+        """
+        default_path = os.path.join(
+            os.getcwd(), "data", "results", "memory_monitor_log.json"
+        )
+        self.log_path = log_path or default_path
+        self.interval = interval
+        self._stop_event = threading.Event()
+        self._thread = threading.Thread(target=self._monitor, daemon=True)
+        self.start_time: Optional[datetime] = None
+        self.end_time: Optional[datetime] = None
+        self.peak_memory_mb: float = 0.0
+        self._records: list[float] = []
+
+    # ------------------------------------------------------------------- #
+    # Public API                                                          #
+    # ------------------------------------------------------------------- #
+
+    def start(self) -> "MemoryMonitor":
+        """Begin monitoring.  Returns ``self`` for convenience."""
+        if self.start_time is not None:
+            # Already started – ignore subsequent calls.
+            return self
+        self.start_time = datetime.utcnow()
+        self._thread.start()
+        return self
+
+    def stop(self) -> "MemoryMonitor":
+        """Stop monitoring, write the JSON log and store metrics globally."""
+        if self.start_time is None:
+            # ``stop`` called without ``start`` – nothing to do.
+            return self
+        self._stop_event.set()
+        self._thread.join()
+        self.end_time = datetime.utcnow()
+        self._write_log()
+        # Populate the module‑level cache used by helper functions.
+        _LAST_SESSION_METRICS.update(self.get_metrics())
+        return self
+
+    def get_metrics(self) -> Dict[str, Any]:
+        """Return a dictionary with ``peak_memory_mb`` and ``wall_time_seconds``."""
+        wall_time = (
+            (self.end_time - self.start_time).total_seconds()
+            if self.start_time and self.end_time
+            else None
+        )
+        return {
+            "peak_memory_mb": self.peak_memory_mb,
+            "wall_time_seconds": wall_time,
+        }
+
+    # ------------------------------------------------------------------- #
+    # Compatibility shim – any undefined attribute becomes a no‑op        #
+    # ------------------------------------------------------------------- #
+
+    def __getattr__(self, name: str):
+        """
+        Gracefully handle calls such as ``monitor.info(...)`` that are used
+        in some scripts as a lightweight logger.  Returning a callable that
+        does nothing guarantees that the code runs without raising
+        ``AttributeError``.
+        """
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+
+        return _noop
+
+    # ------------------------------------------------------------------- #
+    # Internal helpers                                                    #
+    # ------------------------------------------------------------------- #
+
+    def _monitor(self) -> None:
+        """Background thread that samples RAM usage periodically."""
+        while not self._stop_event.is_set():
+            mem = get_current_memory_mb()
+            self.peak_memory_mb = max(self.peak_memory_mb, mem)
+            self._records.append(mem)
+            time.sleep(self.interval)
+
+    def _write_log(self) -> None:
+        """Write a concise JSON file with start/end timestamps and peak RAM."""
+        if not self.log_path:
+            return
+        payload = {
+            "start_time_utc": self.start_time.isoformat() if self.start_time else None,
+            "end_time_utc": self.end_time.isoformat() if self.end_time else None,
+            "peak_memory_mb": self.peak_memory_mb,
+            "duration_seconds": (
+                (self.end_time - self.start_time).total_seconds()
+                if self.start_time and self.end_time
+                else None
+            ),
+        }
         try:
-            result = func(*args, **kwargs)
-        finally:
-            metrics = monitor.stop()
-            # Store in session metrics
-            with _lock:
-                _session_metrics.append({
-                    'function': func.__name__,
-                    'metrics': metrics
-                })
-        return result
-    return wrapper
+            os.makedirs(os.path.dirname(self.log_path), exist_ok=True)
+            with open(self.log_path, "w", encoding="utf-8") as fp:
+                json.dump(payload, fp, indent=2)
+        except Exception:
+            # Logging failures must never crash the main pipeline.
+            pass
+
+# --------------------------------------------------------------------------- #
+# Context‑manager convenience wrapper                                        #
+# --------------------------------------------------------------------------- #
 
 @contextmanager
-def memory_context(name: str = "unnamed"):
+def memory_context(
+    log_path: Optional[str] = None, interval: float = 0.5
+) -> MemoryMonitor:
     """
-    Context manager to measure memory and time for a block of code.
-    
-    Usage:
-        with memory_context("my_block") as ctx:
-            # do work
-        print(ctx['peak_memory_mb'])
+    Context manager that yields a started ``MemoryMonitor`` and ensures it
+    stops (and writes its log) when exiting the block.
+
+    Example
+    -------
+    >>> with memory_context() as mon:
+    ...     heavy_computation()
+    >>> print(mon.get_metrics())
     """
-    monitor = MemoryMonitor()
-    result = {'name': name}
-    monitor.start()
+    monitor = MemoryMonitor(log_path=log_path, interval=interval)
     try:
-        yield result
+        monitor.start()
+        yield monitor
     finally:
-        metrics = monitor.stop()
-        result.update(metrics)
-        with _lock:
-            _session_metrics.append({'name': name, 'metrics': metrics})
+        monitor.stop()
 
-def get_session_metrics() -> List[Dict[str, Any]]:
-    """Get all metrics collected in the current session."""
-    with _lock:
-        return list(_session_metrics)
+# --------------------------------------------------------------------------- #
+# Simple CLI entry‑point for manual testing                               #
+# --------------------------------------------------------------------------- #
 
-def clear_session_metrics():
-    """Clear the session metrics list."""
-    global _session_metrics
-    with _lock:
-        _session_metrics = []
-
-def save_session_metrics(path: Optional[Path] = None):
-    """Save session metrics to a JSON file."""
-    path = path or (get_results_dir() / "session_memory_metrics.json")
-    metrics = get_session_metrics()
-    with open(path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-
-def main():
+def main() -> None:
     """
-    Standalone test runner for MemoryMonitor.
+    Minimal demonstration: monitor a short sleep and write the JSON log.
+    The file is written to ``data/results/memory_monitor_log.json``.
     """
-    print("Testing MemoryMonitor...")
-    monitor = MemoryMonitor()
-    
-    # Test start/stop
-    m = monitor.start().stop()
-    print(f"Wall time: {m['wall_time_sec']:.3f}s, Peak memory: {m['peak_memory_mb']:.2f}MB")
-    
-    # Test background sampling
-    monitor2 = MemoryMonitor(sample_interval=0.1)
-    monitor2.start()
-    time.sleep(1.0)
-    # Simulate some memory usage
-    data = [i for i in range(1000000)]
-    m2 = monitor2.stop()
-    print(f"Background sampling - Wall time: {m2['wall_time_sec']:.3f}s, Peak: {m2['peak_memory_mb']:.2f}MB, Samples: {m2['sample_count']}")
-    
-    # Test context manager
-    with memory_context("test_block") as ctx:
-        _ = [i**2 for i in range(500000)]
-    print(f"Context manager - Peak: {ctx['peak_memory_mb']:.2f}MB")
-    
-    print("MemoryMonitor tests completed.")
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run a quick memory monitor demo.")
+    parser.add_argument(
+        "--seconds",
+        type=float,
+        default=2.0,
+        help="How long to sleep while monitoring (default: 2 s).",
+    )
+    args = parser.parse_args()
+
+    with memory_context() as mon:
+        time.sleep(args.seconds)
+
+    print("Memory monitor written to:", mon.log_path)
+    print("Metrics:", mon.get_metrics())
 
 if __name__ == "__main__":
     main()

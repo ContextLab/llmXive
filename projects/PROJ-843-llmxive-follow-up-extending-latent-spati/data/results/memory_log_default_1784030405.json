@@ -1,0 +1,11 @@
+[
+  {
+    "name": "default",
+    "start_time": 1784030405.8709292,
+    "end_time": 1784030405.8728733,
+    "duration_seconds": 0.0019440650939941406,
+    "peak_memory_mb": 723.9140625,
+    "tracemalloc_peak_mb": 0.5959024429321289,
+    "wall_clock_time_seconds": 0.0019440650939941406
+  }
+]

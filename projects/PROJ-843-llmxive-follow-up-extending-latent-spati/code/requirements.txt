@@ -14,3 +14,4 @@ pillow>=10.0.0
 tqdm>=4.66.0
 huggingface_hub  # auto-added: imported by run-book but missing from venv
 torchvision  # auto-added: imported by run-book but missing from venv
+psutil  # auto-added: imported by run-book but missing from venv

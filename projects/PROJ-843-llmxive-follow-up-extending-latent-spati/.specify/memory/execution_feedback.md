@@ -2,30 +2,11 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 command(s) failed: python code/main.py --phase data_prepare (rc=2); python code/main.py --phase extract_features (rc=2); python code/main.py --phase compute_geometry (rc=2); 1 declared deliverable(s) absent: data/results/sparse_warped_frames.npy
+**Summary**: 1 declared deliverable(s) absent: data/results/sparse_warped_frames.npy
 
 ## Failing / missing run-book commands
 
-- python code/main.py --phase data_prepare -> rc=2
-    usage: main.py [-h] --phase {prepare,extract,geometry,evaluate,validate,full}
-               [--skip-memory]
-main.py: error: argument --phase: invalid choice: 'data_prepare' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'validate', 'full')
-- python code/main.py --phase extract_features -> rc=2
-    usage: main.py [-h] --phase {prepare,extract,geometry,evaluate,validate,full}
-               [--skip-memory]
-main.py: error: argument --phase: invalid choice: 'extract_features' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'validate', 'full')
-- python code/main.py --phase compute_geometry -> rc=2
-    usage: main.py [-h] --phase {prepare,extract,geometry,evaluate,validate,full}
-               [--skip-memory]
-main.py: error: argument --phase: invalid choice: 'compute_geometry' (choose from 'prepare', 'extract', 'geometry', 'evaluate', 'validate', 'full')
-- python code/main.py --phase evaluate -> rc=2
-    ============================================================
-Running: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/.venv/bin/python /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/code/eval/download_dense_baseline.py
-Description: Phase 6: Download dense baseline frames
-============================================================
-ERROR: Script failed with return code 2
-STDOUT: 
-STDERR: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/code/eval/download_dense_baseline.py': [Errno 2] No such file or directory
+- (no per-command failures; the run produced no real data/figure artifacts — ensure scripts WRITE their declared outputs under data/ and figures/)
 
 ## Declared deliverables still missing
 
@@ -55,21 +36,16 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Whichever you choose, every call site of `MemoryMonitor` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`MemoryMonitor.start` call sites (7):
-- code/utils/memory_monitor.py: - Can be called with .start()/.stop()
-- code/utils/memory_monitor.py: - Can be chained: monitor.start().stop()
-- code/utils/memory_monitor.py: tracemalloc.start()
-- code/utils/memory_monitor.py: self._thread.start()
-- code/utils/memory_monitor.py: return self.start()
+`MemoryMonitor.start` call sites (3):
 - code/utils/memory_monitor.py: monitor.start()
-- code/utils/memory_monitor.py: metrics = monitor.start().stop()
+- code/utils/memory_monitor.py: self._thread.start()
+- code/eval/metrics.py: monitor.start()
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/results/sparse_warped_frames.npy` is declared but was NOT written. Scripts referencing it:
-    - `code/main.py` — IS a run-book command
     - `code/geometry/run_pipeline.py` — NOT invoked by the run-book
     - `code/geometry/aggregate_warps.py` — NOT invoked by the run-book
     - `code/eval/quickstart_validator.py` — NOT invoked by the run-book
@@ -84,5 +60,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/main.py`, `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/metrics.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/main.py`, `code/geometry/run_pipeline.py`, `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/metrics.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/metrics.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/geometry/run_pipeline.py`, `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/metrics.py`.
