@@ -10,4 +10,4 @@ huggingface_hub>=0.16.0
 pytest>=7.0.0
 networkx>=3.0
 pyyaml>=6.0
-trydata>=0.1.0
+trydata>=1.0.0

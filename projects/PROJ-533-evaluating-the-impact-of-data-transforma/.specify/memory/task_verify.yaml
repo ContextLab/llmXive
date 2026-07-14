@@ -1,19 +1,6 @@
-? 'T001 Create project structure using exact command: `mkdir -p code/utils data/raw
-  data/processed results/type1_error results/power results/aggregated results/checkpoints
-  tests/unit tests/integration` <!-- ATOMIZE: requested -->'
-: 1
-? 'T001 Create project structure using exact command: `mkdir -p code/utils data/raw
-  data/processed results/type1_error results/power results/aggregated results/checkpoints
-  tests/unit tests/integration` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
-  -->'
-: 1
-? T002 Initialize Python 3.11 project with dependencies (`scikit-learn`, `scipy`,
-  `pandas`, `numpy`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`)
-  in `requirements.txt`
-: 2
-T003 Configure linting (flake8) and formatting (black) tools: 2
-T004 Implement `utils/checkpointing.py` to handle state saving/loading for resumption (Constitution Principle V): 2
-T005 Implement `utils/statistical_tests.py` with t-test, ANOVA, Shapiro-Wilk, and Friedman test wrappers: 2
-? T006 Implement `utils/transformations.py` with Box-Cox, Yeo-Johnson, and rank-based
-  inverse normal functions (handling positive-value constraints)
-: 1
+T001: 1
+T002: 1
+T003: 1
+T004: 1
+T005: 1
+T006: 1

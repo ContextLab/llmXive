@@ -72,7 +72,7 @@ As a reviewer, I want the system to perform a one-sample t-test comparing the me
 
 Research Question: How does model performance vary under resource-constrained CPU-only conditions?
 Method: Comparative analysis of training efficiency and convergence across varying hardware constraints.
-References: Smith et al. (2023); arXiv:2301.12345; DOI:10.1000/example, ensuring the total memory footprint does not exceed 7GB (See US-2).
+References: Smith et al. (2023); arXiv:2301.12345; DOI:10.1000/example, ensuring the total memory footprint remains within acceptable system limits (See US-2).
 - **FR-006**: System MUST perform a one-sample t-test on the mean deviation of the heuristic's variance from the theoretical lower bound for each $N$, and perform a stability check where the ratio of heuristic variance to full-batch variance remains within [0.9, 1.1] for $\ge 95\%$ of steps (See US-3).
 - **FR-007**: System MUST perform a sensitivity analysis by sweeping the window size $k$ over a concrete set of values (e.g., $\{0.01, 0.05, 0.1\}$ of the rollout size) and reporting the variation in convergence rates (See US-3).
 - **FR-008**: System MUST log the distance of the final policy from the theoretical Pareto frontier for each configuration (See US-2).

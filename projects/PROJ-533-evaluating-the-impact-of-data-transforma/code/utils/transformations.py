@@ -1,214 +1,243 @@
 """
-Transformation utilities for statistical analysis.
+Transformation utilities for normalizing data distributions.
 
-Implements Box-Cox, Yeo-Johnson, and rank-based inverse normal transformations.
-Handles positive-value constraints and provides fallback strategies for invalid inputs.
+Implements Box-Cox, Yeo-Johnson, and Rank-based Inverse Normal Transformations.
+Handles positive-value constraints and logs interventions via the project logger.
 """
 import numpy as np
 from scipy import stats
 from typing import Tuple, Optional, Union, List
 import warnings
+import logging
 
-# Suppress specific scipy warnings during lambda optimization to keep logs clean
-warnings.filterwarnings("ignore", category=RuntimeWarning, module="scipy.optimize")
+from pathlib import Path
+from utils.logging_config import setup_pipeline_logger
 
+# Ensure logger is configured
+logger = setup_pipeline_logger()
 
-def _validate_input(data: Union[np.ndarray, List[float]], name: str) -> np.ndarray:
-    """Validate input data for transformation functions."""
-    arr = np.asarray(data, dtype=float)
-    if arr.size == 0:
-        raise ValueError(f"{name}: Input array is empty.")
-    if not np.isfinite(arr).all():
-        raise ValueError(f"{name}: Input contains non-finite values (NaN or Inf).")
-    return arr
-
-
-def box_cox_transform(
-    data: Union[np.ndarray, List[float]],
-    lambda_val: Optional[float] = None
-) -> Tuple[np.ndarray, float]:
+def box_cox_transform(data: Union[np.ndarray, List[float]], 
+                      lmbda: Optional[float] = None) -> Tuple[np.ndarray, float]:
     """
-    Apply Box-Cox transformation.
-
-    Box-Cox requires strictly positive data. If the data contains non-positive
-    values, this function raises a ValueError. Use `safe_box_cox` for automatic
-    shifting.
-
+    Apply Box-Cox transformation to data.
+    
+    Box-Cox requires strictly positive data. If data contains zeros or negatives,
+    this function raises a ValueError.
+    
     Args:
-        data: Input 1D array of positive values.
-        lambda_val: Optional lambda parameter. If None, it is estimated.
-
+        data: Input array-like data.
+        lmbda: Lambda parameter. If None, optimal lambda is estimated.
+    
     Returns:
-        Tuple of (transformed_data, lambda_parameter).
+        Tuple of (transformed_data, lambda_value)
+    
+    Raises:
+        ValueError: If data contains non-positive values.
     """
-    arr = _validate_input(data, "Box-Cox")
-
-    if np.any(arr <= 0):
-        raise ValueError(
-            "Box-Cox transformation requires strictly positive data. "
-            "Use safe_box_cox for automatic log-shift handling."
-        )
-
-    if lambda_val is not None:
-        # Apply transformation with fixed lambda
-        if abs(lambda_val) < 1e-6:
-            transformed = np.log(arr)
+    data_np = np.asarray(data, dtype=float)
+    
+    if np.any(data_np <= 0):
+        raise ValueError("Box-Cox transformation requires strictly positive data. "
+                       "Found non-positive values.")
+    
+    # Suppress convergence warnings from scipy for cleaner logs
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        if lmbda is None:
+            transformed_data, lmbda = stats.boxcox(data_np)
         else:
-            transformed = (np.power(arr, lambda_val) - 1) / lambda_val
-        return transformed, lambda_val
+            transformed_data = stats.boxcox(data_np, lmbda=lmbda)
+    
+    return transformed_data, lmbda
 
-    # Estimate lambda
-    transformed, lambda_est = stats.boxcox(arr)
-    return transformed, lambda_est
-
-
-def safe_box_cox(
-    data: Union[np.ndarray, List[float]],
-    shift_constant: Optional[float] = None
-) -> Tuple[np.ndarray, float, Optional[float]]:
+def safe_box_cox(data: Union[np.ndarray, List[float]], 
+                 shift: bool = True) -> Tuple[Optional[np.ndarray], Optional[float], str]:
     """
-    Apply Box-Cox with automatic handling for non-positive values.
-
-    If the data contains non-positive values, a constant is added to make
-    all values positive before transformation.
-
+    Safely attempt Box-Cox transformation, handling non-positive data.
+    
+    If data is not strictly positive, attempts to shift it by adding a constant
+    (min_value + 1) to make all values positive before transformation.
+    
     Args:
-        data: Input 1D array.
-        shift_constant: If provided, this value is added to all data points.
-                       If None, the minimum shift (min(arr) + epsilon) is calculated.
-
+        data: Input array-like data.
+        shift: If True, apply log-shift intervention for non-positive data.
+    
     Returns:
-        Tuple of (transformed_data, lambda_parameter, applied_shift).
-        applied_shift is None if no shift was needed.
+        Tuple of (transformed_data, lambda_value, status_message)
+        - transformed_data: np.ndarray if successful, None if failed.
+        - lambda_value: float if successful, None if failed.
+        - status_message: 'success', 'shifted', or 'failed'.
     """
-    arr = _validate_input(data, "Safe Box-Cox")
-    min_val = np.min(arr)
-    applied_shift = None
-
-    if min_val <= 0:
-        if shift_constant is None:
-            # Shift to make minimum value 1e-6 (small positive epsilon)
-            shift_constant = abs(min_val) + 1e-6
+    data_np = np.asarray(data, dtype=float)
+    
+    if np.any(data_np <= 0):
+        if shift:
+            min_val = np.min(data_np)
+            shift_amount = abs(min_val) + 1.0
+            shifted_data = data_np + shift_amount
+            logger.info(f"Applied log-shift intervention: added {shift_amount} to data "
+                      f"(min was {min_val}) to enable Box-Cox.")
+            try:
+                transformed_data, lmbda = box_cox_transform(shifted_data)
+                return transformed_data, lmbda, "shifted"
+            except Exception as e:
+                logger.error(f"Shifted Box-Cox transformation failed: {e}")
+                return None, None, "failed"
         else:
-            # Ensure provided constant is sufficient
-            if min_val + shift_constant <= 0:
-                shift_constant = abs(min_val) + 1e-6
+            logger.error("Box-Cox failed: Data contains non-positive values and shift is disabled.")
+            return None, None, "failed"
+    
+    try:
+        transformed_data, lmbda = box_cox_transform(data_np)
+        return transformed_data, lmbda, "success"
+    except Exception as e:
+        logger.error(f"Box-Cox transformation failed: {e}")
+        return None, None, "failed"
 
-        arr_shifted = arr + shift_constant
-        applied_shift = shift_constant
-    else:
-        arr_shifted = arr
-
-    transformed, lambda_est = stats.boxcox(arr_shifted)
-    return transformed, lambda_est, applied_shift
-
-
-def yeo_johnson_transform(
-    data: Union[np.ndarray, List[float]],
-    lambda_val: Optional[float] = None
-) -> Tuple[np.ndarray, float]:
+def yeo_johnson_transform(data: Union[np.ndarray, List[float]], 
+                          lmbda: Optional[float] = None) -> Tuple[np.ndarray, float]:
     """
-    Apply Yeo-Johnson transformation.
-
-    Yeo-Johnson can handle positive, negative, and zero values.
-
+    Apply Yeo-Johnson transformation to data.
+    
+    Yeo-Johnson can handle zero and negative values, making it more flexible
+    than Box-Cox.
+    
     Args:
-        data: Input 1D array.
-        lambda_val: Optional lambda parameter. If None, it is estimated.
-
+        data: Input array-like data.
+        lmbda: Lambda parameter. If None, optimal lambda is estimated.
+    
     Returns:
-        Tuple of (transformed_data, lambda_parameter).
+        Tuple of (transformed_data, lambda_value)
     """
-    arr = _validate_input(data, "Yeo-Johnson")
+    data_np = np.asarray(data, dtype=float)
+    
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        if lmbda is None:
+            transformed_data, lmbda = stats.yeojohnson(data_np)
+        else:
+            transformed_data = stats.yeojohnson(data_np, lmbda=lmbda)
+    
+    return transformed_data, lmbda
 
-    if lambda_val is not None:
-        transformed = stats.yeojohnson(arr, lmbda=lambda_val)
-        return transformed, lambda_val
-
-    transformed, lambda_est = stats.yeojohnson(arr)
-    return transformed, lambda_est
-
-
-def rank_inverse_normal_transform(
-    data: Union[np.ndarray, List[float]],
-    epsilon: float = 1e-6
-) -> np.ndarray:
+def rank_inverse_normal_transform(data: Union[np.ndarray, List[float]], 
+                                  method: str = 'average') -> np.ndarray:
     """
     Apply Rank-based Inverse Normal Transformation (RINT).
-
-    This method replaces data values with their rank-based quantiles from
-    a standard normal distribution. It is robust to outliers and non-normality.
-
+    
+    This transformation ranks the data and maps the ranks to quantiles of
+    the standard normal distribution. It is robust to outliers and does not
+    assume a specific distribution shape.
+    
     Args:
-        data: Input 1D array.
-        epsilon: Small constant to avoid infinite values at tails (0 < epsilon < 0.5).
-                Default is 1e-6, scaling the rank fraction to (1+epsilon)/(N+2).
-
+        data: Input array-like data.
+        method: Method for handling ties in ranking ('average', 'min', 'max', 'dense', 'ordinal').
+                Default is 'average'.
+    
     Returns:
-        Transformed 1D array.
+        Transformed array with standard normal distribution properties.
     """
-    arr = _validate_input(data, "Rank Inverse Normal")
-    n = len(arr)
+    data_np = np.asarray(data, dtype=float)
+    
+    # Handle NaN values by replacing with NaN in output (or could impute before calling)
+    mask = ~np.isnan(data_np)
+    ranks = np.empty_like(data_np, dtype=float)
+    ranks[~mask] = np.nan
+    
+    # Compute ranks for valid data
+    valid_data = data_np[mask]
+    _, ranks_valid = stats.rankdata(valid_data, method=method), None
+    
+    # Map ranks to normal quantiles
+    # Using Blom's formula: (rank - 0.375) / (n + 0.25)
+    n = len(valid_data)
+    if n == 0:
+        return np.zeros_like(data_np)
+        
+    probs = (ranks_valid - 0.375) / (n + 0.25)
+    
+    # Ensure probabilities are within (0, 1) to avoid inf in norm.ppf
+    probs = np.clip(probs, 1e-10, 1 - 1e-10)
+    
+    transformed_valid = stats.norm.ppf(probs)
+    
+    ranks[mask] = transformed_valid
+    
+    return ranks
 
-    # Calculate ranks (1-based)
-    # Using scipy.stats.rankdata with 'average' method for ties
-    ranks = stats.rankdata(arr, method='average')
-
-    # Convert ranks to probabilities in (0, 1) range
-    # Formula: (rank - 0.5) / n is common, but we use (rank + epsilon) / (n + 2*epsilon)
-    # to avoid exactly 0 or 1 which map to +/- inf in norm.ppf.
-    # A standard robust formula is (rank - 0.375) / (n + 0.25) (Blom's method)
-    # or (rank - 0.5) / n.
-    # Here we use a simple scaling to avoid boundaries:
-    p = (ranks - 0.5) / n
-
-    # Clamp probabilities to avoid exactly 0 or 1
-    p = np.clip(p, epsilon, 1 - epsilon)
-
-    # Inverse normal transformation
-    transformed = stats.norm.ppf(p)
-
-    return transformed
-
-
-def apply_transformation(
-    data: Union[np.ndarray, List[float]],
-    method: str = "yeo_johnson"
-) -> Tuple[np.ndarray, dict]:
+def apply_transformation(data: Union[np.ndarray, List[float]], 
+                         transform_type: str = 'yeo_johnson',
+                         **kwargs) -> Tuple[np.ndarray, dict]:
     """
-    Generic wrapper to apply a specified transformation.
-
+    Apply a specified transformation to data.
+    
     Args:
-        data: Input 1D array.
-        method: One of 'box_cox', 'safe_box_cox', 'yeo_johnson', 'rank_normal'.
-
+        data: Input array-like data.
+        transform_type: Type of transformation ('box_cox', 'yeo_johnson', 'rank_inverse_normal').
+        **kwargs: Additional arguments passed to the specific transformation function.
+    
     Returns:
-        Tuple of (transformed_data, metadata_dict).
-        metadata_dict contains 'method', 'lambda' (if applicable), and 'shift' (if applicable).
+        Tuple of (transformed_data, metadata_dict)
+        metadata_dict contains:
+            - 'transform_type': str
+            - 'lambda': float (if applicable)
+            - 'status': str ('success', 'shifted', 'failed')
+            - 'message': str (details about the transformation)
     """
-    arr = _validate_input(data, "Apply Transformation")
-
-    if method == "box_cox":
+    data_np = np.asarray(data, dtype=float)
+    metadata = {
+        'transform_type': transform_type,
+        'lambda': None,
+        'status': 'success',
+        'message': 'Transformation applied successfully'
+    }
+    
+    if transform_type == 'box_cox':
         try:
-            transformed, lam = box_cox_transform(arr)
-            return transformed, {"method": "box_cox", "lambda": lam, "shift": None}
-        except ValueError:
-            raise ValueError(
-                "Box-Cox failed due to non-positive data. "
-                "Consider using 'safe_box_cox' or 'yeo_johnson' instead."
-            )
-
-    elif method == "safe_box_cox":
-        transformed, lam, shift = safe_box_cox(arr)
-        return transformed, {"method": "safe_box_cox", "lambda": lam, "shift": shift}
-
-    elif method == "yeo_johnson":
-        transformed, lam = yeo_johnson_transform(arr)
-        return transformed, {"method": "yeo_johnson", "lambda": lam, "shift": None}
-
-    elif method == "rank_normal":
-        transformed = rank_inverse_normal_transform(arr)
-        return transformed, {"method": "rank_normal", "lambda": None, "shift": None}
-
+            transformed, lmbda = box_cox_transform(data_np)
+            metadata['lambda'] = lmbda
+        except ValueError as e:
+            metadata['status'] = 'failed'
+            metadata['message'] = str(e)
+            raise
+            
+    elif transform_type == 'yeo_johnson':
+        transformed, lmbda = yeo_johnson_transform(data_np, lmbda=kwargs.get('lmbda'))
+        metadata['lambda'] = lmbda
+        
+    elif transform_type == 'rank_inverse_normal':
+        transformed = rank_inverse_normal_transform(data_np, method=kwargs.get('method', 'average'))
+        metadata['message'] = 'Rank-based inverse normal transformation applied'
+        
     else:
-        raise ValueError(f"Unknown transformation method: {method}")
+        raise ValueError(f"Unknown transformation type: {transform_type}")
+    
+    return transformed, metadata
+
+# Convenience functions for specific use cases
+def transform_to_normality(data: Union[np.ndarray, List[float]], 
+                           preferred_order: List[str] = None) -> Tuple[np.ndarray, str, dict]:
+    """
+    Attempt to normalize data by trying transformations in a preferred order.
+    
+    Args:
+        data: Input data.
+        preferred_order: List of transformation names to try in order.
+                        Default: ['yeo_johnson', 'rank_inverse_normal', 'box_cox']
+    
+    Returns:
+        Tuple of (transformed_data, successful_transform_type, metadata)
+    """
+    if preferred_order is None:
+        preferred_order = ['yeo_johnson', 'rank_inverse_normal', 'box_cox']
+    
+    for transform_type in preferred_order:
+        try:
+            transformed, metadata = apply_transformation(data, transform_type)
+            logger.info(f"Successfully transformed data using {transform_type}")
+            return transformed, transform_type, metadata
+        except Exception as e:
+            logger.warning(f"Transformation {transform_type} failed: {e}")
+            continue
+    
+    raise RuntimeError(f"All attempted transformations failed for data with {len(data)} points.")

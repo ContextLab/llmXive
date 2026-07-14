@@ -594,3 +594,175 @@
   source_type: external
   status: verified
   updated_at: '2026-07-01T23:55:41Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Type I error estimated via sufficient shuffles with fixed seed
+  claim_id: c_79d83f43
+  context: 'Independent Test: Run code/apply_transformations.py and code/simulate_null.py
+    on a single dataset and verify Type I error is estimated via a sufficient number
+    of shuffles with a fixed seed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Type_I_error_estimated_via_sufficient_shuffles_with_fixed_se
+  kind: entity_fact
+  raw_text: Verify Type I error is estimated via a sufficient number of shuffles with
+    a fixed seed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:15:14Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Power estimates match expected values within 95% CI half-width 0.02
+  claim_id: c_0a9a4d43
+  context: "Phase 5: User Story 4 - Simulate Data with Known Ground Truth for Power\
+    \ Analysis (Priority: P4) Independent Test: Run code/simulate_power.py with fixed\
+    \ effect sizes and Power estimates will match expected values within 95% CI half-width\
+    \ \xB10.02.."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run code/simulate_power.py with fixed effect sizes and Power estimates\
+    \ will match expected values within 95% CI half-width \xB10.02."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:15:14Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Tasks are CPU-only with memory usage less than 6GB and runtime less than
+    6 hours
+  claim_id: c_27464ca8
+  context: 'Notes: Feasibility Check: All tasks are CPU-only, no GPU/CUDA required,
+    Memory usage < 6GB, Runtime < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Tasks_are_CPU-only_with_memory_usage_less_than_6GB_and_runti
+  kind: magnitude
+  raw_text: All tasks are CPU-only, no GPU/CUDA required, Memory usage < 6GB, Runtime
+    < 6h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:15:30Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: download 50 public datasets from UCI/OpenML
+  claim_id: c_3339a2a1
+  context: "Phase 3: User Story 1 - Download and Filter Real-World Datasets (Priority:\
+    \ P1) Goal: Download at least 50 public datasets from UCI/OpenML, filter for non-normality\
+    \ (Shapiro-Wilk p < 0.05) and sample size (N \u2265 30), and preserve metadata."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_50_public_datasets_from_UCI/OpenML
+  kind: magnitude
+  raw_text: Download at least 50 public datasets from UCI/OpenML
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:19:04Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: estimate Type I error via shuffles with fixed seed
+  claim_id: c_5b2ef74c
+  context: 'Phase 4: User Story 2 - Apply Transformations and Run Type I Error Tests
+    (Priority: P2) Independent Test: Run code/apply_transformations.py and code/simulate_null.py
+    on a single dataset and verify Type I error is estimated via a sufficient number
+    of shuffles with a fixed seed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Estimate_Type_I_error_via_shuffles_with_fixed_seed
+  kind: entity_fact
+  raw_text: Verify Type I error is estimated via a sufficient number of shuffles with
+    a fixed seed
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:19:07Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: power estimates match expected values within 95% CI half-width 0.02
+  claim_id: c_e28a66ac
+  context: "Phase 5: User Story 4 - Simulate Data with Known Ground Truth for Power\
+    \ Analysis (Priority: P4) Independent Test: Run code/simulate_power.py with fixed\
+    \ effect sizes and Power estimates will match expected values within 95% CI half-width\
+    \ \xB10.02.."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power estimates will match expected values within 95% CI half-width \xB1\
+    0.02"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:19:07Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: generated data skewness > 0.5
+  claim_id: c_ca64348d
+  context: 'Tests for User Story 4 (TDD First - Write these BEFORE implementation)
+    - [ ] T028a [US4] Unit test for simulated data generation (non-normal distributions):
+    Implement tests/unit/test_simulate_power.py::test_non_normal_data_generation asserting
+    Generated data has skewness > 0.5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generated data has skewness > 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:19:07Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: memory usage less than 6GB
+  claim_id: c_3296e878
+  context: 'Notes - Feasibility Check: All tasks are CPU-only, no GPU/CUDA required,
+    Memory usage < 6GB, Runtime < 6h. No 8-bit/4-bit quantization or large model training.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_6GB
+  kind: magnitude
+  raw_text: Memory usage < 6GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:19:26Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: runtime less than 6 hours
+  claim_id: c_a7670df4
+  context: 'Notes - Feasibility Check: All tasks are CPU-only, no GPU/CUDA required,
+    Memory usage < 6GB, Runtime < 6h. No 8-bit/4-bit quantization or large model training.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: Runtime < 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:19:49Z'

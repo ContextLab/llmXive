@@ -43,7 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-377-investigating-the-impact-of-network-cent/`)
+- [ ] T001a [P] Create project directory structure: `projects/PROJ-377-investigating-the-impact-of-network-cent/` with subdirs `code/`, `data/`, `tests/`, `state/`
+- [ ] T001b [P] Initialize git repository and create `.gitignore` for data and artifacts
 - [ ] T002 Initialize Python project with dependencies: `pandas`, `numpy`, `networkx`, `scikit-learn`, `statsmodels`, `nilearn`, `openneuro-cli`, `matplotlib`, `seaborn` in `code/requirements.txt`
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
@@ -55,7 +56,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your project):
+Examples of foundational tasks (adjust based on your plan.md):
 
 - [ ] T004 Setup data directory structure: `data/raw/`, `data/processed/`, `data/artifacts/`
 - [ ] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track wall_clock_time and RAM usage
@@ -97,7 +98,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Compute centrality metrics from connectivity matrices for ALL regions, calculate FD, check VIF, aggregate to global score, and fit linear/GAM models with covariates.
 
-**Independent Test**: The analysis script outputs a regression summary table, scatter plot, non-linearity check results, and regional p-values.
+**Independent Test**: The analysis script outputs a regression summary table, scatter plot, non-linearity check results, and regional p-values (if triggered).
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -106,15 +107,17 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement functional connectivity matrix extraction for **ALL regions in the AAL3 atlas (~90 nodes)** using `nilearn.connectome.ConnectivityMeasure` and save to `data/processed/connectivity/subject_id_matrix.npy` in `code/analysis/centrality.py`
+- [ ] T019 [P] [US2] Implement functional connectivity matrix extraction for **FULL AAL3 atlas (~90 nodes)** using `nilearn.connectome.ConnectivityMeasure` and save to `data/processed/connectivity/subject_id_matrix.npy` in `code/analysis/centrality.py`
 - [ ] T020 [US2] Implement centrality metric calculation (degree, betweenness, eigenvector) using NetworkX for **ALL regions (~90 nodes)**. Persist raw metrics to `data/processed/centrality/subject_id_metrics.csv` in `code/analysis/centrality.py`
+- [ ] T020.5 [US2] **Extract Fixed Subset**: From `data/processed/centrality/subject_id_metrics.csv`, extract metrics for **fixed regions (AAL3 indices 1-10)**. Compute mean to create 'global_centralty' column. Save to `data/processed/centrality/global_scores.csv` in `code/analysis/centrality.py`. (Aligns with Plan's bias-control strategy).
 - [ ] T021 [US2] Implement Mean Framewise Displacement (FD) calculation from fMRIPrep outputs (`data/processed/fmriprep/*/desc-confounds_timeseries.tsv`) and aggregate to mean per subject. Save to `data/processed/behavioral/fd_mean.csv` in `code/analysis/centrality.py`
-- [ ] T022 [US2] Implement VIF check on degree, betweenness, and eigenvector metrics; if VIF > 5, switch to PCA components; load raw metrics from `data/processed/centrality/` in `code/analysis/centrality.py`
-- [ ] T023 [US2] Implement global centrality aggregation (mean of top hubs or fixed set) from validated metrics in `code/analysis/centrality.py`
-- [ ] T024 [US2] Implement Linear Regression model (`Improvement ~ Global_Centrality + Age + Sex + Mean_FD`) in `code/analysis/regression.py`
-- [ ] T025 [US2] Implement GAM/Polynomial non-linearity check and AIC/BIC comparison in `code/analysis/regression.py`
+- [ ] T022 [US2] Implement VIF check on degree, betweenness, and eigenvector metrics; if VIF > 5, switch to PCA components; load raw metrics from `data/processed/centrality/subject_id_metrics.csv` in `code/analysis/centrality.py`. **Output**: `data/processed/centrality/model_predictors.csv` (contains either Global_Centrality or PCA_Component + Age + Sex + Mean_FD).
+- [ ] T023 [US2] Implement global centrality aggregation (mean of fixed subset 1-10) from validated metrics in `code/analysis/centrality.py`. (Note: This task is now largely superseded by T020.5 but kept for logic separation if T020.5 is refactored).
+- [ ] T023.5 [US2] **Null Model Generation**: Implement generation of the 'null model' (intercept-only: `Improvement ~ 1`) and calculate its residuals. Save residuals to `data/processed/validation/null_residuals.csv`. This artifact is required for T030.
+- [ ] T024 [US2] Implement Linear Regression model in `code/analysis/regression.py`. **Logic**: IF PCA used (from T022), formula is `Improvement ~ PCA_Component + Age + Sex + Mean_FD`; ELSE formula is `Improvement ~ Global_Centrality + Age + Sex + Mean_FD`. Save summary to `data/processed/regression/linear_model_summary.csv`.
+- [ ] T025 [US2] Implement GAM/Polynomial non-linearity check and AIC/BIC comparison in `code/analysis/regression.py`. **Logic**: Use the SAME predictor set (PCA or Global) as determined in T022.
 - [ ] T026 [US2] Generate scatter plot with regression line and non-linearity fit in `code/analysis/regression.py`
-- [ ] T027 [US2] Implement Regional Mass-Univariate Analysis: Fit separate regression models for each of the regions to generate regional p-values in `code/analysis/regression.py`
+- [ ] T027.1 [US2] **Conditional Regional Analysis**: IF `global_model_p_value > 0.05` OR `config.regional_analysis_flag == true`: Fit separate regression models for each of the ~90 regions to generate regional p-values. Save to `data/processed/regression/regional_pvalues.csv`. ELSE: Skip and log "Regional analysis skipped per primary strategy". (Triggers fallback only if needed).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,12 +136,12 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement Freedman-Lane permutation test (sufficient shuffles of residuals to ensure robust p-value estimation) in `code/analysis/validation.py`
-- [ ] T031 [US3] Implement k-fold cross-validation for R² and RMSE calculation in `code/analysis/validation.py`
+- [ ] T030 [US3] Implement Freedman-Lane permutation test in `code/analysis/validation.py`. **Requirements**: Exactly **1000 shuffles** of the **null residuals** (from T023.5) with a **fixed random seed**. Calculate empirical p-value for the primary coefficient. Save to `data/processed/validation/permutation_results.json`.
+- [ ] T031 [US3] Implement k-fold cross-validation in `code/analysis/validation.py`. **Requirements**: Calculate out-of-sample R² and RMSE. **Explicitly calculate and compare** the out-of-sample R² against the baseline R² (intercept-only model from T023.5). Save metrics and comparison to `data/processed/validation/cv_results.json`.
 - [ ] T032 [US3] Generate null distribution histogram and empirical p-value calculation in `code/analysis/validation.py`
-- [ ] T033 [US3] Implement Benjamini-Hochberg FDR correction on **full set of regional p-values (~90 tests)** from T027 in `code/analysis/validation.py`
-- [ ] T034 [US3] [P] Contract test for permutation test logic in `tests/contract/test_permutation.py` (Renumbered from T024 to avoid collision)
-- [ ] T035 [US3] [P] Integration test for cross-validation loop in `tests/integration/test_validation.py` (Renumbered from T025 to avoid collision)
+- [ ] T033.1 [US3] **Conditional FDR Correction**: IF `regional_analysis_flag == true` (i.e., T027.1 was executed): Apply Benjamini-Hochberg FDR correction to the regional p-values from T027.1. Save to `data/processed/validation/fdr_corrected_pvalues.csv`. ELSE: Skip and log "FDR correction skipped (regional analysis not triggered)".
+- [ ] T034 [US3] [P] Contract test for permutation test logic in `tests/contract/test_permutation.py` (Kept for completeness if tests requested, removed duplicate T034/T035 from previous version).
+- [ ] T035 [US3] [P] Integration test for cross-validation loop in `tests/integration/test_validation.py` (Kept for completeness if tests requested, removed duplicate T034/T035 from previous version).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,7 +151,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Generate final artifacts after all analysis and validation are complete
 
-- [ ] T036 [US3] Generate final `reproducibility_report.json` with checksums, wall clock time, RAM usage, and ALL validation metrics (p-values, R², RMSE) in `code/utils/metrics.py`
+- [ ] T036 [US3] Generate final `reproducibility_report.json` with checksums, wall clock time, RAM usage, and ALL validation metrics (p-values, R², RMSE, baseline comparison) in `code/utils/metrics.py`
 
 ---
 
@@ -255,3 +258,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Conditional Tasks**: Tasks T027.1 and T033.1 only execute if specific trigger conditions are met (global model insignificant or explicit config flag).
+- **Data Flow**: T020 saves ALL regions; T020.5 extracts fixed subset; T027.1 uses ALL regions if triggered.

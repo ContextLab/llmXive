@@ -1,42 +1,219 @@
-# Output Schema for Plant Drought Tolerance Study
-# Defines the structure and validation rules for output files
+# Output Schema for Model Results and Analysis Reports
+# This schema defines the validation rules for generated output files
+# including model results, power analysis reports, and sensitivity analysis.
 
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Plant Drought Tolerance Output Schema"
-type: "object"
-required:
-  - results
-properties:
-  results:
-    type: "array"
-    items:
-      type: "object"
-      required:
-        - model_type
-        - metric_name
-        - metric_value
-      properties:
-        model_type:
-          type: "string"
-          enum:
-            - "OLS"
-            - "Ridge"
-            - "Lasso"
-            - "RandomForest"
-            - "PGLS"
-        metric_name:
-          type: "string"
-        metric_value:
-          type: "number"
-        confidence_interval:
-          type: "object"
-          properties:
-            lower:
-              type: "number"
-            upper:
-              type: "number"
-        p_value:
-          type: "number"
-          minimum: 0
-          maximum: 1
-additionalProperties: false
+$schema: http://json-schema.org/draft-07/schema#
+title: Plant Drought Tolerance Output Schema
+version: 1.0.0
+
+definitions:
+  ModelResult:
+    type: object
+    required:
+      - model_type
+      - predictor
+      - target
+      - r_squared
+      - p_value
+      - coefficient
+    properties:
+      model_type:
+        type: string
+        enum: [ols, ridge, lasso, random_forest, pgl]
+      predictor:
+        type: string
+        description: Name of the predictor variable
+      target:
+        type: string
+        description: Name of the target variable
+      r_squared:
+        type: number
+        minimum: 0
+        maximum: 1
+      p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+      coefficient:
+        type: number
+      adjusted_p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+      vif:
+        type: number
+        minimum: 1
+      confidence_interval:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+
+  PowerAnalysisResult:
+    type: object
+    required:
+      - nppn_species_count
+      - try_species_count
+      - overlap_count
+      - required_sample_size
+      - sufficient
+    properties:
+      nppn_species_count:
+        type: integer
+        minimum: 0
+      try_species_count:
+        type: integer
+        minimum: 0
+      overlap_count:
+        type: integer
+        minimum: 0
+      required_sample_size:
+        type: integer
+        minimum: 1
+      sufficient:
+        type: boolean
+      error_message:
+        type: string
+      generated_at:
+        type: string
+        format: date-time
+
+  VIFComplianceCheck:
+    type: object
+    required:
+      - vif_threshold
+      - variables_checked
+      - high_vif_variables
+      - suppression_applied
+    properties:
+      vif_threshold:
+        type: number
+        const: 5.0
+      variables_checked:
+        type: array
+        items:
+          type: string
+      high_vif_variables:
+        type: array
+        items:
+          type: string
+      suppression_applied:
+        type: boolean
+      generated_at:
+        type: string
+        format: date-time
+
+  SensitivityResult:
+    type: object
+    required:
+      - threshold
+      - accuracy
+      - precision
+      - recall
+      - f1_score
+      - false_positive_rate
+      - false_negative_rate
+    properties:
+      threshold:
+        type: number
+      accuracy:
+        type: number
+        minimum: 0
+        maximum: 1
+      precision:
+        type: number
+        minimum: 0
+        maximum: 1
+      recall:
+        type: number
+        minimum: 0
+        maximum: 1
+      f1_score:
+        type: number
+        minimum: 0
+        maximum: 1
+      false_positive_rate:
+        type: number
+        minimum: 0
+        maximum: 1
+      false_negative_rate:
+        type: number
+        minimum: 0
+        maximum: 1
+
+oneOf:
+  - title: Model Results Dataset
+    type: object
+    required:
+      - data
+      - schema_version
+    properties:
+      schema_version:
+        type: string
+        const: "1.0.0"
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/ModelResult"
+      metadata:
+        type: object
+        properties:
+          generated_at:
+            type: string
+            format: date-time
+          total_models:
+            type: integer
+            minimum: 1
+
+  - title: Power Analysis Report
+    type: object
+    required:
+      - result
+      - schema_version
+    properties:
+      schema_version:
+        type: string
+        const: "1.0.0"
+      result:
+        $ref: "#/definitions/PowerAnalysisResult"
+
+  - title: VIF Compliance Check Report
+    type: object
+    required:
+      - result
+      - schema_version
+    properties:
+      schema_version:
+        type: string
+        const: "1.0.0"
+      result:
+        $ref: "#/definitions/VIFComplianceCheck"
+
+  - title: Sensitivity Analysis Results
+    type: object
+    required:
+      - data
+      - schema_version
+    properties:
+      schema_version:
+        type: string
+        const: "1.0.0"
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/SensitivityResult"
+      metadata:
+        type: object
+        properties:
+          generated_at:
+            type: string
+            format: date-time
+          total_thresholds:
+            type: integer
+            minimum: 1
+          classification_skipped:
+            type: boolean
+            default: false
+          reason:
+            type: string

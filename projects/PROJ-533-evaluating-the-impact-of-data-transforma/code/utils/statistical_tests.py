@@ -1,8 +1,11 @@
 """
 Statistical test wrappers for hypothesis testing.
 
-This module provides standardized interfaces for common statistical tests
-used in the data transformation sensitivity analysis pipeline.
+Provides standardized interfaces for:
+- Independent and paired t-tests
+- One-way ANOVA
+- Shapiro-Wilk normality test
+- Friedman non-parametric repeated measures test
 """
 
 import numpy as np
@@ -10,166 +13,138 @@ import pandas as pd
 from scipy import stats
 from typing import Union, List, Tuple, Optional
 
-# Type alias for array-like inputs
-ArrayLike = Union[List[float], np.ndarray, pd.Series]
+ArrayLike = Union[np.ndarray, pd.Series, List[float]]
 
 
 def t_test(
     group1: ArrayLike,
     group2: ArrayLike,
-    equal_var: bool = True,
-    alternative: str = "two-sided"
+    paired: bool = False,
+    equal_var: bool = True
 ) -> Tuple[float, float]:
     """
-    Perform an independent two-sample t-test.
-
-    Parameters
-    ----------
-    group1 : array-like
-        First group of data.
-    group2 : array-like
-        Second group of data.
-    equal_var : bool, optional
-        If True (default), perform a standard independent 2 sample t-test
-        that assumes equal population variances. If False, perform Welch's
-        t-test, which does not assume equal population variances.
-    alternative : str, optional
-        Defines the alternative hypothesis. Default is 'two-sided'.
-        Must be one of 'two-sided', 'less', or 'greater'.
-
-    Returns
-    -------
-    statistic : float
-        The t-statistic.
-    pvalue : float
-        The p-value associated with the hypothesis test.
+    Perform an independent or paired t-test between two groups.
+    
+    Args:
+        group1: First group of data.
+        group2: Second group of data.
+        paired: If True, perform a paired t-test. Default is False (independent).
+        equal_var: If True, perform standard independent t-test assuming equal variance.
+                   If False, perform Welch's t-test. Only used if paired=False.
+                   
+    Returns:
+        Tuple of (statistic, p-value).
+        
+    Raises:
+        ValueError: If input arrays are empty or have incompatible shapes for paired test.
     """
-    # Convert inputs to numpy arrays
-    x1 = np.asarray(group1)
-    x2 = np.asarray(group2)
+    arr1 = np.asarray(group1)
+    arr2 = np.asarray(group2)
+    
+    if arr1.size == 0 or arr2.size == 0:
+        raise ValueError("Input arrays cannot be empty.")
+        
+    if paired:
+        if arr1.shape != arr2.shape:
+            raise ValueError("For paired t-test, both groups must have the same shape.")
+        stat, p_val = stats.ttest_rel(arr1, arr2)
+    else:
+        stat, p_val = stats.ttest_ind(arr1, arr2, equal_var=equal_var)
+        
+    return float(stat), float(p_val)
 
-    # Remove NaN values if present
-    x1 = x1[~np.isnan(x1)]
-    x2 = x2[~np.isnan(x2)]
 
-    if len(x1) < 2 or len(x2) < 2:
-        raise ValueError("Each group must have at least 2 non-NaN values.")
-
-    result = stats.ttest_ind(
-        x1, x2, equal_var=equal_var, alternative=alternative
-    )
-    return float(result.statistic), float(result.pvalue)
-
-
-def anova_one_way(
-    *groups: ArrayLike
-) -> Tuple[float, float]:
+def anova_one_way(groups: List[ArrayLike]) -> Tuple[float, float]:
     """
-    Perform a one-way ANOVA to compare means of two or more independent groups.
-
-    Parameters
-    ----------
-    *groups : array-like
-        Two or more groups of data to compare.
-
-    Returns
-    -------
-    statistic : float
-        The F-statistic.
-    pvalue : float
-        The p-value associated with the hypothesis test.
+    Perform a one-way ANOVA to test if there are statistically significant 
+    differences between the means of three or more independent groups.
+    
+    Args:
+        groups: List of arrays, where each array represents a group's data.
+                
+    Returns:
+        Tuple of (F-statistic, p-value).
+        
+    Raises:
+        ValueError: If fewer than 2 groups are provided or if any group is empty.
     """
     if len(groups) < 2:
-        raise ValueError("At least two groups must be provided for ANOVA.")
-
-    # Convert and clean inputs
-    clean_groups = []
-    for i, g in enumerate(groups):
-        arr = np.asarray(g)
-        arr = arr[~np.isnan(arr)]
-        if len(arr) == 0:
-            raise ValueError(f"Group {i+1} contains no valid data after NaN removal.")
-        clean_groups.append(arr)
-
-    result = stats.f_oneway(*clean_groups)
-    return float(result.statistic), float(result.pvalue)
+        raise ValueError("At least two groups are required for ANOVA.")
+        
+    np_groups = [np.asarray(g) for g in groups]
+    
+    if any(g.size == 0 for g in np_groups):
+        raise ValueError("All groups must contain data.")
+        
+    stat, p_val = stats.f_oneway(*np_groups)
+    
+    return float(stat), float(p_val)
 
 
-def shapiro_test(
-    data: ArrayLike
-) -> Tuple[float, float]:
+def shapiro_test(data: ArrayLike) -> Tuple[float, float]:
     """
     Perform the Shapiro-Wilk test for normality.
-
-    Parameters
-    ----------
-    data : array-like
-        The data to test for normality.
-
-    Returns
-    -------
-    statistic : float
-        The W-statistic of the test.
-    pvalue : float
-        The p-value of the test.
-
-    Notes
-    -----
-    The null hypothesis is that the data is drawn from a normal distribution.
-    A small p-value (typically < 0.05) indicates rejection of the null hypothesis.
+    
+    The null hypothesis is that the data is normally distributed.
+    A small p-value (< 0.05) suggests the data is NOT normally distributed.
+    
+    Args:
+        data: Array of data values.
+        
+    Returns:
+        Tuple of (statistic, p-value).
+        
+    Raises:
+        ValueError: If data has fewer than 3 observations or more than 5000 
+                    (scipy limit for older versions, though newer handles more).
     """
     arr = np.asarray(data)
-    arr = arr[~np.isnan(arr)]
+    
+    if arr.size < 3:
+        raise ValueError("Shapiro-Wilk test requires at least 3 observations.")
+        
+    if arr.size > 5000:
+        # For very large samples, Shapiro-Wilk can be computationally expensive
+        # We proceed but scipy might have limits depending on version.
+        pass
+        
+    stat, p_val = stats.shapiro(arr)
+    
+    return float(stat), float(p_val)
 
-    if len(arr) < 3:
-        raise ValueError("Shapiro-Wilk test requires at least 3 non-NaN values.")
-    if len(arr) > 5000:
-        # scipy.stats.shapiro has a limit of 5000 for some versions
-        # We take a random sample if too large, though typically we filter size earlier
-        arr = np.random.choice(arr, size=5000, replace=False)
 
-    result = stats.shapiro(arr)
-    return float(result.statistic), float(result.pvalue)
-
-
-def friedman_test(
-    *groups: ArrayLike
-) -> Tuple[float, float]:
+def friedman_test(groups: List[ArrayLike]) -> Tuple[float, float]:
     """
-    Perform the Friedman test for repeated measures.
-
+    Perform the Friedman test for comparing related samples (repeated measures).
+    
     This is a non-parametric alternative to repeated measures ANOVA.
-
-    Parameters
-    ----------
-    *groups : array-like
-        Two or more related samples (groups) of data.
-
-    Returns
-    -------
-    statistic : float
-        The chi-squared statistic.
-    pvalue : float
-        The p-value associated with the hypothesis test.
+    The null hypothesis is that the related samples come from the same distribution.
+    
+    Args:
+        groups: List of arrays, where each array represents a condition/group.
+                All groups must have the same number of observations (subjects).
+                
+    Returns:
+        Tuple of (Chi-squared statistic, p-value).
+        
+    Raises:
+        ValueError: If fewer than 2 groups are provided or if groups have 
+                    inconsistent lengths.
     """
     if len(groups) < 2:
-        raise ValueError("At least two groups must be provided for Friedman test.")
-
-    # Convert and clean inputs
-    clean_groups = []
-    for i, g in enumerate(groups):
-        arr = np.asarray(g)
-        arr = arr[~np.isnan(arr)]
-        if len(arr) == 0:
-            raise ValueError(f"Group {i+1} contains no valid data after NaN removal.")
-        clean_groups.append(arr)
-
-    # Ensure all groups have the same length for Friedman test
-    lengths = [len(g) for g in clean_groups]
-    if len(set(lengths)) != 1:
-        # Truncate to the shortest length to maintain alignment
-        min_len = min(lengths)
-        clean_groups = [g[:min_len] for g in clean_groups]
-
-    result = stats.friedmanchisquare(*clean_groups)
-    return float(result.statistic), float(result.pvalue)
+        raise ValueError("At least two groups are required for Friedman test.")
+        
+    np_groups = [np.asarray(g) for g in groups]
+    
+    # Check for consistent lengths (subjects)
+    first_len = len(np_groups[0])
+    for i, g in enumerate(np_groups[1:], 1):
+        if len(g) != first_len:
+            raise ValueError(
+                f"All groups must have the same number of observations. "
+                f"Group 0 has {first_len}, Group {i} has {len(g)}."
+            )
+            
+    stat, p_val = stats.friedmanchisquare(*np_groups)
+    
+    return float(stat), float(p_val)

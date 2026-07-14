@@ -1,8 +1,5 @@
-"T010 [P] Implement `code/utils.py` power analysis function to check sample size N \u2265 1,000 (Plan Phase 1.6)": 2
-? T011 [P] Implement `code/utils.py` function to calculate exclusion ratio (missing
-  targets / total valid) and enforce <10% threshold (Plan Phase 1.4, SC-005)
-: 2
-? "T012 [P] Implement `code/utils.py` function to calculate processing success rate\
-  \ and enforce \u226595% threshold (Plan Phase 1.5, SC-001)"
-: 2
-T013 [P] Implement `code/modeling.py` skeleton with placeholder for nested CV and SHAP (Plan Phase 2): 1
+T010#1: 1
+T011#1: 1
+T012: 1
+T014: 1
+T015: 1

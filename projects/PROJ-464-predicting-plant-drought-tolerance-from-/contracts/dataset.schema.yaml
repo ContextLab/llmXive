@@ -1,46 +1,185 @@
-# Dataset Schema for Plant Drought Tolerance Study
-# Defines the structure and validation rules for input datasets
+# Dataset Schema for NPPN Root Phenotyping and TRY Physiological Traits
+# This schema defines the validation rules for raw and derived datasets
+# used in the plant drought tolerance prediction pipeline.
 
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Plant Drought Tolerance Dataset Schema"
-type: "object"
-required:
-  - species
-  - traits
-properties:
-  species:
-    type: "array"
-    items:
-      type: "object"
-      required:
-        - species_id
-        - species_name
-      properties:
-        species_id:
-          type: "string"
-          pattern: "^[a-zA-Z0-9_-]+$"
-        species_name:
-          type: "string"
-          minLength: 1
-  traits:
-    type: "array"
-    items:
-      type: "object"
-      required:
-        - trait_name
-        - trait_type
-      properties:
-        trait_name:
-          type: "string"
-        trait_type:
-          type: "string"
-          enum:
-            - "rsa_metric"
-            - "physiological"
-            - "environmental"
-        values:
-          type: "array"
-          items:
-            type: "number"
-            minimum: 0
-additionalProperties: false
+$schema: http://json-schema.org/draft-07/schema#
+title: Plant Drought Tolerance Dataset Schema
+version: 1.0.0
+
+definitions:
+  RootImage:
+    type: object
+    required:
+      - id
+      - path
+      - species
+    properties:
+      id:
+        type: string
+        description: Unique identifier for the root image
+      path:
+        type: string
+        format: uri
+        description: Relative or absolute path to the image file
+      species:
+        type: string
+        description: Species name (scientific name)
+
+  RSAMetrics:
+    type: object
+    required:
+      - species_id
+      - depth
+      - branching_density
+      - surface_area
+    properties:
+      species_id:
+        type: string
+        description: Unique identifier for the species
+      depth:
+        type: number
+        minimum: 0
+        description: Maximum root depth in pixels or mm
+      branching_density:
+        type: number
+        minimum: 0
+        description: Number of branches per unit length
+      surface_area:
+        type: number
+        minimum: 0
+        description: Total root surface area
+
+  PhysioTrait:
+    type: object
+    required:
+      - species
+      - conductance
+      - photosynthesis
+    properties:
+      species:
+        type: string
+        description: Species name
+      conductance:
+        type: number
+        minimum: 0
+        description: Stomatal conductance (mol m-2 s-1)
+      photosynthesis:
+        type: number
+        minimum: 0
+        description: Net photosynthesis rate (µmol m-2 s-1)
+      survival_rate:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Survival rate under drought (optional proxy)
+
+oneOf:
+  - title: RSA Metrics Dataset
+    type: object
+    required:
+      - data
+      - schema_version
+    properties:
+      schema_version:
+        type: string
+        const: "1.0.0"
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/RSAMetrics"
+        minItems: 1
+      metadata:
+        type: object
+        properties:
+          source:
+            type: string
+            description: Source of the data (e.g., 'nppn', 'derived')
+          generated_at:
+            type: string
+            format: date-time
+          total_records:
+            type: integer
+            minimum: 1
+
+  - title: Physiological Traits Dataset
+    type: object
+    required:
+      - data
+      - schema_version
+    properties:
+      schema_version:
+        type: string
+        const: "1.0.0"
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/PhysioTrait"
+        minItems: 1
+      metadata:
+        type: object
+        properties:
+          source:
+            type: string
+            description: Source of the data (e.g., 'try', 'merged')
+          generated_at:
+            type: string
+            format: date-time
+          total_records:
+            type: integer
+            minimum: 1
+
+  - title: Merged Dataset
+    type: object
+    required:
+      - data
+      - schema_version
+    properties:
+      schema_version:
+        type: string
+        const: "1.0.0"
+      data:
+        type: array
+        items:
+          type: object
+          required:
+            - species_id
+            - depth
+            - branching_density
+            - surface_area
+            - conductance
+            - photosynthesis
+          properties:
+            species_id:
+              type: string
+            depth:
+              type: number
+              minimum: 0
+            branching_density:
+              type: number
+              minimum: 0
+            surface_area:
+              type: number
+              minimum: 0
+            conductance:
+              type: number
+              minimum: 0
+            photosynthesis:
+              type: number
+              minimum: 0
+            survival_rate:
+              type: number
+              minimum: 0
+              maximum: 1
+        minItems: 55
+      metadata:
+        type: object
+        properties:
+          source:
+            type: string
+            const: "merged"
+          generated_at:
+            type: string
+            format: date-time
+          total_records:
+            type: integer
+            minimum: 55
