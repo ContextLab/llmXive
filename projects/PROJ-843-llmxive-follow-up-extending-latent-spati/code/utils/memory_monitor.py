@@ -1,83 +1,125 @@
+"""
+Simple memory‑monitoring utility.
+
+The implementation records the start and stop timestamps, optionally samples
+peak RAM usage using ``memory_profiler`` (if available), and writes a JSON
+log with the collected metrics.  The class is deliberately tolerant of
+arbitrary logging‑style method calls (e.g. ``.info()``, ``.debug()``) by
+providing a ``__getattr__`` fallback that returns a no‑op callable.  This
+makes it safe to use the same instance across the entire code base without
+having to keep the exact method list in sync.
+"""
+
 import json
 import os
 import threading
 import time
 from datetime import datetime
 from pathlib import Path
+from typing import Union
 
-_session_metrics = {}
-_lock = threading.Lock()
-_monitor_thread = None
-_stop_event = threading.Event()
+try:
+    # ``memory_profiler`` is optional – if unavailable we fall back to a
+    # no‑op implementation.
+    from memory_profiler import memory_usage
+except Exception:  # pragma: no cover
+    memory_usage = None  # type: ignore
 
-def ensure_memory_monitor():
-    """Initialize the memory monitor if it hasn't been started yet."""
-    global _monitor_thread
-    if _monitor_thread is None:
-        _monitor_thread = threading.Thread(target=_monitor_memory, daemon=True)
-        _monitor_thread.start()
-
-def _monitor_memory():
-    """Background thread that records memory usage periodically."""
-    while not _stop_event.is_set():
-        timestamp = datetime.utcnow().isoformat()
-        # Simple placeholder: record process RSS using psutil if available.
-        try:
-            import psutil
-            mem_mb = psutil.Process(os.getpid()).memory_info().rss / (1024 * 1024)
-        except Exception:
-            mem_mb = 0.0
-        with _lock:
-            _session_metrics[timestamp] = {"peak_memory_mb": mem_mb}
-        time.sleep(1)
-
-def get_session_metrics() -> dict:
-    """Return a copy of the collected session metrics."""
-    with _lock:
-        return dict(_session_metrics)
-
-def clear_session_metrics():
-    """Clear all stored metrics."""
-    with _lock:
-        _session_metrics.clear()
-
-# ----------------------------------------------------------------------
-# Make the monitor tolerant of any attribute access (e.g., .start, .stop,
-# .info, .debug). Unknown attributes become no‑op callables.
-# ----------------------------------------------------------------------
 class MemoryMonitor:
-    def __init__(self):
-        ensure_memory_monitor()
+    """
+    Minimal memory‑monitor that records peak RAM usage (if possible) and the
+    total wall‑clock time of a code block.
 
-    def start(self):
-        """Start monitoring – placeholder (monitor already runs)."""
-        pass
+    The monitor can be used as a context manager or via explicit ``start`` /
+    ``stop`` calls.  Any unknown attribute access returns a no‑op callable
+    to keep the API tolerant across the codebase.
+    """
 
-    def stop(self):
-        """Stop monitoring – signals the background thread."""
-        _stop_event.set()
-        if _monitor_thread is not None:
-            _monitor_thread.join()
+    def __init__(self, output_path: Union[str, Path] = None):
+        """
+        Parameters
+        ----------
+        output_path: Union[str, Path], optional
+            Destination for the JSON log.  If omitted, ``memory.log`` will be
+            created in the current working directory.
+        """
+        self._output_path = Path(output_path) if output_path else None
+        self._start_time: float = 0.0
+        self._end_time: float = 0.0
+        self._peak_mem: float = 0.0
+        self._thread: threading.Thread = None
+        self._stop_event = threading.Event()
 
-    def __getattr__(self, name):
-        """Return a no‑op callable for any undefined method."""
+    # ------------------------------------------------------------------
+    # Core API
+    # ------------------------------------------------------------------
+    def start(self) -> None:
+        """Begin timing and (if possible) start RAM sampling."""
+        self._start_time = time.time()
+        if memory_usage:
+            # Run memory sampling in a background thread.
+            self._thread = threading.Thread(
+                target=self._sample_memory, daemon=True
+            )
+            self._thread.start()
+
+    def stop(self) -> None:
+        """Stop timing, terminate sampling, and write the log."""
+        self._end_time = time.time()
+        if self._thread and self._thread.is_alive():
+            self._stop_event.set()
+            self._thread.join()
+        self._write_log()
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+    def _sample_memory(self) -> None:
+        """Continuously sample memory usage until ``_stop_event`` is set."""
+        while not self._stop_event.is_set():
+            try:
+                # ``memory_usage`` returns a list of samples; we take the first.
+                current = memory_usage(-1, interval=0.1, timeout=0.1)[0]  # type: ignore
+                self._peak_mem = max(self._peak_mem, current)
+            except Exception:
+                # If ``memory_usage`` fails for any reason, we simply ignore.
+                pass
+
+    def _write_log(self) -> None:
+        """Write a JSON log containing duration and peak RAM (if measured)."""
+        if not self._output_path:
+            # Default log location – a ``memory.log`` file next to the caller.
+            self._output_path = Path("memory.log")
+        log_data = {
+            "duration_seconds": self._end_time - self._start_time,
+            "peak_ram_mb": self._peak_mem,
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+        }
+        try:
+            self._output_path.parent.mkdir(parents=True, exist_ok=True)
+            with self._output_path.open("w", encoding="utf-8") as f:
+                json.dump(log_data, f, indent=2)
+        except Exception as exc:
+            # Logging failures must not crash the main pipeline.
+            print(f"[MemoryMonitor] Failed to write log: {exc}")
+
+    # ------------------------------------------------------------------
+    # Compatibility shim – any unknown attribute becomes a no‑op callable.
+    # ------------------------------------------------------------------
+    def __getattr__(self, name: str):
         def _noop(*args, **kwargs):
             return None
+
         return _noop
 
-# Export a singleton instance for convenience.
-memory_monitor = MemoryMonitor()
+    # ------------------------------------------------------------------
+    # Context‑manager support
+    # ------------------------------------------------------------------
+    def __enter__(self):
+        self.start()
+        return self
 
-# Public API as required by other modules.
-def get_session_metrics():
-    return _session_metrics
-
-def clear_session_metrics():
-    _session_metrics.clear()
-
-def ensure_memory_monitor():
-    # Ensure the singleton monitor is instantiated.
-    global memory_monitor
-    if memory_monitor is None:
-        memory_monitor = MemoryMonitor()
-    return memory_monitor
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stop()
+        # Do not suppress exceptions.
+        return False

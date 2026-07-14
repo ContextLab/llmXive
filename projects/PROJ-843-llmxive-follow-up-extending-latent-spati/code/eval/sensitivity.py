@@ -1,256 +1,162 @@
 """
-Sensitivity Analysis for RANSAC Thresholds (Task T019)
+sensitivity.py
 
-This script performs a sensitivity sweep across RANSAC threshold values
-to report the variation in WorldScore and Sparse-Consistency Score.
-It relies on pre-computed correspondences and metrics from previous tasks.
+Performs a deterministic sensitivity analysis by sweeping the RANSAC
+inlier‑threshold used in the sparse epipolar solver. For each threshold
+the script recomputes the two primary evaluation metrics:
+
+  * WorldScore (computed on the dense baseline)
+  * Sparse‑Consistency Score (computed on the sparse warped frames)
+
+The results are saved as a JSON file at ``data/results/sensitivity.json``.
 """
-import os
-import sys
+
 import json
-import numpy as np
-import cv2
+import os
+import subprocess
+import sys
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import Dict, List, Tuple
 
-# Project imports
-from config import get_results_dir, get_features_dir, get_raw_dir
-from utils.seeds import set_global_seed
-from eval.metrics import calculate_world_score, calculate_sparse_consistency_score
-from utils.memory_monitor import check_memory_limit, MemoryMonitor
+import numpy as np
 
-# Constants
-RANSAC_THRESHOLDS = np.linspace(0.5, 5.0, 10)  # Range of thresholds to test
-MIN_INLIERS_RATIO = 0.2  # Minimum ratio of inliers to consider a solution valid
-MEMORY_LIMIT_GB = 6.0
+from config import get_results_dir, ensure_directories
+from eval.metrics import (
+    calculate_world_score,
+    calculate_sparse_consistency_score,
+)
 
-def load_sequence_correspondences(features_dir: Path) -> List[Dict[str, Any]]:
+# ----------------------------------------------------------------------
+# Helper loaders
+# ----------------------------------------------------------------------
+def _load_dense_baseline() -> np.ndarray:
+    """Load the dense baseline frames from the standard location."""
+    dense_path = Path("data") / "raw" / "dense_baseline_frames.npy"
+    if not dense_path.is_file():
+        raise FileNotFoundError(f"Dense baseline not found at {dense_path}")
+    return np.load(dense_path, allow_pickle=False)
+
+
+def _load_sparse_warped() -> np.ndarray:
+    """Load the sparse warped frames produced by the geometry pipeline."""
+    warped_path = Path("data") / "results" / "sparse_warped_frames.npy"
+    if not warped_path.is_file():
+        raise FileNotFoundError(f"Sparse warped frames not found at {warped_path}")
+    return np.load(warped_path, allow_pickle=False)
+
+
+# ----------------------------------------------------------------------
+# Core pipeline runner
+# ----------------------------------------------------------------------
+def _run_geometry_pipeline(ransac_threshold: float) -> None:
     """
-    Loads sparse correspondences from the features directory.
-    Expects .npy files containing {'pts1': ..., 'pts2': ..., 'mask': ...} or similar structure.
+    Execute the full geometry pipeline (solver + warp) with a specific
+    RANSAC inlier‑threshold.
+
+    The pipeline script ``code/geometry/run_pipeline.py`` reads the
+    environment variable ``RANSAC_THRESHOLD`` (if present) and uses it to
+    configure the solver.  By invoking the script as a subprocess we keep
+    the heavy computation isolated from the current process and ensure
+    that any internal caching does not interfere between runs.
     """
-    correspondences = []
-    npy_files = list(features_dir.glob("*.npy"))
-    
-    if not npy_files:
-        print(f"Warning: No .npy files found in {features_dir}. Returning empty list.")
-        return correspondences
+    env = os.environ.copy()
+    env["RANSAC_THRESHOLD"] = str(ransac_threshold)
 
-    for f_path in npy_files:
-        try:
-            data = np.load(f_path, allow_pickle=True).item()
-            # Expecting keys like 'pts1', 'pts2', 'mask' or 'matches'
-            if 'pts1' in data and 'pts2' in data:
-                correspondences.append({
-                    'file': str(f_path),
-                    'pts1': data['pts1'],
-                    'pts2': data['pts2'],
-                    'mask': data.get('mask', None)
-                })
-            elif 'matches' in data:
-                # Handle match format if necessary
-                pass
-        except Exception as e:
-            print(f"Error loading {f_path}: {e}")
-    
-    return correspondences
+    script_path = Path("code") / "geometry" / "run_pipeline.py"
+    subprocess.run(
+        [sys.executable, str(script_path)],
+        check=True,
+        env=env,
+    )
 
-def run_ransac_sweep(correspondences: List[Dict], threshold: float) -> Tuple[np.ndarray, int, bool]:
+
+# ----------------------------------------------------------------------
+# Sensitivity sweep logic
+# ----------------------------------------------------------------------
+def run_ransac_sweep(
+    thresholds: List[float],
+) -> List[Tuple[float, float, float]]:
     """
-    Runs RANSAC for a single threshold on a single sequence (simplified for sweep).
-    Returns (fundamental_matrix, inlier_count, is_valid).
+    For each RANSAC inlier threshold, recompute the geometry pipeline
+    and evaluate the two metrics.
+
+    Returns a list of ``(threshold, world_score, sparse_consistency_score)``.
     """
-    if not correspondences:
-        return None, 0, False
+    # WorldScore does not depend on the RANSAC threshold, so we load it once.
+    dense_frames = _load_dense_baseline()
+    world_score = calculate_world_score(dense_frames)
 
-    # For sensitivity analysis, we aggregate over all sequences or pick a representative
-    # Here we assume we run on the first sequence to determine stability, 
-    # or we average results. For this implementation, we run on the first valid sequence.
-    # In a full pipeline, this might loop over all and aggregate.
-    
-    seq = correspondences[0]
-    pts1 = seq['pts1'].astype(np.float64)
-    pts2 = seq['pts2'].astype(np.float64)
-    
-    if pts1.shape[0] < 8:
-        return None, 0, False
+    results: List[Tuple[float, float, float]] = []
 
-    # Run RANSAC
-    try:
-        F, mask = cv2.findFundamentalMat(
-            pts1, 
-            pts2, 
-            cv2.FM_RANSAC, 
-            ransacReprojThreshold=threshold,
-            confidence=0.99,
-            maxIters=2000
-        )
-        
-        if F is None:
-            return None, 0, False
-        
-        inlier_count = int(np.sum(mask)) if mask is not None else 0
-        is_valid = inlier_count > (pts1.shape[0] * MIN_INLIERS_RATIO)
-        
-        return F, inlier_count, is_valid
-    except Exception as e:
-        print(f"RANSAC failed at threshold {threshold}: {e}")
-        return None, 0, False
+    for thr in thresholds:
+        # Re‑run the geometry pipeline with the current threshold.
+        # This overwrites ``data/results/sparse_warped_frames.npy`` with
+        # the new result, which we then load to compute the sparse score.
+        _run_geometry_pipeline(thr)
 
-def calculate_metrics_for_threshold(
-    correspondences: List[Dict], 
-    threshold: float, 
-    dense_baseline_path: Path
-) -> Dict[str, float]:
-    """
-    Calculates WorldScore and Sparse-Consistency Score for a given RANSAC threshold.
-    Note: Since the solver/warp step (T010/T011) is usually run once with a fixed threshold,
-    this function simulates the metric calculation by re-running the solver logic 
-    on the fly for the sweep, or uses the solver's internal logic to estimate stability.
-    
-    For this specific task, we re-compute the Fundamental Matrix and derive a proxy
-    for the scores based on geometric consistency, as re-running the full warp pipeline
-    for every threshold is computationally expensive.
-    
-    However, to satisfy the requirement of reporting "WorldScore and Sparse-Consistency Score",
-    we will:
-    1. Run the solver with the current threshold.
-    2. If valid, we calculate a proxy metric based on reprojection error (Sparse-Consistency).
-    3. We estimate WorldScore based on the stability of the inlier set.
-    
-    Ideally, the pipeline would be re-run, but for the sensitivity sweep script:
-    We will compute the actual scores if the downstream artifacts exist, 
-    or compute a proxy if we are strictly simulating the solver step.
-    
-    Given the constraints, we will compute the scores based on the re-projection error
-    of the current threshold's solution.
-    """
-    F, inliers, is_valid = run_ransac_sweep(correspondences, threshold)
-    
-    if not is_valid or F is None:
-        return {
-            "world_score": 0.0,
-            "sparse_consistency_score": 0.0,
-            "inliers": 0,
-            "valid": False
-        }
+        # Load the newly‑produced sparse warped frames and compute the metric.
+        sparse_frames = _load_sparse_warped()
+        sparse_score = calculate_sparse_consistency_score(sparse_frames)
 
-    # Calculate Reprojection Error for Sparse-Consistency Score
-    # Re-project pts1 to pts2 using F
-    pts1 = correspondences[0]['pts1'].astype(np.float64)
-    pts2 = correspondences[0]['pts2'].astype(np.float64)
-    
-    # Epipolar lines
-    lines1 = cv2.computeCorrespondEpilines(pts1.reshape(-1, 1, 2), 1, F)
-    lines2 = cv2.computeCorrespondEpilines(pts2.reshape(-1, 1, 2), 2, F)
-    
-    # Calculate distance
-    dist1 = np.sum((pts1 * lines1[:, 0, :2] + lines1[:, 0, 2])**2, axis=1)
-    dist2 = np.sum((pts2 * lines2[:, 0, :2] + lines2[:, 0, 2])**2, axis=1)
-    reproj_error = np.sqrt(dist1 + dist2)
-    
-    # Sparse-Consistency Score: Inverse of normalized reprojection error
-    # Lower error -> Higher score. Normalize by threshold.
-    mean_error = np.mean(reproj_error)
-    sparse_consistency = max(0.0, 1.0 - (mean_error / threshold))
-    
-    # WorldScore Proxy: Based on the number of inliers and geometric stability
-    # In a real scenario, this would compare against the dense baseline.
-    # Here we use the inlier ratio as a proxy for topological fidelity.
-    inlier_ratio = inliers / pts1.shape[0]
-    world_score = inlier_ratio * sparse_consistency # Simplified proxy
-    
-    return {
-        "world_score": float(world_score),
-        "sparse_consistency_score": float(sparse_consistency),
-        "inliers": int(inliers),
-        "valid": True,
-        "reprojection_error": float(mean_error)
-    }
+        results.append((thr, world_score, sparse_score))
 
-def run_sensitivity_sweep(
-    results_dir: Path,
-    features_dir: Path,
-    dense_baseline_path: Path
-) -> List[Dict[str, Any]]:
-    """
-    Executes the sensitivity sweep across RANSAC thresholds.
-    """
-    print(f"Starting Sensitivity Sweep on {features_dir}")
-    print(f"Testing thresholds: {RANSAC_THRESHOLDS}")
-    
-    correspondences = load_sequence_correspondences(features_dir)
-    
-    if not correspondences:
-        print("No correspondences found. Cannot run sweep.")
-        return []
-
-    results = []
-    
-    for thresh in RANSAC_THRESHOLDS:
-        # Check memory before processing
-        if not check_memory_limit(MEMORY_LIMIT_GB):
-            print(f"Memory limit exceeded at threshold {thresh}. Stopping sweep.")
-            break
-        
-        print(f"Processing threshold: {thresh:.2f}")
-        metrics = calculate_metrics_for_threshold(correspondences, thresh, dense_baseline_path)
-        
-        result_entry = {
-            "threshold": float(thresh),
-            **metrics
-        }
-        results.append(result_entry)
-        
     return results
 
-def save_sensitivity_results(results: List[Dict], results_dir: Path):
-    """
-    Saves the sensitivity analysis results to a JSON file.
-    """
-    output_path = results_dir / "sensitivity_analysis.json"
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    print(f"Sensitivity results saved to {output_path}")
-    return output_path
 
-def main():
+def calculate_metrics_for_threshold(
+    threshold: float,
+    world_score: float,
+    sparse_score: float,
+) -> Dict[str, float]:
+    """Package metrics for a single threshold into a serialisable dict."""
+    return {
+        "ransac_threshold": threshold,
+        "world_score": world_score,
+        "sparse_consistency_score": sparse_score,
+    }
+
+
+def run_sensitivity_sweep() -> List[Dict[str, float]]:
     """
-    Main entry point for T019.
+    Orchestrates the full sweep and returns a list of metric dictionaries.
     """
-    set_global_seed(42)
-    
+    # Define a reasonable range of RANSAC thresholds (inlier pixel distance)
+    thresholds = [0.5, 1.0, 1.5, 2.0, 2.5]
+    raw_results = run_ransac_sweep(thresholds)
+
+    return [
+        calculate_metrics_for_threshold(thr, ws, ss)
+        for (thr, ws, ss) in raw_results
+    ]
+
+
+def save_sensitivity_results(results: List[Dict[str, float]]) -> Path:
+    """
+    Write the sweep results to ``data/results/sensitivity.json``.
+    Returns the path to the written file.
+    """
     results_dir = get_results_dir()
-    features_dir = get_features_dir()
-    dense_baseline_path = get_raw_dir() / "dense_baseline_frames.npy"
-    
-    # Ensure directories exist
-    os.makedirs(results_dir, exist_ok=True)
-    os.makedirs(features_dir, exist_ok=True)
-    
-    # Check if dense baseline exists (required for full WorldScore calculation if using real data)
-    # If not, we rely on the proxy calculation implemented above
-    if not dense_baseline_path.exists():
-        print(f"Warning: Dense baseline not found at {dense_baseline_path}. Using proxy metrics.")
-    
-    # Run the sweep
-    sweep_results = run_sensitivity_sweep(results_dir, features_dir, dense_baseline_path)
-    
-    if not sweep_results:
-        print("Sweep produced no results.")
-        return
+    ensure_directories(results_dir)
+    out_path = results_dir / "sensitivity.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w") as f:
+        json.dump(results, f, indent=2)
+    print(f"Sensitivity results saved to {out_path}")
+    return out_path
 
-    # Save results
-    save_sensitivity_results(sweep_results, results_dir)
-    
-    # Print summary
-    print("\n--- Sensitivity Analysis Summary ---")
-    for res in sweep_results:
-        status = "VALID" if res['valid'] else "INVALID"
-        print(f"Threshold: {res['threshold']:.2f} | "
-              f"WorldScore: {res['world_score']:.4f} | "
-              f"Sparse-Consistency: {res['sparse_consistency_score']:.4f} | "
-              f"Status: {status}")
+
+# ----------------------------------------------------------------------
+# Script entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    Execute the sensitivity analysis and persist the results.
+    """
+    # ``ensure_directories`` tolerates being called without arguments.
+    ensure_directories()
+    results = run_sensitivity_sweep()
+    save_sensitivity_results(results)
+
 
 if __name__ == "__main__":
     main()

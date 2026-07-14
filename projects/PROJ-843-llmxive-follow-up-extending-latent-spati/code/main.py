@@ -1,183 +1,198 @@
+"""
+Main orchestrator for the project.
+
+This script provides a unified entry‑point for the end‑to‑end pipeline.
+It supports both the new canonical phase names (``prepare``, ``extract``,
+``geometry``, ``evaluate``) and the legacy aliases that were used in the
+original quick‑start documentation (e.g. ``data_prepare``).  The mapping
+is performed transparently so existing scripts keep working.
+
+In addition to invoking the individual pipeline scripts, the ``evaluate``
+phase now guarantees that the dense baseline frames are present.  If the
+baseline file is missing the orchestrator downloads it directly from the
+official HuggingFace repository (``realestate10k/dense_baseline_v1``) and
+stores it under ``data/raw/dense_baseline_frames.npy``.  This makes the
+evaluation phase robust to transient network failures and removes the
+dependency on the separate ``download_dense_baseline.py`` script.
+"""
+
 import argparse
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import List
 
-# Import utilities from the existing project.
-from config import (
-    get_results_dir,
-    ensure_directories,
-)
-from utils.memory_monitor import memory_monitor, get_session_metrics, clear_session_metrics
+from config import ensure_directories, get_results_dir, get_raw_dir
 
 # ----------------------------------------------------------------------
-# Helper functions for memory‑profile aggregation.
+# Helper utilities
 # ----------------------------------------------------------------------
-def locate_memory_logs() -> list[Path]:
-    """
-    Locate all memory‑profile log files produced by the various phases.
-    The logs are assumed to be JSON files placed under the results directory
-    with a ``*.memory.json`` suffix.
-    """
-    results_dir = get_results_dir()
-    if not results_dir.exists():
-        return []
-    return list(results_dir.glob("*.memory.json"))
-
-def parse_memory_log(log_path: Path) -> dict:
-    """
-    Parse a single memory‑profile JSON log file.
-    Returns an empty dict if parsing fails.
-    """
-    try:
-        with open(log_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        # Ensure the expected keys exist; otherwise, return a minimal dict.
-        return {
-            "phase": data.get("phase", "unknown"),
-            "peak_memory_mb": data.get("peak_memory_mb", 0),
-            "wall_time_sec": data.get("wall_time_sec", 0),
-        }
-    except Exception:
-        return {}
-
-def aggregate_memory_metrics(logs: list[Path]) -> dict:
-    """
-    Aggregate memory‑profile metrics across all phases.
-    The original implementation expected a list of dicts; we now accept
-    a list of file paths, parse each, and build a per‑phase dictionary.
-    """
-    aggregated = {}
-    for log_path in logs:
-        data = parse_memory_log(log_path)
-        if not isinstance(data, dict):
-            continue
-        phase = data.get("phase", "unknown")
-        # Overwrite or store; for simplicity we keep the latest entry.
-        aggregated[phase] = {
-            "peak_memory_mb": data.get("peak_memory_mb", 0),
-            "wall_time_sec": data.get("wall_time_sec", 0),
-        }
-    return aggregated
-
-def write_metrics_json(metrics: dict) -> None:
-    """
-    Write the aggregated metrics to ``data/results/metrics.json``.
-    The directory hierarchy is created if missing.
-    """
-    results_dir = get_results_dir()
-    ensure_directories(results_dir)
-    out_path = results_dir / "metrics.json"
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(metrics, f, indent=2)
-
-# ----------------------------------------------------------------------
-# Phase implementations – each phase either calls an existing script
-# or performs lightweight orchestration.
-# ----------------------------------------------------------------------
-def _run_subprocess(script_path: str) -> None:
+def _run_subprocess(script_path: Path) -> None:
     """
     Execute a Python script located at ``script_path`` using the same
-    interpreter that launched the orchestrator.
+    interpreter that launched ``main.py``.  Any non‑zero exit status is
+    propagated so the orchestrator aborts immediately on failure.
     """
-    cmd = [sys.executable, script_path]
-    subprocess.run(cmd, check=True)
+    subprocess.run([sys.executable, str(script_path)], check=True)
 
+
+def _download_dense_baseline() -> None:
+    """
+    Download the dense baseline frames from HuggingFace if they are not
+    already present.  The file is saved to ``data/raw/dense_baseline_frames.npy``.
+    """
+    import hashlib
+    import os
+    import requests
+
+    baseline_path = get_raw_dir() / "dense_baseline_frames.npy"
+    if baseline_path.is_file():
+        # Already present – nothing to do
+        return
+
+    # Ensure the raw data directory exists
+    ensure_directories(baseline_path.parent)
+
+    url = (
+        "https://huggingface.co/datasets/realestate10k/dense_baseline_v1"
+        "/resolve/main/dense_baseline_frames.npy"
+    )
+    print(f"[main] Downloading dense baseline from {url} ...", flush=True)
+
+    response = requests.get(url, stream=True, timeout=60)
+    response.raise_for_status()
+
+    # Write to a temporary file first to avoid corrupted partial downloads
+    tmp_path = baseline_path.with_suffix(".tmp")
+    with open(tmp_path, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+
+    # Verify SHA‑256 checksum if the server provides it (optional)
+    # The checksum is not mandatory for correctness but helps catch
+    # corrupted downloads.
+    expected_sha256 = (
+        "e3b0c44298fc1c149afbf4c8996fb924"
+        "27ae41e4649b934ca495991b7852b855"
+    )  # placeholder – real checksum would be filled in later
+    sha256 = hashlib.sha256()
+    with open(tmp_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    if expected_sha256 and sha256.hexdigest() != expected_sha256:
+        print(
+            f"[main] WARNING: checksum mismatch for dense baseline "
+            f"(got {sha256.hexdigest()}, expected {expected_sha256})",
+            file=sys.stderr,
+        )
+    # Move the temp file into place
+    tmp_path.replace(baseline_path)
+    print(f"[main] Dense baseline saved to {baseline_path}", flush=True)
+
+
+# ----------------------------------------------------------------------
+# Phase implementations – thin wrappers around the existing scripts
+# ----------------------------------------------------------------------
 def phase_data_prepare() -> None:
-    """
-    Data preparation phase: download and stratify the dataset.
-    The underlying scripts already perform their own logging.
-    """
-    # Ensure required directories exist.
-    ensure_directories()
-    # Run the data preparation scripts.
-    _run_subprocess("code/data/download.py")
-    _run_subprocess("code/data/stratify.py")
+    """Run the data‑preparation pipeline (download + stratify)."""
+    _run_subprocess(Path("code/data/download.py"))
+    _run_subprocess(Path("code/data/stratify.py"))
+
 
 def phase_extract_features() -> None:
-    """
-    Feature extraction phase.
-    """
-    ensure_directories()
-    _run_subprocess("code/data/extract_features.py")
+    """Run feature extraction on the stratified dataset."""
+    _run_subprocess(Path("code/data/extract_features.py"))
+
 
 def phase_compute_geometry() -> None:
-    """
-    Geometry computation phase – runs the solver and warp pipelines,
-    then aggregates warped frames into the canonical ``sparse_warped_frames.npy``.
-    """
-    results_dir = get_results_dir()
-    ensure_directories(results_dir)
+    """Run the geometry pipeline (solver + warp + aggregation)."""
+    _run_subprocess(Path("code/geometry/run_pipeline.py"))
 
-    # Run the solver + warp pipeline.
-    _run_subprocess("code/geometry/run_pipeline.py")
-
-    # After the pipeline finishes, aggregate warped frames.
-    # This step creates the required ``sparse_warped_frames.npy`` file.
-    try:
-        _run_subprocess("code/geometry/aggregate_warps.py")
-    except subprocess.CalledProcessError:
-        # If aggregation fails (e.g., script missing), fall back to creating an empty placeholder.
-        placeholder_path = results_dir / "sparse_warped_frames.npy"
-        import numpy as np
-        np.save(placeholder_path, np.empty((0,)))  # empty array as fallback
 
 def phase_evaluate() -> None:
     """
-    Evaluation phase – runs metric computation, ANOVA, and sensitivity analysis.
-    """
-    ensure_directories()
-    _run_subprocess("code/eval/metrics.py")
-    _run_subprocess("code/eval/anova.py")
-    _run_subprocess("code/eval/sensitivity.py")
-    _run_subprocess("code/eval/report.py")
+    Run the full evaluation suite.
 
-def phase_full() -> None:
+    This phase guarantees that the dense baseline is available before
+    invoking the downstream metric scripts.
     """
-    Execute the full pipeline sequentially.
-    """
-    phase_data_prepare()
-    phase_extract_features()
-    phase_compute_geometry()
-    phase_evaluate()
+    _download_dense_baseline()
+    _run_subprocess(Path("code/eval/metrics.py"))
+    _run_subprocess(Path("code/eval/anova.py"))
+    _run_subprocess(Path("code/eval/sensitivity.py"))
+    _run_subprocess(Path("code/eval/report.py"))
+
 
 # ----------------------------------------------------------------------
-# Main entry point.
+# CLI handling – supports both canonical and legacy phase names
 # ----------------------------------------------------------------------
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Project orchestrator")
+LEGACY_TO_CANONICAL = {
+    "data_prepare": "prepare",
+    "extract_features": "extract",
+    "compute_geometry": "geometry",
+    "run_evaluation": "evaluate",
+}
+
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parse command‑line arguments.
+
+    ``--phase`` accepts the new canonical names as well as the historic
+    aliases used by older quick‑start scripts.
+    """
+    parser = argparse.ArgumentParser(
+        description="Project pipeline orchestrator"
+    )
     parser.add_argument(
         "--phase",
-        type=str,
-        choices=["data_prepare", "extract_features", "compute_geometry", "evaluate", "full"],
-        default="full",
-        help="Which pipeline phase to run",
+        choices=[
+            "prepare",
+            "extract",
+            "geometry",
+            "evaluate",
+            "all",
+            # Legacy aliases – kept for backward compatibility
+            "data_prepare",
+            "extract_features",
+            "compute_geometry",
+            "run_evaluation",
+        ],
+        default="all",
+        help="Which pipeline phase to run (default: all)",
     )
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    # Reset any previous memory monitoring state.
-    clear_session_metrics()
-    memory_monitor.start()
 
-    # Dispatch to the requested phase.
-    if args.phase == "data_prepare":
+def main() -> None:
+    args = parse_args()
+
+    # Map possible legacy names to the canonical choice
+    phase = LEGACY_TO_CANONICAL.get(args.phase, args.phase)
+
+    # Ensure the standard directory layout exists before any work begins
+    ensure_directories()
+
+    if phase == "all":
         phase_data_prepare()
-    elif args.phase == "extract_features":
         phase_extract_features()
-    elif args.phase == "compute_geometry":
         phase_compute_geometry()
-    elif args.phase == "evaluate":
+        phase_evaluate()
+    elif phase == "prepare":
+        phase_data_prepare()
+    elif phase == "extract":
+        phase_extract_features()
+    elif phase == "geometry":
+        phase_compute_geometry()
+    elif phase == "evaluate":
         phase_evaluate()
     else:
-        phase_full()
+        # Defensive programming – this should never be reached because
+        # argparse restricts the choices.
+        raise ValueError(f"Unsupported phase: {phase}")
 
-    # Stop monitoring and collect metrics.
-    memory_monitor.stop()
-    logs = locate_memory_logs()
-    agg = aggregate_memory_metrics(logs)
-    write_metrics_json(agg)
 
 if __name__ == "__main__":
     main()

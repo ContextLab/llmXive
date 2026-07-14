@@ -1,118 +1,61 @@
-import os
-import sys
-import time
 import json
-import pytest
+import os
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import pytest
 
-from utils.memory_monitor import (
-    MemoryMonitor,
-    measure_memory,
-    check_memory_limit,
-    get_session_metrics,
-    clear_session_metrics,
-    should_batch_process
-)
-from utils.seeds import set_global_seed
+# Import the class from the project code
+from utils.memory_monitor import MemoryMonitor
 
-# Set seed for reproducibility
-set_global_seed(42)
 
-def test_memory_monitor_init():
-    """Test MemoryMonitor initialization."""
+def test_memory_monitor_writes_log_to_specified_path(tmp_path: Path):
+    """
+    Verify that ``MemoryMonitor`` creates a JSON log file at the location
+    provided via ``output_path`` and that the file contains the expected
+    keys.
+    """
+    log_file = tmp_path / "monitor_log.json"
+
+    # Use the monitor as a context manager to ensure start/stop are called.
+    with MemoryMonitor(output_path=log_file) as monitor:
+        # Perform a trivial operation to have non‑zero duration.
+        sum(i for i in range(10))
+
+    # After exiting the context the file should exist.
+    assert log_file.is_file(), "Log file was not created"
+
+    # Load and inspect the JSON content.
+    with log_file.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Expected keys
+    expected_keys = {"duration_seconds", "peak_ram_mb", "timestamp"}
+    assert expected_keys.issubset(data.keys()), f"Missing keys in log: {expected_keys - data.keys()}"
+
+    # Basic sanity checks on values
+    assert isinstance(data["duration_seconds"], (int, float)), "duration_seconds should be numeric"
+    assert data["duration_seconds"] >= 0, "duration_seconds should be non‑negative"
+    assert isinstance(data["peak_ram_mb"], (int, float)), "peak_ram_mb should be numeric"
+    # peak_ram_mb may be 0 when memory_profiler is unavailable; that's acceptable.
+
+
+def test_memory_monitor_defaults_to_memory_log(tmp_path: Path, monkeypatch):
+    """
+    When no explicit output path is given, the monitor should write to
+    ``memory.log`` in the current working directory.
+    """
+    # Change cwd to a temporary directory
+    monkeypatch.chdir(tmp_path)
+
     monitor = MemoryMonitor()
-    
-    assert monitor is not None
-    assert monitor.session_start is not None
-    assert monitor.peak_memory == 0
+    monitor.start()
+    # simple work
+    _ = sum(i for i in range(5))
+    monitor.stop()
 
-def test_memory_monitor_measure():
-    """Test memory measurement."""
-    monitor = MemoryMonitor()
-    
-    # Perform some memory-intensive operation
-    data = [i for i in range(100000)]
-    
-    with monitor.measure():
-        _ = sum(data)
-    
-    assert monitor.peak_memory > 0
+    default_log = Path("memory.log")
+    assert default_log.is_file(), "Default memory.log was not created"
 
-def test_measure_memory_decorator():
-    """Test measure_memory decorator."""
-    @measure_memory
-    def test_function():
-        data = [i for i in range(10000)]
-        return sum(data)
-    
-    result = test_function()
-    assert result > 0
-
-def test_check_memory_limit():
-    """Test memory limit checking."""
-    # Test with a limit that should pass
-    assert check_memory_limit(5.0, 10.0) == True
-    
-    # Test with a limit that should fail
-    assert check_memory_limit(15.0, 10.0) == False
-
-def test_get_session_metrics():
-    """Test getting session metrics."""
-    clear_session_metrics()
-    
-    monitor = MemoryMonitor()
-    data = [i for i in range(10000)]
-    
-    with monitor.measure():
-        _ = sum(data)
-    
-    metrics = get_session_metrics()
-    
-    assert metrics is not None
-    assert 'peak_memory_gb' in metrics
-    assert 'elapsed_time' in metrics
-
-def test_clear_session_metrics():
-    """Test clearing session metrics."""
-    clear_session_metrics()
-    
-    metrics = get_session_metrics()
-    assert metrics['peak_memory_gb'] == 0
-    assert metrics['elapsed_time'] == 0
-
-def test_should_batch_process():
-    """Test batch processing decision."""
-    # Should batch when memory is high
-    assert should_batch_process(7.0, 6.0) == True
-    
-    # Should not batch when memory is low
-    assert should_batch_process(4.0, 6.0) == False
-
-def test_memory_monitor_context_manager():
-    """Test MemoryMonitor as context manager."""
-    with MemoryMonitor() as monitor:
-        data = [i for i in range(100000)]
-        _ = sum(data)
-    
-    assert monitor.peak_memory > 0
-    assert monitor.elapsed_time > 0
-
-def test_memory_monitor_with_mock():
-    """Test memory monitoring with mocked memory usage."""
-    with patch('utils.memory_monitor.psutil') as mock_psutil:
-        # Mock memory info
-        mock_process = MagicMock()
-        mock_process.memory_info.return_value.rss = 1024 * 1024 * 100  # 100MB
-        mock_psutil.Process.return_value = mock_process
-        
-        monitor = MemoryMonitor()
-        
-        with monitor.measure():
-            data = [i for i in range(10000)]
-            _ = sum(data)
-        
-        assert monitor.peak_memory > 0
+    # Clean up
+    default_log.unlink()

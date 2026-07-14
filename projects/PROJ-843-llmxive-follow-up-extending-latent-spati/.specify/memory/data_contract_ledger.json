@@ -1,5 +1,9 @@
 [
   {
+    "data_file": "data/raw/dense_baseline_frames.npy",
+    "required": []
+  },
+  {
     "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy",
     "required": []
   }
