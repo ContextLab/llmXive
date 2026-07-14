@@ -5,30 +5,79 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "FastContext: Training Efficient Repository Explorer for Coding Agents"
 
-## Summary of the prior work
-The paper introduces FastContext, a specialized subagent architecture that decouples repository exploration from code solving in LLM-based coding agents to reduce token consumption and improve resolution rates. By training smaller, dedicated models (4B–30B parameters) to issue parallel tool calls and return only precise file paths and line ranges, the system significantly filters irrelevant context before it reaches the main solver. Empirical results across multiple SWE-bench variants demonstrate that this separation yields up to a 60% reduction in token usage and a 5.5% increase in task success with minimal overhead.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can a CPU-tractable, rule-augmented retrieval mechanism replace the learned exploration model in FastContext for repositories with high structural regularity, while maintaining comparable token efficiency and precision?  
-**Why it matters:** While FastContext proves the value of separation, its reliance on fine-tuned 4B+ models still incurs non-trivial inference latency and energy costs; if standard, deterministic file-system heuristics combined with lightweight semantic indexing can achieve similar precision on structured codebases, it would enable ultra-low-cost deployment of efficient agents on edge devices or serverless environments without GPU acceleration.
+## Research question
+
+Does replacing the learned exploration subagent in FastContext with a deterministic, rule-augmented retrieval mechanism preserve token efficiency and context precision for code repositories with high structural regularity?
+
+## Motivation
+
+While FastContext demonstrates that decoupling exploration from solving improves agent performance, its reliance on fine-tuned 4B+ parameter models imposes significant inference latency and energy costs, limiting deployment on edge or serverless environments. This research addresses the gap in understanding whether the benefits of FastContext are derived from the *separation of concerns* itself or specifically from the *neural exploration capability*, potentially enabling ultra-low-cost agents on structured codebases without GPU acceleration.
+
+## Related work
+
+- [FastContext: Training Efficient Repository Explorer for Coding Agents](https://arxiv.org/abs/2606.14066) — Establishes the baseline for decoupled exploration, showing that specialized subagents can reduce token usage by 60% and improve success rates, providing the primary benchmark for this extension.
+- [SWE-Explore: Benchmarking How Coding Agents Explore Repositories](https://arxiv.org/abs/2606.07297) — Highlights that repository exploration is a distinct bottleneck in coding agents, validating the necessity of targeted retrieval strategies over holistic approaches.
+- [DeepCodeSeek: Real-Time API Retrieval for Context-Aware Code Generation](https://arxiv.org/abs/2509.25716) — Proposes expanding code and index structures for API prediction, offering methodological precedents for hybrid retrieval systems that combine structural indexing with semantic signals.
+- [Relative Positioning Based Code Chunking Method For Rich Context Retrieval In Repository Level Code Completion Task With Code Language Model](https://arxiv.org/abs/2510.08610) — Demonstrates the importance of context structure and chunking strategies in code completion, supporting the hypothesis that structural regularity can be leveraged for deterministic retrieval.
+
+## Expected results
+
+We expect that for repositories adhering to strict structural conventions (e.g., standardized directory layouts), the rule-augmented baseline will match the neural explorer's precision within 2% and token savings within 5%, while reducing inference latency by over 40%. Conversely, we anticipate a sharp performance degradation on irregular repositories, thereby empirically defining the boundary conditions where deterministic heuristics suffice versus when neural exploration remains necessary.
 
 ## Methodology sketch
-**Data:** We will curate a subset of 500 open-source repositories from the SWE-bench suite that exhibit high structural regularity (e.g., strict directory naming conventions, consistent test-file placement, and standardized import patterns), alongside a control set of 500 irregular repositories.  
-**Procedure:** We will implement a "FastContext-Lite" baseline that replaces the neural exploration subagent with a hybrid system: a deterministic parser that enforces repository-specific heuristics (e.g., "search only in `tests/` for test files") augmented by a pre-computed, lightweight TF-IDF index of file signatures (run entirely on CPU). This system will be integrated into the Mini-SWE-Agent pipeline and evaluated against the original FastContext and a naive full-context baseline on the curated dataset, measuring token reduction, precision of returned snippets, and wall-clock latency on a standard CPU instance.  
-**Expected result:** We hypothesize that for the structurally regular subset, FastContext-Lite will match the original FastContext's precision (within 2% absolute difference) and token savings (within 5%) while reducing inference latency by over 40% and eliminating the need for GPU-based model inference, whereas performance will degrade significantly on the irregular control set, thereby defining the boundary conditions for rule-based exploration.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Curation**: Download and parse 1,000 repositories from the SWE-bench suite; use a static analysis script to score structural regularity (based on directory naming, test-file placement, and import patterns) and split into a "Regular" (n=500) and "Irregular" (n=500) set.
+- **Baseline Implementation**: Implement "FastContext-Lite" by replacing the neural subagent with a hybrid engine: a deterministic parser enforcing repository-specific heuristics (e.g., "search `tests/` for test files") combined with a pre-computed TF-IDF index of file signatures, executed entirely on CPU.
+- **Integration**: Integrate both the original FastContext (using a lightweight 4B model on CPU) and the FastContext-Lite baseline into the Mini-SWE-Agent pipeline, ensuring identical input/output interfaces for fair comparison.
+- **Execution**: Run the agent pipeline on the curated dataset, recording the context snippets returned, the total tokens consumed by the main solver, and the wall-clock latency for the exploration phase.
+- **Evaluation**: Calculate precision (ratio of relevant snippets to total returned) and token reduction relative to a naive full-context baseline; apply a paired t-test to compare the performance metrics of FastContext-Lite vs. FastContext on the Regular set, ensuring the evaluation metric (precision against ground-truth relevant files) is independent of the retrieval mechanism's internal logic.
+- **Boundary Analysis**: Compare performance degradation between the Regular and Irregular sets to identify the threshold of structural complexity where deterministic heuristics fail.
 
-- **FastContext: Training Efficient Repository Explorer for Coding Agents** — Shaoqiu Zhang, Maoquan Wang, Yuling Shi, Yuhang Wang, Xiaodong Gu, Yongqiang Yao, Tori Gong, Sheng Chen, Rao Fu, Anisha Agarwal, Spandan Grag, Gabriel Ryan, Colin Merkel, Yufan Huang, Shengyu Fu. https://arxiv.org/abs/2606.14066.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_14066,
-  title = {FastContext: Training Efficient Repository Explorer for Coding Agents},
-  author = {Shaoqiu Zhang and Maoquan Wang and Yuling Shi and Yuhang Wang and Xiaodong Gu and Yongqiang Yao and Tori Gong and Sheng Chen and Rao Fu and Anisha Agarwal and Spandan Grag and Gabriel Ryan and Colin Merkel and Yufan Huang and Shengyu Fu},
-  year = {2026},
-  eprint = {2606.14066},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.14066},
-  url = {https://arxiv.org/abs/2606.14066}
-}
-```
+- Reviewed existing ideas: FastContext extension, SWE-bench exploration, rule-based code retrieval, FastContext-Lite.
+- Closest match: FastContext extension (similarity sketch: same core paper, but this proposal specifically targets the replacement of the neural subagent with deterministic heuristics for structural regularity, a distinct angle from general optimization).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-14T06:07:24Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "FastContext: Training Efficient Repository Explorer for Coding Agents" computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "FastContext: Training Efficient Repository Explorer for Coding Agents" computer science | 0 |
+| 1 | efficient repository context retrieval for code agents | 5 |
+| 2 | fast context window optimization for software engineering LLMs | 0 |
+| 3 | training lightweight models for code repository exploration | 0 |
+| 4 | context-aware code understanding in large language models | 0 |
+| 5 | scalable repository indexing for AI coding assistants | 0 |
+| 6 | efficient attention mechanisms for long code contexts | 0 |
+| 7 | retrieval-augmented generation for software repositories | 0 |
+| 8 | codebase navigation strategies for autonomous agents | 0 |
+| 9 | optimizing LLM inference for large-scale codebases | 0 |
+| 10 | structured code context compression for efficient training | 0 |
+| 11 | agent-based software repository analysis | 0 |
+| 12 | reducing token usage in code repository exploration | 0 |
+| 13 | hierarchical code representation for efficient LLM processing | 0 |
+| 14 | context window management in coding agent systems | 0 |
+| 15 | efficient feature extraction for software engineering datasets | 0 |
+| 16 | lightweight code understanding models for real-time agents | 0 |
+| 17 | semantic search in version control systems for AI | 0 |
+| 18 | pre-training strategies for repository-specific code models | 0 |
+| 19 | minimizing latency in code context retrieval for agents | 0 |
+| 20 | adaptive context selection for coding large language models | 0 |
+
+### Verified citations
+
+1. **FastContext: Training Efficient Repository Explorer for Coding Agents** (2026). Shaoqiu Zhang, Maoquan Wang, Yuling Shi, Yuhang Wang, Xiaodong Gu, et al.. arXiv. [2606.14066](https://arxiv.org/abs/2606.14066). PDF-sampled: No.
+2. **SWE-Explore: Benchmarking How Coding Agents Explore Repositories** (2026). Shaoqiu Zhang, Yuhang Wang, Jialiang Liang, Yuling Shi, Wenhao Zeng, et al.. arXiv. [2606.07297](https://arxiv.org/abs/2606.07297). PDF-sampled: No.
+3. **DeepCodeSeek: Real-Time API Retrieval for Context-Aware Code Generation** (2025). Esakkivel Esakkiraja, Denis Akhiyarov, Aditya Shanmugham, Chitra Ganapathy. arXiv. [2509.25716](https://arxiv.org/abs/2509.25716). PDF-sampled: No.
+4. **Relative Positioning Based Code Chunking Method For Rich Context Retrieval In Repository Level Code Completion Task With Code Language Model** (2025). Imranur Rahman, Md Rayhanur Rahman. arXiv. [2510.08610](https://arxiv.org/abs/2510.08610). PDF-sampled: No.

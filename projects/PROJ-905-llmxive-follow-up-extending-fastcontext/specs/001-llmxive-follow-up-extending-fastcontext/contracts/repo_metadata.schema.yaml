@@ -1,0 +1,28 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Repository Metadata Schema
+description: Schema for the regularity score and stratification data derived from static analysis.
+type: object
+properties:
+  instance_id:
+    type: string
+    description: Unique identifier for the SWE-bench instance.
+  repo_name:
+    type: string
+    description: Path to the repository (e.g., "org/repo").
+  regularity_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Composite score indicating structural regularity (0.0 = Irregular, 1.0 = Regular).
+  stratum:
+    type: string
+    enum:
+      - "Regular"
+      - "Irregular"
+    description: Classification based on the median regularity score.
+required:
+  - instance_id
+  - repo_name
+  - regularity_score
+  - stratum
+additionalProperties: false

@@ -1,0 +1,43 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Exploration Log Schema
+description: Schema for the performance metrics recorded during FastContext-Distilled-1.5B and FastContext-Lite runs.
+type: object
+properties:
+  instance_id:
+    type: string
+    description: Foreign key to the repository metadata.
+  engine_type:
+    type: string
+    enum:
+      - "FastContext-Distilled-1.5B"
+      - "FastContext-Lite"
+    description: The engine used for the exploration.
+  context_precision:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Precision of the retrieved context against ground-truth relevant files.
+  total_tokens:
+    type: integer
+    minimum: 0
+    description: Total number of tokens consumed during the exploration phase.
+  exploration_latency_ms:
+    type: number
+    minimum: 0
+    description: Wall-clock time in milliseconds for the exploration phase.
+  run_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the run.
+  seed:
+    type: integer
+    description: Random seed used for reproducibility.
+required:
+  - instance_id
+  - engine_type
+  - context_precision
+  - total_tokens
+  - exploration_latency_ms
+  - run_timestamp
+  - seed
+additionalProperties: false

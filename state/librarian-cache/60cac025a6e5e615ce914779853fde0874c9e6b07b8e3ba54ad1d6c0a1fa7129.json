@@ -1,0 +1,540 @@
+{
+  "fetched_at": "2026-07-14T06:07:24Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"FastContext: Training Efficient Repository Explorer for Coding Agents\"",
+      "target_n": 5
+    },
+    "duration_seconds": 53.363,
+    "ended_at": "2026-07-14T06:07:24Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "efficient repository context retrieval for code agents"
+        ],
+        [
+          2,
+          "fast context window optimization for software engineering LLMs"
+        ],
+        [
+          3,
+          "training lightweight models for code repository exploration"
+        ],
+        [
+          4,
+          "context-aware code understanding in large language models"
+        ],
+        [
+          5,
+          "scalable repository indexing for AI coding assistants"
+        ],
+        [
+          6,
+          "efficient attention mechanisms for long code contexts"
+        ],
+        [
+          7,
+          "retrieval-augmented generation for software repositories"
+        ],
+        [
+          8,
+          "codebase navigation strategies for autonomous agents"
+        ],
+        [
+          9,
+          "optimizing LLM inference for large-scale codebases"
+        ],
+        [
+          10,
+          "structured code context compression for efficient training"
+        ],
+        [
+          11,
+          "agent-based software repository analysis"
+        ],
+        [
+          12,
+          "reducing token usage in code repository exploration"
+        ],
+        [
+          13,
+          "hierarchical code representation for efficient LLM processing"
+        ],
+        [
+          14,
+          "context window management in coding agent systems"
+        ],
+        [
+          15,
+          "efficient feature extraction for software engineering datasets"
+        ],
+        [
+          16,
+          "lightweight code understanding models for real-time agents"
+        ],
+        [
+          17,
+          "semantic search in version control systems for AI"
+        ],
+        [
+          18,
+          "pre-training strategies for repository-specific code models"
+        ],
+        [
+          19,
+          "minimizing latency in code context retrieval for agents"
+        ],
+        [
+          20,
+          "adaptive context selection for coding large language models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "efficient repository context retrieval for code agents": 5,
+        "llmXive follow-up: extending \"FastContext: Training Efficient Repository Explorer for Coding Agents\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "repository context retrieval training overhead",
+      "FastContext repository explorer code agent",
+      "context window utilization code generation latency",
+      "inference-time context compression efficiency",
+      "data contamination training set leakage"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.07297"
+      ]
+    },
+    "per_query_hit_count": {
+      "FastContext repository explorer code agent": 3,
+      "context window utilization code generation latency": 1,
+      "data contamination training set leakage": 3,
+      "inference-time context compression efficiency": 2,
+      "llmXive follow-up: extending \"FastContext: Training Efficient Repository Explorer for Coding Agents\" computer science": 3,
+      "repository context retrieval training overhead": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2603.02888",
+          "rationale": "The paper focuses on multimodal video retrieval and landmark detection in a specific cultural context, which is an off-domain application compared to the user's question about training efficient repository explorers for coding agents. While both involve multi-agent frameworks and LLMs, the paper does not measure the same mechanism (code repository exploration), variables (training efficiency for coding tasks), or domain (software engineering repositories) required by the inclusion criteria.",
+          "title": "LLandMark: A Multi-Agent Framework for Landmark-Aware Multimodal Interactive Video Retrieval"
+        },
+        {
+          "primary_pointer": "2207.06087",
+          "rationale": "The paper focuses on the theoretical construction of Private Information Retrieval (PIR) codes and algebraic coding theory for distributed storage, which is a distinct domain from the user's question about training efficient \"Repository Explorers\" for LLM-based coding agents. While both involve \"storage\" and \"retrieval\" in a broad sense, the paper does not address the specific mechanism of agent exploration, context efficiency, or the training of models for code repositories, failing to meet any",
+          "title": "Storage and Retrieval Codes in PIR Schemes with Colluding Servers"
+        },
+        {
+          "primary_pointer": "1811.08772",
+          "rationale": "The paper focuses on Complex Answer Retrieval (CAR) and handling \"low-utility facets\" in general question-answering using knowledge graphs, which is a distinct construct from the user's specific question about extending \"FastContext\" for training efficient repository explorers for coding agents. While both involve information retrieval, the candidate paper does not address the specific mechanism of repository exploration, the \"FastContext\" framework, or the domain of coding agents, failing to me",
+          "title": "Overcoming low-utility facets for complex answer retrieval"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-14T06:06:30Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"fastcontext: training efficient repository explorer for coding agents\" computer science",
+      "raw": "llmXive follow-up: extending \"FastContext: Training Efficient Repository Explorer for Coding Agents\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"FastContext: Training Efficient Repository Explore', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-14T06:07:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"FastContext: Training Efficient Repository Explore', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-14T06:07:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"FastContext: Training Efficient Repository Explore', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-14T06:07:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many questions cannot be answered simply; their answers must include numerous nuanced details and additional context. Complex Answer Retrieval (CAR) is the retrieval of answers to such questions. In their simplest form, these questions are constructed from a topic entity (e.g., `cheese') and a facet (e.g., `health effects'). While topic matching has been thoroughly explored, we observe that some facets use general language that is unlikely to appear verbatim in answers. We call these low-utility facets. In this work, we present an approach to CAR that identifies and addresses low-utility facets. We propose two estimators of facet utility. These include exploiting the hierarchical structure of CAR queries and using facet frequency information from training data. To improve the retrieval performance on low-utility headings, we also include entity similarity scores using knowledge graph embeddings. We apply our approaches to a leading neural ranking technique, and evaluate using the TREC CAR dataset. We find that our approach perform significantly better than the unmodified neural ranker and other leading CAR techniques. We also provide a detailed analysis of our results, and verify that low-utility facets are indeed more difficult to match, and that our approach improves the performance for these difficult queries.",
+          "claimed_authors": [
+            "Sean MacAvaney",
+            "Andrew Yates",
+            "Arman Cohan",
+            "Luca Soldaini",
+            "Kai Hui",
+            "Nazli Goharian",
+            "Ophir Frieder"
+          ],
+          "claimed_title": "Overcoming low-utility facets for complex answer retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.08772"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"FastContext: Training Efficient Repository Explore', candidate_title='Overcoming low-utility facets for complex answer retrieval')",
+        "failed_at": "2026-07-14T06:07:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Current search techniques are limited to standard RAG query-document applications. In this paper, we propose a novel technique to expand the code and index for predicting the required APIs, directly enabling high-quality, end-to-end code generation for auto-completion and agentic AI applications. We address the problem of API leaks in current code-to-code benchmark datasets by introducing a new dataset built from real-world ServiceNow Script Includes that capture the challenge of unclear API usage intent in the code. Our evaluation metrics show that this method achieves 87.86% top-40 retrieval accuracy, allowing the critical context with APIs needed for successful downstream code generation. To enable real-time predictions, we develop a comprehensive post-training pipeline that optimizes a compact 0.6B reranker through synthetic dataset generation, supervised fine-tuning, and reinforcement learning. This approach enables our compact reranker to outperform a much larger 8B model while maintaining 2.5x reduced latency, effectively addressing the nuances of enterprise-specific code without the computational overhead of larger models.",
+          "claimed_authors": [
+            "Esakkivel Esakkiraja",
+            "Denis Akhiyarov",
+            "Aditya Shanmugham",
+            "Chitra Ganapathy"
+          ],
+          "claimed_title": "DeepCodeSeek: Real-Time API Retrieval for Context-Aware Code Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.25716"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"FastContext: Training Efficient Repository Explore', candidate_title='DeepCodeSeek: Real-Time API Retrieval for Context-Aware Code Generation')",
+        "failed_at": "2026-07-14T06:07:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Interpretation of natural language is inherently context-sensitive. Most words in natural language are ambiguous and their meanings are heavily dependent on the linguistic context in which they are used. The study of lexical semantics can not be separated from the notion of context. This paper takes a contextual approach to lexical semantics and studies the linguistic context of lexical atoms, or \"sticky\" phrases such as \"hot dog\". Since such lexical atoms may occur frequently in unrestricted natural language text, recognizing them is crucial for understanding naturally-occurring text. The paper proposes several heuristic approaches to exploiting the linguistic context to identify lexical atoms from arbitrary natural language text.",
+          "claimed_authors": [
+            "Chengxiang Zhai"
+          ],
+          "claimed_title": "Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "cmp-lg/9701001"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"FastContext: Training Efficient Repository Explore', candidate_title='Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context')",
+        "failed_at": "2026-07-14T06:07:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While \"Intent-oriented programming\" (or \"Vibe Coding\") redefines software engineering, existing code agents remain tethered to static code snapshots. Consequently, they struggle to model the critical information embedded in the temporal evolution of projects, failing to leverage the \"reasoning trajectories\" implicit in past successful practices. This limitation results in rigid behavioral logic and a lack of autonomous adaptability, ultimately hindering their ability to tackle complex, repository-level problems. To bridge this static-dynamic mismatch, we propose MemCoder, a framework designed to enable continual human-AI co-evolution. MemCoder first structures historical human experience to distill latent intent-to-code mappings from past commits. It then employs a self-refinement mechanism driven by verification feedback to correct agent behavior in real-time. Crucially, an experience self-internalization mechanism is introduced to crystallize human-validated solutions into long-term knowledge, thereby supporting sustained evolution. Experimental results on SWE-bench Verified demonstrate that MemCoder not only achieves State-of-the-Art (SOTA) performance but also delivers a 9.4% improvement in resolved rate over the general foundation model DeepSeek-V3.2. These findings indicate that equipping agents with the capability to co-evolve with humans via project history and real-time feedback effectively unlocks the potential of general models in complex software engineering tasks.",
+          "claimed_authors": [
+            "Yi-Xuan Deng",
+            "Xiaoqin Liu",
+            "Yi Zhang",
+            "Guo-Wei Yang",
+            "Shuojin Yang"
+          ],
+          "claimed_title": "Your Code Agent Can Grow Alongside You with Structured Memory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.13258"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"FastContext: Training Efficient Repository Explore', candidate_title='Your Code Agent Can Grow Alongside You with Structured Memory')",
+        "failed_at": "2026-07-14T06:07:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"FastContext: Training Efficient Repository Explore', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-07-14T06:07:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper explores a new version of the Levenberg-Marquardt algorithm used for Tensor Canonical Polyadic (CP) decomposition with an emphasis on image compression and reconstruction. Tensor computation, especially CP decomposition, holds significant applications in data compression and analysis. In this study, we formulate CP as a nonlinear least squares optimization problem. Then, we present an iterative Levenberg-Marquardt (LM) based algorithm for computing the CP decomposition. Ultimately, we test the algorithm on various datasets, including randomly generated tensors and RGB images. The proposed method proves to be both efficient and effective, offering a reduced computational burden when compared to the traditional Levenberg-Marquardt technique.",
+          "claimed_authors": [
+            "Ramin Goudarzi Karim",
+            "Dipak Dulal",
+            "Carmeliza Navasca"
+          ],
+          "claimed_title": "Modified Levenberg-Marquardt Algorithm For Tensor CP Decomposition in Image Compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.04670"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"FastContext: Training Efficient Repository Explore', candidate_title='Modified Levenberg-Marquardt Algorithm For Tensor CP Decomposition in Image Compression')",
+        "failed_at": "2026-07-14T06:07:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose an inference-time scaling approach for pretrained flow models. Recently, inference-time scaling has gained significant attention in LLMs and diffusion models, improving sample quality or better aligning outputs with user preferences by leveraging additional computation. For diffusion models, particle sampling has allowed more efficient scaling due to the stochasticity at intermediate denoising steps. On the contrary, while flow models have gained popularity as an alternative to diffusion models--offering faster generation and high-quality outputs in state-of-the-art image and video generative models--efficient inference-time scaling methods used for diffusion models cannot be directly applied due to their deterministic generative process. To enable efficient inference-time scaling for flow models, we propose three key ideas: 1) SDE-based generation, enabling particle sampling in flow models, 2) Interpolant conversion, broadening the search space and enhancing sample diversity, and 3) Rollover Budget Forcing (RBF), an adaptive allocation of computational resources across timesteps to maximize budget utilization. Our experiments show that SDE-based generation, particularly variance-preserving (VP) interpolant-based generation, improves the performance of particle sampling methods for inference-time scaling in flow models. Additionally, we demonstrate that RBF with VP-SDE achieves the best performance, outperforming all previous inference-time scaling approaches.",
+          "claimed_authors": [
+            "Jaihoon Kim",
+            "Taehoon Yoon",
+            "Jisung Hwang",
+            "Minhyuk Sung"
+          ],
+          "claimed_title": "Inference-Time Scaling for Flow Models via Stochastic Generation and Rollover Budget Forcing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.19385"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"FastContext: Training Efficient Repository Explore', candidate_title='Inference-Time Scaling for Flow Models via Stochastic Generation and Rollover Budget Forcing')",
+        "failed_at": "2026-07-14T06:07:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"FastContext: Training Efficient Repository Explore', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-14T06:07:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"FastContext: Training Efficient Repository Explore', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-14T06:07:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"FastContext: Training Efficient Repository Explore', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-07-14T06:07:01Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shaoqiu Zhang",
+            "Maoquan Wang",
+            "Yuling Shi",
+            "Yuhang Wang",
+            "Xiaodong Gu",
+            "Yongqiang Yao",
+            "Tori Gong",
+            "Sheng Chen",
+            "Rao Fu",
+            "Anisha Agarwal",
+            "Spandan Grag",
+            "Gabriel Ryan",
+            "Colin Merkel",
+            "Yufan Huang",
+            "Shengyu Fu"
+          ],
+          "title": "FastContext: Training Efficient Repository Explorer for Coding Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.14066",
+        "summary": "Large Language Model (LLM) coding agents have achieved strong results on software engineering tasks, yet repository exploration remains a major bottleneck: locating relevant code consumes substantial token budget and pollutes the agent's context with irrelevant snippets. In most agents, the same model explores the repository and solves the task, leaving exploratory reads and searches in the solver's history. We present FastContext, a dedicated exploration subagent that separates repository exploration from solving. Invoked on demand, FastContext issues parallel tool calls and returns concise file paths and line ranges as focused context. FastContext is powered by specialized exploration models spanning 4B--30B parameters. We bootstrap them from strong reference-model trajectories and refine them with task-grounded rewards for broad first-turn search, multi-turn evidence gathering, and precise citation generation. Across SWE-bench Multilingual, SWE-bench Pro, and SWE-QA, integrating FastContext into Mini-SWE-Agent improves end-to-end resolution rates up to 5.5% while reducing coding-agent token consumption up to 60%, with marginal overhead. These results show that repository exploration can be separated from solving and handled effectively by specialized models. Code and data: https://github.com/microsoft/fastcontext",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.14066",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5833,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T06:07:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shaoqiu Zhang",
+            "Yuhang Wang",
+            "Jialiang Liang",
+            "Yuling Shi",
+            "Wenhao Zeng",
+            "Maoquan Wang",
+            "Shilin He",
+            "Ningyuan Xu",
+            "Siyu Ye",
+            "Kai Cai",
+            "Xiaodong Gu"
+          ],
+          "title": "SWE-Explore: Benchmarking How Coding Agents Explore Repositories",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.07297",
+        "summary": "Repository-level coding benchmarks such as SWE-bench have driven a rapid surge in the capabilities of coding agents. Yet they usually treat coding tasks as a holistic, binary prediction problem (e.g., resolved or unresolved), neglecting fine-grained agent capabilities such as repository understanding, context retrieval, code localization, and bug diagnosis. In this paper, we introduce SWE-Explore, a benchmark that isolates the evaluation of repository exploration, a critical capability of coding agents. Given a repository and an issue, SWE-Explore asks an explorer to return a ranked list of relevant code regions under a fixed line budget. SWE-Explore covers 848 issues across 10 programming languages and 203 open-source repositories. For each instance, we derive line-level ground truth from independent agent trajectories that successfully solved the same issue, distilling the specific code regions their solution paths actually consulted. We evaluate exploration along coverage, ranking, and context-efficiency dimensions, showing that these metrics strongly track downstream repair behavior. Across a broad set of retrieval methods, general coding agents, and specialized localizers, we find that agentic explorers form a clear tier above classical retrieval. While file-level localization is already strong for modern methods, line-level coverage and efficient ranking remain the key axes differentiating state-of-the-art explorers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.07297",
+          "http_status": 200,
+          "pdf_sample_score": 0.2845,
+          "query_relevance_score": 0.4167,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T06:07:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Esakkivel Esakkiraja",
+            "Denis Akhiyarov",
+            "Aditya Shanmugham",
+            "Chitra Ganapathy"
+          ],
+          "title": "DeepCodeSeek: Real-Time API Retrieval for Context-Aware Code Generation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.25716",
+        "summary": "Current search techniques are limited to standard RAG query-document applications. In this paper, we propose a novel technique to expand the code and index for predicting the required APIs, directly enabling high-quality, end-to-end code generation for auto-completion and agentic AI applications. We address the problem of API leaks in current code-to-code benchmark datasets by introducing a new dataset built from real-world ServiceNow Script Includes that capture the challenge of unclear API usage intent in the code. Our evaluation metrics show that this method achieves 87.86% top-40 retrieval accuracy, allowing the critical context with APIs needed for successful downstream code generation. To enable real-time predictions, we develop a comprehensive post-training pipeline that optimizes a compact 0.6B reranker through synthetic dataset generation, supervised fine-tuning, and reinforcement learning. This approach enables our compact reranker to outperform a much larger 8B model while maintaining 2.5x reduced latency, effectively addressing the nuances of enterprise-specific code without the computational overhead of larger models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.25716",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T06:07:06Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Imranur Rahman",
+            "Md Rayhanur Rahman"
+          ],
+          "title": "Relative Positioning Based Code Chunking Method For Rich Context Retrieval In Repository Level Code Completion Task With Code Language Model",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.08610",
+        "summary": "Code completion can help developers improve efficiency and ease the development lifecycle. Although code completion is available in modern integrated development environments (IDEs), research lacks in determining what makes a good context for code completion based on the information available to the IDEs for the large language models (LLMs) to perform better. In this paper, we describe an effective context collection strategy to assist the LLMs in performing better at code completion tasks. The key idea of our strategy is to preprocess the repository into smaller code chunks and later use syntactic and semantic similarity-based code chunk retrieval with relative positioning. We found that code chunking and relative positioning of the chunks in the final context improve the performance of code completion tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.08610",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T06:07:06Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"fastcontext: training efficient repository explorer for coding agents\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

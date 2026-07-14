@@ -1,0 +1,64 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Summary Schema
+description: Schema for the aggregated statistical analysis results.
+type: object
+properties:
+  Regular:
+    type: object
+    description: Metrics for the "Regular" stratum.
+    properties:
+      precision:
+        type: object
+        properties:
+          baseline_mean:
+            type: number
+          lite_mean:
+            type: number
+          delta_mean:
+            type: number
+          p_value:
+            type: number
+          significance:
+            type: boolean
+          test_method:
+            type: string
+            enum:
+              - "t-test"
+              - "wilcoxon"
+            description: The statistical test used (t-test if N>=30, else wilcoxon).
+        required:
+          - baseline_mean
+          - lite_mean
+          - delta_mean
+          - p_value
+          - significance
+          - test_method
+    required:
+      - precision
+  Irregular:
+    type: object
+    description: Metrics for the "Irregular" stratum.
+    properties:
+      precision:
+        type: object
+        properties:
+          baseline_mean:
+            type: number
+          lite_mean:
+            type: number
+          delta_mean:
+            type: number
+          degradation_pct:
+            type: number
+            description: Percentage drop in precision compared to baseline.
+        required:
+          - baseline_mean
+          - lite_mean
+          - delta_mean
+          - degradation_pct
+    required:
+      - precision
+required:
+  - Regular
+  - Irregular
+additionalProperties: false

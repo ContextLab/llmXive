@@ -1,0 +1,224 @@
+resolved_at: '2026-07-14T06:15:05.157948+00:00'
+datasets:
+- intent: FastContext
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Call_09036153255_College_of_Nursing_Sciences_Ikot-Ekpene_Akwa_Ibom_State_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_b/32981555
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Occurance_of_invasive_thrips_species_Thrips_parvispinus_in_pulse_ecosystems_new_host_reocrds_DNA_barcoding_phylogenetic_analysis_and_diversity_assessment/32980871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_i_Network_pharmacology_analysis_i_/32531133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Abemaciclib-associated_psychosis_a_case_report_of_a_rare_neuropsychiatric_adverse_effect_during_breast_cancer_treatment/32981552
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Presumed_secondary_vitreoretinal_lymphoma_with_response_to_systemic_therapy_alone_case_report/32981549
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.14066
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/1905.00079
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TF-IDF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_21_Jul_Oct/resolve/main/tokens_freq_Nov2021_Jan2022_tfidf.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 16238
+      parsed: true
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_22_Feb_Apr/resolve/main/tokens_freq_2022_Feb_Apr_tfidf.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 16267
+      parsed: true
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_22_May_Jul/resolve/main/tokens_freq_2022_May_Jul_tfidf.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 16368
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_21_Jul_Oct/resolve/main/tokens_freq_Nov2021_Jan2022_tfidf.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_22_Feb_Apr/resolve/main/tokens_freq_2022_Feb_Apr_tfidf.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_22_May_Jul/resolve/main/tokens_freq_2022_May_Jul_tfidf.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Santarabantoosoo/Long_Covid_word_frequency_TFIDF_21_Nov_22_Jan/resolve/main/tokens_freq_Nov2021_Jan2022_tfidf.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/ethansimrm/train_tfidf_words_and_weights/resolve/main/tfidf_words_and_weights.txt
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://figshare.com/articles/figure/Call_09036153255_College_of_Nursing_Sciences_Ikot-Ekpene_Akwa_Ibom_State_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_b/32981555
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Occurance_of_invasive_thrips_species_Thrips_parvispinus_in_pulse_ecosystems_new_host_reocrds_DNA_barcoding_phylogenetic_analysis_and_diversity_assessment/32980871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_i_Network_pharmacology_analysis_i_/32531133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Abemaciclib-associated_psychosis_a_case_report_of_a_rare_neuropsychiatric_adverse_effect_during_breast_cancer_treatment/32981552
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Presumed_secondary_vitreoretinal_lymphoma_with_response_to_systemic_therapy_alone_case_report/32981549
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3631674
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19772807
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6792296
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17815723
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3572854
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.11279
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/j5c43nfrnm/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/j5c43nfrnm
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://arxiv.org/abs/2607.10316
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Analisis_Komparasi_Algoritma_Support_Vector_Machine_dan_Naive_Bayes_pada_Aspect-Based_Sentiment_Analysis_Ulasan_WhatsApp/32975714
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 108629
+      parsed: true
+  - url: https://huggingface.co/datasets/andyyang/stable_diffusion_prompts_2m/resolve/main/sd_top5000.keywords.tsv
+    source: huggingface
+    format: tsv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 94934
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Manusagents/GPT-5.5-Gemini-3.1-Pro-Grok-4-Claude-Fable-5-Mythos-5-Qwen-3.7-Max-and-more-Distillation-Dataset/resolve/main/data/cybersecurity/precinct6_cybersecurity/signals/signals.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/andyyang/stable_diffusion_prompts_2m/resolve/main/sd_top5000.keywords.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/andersonbcdefg/combined_en_wikipedia/resolve/main/wiki.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/Call_09036153255_College_of_Nursing_Sciences_Ikot-Ekpene_Akwa_Ibom_State_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_b/32981555
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Occurance_of_invasive_thrips_species_Thrips_parvispinus_in_pulse_ecosystems_new_host_reocrds_DNA_barcoding_phylogenetic_analysis_and_diversity_assessment/32980871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_i_Network_pharmacology_analysis_i_/32531133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Abemaciclib-associated_psychosis_a_case_report_of_a_rare_neuropsychiatric_adverse_effect_during_breast_cancer_treatment/32981552
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Presumed_secondary_vitreoretinal_lymphoma_with_response_to_systemic_therapy_alone_case_report/32981549
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01977446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7714657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336107
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336216
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
