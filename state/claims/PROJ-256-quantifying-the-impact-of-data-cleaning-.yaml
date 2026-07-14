@@ -181,3 +181,88 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T10:23:32Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: download_dataset returns 200 status and non-empty content for UCI HAR
+    URL
+  claim_id: c_9492eff8
+  context: Contract test in tests/unit/test_acquisition.py verifies download_dataset
+    returns 200 status and non-empty content for UCI HAR URL.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: download_dataset returns 200 status and non-empty content for UCI HAR
+    URL.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:14:43Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline analysis script produces baseline_metrics.json with valid p-values
+    between 0 and 1 and finite confidence intervals
+  claim_id: c_1a7b493a
+  context: Integration test in tests/integration/test_baseline.py verifies baseline
+    analysis script produces baseline_metrics.json with valid p-values (0 < p < 1)
+    and finite CIs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: baseline analysis script produces baseline_metrics.json with valid p-values
+    (0 < p < 1) and finite confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:14:58Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: only two datasets are currently available
+  claim_id: c_ed9b1994
+  context: The document notes that while SC-006 requires at least ten datasets, only
+    two are presently available.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: only 2 available
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:16:12Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Only two datasets are currently available
+  claim_id: c_3df993f7
+  context: "SC-006 (\u226510 datasets) flagged for spec kickback - median/IQR tasks\
+    \ (T036-T038) now active ... only 2 available"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Only 2 datasets are currently available
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:19:40Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Only two datasets are available
+  claim_id: c_83bc0b12
+  context: "BLOCKING GAP: SC-006 requires \u226510 datasets but only 2 available -\
+    \ median/IQR tasks (T036-T038) now implemented as per-dataset reporting."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Only 2 datasets are available
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:31:39Z'

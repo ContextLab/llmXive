@@ -6,9 +6,5 @@ scikit-learn
 matplotlib
 seaborn
 pytest
-python-dotenv
-pydantic
-ruff
-black
-cProfile
-pstats
+# Added for analysis
+# No additional external packages required beyond those already listed.

@@ -5,206 +5,181 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
-
-from models import ComparisonReport
-
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
-# JSON I/O helpers
+# Helper utilities
 # ----------------------------------------------------------------------
-
-
-def load_json_file(path: Union[str, Path]) -> Dict[str, Any]:
+def _load_json_file(file_path: str) -> Dict[str, Any]:
     """
-    Load a JSON file and return its content as a dict.
-    If the file does not exist, returns an empty dict and logs a warning.
+    Load a JSON file and return its contents as a dictionary.
+    If the file does not exist or is empty, an empty dict is returned.
     """
-    p = Path(path)
-    if not p.is_file():
-        logger.warning(f"JSON file {p} not found – returning empty dict.")
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if isinstance(data, dict):
+                return data
+            else:
+                logger.warning(
+                    "JSON content at %s is not a dict; returning empty dict.", file_path
+                )
+                return {}
+    except FileNotFoundError:
+        logger.warning("File %s not found; returning empty dict.", file_path)
         return {}
-    with open(p, "r", encoding="utf-8") as f:
-        return json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error("Failed to decode JSON from %s: %s", file_path, e)
+        return {}
 
-
-def save_json_file(data: Dict[str, Any], path: Union[str, Path]) -> None:
+def save_json_file(file_path: str, data: Dict[str, Any]) -> None:
     """
-    Write ``data`` as JSON to ``path``. Parent directories are created
-    automatically.
+    Write a dictionary to a JSON file with pretty formatting.
     """
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    with open(p, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, sort_keys=True)
-
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, sort_keys=True)
+    logger.info("Saved JSON file to %s", file_path)
 
 # ----------------------------------------------------------------------
-# Metric loading
+# Loading functions (kept for backward‑compatibility)
 # ----------------------------------------------------------------------
+def load_baseline_metrics(
+    path: str = "data/processed/baseline_metrics.json",
+) -> Dict[str, Any]:
+    return _load_json_file(path)
 
+def load_cleaned_metrics(
+    path: str = "data/processed/cleaned_metrics.json",
+) -> Dict[str, Any]:
+    return _load_json_file(path)
 
-def load_baseline_metrics() -> Dict[str, Any]:
-    return load_json_file(Path("data/processed/baseline_metrics.json"))
+def load_sensitivity_analysis(
+    path: str = "data/processed/sensitivity_analysis.json",
+) -> Dict[str, Any]:
+    return _load_json_file(path)
 
+# ----------------------------------------------------------------------
+# Core comparison logic
+# ----------------------------------------------------------------------
+def _is_number(val: Any) -> bool:
+    return isinstance(val, (int, float)) and not isinstance(val, bool)
 
-def load_cleaned_metrics() -> Dict[str, Any]:
-    return load_json_file(Path("data/processed/cleaned_metrics.json"))
-
-
-def load_sensitivity_analysis() -> Dict[str, Any]:
+def compute_metric_shifts(
+    baseline: Dict[str, Any], cleaned: Dict[str, Any]
+) -> Tuple[Dict[str, float], Dict[str, Optional[float]]]:
     """
-    Sensitivity analysis results are stored in
-    ``data/processed/sensitivity_analysis.json`` by other pipeline steps.
-    If the file is missing we simply return an empty dict.
+    Compute absolute and relative differences between two metric dictionaries.
+
+    Returns:
+        absolute_diff: dict of |cleaned - baseline|
+        relative_diff: dict of absolute_diff / baseline (None if baseline == 0)
     """
-    return load_json_file(Path("data/processed/sensitivity_analysis.json"))
+    absolute_diff: Dict[str, float] = {}
+    relative_diff: Dict[str, Optional[float]] = {}
 
+    for key, base_val in baseline.items():
+        clean_val = cleaned.get(key)
+        if _is_number(base_val) and _is_number(clean_val):
+            abs_diff = abs(clean_val - base_val)
+            absolute_diff[key] = round(abs_diff, 5)
+            if base_val != 0:
+                rel = round(abs_diff / abs(base_val), 5)
+            else:
+                rel = None
+            relative_diff[key] = rel
+        else:
+            # Non‑numeric entries are ignored for diff calculations
+            logger.debug(
+                "Skipping non‑numeric metric key %s for diff calculation.", key
+            )
+    return absolute_diff, relative_diff
 
-# ----------------------------------------------------------------------
-# Difference calculations
-# ----------------------------------------------------------------------
-
-
-def _extract_numeric_metric(
-    metrics: Dict[str, Any], dataset: str, metric_path: List[str]
+def compute_inconsistency_rate(
+    baseline: Dict[str, Any], cleaned: Dict[str, Any], significance_key: str = "p_value"
 ) -> Optional[float]:
     """
-    Helper to walk a nested dict (``metrics``) following ``metric_path``.
-    Returns ``None`` if any intermediate key is missing or the final value is
-    not a number.
+    Compute the proportion of metrics where the significance status changes
+    between baseline and cleaned (i.e., p <= 0.05 flips to >0.05 or vice‑versa).
+
+    Returns None if the required key is missing in either dict.
     """
-    cur = metrics.get(dataset, {})
-    for key in metric_path:
-        if isinstance(cur, dict) and key in cur:
-            cur = cur[key]
-        else:
-            return None
-    if isinstance(cur, (int, float)):
-        return float(cur)
-    return None
+    base_p = baseline.get(significance_key)
+    clean_p = cleaned.get(significance_key)
 
+    if base_p is None or clean_p is None:
+        logger.warning(
+            "Significance key %s missing from one of the metric dicts; cannot compute inconsistency rate.",
+            significance_key,
+        )
+        return None
 
-def calculate_absolute_diff(
-    baseline: Dict[str, Any],
-    cleaned: Dict[str, Any],
-    metric_path: List[str],
-) -> Dict[str, float]:
-    """
-    Compute absolute differences for a specific metric across all datasets.
+    def _is_significant(p: Any) -> bool:
+        return _is_number(p) and p <= 0.05
 
-    Parameters
-    ----------
-    baseline, cleaned : dict
-        Metric dictionaries keyed by dataset name.
-    metric_path : list of str
-        Path to the leaf metric (e.g., ["t_test", "p_value"]).
-
-    Returns
-    -------
-    dict
-        Mapping ``dataset_name -> absolute_difference`` (rounded to 3 dp).
-    """
-    diffs: Dict[str, float] = {}
-    for ds in baseline.keys():
-        b_val = _extract_numeric_metric(baseline, ds, metric_path)
-        c_val = _extract_numeric_metric(cleaned, ds, metric_path)
-        if b_val is None or c_val is None:
-            continue
-        diffs[ds] = round(abs(c_val - b_val), 3)
-    return diffs
-
-
-def calculate_relative_diff(
-    baseline: Dict[str, Any],
-    cleaned: Dict[str, Any],
-    metric_path: List[str],
-) -> Dict[str, Optional[float]]:
-    """
-    Compute relative differences ( (cleaned - baseline) / baseline ) for a metric.
-    Returns ``None`` when baseline value is zero or missing.
-    """
-    rel_diffs: Dict[str, Optional[float]] = {}
-    for ds in baseline.keys():
-        b_val = _extract_numeric_metric(baseline, ds, metric_path)
-        c_val = _extract_numeric_metric(cleaned, ds, metric_path)
-        if b_val is None or c_val is None or b_val == 0:
-            rel_diffs[ds] = None
-            continue
-        rel_diffs[ds] = round((c_val - b_val) / b_val, 3)
-    return rel_diffs
-
+    inconsistency = _is_significant(base_p) != _is_significant(clean_p)
+    return 1.0 if inconsistency else 0.0
 
 # ----------------------------------------------------------------------
-# Aggregation helpers
+# Public API – create comparison report
 # ----------------------------------------------------------------------
-
-
-def aggregate_metrics_for_comparison(
-    baseline: Dict[str, Any],
-    cleaned: Dict[str, Any],
-) -> Dict[str, Any]:
+def create_comparison_report(
+    baseline_path: str = "data/processed/baseline_metrics.json",
+    cleaned_path: str = "data/processed/cleaned_metrics.json",
+    sensitivity_path: str = "data/processed/sensitivity_analysis.json",
+    output_path: str = "data/processed/comparison_report.json",
+) -> None:
     """
-    Build a nested dictionary containing absolute and relative differences
-    for the three core metrics used throughout the project:
-    * p‑value
-    * confidence‑interval width
-    * effect‑size (Cohen's d)
+    Assemble a ComparisonReport JSON artifact that contains:
+    - baseline_metrics
+    - cleaned_metrics
+    - absolute_diff
+    - relative_diff
+    - sensitivity_analysis (if available)
 
-    The function is tolerant of missing values.
+    The function is tolerant of missing input files; missing sections are
+    represented as empty dictionaries in the final report.
     """
-    agg: Dict[str, Any] = {
-        "p_value": {
-            "absolute": calculate_absolute_diff(baseline, cleaned, ["t_test", "p_value"]),
-            "relative": calculate_relative_diff(baseline, cleaned, ["t_test", "p_value"]),
-        },
-        "ci_width": {
-            "absolute": calculate_absolute_diff(baseline, cleaned, ["t_test", "ci"]),
-            "relative": calculate_relative_diff(baseline, cleaned, ["t_test", "ci"]),
-        },
-        "effect_size": {
-            "absolute": calculate_absolute_diff(baseline, cleaned, ["effect_size", "cohen_d"]),
-            "relative": calculate_relative_diff(baseline, cleaned, ["effect_size", "cohen_d"]),
-        },
+    logger.info("Loading baseline metrics from %s", baseline_path)
+    baseline = load_baseline_metrics(baseline_path)
+
+    logger.info("Loading cleaned metrics from %s", cleaned_path)
+    cleaned = load_cleaned_metrics(cleaned_path)
+
+    logger.info("Loading sensitivity analysis from %s", sensitivity_path)
+    sensitivity = load_sensitivity_analysis(sensitivity_path)
+
+    logger.info("Computing metric shifts")
+    absolute_diff, relative_diff = compute_metric_shifts(baseline, cleaned)
+
+    logger.info("Computing inconsistency rate (p‑value status change)")
+    inconsistency_rate = compute_inconsistency_rate(baseline, cleaned)
+
+    # Assemble the report dictionary
+    report: Dict[str, Any] = {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "baseline_metrics": baseline,
+        "cleaned_metrics": cleaned,
+        "absolute_diff": absolute_diff,
+        "relative_diff": relative_diff,
+        "sensitivity_analysis": sensitivity,
     }
-    return agg
 
+    if inconsistency_rate is not None:
+        report["inconsistency_rate"] = inconsistency_rate
+
+    # Write the report to disk
+    save_json_file(output_path, report)
+    logger.info("Comparison report written to %s", output_path)
 
 # ----------------------------------------------------------------------
-# ComparisonReport construction
+# Backward‑compatible wrapper (used by older scripts)
 # ----------------------------------------------------------------------
-
-
-def create_comparison_report() -> ComparisonReport:
+def generate_comparison_report(*args, **kwargs) -> None:
     """
-    Assemble a :class:`ComparisonReport` instance from the artifacts produced
-    by earlier pipeline steps.
+    Historical name kept for compatibility. Delegates to create_comparison_report.
     """
-    baseline = load_baseline_metrics()
-    cleaned = load_cleaned_metrics()
-    sensitivity = load_sensitivity_analysis()
-
-    diff_agg = aggregate_metrics_for_comparison(baseline, cleaned)
-
-    report = ComparisonReport(
-        generated_at=datetime.utcnow().isoformat() + "Z",
-        baseline_metrics=baseline,
-        cleaned_metrics=cleaned,
-        absolute_diff=diff_agg,
-        relative_diff=diff_agg,  # both dicts contain sub‑dicts; callers can pick needed part
-        sensitivity_analysis=sensitivity,
+    logger.debug(
+        "generate_comparison_report called with args=%s kwargs=%s", args, kwargs
     )
-    return report
-
-
-def main() -> None:
-    """
-    Entry point used by the quick‑start run‑book. Writes the report to
-    ``data/processed/comparison_report.json``.
-    """
-    logger = setup_logging("INFO")  # type: ignore  # noqa: F821 – imported via utils
-    report = create_comparison_report()
-    output_path = Path("data/processed/comparison_report.json")
-    save_json_file(report.dict(), output_path)
-    logger.info(f"Comparison report written to {output_path}")
+    create_comparison_report(*args, **kwargs)

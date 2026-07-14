@@ -25,9 +25,7 @@ def setup_environment():
     """Ensure data directories exist."""
     os.makedirs("data/processed", exist_ok=True)
     yield
-    # Cleanup optional: remove generated files after test if desired
-    # if os.path.exists(BASELINE_RAW_FILE):
-    #     os.remove(BASELINE_RAW_FILE)
+    # Optional cleanup could be added here
 
 def test_baseline_pipeline_execution():
     """
@@ -96,9 +94,6 @@ def test_precision_requirement():
 
     for entry in data['datasets']:
         p_val = entry.get('p_value')
-        # Convert to string and check decimal places (simple check)
-        # Note: JSON might strip trailing zeros, so we check the value itself
-        # If rounded to 3 decimals, the difference between value and round(value, 3) should be 0
         assert p_val == round(p_val, 3), f"P-value {p_val} for {entry['dataset_name']} lacks 3 decimal precision"
         
         ci_lower = entry.get('ci_lower')

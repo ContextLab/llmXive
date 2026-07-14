@@ -1,73 +1,54 @@
 """
-Unit test for the cleaned‑variant re‑analysis script (T023).
-The test runs the script on a tiny synthetic dataset to verify that
-``cleaned_metrics.json`` is created and contains the expected keys.
+Basic sanity test for the T023 re‑analysis script.
+The test only checks that the script creates the expected JSON file
+when at least one cleaned CSV is present.
 """
 
 import json
 import os
-import shutil
 from pathlib import Path
 
 import pandas as pd
-import pytest
 
-from t023_reanalyze_cleaned_variants import main as reanalyze_main
+from t023_reanalyze_cleaned_variants import main as t023_main
 from config import get_config
 
-@pytest.fixture(scope="function")
-def temporary_processed_dir(tmp_path):
-    """Create a temporary processed directory with a single cleaned CSV."""
+def test_t023_produces_cleaned_metrics(tmp_path, monkeypatch):
+    # Setup a minimal processed directory with a fake cleaned CSV
+    cfg = get_config()
+    processed_dir = Path(cfg.get("PROCESSED_DATA_PATH", "data/processed"))
     processed_dir = tmp_path / "processed"
     processed_dir.mkdir(parents=True)
 
-    # Small synthetic dataset
+    # Override config paths for the test
+    monkeypatch.setattr(cfg, "get", lambda k, d=None: str(processed_dir) if k == "PROCESSED_DATA_PATH" else d)
+
+    # Create a tiny cleaned dataset (binary outcome + one numeric predictor)
     df = pd.DataFrame(
         {
-            "feature1": [1, 2, 3, 4, 5],
-            "feature2": [5, 4, 3, 2, 1],
-            "target": [0, 1, 0, 1, 0],
+            "outcome": [0, 1, 0, 1],
+            "feature": [1.2, 2.3, 1.1, 2.5],
         }
     )
-    csv_path = processed_dir / "synthetic_cleaned.csv"
-    df.to_csv(csv_path, index=False)
+    cleaned_csv = processed_dir / "sample_cleaned_iqr.csv"
+    df.to_csv(cleaned_csv, index=False)
 
-    # Patch the config to point to this temporary location
-    cfg = get_config()
-    cfg_path = Path(cfg.get("CONFIG_PATH", ""))
-    # Monkey‑patch the config values in memory (the Config object reads env vars)
-    cfg._overrides = {
-        "PROCESSED_DATA_PATH": str(processed_dir),
-        "CLEANED_METRICS_PATH": str(tmp_path / "cleaned_metrics.json"),
-        "OUTCOME_COLUMN": "target",
-    }
+    # Run the script
+    t023_main()
 
-    yield tmp_path
-
-    # Cleanup – nothing needed because tmp_path is auto‑removed
-
-def test_cleaned_metrics_file_created(temporary_processed_dir):
-    # Run the re‑analysis script
-    reanalyze_main()
-
-    output_path = Path(
-        get_config().get(
+    # Verify output file exists and contains parsable JSON
+    cleaned_metrics_path = Path(
+        cfg.get(
             "CLEANED_METRICS_PATH",
             "data/processed/cleaned_metrics.json",
         )
     )
-    assert output_path.is_file(), "cleaned_metrics.json was not created"
-
-    with output_path.open() as f:
+    assert cleaned_metrics_path.is_file()
+    with open(cleaned_metrics_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # Expect a list with one entry
-    assert isinstance(data, list) and len(data) == 1
-    entry = data[0]
-    assert "dataset_name" in entry
-    assert entry["dataset_name"] == "synthetic_cleaned"
-    assert "analysis" in entry
-    assert isinstance(entry["analysis"], dict)
-    # Basic sanity checks on analysis sub‑structure
-    assert "t_test" in entry["analysis"]
-    assert "regression" in entry["analysis"]
+    assert isinstance(data, dict)
+    assert "sample_cleaned_iqr" in data
+    assert "analysis" in data["sample_cleaned_iqr"]
+    assert "t_test" in data["sample_cleaned_iqr"]["analysis"]
+    assert "regression" in data["sample_cleaned_iqr"]["analysis"]

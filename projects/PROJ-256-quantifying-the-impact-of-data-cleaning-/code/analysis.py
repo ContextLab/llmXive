@@ -1,166 +1,166 @@
 import json
 import logging
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
-
 import numpy as np
 import pandas as pd
 from scipy import stats
+import statsmodels.api as sm
 
 logger = logging.getLogger(__name__)
 
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
+def _load_dataframe_from_path(path: Union[str, Path]) -> pd.DataFrame:
+    """Load the first CSV file found in the given directory."""
+    path = Path(path)
+    if path.is_file():
+        return pd.read_csv(path)
+    if path.is_dir():
+        for file in sorted(path.iterdir()):
+            if file.suffix.lower() == ".csv":
+                return pd.read_csv(file)
+    raise FileNotFoundError(f"No CSV file found in {path}")
 
+def _default_outcome_and_predictors(df: pd.DataFrame) -> Tuple[str, List[str]]:
+    """Pick a sensible default outcome column and predictor columns."""
+    # Prefer a binary column named 'target' or 'outcome'
+    possible_outcomes = [c for c in df.columns if c.lower() in {"target", "outcome", "label"}]
+    if possible_outcomes:
+        outcome = possible_outcomes[0]
+    else:
+        # Fallback to the first column
+        outcome = df.columns[0]
+    predictors = [c for c in df.columns if c != outcome and np.issubdtype(df[c].dtype, np.number)]
+    if not predictors:
+        # If no numeric predictors, use all non‑outcome columns as categorical predictors
+        predictors = [c for c in df.columns if c != outcome]
+    return outcome, predictors
 
-def _perform_simple_analysis(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Perform a very simple statistical analysis on a dataframe.
-    Currently we:
-    * Choose the first two numeric columns (if they exist)
-    * Run an independent two‑sample t‑test
-    * Compute Cohen's d as an effect size
-    * Return p‑value, 95 % CI for the mean difference, and effect size.
-
-    This is deliberately lightweight – the goal of the repository is to
-    illustrate the pipeline rather than provide a full statistical suite.
-    """
-    numeric_cols = df.select_dtypes(include=[np.number]).columns
-    if len(numeric_cols) < 2:
-        logger.warning(
-            "Not enough numeric columns for t‑test; returning empty metrics."
-        )
-        return {}
-
-    col1, col2 = numeric_cols[:2]
-    x, y = df[col1].dropna(), df[col2].dropna()
-    if len(x) == 0 or len(y) == 0:
-        logger.warning("One of the selected columns is empty after NA removal.")
-        return {}
-
-    # t‑test
-    t_stat, p_val = stats.ttest_ind(x, y, equal_var=False)
-
-    # Cohen's d
-    pooled_std = np.sqrt(((x.std() ** 2) + (y.std() ** 2)) / 2)
-    cohen_d = (x.mean() - y.mean()) / pooled_std if pooled_std != 0 else 0.0
-
-    # 95 % CI for the difference of means (Welch's formula)
-    se = np.sqrt(x.var(ddof=1) / len(x) + y.var(ddof=1) / len(y))
-    df_welch = (x.var(ddof=1) / len(x) + y.var(ddof=1) / len(y)) ** 2 / (
-        (x.var(ddof=1) ** 2) / (len(x) ** 2 * (len(x) - 1))
-        + (y.var(ddof=1) ** 2) / (len(y) ** 2 * (len(y) - 1))
-    )
-    ci_low, ci_high = stats.t.interval(
-        0.95, df=df_welch, loc=(x.mean() - y.mean()), scale=se
-    )
-
+def _run_regression(df: pd.DataFrame, outcome: str, predictor: str) -> Dict[str, Any]:
+    """Run a simple OLS regression of outcome ~ predictor."""
+    X = sm.add_constant(df[[predictor]].astype(float))
+    y = df[outcome].astype(float)
+    model = sm.OLS(y, X, missing='drop')
+    results = model.fit()
+    coef = results.params[predictor]
+    p_value = results.pvalues[predictor]
+    conf_int = results.conf_int().loc[predictor].tolist()
     return {
-        "t_test": {
-            "statistic": float(t_stat),
-            "p_value": float(p_val),
-            "ci": [float(ci_low), float(ci_high)],
-        },
-        "effect_size": {"cohen_d": float(cohen_d)},
+        "coefficient": float(coef),
+        "p_value": float(p_value),
+        "ci": [float(conf_int[0]), float(conf_int[1])],
     }
 
-# ----------------------------------------------------------------------
-# Public API – flexible ``run_baseline_analysis``
-# ----------------------------------------------------------------------
+def _run_ttest(df: pd.DataFrame, outcome: str, predictor: str) -> Dict[str, Any]:
+    """If outcome is binary, perform a t‑test between the two groups for the predictor."""
+    if df[outcome].nunique() != 2:
+        return {}
+    groups = df.groupby(outcome)[predictor]
+    try:
+        t_stat, p_val = stats.ttest_ind(groups.get_group(df[outcome].unique()[0]),
+                                       groups.get_group(df[outcome].unique()[1]),
+                                       equal_var=False, nan_policy='omit')
+        # Compute Cohen's d
+        mean1, mean2 = groups.get_group(df[outcome].unique()[0]).mean(), groups.get_group(df[outcome].unique()[1]).mean()
+        var1, var2 = groups.get_group(df[outcome].unique()[0]).var(), groups.get_group(df[outcome].unique()[1]).var()
+        n1, n2 = groups.get_group(df[outcome].unique()[0]).size, groups.get_group(df[outcome].unique()[1]).size
+        pooled_sd = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+        cohen_d = (mean1 - mean2) / pooled_sd if pooled_sd != 0 else 0.0
+        return {
+            "t_stat": float(t_stat),
+            "p_value": float(p_val),
+            "cohen_d": float(cohen_d),
+        }
+    except Exception as e:
+        logger.debug(f"T‑test failed for predictor {predictor}: {e}")
+        return {}
 
-
-def run_baseline_analysis(*args: Any, **kwargs: Any) -> bool:
+def run_baseline_analysis(*args, **kwargs) -> Dict[str, Any]:
     """
-    Flexible entry point used throughout the code base.
+    Flexible baseline analysis entry point.
 
-    Supported call signatures (all are accepted):
-    1. run_baseline_analysis(raw_dir, output_file, config)
-    2. run_baseline_analysis(raw_dir, output_file, analysis_config)
-    3. run_baseline_analysis(dataframe=df, outcome='y', predictors=['x1','x2'],
-                             group_col='g', output_file=Path(...))
-
-    The function normalises the inputs, performs a very simple analysis
-    for each CSV found in ``raw_dir`` (or directly on the supplied
-    dataframe) and writes a JSON file with the results.
-
-    Returns
-    -------
-    bool
-        ``True`` if at least one dataset was processed successfully,
-        ``False`` otherwise.
+    Supported signatures (all are accepted):
+    1. run_baseline_analysis(dataframe=df, outcome='y', predictors=[...])
+    2. run_baseline_analysis(df)                     # df is a DataFrame
+    3. run_baseline_analysis(raw_dir, output_file)
+    4. run_baseline_analysis(raw_dir, output_file, config)
+    5. run_baseline_analysis()                       # uses env config defaults
     """
     # Resolve positional arguments
     raw_dir = None
     output_file = None
-    config_obj = None
-    df = None
+    config = None
+    dataframe = None
     outcome = None
     predictors = None
-    group_col = None
 
-    if len(args) >= 3:
-        raw_dir, output_file, config_obj = args[:3]
-    elif len(args) == 2:
-        raw_dir, output_file = args[:2]
-
-    # Keyword overrides / explicit arguments
-    raw_dir = kwargs.get("raw_dir", raw_dir)
-    output_file = kwargs.get("output_file", output_file)
-    config_obj = kwargs.get("config", config_obj) or kwargs.get("analysis_config", config_obj)
-    df = kwargs.get("dataframe", df)
-    outcome = kwargs.get("outcome", outcome)
-    predictors = kwargs.get("predictors", predictors)
-    group_col = kwargs.get("group_col", group_col)
-
-    # Normalise paths
-    if isinstance(raw_dir, (str, Path)):
-        raw_dir = Path(raw_dir)
-    if isinstance(output_file, (str, Path)):
-        output_file = Path(output_file)
-
-    results: Dict[str, Any] = {}
-
-    try:
-        if df is not None:
-            # Direct dataframe analysis
-            logger.info("Running baseline analysis on supplied dataframe.")
-            analysis = _perform_simple_analysis(df)
-            if analysis:
-                results["provided_dataframe"] = analysis
+    # Positional handling
+    if args:
+        # If first positional arg is a DataFrame, treat it as dataframe mode
+        if isinstance(args[0], pd.DataFrame):
+            dataframe = args[0]
+            if len(args) > 1:
+                outcome = args[1] if isinstance(args[1], str) else None
+            if len(args) > 2:
+                predictors = args[2] if isinstance(args[2], (list, tuple)) else None
         else:
-            # Walk through CSV files in raw_dir
-            if raw_dir is None or not raw_dir.is_dir():
-                logger.error("Raw data directory not provided or does not exist.")
-                return False
+            # Assume first is raw_dir, second is output_file, third optional config
+            raw_dir = args[0]
+            if len(args) > 1:
+                output_file = args[1]
+            if len(args) > 2:
+                config = args[2]
 
-            csv_files = list(raw_dir.glob("*.csv"))
-            if not csv_files:
-                logger.error(f"No CSV files found in {raw_dir}.")
-                return False
+    # Keyword overrides
+    if 'dataframe' in kwargs:
+        dataframe = kwargs['dataframe']
+    if 'outcome' in kwargs:
+        outcome = kwargs['outcome']
+    if 'predictors' in kwargs:
+        predictors = kwargs['predictors']
+    if 'raw_dir' in kwargs:
+        raw_dir = kwargs['raw_dir']
+    if 'output_file' in kwargs:
+        output_file = kwargs['output_file']
+    if 'config' in kwargs:
+        config = kwargs['config']
 
-            for csv_path in csv_files:
-                try:
-                    df_cur = pd.read_csv(csv_path)
-                    logger.info(f"Analyzing dataset {csv_path.name}.")
-                    analysis = _perform_simple_analysis(df_cur)
-                    if analysis:
-                        results[csv_path.stem] = analysis
-                except Exception as e:
-                    logger.exception(f"Failed to process {csv_path.name}: {e}")
+    # Load dataframe if we have a raw_dir but no dataframe yet
+    if dataframe is None and raw_dir is not None:
+        dataframe = _load_dataframe_from_path(raw_dir)
 
-        # Write results
-        if output_file is None:
-            logger.error("No output file specified for baseline metrics.")
-            return False
+    if dataframe is None:
+        raise ValueError("No data provided to run_baseline_analysis.")
 
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(results, f, indent=2)
+    # Determine outcome & predictors if not supplied
+    if outcome is None or predictors is None:
+        outcome, predictors = _default_outcome_and_predictors(dataframe)
 
-        logger.info(f"Baseline analysis written to {output_file}.")
-        return bool(results)
+    metrics: Dict[str, Any] = {"outcome": outcome, "predictors": {}}
 
-    except Exception as exc:
-        logger.exception(f"Unexpected error during baseline analysis: {exc}")
-        return False
+    for pred in predictors:
+        pred_metrics: Dict[str, Any] = {}
+
+        # Regression
+        try:
+            reg = _run_regression(dataframe, outcome, pred)
+            pred_metrics["regression"] = reg
+        except Exception as e:
+            logger.debug(f"Regression failed for {pred}: {e}")
+
+        # t‑test (only if binary outcome)
+        ttest_res = _run_ttest(dataframe, outcome, pred)
+        if ttest_res:
+            pred_metrics["t_test"] = ttest_res
+
+        metrics["predictors"][pred] = pred_metrics
+
+    # Write to file if an explicit output path is given
+    if output_file:
+        output_path = Path(output_file)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(metrics, f, indent=2)
+        logger.info(f"Baseline analysis written to {output_path}")
+
+    return metrics

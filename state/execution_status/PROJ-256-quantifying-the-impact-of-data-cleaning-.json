@@ -1,17 +1,12 @@
 {
   "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
   "ok": false,
-  "reason": "1 hollow-result signal(s) \u2014 the analysis ran but computed nothing: every produced artifact is gitignored (data/processed/null_fpr_metrics.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.",
-  "artifacts": [
-    "data/processed/null_fpr_metrics.json"
-  ],
+  "reason": "run-book completed but produced no data/figure artifacts; 3 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json",
+  "artifacts": [],
   "failures": [],
-  "fix_rounds": 0,
+  "fix_rounds": 2,
   "model_tier": 1,
-  "updated_at": "2026-07-14T18:28:13Z",
-  "hollow": [
-    "every produced artifact is gitignored (data/processed/null_fpr_metrics.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches."
-  ],
-  "total_attempts": 0,
-  "replan_rounds": 0
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "updated_at": "2026-07-14T19:26:11Z"
 }

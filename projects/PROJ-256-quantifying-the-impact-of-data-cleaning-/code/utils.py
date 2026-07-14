@@ -1,32 +1,19 @@
 import logging
 import os
-import hashlib
 import random
+import hashlib
 from typing import Any
 import numpy as np
 
+_logger_cache = {}
+
 def pin_random_seed(seed: int) -> None:
-    """
-    Set the random seed for reproducibility across numpy, random, and the
-    built‑in ``random`` module.
-    """
+    """Set seeds for reproducibility across numpy and the Python stdlib."""
     random.seed(seed)
     np.random.seed(seed)
 
 def compute_file_checksum(filepath: str) -> str:
-    """
-    Compute the SHA256 checksum of a file.
-
-    Parameters
-    ----------
-    filepath: str
-        Path to the file.
-
-    Returns
-    -------
-    str
-        Hex‑encoded SHA256 checksum.
-    """
+    """Compute SHA256 checksum of a file."""
     sha256 = hashlib.sha256()
     with open(filepath, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -35,41 +22,45 @@ def compute_file_checksum(filepath: str) -> str:
 
 def setup_logging(*args, **kwargs) -> logging.Logger:
     """
-    Initialise a logger.  The function is deliberately permissive to satisfy
-    the many different call‑sites throughout the project.  It accepts:
+    Create or retrieve a logger.
 
-    * No arguments – defaults to INFO level.
-    * A single positional argument – interpreted as the log level.
-    * Keyword argument ``log_level`` – explicit log level.
-    * Any additional ``*args``/``**kwargs`` – ignored.
-
-    Returns
-    -------
-    logging.Logger
-        Configured logger instance.
+    This function is deliberately permissive: callers may provide a log level
+    as the first positional argument, as a named keyword ``log_level``, or even
+    a custom logger name. Any unexpected arguments are ignored so that the
+    function remains compatible with all existing call sites.
     """
-    # Resolve log level
-    if args and isinstance(args[0], str):
-        log_level = args[0]
-    else:
-        log_level = kwargs.get("log_level", "INFO")
+    # Resolve logger name / level
+    log_level = kwargs.get("log_level")
+    if not log_level and args:
+        # First positional argument may be a level string or a logger name
+        if isinstance(args[0], str):
+            # Heuristic: if it looks like a logging level, use it; otherwise treat as name
+            possible_level = args[0].upper()
+            if possible_level in {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}:
+                log_level = possible_level
+            else:
+                logger_name = args[0]
+                return _logger_cache.setdefault(logger_name, _configure_logger(logger_name, log_level))
+        else:
+            logger_name = str(args[0])
+            return _logger_cache.setdefault(logger_name, _configure_logger(logger_name, log_level))
 
-    # Normalise to a valid level name
-    log_level = log_level.upper()
-    if log_level not in {"CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"}:
-        log_level = "INFO"
+    logger_name = kwargs.get("logger_name", "default")
+    logger = _logger_cache.get(logger_name)
+    if logger is None:
+        logger = _configure_logger(logger_name, log_level)
+        _logger_cache[logger_name] = logger
+    return logger
 
-    logger = logging.getLogger("llmXive")
-    logger.setLevel(getattr(logging, log_level, logging.INFO))
-
-    # Configure a simple console handler if not already present
+def _configure_logger(name: str, level: str = None) -> logging.Logger:
+    logger = logging.getLogger(name)
     if not logger.handlers:
-        ch = logging.StreamHandler()
-        ch.setLevel(getattr(logging, log_level, logging.INFO))
-        formatter = logging.Formatter(
-            "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
-        )
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
-
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    if level:
+        logger.setLevel(level.upper())
+    else:
+        logger.setLevel(logging.INFO)
     return logger
