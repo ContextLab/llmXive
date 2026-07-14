@@ -16,13 +16,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 ## Failing / missing run-book commands
 
-- python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py", line 20, in <module>
-    from llm_generator import generate_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/llm_generator.py", line 15, in <module>
-    from config import get_api_key, get_model_chain, get_model_config, resolve_model, ModelConfig
-ImportError: cannot import name 'get_model_chain' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/config.py)
+- python code/main.py --num-tasks 100 --output-dir data/processed -> rc=2
+    usage: main.py [-h] [--dataset DATASET] [--model MODEL]
+               [--batch-size BATCH_SIZE]
+main.py: error: unrecognized arguments: --num-tasks 100 --output-dir data/processed
 
 ## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
 

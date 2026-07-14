@@ -1,228 +1,183 @@
-"""Entry‑point for orchestrating LLM code generation and coverage measurement.
+"""Main orchestration script for generating code and measuring coverage.
 
-This script ties together the dataset loader, the LLM generator, and the
-coverage runner.  It processes a batch of tasks, tolerates errors, and
-writes a JSON record per task under ``coverage_reports/`` (or a user‑provided
-output directory).
+This script loads a catalog of benchmark tasks, generates code for each task
+using the specified LLM model, runs pytest coverage on the generated code,
+and records the results (or failures) as JSON files under
+`data/coverage_reports/`.
 
-The public API of this module (used by tests) consists of:
-  - build_arg_parser
-  - load_catalog
-  - write_failure_record
-  - write_success_record
-  - process_task
-  - batch_process
-  - main
+It supports batch processing and robust error handling so that a failure on
+one task does not stop the whole pipeline.
 """
-
 from __future__ import annotations
 
 import argparse
 import json
-import os
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Sequence
+from typing import Any, Dict, List, Optional
 
 from config import get_model_config
-from coverage_runner import run_coverage_with_catalog_check
 from llm_generator import generate_code
-from logger_config import log_pipeline_summary, get_logger
+from coverage_runner import run_coverage_with_catalog_check
+from logger_config import log_pipeline_summary
 
+# --------------------------------------------------------------------------- #
+# Helper utilities
+# --------------------------------------------------------------------------- #
+def _sanitize_task_id(task_id: str) -> str:
+    """Return a filesystem‑safe version of a task identifier."""
+    return task_id.replace("/", "_").replace("\\", "_")
 
+def _ensure_dir(path: Path) -> None:
+    """Make sure the parent directory of *path* exists."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+# --------------------------------------------------------------------------- #
+# Record writing
+# --------------------------------------------------------------------------- #
+def write_success_record(task_id: str, coverage: Dict[str, Any]) -> None:
+    """Write a JSON record for a successful coverage run."""
+    record = {
+        "task_id": task_id,
+        "status": "success",
+        "line_coverage": coverage.get("line_coverage"),
+        "branch_coverage": coverage.get("branch_coverage"),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    out_path = Path("data/coverage_reports") / f"{_sanitize_task_id(task_id)}.json"
+    _ensure_dir(out_path)
+    out_path.write_text(json.dumps(record, indent=2))
+
+def write_failure_record(task_id: str, error_message: str) -> None:
+    """Write a JSON record for a failed task."""
+    record = {
+        "task_id": task_id,
+        "status": "failed",
+        "error_message": error_message,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    out_path = Path("data/coverage_reports") / f"{_sanitize_task_id(task_id)}.json"
+    _ensure_dir(out_path)
+    out_path.write_text(json.dumps(record, indent=2))
+
+# --------------------------------------------------------------------------- #
+# Catalog handling
+# --------------------------------------------------------------------------- #
+def load_catalog(dataset: str) -> List[Dict[str, Any]]:
+    """Load the processed catalog JSON for the given dataset.
+
+    The dataset argument is currently unused because the project stores a
+    single catalog at ``data/benchmarks/processed/catalog.json``.
+    """
+    catalog_path = Path("data/benchmarks/processed/catalog.json")
+    if not catalog_path.is_file():
+        raise FileNotFoundError(f"Catalog not found at {catalog_path}")
+    with catalog_path.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+# --------------------------------------------------------------------------- #
+# Core task processing
+# --------------------------------------------------------------------------- #
+def process_task(task_entry: Dict[str, Any], model_cfg: Any) -> None:
+    """Generate code for *task_entry*, run coverage, and record the outcome."""
+    task_id = task_entry["task_id"]
+    try:
+        # ------------------------------------------------------------------- #
+        # 1. Code generation
+        # ------------------------------------------------------------------- #
+        generated_source: str = generate_code(task_entry, model_cfg)
+
+        # ------------------------------------------------------------------- #
+        # 2. Persist generated source
+        # ------------------------------------------------------------------- #
+        generated_path = Path("generated") / f"{_sanitize_task_id(task_id)}.py"
+        _ensure_dir(generated_path)
+        generated_path.write_text(generated_source)
+
+        # ------------------------------------------------------------------- #
+        # 3. Run coverage
+        # ------------------------------------------------------------------- #
+        coverage_result = run_coverage_with_catalog_check(
+            str(generated_path), task_entry
+        )
+        # Expected format: {"line_coverage": float, "branch_coverage": float | "N/A"}
+
+        # ------------------------------------------------------------------- #
+        # 4. Record success
+        # ------------------------------------------------------------------- #
+        write_success_record(task_id, coverage_result)
+        log_pipeline_summary(task_id, "success", coverage_result)
+
+    except SyntaxError as e:
+        err_msg = f"SyntaxError: {e}"
+        write_failure_record(task_id, err_msg)
+        log_pipeline_summary(task_id, "failed", {"error": err_msg})
+
+    except Exception as e:
+        err_msg = f"{type(e).__name__}: {e}"
+        write_failure_record(task_id, err_msg)
+        log_pipeline_summary(task_id, "failed", {"error": err_msg})
+
+# --------------------------------------------------------------------------- #
+# Batch processing
+# --------------------------------------------------------------------------- #
+def batch_process(
+    catalog: List[Dict[str, Any]],
+    model_cfg: Any,
+    batch_size: Optional[int] = None,
+) -> None:
+    """Iterate over *catalog* and process each task.
+
+    If *batch_size* is supplied, only the first *batch_size* tasks are
+    processed.
+    """
+    limit = batch_size if batch_size is not None else len(catalog)
+    for i, task_entry in enumerate(catalog[:limit], start=1):
+        print(f"Processing task {i}/{limit}: {task_entry['task_id']}")
+        process_task(task_entry, model_cfg)
+
+# --------------------------------------------------------------------------- #
+# Argument parsing
+# --------------------------------------------------------------------------- #
 def build_arg_parser() -> argparse.ArgumentParser:
-    """Create the CLI argument parser."""
     parser = argparse.ArgumentParser(
-        description="Run LLM code generation + coverage pipeline over a dataset."
+        description="Generate code for a benchmark dataset and collect coverage."
     )
     parser.add_argument(
         "--dataset",
         type=str,
-        default="data/benchmarks/processed/catalog.json",
-        help="Path to the JSON catalog containing task entries.",
+        default="mbpp",
+        help="Name of the dataset to load (default: %(default)s).",
     )
     parser.add_argument(
         "--model",
         type=str,
         default="gpt-4",
-        help="Primary LLM model name to use for generation.",
+        help="Model identifier to use for generation (default: %(default)s).",
     )
     parser.add_argument(
         "--batch-size",
         type=int,
-        default=10,
-        help="Number of tasks to process per batch (for memory‑friendly execution).",
-    )
-    # Compatibility with older run‑books
-    parser.add_argument(
-        "--num-tasks",
-        type=int,
         default=None,
-        help="Optional cap on the number of tasks to process.",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/coverage_reports",
-        help="Directory where per‑task JSON coverage reports are written.",
+        help="Maximum number of tasks to process in this run.",
     )
     return parser
 
-
-def load_catalog(path: str) -> List[Dict[str, Any]]:
-    """Load the task catalog JSON file."""
-    catalog_path = Path(path)
-    if not catalog_path.is_file():
-        raise FileNotFoundError(f"Catalog file not found: {catalog_path}")
-    with catalog_path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-    # The catalog may be a list or a dict with a "tasks" key
-    if isinstance(data, dict) and "tasks" in data:
-        return data["tasks"]
-    if isinstance(data, list):
-        return data
-    raise ValueError("Unexpected catalog format – expected list or dict with 'tasks' key.")
-
-def _timestamp() -> str:
-    """Current UTC timestamp in ISO‑8601 format."""
-    return datetime.now(timezone.utc).isoformat()
-
-def write_failure_record(task_id: str, error: Exception, output_dir: str) -> None:
-    """Write a failure JSON record for *task_id*."""
-    record = {
-        "task_id": task_id,
-        "status": "failed",
-        "error_message": str(error),
-        "timestamp": _timestamp(),
-    }
-    out_path = Path(output_dir) / f"{task_id}.json"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
-    get_logger().log("task_failure", task_id=task_id, error=str(error))
-
-def write_success_record(
-    task_id: str,
-    generated_path: str,
-    coverage: Dict[str, Any],
-    output_dir: str,
-) -> None:
-    """Write a success JSON record for *task_id*."""
-    record = {
-        "task_id": task_id,
-        "status": "success",
-        "generated_code_path": generated_path,
-        "line_coverage": coverage.get("line_coverage"),
-        "branch_coverage": coverage.get("branch_coverage"),
-        "timestamp": _timestamp(),
-    }
-    out_path = Path(output_dir) / f"{task_id}.json"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
-    get_logger().log("task_success", task_id=task_id, **coverage)
-
-# ---------------------------------------------------------------------------
-# Core task processing
-# ---------------------------------------------------------------------------
-
-def process_task(
-    task_entry: Dict[str, Any],
-    model_cfg: Any,
-    output_dir: str,
-) -> None:
-    """Generate code for a single task and record coverage.
-
-    Errors are caught and turned into failure records; the function never
-    raises upward – this guarantees the batch loop continues.
-    """
-    task_id = task_entry.get("task_id") or task_entry.get("id")
-    if not task_id:
-        # If the catalog entry lacks an identifier we cannot continue.
-        get_logger().log("invalid_task_entry", entry=task_entry)
-        return
-
-    try:
-        # -------------------------------------------------------------------
-        # 1️⃣ LLM generation
-        # -------------------------------------------------------------------
-        generated_path = generate_code(task_entry, model_cfg)
-
-        # -------------------------------------------------------------------
-        # 2️⃣ Coverage measurement
-        # -------------------------------------------------------------------
-        coverage = run_coverage_with_catalog_check(task_id, generated_path, task_entry)
-
-        # -------------------------------------------------------------------
-        # 3️⃣ Record success
-        # -------------------------------------------------------------------
-        write_success_record(task_id, generated_path, coverage, output_dir)
-
-    except SyntaxError as syn_err:
-        # Syntax errors from generated code are common; treat them as failures.
-        get_logger().log("syntax_error", task_id=task_id, error=str(syn_err))
-        write_failure_record(task_id, syn_err, output_dir)
-
-    except Exception as exc:  # pylint: disable=broad-except
-        # Catch‑all for any unexpected problem (IO, subprocess, etc.).
-        get_logger().log("task_exception", task_id=task_id, error=str(exc))
-        write_failure_record(task_id, exc, output_dir)
-
-# ---------------------------------------------------------------------------
-# Batch orchestration
-# ---------------------------------------------------------------------------
-
-def batch_process(
-    catalog: Sequence[Dict[str, Any]],
-    batch_size: int,
-    model_cfg: Any,
-    output_dir: str,
-) -> None:
-    """Iterate over *catalog* in batches, processing each task."""
-    total = len(catalog)
-    for start in range(0, total, batch_size):
-        end = min(start + batch_size, total)
-        batch = catalog[start:end]
-        for task_entry in batch:
-            process_task(task_entry, model_cfg, output_dir)
-
-# ---------------------------------------------------------------------------
-# Main entry point
-# ---------------------------------------------------------------------------
-
 # --------------------------------------------------------------------------- #
-# Entry point
+# Main entry point
 # --------------------------------------------------------------------------- #
 def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()
 
-    # Resolve output directory early so we can create it even if later steps fail.
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Load the task catalog.
-    catalog = load_catalog(args.dataset)
-
-    # Apply optional task‑count limit.
-    if args.num_tasks is not None:
-        catalog = catalog[: args.num_tasks]
-
-    # Resolve model configuration (supports flexible signatures).
+    # Resolve model configuration (the helper accepts both positional and keyword usage)
     model_cfg = get_model_config(args.model)
 
-    # Log a high‑level summary before the run begins.
-    log_pipeline_summary(
-        dataset=args.dataset,
-        model=args.model,
-        batch_size=args.batch_size,
-        num_tasks=len(catalog),
-        output_dir=str(output_dir),
-    )
+    # Load the task catalog
+    catalog = load_catalog(args.dataset)
 
-    # Run the batch processing loop.
-    batch_process(catalog, args.batch_size, model_cfg, str(output_dir))
-
-    # Final log entry indicating completion.
-    get_logger().log("pipeline_complete", processed_tasks=len(catalog))
+    # Process the tasks (respecting batch size if provided)
+    batch_process(catalog, model_cfg, batch_size=args.batch_size)
 
 if __name__ == "__main__":
     main()
