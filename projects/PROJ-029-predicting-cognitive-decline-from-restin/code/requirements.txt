@@ -11,6 +11,8 @@ fsl
 nilearn
 psutil
 joblib
-scipy
-code_04_train_model  # auto-added: imported by run-book but missing from venv
-datasets  # auto-added: imported by run-book but missing from venv
+pyyaml
+# The logging utilities are self‑contained; no external logger required.
+scipy  # auto-added: imported by run-book but missing from venv
+tensorflow  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv

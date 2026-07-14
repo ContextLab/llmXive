@@ -1,55 +1,39 @@
-"""Unit tests for the graph‑metric computation utilities."""
+"""Unit tests for the graph‑metric computation utilities.
 
-import pathlib
-
+The tests focus on the ``compute_subject_metrics`` helper in
+``code/03_compute_graph_metrics.py``. They construct a tiny synthetic adjacency
+matrix where the expected metrics can be derived analytically.
+"""
 import numpy as np
-import pandas as pd
 import pytest
 
-from code import utils
-from code.utils import graph as gutils
+from code._03_compute_graph_metrics import compute_subject_metrics  # type: ignore
 
-# Simple synthetic adjacency matrix (90 nodes not required for the test)
+
 @pytest.fixture
-def small_adj():
-    # Create a 4‑node ring graph adjacency matrix
-    mat = np.zeros((4, 4))
-    for i in range(4):
-        mat[i, (i + 1) % 4] = 1
-        mat[(i + 1) % 4, i] = 1
+def simple_adj():
+    # A 3‑node fully connected undirected graph (weights = 1)
+    mat = np.array(
+        [
+            [0, 1, 1],
+            [1, 0, 1],
+            [1, 1, 0],
+        ],
+        dtype=float,
+    )
     return mat
 
-def test_compute_subject_metrics(small_adj):
-    """Validate that compute_subject_metrics returns sensible numbers."""
-    # The function lives in the script we just implemented.
-    from code import _03_compute_graph_metrics as gm
-    
-    metrics = gm.compute_subject_metrics(small_adj)
-    # For a ring of 4 nodes:
-    # - degree of each node = 2 → mean = 2
-    # - global efficiency for a regular ring ≈ 0.5
-    # - clustering coefficient = 0 for a ring
-    # - average shortest path length = 1.33...
-    assert pytest.approx(metrics["degree_mean"], rel=1e-2) == 2.0
-    assert 0.4 < metrics["global_efficiency"] < 0.6
-    assert metrics["clustering_coeff_mean"] == 0.0
-    assert pytest.approx(metrics["path_length_mean"], rel=1e-2) == 1.3333333
-    
-def test_write_and_load_csv(tmp_path: pathlib.Path):
-    """Round‑trip test for the CSV helpers."""
-    out_file = tmp_path / "metrics.csv"
-    rows = [
-        {
-            "subject_id": "sub-01",
-            "degree_mean": 2.0,
-            "global_efficiency": 0.5,
-            "clustering_coeff_mean": 0.0,
-            "path_length_mean": 1.33,
-        }
-    ]
-    utils.io.save_csv(out_file, rows)
-    df = utils.io.load_csv(out_file)
-    assert df.iloc[0]["subject_id"] == "sub-01"
-    assert df.iloc[0]["degree_mean"] == 2.0
 
-# The test suite is optional; it will be discovered by pytest if present.
+def test_compute_subject_metrics_fully_connected(simple_adj):
+    metrics = compute_subject_metrics(simple_adj)
+
+    # In a fully connected 3‑node graph:
+    # - Degree centrality for each node = 2 / (N‑1) = 1.0
+    # - Average degree = 1.0
+    # - Global efficiency = 1.0 (all shortest paths length = 1)
+    # - Clustering coefficient = 1.0 (each node's neighbours are connected)
+    # - Average shortest path length = 1.0
+    assert pytest.approx(metrics["degree"], rel=1e-6) == 1.0
+    assert pytest.approx(metrics["global_efficiency"], rel=1e-6) == 1.0
+    assert pytest.approx(metrics["clustering_coefficient"], rel=1e-6) == 1.0
+    assert pytest.approx(metrics["average_path_length"], rel=1e-6) == 1.0

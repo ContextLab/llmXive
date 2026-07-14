@@ -1,297 +1,209 @@
+"""Download OpenNeuro ds000246, filter participants, and write outputs.
+
+This script performs the following steps:
+1. Download the participants.tsv file from OpenNeuro (if not already cached).
+2. Parse the TSV and identify subjects that have non‑null MMSE and MOCA scores
+   at *both* timepoints (i.e., at least two sessions with both scores present).
+3. Limit the eligible set to N = min(100, number of eligible subjects).
+4. Write `data/processed/eligible_subjects.csv` containing the selected subject IDs.
+5. Write `data/processed/excluded_subjects.log` documenting why each
+   non‑eligible subject was excluded.
+
+Exit codes:
+- 0 : success
+- 2 : no eligible subjects found
+- 3 : unrecoverable error during download / parsing
 """
-01_download_and_filter.py
-
-Download the OpenNeuro ds000246 dataset (or at least the participants.tsv file),
-filter subjects that have at least one cognitive score (MMSE or MOCA) present at
-both time‑points, limit to a maximum of 100 eligible subjects, and write the
-results to the processed data directory.
-
-The script is deliberately lightweight – it only downloads the small
-``participants.tsv`` file (≈ few KB) rather than the full imaging data.  All
-downstream steps (graph construction, modelling, …) rely on the subject list
-produced here.
-"""
-
 from __future__ import annotations
 
 import csv
 import sys
 import time
 from pathlib import Path
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
-import pandas as pd
 import requests
 
-# Local utilities ---------------------------------------------------------
-
-# ``utils.logger`` provides a tolerant logger that works with any call shape.
-# Importing it here ensures consistent logging across the pipeline.
 from utils.logger import get_logger
 
-# -------------------------------------------------------------------------
-
-# Constants ----------------------------------------------------------------
+# --------------------------------------------------------------------------- #
+# Configuration constants
+# --------------------------------------------------------------------------- #
 DATASET_ID = "ds000246"
+VERSION = "1.0.0"
 PARTICIPANTS_URL = (
-    "https://raw.githubusercontent.com/OpenNeuroDatasets/ds000246/master/participants.tsv"
+    f"https://openneuro.org/crn/datasets/{DATASET_ID}/versions/{VERSION}"
+    "/files/participants.tsv?download"
 )
-# Directory layout ---------------------------------------------------------
-RAW_DIR = Path("data") / "raw" / DATASET_ID
-PROCESSED_DIR = Path("data") / "processed"
+CACHE_DIR = Path("data/raw") / DATASET_ID
+PROCESSED_DIR = Path("data/processed")
 ELIGIBLE_CSV = PROCESSED_DIR / "eligible_subjects.csv"
 EXCLUDED_LOG = PROCESSED_DIR / "excluded_subjects.log"
+MAX_SUBJECTS = 100
+RETRY_COUNT = 3
+RETRY_DELAY = 5  # seconds
 
-# Logging ------------------------------------------------------------------
-logger = get_logger("download_and_filter")
+# --------------------------------------------------------------------------- #
+# Helper functions
+# --------------------------------------------------------------------------- #
 
-# Helper functions ---------------------------------------------------------
 
-def ensure_dir(p: Path) -> None:
-    """Create ``p`` and all parents if they do not exist."""
-    p.mkdir(parents=True, exist_ok=True)
-
-def download_file(url: str, dest: Path, retries: int = 3, backoff: float = 2.0) -> None:
-    """
-    Download ``url`` to ``dest`` with simple exponential back‑off.
+def download_file(url: str, dest: Path) -> None:
+    """Download a file with simple retry logic.
 
     Parameters
     ----------
     url: str
-        Remote file URL.
+        URL to download.
     dest: Path
-        Destination path (including filename).
-    retries: int
-        Number of retry attempts.
-    backoff: float
-        Multiplier for sleep time between retries.
+        Destination path on local disk (parents are created automatically).
     """
-    ensure_dir(dest.parent)
-    for attempt in range(1, retries + 1):
+    logger = get_logger("download_file")
+    logger.info("Downloading %s to %s", url, dest)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+
+    for attempt in range(1, RETRY_COUNT + 1):
         try:
-            logger.info(f"Attempt {attempt}: downloading {url}")
             with requests.get(url, stream=True, timeout=30) as r:
                 r.raise_for_status()
                 with open(dest, "wb") as f:
                     for chunk in r.iter_content(chunk_size=8192):
                         if chunk:
                             f.write(chunk)
-            logger.info(f"Successfully downloaded to {dest}")
+            logger.info("Download succeeded on attempt %s", attempt)
             return
-        except Exception as e:
-            logger.warning(f"Download attempt {attempt} failed: {e}")
-            if attempt == retries:
-                logger.error(f"All {retries} attempts failed – aborting.")
+        except Exception as exc:  # pragma: no cover – network failures are rare in tests
+            logger.warning("Attempt %s failed: %s", attempt, exc)
+            if attempt < RETRY_COUNT:
+                time.sleep(RETRY_DELAY)
+            else:
+                logger.error("All download attempts failed.")
                 raise
-            sleep_time = backoff ** attempt
-            logger.info(f"Sleeping {sleep_time:.1f}s before retry.")
-            time.sleep(sleep_time)
 
-def read_participants_tsv(path: Path) -> pd.DataFrame:
+
+def read_participants_tsv(path: Path) -> List[Dict[str, str]]:
+    """Read participants.tsv and return a list of dict rows."""
+    logger = get_logger("read_participants_tsv")
+    logger.info("Reading participants TSV from %s", path)
+    with open(path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f, delimiter="\t")
+        rows = [row for row in reader]
+    logger.info("Read %d rows from participants.tsv", len(rows))
+    return rows
+
+
+def _has_valid_scores(row: Dict[str, str]) -> bool:
+    """Return True if both MMSE and MOCA columns are non‑empty."""
+    mmse = row.get("mmse", "").strip()
+    moca = row.get("moca", "").strip()
+    return bool(mmse) and bool(moca)
+
+
+def filter_eligible_subjects(
+    rows: List[Dict[str, str]]
+) -> Tuple[List[str], Dict[str, str]]:
     """
-    Load the participants.tsv file into a DataFrame.
+    Identify subjects with non‑null MMSE and MOCA at *both* timepoints.
 
     Returns
     -------
-    pd.DataFrame
-        DataFrame with at least a ``participant_id`` column and any
-        cognitive score columns (e.g. ``mmse_baseline``).
+    eligible: list of participant IDs
+    excluded: dict mapping participant ID -> reason string
     """
-    logger.info(f"Reading participants file from {path}")
-    try:
-        df = pd.read_csv(path, sep="\t", dtype=str)  # keep everything as strings
-    except Exception as e:
-        logger.error(f"Failed to read participants.tsv: {e}")
-        raise
-    return df
-
-def _score_present(row: pd.Series, prefix: str) -> bool:
-    """
-    Helper: does a row contain a non‑null MMSE or MOCA score for the given
-    ``prefix`` (e.g. ``baseline`` or ``followup``)?
-
-    The dataset uses a variety of column naming conventions; we check a
-    handful of common patterns.
-    """
-    mmse_col = f"mmse_{prefix}"
-    moca_col = f"moca_{prefix}"
-    # Some datasets use ``mmse``/``moca`` without a suffix – fall back to that.
-    mmse_alt = "mmse" if prefix == "baseline" else None
-    moca_alt = "moca" if prefix == "baseline" else None
-
-    def non_null(col: str | None) -> bool:
-        if col is None or col not in row:
-            return False
-        val = row[col]
-        return pd.notna(val) and str(val).strip() != ""
-
-    return any(
-        [
-            non_null(mmse_col),
-            non_null(moca_col),
-            non_null(mmse_alt),
-            non_null(moca_alt),
-        ]
-    )
-
-def filter_eligible_subjects(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Tuple[str, str]]]:
-    """
-    Keep subjects that have at least one cognitive score (MMSE or MOCA)
-    present at *both* time‑points.
-
-    Returns
-    -------
-    eligible_df : pd.DataFrame
-        Subset of ``df`` that passed the filter.
-    excluded : list of (subject_id, reason)
-        Records for subjects that were filtered out.
-    """
+    logger = get_logger("filter_eligible_subjects")
     logger.info("Filtering eligible subjects")
-    eligible_rows = []
-    excluded = []
+    # Group rows by participant_id
+    groups: Dict[str, List[Dict[str, str]]] = {}
+    for row in rows:
+        pid = row.get("participant_id") or row.get("subject_id") or row.get("participant")
+        if not pid:
+            continue
+        groups.setdefault(pid, []).append(row)
 
-    # The participant identifier column in BIDS is usually ``participant_id``.
-    id_col = "participant_id"
-    if id_col not in df.columns:
-        # Some datasets use ``sub`` or ``subject_id`` – try a fallback.
-        for cand in ("sub", "subject_id"):
-            if cand in df.columns:
-                id_col = cand
-                break
+    eligible: List[str] = []
+    excluded: Dict[str, str] = {}
+
+    for pid, sessions in groups.items():
+        # Count sessions with both scores present
+        valid_sessions = [s for s in sessions if _has_valid_scores(s)]
+        if len(valid_sessions) >= 2:
+            eligible.append(pid)
         else:
-            logger.error("No participant identifier column found.")
-            raise KeyError("participant identifier column missing")
+            reason = (
+                f"Only {len(valid_sessions)} session(s) with complete MMSE/MOCA"
+            )
+            excluded[pid] = reason
+    logger.info(
+        "Found %d eligible subjects, %d excluded subjects",
+        len(eligible),
+        len(excluded),
+    )
+    return eligible, excluded
 
-    for _, row in df.iterrows():
-        subj = row[id_col]
-        has_baseline = _score_present(row, "baseline")
-        has_followup = _score_present(row, "followup")
-        if has_baseline and has_followup:
-            eligible_rows.append(row)
-        else:
-            missing = []
-            if not has_baseline:
-                missing.append("baseline")
-            if not has_followup:
-                missing.append("followup")
-            reason = f"missing scores at {' & '.join(missing)}"
-            excluded.append((subj, reason))
 
-    eligible_df = pd.DataFrame(eligible_rows)
-    logger.info(f"Found {len(eligible_df)} eligible subjects, {len(excluded)} excluded")
-    return eligible_df, excluded
+def limit_subjects(eligible: List[str], max_n: int = MAX_SUBJECTS) -> List[str]:
+    """Return at most `max_n` subject IDs, preserving order."""
+    logger = get_logger("limit_subjects")
+    limited = eligible[:max_n]
+    logger.info("Limiting subjects to %d (requested max %d)", len(limited), max_n)
+    return limited
 
-def limit_subjects(df: pd.DataFrame, max_n: int = 100) -> pd.DataFrame:
-    """
-    Randomly select up to ``max_n`` rows from ``df`` while preserving the order
-    for reproducibility (seed = 42).
-    """
-    if len(df) <= max_n:
-        return df
-    df_shuffled = df.sample(n=max_n, random_state=42).reset_index(drop=True)
-    logger.info(f"Limiting subjects to {max_n} (random seed 42)")
-    return df_shuffled
 
 def write_outputs(
-    eligible_df: pd.DataFrame,
-    excluded: List[Tuple[str, str]],
+    eligible: List[str],
+    excluded: Dict[str, str],
     eligible_path: Path = ELIGIBLE_CSV,
     excluded_path: Path = EXCLUDED_LOG,
 ) -> None:
-    """
-    Persist the filtered subject list and the exclusion log.
+    """Write CSV of eligible IDs and a log of excluded IDs."""
+    logger = get_logger("write_outputs")
+    logger.info("Writing eligible subjects to %s", eligible_path)
+    eligible_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(eligible_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["participant_id"])
+        for pid in eligible:
+            writer.writerow([pid])
 
-    Parameters
-    ----------
-    eligible_df : pd.DataFrame
-        DataFrame containing at least the participant identifier column.
-    excluded : list of (subject_id, reason)
-        Records of subjects that were filtered out.
-    """
-    logger.info(f"Writing eligible subjects to {eligible_path}")
-    ensure_dir(eligible_path.parent)
+    logger.info("Writing excluded subjects log to %s", excluded_path)
+    with open(excluded_path, "w", encoding="utf-8") as f:
+        for pid, reason in excluded.items():
+            f.write(f"{pid}: {reason}\\n")
 
-    # Ensure the identifier column is present – rename to ``subject_id`` for downstream consistency.
-    id_col = "participant_id"
-    if id_col not in eligible_df.columns:
-        # try to locate the identifier column used earlier
-        for cand in ("sub", "subject_id"):
-            if cand in eligible_df.columns:
-                id_col = cand
-                break
-    eligible_df = eligible_df[[id_col]].rename(columns={id_col: "subject_id"})
-    eligible_df.to_csv(eligible_path, index=False)
 
-    logger.info(f"Writing exclusion log to {excluded_path}")
-    ensure_dir(excluded_path.parent)
-    with open(excluded_path, "w", newline="") as f:
-        writer = csv.writer(f, delimiter="\t")
-        writer.writerow(["subject_id", "reason"])
-        for subj, reason in excluded:
-            writer.writerow([subj, reason])
-
-# -------------------------------------------------------------------------
-
-def main(argv: List[str] | None = None) -> int:
-    """
-    Entry point for the script.
-
-    Returns
-    -------
-    int
-        Exit code – ``0`` on success, ``2`` if no eligible subjects were found.
-    """
-    if argv is None:
-        argv = sys.argv[1:]
-
-    # -----------------------------------------------------------------
-    # 1. Download participants.tsv (or use a cached copy)
-    # -----------------------------------------------------------------
-    participants_path = RAW_DIR / "participants.tsv"
-    if not participants_path.is_file():
-        try:
+def main() -> int:
+    """Entry point for the script."""
+    logger = get_logger("01_download_and_filter")
+    try:
+        # Step 1: download participants.tsv (cached)
+        participants_path = CACHE_DIR / "participants.tsv"
+        if not participants_path.is_file():
             download_file(PARTICIPANTS_URL, participants_path)
-        except Exception as e:
-            logger.error(f"Failed to download participants.tsv: {e}")
-            return 1
+        else:
+            logger.info("Using cached participants.tsv at %s", participants_path)
 
-    # -----------------------------------------------------------------
-    # 2. Load the TSV
-    # -----------------------------------------------------------------
-    try:
-        df = read_participants_tsv(participants_path)
-    except Exception:
-        return 1
+        # Step 2: read TSV
+        rows = read_participants_tsv(participants_path)
 
-    # -----------------------------------------------------------------
-    # 3. Filter eligible subjects
-    # -----------------------------------------------------------------
-    try:
-        eligible_df, excluded = filter_eligible_subjects(df)
-    except Exception:
-        return 1
+        # Step 3: filter eligible subjects
+        eligible, excluded = filter_eligible_subjects(rows)
 
-    if eligible_df.empty:
-        logger.error("No eligible subjects found – exiting with code 2.")
-        return 2  # EXIT_CODE_NO_LABELS per spec
+        if not eligible:
+            logger.error("No eligible subjects found – exiting with code 2")
+            return 2  # EXIT_CODE_NO_LABELS as per spec
 
-    # -----------------------------------------------------------------
-    # 4. Limit to N = min(100, available)
-    # -----------------------------------------------------------------
-    limited_df = limit_subjects(eligible_df, max_n=100)
+        # Step 4: limit to N
+        limited = limit_subjects(eligible, MAX_SUBJECTS)
 
-    # -----------------------------------------------------------------
-    # 5. Write outputs
-    # -----------------------------------------------------------------
-    try:
-        write_outputs(limited_df, excluded)
-    except Exception as e:
-        logger.error(f"Failed to write output files: {e}")
-        return 1
+        # Step 5: write outputs
+        write_outputs(limited, excluded)
 
-    logger.info("Download and filtering completed successfully.")
-    return 0
+        logger.info("Download and filter completed successfully.")
+        return 0
+    except Exception as exc:  # pragma: no cover – unexpected errors
+        logger.error("Unexpected error in 01_download_and_filter: %s", exc)
+        return 3  # generic failure
 
-# -------------------------------------------------------------------------
+
 if __name__ == "__main__":
     sys.exit(main())

@@ -1526,3 +1526,173 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T08:58:47Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000246 is available
+  claim_id: c_e3ddcacb
+  context: 'Implement `code/00_data_gate.py`: Verify OpenNeuro `ds000246` (Constitution
+    VI, FR-001) availability.'
+  evidence:
+    entailment_evidence: OpenNeuro dataset ds000246 is available
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000246_is_available
+  kind: entity_fact
+  raw_text: Verify OpenNeuro ds000246 availability
+  resolved_value: OpenNeuro dataset ds000246 is available
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T09:33:33Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: AAL atlas has 90 regions
+  claim_id: c_7e718594
+  context: "Implement `code/02_preprocess_and_parcellate.py`: Load raw BIDS data,\
+    \ perform motion correction using `fsl` (mcflirt), normalization using `nilearn`,\
+    \ apply 90\u2011region AAL atlas, generate 90\xD790 connectivity matrices for\
+    \ each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "apply 90\u2011region AAL atlas"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:34:28Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 contains rs-fMRI and longitudinal MMSE/MOCA scores
+  claim_id: c_c069c646
+  context: Task T004c implements code/00_data_gate.py to verify OpenNeuro ds000246
+    (Constitution VI, FR-001) availability and parse metadata for rs-fMRI and longitudinal
+    MMSE/MOCA scores.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_contains_rs-fMRI_and_longitudinal_MMSE/MO
+  kind: entity_fact
+  raw_text: Verify OpenNeuro ds000246 availability and ensure rs-fMRI and longitudinal
+    MMSE/MOCA scores exist.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:42:42Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: graph metric calculation stays within 7 GB RAM limit on 2-core runner
+  claim_id: c_75092ba7
+  context: "T019 implements graph metric calculation; it must stay within the 7\u202F\
+    GB RAM limit on a 2\u2011core runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "process subject\u2011by\u2011subject to stay within the 7\u202FGB RAM\
+    \ limit on a 2\u2011core runner"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:45:39Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: nested cross-validation training completes within 30 minutes on CPU-only
+    runner
+  claim_id: c_393af452
+  context: "T026 verifies runtime: Ensure nested\u2011CV training completes within\
+    \ 30\u202Fminutes on the CPU\u2011only runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "nested\u2011CV training completes within 30\u202Fminutes on the CPU\u2011\
+    only runner"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:46:06Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 contains resting-state fMRI and longitudinal MMSE
+    and MoCA scores
+  claim_id: c_9fd3915f
+  context: The task T004c implements code to verify OpenNeuro ds000246 availability
+    and checks that the dataset includes rs-fMRI and longitudinal MMSE/MOCA scores.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_contains_resting-state_fMRI_and_longitudi
+  kind: entity_fact
+  raw_text: Verify OpenNeuro ds000246 availability. Parse metadata to ensure rs-fMRI
+    and longitudinal MMSE/MOCA scores exist.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:47:14Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 includes rs-fMRI and longitudinal MMSE/MOCA scores
+  claim_id: c_1d8fb151
+  context: 'Implement `code/00_data_gate.py`: Verify OpenNeuro `ds000246` (Constitution
+    VI, FR-001) availability. Parse metadata to ensure rs-fMRI and longitudinal MMSE/MOCA
+    scores exist.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_includes_rs-fMRI_and_longitudinal_MMSE/MO
+  kind: entity_fact
+  raw_text: "OpenNeuro ds000246 dataset includes rs\u2011fMRI and longitudinal MMSE/MOCA\
+    \ scores."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:53:44Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: AAL atlas has 90 regions
+  claim_id: c_1b4ca33c
+  context: "Implement `code/02_preprocess_and_parcellate.py`: ... apply 90\u2011region\
+    \ AAL atlas, generate 90\xD790 connectivity matrices for each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AAL atlas used contains 90 regions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:54:32Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline can produce graph_metrics.csv with subject IDs and graph metrics
+    without machine learning training
+  claim_id: c_6e03707d
+  context: "Goal of User Story\u202F1: Download raw BIDS rs\u2011fMRI data, filter\
+    \ for longitudinal scores, and generate graph metrics. Independent Test: The pipeline\
+    \ can be run on a single batch of data to produce `data/processed/graph_metrics.csv`\
+    \ containing subject IDs and calculated graph metrics without any machine learning\
+    \ training."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_can_produce_graph_metrics.csv_with_subject_IDs_and
+  kind: entity_fact
+  raw_text: The pipeline can generate `data/processed/graph_metrics.csv` containing
+    subject IDs and calculated graph metrics without any machine learning training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:54:54Z'

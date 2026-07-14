@@ -10,44 +10,46 @@ from typing import Any
 
 @dataclass
 class LogEntry:
-    """A single log entry capturing the operation name, its parameters and a timestamp."""
+    """A single log entry describing an operation."""
+
     operation: str = ""
     parameters: dict = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
     def to_json(self) -> str:
-        """Serialize the log entry to a JSON string."""
+        """Serialise the entry as JSON."""
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 
 class ReproducibilityLogger:
     """A logger that tolerates any call shape and never raises.
 
-    It records log entries internally and provides no‑op methods for the
-    usual logging levels (info, debug, warning, error, critical, etc.).
+    It deliberately does **not** delegate to the stdlib ``logging`` module,
+    because that API is strict about argument types (e.g. ``log(level,
+    msg)`` expects an integer level).  All methods simply accept ``*args``
+    and ``**kwargs`` and either record a ``LogEntry`` (for ``log``) or act
+    as a no‑op (for ``info``, ``debug``, ``warning``, etc.).
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # Accept any positional or keyword arguments without error.
-        # The first positional argument is often a name; otherwise use a default.
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list[LogEntry] = []
 
     def log(self, *args: Any, **kwargs: Any) -> LogEntry:
-        """Record a log entry.
+        """Record a generic log entry.
 
-        The first positional argument (or the ``operation`` keyword) is taken as the
-        operation name. All other arguments are stored as parameters.
+        The first positional argument (if any) is interpreted as the operation
+        name; any keyword arguments become the ``parameters`` mapping.
         """
-        op = args[0] if args else kwargs.pop("operation", "")
+        op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
         return entry
 
-    # Provide tolerant no‑op implementations for common logging methods.
+    # Any standard logging method (info, debug, warning, error, critical, etc.)
+    # simply returns a no‑op function that discards its arguments.
     def __getattr__(self, name: str):
         def _noop(*args: Any, **kwargs: Any) -> None:
-            # No operation performed; return None to stay silent.
             return None
         return _noop
 
@@ -56,10 +58,11 @@ _GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
 def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
-    """Return a singleton logger instance.
+    """Return a singleton ``ReproducibilityLogger``.
 
-    Accepts any arguments to stay compatible with all existing call sites.
-    The first call creates the logger; subsequent calls return the same instance.
+    The first positional argument or the ``name`` keyword is used as the
+    logger's identifier.  Subsequent calls return the same instance,
+    regardless of the arguments supplied.
     """
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
@@ -68,14 +71,13 @@ def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
 
 
 def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual‑purpose helper: can be used as a decorator or a direct logging call.
+    """Dual‑purpose helper that works as a decorator *or* a direct logger.
 
-    - As a decorator: ``@log_operation`` wraps a function without altering its
-      signature.
-    - As a direct call: ``log_operation('my_op', param1=val)`` records a log
-      entry and returns the ``LogEntry`` instance.
+    - As a decorator: ``@log_operation`` wraps a function and returns it
+      unchanged.
+    - As a direct call: ``log_operation('my_op', key=value)`` records a
+      ``LogEntry`` via the global logger and returns that entry.
     """
-    # Decorator usage
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
 
@@ -85,6 +87,5 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
         return _wrapper
 
-    # Direct‑call usage
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)

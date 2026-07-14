@@ -1,20 +1,20 @@
 {
   "project_id": "PROJ-029-predicting-cognitive-decline-from-restin",
   "ok": false,
-  "reason": "7 command(s) failed: python code/01_download_and_filter.py (rc=2); python code/03_compute_graph_metrics.py (rc=1); python code/04_train_model.py (rc=1); 3 declared deliverable(s) absent: data/processed/graph_metrics.csv; data/processed/performance_report.json; data/processed/permutation_results.json",
+  "reason": "6 command(s) failed: python code/01_download_and_filter.py (rc=3); python code/04_train_model.py (rc=2); python code/05_evaluate_model.py (rc=1); 4 declared deliverable(s) absent: data/processed/eligible_subjects.csv; data/processed/performance_report.json; data/processed/permutation_results.json",
   "artifacts": [
-    "data/raw/ds000246/participants.tsv"
+    "data/processed/graph_metrics.csv",
+    "data/raw/participants.tsv"
   ],
   "failures": [
-    "python code/01_download_and_filter.py -> rc=2\n    ",
-    "python code/03_compute_graph_metrics.py -> rc=1\n    ",
-    "python code/04_train_model.py -> rc=1\n    ",
-    "python code/05_evaluate_model.py -> rc=2\n    ",
+    "python code/01_download_and_filter.py -> rc=3\n    ",
+    "python code/04_train_model.py -> rc=2\n    ",
+    "python code/05_evaluate_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py\", line 176, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py\", line 172, in main\n    evaluate_model()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py\", line 121, in evaluate_model\n   ",
     "python code/06_permutation_test.py -> rc=1\n    ",
-    "python code/07_sensitivity_analysis.py -> rc=1\n    ",
-    "python code/08_collinearity_check.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/08_collinearity_check.py\", line 14, in <module>\n    from utils.io import load_csv, save_csv, ensure_dir\nImportError: cannot import name 'save_csv' from 'utils.io' (/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/io.py)"
+    "python code/07_sensitivity_analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py\", line 246, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py\", line 217, in main\n    X, _ = load_features()\n           ^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py\", line",
+    "python code/08_collinearity_check.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/08_collinearity_check.py\", line 15, in <module>\n    from config import get_config\nImportError: cannot import name 'get_config' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/config.py)"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 1,
-  "updated_at": "2026-07-14T08:55:50Z"
+  "updated_at": "2026-07-14T09:40:04Z"
 }

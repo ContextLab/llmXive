@@ -1,0 +1,6 @@
+# Project‑wide configuration
+#
+# ``random_seed`` – ensures reproducibility across runs.
+# ``runtime_limit_seconds`` – hard stop for the entire pipeline (default 6 h).
+random_seed: 42
+runtime_limit_seconds: 21600
