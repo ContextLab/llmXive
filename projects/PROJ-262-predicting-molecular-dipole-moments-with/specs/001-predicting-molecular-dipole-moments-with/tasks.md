@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure per FR‑030 Constitution requirements for reproducibility and versioning discipline
 
 - [X] T001 Create project structure with exact directories: `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/`, `tests/`, `data/raw/`, `data/processed/`, `data/checkpoints/`, `data/reports/`, `results/`, `state/`, `specs/` in `projects/PROJ-262-predicting-molecular-dipole-moments-with/`
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/requirements.txt`
+- [X] T002 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_c87a25fb — status=not_enough_info] with `requirements.txt` in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/requirements.txt`
 - [X] T003 [P] Configure linting and formatting tools (black, flake, isort) in `.pre-commit-config.yaml`
 
 ---
@@ -64,7 +64,7 @@ The method is: We will implement and evaluate a graph neural network model train
 
 ## Phase 3: User Story 1 - Dataset Preparation and Baseline Feature Extraction (Priority: P1) 🎯 MVP
 
-**Goal**: Download QM9 dataset [UNRESOLVED-CLAIM: c_e2de0e8d — status=not_enough_info], filter to a 10 k random subset, extract both 3D coordinates and 2D descriptors for baseline comparison
+**Goal**: Download QM9 dataset, filter to a 10 k random subset, extract both 3D coordinates and 2D descriptors for baseline comparison
 
 **Independent Test**: Verify data files exist, subset size equals 10 k, and both 3D and 2D feature matrices are generated with no missing values
 
@@ -109,8 +109,8 @@ The method is: We will implement and evaluate a graph neural network model train
 
 - [X] T026 [P] [US2] Implement SchNet‑style GNN architecture in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/schnet_gnn.py` (FR‑004, CPU‑only)
 - [X] T027 [P] [US2] Implement Random Forest baseline in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/random_forest_baseline.py` (FR‑005)
-- [ ] T028 [US2] Implement GNN training with 5 seeds, 50 epochs, early stopping (patience = 10) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py` – compute variance of RMSE across seeds and ensure it is recorded (fulfills SC‑005). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T029 [US2] Train Random Forest baseline with 5 seeds [UNRESOLVED-CLAIM: c_eb5d7cd2 — status=not_enough_info] in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py` – also records RMSE variance. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T028 [US2] Implement GNN training with 5 seeds, 50 epochs, early stopping (patience = 10) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py` – compute variance of RMSE across seeds and ensure it is recorded (fulfills SC‑005). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T029 [US2] Train Random Forest baseline with 5 seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py` – also records RMSE variance. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/split_data.py`
 - [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/evaluate.py` (FR‑006)
 - [X] T032 [US2] Compute MAE/RMSE against QM9 dipole‑moment reference values on the held‑out test split (fulfills FR‑011 without external data).
