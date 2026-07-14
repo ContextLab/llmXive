@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-284-investigating-the-relationship-between-b",
   "ok": false,
-  "reason": "9 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/download.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u20265)) -> None:     \"\"\"     Generates a synthetic NIfTI file for validatio\u2026\u201d; code/data/download.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026et of subjects     using synthetic data to validate the pipeline\u2026\u201d; code/data/download.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026return False      # Use synthetic data for CI     temp_dir = te\u2026\u201d; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=1); python code/main.py --step analyze (rc=1); 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv",
+  "reason": "10 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/download.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u20265)) -> None:     \"\"\"     Generates a synthetic NIfTI file for validatio\u2026\u201d; code/data/download.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026et of subjects     using synthetic data to validate the pipeline\u2026\u201d; code/data/download.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026return False      # Use synthetic data for CI     temp_dir = te\u2026\u201d; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=1); python code/main.py --step analyze (rc=1); 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv",
   "artifacts": [],
   "failures": [
     "python code/main.py --step download_preprocess --subjects 50 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py\", line 10, in <module>\n    from code.data.download import main as download_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/download.py\", line 15, in <module>\n    from nilearn import datasets\nImportError: cannot import name 'datasets' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investig",
@@ -13,5 +13,5 @@
   "model_tier": 3,
   "total_attempts": 2,
   "replan_rounds": 0,
-  "updated_at": "2026-07-14T21:14:23Z"
+  "updated_at": "2026-07-14T22:03:37Z"
 }

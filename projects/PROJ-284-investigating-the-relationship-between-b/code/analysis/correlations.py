@@ -1,9 +1,3 @@
-"""
-Correlation Analysis Module.
-
-Handles correlation analysis between network metrics and sensorimotor performance,
-including PCA, FDR correction, and metric aggregation.
-"""
 from __future__ import annotations
 
 import os
@@ -12,328 +6,182 @@ from pathlib import Path
 from typing import Optional, Tuple, List, Dict, Any
 import numpy as np
 import pandas as pd
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
-from statsmodels.stats.multitest import multipletests
+from scipy import stats
 
-from code.logging_config import get_logger, log_operation
-from code.utils.memory_monitor import calculate_batch_size
+from code.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-# Constants
-DEFAULT_BATCH_SIZE = 100
-MEMORY_LIMIT_GB = 7.0
+def load_metrics_data(path: Path) -> pd.DataFrame:
+    """Loads metrics data from a CSV file."""
+    logger.log("load_metrics_data", path=str(path))
+    if not path.exists():
+        raise FileNotFoundError(f"Metrics file not found: {path}")
+    return pd.read_csv(path)
 
-def get_optimal_batch_size(memory_limit_gb: float = MEMORY_LIMIT_GB) -> int:
+def run_correlations_with_fd_covariate(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate optimal batch size based on memory constraints.
-
-    Args:
-        memory_limit_gb (float): Memory limit in GB.
-
-    Returns:
-        int: Optimal batch size.
+    Runs Spearman/Pearson correlation with Framewise Displacement (FD) as a covariate.
+    Returns a DataFrame of correlation results.
     """
-    # Simple heuristic: assume 1MB per subject for metric data
-    # In reality, this would be more complex
-    return calculate_batch_size(memory_limit_gb)
-
-def process_metrics_in_batches(
-    metrics_df: pd.DataFrame,
-    process_func: callable,
-    batch_size: Optional[int] = None
-) -> pd.DataFrame:
-    """
-    Process metrics in batches to respect memory constraints.
-
-    Args:
-        metrics_df (pd.DataFrame): Input metrics dataframe.
-        process_func (callable): Function to apply to each batch.
-        batch_size (int, optional): Batch size. If None, calculated automatically.
-
-    Returns:
-        pd.DataFrame: Processed metrics.
-    """
-    if batch_size is None:
-        batch_size = get_optimal_batch_size()
-
-    log_operation("process_metrics_in_batches", batch_size=batch_size)
-
+    logger.log("run_correlations_with_fd_covariate", shape=df.shape)
+    
     results = []
-    for i in range(0, len(metrics_df), batch_size):
-        batch = metrics_df.iloc[i:i+batch_size]
-        result = process_func(batch)
-        if result is not None:
-            results.append(result)
-
-    if results:
-        return pd.concat(results, ignore_index=True)
-    return metrics_df
-
-def load_metrics_data(input_path: str) -> pd.DataFrame:
-    """
-    Load metrics data from a CSV file.
-
-    Args:
-        input_path (str): Path to the input CSV file.
-
-    Returns:
-        pd.DataFrame: Loaded metrics data.
-    """
-    log_operation("load_metrics_data", input_path=input_path)
-
-    if not os.path.exists(input_path):
-        logger.error(f"Metrics file not found: {input_path}")
-        # Return empty dataframe if file doesn't exist
-        # In a real scenario, this might raise an exception
-        return pd.DataFrame()
-
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} records from {input_path}")
-    return df
-
-def run_correlations_with_fd_covariate(
-    metrics_df: pd.DataFrame,
-    target_col: str,
-    covariate_col: str = "MeanFD"
-) -> pd.DataFrame:
-    """
-    Run correlations with Framewise Displacement as a covariate.
-
-    Args:
-        metrics_df (pd.DataFrame): Metrics dataframe.
-        target_col (str): Target column for correlation.
-        covariate_col (str): Covariate column (default: MeanFD).
-
-    Returns:
-        pd.DataFrame: Correlation results.
-    """
-    log_operation("run_correlations_with_fd_covariate", target_col=target_col, covariate_col=covariate_col)
-
-    # Filter out rows with missing data
-    clean_df = metrics_df.dropna(subset=[target_col, covariate_col])
-
-    if len(clean_df) < 3:
-        logger.warning("Not enough data for correlation analysis.")
-        return pd.DataFrame()
-
-    # Calculate partial correlation (simplified)
-    # In a real implementation, this would use statsmodels or pingouin
-    results = []
-
-    for col in clean_df.columns:
-        if col in [target_col, covariate_col]:
+    metric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
+    
+    for col in metric_cols:
+        if col not in df.columns:
             continue
-
-        # Simple Pearson correlation as a placeholder
-        # In a real implementation, this would be a partial correlation
-        corr = clean_df[col].corr(clean_df[target_col])
-        p_val = 0.05  # Placeholder p-value
-
+        
+        # Partial correlation with FD
+        if 'fd' in df.columns:
+            # Simple partial correlation: correlate col with motor_score, controlling for fd
+            # We use scipy's partial correlation if available, or manual calculation
+            # For simplicity, we use partial correlation from pingouin if available, else manual
+            try:
+                from pingouin import partial_corr
+                res = partial_corr(data=df, x=col, y='motor_score', covar='fd')
+                r = res['r'].values[0]
+                p = res['p-val'].values[0]
+            except ImportError:
+                # Manual partial correlation
+                # Correlate col with motor_score
+                r1, p1 = stats.spearmanr(df[col], df['motor_score'])
+                # Correlate col with fd
+                r2, p2 = stats.spearmanr(df[col], df['fd'])
+                # Correlate motor_score with fd
+                r3, p3 = stats.spearmanr(df['motor_score'], df['fd'])
+                
+                # Partial correlation formula
+                if (1 - r2**2) * (1 - r3**2) == 0:
+                    r = 0.0
+                    p = 1.0
+                else:
+                    r = (r1 - r2 * r3) / np.sqrt((1 - r2**2) * (1 - r3**2))
+                    # Approximate p-value
+                    n = len(df)
+                    t_stat = r * np.sqrt((n - 3) / (1 - r**2))
+                    p = 2 * (1 - stats.t.cdf(abs(t_stat), n - 3))
+        else:
+            # No FD, just simple correlation
+            r, p = stats.spearmanr(df[col], df['motor_score'])
+        
         results.append({
-            "metric": col,
-            "correlation": corr,
-            "p_value": p_val,
-            "covariate": covariate_col
+            'metric_name': col,
+            'r': r,
+            'p': p,
+            'significant': p < 0.05
         })
-
+    
     return pd.DataFrame(results)
 
-def apply_fdr_correction(correlation_results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
+def apply_fdr_correction(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Apply Benjamini-Hochberg FDR correction to p-values.
-
-    Args:
-        correlation_results (pd.DataFrame): Correlation results with p-values.
-        alpha (float): Significance level.
-
-    Returns:
-        pd.DataFrame: Results with FDR-corrected q-values.
+    Applies Benjamini-Hochberg FDR correction to p-values.
     """
-    log_operation("apply_fdr_correction", alpha=alpha)
+    logger.log("apply_fdr_correction", shape=df.shape)
+    
+    p_vals = df['p'].values
+    n = len(p_vals)
+    sorted_indices = np.argsort(p_vals)
+    sorted_p_vals = p_vals[sorted_indices]
+    
+    fdr_p_vals = np.zeros(n)
+    for i, p in enumerate(sorted_p_vals):
+        fdr_p_vals[sorted_indices[i]] = min(p * n / (i + 1), 1.0)
+    
+    df['q'] = fdr_p_vals
+    df['significant_fdr'] = df['q'] < 0.05
+    
+    return df
 
-    if len(correlation_results) == 0:
-        return correlation_results
+def log_significant_correlations(df: pd.DataFrame):
+    """Logs significant correlations."""
+    logger.log("log_significant_correlations", count=len(df[df['significant_fdr']]))
+    for _, row in df.iterrows():
+        if row['significant_fdr']:
+            logger.log("significant_correlation", metric=row['metric_name'], r=row['r'], q=row['q'])
 
-    p_values = correlation_results["p_value"].values
-    reject, q_values, _, _ = multipletests(p_values, alpha=alpha, method="fdr_bh")
-
-    correlation_results["q_value"] = q_values
-    correlation_results["significant"] = reject
-
-    logger.info(f"Applied FDR correction: {sum(reject)} significant results at alpha={alpha}")
-    return correlation_results
-
-def log_significant_correlations(correlation_results: pd.DataFrame, output_path: str) -> None:
+def run_pca_on_metrics(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Log significant correlations to a file.
-
-    Args:
-        correlation_results (pd.DataFrame): Correlation results.
-        output_path (str): Output file path.
+    Runs PCA on the network metrics.
+    Returns loadings and factor scores.
     """
-    log_operation("log_significant_correlations", output_path=output_path)
+    logger.log("run_pca_on_metrics", shape=df.shape)
+    
+    from sklearn.decomposition import PCA
+    
+    metric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
+    available_cols = [c for c in metric_cols if c in df.columns]
+    
+    if not available_cols:
+        return np.array([]), np.array([])
+    
+    X = df[available_cols].fillna(0)
+    pca = PCA(n_components=2)
+    scores = pca.fit_transform(X)
+    loadings = pca.components_
+    
+    return loadings, scores
 
-    significant = correlation_results[correlation_results["significant"]]
-
-    if len(significant) > 0:
-        logger.info(f"Found {len(significant)} significant correlations.")
-        significant.to_csv(output_path, index=False)
-    else:
-        logger.info("No significant correlations found.")
-        # Create empty file
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        significant.to_csv(output_path, index=False)
-
-def run_pca_on_metrics(
-    metrics_df: pd.DataFrame,
-    metric_cols: List[str],
-    n_components: int = 2
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def generate_full_metrics(metrics_df: pd.DataFrame, pca_scores: np.ndarray, output_path: Path):
     """
-    Run PCA on network metrics.
-
-    Args:
-        metrics_df (pd.DataFrame): Metrics dataframe.
-        metric_cols (List[str]): Columns to use for PCA.
-        n_components (int): Number of PCA components.
-
-    Returns:
-        Tuple[pd.DataFrame, pd.DataFrame]: PCA loadings and factor scores.
+    Generates the full metrics CSV with PCA scores.
     """
-    log_operation("run_pca_on_metrics", n_components=n_components)
+    logger.log("generate_full_metrics", shape=metrics_df.shape)
+    
+    df_full = metrics_df.copy()
+    df_full['pca_factor_1'] = pca_scores[:, 0]
+    df_full['pca_factor_2'] = pca_scores[:, 1]
+    
+    df_full.to_csv(output_path / "full_metrics.csv", index=False)
+    logger.log("generate_full_metrics", status="completed", path=str(output_path))
 
-    # Filter out rows with missing data
-    clean_df = metrics_df.dropna(subset=metric_cols)
-
-    if len(clean_df) < n_components + 1:
-        logger.warning("Not enough data for PCA.")
-        return pd.DataFrame(), pd.DataFrame()
-
-    # Standardize data
-    scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(clean_df[metric_cols])
-
-    # Run PCA
-    pca = PCA(n_components=n_components)
-    pca.fit(scaled_data)
-
-    # Get loadings
-    loadings = pd.DataFrame(
-        pca.components_.T,
-        columns=[f"component_{i+1}" for i in range(n_components)],
-        index=metric_cols
-    )
-
-    # Get factor scores
-    factor_scores = pd.DataFrame(
-        pca.transform(scaled_data),
-        columns=[f"pca_factor_{i+1}" for i in range(n_components)],
-        index=clean_df.index
-    )
-
-    # Add subject_id to factor_scores if available
-    if "subject_id" in clean_df.columns:
-        factor_scores["subject_id"] = clean_df["subject_id"].values
-
-    logger.info(f"PCA completed: {n_components} components, {len(clean_df)} subjects")
-    return loadings, factor_scores
-
-def generate_full_metrics(
-    metrics_df: pd.DataFrame,
-    factor_scores: pd.DataFrame
-) -> pd.DataFrame:
-    """
-    Merge individual metric columns with PCA factor scores.
-
-    Args:
-        metrics_df (pd.DataFrame): Original metrics dataframe.
-        factor_scores (pd.DataFrame): PCA factor scores.
-
-    Returns:
-        pd.DataFrame: Full metrics dataframe with all data.
-    """
-    log_operation("generate_full_metrics")
-
-    # Reset index to merge on index
-    metrics_df_reset = metrics_df.reset_index(drop=True)
-    factor_scores_reset = factor_scores.reset_index(drop=True)
-
-    # Merge on index
-    full_metrics = pd.concat([metrics_df_reset, factor_scores_reset], axis=1)
-
-    logger.info(f"Generated full metrics dataframe with {len(full_metrics)} records")
-    return full_metrics
-
-def main() -> None:
+def main():
     """
     Main entry point for the correlations module.
 
     This function orchestrates the correlation analysis process, including
     loading data, running correlations, applying FDR correction, and generating outputs.
     """
-    log_operation("main")
-
-    # Load metrics data
-    metrics_path = "data/processed/aggregated_metrics.csv"
-    if not os.path.exists(metrics_path):
-        logger.warning(f"Metrics file not found: {metrics_path}")
-        # Create synthetic data for testing
-        logger.info("Creating synthetic metrics data for testing.")
-        metrics_df = pd.DataFrame({
-            "subject_id": [f"sub-{i}" for i in range(50)],
-            "modularity": np.random.rand(50) * 0.5 + 0.3,
-            "global_efficiency": np.random.rand(50) * 0.3 + 0.4,
-            "participation_coef": np.random.rand(50) * 0.2 + 0.1,
-            "within_module_degree": np.random.rand(50) * 0.3 + 0.2,
-            "MeanFD": np.random.rand(50) * 0.3 + 0.1,
-            "motor_score": np.random.rand(50) * 10 + 50
-        })
-        Path("data/processed").mkdir(parents=True, exist_ok=True)
-        metrics_df.to_csv(metrics_path, index=False)
-    else:
-        metrics_df = load_metrics_data(metrics_path)
-
-    if len(metrics_df) == 0:
-        logger.error("No metrics data available for analysis.")
+    logger.log("correlations_main", status="started")
+    
+    metrics_path = Path("data/processed/aggregated_metrics.csv")
+    if not metrics_path.exists():
+        logger.log("correlations_main", status="failed", error=f"Metrics file not found: {metrics_path}")
         return
-
-    # Run correlations with FD covariate
-    target_col = "motor_score"
-    correlation_results = run_correlations_with_fd_covariate(metrics_df, target_col)
-
-    if len(correlation_results) > 0:
-        # Apply FDR correction
-        correlation_results = apply_fdr_correction(correlation_results)
-
-        # Log significant correlations
-        correlation_output = "data/analysis/correlations.csv"
-        log_significant_correlations(correlation_results, correlation_output)
-
-    # Run PCA on metrics
-    metric_cols = ["modularity", "global_efficiency", "participation_coef", "within_module_degree"]
-    loadings, factor_scores = run_pca_on_metrics(metrics_df, metric_cols)
-
-    if len(loadings) > 0:
-        # Save PCA loadings
-        loadings_output = "data/analysis/pca_loadings.csv"
-        loadings.to_csv(loadings_output, index=False)
-        logger.info(f"Saved PCA loadings to {loadings_output}")
-
-        # Save factor scores
-        factor_scores_output = "data/analysis/factor_scores.csv"
-        factor_scores.to_csv(factor_scores_output, index=False)
-        logger.info(f"Saved factor scores to {factor_scores_output}")
-
-    # Generate full metrics
-    if len(factor_scores) > 0:
-        full_metrics = generate_full_metrics(metrics_df, factor_scores)
-        full_metrics_output = "data/analysis/full_metrics.csv"
-        full_metrics.to_csv(full_metrics_output, index=False)
-        logger.info(f"Saved full metrics to {full_metrics_output}")
-
-    logger.info("Correlation analysis complete.")
+    
+    df = load_metrics_data(metrics_path)
+    
+    # Run correlations
+    corr_df = run_correlations_with_fd_covariate(df)
+    
+    # Apply FDR
+    corr_df = apply_fdr_correction(corr_df)
+    
+    # Log results
+    log_significant_correlations(corr_df)
+    
+    # Save correlation results
+    corr_df.to_csv("data/analysis/correlations.csv", index=False)
+    
+    # Run PCA
+    loadings, scores = run_pca_on_metrics(df)
+    
+    # Save PCA results
+    if len(scores) > 0:
+        pca_df = pd.DataFrame(scores, columns=['pca_factor_1', 'pca_factor_2'])
+        pca_df.insert(0, 'subject_id', df['subject_id'])
+        pca_df.to_csv("data/analysis/factor_scores.csv", index=False)
+        
+        loadings_df = pd.DataFrame(loadings, columns=['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree'])
+        loadings_df.index = ['component_1', 'component_2']
+        loadings_df.to_csv("data/analysis/pca_loadings.csv")
+        
+        # Generate full metrics
+        generate_full_metrics(df, scores, Path("data/analysis"))
+    
+    logger.log("correlations_main", status="completed")
 
 if __name__ == "__main__":
     main()

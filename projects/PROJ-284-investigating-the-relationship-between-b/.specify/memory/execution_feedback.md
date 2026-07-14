@@ -19,7 +19,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 9 fabricated/simulated-result signal(s) — results are not real measurements: code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…5)) -> None:     """     Generates a synthetic NIfTI file for validatio…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…et of subjects     using synthetic data to validate the pipeline…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…return False      # Use synthetic data for CI     temp_dir = te…”; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=1); python code/main.py --step analyze (rc=1); 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv
+**Summary**: 10 fabricated/simulated-result signal(s) — results are not real measurements: code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…5)) -> None:     """     Generates a synthetic NIfTI file for validatio…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…et of subjects     using synthetic data to validate the pipeline…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…return False      # Use synthetic data for CI     temp_dir = te…”; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=1); python code/main.py --step analyze (rc=1); 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv
 
 ## Failing / missing run-book commands
 
@@ -94,7 +94,7 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 ### `generate_scatter_plot` — defined in `code/viz/scatter.py`; called 1 way(s):
 
-- code/viz/scatter.py: path = generate_scatter_plot(metric, df)
+- code/viz/scatter.py: plot_path = generate_scatter_plot(
 
 Make `generate_scatter_plot` in `code/viz/scatter.py` accept ALL of the above.
 
@@ -235,7 +235,7 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `data/analysis/correlations.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/analysis/correlations.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/analysis/correlations.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/viz/network.py`, `code/analysis/correlations.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/analysis/correlations.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
 Consumers waiting on it: `code/viz/network.py`, `code/viz/scatter.py`, `code/analysis/correlations.py`, `code/analysis/run_correlations.py`.
 
 ### `data/processed/aggregated_metrics.csv`

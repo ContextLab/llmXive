@@ -1,33 +1,49 @@
-"""
-Script to generate the full metrics file combining raw metrics and PCA scores.
-This ensures data/analysis/full_metrics.csv is produced.
-"""
 import os
 import sys
 import logging
 from pathlib import Path
 import pandas as pd
+
 from code.logging_config import get_logger
-from code.analysis.correlations import load_metrics_data, run_pca_on_metrics, generate_full_metrics
 
 logger = get_logger(__name__)
 
+def generate_full_metrics(metrics_path: Path, pca_scores_path: Path, output_path: Path):
+    """
+    Merges individual metrics with PCA factor scores into a single output DataFrame.
+    """
+    logger.log("generate_full_metrics", metrics=str(metrics_path), pca=str(pca_scores_path))
+    
+    if not metrics_path.exists():
+        logger.log("generate_full_metrics", status="failed", error=f"Metrics file not found: {metrics_path}")
+        return
+    if not pca_scores_path.exists():
+        logger.log("generate_full_metrics", status="failed", error=f"PCA scores file not found: {pca_scores_path}")
+        return
+    
+    df_metrics = pd.read_csv(metrics_path)
+    df_pca = pd.read_csv(pca_scores_path)
+    
+    # Merge on subject_id
+    df_full = pd.merge(df_metrics, df_pca, on='subject_id', how='left')
+    
+    # Save output
+    df_full.to_csv(output_path / "full_metrics.csv", index=False)
+    
+    logger.log("generate_full_metrics", status="completed", path=str(output_path))
+
 def main():
-    logger.log("generate_full_metrics", step="start")
-    try:
-        # Load base metrics
-        metrics_df = load_metrics_data()
-        
-        # Run PCA to get scores
-        _, scores_df = run_pca_on_metrics(metrics_df)
-        
-        # Generate the combined file
-        generate_full_metrics(scores_df, metrics_df)
-        
-        logger.log("generate_full_metrics", step="completed")
-    except Exception as e:
-        logger.log("generate_full_metrics", step="failed", error=str(e))
-        raise
+    """
+    Main entry point for full metrics generation.
+    """
+    logger.log("generate_full_metrics_main", status="started")
+    
+    metrics_path = Path("data/processed/aggregated_metrics.csv")
+    pca_scores_path = Path("data/analysis/factor_scores.csv")
+    output_path = Path("data/analysis")
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    generate_full_metrics(metrics_path, pca_scores_path, output_path)
 
 if __name__ == "__main__":
     main()
