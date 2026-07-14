@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "network-centrality-motor-consolidation"
+version = "0.1.0"
+description = "Investigating the Impact of Network Centrality on Motor Memory Consolidation"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "numpy",
+    "networkx",
+    "scikit-learn",
+    "statsmodels",
+    "nilearn",
+    "openneuro-cli",
+    "matplotlib",
+    "seaborn",
+    "psutil"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["data", "utils", "analysis", "setup_data_dirs"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

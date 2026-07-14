@@ -1,0 +1,443 @@
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Pipeline produces CSV with >= 50 subjects with no missing values
+  claim_id: c_883f9a47
+  context: "Independent Test for User Story 1: The pipeline produces a CSV with subject\
+    \ IDs, behavioral improvement scores, and pre-processed fMRI time-series for \u2265\
+    \ 50 subjects with no missing values."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline produces a CSV with subject IDs, behavioral improvement\
+    \ scores, and pre-processed fMRI time-series for \u2265 50 subjects with no missing\
+    \ values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:05:20Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Functional connectivity matrix extraction for AAL3 atlas with ~90 nodes
+  claim_id: c_eb2a5f72
+  context: 'Implementation for User Story 2: Implement functional connectivity matrix
+    extraction for **FULL AAL3 atlas (~90 nodes)** using `nilearn.connectome.ConnectivityMeasure`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement functional connectivity matrix extraction for FULL AAL3 atlas
+    (~90 nodes)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:06:15Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Centrality metric calculation for all regions with ~90 nodes
+  claim_id: c_080499f6
+  context: 'Implementation for User Story 2: Implement centrality metric calculation
+    (degree, betweenness, eigenvector) using NetworkX for **ALL regions (~90 nodes)**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement centrality metric calculation for ALL regions (~90 nodes)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:06:34Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Extract metrics for fixed regions AAL3 indices 1 to 10
+  claim_id: c_0f334493
+  context: 'Implementation for User Story 2: From `data/processed/centrality/subject_id_metrics.csv`,
+    extract metrics for **fixed regions (AAL3 indices 1-10)**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract metrics for fixed regions (AAL3 indices 1-10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:07:17Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Freedman-Lane permutation test with 1000 shuffles
+  claim_id: c_99e9faf2
+  context: 'Implementation for User Story 3: Implement Freedman-Lane permutation test
+    in `code/analysis/validation.py`. **Requirements**: Exactly **1000 shuffles**
+    of the **null residuals**...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Freedman-Lane permutation test with exactly 1000 shuffles
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:07:35Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Analysis script outputs regression summary, scatter plot, non-linearity
+    results, and regional p-values
+  claim_id: c_94f39225
+  context: 'Independent Test: The analysis script outputs a regression summary table,
+    scatter plot, non-linearity check results, and regional p-values (if triggered).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_script_outputs_regression_summary,_scatter_plot,_no
+  kind: entity_fact
+  raw_text: The analysis script outputs a regression summary table, scatter plot,
+    non-linearity check results, and regional p-values (if triggered).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:26:17Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Validation module produces null distribution histogram, empirical p-value,
+    and cross-validated R2 and RMSE
+  claim_id: c_d9c17347
+  context: "Independent Test: The validation module produces a null distribution histogram,\
+    \ empirical p-value, and cross-validated R\xB2/RMSE."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_module_produces_null_distribution_histogram,_empi
+  kind: entity_fact
+  raw_text: "The validation module produces a null distribution histogram, empirical\
+    \ p-value, and cross-validated R\xB2/RMSE."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:26:57Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Dataset ds000030 targeted for download
+  claim_id: c_27c37263
+  context: Implement dataset download script using openneuro-cli in code/data/download.py
+    targeting ds000030
+  evidence:
+    entailment_evidence: Dataset ds000030 targeted for download
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_ds000030_targeted_for_download
+  kind: entity_fact
+  raw_text: The dataset ds000030 is targeted for download.
+  resolved_value: Dataset ds000030 targeted for download
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T22:26:59Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Connectivity matrix extraction for full AAL3 atlas with approximately
+    90 nodes
+  claim_id: c_a61ee557
+  context: Implement functional connectivity matrix extraction for FULL AAL3 atlas
+    (~90 nodes) using nilearn.connectome.ConnectivityMeasure
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Functional connectivity matrix extraction is performed for a FULL AAL3
+    atlas (~90 nodes).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:28:02Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Centrality metric calculation for all approximately 90 regions
+  claim_id: c_61be10d0
+  context: Implement centrality metric calculation (degree, betweenness, eigenvector)
+    using NetworkX for ALL regions (~90 nodes).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Centrality metric calculation is performed for ALL regions (~90 nodes).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:28:20Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Metrics extracted for fixed regions AAL3 indices 1 to 10
+  claim_id: c_e670ecad
+  context: From data/processed/centrality/subject_id_metrics.csv, extract metrics
+    for fixed regions (AAL3 indices 1-10).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Metrics are extracted for fixed regions corresponding to AAL3 indices
+    1-10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:29:03Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Switch to PCA components if VIF exceeds 5
+  claim_id: c_bf277e1c
+  context: Implement VIF check on degree, betweenness, and eigenvector metrics; if
+    VIF > 5, switch to PCA components
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF check triggers a switch to PCA components if VIF > 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:29:03Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Regional analysis triggered if global model p-value exceeds 0.05
+  claim_id: c_85154c9f
+  context: 'IF global_model_p_value > 0.05 OR config.regional_analysis_flag == true:
+    Fit separate regression models for each of the ~90 regions'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Regional_analysis_triggered_if_global_model_p-value_exceeds
+  kind: magnitude
+  raw_text: Regional analysis is triggered if the global model p-value is greater
+    than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:29:39Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Freedman-Lane permutation test uses 1000 shuffles
+  claim_id: c_aa5b9935
+  context: 'Requirements: Exactly 1000 shuffles of the null residuals (from T023.5)
+    with a fixed random seed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Freedman-Lane permutation test uses exactly 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:29:54Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Implementation uses float32 and batch processing
+  claim_id: c_c7893cfa
+  context: Implement fMRIPrep preprocessing wrapper with memory-efficient settings
+    (float32, batch processing)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implementation_uses_float32_and_batch_processing
+  kind: entity_fact
+  raw_text: The implementation uses float32 and batch processing for memory efficiency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:30:34Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 2
+  canonical: Pipeline produces data for at least 50 subjects with no missing values
+  claim_id: c_9a7c2889
+  context: "Independent Test: The pipeline produces a CSV with subject IDs, behavioral\
+    \ improvement scores, and pre-processed fMRI time-series for \u2265 50 subjects\
+    \ with no missing values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_data_for_at_least_50_subjects_with_no_miss
+  kind: magnitude
+  raw_text: "The pipeline produces a CSV with subject IDs, behavioral improvement\
+    \ scores, and pre-processed fMRI time-series for \u2265 50 subjects with no missing\
+    \ values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:46:02Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Download OpenNeuro dataset ds000030
+  claim_id: c_918e6692
+  context: 'Phase 3: User Story 1 - Data Ingestion and Preprocessing (Priority: P1)
+    Goal: Download OpenNeuro ds000030...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_OpenNeuro_dataset_ds000030
+  kind: entity_fact
+  raw_text: Implement dataset download script using openneuro-cli in code/data/download.py
+    targeting ds000030
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:46:25Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Extract connectivity matrices for approximately 90 nodes using AAL3 atlas
+  claim_id: c_cc9275db
+  context: T019 [P] [US2] Implement functional connectivity matrix extraction for
+    **FULL AAL3 atlas (~90 nodes)** using `nilearn.connectome.ConnectivityMeasure`...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement functional connectivity matrix extraction for FULL AAL3 atlas
+    (~90 nodes) using nilearn.connectome.ConnectivityMeasure
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:47:24Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Calculate centrality metrics for approximately 90 regions using NetworkX
+  claim_id: c_a7b18ccc
+  context: T020 [US2] Implement centrality metric calculation (degree, betweenness,
+    eigenvector) using NetworkX for **ALL regions (~90 nodes)**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement centrality metric calculation (degree, betweenness, eigenvector)
+    using NetworkX for ALL regions (~90 nodes).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:47:45Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Extract and average centrality metrics for AAL3 indices 1 through 10
+  claim_id: c_d49e3abb
+  context: 'T020.5 [US2] **Extract Fixed Subset**: From `data/processed/centrality/subject_id_metrics.csv`,
+    extract metrics for **fixed regions (AAL3 indices 1-10)**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract metrics for fixed regions (AAL3 indices 1-10). Compute mean to
+    create 'global_centralty' column.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:48:35Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Switch to PCA components if Variance Inflation Factor exceeds 5
+  claim_id: c_3a4d276b
+  context: T022 [US2] Implement VIF check on degree, betweenness, and eigenvector
+    metrics; if VIF > 5, switch to PCA components...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if VIF > 5, switch to PCA components
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:48:35Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Perform exactly 1000 shuffles in Freedman-Lane permutation test
+  claim_id: c_a0513579
+  context: 'T030 [US3] Implement Freedman-Lane permutation test... **Requirements**:
+    Exactly **1000 shuffles** of the **null residuals** (from T023.5) with a **fixed
+    random seed**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exactly 1000 shuffles of the null residuals with a fixed random seed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:49:01Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Run regional regression for approximately 90 regions if global p-value
+    exceeds 0.05
+  claim_id: c_895164ed
+  context: 'T027.1 [US2] **Conditional Regional Analysis**: IF `global_model_p_value
+    > 0.05` OR `config.regional_analysis_flag == true`: Fit separate regression models
+    for each of the ~90 regions...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'IF global_model_p_value > 0.05 OR config.regional_analysis_flag == true:
+    Fit separate regression models for each of the ~90 regions'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:49:01Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Ensure at least 80% subject retention
+  claim_id: c_9e52464d
+  context: "T015 [US1] Add validation to ensure \u2265 80% subject retention and fail\
+    \ gracefully if behavioral data is missing"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_at_least_80%25_subject_retention
+  kind: magnitude
+  raw_text: "Add validation to ensure \u2265 80% subject retention and fail gracefully\
+    \ if behavioral data is missing"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:49:30Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Trigger warning if sample size is less than 85
+  claim_id: c_6086b79a
+  context: T014 [US1] Implement retention rate calculation and power check (N >= 85
+    warning) in `code/data/preprocess.py`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_warning_if_sample_size_is_less_than_85
+  kind: magnitude
+  raw_text: Implement retention rate calculation and power check (N >= 85 warning)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:50:25Z'

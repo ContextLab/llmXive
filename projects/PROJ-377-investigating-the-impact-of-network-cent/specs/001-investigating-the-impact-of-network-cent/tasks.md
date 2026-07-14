@@ -20,33 +20,33 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directory structure: `projects/PROJ-377-investigating-the-impact-of-network-cent/` with subdirs `code/`, `data/`, `tests/`, `state/`
-- [ ] T001b [P] Initialize git repository and create `.gitignore` for data and artifacts
-- [ ] T002 Initialize Python project with dependencies: `pandas`, `numpy`, `networkx`, `scikit-learn`, `statsmodels`, `nilearn`, `openneuro-cli`, `matplotlib`, `seaborn` in `code/requirements.txt`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T001a [P] Create project directory structure: `projects/PROJ-377-investigating-the-impact-of-network-cent/` with subdirs `code/`, `data/`, `tests/`, `state/`
+- [X] T001b [P] Initialize git repository and create `.gitignore` for data and artifacts
+- [X] T002 Initialize Python project with dependencies: `pandas`, `numpy`, `networkx`, `scikit-learn`, `statsmodels`, `nilearn`, `openneuro-cli`, `matplotlib`, `seaborn` in `code/requirements.txt`
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -58,11 +58,11 @@
 
 Examples of foundational tasks (adjust based on your plan.md):
 
-- [ ] T004 Setup data directory structure: `data/raw/`, `data/processed/`, `data/artifacts/`
-- [ ] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track wall_clock_time and RAM usage
-- [ ] T006 [P] Setup reproducibility reporting utility in `code/utils/metrics.py` to generate `reproducibility_report.json`
+- [X] T004 Setup data directory structure: `data/raw/`, `data/processed/`, `data/artifacts/`
+- [X] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track wall_clock_time and RAM usage
+- [X] T006 [P] Setup reproducibility reporting utility in `code/utils/metrics.py` to generate `reproducibility_report.json`
 - [ ] T007 Create base data models/entities in `code/__init__.py` and `code/data/` for Subject and ConnectivityMatrix
-- [ ] T008 Configure environment configuration management for dataset URLs and thresholds in `code/utils/config.py`
+- [X] T008 Configure environment configuration management for dataset URLs and thresholds in `code/utils/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,12 +83,12 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement dataset download script using `openneuro-cli` in `code/data/download.py` targeting ds000030
+- [X] T011 [P] [US1] Implement dataset download script using `openneuro-cli` in `code/data/download.py` targeting ds000030 <!-- FAILED: unspecified -->
 - [ ] T012 [P] [US1] Implement fMRIPrep preprocessing wrapper with memory-efficient settings (float32, batch processing) in `code/data/preprocess.py`
 - [ ] T013 [US1] Implement behavioral metric extraction (pre/post motor scores, age, sex) and subject exclusion logic in `code/data/preprocess.py`
-- [ ] T014 [US1] Implement retention rate calculation and power check (N >= 85 warning) in `code/data/preprocess.py`
-- [ ] T015 [US1] Add validation to ensure ≥ 80% subject retention and fail gracefully if behavioral data is missing
-- [ ] T016 [US1] Add logging for excluded subjects and reasons in `code/data/preprocess.py`
+- [~] T014 [US1] Implement retention rate calculation and power check (N >= 85 warning) in `code/data/preprocess.py`
+- [~] T015 [US1] Add validation to ensure ≥ 80% subject retention and fail gracefully if behavioral data is missing
+- [~] T016 [US1] Add logging for excluded subjects and reasons in `code/data/preprocess.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,19 +102,19 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Contract test for centrality metric calculation in `tests/contract/test_centrality.py`
-- [ ] T018 [P] [US2] Integration test for regression model fitting in `tests/integration/test_regression.py`
+- [~] T017 [P] [US2] Contract test for centrality metric calculation in `tests/contract/test_centrality.py`
+- [~] T018 [P] [US2] Integration test for regression model fitting in `tests/integration/test_regression.py`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement functional connectivity matrix extraction for **FULL AAL3 atlas (~90 nodes)** using `nilearn.connectome.ConnectivityMeasure` and save to `data/processed/connectivity/subject_id_matrix.npy` in `code/analysis/centrality.py`
-- [ ] T020 [US2] Implement centrality metric calculation (degree, betweenness, eigenvector) using NetworkX for **ALL regions (~90 nodes)**. Persist raw metrics to `data/processed/centrality/subject_id_metrics.csv` in `code/analysis/centrality.py`
+- [~] T019 [P] [US2] Implement functional connectivity matrix extraction for **FULL AAL3 atlas (~90 nodes)** using `nilearn.connectome.ConnectivityMeasure` and save to `data/processed/connectivity/subject_id_matrix.npy` in `code/analysis/centrality.py`
+- [~] T020 [US2] Implement centrality metric calculation (degree, betweenness, eigenvector) using NetworkX for **ALL regions (~90 nodes)**. Persist raw metrics to `data/processed/centrality/subject_id_metrics.csv` in `code/analysis/centrality.py`
 - [ ] T020.5 [US2] **Extract Fixed Subset**: From `data/processed/centrality/subject_id_metrics.csv`, extract metrics for **fixed regions (AAL3 indices 1-10)**. Compute mean to create 'global_centralty' column. Save to `data/processed/centrality/global_scores.csv` in `code/analysis/centrality.py`. (Aligns with Plan's bias-control strategy).
-- [ ] T021 [US2] Implement Mean Framewise Displacement (FD) calculation from fMRIPrep outputs (`data/processed/fmriprep/*/desc-confounds_timeseries.tsv`) and aggregate to mean per subject. Save to `data/processed/behavioral/fd_mean.csv` in `code/analysis/centrality.py`
-- [ ] T022 [US2] Implement VIF check on degree, betweenness, and eigenvector metrics; if VIF > 5, switch to PCA components; load raw metrics from `data/processed/centrality/subject_id_metrics.csv` in `code/analysis/centrality.py`. **Output**: `data/processed/centrality/model_predictors.csv` (contains either Global_Centrality or PCA_Component + Age + Sex + Mean_FD).
-- [ ] T023 [US2] Implement global centrality aggregation (mean of fixed subset 1-10) from validated metrics in `code/analysis/centrality.py`. (Note: This task is now largely superseded by T020.5 but kept for logic separation if T020.5 is refactored).
+- [~] T021 [US2] Implement Mean Framewise Displacement (FD) calculation from fMRIPrep outputs (`data/processed/fmriprep/*/desc-confounds_timeseries.tsv`) and aggregate to mean per subject. Save to `data/processed/behavioral/fd_mean.csv` in `code/analysis/centrality.py`
+- [~] T022 [US2] Implement VIF check on degree, betweenness, and eigenvector metrics; if VIF > 5, switch to PCA components; load raw metrics from `data/processed/centrality/subject_id_metrics.csv` in `code/analysis/centrality.py`. **Output**: `data/processed/centrality/model_predictors.csv` (contains either Global_Centrality or PCA_Component + Age + Sex + Mean_FD).
+- [~] T023 [US2] Implement global centrality aggregation (mean of fixed subset 1-10) from validated metrics in `code/analysis/centrality.py`. (Note: This task is now largely superseded by T020.5 but kept for logic separation if T020.5 is refactored). <!-- FAILED: unspecified -->
 - [ ] T023.5 [US2] **Null Model Generation**: Implement generation of the 'null model' (intercept-only: `Improvement ~ 1`) and calculate its residuals. Save residuals to `data/processed/validation/null_residuals.csv`. This artifact is required for T030.
-- [ ] T024 [US2] Implement Linear Regression model in `code/analysis/regression.py`. **Logic**: IF PCA used (from T022), formula is `Improvement ~ PCA_Component + Age + Sex + Mean_FD`; ELSE formula is `Improvement ~ Global_Centrality + Age + Sex + Mean_FD`. Save summary to `data/processed/regression/linear_model_summary.csv`.
+- [~] T024 [US2] Implement Linear Regression model in `code/analysis/regression.py`. **Logic**: IF PCA used (from T022), formula is `Improvement ~ PCA_Component + Age + Sex + Mean_FD`; ELSE formula is `Improvement ~ Global_Centrality + Age + Sex + Mean_FD`. Save summary to `data/processed/regression/linear_model_summary.csv`.
 - [ ] T025 [US2] Implement GAM/Polynomial non-linearity check and AIC/BIC comparison in `code/analysis/regression.py`. **Logic**: Use the SAME predictor set (PCA or Global) as determined in T022.
 - [ ] T026 [US2] Generate scatter plot with regression line and non-linearity fit in `code/analysis/regression.py`
 - [ ] T027.1 [US2] **Conditional Regional Analysis**: IF `global_model_p_value > 0.05` OR `config.regional_analysis_flag == true`: Fit separate regression models for each of the ~90 regions to generate regional p-values. Save to `data/processed/regression/regional_pvalues.csv`. ELSE: Skip and log "Regional analysis skipped per primary strategy". (Triggers fallback only if needed).
@@ -174,8 +174,8 @@ Examples of foundational tasks (adjust based on your plan.md):
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Reporting (Phase 6)**: Depends on all validation tasks (Phase 5) completion
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
@@ -242,9 +242,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

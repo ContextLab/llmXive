@@ -1,0 +1,10 @@
+pandas
+numpy
+networkx
+scikit-learn
+statsmodels
+nilearn
+openneuro-cli
+matplotlib
+seaborn
+psutil
