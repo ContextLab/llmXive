@@ -145,9 +145,9 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 3 (OPTIONAL)
 
-- [ ] T054 [P] [US3] Unit test for residual diagnostics JSON generation in `tests/unit/test_analysis.py`.
-- [ ] T055 [P] [US3] Unit test for FDR correction logic in `tests/unit/test_analysis.py`.
-- [ ] T056 [P] [US3] Integration test for end‑to‑end report generation in `tests/integration/test_analysis.py`.
+- [X] T054 [P] [US3] Unit test for residual diagnostics JSON generation in `tests/unit/test_analysis.py`.
+- [X] T055 [P] [US3] Unit test for FDR correction logic in `tests/unit/test_analysis.py`.
+- [X] T056 [P] [US3] Integration test for end‑to‑end report generation in `tests/integration/test_analysis.py`.
 
 **Checkpoint**: All user stories should now be independently functional and produce the required deliverables.
 
@@ -157,12 +157,12 @@ expected alphabetic or numeric character, but found '*'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T043 [P] Documentation updates in `docs/` and `README.md`: add installation instructions, usage examples, and data model diagram; create `docs/quickstart.md`.
-- [ ] T044 [P] Refactor `code/metrics.py` to reduce cyclomatic complexity to a lower, manageable level and ensure every public function has a comprehensive docstring.
-- [ ] T045 [P] Refactor `code/analysis.py` to enforce function length < 50 lines and add type hints throughout.
-- [~] T045 [P] Performance optimization: add memory profiling in `code/main.py` to ensure peak RAM < 4 GB (SC‑003).
-- [~] T046 [P] Run quickstart validation script to ensure end‑to‑end execution from a fresh clone.
-- [~] T047 [P] Verify runtime logging in `code/main.py` targets < 4 hours on a 2 vCPU runner (SC‑002).
+- [X] T043 [P] Documentation updates in `docs/` and `README.md`: add installation instructions, usage examples, and data model diagram; create `docs/quickstart.md`.
+- [X] T044 [P] Refactor `code/metrics.py` to reduce cyclomatic complexity to a lower, manageable level and ensure every public function has a comprehensive docstring.
+- [X] T045 [P] Refactor `code/analysis.py` to enforce function length < 50 lines and add type hints throughout.
+- [X] T045 [P] Performance optimization: add memory profiling in `code/main.py` to ensure peak RAM < 4 GB (SC‑003).
+- [ ] T046 [P] Run quickstart validation script to ensure end‑to‑end execution from a fresh clone.
+- [ ] T047 [P] Verify runtime logging in `code/main.py` targets < 4 hours on a 2 vCPU runner (SC‑002).
 
 ---
 

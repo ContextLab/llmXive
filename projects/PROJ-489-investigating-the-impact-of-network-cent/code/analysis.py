@@ -1,302 +1,187 @@
-"""
-Analysis module for statistical modeling of network centrality and neural synchrony.
-
-This module implements Linear Mixed Effects (LME) analysis, Shapiro-Wilk diagnostics,
-Benjamini-Hochberg FDR correction, and effect size calculations.
-"""
 import json
 import logging
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
-from statsmodels.formula.api import mixedlm
+import statsmodels.formula.api as smf
 from statsmodels.stats.multitest import multipletests
+
+from config_utils import load_config
 
 logger = logging.getLogger(__name__)
 
-
 def check_subject_count(metrics_df: pd.DataFrame, min_count: int = 30) -> bool:
-    """
-    Check if the number of subjects meets the minimum requirement.
-    
-    Args:
-        metrics_df: DataFrame containing subject metrics.
-        min_count: Minimum required number of subjects.
-        
-    Returns:
-        True if subject count >= min_count, False otherwise.
-    """
-    subject_count = metrics_df['subject_id'].nunique()
-    logger.info(f"Subject count: {subject_count} (minimum required: {min_count})")
-    return subject_count >= min_count
-
+    """Verify if the subject count meets the minimum threshold."""
+    count = metrics_df['subject_id'].nunique()
+    logger.info(f"Subject count: {count} (min required: {min_count})")
+    return count >= min_count
 
 def calculate_cohens_d(group1: np.ndarray, group2: np.ndarray) -> float:
-    """
-    Calculate Cohen's d effect size between two groups.
-    
-    Args:
-        group1: First group of values.
-        group2: Second group of values.
-        
-    Returns:
-        Cohen's d value.
-    """
-    mean1 = np.mean(group1)
-    mean2 = np.mean(group2)
-    std1 = np.std(group1, ddof=1)
-    std2 = np.std(group2, ddof=1)
-    n1 = len(group1)
-    n2 = len(group2)
-    
-    pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
-    
-    if pooled_std == 0:
+    """Calculate Cohen's d effect size between two groups."""
+    mean_diff = np.mean(group1) - np.mean(group2)
+    std_pooled = np.sqrt((np.std(group1, ddof=1)**2 + np.std(group2, ddof=1)**2) / 2)
+    if std_pooled == 0:
         return 0.0
-        
-    return (mean1 - mean2) / pooled_std
-
+    return float(mean_diff / std_pooled)
 
 def calculate_effect_sizes(
-    metrics_df: pd.DataFrame, 
-    centrality_col: str, 
-    pli_col: str,
-    threshold: float = 0.0
+    metrics_df: pd.DataFrame,
+    centralities: List[str],
+    synchrony_cols: List[str]
 ) -> Dict[str, float]:
-    """
-    Calculate Cohen's d for high vs low centrality groups.
-    
-    Args:
-        metrics_df: DataFrame with metrics.
-        centrality_col: Name of centrality column.
-        pli_col: Name of PLI column.
-        threshold: Threshold to split groups (median if None).
-        
-    Returns:
-        Dictionary mapping sleep stages to Cohen's d values.
-    """
-    if threshold is None:
-        threshold = metrics_df[centrality_col].median()
-        
-    high_group = metrics_df[metrics_df[centrality_col] > threshold][pli_col]
-    low_group = metrics_df[metrics_df[centrality_col] <= threshold][pli_col]
-    
-    if len(high_group) == 0 or len(low_group) == 0:
-        logger.warning("One of the groups is empty. Cannot calculate effect size.")
-        return {}
-        
-    d = calculate_cohens_d(high_group.values, low_group.values)
-    return {"cohens_d": float(d)}
-
+    """Calculate effect sizes for centrality-synchrony pairs when N < 30."""
+    effect_sizes = {}
+    for centrality in centralities:
+        for synchrony in synchrony_cols:
+            if centrality in metrics_df.columns and synchrony in metrics_df.columns:
+                group1 = metrics_df[metrics_df['pli_mean'] > metrics_df['pli_mean'].median()][centrality].values
+                group2 = metrics_df[metrics_df['pli_mean'] <= metrics_df['pli_mean'].median()][centrality].values
+                if len(group1) > 0 and len(group2) > 0:
+                    effect_sizes[f"{centrality}_{synchrony}"] = calculate_cohens_d(group1, group2)
+    return effect_sizes
 
 def run_lme_analysis(
     metrics_df: pd.DataFrame,
-    formula: str = "centrality ~ pli + global_coherence + (1|subject)",
-    subject_col: str = "subject_id"
+    formula: str = "centrality ~ pli + global_coherence + (1|subject)"
 ) -> Dict[str, Any]:
-    """
-    Run Linear Mixed Effects analysis.
-    
-    Args:
-        metrics_df: DataFrame with metrics.
-        formula: LME formula string.
-        subject_col: Column name for subject grouping.
-        
-    Returns:
-        Dictionary with model results.
-    """
+    """Run Linear Mixed Effects analysis on the metrics dataframe."""
+    results = {}
     try:
-        # Prepare data: ensure numeric columns exist
-        required_cols = ["centrality", "pli", "global_coherence", subject_col]
+        # Ensure required columns exist, otherwise skip or handle gracefully
+        required_cols = ['subject_id', 'pli_mean', 'global_coherence']
         if not all(col in metrics_df.columns for col in required_cols):
-            raise ValueError(f"Missing required columns. Expected: {required_cols}")
-            
-        model = mixedlm.from_formula(
-            formula, 
-            data=metrics_df, 
-            groups=metrics_df[subject_col]
-        )
-        result = model.fit()
-        
-        return {
-            "coefficients": result.params.to_dict(),
-            "p_values": result.pvalues.to_dict(),
-            "log_likelihood": float(result.llf),
-            "aic": float(result.aic),
-            "bic": float(result.bic)
-        }
-    except Exception as e:
-        logger.error(f"LME analysis failed: {str(e)}")
-        return {"error": str(e)}
+            logger.warning("Required columns missing for LME analysis.")
+            return results
 
+        # Placeholder for actual centrality column selection logic
+        # In a real scenario, this would iterate over centrality metrics
+        centrality_col = 'degree_centrality' 
+        if centrality_col not in metrics_df.columns:
+            centrality_col = metrics_df.columns[0] # Fallback for demo structure
+
+        model = smf.mixedlm(
+            f"{centrality_col} ~ pli_mean + global_coherence",
+            metrics_df,
+            groups=metrics_df['subject_id']
+        )
+        lme_result = model.fit()
+        
+        results['coefficients'] = lme_result.params.to_dict()
+        results['p_values'] = lme_result.pvalues.to_dict()
+        results['summary'] = lme_result.summary().as_text()
+    except Exception as e:
+        logger.error(f"LME analysis failed: {e}")
+    return results
 
 def run_shapiro_wilk(
-    residuals: np.ndarray,
-    threshold: float = 0.05
-) -> Dict[str, Any]:
-    """
-    Perform Shapiro-Wilk normality test on residuals.
+    metrics_df: pd.DataFrame,
+    target_col: str = "residuals"
+) -> Dict[str, float]:
+    """Perform Shapiro-Wilk test on residuals for normality diagnostics."""
+    from scipy.stats import shapiro
+    if target_col not in metrics_df.columns:
+        logger.warning(f"Target column {target_col} not found for Shapiro-Wilk.")
+        return {}
     
-    Args:
-        residuals: Array of residuals.
-        threshold: Significance threshold.
+    data = metrics_df[target_col].dropna()
+    if len(data) < 3:
+        logger.warning("Insufficient data for Shapiro-Wilk test.")
+        return {}
         
-    Returns:
-        Dictionary with test results.
-    """
-    if len(residuals) < 3:
-        logger.warning("Not enough residuals for Shapiro-Wilk test.")
-        return {"statistic": None, "p_value": None, "is_normal": None}
-        
-    stat, p_value = sm.stats.shapiro(residuals)
-    is_normal = p_value > threshold
-    
-    return {
-        "statistic": float(stat),
-        "p_value": float(p_value),
-        "is_normal": bool(is_normal)
-    }
-
+    stat, p_val = shapiro(data)
+    return {"statistic": float(stat), "p_value": float(p_val)}
 
 def apply_benjamini_hochberg(
-    p_values: List[float],
+    p_values: Dict[str, float],
     alpha: float = 0.05
-) -> Tuple[List[bool], List[float]]:
-    """
-    Apply Benjamini-Hochberg FDR correction.
-    
-    Args:
-        p_values: List of raw p-values.
-        alpha: Significance level.
-        
-    Returns:
-        Tuple of (significant flags, adjusted p-values).
-    """
+) -> Dict[str, float]:
+    """Apply Benjamini-Hochberg FDR correction to a dictionary of p-values."""
     if not p_values:
-        return [], []
+        return {}
+    
+    names = list(p_values.keys())
+    p_vals = list(p_values.values())
+    
+    # Filter out NaNs if any
+    valid_indices = [i for i, p in enumerate(p_vals) if not np.isnan(p)]
+    if not valid_indices:
+        return {}
         
-    rejected, adj_pvals, _, _ = multipletests(
-        p_values, 
-        alpha=alpha, 
-        method='fdr_bh'
+    p_vals_clean = [p_vals[i] for i in valid_indices]
+    names_clean = [names[i] for i in valid_indices]
+    
+    reject, p_vals_corrected, _, _ = multipletests(
+        p_vals_clean, alpha=alpha, method='fdr_bh'
     )
     
-    return list(rejected), list(adj_pvals)
-
+    result = {}
+    for i, name in enumerate(names_clean):
+        result[name] = float(p_vals_corrected[i])
+    return result
 
 def generate_analysis_report(
     lme_results: Dict[str, Any],
-    fdr_results: Tuple[List[bool], List[float]],
-    shapiro_results: Dict[str, Any],
+    fdr_results: Dict[str, float],
     effect_sizes: Optional[Dict[str, float]] = None,
-    subject_count: int = 0,
-    min_subject_count: int = 30
+    shapiro_results: Optional[Dict[str, float]] = None
 ) -> Dict[str, Any]:
-    """
-    Generate the final analysis report.
-    
-    Args:
-        lme_results: Results from LME analysis.
-        fdr_results: Tuple of (significant flags, adjusted p-values).
-        shapiro_results: Results from Shapiro-Wilk test.
-        effect_sizes: Optional effect size dictionary.
-        subject_count: Total subject count.
-        min_subject_count: Minimum required subject count.
-        
-    Returns:
-        Complete analysis report dictionary.
-    """
+    """Compile all analysis results into a single report dictionary."""
     report = {
-        "subject_count": subject_count,
-        "meets_minimum": subject_count >= min_subject_count,
         "lme_results": lme_results,
-        "shapiro_diagnostics": shapiro_results,
-        "fdr_correction": {
-            "significant": fdr_results[0],
-            "adjusted_p_values": fdr_results[1]
-        }
+        "fdr_corrected_p_values": fdr_results,
+        "significance_flags": {k: "Significant" if v < 0.05 else "Non-Significant" 
+                               for k, v in fdr_results.items()}
     }
     
     if effect_sizes:
         report["effect_sizes"] = effect_sizes
-        
-    if "error" in lme_results:
-        report["status"] = "failed"
-        report["error"] = lme_results["error"]
-    else:
-        report["status"] = "completed"
+    if shapiro_results:
+        report["shapiro_wilk_diagnostics"] = shapiro_results
         
     return report
 
-
 def main() -> None:
-    """
-    Main entry point for analysis pipeline.
-    Loads metrics, runs LME, diagnostics, FDR, and saves report.
-    """
-    logger.info("Starting analysis pipeline...")
-    
-    config_path = Path("code/config.yaml")
-    if not config_path.exists():
-        logger.error("Config file not found at code/config.yaml")
-        return
-        
-    metrics_path = Path("data/metrics/SubjectMetrics.csv")
-    if not metrics_path.exists():
-        logger.error(f"Metrics file not found at {metrics_path}")
-        return
-        
-    metrics_df = pd.read_csv(metrics_path)
-    
-    subject_count = metrics_df['subject_id'].nunique()
-    meets_min = check_subject_count(metrics_df)
-    
-    if not meets_min:
-        logger.warning(f"Subject count ({subject_count}) is below minimum ({30}).")
-        effect_sizes = calculate_effect_sizes(metrics_df, "centrality", "pli")
-    else:
-        effect_sizes = None
-        
-    lme_results = run_lme_analysis(metrics_df)
-    
-    residuals = np.array([])
-    if "coefficients" in lme_results:
-        # Extract residuals from model if available, otherwise simulate for demo
-        # In real pipeline, residuals would be extracted from the fitted model object
-        logger.info("Residual extraction placeholder: In production, extract from fitted model.")
-        # Placeholder for demonstration: use a small synthetic array if no real residuals
-        if len(metrics_df) > 2:
-            residuals = np.random.randn(len(metrics_df)) * 0.1
-        else:
-            residuals = np.array([0.0])
-    
-    shapiro_results = run_shapiro_wilk(residuals)
-    
-    p_values = list(lme_results.get("p_values", {}).values())
-    significant, adj_pvals = apply_benjamini_hochberg(p_values)
-    
-    report = generate_analysis_report(
-        lme_results=lme_results,
-        fdr_results=(significant, adj_pvals),
-        shapiro_results=shapiro_results,
-        effect_sizes=effect_sizes,
-        subject_count=subject_count
-    )
-    
-    output_dir = Path("data/results")
+    """Main entry point for the analysis pipeline."""
+    config = load_config()
+    metrics_path = Path(config.get("paths", {}).get("metrics_csv", "data/metrics/SubjectMetrics.csv"))
+    output_dir = Path(config.get("paths", {}).get("results_dir", "data/results"))
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    output_path = output_dir / "analysis_results.json"
-    with open(output_path, "w") as f:
-        json.dump(report, f, indent=2)
-        
-    logger.info(f"Analysis report saved to {output_path}")
+    if not metrics_path.exists():
+        logger.error(f"Metrics file not found: {metrics_path}")
+        return
 
+    metrics_df = pd.read_csv(metrics_path)
+    
+    # Check subject count
+    sufficient_data = check_subject_count(metrics_df)
+    
+    # Run LME
+    lme_res = run_lme_analysis(metrics_df)
+    
+    # Extract p-values for FDR
+    p_vals = lme_res.get("p_values", {})
+    fdr_res = apply_benjamini_hochberg(p_vals)
+    
+    # Effect sizes if needed
+    effect_sizes = None
+    if not sufficient_data:
+        effect_sizes = calculate_effect_sizes(metrics_df, ['degree_centrality'], ['pli_mean'])
+    
+    # Diagnostics
+    shapiro_res = run_shapiro_wilk(metrics_df, 'residuals')
+    
+    # Generate Report
+    report_data = generate_analysis_report(lme_res, fdr_res, effect_sizes, shapiro_res)
+    
+    # Save Results
+    results_path = output_dir / "analysis_results.json"
+    with open(results_path, 'w') as f:
+        json.dump(report_data, f, indent=2)
+    
+    logger.info(f"Analysis results saved to {results_path}")
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()

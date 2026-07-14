@@ -1,9 +1,18 @@
 """
-Metrics computation module for network centrality and neural synchrony analysis.
+Network Centrality and Neural Synchrony Metrics Module.
 
 This module provides functions to compute functional connectivity matrices,
-network centrality metrics, Phase Lag Index (PLI), and Variance Inflation
-Factors (VIF) for sleep study data.
+network centrality metrics, and neural synchrony scores (Phase Lag Index)
+from EEG data. It also handles validation and aggregation of these metrics.
+
+Functions:
+    compute_waking_connectivity: Compute coherence-based connectivity matrix.
+    validate_connectivity_matrix: Check matrix symmetry and value range.
+    compute_centralities: Calculate degree, betweenness, and eigenvector centrality.
+    compute_pli: Calculate Phase Lag Index for signal pairs.
+    aggregate_pli_to_global: Average PLI scores across epochs and pairs.
+    calculate_vif: Compute Variance Inflation Factor for centrality metrics.
+    generate_subject_metrics_csv: Compile metrics into a DataFrame and save to CSV.
 """
 
 import logging
@@ -16,171 +25,125 @@ from scipy.signal import welch, coherency
 import networkx as nx
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
-# Configure logger
 logger = logging.getLogger(__name__)
 
 
 def compute_waking_connectivity(
     raw: mne.io.BaseRaw,
-    freq_bands: Optional[Dict[str, Tuple[float, float]]] = None
+    band: Tuple[float, float] = (4.0, 13.0),
+    fmin: float = 1.0,
+    fmax: float = 40.0
 ) -> np.ndarray:
     """
-    Compute functional connectivity matrices from waking EEG data using coherence.
+    Compute functional connectivity matrix using coherence for waking data.
 
-    Constructs connectivity matrices based on theta (4-8 Hz) and alpha (8-13 Hz)
-    coherence between electrode pairs.
+    Extracts EEG channels, computes coherence in specified frequency bands
+    (theta and alpha), and returns a symmetric connectivity matrix.
 
     Args:
-        raw: MNE Raw object containing waking EEG data.
-        freq_bands: Dictionary mapping band names to (low, high) frequency tuples.
-                    Defaults to {'theta': (4, 8), 'alpha': (8, 13)}.
+        raw: MNE Raw object containing EEG data.
+        band: Frequency band tuple (f_min, f_max) for coherence calculation.
+            Defaults to (4.0, 13.0) covering theta and alpha.
+        fmin: Minimum frequency for spectral estimation (Hz).
+        fmax: Maximum frequency for spectral estimation (Hz).
 
     Returns:
         np.ndarray: Symmetric connectivity matrix of shape (n_channels, n_channels).
-                    Values represent mean coherence across specified bands.
-
-    Raises:
-        ValueError: If raw data is empty or has insufficient channels.
+                    Values represent coherence (0.0 to 1.0).
     """
-    if freq_bands is None:
-        freq_bands = {'theta': (4, 8), 'alpha': (8, 13)}
+    # Extract EEG channels
+    eeg_channels = raw.copy().pick_types(eeg=True)
+    data = eeg_channels.get_data()
+    sfreq = eeg_channels.info['sfreq']
+    ch_names = eeg_channels.ch_names
+    n_channels = len(ch_names)
 
-    if raw.n_channels < 2:
-        raise ValueError("Insufficient channels for connectivity computation.")
-
-    data = raw.get_data()
-    sfreq = raw.info['sfreq']
-    n_channels = data.shape[0]
+    logger.info(f"Computing connectivity for {n_channels} channels.")
 
     # Initialize connectivity matrix
-    connectivity = np.zeros((n_channels, n_channels))
+    conn_matrix = np.zeros((n_channels, n_channels))
 
-    for band_name, (fmin, fmax) in freq_bands.items():
-        logger.info(f"Computing coherence for band: {band_name} ({fmin}-{fmax} Hz)")
-        # Compute coherence for all channel pairs
-        # Using MNE's cross-spectral density approach via coherency
-        # Note: coherency returns (n_channels, n_channels, n_freqs)
-        try:
-            # Simplified approach: compute pairwise coherence
-            for i in range(n_channels):
-                for j in range(i + 1, n_channels):
-                    f, Cxy = coherency(
-                        data[i], data[j],
-                        fs=sfreq,
-                        nperseg=min(256, len(data[i]) // 4)
-                    )
-                    # Mask frequencies within band
-                    mask = (f >= fmin) & (f <= fmax)
-                    if np.any(mask):
-                        coherence_val = np.mean(np.abs(Cxy[mask]))
-                        connectivity[i, j] += coherence_val
-                        connectivity[j, i] += coherence_val
-        except Exception as e:
-            logger.warning(f"Error computing coherence for pair ({i}, {j}): {e}")
+    # Compute coherence for each pair
+    for i in range(n_channels):
+        for j in range(i, n_channels):
+            if i == j:
+                conn_matrix[i, j] = 1.0
+                continue
 
-    # Average across bands
-    n_bands = len(freq_bands)
-    connectivity /= n_bands
+            try:
+                # Use MNE's coherence function
+                f, Cxy = coherency(
+                    data[i], data[j],
+                    fs=sfreq,
+                    nperseg=int(2 * sfreq),  # 2-second windows
+                    noverlap=int(sfreq),       # 50% overlap
+                    fmin=band[0],
+                    fmax=band[1]
+                )
+                # Average coherence across frequencies in band
+                coherence_val = np.mean(np.abs(Cxy))
+                conn_matrix[i, j] = coherence_val
+                conn_matrix[j, i] = coherence_val
+            except Exception as e:
+                logger.warning(f"Coherence calculation failed for pair ({i}, {j}): {e}")
+                conn_matrix[i, j] = 0.0
+                conn_matrix[j, i] = 0.0
 
-    # Set diagonal to 0 (no self-connection)
-    np.fill_diagonal(connectivity, 0.0)
-
-    return connectivity
+    return conn_matrix
 
 
-def validate_connectivity_matrix(matrix: np.ndarray) -> Tuple[bool, List[str]]:
+def validate_connectivity_matrix(matrix: np.ndarray) -> Tuple[bool, str]:
     """
     Validate that a connectivity matrix is symmetric and values are in [0, 1].
 
     Args:
-        matrix: Numpy array representing a connectivity matrix.
+        matrix: 2D numpy array representing the connectivity matrix.
 
     Returns:
-        Tuple containing:
-            - bool: True if validation passes, False otherwise.
-            - List[str]: List of validation error messages.
+        Tuple[bool, str]: (is_valid, message).
+            is_valid: True if matrix is symmetric and values are in [0, 1].
+            message: Description of validation result or error.
     """
-    errors = []
+    if not isinstance(matrix, np.ndarray) or matrix.ndim != 2:
+        return False, "Matrix must be a 2D numpy array."
 
-    if not isinstance(matrix, np.ndarray):
-        errors.append("Input is not a numpy array.")
-        return False, errors
-
-    if matrix.ndim != 2 or matrix.shape[0] != matrix.shape[1]:
-        errors.append(f"Matrix must be square. Got shape {matrix.shape}.")
-        return False, errors
+    n, m = matrix.shape
+    if n != m:
+        return False, f"Matrix must be square. Got shape {matrix.shape}."
 
     # Check symmetry
     if not np.allclose(matrix, matrix.T):
-        max_diff = np.max(np.abs(matrix - matrix.T))
-        errors.append(f"Matrix is not symmetric. Max difference: {max_diff:.6f}.")
+        return False, "Matrix is not symmetric."
 
     # Check value range
-    min_val = np.min(matrix)
-    max_val = np.max(matrix)
+    if np.any(matrix < 0) or np.any(matrix > 1):
+        return False, "Matrix values must be between 0 and 1."
 
-    if min_val < 0:
-        errors.append(f"Matrix contains negative values. Min: {min_val:.6f}.")
-
-    if max_val > 1:
-        errors.append(f"Matrix contains values > 1. Max: {max_val:.6f}.")
-
-    # Check for NaN/Inf
-    if np.any(np.isnan(matrix)):
-        errors.append("Matrix contains NaN values.")
-
-    if np.any(np.isinf(matrix)):
-        errors.append("Matrix contains Inf values.")
-
-    is_valid = len(errors) == 0
-    if is_valid:
-        logger.info("Connectivity matrix validation passed.")
-    else:
-        logger.warning(f"Connectivity matrix validation failed: {errors}")
-
-    return is_valid, errors
+    return True, "Matrix validation passed."
 
 
-def compute_centralities(
-    connectivity_matrix: np.ndarray,
-    channel_names: Optional[List[str]] = None
-) -> Dict[str, Union[np.ndarray, List[str]]]:
+def compute_centralities(matrix: np.ndarray) -> Dict[str, np.ndarray]:
     """
     Compute network centrality metrics from a connectivity matrix.
 
-    Calculates degree, betweenness, and eigenvector centrality using NetworkX.
+    Converts the connectivity matrix to a NetworkX graph and calculates
+    degree, betweenness, and eigenvector centrality.
 
     Args:
-        connectivity_matrix: Symmetric connectivity matrix (n_channels, n_channels).
-        channel_names: Optional list of channel names. If None, uses indices as names.
+        matrix: Symmetric connectivity matrix (n_nodes, n_nodes).
 
     Returns:
-        Dictionary containing:
-            - 'degree': np.ndarray of degree centrality values.
-            - 'betweenness': np.ndarray of betweenness centrality values.
-            - 'eigenvector': np.ndarray of eigenvector centrality values.
-            - 'channel_names': List of channel names corresponding to indices.
+        Dict[str, np.ndarray]: Dictionary containing:
+            - 'degree': Degree centrality for each node.
+            - 'betweenness': Betweenness centrality for each node.
+            - 'eigenvector': Eigenvector centrality for each node.
     """
-    n_channels = connectivity_matrix.shape[0]
-    if channel_names is None:
-        channel_names = [f"ch_{i}" for i in range(n_channels)]
-
-    # Create weighted graph
-    G = nx.Graph()
-    for i in range(n_channels):
-        G.add_node(i, name=channel_names[i])
-
-    for i in range(n_channels):
-        for j in range(i + 1, n_channels):
-            weight = connectivity_matrix[i, j]
-            if weight > 0:
-                G.add_edge(i, j, weight=weight)
+    # Create graph from matrix
+    G = nx.from_numpy_array(matrix)
 
     # Compute centralities
     degree_cent = nx.degree_centrality(G)
-    betweenness_cent = nx.betweenness_centrality(G, weight='weight')
-    
-    # Eigenvector centrality may fail for disconnected graphs; handle gracefully
+    betweenness_cent = nx.betweenness_centrality(G)
     try:
         eigenvector_cent = nx.eigenvector_centrality(G, max_iter=1000)
     except nx.PowerIterationFailedConvergence:
@@ -188,180 +151,157 @@ def compute_centralities(
         eigenvector_cent = {node: 0.0 for node in G.nodes()}
 
     # Convert to arrays
-    degree_array = np.array([degree_cent[i] for i in range(n_channels)])
-    betweenness_array = np.array([betweenness_cent[i] for i in range(n_channels)])
-    eigenvector_array = np.array([eigenvector_cent[i] for i in range(n_channels)])
+    n = len(G.nodes())
+    degree_arr = np.array([degree_cent[i] for i in range(n)])
+    betweenness_arr = np.array([betweenness_cent[i] for i in range(n)])
+    eigenvector_arr = np.array([eigenvector_cent[i] for i in range(n)])
 
     return {
-        'degree': degree_array,
-        'betweenness': betweenness_array,
-        'eigenvector': eigenvector_array,
-        'channel_names': channel_names
+        'degree': degree_arr,
+        'betweenness': betweenness_arr,
+        'eigenvector': eigenvector_arr
     }
 
 
 def compute_pli(
-    epochs: mne.Epochs,
-    freq_band: Tuple[float, float] = (4, 8)
+    epoch_data: np.ndarray,
+    sfreq: float,
+    band: Tuple[float, float] = (4.0, 8.0)
 ) -> np.ndarray:
     """
-    Compute Phase Lag Index (PLI) across electrode pairs for each epoch.
+    Calculate Phase Lag Index (PLI) for pairs of EEG signals.
+
+    PLI measures the asymmetry of the distribution of phase differences,
+    indicating true functional connectivity while suppressing volume conduction.
 
     Args:
-        epochs: MNE Epochs object containing epoched EEG data.
-        freq_band: Tuple (fmin, fmax) defining the frequency band for PLI computation.
-                   Default is theta band (4, 8) Hz.
+        epoch_data: 3D array (n_epochs, n_channels, n_times).
+        sfreq: Sampling frequency in Hz.
+        band: Frequency band (f_min, f_max) for PLI calculation.
 
     Returns:
-        np.ndarray: Array of shape (n_epochs, n_channels, n_channels) containing PLI values.
-                    Diagonal elements are zero.
+        np.ndarray: Symmetric PLI matrix of shape (n_channels, n_channels).
     """
-    fmin, fmax = freq_band
-    n_epochs = len(epochs)
-    data = epochs.get_data()  # Shape: (n_epochs, n_channels, n_times)
-    sfreq = epochs.info['sfreq']
-    n_channels = data.shape[1]
-    n_times = data.shape[2]
+    n_epochs, n_channels, n_times = epoch_data.shape
+    pli_matrix = np.zeros((n_channels, n_channels))
 
-    pli_matrix = np.zeros((n_epochs, n_channels, n_channels))
+    # Filter parameters
+    nyq = sfreq * 0.5
+    if band[0] >= nyq or band[1] >= nyq:
+        logger.error(f"Band {band} exceeds Nyquist frequency {nyq}.")
+        return pli_matrix
 
-    for ep_idx in range(n_epochs):
-        logger.debug(f"Computing PLI for epoch {ep_idx + 1}/{n_epochs}")
-        ep_data = data[ep_idx]
+    # Compute PLI for each pair
+    for i in range(n_channels):
+        for j in range(i, n_channels):
+            if i == j:
+                pli_matrix[i, j] = 1.0
+                continue
 
-        for i in range(n_channels):
-            for j in range(i + 1, n_channels):
-                # Compute phase difference
-                # Using Hilbert transform to extract instantaneous phase
-                try:
-                    # Bandpass filter the epoch data for this pair
-                    from scipy.signal import butter, filtfilt
-                    b, a = butter(4, [fmin / (sfreq / 2), fmax / (sfreq / 2)], btype='band')
-                    sig_i = filtfilt(b, a, ep_data[i])
-                    sig_j = filtfilt(b, a, ep_data[j])
+            phase_diffs = []
+            for ep in range(n_epochs):
+                # Extract signals
+                sig1 = epoch_data[ep, i, :]
+                sig2 = epoch_data[ep, j, :]
 
-                    # Hilbert transform
-                    from scipy.signal import hilbert
-                    analytic_i = hilbert(sig_i)
-                    analytic_j = hilbert(sig_j)
+                # Bandpass filter
+                from scipy.signal import butter, filtfilt
+                b, a = butter(4, [band[0] / nyq, band[1] / nyq], btype='band')
+                sig1_f = filtfilt(b, a, sig1)
+                sig2_f = filtfilt(b, a, sig2)
 
-                    phase_i = np.angle(analytic_i)
-                    phase_j = np.angle(analytic_j)
+                # Compute instantaneous phase via Hilbert transform
+                from scipy.signal import hilbert
+                phase1 = np.angle(hilbert(sig1_f))
+                phase2 = np.angle(hilbert(sig2_f))
 
-                    phase_diff = phase_i - phase_j
+                # Phase difference
+                diff = phase1 - phase2
+                phase_diffs.append(diff)
 
-                    # PLI is the mean of the sign of the phase difference
-                    pli_val = np.mean(np.sign(phase_diff))
-                    pli_matrix[ep_idx, i, j] = pli_val
-                    pli_matrix[ep_idx, j, i] = pli_val
-                except Exception as e:
-                    logger.warning(f"Error computing PLI for epoch {ep_idx}, pair ({i}, {j}): {e}")
-                    continue
+            # Stack and compute mean sign of phase difference
+            phase_diffs = np.array(phase_diffs)
+            # Average over epochs
+            mean_sign = np.mean(np.sign(phase_diffs))
+            pli_val = np.abs(mean_sign)
+
+            pli_matrix[i, j] = pli_val
+            pli_matrix[j, i] = pli_val
 
     return pli_matrix
 
 
 def aggregate_pli_to_global(
-    pli_matrix: np.ndarray,
-    sleep_stages: List[str]
+    pli_matrices: List[np.ndarray],
+    epochs_per_stage: Optional[Dict[str, int]] = None
 ) -> Dict[str, float]:
     """
-    Aggregate PLI values to mean global synchrony score per sleep stage.
+    Aggregate PLI matrices into a mean global synchrony score per sleep stage.
 
     Args:
-        pli_matrix: Array of shape (n_epochs, n_channels, n_channels) from compute_pli.
-        sleep_stages: List of sleep stage labels corresponding to each epoch in pli_matrix.
-                      Length must match pli_matrix.shape[0].
+        pli_matrices: List of PLI matrices, one per epoch.
+        epochs_per_stage: Optional dict mapping stage name to count (for weighting).
 
     Returns:
-        Dictionary mapping sleep stage names to mean global PLI (synchrony) score.
+        Dict[str, float]: Mean global synchrony score (average of all off-diagonal PLI values).
     """
-    if len(sleep_stages) != pli_matrix.shape[0]:
-        raise ValueError(
-            f"Length of sleep_stages ({len(sleep_stages)}) must match "
-            f"number of epochs ({pli_matrix.shape[0]})."
-        )
+    if not pli_matrices:
+        logger.warning("No PLI matrices provided for aggregation.")
+        return {}
 
-    unique_stages = list(set(sleep_stages))
-    global_synchrony = {}
+    # Average all PLI matrices
+    avg_matrix = np.mean(pli_matrices, axis=0)
 
-    for stage in unique_stages:
-        # Identify epochs for this stage
-        stage_indices = [i for i, s in enumerate(sleep_stages) if s == stage]
-        
-        if not stage_indices:
-            continue
+    # Compute mean of off-diagonal elements
+    n = avg_matrix.shape[0]
+    off_diag = avg_matrix[np.ones((n, n), dtype=bool) - np.eye(n, dtype=bool)]
+    global_score = np.mean(off_diag)
 
-        # Aggregate PLI for these epochs
-        stage_pli = pli_matrix[stage_indices]
-        
-        # Compute mean absolute PLI (ignoring sign, focusing on magnitude of lag)
-        # Or use mean of absolute values to capture synchrony strength
-        mean_pli = np.mean(np.abs(stage_pli))
-        
-        # Exclude diagonal (self-connections)
-        n_channels = stage_pli.shape[1]
-        n_pairs = n_channels * (n_channels - 1) / 2
-        
-        # Average across all electrode pairs and epochs
-        global_synchrony[stage] = float(mean_pli)
-        logger.info(f"Global synchrony for {stage}: {global_synchrony[stage]:.4f}")
-
-    return global_synchrony
+    return {'global_synchrony': float(global_score)}
 
 
 def calculate_vif(
     metrics_df: pd.DataFrame,
-    feature_columns: Optional[List[str]] = None
+    features: Optional[List[str]] = None
 ) -> Dict[str, float]:
     """
     Calculate Variance Inflation Factor (VIF) for centrality metrics.
 
+    VIF measures multicollinearity among predictor variables. A VIF > 5.0
+    indicates high collinearity.
+
     Args:
-        metrics_df: DataFrame containing centrality metrics as columns.
-        feature_columns: List of column names to compute VIF for. If None, uses all numeric columns.
+        metrics_df: DataFrame containing metric columns.
+        features: List of column names to calculate VIF for. Defaults to all numeric cols.
 
     Returns:
-        Dictionary mapping feature names to their VIF values.
+        Dict[str, float]: VIF values for each feature.
     """
-    if feature_columns is None:
-        feature_columns = metrics_df.select_dtypes(include=[np.number]).columns.tolist()
+    if features is None:
+        features = metrics_df.select_dtypes(include=[np.number]).columns.tolist()
+        # Exclude target variable if present (e.g., 'pli', 'synchrony')
+        exclude = ['pli', 'synchrony', 'global_synchrony']
+        features = [f for f in features if f not in exclude]
 
-    if len(feature_columns) < 2:
-        logger.warning("Insufficient features for VIF calculation. Returning empty dict.")
+    if len(features) < 2:
+        logger.warning("Need at least 2 features to calculate VIF.")
         return {}
 
-    # Prepare feature matrix
-    X = metrics_df[feature_columns].values
+    X = metrics_df[features].dropna()
+    if X.empty:
+        return {}
 
-    # Add intercept column for VIF calculation (optional, but common practice)
-    # However, statsmodels VIF usually expects centered data without intercept
-    # We'll compute VIF for each feature regressed on others
+    # Add constant for intercept
+    X_with_const = sm.add_constant(X)
+
     vif_results = {}
-
-    for i, col in enumerate(feature_columns):
-        # Design matrix for this feature: all other features
-        other_features = [j for j in range(X.shape[1]) if j != i]
-        X_other = X[:, other_features]
-        y = X[:, i]
-
-        # Add constant for intercept
-        from statsmodels.regression.linear_model import OLS
-        from statsmodels.tools import add_constant
-
+    for col in features:
         try:
-            X_with_const = add_constant(X_other)
-            model = OLS(y, X_with_const).fit()
-            # VIF = 1 / (1 - R^2)
-            r_squared = model.rsquared
-            if r_squared >= 1.0:
-                vif = np.inf
-            else:
-                vif = 1.0 / (1.0 - r_squared)
-            vif_results[col] = float(vif)
+            vif_val = variance_inflation_factor(X_with_const.values, X_with_const.columns.get_loc(col))
+            vif_results[col] = float(vif_val)
         except Exception as e:
-            logger.warning(f"Error computing VIF for {col}: {e}")
-            vif_results[col] = float('nan')
+            logger.warning(f"VIF calculation failed for {col}: {e}")
+            vif_results[col] = float('inf')
 
     return vif_results
 
@@ -371,70 +311,48 @@ def generate_subject_metrics_csv(
     centralities: Dict[str, np.ndarray],
     synchrony_scores: Dict[str, float],
     vif_flags: Dict[str, float],
+    night_ids: Tuple[str, str],
     output_path: str
 ) -> None:
     """
-    Generate a CSV file containing subject metrics.
+    Compile centrality, synchrony, and VIF metrics into a CSV file.
 
     Args:
         subject_id: Unique identifier for the subject.
-        centralities: Dictionary from compute_centralities containing 'degree', 'betweenness', 'eigenvector'.
-        synchrony_scores: Dictionary from aggregate_pli_to_global mapping sleep stages to scores.
-        vif_flags: Dictionary from calculate_vif mapping feature names to VIF values.
-        output_path: Path to the output CSV file.
+        centralities: Dict of centrality metrics (degree, betweenness, eigenvector).
+        synchrony_scores: Dict of synchrony scores per sleep stage.
+        vif_flags: Dict of VIF values for each centrality metric.
+        night_ids: Tuple (waking_night_id, sleep_night_id).
+        output_path: Path to save the CSV file.
     """
-    rows = []
+    data = {
+        'subject_id': [subject_id],
+        'waking_night_id': [night_ids[0]],
+        'sleep_night_id': [night_ids[1]]
+    }
 
-    # Flatten centralities: one row per channel
-    channels = centralities.get('channel_names', [f"ch_{i}" for i in range(len(centralities['degree']))])
-    for idx, ch_name in enumerate(channels):
-        row = {
-            'subject_id': subject_id,
-            'channel': ch_name,
-            'degree_centrality': centralities['degree'][idx],
-            'betweenness_centrality': centralities['betweenness'][idx],
-            'eigenvector_centrality': centralities['eigenvector'][idx]
-        }
-        rows.append(row)
+    # Flatten centralities
+    for metric_name, values in centralities.items():
+        data[f'{metric_name}_mean'] = [np.mean(values)]
+        data[f'{metric_name}_std'] = [np.std(values)]
 
-    # Create DataFrame
-    df = pd.DataFrame(rows)
-
-    # Add synchrony scores as columns (broadcasted)
+    # Flatten synchrony
     for stage, score in synchrony_scores.items():
-        col_name = f"synchrony_{stage}"
-        df[col_name] = score
+        data[f'synchrony_{stage}'] = [score]
 
-    # Add VIF flags (broadcasted)
-    for feat, vif_val in vif_flags.items():
-        col_name = f"vif_{feat}"
-        df[col_name] = vif_val
+    # Add VIF flags
+    for metric, vif_val in vif_flags.items():
+        data[f'vif_{metric}'] = [vif_val]
+        data[f'vif_flag_{metric}'] = ['High' if vif_val > 5.0 else 'Low']
 
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-
-    # Save to CSV
+    df = pd.DataFrame(data)
     df.to_csv(output_path, index=False)
     logger.info(f"Saved subject metrics to {output_path}")
 
 
 def main() -> None:
     """
-    Main entry point for metrics module.
-
-    This function demonstrates the usage of metrics computation functions
-    with sample data. In a real pipeline, it would load data from files
-    and orchestrate the full metrics computation workflow.
+    Main entry point for the metrics module.
+    Currently serves as a placeholder for future CLI integration.
     """
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Metrics module initialized.")
-    
-    # Placeholder for actual pipeline integration
-    # In production, this would be called from a pipeline orchestrator
-    logger.info("To use this module, import functions and pass MNE objects or DataFrames.")
-
-
-if __name__ == "__main__":
-    main()
+    logger.info("Metrics module loaded. Use specific functions for calculations.")

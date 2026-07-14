@@ -1,96 +1,102 @@
-# Investigating the Impact of Network Centrality on Neural Synchrony During Sleep Stages
-
-**Project ID**: PROJ-489
-
-This project implements an automated scientific pipeline to investigate how network centrality metrics derived from waking-state EEG connectivity influence neural synchrony (measured via Phase Lag Index) across different sleep stages.
+# llmXive: Investigating the Impact of Network Centrality on Neural Synchrony During Sleep Stages
 
 ## Overview
 
-The pipeline performs the following steps:
-1. **Data Acquisition**: Downloads the Sleep-EDF dataset from PhysioNet.
-2. **Preprocessing**: Filters EEG signals, removes artifacts using ICA, and segments data into sleep-stage-labeled epochs.
-3. **Metric Computation**:
- - Constructs functional connectivity matrices (Theta/Alpha coherence) from waking data.
- - Computes network centrality metrics (Degree, Betweenness, Eigenvector).
- - Calculates Phase Lag Index (PLI) for sleep epochs.
-4. **Statistical Analysis**:
- - Performs Linear Mixed Effects (LME) modeling.
- - Applies Benjamini-Hochberg FDR correction for multiple comparisons.
-5. **Reporting**: Generates JSON and Markdown reports with statistical findings and effect sizes.
+This project implements a research pipeline to investigate the relationship between network centrality metrics (computed from waking EEG connectivity) and neural synchrony (computed from sleep EEG epochs). The pipeline automates data acquisition, preprocessing, metric computation, statistical analysis, and report generation.
 
-## Quick Start
+## Key Features
 
-See [docs/quickstart.md](docs/quickstart.md) for installation and usage instructions.
+- **Automated Data Download**: Fetches Sleep-EDF dataset from PhysioNet.
+- **Preprocessing**: Band-pass filtering, ICA artifact removal, and epoching.
+- **Network Analysis**: Computes degree, betweenness, and eigenvector centrality using NetworkX.
+- **Synchrony Metrics**: Calculates Phase Lag Index (PLI) and global coherence.
+- **Statistical Modeling**: Linear Mixed Effects (LME) models with Benjamini-Hochberg FDR correction.
+- **Memory Profiling**: Ensures peak RAM usage stays below 4 GB.
+- **Comprehensive Reporting**: Generates JSON and Markdown reports with significance flags and limitations.
 
-## Project Structure
+## Installation
 
-```text
-.
-├── code/ # Python source code
-│ ├── analysis.py # Statistical analysis (LME, FDR)
-│ ├── config.yaml # Configuration parameters
-│ ├── download.py # Data download from PhysioNet
-│ ├── loaders.py # EDF and annotation loading
-│ ├── main.py # Entry point and logging setup
-│ ├── metrics.py # Centrality and PLI computation
-│ ├── preprocess.py # Filtering and ICA
-│ ├── report.py # Report generation
-│ └──...
-├── data/
-│ ├── raw/ # Raw EDF files (downloaded)
-│ ├── processed/ # Cleaned epochs
-│ ├── metrics/ # SubjectMetrics.csv
-│ └── results/ # Analysis JSON
-├── docs/ # Documentation
-│ ├── quickstart.md
-│ └── data_model_diagram.md
-├── reports/ # Final reports
-│ └── final_report.md
-├── tests/ # Unit and integration tests
-│ ├── unit/
-│ └── integration/
-└── requirements.txt # Python dependencies
-```
+1. Clone the repository:
+ ```bash
+ git clone
+ cd llmXive-sleep-synchrony
+ ```
 
-## Dependencies
+2. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # Windows: venv\Scripts\activate
+ ```
 
-- Python 3.11+
-- `mne`: EEG processing
-- `networkx`: Graph analysis
-- `statsmodels`: Linear Mixed Effects
-- `scipy`: Signal processing
-- `pandas`, `numpy`: Data manipulation
-- `pyedflib`: EDF file handling
-
-Install all dependencies via:
-```bash
-pip install -r code/requirements.txt
-```
+3. Install dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
 ## Usage
 
-Run the full pipeline validation:
+Run the full pipeline:
+
 ```bash
-python code/quickstart_validator.py
+python code/main.py
 ```
 
-Or run individual stages:
-```bash
-python code/download.py # Step 1
-python code/preprocess.py # Step 2
-python code/metrics.py # Step 3
-python code/analysis.py # Step 4
-python code/report.py # Step 5
+This will execute all stages in sequence and output results to `data/results/` and `reports/`.
+
+For detailed usage instructions, see [docs/quickstart.md](docs/quickstart.md).
+
+## Project Structure
+
+```
+.
+├── code/ # Source code
+│ ├── main.py # Entry point with memory profiling
+│ ├── download.py # Data acquisition
+│ ├── preprocess.py # Signal preprocessing
+│ ├── metrics.py # Centrality and synchrony computation
+│ ├── analysis.py # Statistical analysis (LME, FDR)
+│ └── report.py # Report generation
+├── data/
+│ ├── raw/ # Downloaded EDF files
+│ ├── processed/ # Cleaned data
+│ ├── metrics/ # Computed metrics
+│ └── results/ # Analysis outputs
+├── tests/ # Unit and integration tests
+├── docs/ # Documentation
+└── reports/ # Final reports
 ```
 
 ## Data Model
 
-Refer to [docs/data_model_diagram.md](docs/data_model_diagram.md) for a detailed entity relationship diagram and data flow description.
+See [docs/data_model.md](docs/data_model.md) for a detailed description of the data structures and file formats.
+
+## Validation
+
+Run the quickstart validator to ensure the pipeline is working correctly:
+
+```bash
+python code/quickstart_validator.py
+```
+
+## Requirements
+
+- Python 3.11+
+- Memory: 4 GB RAM (enforced by pipeline)
+- CPU: 2 vCPU (estimated runtime < 4 hours)
+
+## Dependencies
+
+- `mne`: EEG processing
+- `networkx`: Network analysis
+- `statsmodels`: LME modeling
+- `scipy`: Signal processing
+- `pandas`, `numpy`: Data manipulation
+- `pyedflib`: EDF file handling
 
 ## License
 
-This project is for research purposes. The underlying Sleep-EDF dataset is available under the PhysioNet Licensing Agreement.
+MIT License
 
 ## Contributing
 
-Please ensure all new code passes the linting (flake8/pylint) and formatting (black) standards defined in the project. Run tests in `tests/` before submitting changes.
+Contributions are welcome! Please read the contribution guidelines before submitting pull requests.

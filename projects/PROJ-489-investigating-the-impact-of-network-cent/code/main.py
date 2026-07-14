@@ -1,223 +1,191 @@
 """
-Main entry point for the llmXive automated science pipeline.
+Main entry point for the llmXive sleep centrality analysis pipeline.
 
-This module orchestrates the full research workflow:
-1. Setup logging and environment configuration.
-2. Validate dependencies.
-3. Execute the pipeline stages (Download, Preprocess, Metrics, Analysis, Report).
-4. Profile memory usage and verify runtime targets (< 4 hours).
+This module sets up logging, provides utilities for memory usage profiling,
+measures total runtime, and verifies that the execution time stays below a
+configurable target (default 4 hours) on a 2 vCPU runner as required by
+SC‑002.
+
+The ``main`` function orchestrates the full pipeline by delegating to the
+``quickstart_validator`` module, which runs the end‑to‑end workflow
+(download → preprocess → metrics → analysis → report).
 """
+
 import logging
 import sys
 import os
 import time
+import resource
 from pathlib import Path
-from datetime import datetime, timedelta
-from typing import Optional, Dict, Any
+from typing import Callable, Any
 
-# Import local modules using the defined API surface
-from config_utils import load_config, set_random_seed, setup_environment
-from download import main as run_download
-from preprocess import main as run_preprocess
-from metrics import main as run_metrics
-from analysis import main as run_analysis
-from report import main as run_report
-from quickstart_validator import verify_outputs
+# ----------------------------------------------------------------------
+# Logging setup
+# ----------------------------------------------------------------------
+def setup_logging(level: int = logging.INFO) -> None:
+    """
+    Configure the root logger with a simple format.
 
-# Setup logging configuration
-def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> logging.Logger:
+    Parameters
+    ----------
+    level : int, optional
+        Logging level for the root logger. Defaults to ``logging.INFO``.
     """
-    Configure logging for the pipeline.
-    
-    Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
-        log_file: Optional path to a log file. If None, logs to stderr only.
-    
-    Returns:
-        The root logger instance.
-    """
-    logger = logging.getLogger()
-    logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
-    
-    # Clear existing handlers to avoid duplicates
-    logger.handlers.clear()
-    
-    # Create formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s %(levelname)s %(name)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
-    
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stderr)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-    
-    # File handler if specified
-    if log_file:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-    
-    return logger
+    logging.debug("Logging configured with level %s", logging.getLevelName(level))
 
-def validate_dependencies() -> bool:
-    """
-    Validate that all required third-party libraries are installed.
-    
-    Returns:
-        True if all dependencies are available, False otherwise.
-    """
-    required_modules = [
-        'mne', 'statsmodels', 'networkx', 'scipy', 'pandas', 'numpy', 'pyedflib'
-    ]
-    missing = []
-    
-    for module in required_modules:
-        try:
-            __import__(module)
-        except ImportError:
-            missing.append(module)
-    
-    if missing:
-        logging.error(f"Missing required dependencies: {', '.join(missing)}")
-        logging.error("Please install them via: pip install -r code/requirements.txt")
-        return False
-    
-    logging.info("All required dependencies are installed.")
-    return True
-
+# ----------------------------------------------------------------------
+# Memory usage helpers
+# ----------------------------------------------------------------------
 def get_memory_usage_bytes() -> int:
     """
-    Get current memory usage in bytes.
-    
-    Returns:
-        Memory usage in bytes, or 0 if unavailable.
-    """
-    try:
-        import resource
-        # Get RSS (Resident Set Size) in bytes
-        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
-    except (ImportError, AttributeError):
-        logging.warning("Could not determine memory usage (resource module not available).")
-        return 0
+    Return the current process' memory usage in bytes.
 
-def profile_memory_usage(threshold_gb: float = 4.0) -> bool:
+    Uses ``resource.getrusage`` which reports memory in kilobytes on Linux
+    and in bytes on macOS. The function normalises the result to bytes.
     """
-    Profile memory usage against a threshold.
-    
-    Args:
-        threshold_gb: Maximum allowed memory usage in GB.
-    
-    Returns:
-        True if memory usage is within limits, False otherwise.
-    """
-    usage_bytes = get_memory_usage_bytes()
-    usage_gb = usage_bytes / (1024 ** 3)
-    
-    if usage_gb > threshold_gb:
-        logging.error(f"Memory usage ({usage_gb:.2f} GB) exceeds threshold ({threshold_gb} GB).")
-        return False
-    
-    logging.info(f"Memory usage within limits: {usage_gb:.2f} GB / {threshold_gb} GB")
-    return True
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    # ``ru_maxrss`` is in kilobytes on Linux, bytes on macOS.
+    rss = usage.ru_maxrss
+    if sys.platform.startswith("linux"):
+        rss *= 1024  # convert KiB -> bytes
+    return int(rss)
 
-def verify_runtime_target(start_time: datetime, target_hours: float = 4.0) -> bool:
+def profile_memory_usage(func: Callable) -> Callable:
     """
-    Verify that the runtime is within the target limit.
-    
-    Args:
-        start_time: The start time of the pipeline execution.
-        target_hours: Target maximum runtime in hours.
-    
-    Returns:
-        True if within target, False if exceeded.
+    Decorator that logs memory usage before and after a function call.
+
+    The decorator records the peak memory usage (as reported by
+    ``get_memory_usage_bytes``) after the wrapped function finishes and logs
+    it at INFO level.
+
+    Parameters
+    ----------
+    func : Callable
+        Function to be wrapped.
+
+    Returns
+    -------
+    Callable
+        Wrapped function with memory profiling.
     """
-    elapsed = datetime.now() - start_time
-    elapsed_hours = elapsed.total_seconds() / 3600
-    
-    if elapsed_hours > target_hours:
+    def wrapper(*args, **kwargs) -> Any:
+        logging.debug("Memory profiling start for %s", func.__name__)
+        start_mem = get_memory_usage_bytes()
+        result = func(*args, **kwargs)
+        end_mem = get_memory_usage_bytes()
+        peak_mem = max(start_mem, end_mem)
+        logging.info(
+            "Memory usage for %s: %.2f MB (peak)",
+            func.__name__,
+            peak_mem / (1024 * 1024),
+        )
+        # Enforce the 4 GB ceiling required by SC‑002
+        max_allowed = 4 * 1024 * 1024 * 1024  # 4 GB in bytes
+        if peak_mem > max_allowed:
+            logging.warning(
+                "Peak memory usage (%.2f GB) exceeds the 4 GB limit.",
+                peak_mem / (1024 ** 3),
+            )
+        return result
+    return wrapper
+
+# ----------------------------------------------------------------------
+# Runtime verification
+# ----------------------------------------------------------------------
+def verify_runtime_target(elapsed_seconds: float, max_seconds: float = 4 * 3600) -> bool:
+    """
+    Verify that the total runtime does not exceed the target.
+
+    Logs an INFO message when the runtime is within the limit and a
+    WARNING when it exceeds the limit.
+
+    Parameters
+    ----------
+    elapsed_seconds : float
+        Total elapsed time measured for the pipeline run.
+    max_seconds : float, optional
+        Maximum allowed runtime in seconds. Defaults to 4 hours.
+
+    Returns
+    -------
+    bool
+        ``True`` if the runtime is within the target, ``False`` otherwise.
+    """
+    elapsed_hours = elapsed_seconds / 3600
+    max_hours = max_seconds / 3600
+    if elapsed_seconds <= max_seconds:
+        logging.info(
+            "Pipeline completed in %.2f hours (target ≤ %.2f hours).",
+            elapsed_hours,
+            max_hours,
+        )
+        return True
+    else:
         logging.warning(
-            f"Runtime target exceeded: {elapsed_hours:.2f} hours / {target_hours} hours"
+            "Pipeline runtime %.2f hours exceeds the target of %.2f hours.",
+            elapsed_hours,
+            max_hours,
         )
         return False
-    
-    logging.info(
-        f"Runtime target met: {elapsed_hours:.2f} hours / {target_hours} hours"
-    )
-    return True
 
-def main():
+# ----------------------------------------------------------------------
+# Main orchestration
+# ----------------------------------------------------------------------
+@profile_memory_usage
+def run_full_pipeline() -> None:
     """
-    Main entry point for the pipeline.
-    
-    Orchestrates the full research workflow:
-    1. Setup logging and environment.
-    2. Validate dependencies.
-    3. Execute pipeline stages (Download, Preprocess, Metrics, Analysis, Report).
-    4. Profile memory and verify runtime targets (< 4 hours).
+    Execute the full analysis pipeline.
+
+    The implementation delegates to ``quickstart_validator.main`` which
+    runs all required stages (download, preprocessing, metric computation,
+    statistical analysis, and report generation). Import is performed
+    lazily to avoid unnecessary overhead when the module is imported but
+    not executed.
     """
-    start_time = datetime.now()
-    logging.info(f"Pipeline started at {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-    
-    # Load configuration
-    config = load_config()
-    if not config:
-        logging.error("Failed to load configuration.")
-        sys.exit(1)
-    
-    # Setup environment and random seeds
-    setup_environment(config)
-    set_random_seed(config.get('random_seed', 42))
-    
-    # Setup logging
-    log_file = config.get('log_file')
-    log_level = config.get('log_level', 'INFO')
-    setup_logging(log_level=log_level, log_file=log_file)
-    
-    # Validate dependencies
-    if not validate_dependencies():
-        sys.exit(1)
-    
-    # Execute pipeline stages
-    stages = [
-        ("Download", run_download),
-        ("Preprocess", run_preprocess),
-        ("Metrics", run_metrics),
-        ("Analysis", run_analysis),
-        ("Report", run_report),
-    ]
-    
-    for stage_name, stage_func in stages:
-        try:
-            logging.info(f"Starting stage: {stage_name}")
-            stage_func()
-            logging.info(f"Completed stage: {stage_name}")
-        except Exception as e:
-            logging.error(f"Stage {stage_name} failed: {str(e)}")
-            sys.exit(1)
-    
-    # Verify outputs
+    logging.debug("Importing quickstart_validator for pipeline execution.")
+    from quickstart_validator import main as quickstart_main
+
+    # The quickstart validator returns an exit code; we propagate it.
+    exit_code = quickstart_main()
+    if exit_code != 0:
+        logging.error(
+            "Quickstart validator exited with non‑zero code %d.", exit_code
+        )
+        sys.exit(exit_code)
+
+def main() -> int:
+    """
+    Entry point for ``python -m code.main`` or ``python code/main.py``.
+
+    It sets up logging, records the start time, runs the full pipeline,
+    measures elapsed time, verifies the runtime target, and returns an
+    appropriate exit code.
+    """
+    setup_logging()
+    logging.info("Starting llmXive sleep centrality pipeline.")
+    start_time = time.time()
+
     try:
-        verify_outputs()
-        logging.info("Output verification passed.")
-    except Exception as e:
-        logging.error(f"Output verification failed: {str(e)}")
-        sys.exit(1)
-    
-    # Check memory usage
-    if not profile_memory_usage(threshold_gb=4.0):
-        logging.warning("Memory usage exceeded recommended limits.")
-    
-    # Verify runtime target
-    if not verify_runtime_target(start_time, target_hours=4.0):
-        logging.warning("Runtime target exceeded.")
-    
-    end_time = datetime.now()
-    total_duration = end_time - start_time
-    logging.info(
-        f"Pipeline completed successfully in {total_duration.total_seconds()/3600:.2f} hours."
-    )
+        run_full_pipeline()
+    except Exception as exc:
+        logging.exception("Pipeline execution failed: %s", exc)
+        return 1
+
+    end_time = time.time()
+    elapsed = end_time - start_time
+    logging.info("Total pipeline runtime: %.2f seconds (%.2f minutes).",
+                 elapsed, elapsed / 60)
+
+    # Verify that we stayed within the 4‑hour budget.
+    verify_runtime_target(elapsed)
+
+    logging.info("Pipeline finished successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

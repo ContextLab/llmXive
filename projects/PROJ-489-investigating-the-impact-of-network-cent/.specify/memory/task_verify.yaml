@@ -1,10 +1,2 @@
-? 'T043 [P] Documentation updates in `docs/` and `README.md`: add installation instructions,
-  usage examples, and data model diagram; create `docs/quickstart.md`.'
-: 2
-? T044 [P] Refactor `code/metrics.py` to reduce cyclomatic complexity to a lower,
-  manageable level and ensure every public function has a comprehensive docstring.
-: 2
-T045 [P] Refactor `code/analysis.py` to enforce function length < 50 lines and add type hints throughout.: 2
-T054 [P] [US3] Unit test for residual diagnostics JSON generation in `tests/unit/test_analysis.py`.: 2
-T055 [P] [US3] Unit test for FDR correction logic in `tests/unit/test_analysis.py`.: 2
-"T056 [P] [US3] Integration test for end\u2011to\u2011end report generation in `tests/integration/test_analysis.py`.": 2
+T046: 2
+T047: 2

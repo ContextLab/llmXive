@@ -1,0 +1,4 @@
+# Documentation generation tools (optional)
+# These are not required for the core pipeline but useful for generating diagrams
+# graphviz
+# pygraphviz

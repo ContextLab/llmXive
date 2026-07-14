@@ -1,144 +1,131 @@
 # Data Model
 
-This document describes the data entities, relationships, and flow within the **llmXive** pipeline for investigating network centrality and neural synchrony.
+## Overview
 
-## Core Entities
+This document describes the data structures, file formats, and relationships used in the llmXive sleep synchrony research pipeline.
 
-### 1. Subject
-Represents an individual participant in the Sleep-EDF dataset.
+## Directory Structure
 
-**Attributes:**
-- `subject_id` (str): Unique identifier (e.g., "SC001").
-- `waking_night_id` (str): Identifier for the waking recording night.
-- `sleep_night_id` (str): Identifier for the sleep recording night.
-- `temporal_proximity` (bool): Flag indicating if waking and sleep data are from the same night.
+```
+project_root/
+├── code/ # Source code
+├── data/
+│ ├── raw/ # Original downloaded EDF files
+│ ├── processed/ # Cleaned, epoched data (NPZ/CSV)
+│ ├── metrics/ # Computed metrics (CSV)
+│ └── results/ # Analysis outputs (JSON)
+├── reports/ # Final reports (Markdown)
+├── tests/ # Unit and integration tests
+└── docs/ # Documentation
+```
 
-### 2. Epoch
-A segmented time window of EEG data, labeled by sleep stage.
+## Entities
 
-**Attributes:**
-- `epoch_id` (str): Unique identifier.
-- `subject_id` (str): Foreign key to `Subject`.
-- `sleep_stage` (str): Label (Wake, N1, N2, N3, REM).
-- `start_time` (float): Start time in seconds.
-- `duration` (float): Duration in seconds.
-- `signal_data` (ndarray): Preprocessed EEG signal array.
+### Subject
 
-### 3. ConnectivityMatrix
-Functional connectivity matrix derived from waking EEG data.
+Represents a single participant in the study.
 
-**Attributes:**
-- `matrix_id` (str): Unique identifier.
-- `subject_id` (str): Foreign key to `Subject`.
-- `frequency_band` (str): Theta (4-8 Hz) or Alpha (8-13 Hz).
-- `matrix` (ndarray): Symmetric matrix of coherence values (0-1).
-- `is_valid` (bool): Validation status (symmetry, value range).
+| Field | Type | Description |
+|-------|------|-------------|
+| `subject_id` | str | Unique identifier (e.g., "ST50") |
+| `waking_night_id` | int | ID of the night for waking data |
+| `sleep_night_id` | int | ID of the night for sleep data |
 
-### 4. CentralityMetrics
-Network centrality measures computed from the connectivity matrix.
+### Epoch
 
-**Attributes:**
-- `subject_id` (str): Foreign key to `Subject`.
-- `degree_centrality` (float): Average degree centrality.
-- `betweenness_centrality` (float): Average betweenness centrality.
-- `eigenvector_centrality` (float): Average eigenvector centrality.
-- `vif_degree` (float): Variance Inflation Factor for degree centrality.
-- `vif_betweenness` (float): VIF for betweenness centrality.
-- `vif_eigenvector` (float): VIF for eigenvector centrality.
+A time-segment of EEG data labeled with a sleep stage.
 
-### 5. SynchronyScore
-Neural synchrony measure derived from sleep epochs.
+| Field | Type | Description |
+|-------|------|-------------|
+| `epoch_id` | str | Unique identifier |
+| `subject_id` | str | Foreign key to Subject |
+| `start_time` | float | Start time in seconds |
+| `duration` | float | Duration in seconds |
+| `sleep_stage` | str | Wake, N1, N2, N3, REM |
+| `signal_data` | np.ndarray | EEG signal array |
 
-**Attributes:**
-- `subject_id` (str): Foreign key to `Subject`.
-- `sleep_stage` (str): Sleep stage label.
-- `mean_pli` (float): Mean Phase Lag Index across electrode pairs.
-- `pli_std` (float): Standard deviation of PLI.
-- `epoch_count` (int): Number of epochs used.
+### ConnectivityMatrix
 
-## Data Flow
+Functional connectivity between electrode pairs.
 
-1. **Acquisition**: Raw EDF files are downloaded from PhysioNet into `data/raw`.
-2. **Preprocessing**: Signals are filtered, cleaned (ICA), and segmented into epochs (`data/processed`).
-3. **Metric Computation**:
- - Waking connectivity matrices are computed from theta/alpha coherence.
- - Centrality metrics are derived from these matrices.
- - PLI is computed for each sleep epoch and aggregated to synchrony scores.
-4. **Analysis**: Statistical models (LME) are fitted to relate centrality to synchrony.
-5. **Reporting**: Results are compiled into JSON and Markdown reports.
+| Field | Type | Description |
+|-------|------|-------------|
+| `subject_id` | str | Foreign key to Subject |
+| `matrix` | np.ndarray | Symmetric matrix (channels x channels) |
+| `metric` | str | Coherence, PLI, etc. |
+| `band` | str | Theta, Alpha, etc. |
+
+### CentralityMetrics
+
+Network centrality scores per subject.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `subject_id` | str | Foreign key to Subject |
+| `degree_centrality` | float | Average degree |
+| `betweenness_centrality` | float | Betweenness score |
+| `eigenvector_centrality` | float | Eigenvector score |
+
+### SynchronyScores
+
+Neural synchrony metrics per subject and sleep stage.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `subject_id` | str | Foreign key to Subject |
+| `sleep_stage` | str | Wake, N1, N2, N3, REM |
+| `mean_pli` | float | Mean Phase Lag Index |
+| `global_coherence` | float | Global coherence score |
+
+## File Formats
+
+### SubjectMetrics.csv
+
+Aggregated metrics for each subject.
+
+```csv
+subject_id,degree_centrality,betweenness_centrality,eigenvector_centrality,pli_wake,pli_n1,pli_n2,pli_n3,pli_rem,global_coherence,waking_night_id,sleep_night_id
+ST50,0.12,0.05,0.08,0.23,0.25,0.28,0.30,0.22,0.45,1,1
+```
+
+### analysis_results.json
+
+Statistical analysis outputs.
+
+```json
+{
+ "coefficients": {
+ "pli": 0.45,
+ "global_coherence": 0.10
+ },
+ "p_values": {
+ "pli": 0.03,
+ "global_coherence": 0.15
+ },
+ "fdr_corrected_p_values": {
+ "pli": 0.06,
+ "global_coherence": 0.20
+ },
+ "significance_flags": {
+ "pli": "Significant",
+ "global_coherence": "Non-Significant"
+ },
+ "diagnostics": {
+ "shapiro_wilk": {
+ "statistic": 0.96,
+ "p_value": 0.15,
+ "is_normal": true
+ }
+ },
+ "limitation_notes": {
+ "temporal_proximity": false
+ }
+}
+```
 
 ## Relationships
 
-- **Subject** 1:1 **ConnectivityMatrix** (per subject, per band)
-- **Subject** 1:N **Epoch** (multiple epochs per subject)
-- **Subject** 1:1 **CentralityMetrics**
-- **Subject** 1:N **SynchronyScore** (one per sleep stage)
-
-## File Artifacts
-
-| Path | Entity | Description |
-|------|--------|-------------|
-| `data/raw/*.edf` | Raw Data | Original EDF files from Sleep-EDF |
-| `data/processed/*.npz` | Epoch | Preprocessed epoch data |
-| `data/metrics/SubjectMetrics.csv` | Aggregated Metrics | Centrality + Synchrony per subject |
-| `data/results/analysis_results.json` | Analysis | LME coefficients, p-values, FDR |
-| `reports/final_report.md` | Report | Human-readable summary |
-
-## Validation Rules
-
-- **ConnectivityMatrix**: Must be symmetric; values in [0, 1].
-- **Epochs**: No NaN values allowed in signal data.
-- **CentralityMetrics**: VIF > 5.0 flags collinearity.
-- **SynchronyScore**: Missing sleep stages are excluded from aggregation.
-
-## Schema Diagram
-
-```mermaid
-erDiagram
- Subject ||--o{ Epoch: has
- Subject ||--|| ConnectivityMatrix: has
- Subject ||--|| CentralityMetrics: has
- Subject ||--o{ SynchronyScore: has
-
- Subject {
- string subject_id PK
- string waking_night_id
- string sleep_night_id
- bool temporal_proximity
- }
-
- Epoch {
- string epoch_id PK
- string subject_id FK
- string sleep_stage
- float start_time
- float duration
- blob signal_data
- }
-
- ConnectivityMatrix {
- string matrix_id PK
- string subject_id FK
- string frequency_band
- blob matrix
- bool is_valid
- }
-
- CentralityMetrics {
- string subject_id PK,FK
- float degree_centrality
- float betweenness_centrality
- float eigenvector_centrality
- float vif_degree
- float vif_betweenness
- float vif_eigenvector
- }
-
- SynchronyScore {
- string subject_id PK,FK
- string sleep_stage PK
- float mean_pli
- float pli_std
- int epoch_count
- }
-```
+- **Subject** has many **Epochs**.
+- **Subject** has one **CentralityMetrics** record.
+- **Subject** has multiple **SynchronyScores** (one per sleep stage).
+- **Analysis** consumes **SubjectMetrics** to produce **analysis_results**.

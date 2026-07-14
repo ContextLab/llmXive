@@ -31,14 +31,25 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/datasets/Plim/common_voice_7_0_fr_processed
   verified_at: '2026-06-30T02:44:02.524065Z'
-- artifact_hash: 14090cbda24c094980e6f895da3fe2677218eb92edd219f35e76fe05c54d9224
+- artifact_hash: 58258536788d696171a07733fe3af533ddafda1f5e6042a39698e67162a4c543
   artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/docs/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://github.com/your-org/PROJ-489-investigating-the-impact-of-network-cent.git
+  value: https://github.com/your-org/llmXive-sleep-synchrony.git
   verification_status: mismatch
-  verified_against_url: https://github.com/your-org/PROJ-489-investigating-the-impact-of-network-cent
-  verified_at: '2026-07-04T09:54:33.457659Z'
+  verified_against_url: https://github.com/your-org/llmXive-sleep-synchrony
+  verified_at: '2026-07-14T11:36:59.987258Z'
+- artifact_hash: 4d9065e21b54431de711237406b03da456f0669a32e9d963a62fdf633bc4c5d7
+  artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/llmXive-sleep-synchrony.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmXive-sleep-synchrony
+  verified_at: '2026-07-14T11:37:01.655967Z'

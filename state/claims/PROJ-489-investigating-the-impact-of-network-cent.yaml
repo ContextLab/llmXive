@@ -161,3 +161,237 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T04:40:31Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/README.md
+  attempts: 1
+  canonical: Sleep-EDF database contains 197 recordings from 41 subjects
+  claim_id: c_ae8d8940
+  context: '### Data Source
+
+    - **Sleep-EDF Database**: Contains 197 recordings from 41 subjects.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sleep-EDF Database: Contains 197 recordings from 41 subjects.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:11:31Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/README.md
+  attempts: 1
+  canonical: Sleep-EDF database contains 41 subjects
+  claim_id: c_d9eaeedb
+  context: '### Data Source
+
+    - **Sleep-EDF Database**: Contains 197 recordings from 41 subjects.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sleep-EDF Database: Contains 197 recordings from 41 subjects.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:11:31Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/README.md
+  attempts: 1
+  canonical: Sleep-EDF channels include EEG Fpz-Cz, Pz-Oz, EOG, and chin EMG
+  claim_id: c_674fa756
+  context: '### Data Source
+
+    - **Channels**: EEG (Fpz-Cz, Pz-Oz), EOG, chin EMG.'
+  evidence:
+    entailment_evidence: Sleep-EDF channels include EEG Fpz-Cz, Pz-Oz, EOG, and chin
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Sleep-EDF_channels_include_EEG_Fpz-Cz,_Pz-Oz,_EOG,_and_chin
+  kind: entity_fact
+  raw_text: 'Channels: EEG (Fpz-Cz, Pz-Oz), EOG, chin EMG.'
+  resolved_value: Sleep-EDF channels include EEG Fpz-Cz, Pz-Oz, EOG, and chin EMG
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T11:11:33Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/README.md
+  attempts: 1
+  canonical: Sleep-EDF sampling rate is 100 Hz
+  claim_id: c_d24b49f1
+  context: '### Data Source
+
+    - **Sampling Rate**: 100 Hz.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sampling Rate: 100 Hz.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:12:05Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/README.md
+  attempts: 1
+  canonical: Filtering bandpass is 0.5 to 45 Hz
+  claim_id: c_51fb2a79
+  context: "### Preprocessing\n- **Filtering**: Bandpass 0.5\u201345 Hz."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Filtering: Bandpass 0.5\u201345 Hz."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:12:23Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/README.md
+  attempts: 1
+  canonical: Epoching uses 30-second windows
+  claim_id: c_8cd6e695
+  context: '### Preprocessing
+
+    - **Epoching**: 30-second windows labeled by sleep stage.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: pressure ( CPAP), and split -night CPAP. PSGs were annotated in 30 -second
+        non-overlapping epochs
+      source_id: '1908.11463'
+      url: https://arxiv.org/abs/1908.11463
+      value: '30'
+    filled: true
+  kind: numeric
+  raw_text: 'Epoching: 30-second windows labeled by sleep stage.'
+  resolved_value: '30'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T11:12:49Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/README.md
+  attempts: 1
+  canonical: Connectivity measured via coherence in Theta 4-8 Hz and Alpha 8-13 Hz
+    bands
+  claim_id: c_c55a655d
+  context: '### Metrics
+
+    - **Connectivity**: Coherence in Theta (4-8Hz) and Alpha (8-13Hz) bands.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Connectivity: Coherence in Theta (4-8Hz) and Alpha (8-13Hz) bands.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:13:17Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/README.md
+  attempts: 1
+  canonical: Project requires Python 3.11 or higher
+  claim_id: c_6a88d0aa
+  context: '## Requirements
+
+    - Python 3.11+'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11+
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:13:33Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/docs/data_model.md
+  attempts: 1
+  canonical: Raw subject data sourced from PhysioNet Sleep-EDF
+  claim_id: c_503ae3be
+  context: '## Core Entities ### 1. Raw Subject Data - **Source**: PhysioNet Sleep-EDF'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raw_subject_data_sourced_from_PhysioNet_Sleep-EDF
+  kind: entity_fact
+  raw_text: 'Source: PhysioNet Sleep-EDF'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:22:13Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/docs/data_model.md
+  attempts: 1
+  canonical: Connectivity matrix uses coherence metric for Theta (4-8Hz) and Alpha
+    (8-13Hz) bands
+  claim_id: c_8e09234b
+  context: '### 3. Connectivity Matrix - **Source**: Waking state epochs - **Metric**:
+    Coherence (Theta: 4-8Hz, Alpha: 8-13Hz)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Metric: Coherence (Theta: 4-8Hz, Alpha: 8-13Hz)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:22:38Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/docs/data_model.md
+  attempts: 1
+  canonical: Connectivity matrix is a square matrix with values between 0 and 1
+  claim_id: c_b4b82127
+  context: '### 3. Connectivity Matrix - **Metric**: Coherence... - **Structure**:
+    Square matrix `(n_channels, n_channels)` with values in `[0, 1]`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Connectivity_matrix_is_a_square_matrix_with_values_between_0
+  kind: entity_fact
+  raw_text: 'Structure: Square matrix (n_channels, n_channels) with values in [0,
+    1]'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:23:02Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/docs/data_model.md
+  attempts: 1
+  canonical: Synchrony scores aggregate mean Phase Lag Index per sleep stage N1, N2,
+    N3, and REM
+  claim_id: c_270873ae
+  context: '### 5. Synchrony Scores - **Source**: Sleep stage epochs - **Metric**:
+    Phase Lag Index (PLI) - **Aggregation**: Mean PLI per sleep stage (N1, N2, N3,
+    REM).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synchrony_scores_aggregate_mean_Phase_Lag_Index_per_sleep_st
+  kind: entity_fact
+  raw_text: 'Aggregation: Mean PLI per sleep stage (N1, N2, N3, REM)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:23:20Z'
+- artifact_path: projects/PROJ-489-investigating-the-impact-of-network-cent/docs/data_model.md
+  attempts: 1
+  canonical: Minimum of 30 subjects recommended for statistical power
+  claim_id: c_9565c37f
+  context: '## Constraints - **Subject Count**: Minimum N=30 recommended for statistical
+    power.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Subject Count: Minimum N=30 recommended for statistical power'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:23:45Z'
