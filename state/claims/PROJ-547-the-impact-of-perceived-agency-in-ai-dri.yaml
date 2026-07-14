@@ -2577,3 +2577,393 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T09:19:18Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: User Story 2 independent test processes mock usage-log JSON file
+  claim_id: c_3fd011ae
+  context: "Independent Test: Feed a mock usage\u2011log JSON file to the adherence\u2011\
+    extraction script and confirm that {{claim:c_eedac387}}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 2 confirms that the adherence-extraction
+    script processes a mock usage-log JSON file.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:38:28Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: Regression summary includes provenance metadata linking statistics to
+    source row and script line
+  claim_id: c_856f0bf2
+  context: "Generate human\u2011readable results (output/regression_summary.csv) and\
+    \ PNG plots (output/plots/). Include provenance metadata (output/provenance.yaml)\
+    \ linking each statistic to source row and script line. Verification: {{claim:c_7c084088}}\
+    \ (Wikidata Q118869796, https://www.wikidata.org/wiki/Q118869796)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_summary_includes_provenance_metadata_linking_stat
+  kind: entity_fact
+  raw_text: The regression summary output includes provenance metadata linking each
+    statistic to source row and script line.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:38:49Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: Log-completeness metric parses logs and compares against predefined step
+    list
+  claim_id: c_87ba3d45
+  context: "Implement log\u2011completeness metric (code/logging/verify_logging.py)\
+    \ that parses logs/run_*.log, compares against a predefined step list, and writes\
+    \ logs/completeness_metric.json. Verification: {{claim:c_0b174b75}}"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log-completeness_metric_parses_logs_and_compares_against_pre
+  kind: entity_fact
+  raw_text: The log-completeness metric parses logs and compares them against a predefined
+    step list.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:39:29Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: Script exits with code 0
+  claim_id: c_e0b0ae21
+  context: 'T054 {{claim:c_92c75830}} Verification: Script exits with code 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project includes a script that exits with code 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:40:29Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: Benchmark dataset downloaded, checksum verified, stored in data/raw/benchmark/
+  claim_id: c_21fd178d
+  context: 'T056 [P] {{claim:c_08009153}} Download, verify checksum, store under data/raw/benchmark/.
+    Verification: {{claim:c_bd9c37ce}}'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_dataset_downloaded,_checksum_verified,_stored_in_d
+  kind: entity_fact
+  raw_text: A benchmark dataset is downloaded, its checksum is verified, and it is
+    stored under data/raw/benchmark/.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:40:55Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: Task verification involves claim c_f54a79c9
+  claim_id: c_f8ca6710
+  context: 'T057 [P] {{claim:c_2b450cd0}} Verification: {{claim:c_f54a79c9}}'
+  evidence:
+    entailment_evidence: Task verification involves claim c f54a79c9
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Task_verification_involves_claim_c_f54a79c9
+  kind: entity_fact
+  raw_text: A task verification involves a specific claim identified by c_f54a79c9.
+  resolved_value: Task verification involves claim c_f54a79c9
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T09:40:57Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: reference validator threshold 0.7 title token overlap
+  claim_id: c_4c1246d0
+  context: T065A [P] Implement citation validation for all external sources (Constitution
+    Principle II) using Reference-Validator CLI on `research.md`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run `reference-validator research.md --threshold 0.7`; all citations\
+    \ pass with title-token-overlap \u2265 0.7."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:42:50Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: regression runtime guard 30 minutes
+  claim_id: c_28443b06
+  context: "T029 [P] [US3] Run regression (`code/analysis/run_regression.py`) using\
+    \ the selector, apply Benjamini\u2011Hochberg FDR correction, enforce runtime\
+    \ guard (\u2264 30 min)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "enforce runtime guard (\u2264 30 min)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:42:51Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: regression post-hoc power warning threshold 0.80
+  claim_id: c_275c0548
+  context: "T029 [P] [US3] Run regression... compute post\u2011hoc power, and log\
+    \ warnings if power < 0.80."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: log warnings if power < 0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:42:51Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: imputation iterative imputer m 5
+  claim_id: c_f6fc315b
+  context: "T025 [P] [US2] Create imputation script for confounders... applies IterativeImputer\
+    \ (m=5) or falls back to complete\u2011case analysis..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply IterativeImputer (m=5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:09Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: self reported engagement hard abort 7 days
+  claim_id: c_3808a835
+  context: "T022 [P] [US2] Enforce temporal gap for self\u2011reported engagement\
+    \ per FR\u2011011: implement both hard abort for <7 days..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: impose hard abort for <7 days
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:10Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: validation split half reliability threshold 0.80
+  claim_id: c_b25ba912
+  context: "Independent Test: Run the validation script... verify split\u2011half\
+    \ reliability \u2265 0.80..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify split\u2011half reliability \u2265 0.80"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:10Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: split half reliability calculation threshold 0.80
+  claim_id: c_6a6e94b3
+  context: "T037 [P] [US4] Compute split\u2011half reliability... Verification: Reliability\
+    \ \u2265 0.80; otherwise warning logged."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reliability \u2265 0.80"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:11Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: log completeness metric threshold 0.95
+  claim_id: c_be56945a
+  context: "T042 [P] [US5] Unit test for log completeness checker... Verification:\
+    \ pytest passes and asserts completeness \u2265 0.95."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "assert completeness \u2265 0.95"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:11Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: success criteria 95 percent processing success benchmark
+  claim_id: c_21be37b2
+  context: "T057A [P] Verify success criteria thresholds: validate SC\u2011001 (\u2265\
+    95% processing success on benchmark)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validate SC\u2011001 (\u226595% processing success on benchmark)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:39Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: success criteria 0.01 metric accuracy ground truth
+  claim_id: c_1182fe55
+  context: "T057A [P] Verify success criteria thresholds: validate SC\u2011001...\
+    \ and SC\u2011002 (\xB10.01 metric accuracy on ground-truth)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validate SC\u2011002 (\xB10.01 metric accuracy on ground-truth)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:40Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: pandas dependency version 2.0
+  claim_id: c_146095a2
+  context: "T002 Initialize Python 3.11 project with `requirements.txt` (spaCy\u2265\
+    3.6, NLTK\u22653.8, pandas\u22652.0, statsmodels\u22650.14, scikit\u2011learn\u2265\
+    1.3, pyyaml\u22656.0, matplotlib\u22653.8, tqdm\u22654.66)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "pandas\u22652.0"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:40Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: statsmodels dependency version 0.14
+  claim_id: c_22dc1e22
+  context: "T002 Initialize Python 3.11 project with `requirements.txt` (spaCy\u2265\
+    3.6, NLTK\u22653.8, pandas\u22652.0, statsmodels\u22650.14, scikit\u2011learn\u2265\
+    1.3, pyyaml\u22656.0, matplotlib\u22653.8, tqdm\u22654.66)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "statsmodels\u22650.14"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:41Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: scikit learn dependency version 1.3
+  claim_id: c_a8f33445
+  context: "T002 Initialize Python 3.11 project with `requirements.txt` (spaCy\u2265\
+    3.6, NLTK\u22653.8, pandas\u22652.0, statsmodels\u22650.14, scikit\u2011learn\u2265\
+    1.3, pyyaml\u22656.0, matplotlib\u22653.8, tqdm\u22654.66)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "scikit\u2011learn\u22651.3"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:41Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: pyyaml dependency version 6.0
+  claim_id: c_2d6e81b4
+  context: "T002 Initialize Python 3.11 project with `requirements.txt` (spaCy\u2265\
+    3.6, NLTK\u22653.8, pandas\u22652.0, statsmodels\u22650.14, scikit\u2011learn\u2265\
+    1.3, pyyaml\u22656.0, matplotlib\u22653.8, tqdm\u22654.66)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "pyyaml\u22656.0"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:42Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: matplotlib dependency version 3.8
+  claim_id: c_9e36b6d8
+  context: "T002 Initialize Python 3.11 project with `requirements.txt` (spaCy\u2265\
+    3.6, NLTK\u22653.8, pandas\u22652.0, statsmodels\u22650.14, scikit\u2011learn\u2265\
+    1.3, pyyaml\u22656.0, matplotlib\u22653.8, tqdm\u22654.66)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "matplotlib\u22653.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:42Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: resource limits 6 GB RAM 2 CPU cores
+  claim_id: c_65aaec50
+  context: "T010 [P] Add resource\u2011monitoring helper... to enforce FR\u2011007\
+    \ limits (\u2264 6 GB RAM, \u2264 2 CPU cores)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "enforce FR\u2011007 limits (\u2264 6 GB RAM, \u2264 2 CPU cores)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:44:10Z'
+- artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
+  attempts: 1
+  canonical: memory usage peak 6 GB
+  claim_id: c_b2378928
+  context: "T051 [P] Performance optimization: profile memory usage in `run_regression.py`\
+    \ and ensure peak RAM \u2264 6 GB (FR\u2011007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "ensure peak RAM \u2264 6 GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:44:11Z'

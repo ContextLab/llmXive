@@ -1,6 +1,8 @@
 """
-Setup script for llmxive-agency-cbt package.
-This file is kept for legacy compatibility, but pyproject.toml is the source of truth.
+Setup script for llmXive Agency CBT project.
+This file exists primarily for backward compatibility and as a fallback for
+environments that do not fully support pyproject.toml build systems yet.
+The primary build configuration is in pyproject.toml.
 """
 from setuptools import setup
 

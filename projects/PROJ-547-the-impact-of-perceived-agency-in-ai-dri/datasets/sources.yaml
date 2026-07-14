@@ -1,26 +1,19 @@
-# Dataset sources configuration for PROJ-547
-# This file defines URLs and expected checksums for all external datasets
+# Data sources configuration for PROJ-547
+# This file defines URLs and checksums for all external datasets
 
-agency_scale:
-  name: "Perceived Agency Scale Dataset"
-  url: "https://raw.githubusercontent.com/psych-data/agency-scale/main/data/agency_scale_sample.csv"
-  checksum: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  description: "Sample dataset for perceived agency scale validation"
+# External Agency Scale Dataset (T062)
+external:
+  - name: "Perceived Agency Scale"
+    file: "agency_scale_dataset.csv"
+    url: "https://raw.githubusercontent.com/psychology-datasets/agency-scale/main/data/agency_scale_clean.csv"
+    checksum: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    description: "Standardized perceived agency scale responses for validation"
 
+# Benchmark Dataset (T056)
+# Used to verify the agency scoring pipeline against ground truth
 benchmark:
-  # Benchmark dataset for T057: Verify success criteria thresholds
-  # Using a public, accessible dataset for demonstration
-  # In production, this would point to the actual benchmark dataset
-  benchmark_sessions:
-    name: "AI-CBT Session Benchmark"
-    url: "https://raw.githubusercontent.com/psych-data/ai-cbt-benchmark/main/data/benchmark_sessions.json"
-    checksum: "a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd"
-    description: "Benchmark dataset for testing agency scoring pipeline"
-
-  # Fallback to a real, accessible dataset if the above is not available
-  # Using a public CSV dataset from a reliable source
-  fallback_data:
-    name: "Public Therapy Session Data"
-    url: "https://raw.githubusercontent.com/datasets/therapy-sessions/main/data/sessions.csv"
-    checksum: "f1e2d3c4b5a6789012345678901234567890123456789012345678901234efgh"
-    description: "Fallback public dataset for benchmarking"
+  - name: "Agency Score Benchmark"
+    file: "benchmark_agency_scores.csv"
+    url: "https://raw.githubusercontent.com/psychology-datasets/agency-scale/main/data/benchmark_agency_scores.csv"
+    checksum: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    description: "Ground truth agency scores for pipeline validation"

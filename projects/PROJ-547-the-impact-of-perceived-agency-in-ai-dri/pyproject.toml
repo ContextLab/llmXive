@@ -5,12 +5,20 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-agency-cbt"
 version = "0.1.0"
-description = "Research pipeline for analyzing the impact of perceived agency in AI-driven CBT on treatment adherence."
+description = "Impact of Perceived Agency in AI-Driven CBT on Treatment Adherence"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
     {name = "llmXive Research Team"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
     "spaCy>=3.6",
@@ -21,34 +29,37 @@ dependencies = [
     "pyyaml>=6.0",
     "matplotlib>=3.8",
     "tqdm>=4.66",
-    "jsonschema>=4.0",
-    "scipy>=1.10",
+    "scipy>=1.11",
     "numpy>=1.24",
-    "psutil>=5.9"
+    "psutil>=5.9",
+    "jsonschema>=4.17",
+    "reportlab>=4.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0",
-    "black>=23.0",
     "ruff>=0.1.0",
+    "black>=23.0",
+    "pre-commit>=3.0",
+    "pytest>=7.0",
     "mypy>=1.0",
-    "pre-commit>=3.0"
 ]
 
 [project.scripts]
 download-datasets = "data_acquisition.download_datasets:main"
 validate-metadata = "data_acquisition.validate_metadata:main"
 ingest-transcripts = "agency_scoring.ingest_transcripts:main"
+detect-markers = "agency_scoring.detect_markers:main"
 compute-agency-scores = "agency_scoring.compute_scores:main"
-extract-adherence-metrics = "adherence_extraction.extract_metrics:main"
+extract-metrics = "adherence_extraction.extract_metrics:main"
 merge-datasets = "analysis.merge_datasets:main"
 run-regression = "analysis.run_regression:main"
-validate-agency-metrics = "validation.generate_report:main"
+compute-reliability = "validation.compute_reliability:main"
+compute-convergent = "validation.compute_convergent:main"
+generate-validation-report = "validation.generate_report:main"
 
 [tool.setuptools.packages.find]
 where = ["code"]
-include = ["*"]
 
 [tool.black]
 line-length = 88
@@ -56,6 +67,7 @@ target-version = ['py311']
 
 [tool.ruff]
 line-length = 88
+target-version = "py311"
 select = ["E", "F", "W", "I"]
 
 [tool.mypy]

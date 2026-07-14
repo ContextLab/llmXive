@@ -6,27 +6,27 @@ import os
 import sys
 import urllib.request
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 import yaml
 
-from logging.pipeline_logger import get_logger
+from logging.pipeline_logger import get_logger, log_dict
+from utils.error_handler import PipelineError, log_and_exit
 
 # Constants
 BENCHMARK_DIR = Path("data/raw/benchmark")
-SOURCES_FILE = Path("datasets/sources.yaml")
 METADATA_FILE = Path("datasets/metadata.yaml")
+SOURCES_FILE = Path("datasets/sources.yaml")
 
-logger = get_logger(__name__)
+logger = get_logger("benchmark_downloader")
 
 
-def load_sources_config(sources_path: Path) -> Dict[str, Any]:
-    """Load the sources configuration YAML."""
-    if not sources_path.exists():
-        logger.error(f"Sources configuration file not found: {sources_path}")
-        raise FileNotFoundError(f"Sources configuration file not found: {sources_path}")
-
-    with open(sources_path, "r", encoding="utf-8") as f:
+def load_sources_config() -> Dict[str, Any]:
+    """Load the sources configuration file."""
+    if not SOURCES_FILE.exists():
+        raise PipelineError(f"Sources configuration file not found: {SOURCES_FILE}")
+    
+    with open(SOURCES_FILE, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
@@ -39,103 +39,112 @@ def compute_sha256(file_path: Path) -> str:
     return sha256_hash.hexdigest()
 
 
-def download_file(url: str, dest_path: Path, expected_checksum: str | None = None) -> bool:
-    """Download a file from a URL to a destination path."""
+def download_file(url: str, dest_path: Path) -> None:
+    """Download a file from a URL to the destination path."""
     dest_path.parent.mkdir(parents=True, exist_ok=True)
-
+    
     logger.info(f"Downloading {url} to {dest_path}")
     try:
         urllib.request.urlretrieve(url, dest_path)
-        logger.info(f"Downloaded {url} successfully")
     except Exception as e:
-        logger.error(f"Failed to download {url}: {e}")
-        return False
-
-    if expected_checksum:
-        actual_checksum = compute_sha256(dest_path)
-        if actual_checksum != expected_checksum:
-            logger.error(
-                f"Checksum mismatch for {dest_path}. "
-                f"Expected: {expected_checksum}, Got: {actual_checksum}"
-            )
-            return False
-        logger.info(f"Checksum verified for {dest_path}")
-
-    return True
+        raise PipelineError(f"Failed to download {url}: {e}")
 
 
-def update_metadata(metadata_path: Path, dataset_name: str, file_path: Path, checksum: str) -> None:
-    """Update the metadata YAML file with the new dataset entry."""
-    metadata = {}
-    if metadata_path.exists():
-        with open(metadata_path, "r", encoding="utf-8") as f:
+def update_metadata(file_name: str, checksum: str, source_url: str, file_size: int) -> None:
+    """Update the metadata file with the new file information."""
+    if METADATA_FILE.exists():
+        with open(METADATA_FILE, "r", encoding="utf-8") as f:
             metadata = yaml.safe_load(f) or {}
+    else:
+        metadata = {}
 
-    metadata[dataset_name] = {
-        "path": str(file_path),
+    if "benchmark_files" not in metadata:
+        metadata["benchmark_files"] = {}
+
+    metadata["benchmark_files"][file_name] = {
         "checksum": checksum,
-        "downloaded_at": "now"  # In a real implementation, use datetime.now().isoformat()
+        "source_url": source_url,
+        "file_size": file_size,
+        "downloaded_at": str(Path.cwd())  # Placeholder for timestamp logic if needed
     }
 
-    with open(metadata_path, "w", encoding="utf-8") as f:
+    with open(METADATA_FILE, "w", encoding="utf-8") as f:
         yaml.dump(metadata, f, default_flow_style=False)
 
-    logger.info(f"Updated metadata for {dataset_name} in {metadata_path}")
+    logger.info(f"Updated metadata for {file_name}")
 
 
-def main() -> None:
-    """Main entry point for downloading the benchmark dataset."""
-    parser = argparse.ArgumentParser(description="Download benchmark dataset")
+def main() -> int:
+    """Main entry point for downloading benchmark data."""
+    parser = argparse.ArgumentParser(description="Download benchmark data for T056")
     parser.add_argument(
-        "--sources",
+        "--config",
         type=Path,
         default=SOURCES_FILE,
-        help="Path to sources.yaml configuration file",
+        help="Path to sources configuration file"
     )
     parser.add_argument(
-        "--metadata",
+        "--output-dir",
         type=Path,
-        default=METADATA_FILE,
-        help="Path to metadata.yaml file for recording checksums",
+        default=BENCHMARK_DIR,
+        help="Output directory for downloaded files"
     )
     args = parser.parse_args()
 
-    sources_config = load_sources_config(args.sources)
+    try:
+        sources_config = yaml.safe_load(args.config.read_text(encoding="utf-8"))
+    except Exception as e:
+        log_and_exit(f"Failed to load sources config: {e}", logger)
+        return 1
 
-    # Assume the benchmark dataset is under a 'benchmark' key in sources.yaml
-    if "benchmark" not in sources_config:
-        logger.error("No 'benchmark' entry found in sources.yaml")
-        sys.exit(1)
+    benchmark_sources = sources_config.get("benchmark", [])
+    if not benchmark_sources:
+        log_and_exit("No benchmark sources found in configuration", logger)
+        return 1
 
-    benchmark_entries: Dict[str, Dict[str, Any]] = sources_config["benchmark"]
+    logger.info(f"Processing {len(benchmark_sources)} benchmark sources")
 
-    success = True
-    for name, entry in benchmark_entries.items():
-        url = entry.get("url")
-        expected_checksum = entry.get("checksum")
+    for source in benchmark_sources:
+        file_name = source.get("file")
+        url = source.get("url")
+        expected_checksum = source.get("checksum")
 
-        if not url:
-            logger.error(f"Missing URL for benchmark entry: {name}")
-            success = False
+        if not all([file_name, url]):
+            logger.warning(f"Skipping invalid source entry: {source}")
             continue
 
-        # Construct destination path
-        filename = url.split("/")[-1]
-        dest_path = BENCHMARK_DIR / filename
+        dest_path = args.output_dir / file_name
 
-        if download_file(url, dest_path, expected_checksum):
-            actual_checksum = compute_sha256(dest_path)
-            update_metadata(args.metadata, name, dest_path, actual_checksum)
+        if dest_path.exists():
+            logger.info(f"File already exists: {dest_path}")
+            current_checksum = compute_sha256(dest_path)
+            if expected_checksum and current_checksum != expected_checksum:
+                logger.warning(f"Checksum mismatch for {file_name}. Re-downloading.")
+                dest_path.unlink()
+                download_file(url, dest_path)
+            else:
+                continue
         else:
-            success = False
+            download_file(url, dest_path)
 
-    if success:
-        logger.info("Benchmark dataset download completed successfully")
-        sys.exit(0)
-    else:
-        logger.error("Benchmark dataset download failed")
-        sys.exit(1)
+        # Verify checksum
+        actual_checksum = compute_sha256(dest_path)
+        file_size = dest_path.stat().st_size
+
+        if expected_checksum and actual_checksum != expected_checksum:
+            log_and_exit(
+                f"Checksum verification failed for {file_name}. "
+                f"Expected: {expected_checksum}, Got: {actual_checksum}",
+                logger
+            )
+            return 1
+
+        logger.info(f"Successfully downloaded and verified {file_name} (SHA256: {actual_checksum})")
+        update_metadata(file_name, actual_checksum, url, file_size)
+
+    logger.info("All benchmark files downloaded and verified successfully")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
