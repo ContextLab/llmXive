@@ -113,8 +113,8 @@
 - [X] T023 [US2] Save threshold metrics to `data/simulation/thresholds.json` including test type, effect size, and identified n
 - [X] T024 [US2] Implement `code/visualization/plotter.py` to generate line plots with 95% CI bands for sample size vs. error rate (FR-005)
 - [X] T025 [US2] Add annotations to plots marking the identified reliability thresholds and nominal alpha/power lines
-- [ ] T026 [US2] Generate comparative plots for t-test, ANOVA, and chi-squared divergence at low sample sizes (n < 30)
-- [ ] T027 [US2] Save all plots to `data/visualization/` directory with descriptive filenames
+- [X] T026 [US2] Generate comparative plots for t-test, ANOVA, and chi-squared divergence at low sample sizes (n < 30)
+- [X] T027 [US2] Save all plots to `data/visualization/` directory with descriptive filenames
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -128,12 +128,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Integration test for dataset download and checksum verification in `tests/integration/test_data_validation.py`
+- [X] T028 [P] [US3] Integration test for dataset download and checksum verification in `tests/integration/test_data_validation.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029a [US3] Implement `code/analysis/validator.py` to download the UCI Breast Cancer (Wisconsin Diagnostic) dataset using `ucimlrepo` with the corresponding dataset identifier. (FR-006)
-- [ ] T029b [US3] Implement `code/analysis/validator.py` to download the UCI Wine dataset using `ucimlrepo` with the corresponding dataset identifier. (FR-006)
+- [X] T029a [US3] Implement `code/analysis/validator.py` to download the UCI Breast Cancer (Wisconsin Diagnostic) dataset using `ucimlrepo` with the corresponding dataset identifier. (FR-006)
+- [X] T029b [US3] Implement `code/analysis/validator.py` to download the UCI Wine dataset using `ucimlrepo` with the corresponding dataset identifier. (FR-006)
 - [ ] T029c [US3] Implement `code/analysis/validator.py` to download the UCI Adult (Census Income) dataset using `ucimlrepo` with the dataset ID corresponding to the Adult dataset. (FR-006)
 - [ ] T029d [US3] Implement checksum verification for all downloaded datasets (Breast Cancer, Wine, Adult) in `code/analysis/validator.py` and record checksums in `data/simulation_metadata.json` (Constitution Principle III)
 - [ ] T030 [US3] Implement data preprocessing in `code/analysis/validator.py` to prepare small-sample datasets for t-test, ANOVA, and chi-squared

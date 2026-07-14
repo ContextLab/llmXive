@@ -1,0 +1,9 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T029c** — The provided `code/analysis/validator.py` contains download helpers for the Breast Cancer and Wine datasets, but it does not implement any function that downloads the UCI Adult (Census Income) dataset nor uses the correct Adult dataset ID. Consequently the required functionality is missing.
+- **T029d** — The `data/simulation_metadata.json` file does not exist, and `code/analysis/validator.py` is truncated (the wine dataset entry is incomplete and there is no implementation for the Adult dataset nor any code that actually calls `verify_dataset_checksum` for the three datasets). The required checksum recording and verification are therefore not present.
+- **T030** — The `code/analysis/validator.py` file only includes utilities for downloading datasets, managing metadata, and checksum verification; it contains no code that preprocesses or creates small‑sample versions of the data tailored for t‑test, ANOVA, or chi‑squared analysis. Consequently, the required preprocessing implementation is missing.
+- **T031** — The required file `data/simulation/real_data_pvalues.csv` does not exist, so no p‑value distributions from real datasets were saved. The task’s core deliverable is missing.
+- **T032** — The required output file `data/simulation/real_data_power.json` does not exist, so the bootstrapped power estimation, KS distance calculation, and verification steps have not been demonstrated or saved as specified. The task therefore lacks the essential artifact.
