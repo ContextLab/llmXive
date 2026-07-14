@@ -1,126 +1,100 @@
-# Quickstart Guide
+# Quickstart Guide: Evaluating the Sensitivity of Common Statistical Tests
 
-This guide provides instructions to run the full simulation pipeline and generate the validation report for the "Evaluating the Sensitivity of Common Statistical Tests to Dataset Size" project.
+This guide provides instructions to run the full simulation pipeline, generate visualizations, and produce the final validation report.
 
 ## Prerequisites
 
 - Python 3.8+
-- Required packages installed (see `requirements.txt`)
+- pip
+- Access to the internet (to download real datasets from UCI via `ucimlrepo`)
 
 ## Installation
 
-1. Clone the repository:
- ```bash
- git clone <repository-url>
- cd PROJ-341-evaluating-the-sensitivity-of-common-sta
- ```
-
+1. Clone the repository and navigate to the project root.
 2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
 
-## Running the Full Simulation
+```bash
+pip install -r requirements.txt
+```
 
-The main entry point `code/main.py` orchestrates the entire simulation grid. It iterates through sample sizes (n=5 to n=500), effect sizes, and hypothesis states, executing t-tests, ANOVA, and chi-squared tests.
+## Running the Full Pipeline
 
-### Basic Execution
+The pipeline consists of three main phases: Simulation, Analysis/Visualization, and Validation.
 
-To run the full simulation with default parameters:
+### Step 1: Run the Core Simulation (User Story 1)
+
+This step generates synthetic data and calculates empirical Type I and Type II error rates across various sample sizes and effect sizes.
 
 ```bash
 python code/main.py
 ```
 
-This will:
-1. Generate synthetic data for all conditions (n=5..500, effect sizes, null/alt hypotheses)
-2. Execute statistical tests (t-test, ANOVA, chi-squared) with appropriate fallbacks
-3. Save raw p-values to `data/simulation/p_values_raw.csv`
-4. Aggregate results and save error rates to `data/simulation/error_rates_summary.csv`
-5. Compute thresholds and save to `data/simulation/thresholds.json`
-6. Generate visualizations in `data/visualization/`
+**Outputs:**
+- `data/simulation/p_values_raw.csv`: Raw p-values from all simulation iterations.
+- `data/simulation/error_rates_summary.csv`: Aggregated error rates per condition.
 
-### Custom Parameters
+### Step 2: Generate Thresholds and Visualizations (User Story 2)
 
-You can customize the simulation using command-line arguments:
+This step analyzes the simulation results to identify reliability thresholds and generates comparative plots.
 
 ```bash
-python code/main.py --sample-sizes 5,10,20,50 --effect-sizes 0.2,0.5,0.8 --test-type t-test --alpha 0.05
+# Calculate thresholds
+python code/analysis/threshold_finder.py
+
+# Generate plots
+python code/visualization/plotter.py
 ```
 
-Available arguments:
-- `--sample-sizes`: Comma-separated list of sample sizes (default: 5,10,15,...,500)
-- `--effect-sizes`: Comma-separated list of effect sizes (default: 0.2, 0.5, 0.8)
-- `--test-type`: Specific test to run (t-test, anova, chi-squared, or all)
-- `--alpha`: Significance threshold (default: 0.05)
-- `--iterations`: Number of iterations per condition (default: 10000)
+**Outputs:**
+- `data/simulation/thresholds.json`: Identified sample size thresholds.
+- `data/visualization/*.png`: Line plots with 95% CI bands and comparative divergence plots.
 
-## Generating the Validation Report
+### Step 3: Validate Against Real-World Datasets (User Story 3)
 
-After the simulation completes, run the validation pipeline to compare simulated results against real-world datasets:
+This step downloads real-world small-sample datasets (Breast Cancer, Wine, Adult), runs statistical tests, and compares results against the simulation predictions.
 
 ```bash
 python code/analysis/validator.py
 ```
 
-This step:
-1. Downloads real datasets (UCI Breast Cancer, Wine, Adult) using `ucimlrepo`
-2. Verifies dataset integrity via checksums
-3. Runs statistical tests on real data
-4. Performs bootstrapped power estimation
-5. Calculates KS distance between simulated and real p-value distributions
-6. Generates the validation report at `data/reports/validation_report.md`
+**Outputs:**
+- `data/raw/`: Downloaded datasets (Wisconsin Diagnostic, Wine, Adult).
+- `data/simulation/real_data_pvalues.csv`: Observed p-values from real data.
+- `data/simulation/real_data_power.json`: Bootstrapped power estimates.
+- `data/simulation/validation_metrics.json`: KS statistics and validation metrics.
 
-### Validation Report Contents
+### Step 4: Generate the Final Validation Report
 
-The generated `data/reports/validation_report.md` includes:
-- Summary of simulation findings
-- Comparison of simulated vs. real data p-value distributions
-- KS distance metrics and pass/fail status
-- Identified reliability thresholds
-- Recommendations for small-sample statistical testing
+This step compiles all metrics, thresholds, and validation results into a comprehensive markdown report.
 
-## Output Files
+```bash
+python code/analysis/report_generator.py
+```
 
-After successful execution, the following files will be generated:
+**Output:**
+- `data/reports/validation_report.md`: The final validation report stating whether the simulation held true or if deviations were observed.
 
-- `data/simulation/p_values_raw.csv`: Raw p-values from all simulation iterations
-- `data/simulation/error_rates_summary.csv`: Aggregated Type I and Type II error rates
-- `data/simulation/thresholds.json`: Identified sample size thresholds for reliability
-- `data/simulation/real_data_pvalues.csv`: P-values from real dataset tests
-- `data/simulation/real_data_power.json`: Bootstrapped power estimates and KS distances
-- `data/simulation/validation_metrics.json`: Aggregated validation metrics
-- `data/visualization/*.png`: Visualization plots
-- `data/reports/validation_report.md`: Final validation report
+## Sensitivity Analysis (Optional)
+
+To perform sensitivity analysis across different alpha thresholds:
+
+```bash
+python code/analysis/alpha_sensitivity.py
+```
+
+**Output:**
+- `data/simulation/alpha_sensitivity_results.json`: Results showing critical sample size shifts across alpha levels.
+
+## Running Tests
+
+Ensure all unit and integration tests pass before deploying:
+
+```bash
+pytest tests/ -v
+```
 
 ## Troubleshooting
 
-### Memory Issues
-
-If you encounter memory errors, reduce the number of iterations:
-```bash
-python code/main.py --iterations 1000
-```
-
-### Missing Dependencies
-
-Ensure all required packages are installed:
-```bash
-pip install numpy scipy pandas matplotlib seaborn statsmodels scikit-learn requests ucimlrepo openml
-```
-
-### Checksum Verification Failures
-
-If dataset checksum verification fails, the download may be corrupted. Re-run the validator to re-download:
-```bash
-python code/analysis/validator.py --force-download
-```
-
-## Next Steps
-
-After generating the validation report, review `data/reports/validation_report.md` to understand:
-- Whether simulation findings hold true for real-world data
-- The reliability thresholds for different statistical tests
-- Recommendations for small-sample statistical analysis
-
-For detailed API documentation, refer to the docstrings in each module.
+- **Dataset Download Failures**: Ensure you have an active internet connection. The `ucimlrepo` package is required to fetch UCI datasets.
+- **Memory Errors**: The simulation is optimized for <7GB RAM usage. If errors occur, try reducing the number of iterations or sample sizes in `code/main.py`.
+- **Missing Output Files**: Verify that previous steps completed successfully. The pipeline is sequential; Step 2 requires output from Step 1, and Step 4 requires output from Step 3.

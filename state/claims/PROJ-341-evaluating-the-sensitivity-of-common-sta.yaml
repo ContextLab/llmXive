@@ -1414,779 +1414,195 @@
   updated_at: '2026-07-14T20:25:10Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
-  canonical: Simulation sample size range 5 to 500
-  claim_id: c_03ac0609
-  context: "Goal: Run a simulation that generates synthetic data with known ground\
-    \ truth across sample sizes (n=5 to n=500) to empirically calculate Type I and\
-    \ Type II error rates for t-test, ANOVA, and chi-squared tests with \u226510,000\
-    \ iterations."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The system will run a simulation that generates synthetic data with known
-    ground truth across sample sizes from n=5 to n=500.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T21:57:12Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
-  canonical: Validation dataset UCI Breast Cancer
-  claim_id: c_687cbf86
-  context: 'Goal: Validate the simulation findings by applying the identified thresholds
-    to a small number of public small-sample datasets (UCI Breast Cancer, UCI Wine,
-    UCI Adult) to confirm that simulated p-value distributions align with observed
-    behavior.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Validation_dataset_UCI_Breast_Cancer
-  kind: entity_fact
-  raw_text: The system will validate findings using the UCI Breast Cancer (Wisconsin
-    Diagnostic) dataset.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T21:57:33Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
-  canonical: Validation dataset UCI Wine
-  claim_id: c_f72d777d
-  context: 'Goal: Validate the simulation findings by applying the identified thresholds
-    to a small number of public small-sample datasets (UCI Breast Cancer, UCI Wine,
-    UCI Adult) to confirm that simulated p-value distributions align with observed
-    behavior.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Validation_dataset_UCI_Wine
-  kind: entity_fact
-  raw_text: The system will validate findings using the UCI Wine dataset.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T21:57:55Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
-  canonical: Validation dataset UCI Adult
-  claim_id: c_fb1e5263
-  context: 'Goal: Validate the simulation findings by applying the identified thresholds
-    to a small number of public small-sample datasets (UCI Breast Cancer, UCI Wine,
-    UCI Adult) to confirm that simulated p-value distributions align with observed
-    behavior.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Validation_dataset_UCI_Adult
-  kind: entity_fact
-  raw_text: The system will validate findings using the UCI Adult (Census Income)
-    dataset.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T21:58:13Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
   canonical: UCI Breast Cancer dataset ID 197
-  claim_id: c_5a4baa94
-  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use `ucimlrepo`
-    and specific numeric IDs (197, 198, 522) to fetch datasets, not generic ''download
-    from UCI'' instructions.'
+  claim_id: c_a99cec9b
+  context: Implement code/analysis/validator.py to download the UCI Breast Cancer
+    (Wisconsin Diagnostic) dataset using ucimlrepo with the corresponding dataset
+    identifier.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The UCI Breast Cancer dataset corresponds to dataset identifier 197.
+  raw_text: UCI Breast Cancer dataset ID 197
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T21:58:29Z'
+  updated_at: '2026-07-14T22:21:08Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
   canonical: UCI Wine dataset ID 198
-  claim_id: c_2459b1ba
-  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use `ucimlrepo`
-    and specific numeric IDs (197, 198, 522) to fetch datasets, not generic ''download
-    from UCI'' instructions.'
+  claim_id: c_0f90028b
+  context: Implement code/analysis/validator.py to download the UCI Wine dataset using
+    ucimlrepo with the corresponding dataset identifier.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The UCI Wine dataset corresponds to dataset identifier 198.
+  raw_text: UCI Wine dataset ID 198
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T21:58:44Z'
+  updated_at: '2026-07-14T22:21:28Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
   canonical: UCI Adult dataset ID 522
-  claim_id: c_4560f4c7
-  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use `ucimlrepo`
-    and specific numeric IDs (197, 198, 522) to fetch datasets, not generic ''download
-    from UCI'' instructions.'
+  claim_id: c_c88ba2d8
+  context: Implement code/analysis/validator.py to download the UCI Adult (Census
+    Income) dataset using ucimlrepo with the dataset ID corresponding to the Adult
+    dataset.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The UCI Adult dataset corresponds to dataset identifier 522.
+  raw_text: UCI Adult dataset ID 522
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T21:59:03Z'
+  updated_at: '2026-07-14T22:21:46Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
-  canonical: Simulation runtime limit 6 hours
-  claim_id: c_ae54ec75
-  context: T015a [US1] Implement vectorized numpy operations in `code/simulation/test_runner.py`
-    to handle [deferred] iterations per condition efficiently; verify runtime of the
-    full simulation grid < 6h on CI via benchmark step in `.github/workflows/sim.yml`
-    (FR-001, Constitution VI)
+  canonical: sample size range 5 to 500
+  claim_id: c_8125de67
+  context: Run a simulation that generates synthetic data with known ground truth
+    across sample sizes (n=5 to n=500) to empirically calculate Type I and Type II
+    error rates.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The full simulation grid must complete within 6 hours on CI.
+  raw_text: sample size range n=5 to n=500
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T21:59:17Z'
+  updated_at: '2026-07-14T22:22:13Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
-  canonical: Chi-squared fallback threshold expected count 5
-  claim_id: c_bf4f1be6
-  context: T012 [US1] Implement `code/simulation/test_runner.py` to execute t-test,
-    ANOVA, and chi-squared on generated data; MUST detect expected cell counts < 5
-    and route to fallback logic (FR-007)
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Chi-squared_fallback_threshold_expected_count_5
-  kind: magnitude
-  raw_text: The simulation must detect expected cell counts less than 5 and route
-    to fallback logic.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T21:59:35Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
-  canonical: Normality warning threshold sample size 30
-  claim_id: c_bb240211
-  context: T012 [US1] Implement `code/simulation/test_runner.py` to execute t-test,
-    ANOVA, and chi-squared on generated data; MUST flag n < 30 for normality warnings;
-    supports dynamic alpha (FR-002, FR-007)
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Normality_warning_threshold_sample_size_30
-  kind: magnitude
-  raw_text: The system must flag sample sizes less than 30 as small sample warnings.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:00:34Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
-  canonical: Type I error threshold nominal alpha 0.05
-  claim_id: c_b43df933
-  context: T021 [US2] Implement logic in `code/analysis/threshold_finder.py` to identify
-    the smallest n where Type I error lower CI bound > 0.05 (FR-004)
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Type_I_error_threshold_nominal_alpha_0.05
-  kind: magnitude
-  raw_text: The threshold finder will identify the smallest n where Type I error lower
-    CI bound is greater than 0.05.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:01:36Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
-  canonical: Power threshold 0.80 consecutive increments 3
-  claim_id: c_05f6a77e
-  context: T022 [US2] Implement logic in `code/analysis/threshold_finder.py` to identify
-    the smallest n where power CI remains < 0.80 for 3 consecutive increments (FR-004)
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Power_threshold_0.80_consecutive_increments_3
-  kind: magnitude
-  raw_text: The threshold finder will identify the smallest n where power CI remains
-    less than 0.80 for 3 consecutive increments.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:02:21Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
-  canonical: KS distance threshold 0.10
-  claim_id: c_e5a2ba03
-  context: T032 [US3] Implement bootstrapped power estimation on real datasets, calculate
-    Kolmogorov-Smirnov (KS) distance against simulated predictions, verify KS <= 0.10,
-    and save results to `data/simulation/real_data_power.json` (FR-006, SC-003)
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/KS_distance_threshold_0.10
-  kind: magnitude
-  raw_text: The validation process will verify that the Kolmogorov-Smirnov distance
-    is less than or equal to 0.10.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:02:48Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
-  canonical: Sample size iteration step 5 range 5 to 500
-  claim_id: c_ab7f8b3c
-  context: T014b [US1] Implement parameter loop logic in `code/main.py` to iterate
-    through n=5..500 (step 5), effect sizes, and hypotheses, enforcing a hard constraint
-    of [deferred] iterations per condition (FR-001)
+  canonical: simulation iterations 10000
+  claim_id: c_347d794b
+  context: "Run a simulation that generates synthetic data with known ground truth\
+    \ across sample sizes (n=5 to n=500) to empirically calculate Type I and Type\
+    \ II error rates for t-test, ANOVA, and chi-squared tests with \u226510,000 iterations."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The simulation will iterate through sample sizes from 5 to 500 with a
-    step of 5.
+  raw_text: simulation iterations >= 10,000
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T22:03:22Z'
+  updated_at: '2026-07-14T22:22:31Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
-  canonical: Memory usage limit 7GB
-  claim_id: c_a715310e
-  context: T036 [P] Optimize `code/main.py` for memory usage to ensure < 7GB RAM usage
-    during full simulation run
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_7GB
-  kind: entity_fact
-  raw_text: The system must ensure memory usage remains below 7GB during the full
-    simulation run.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:03:39Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
-  canonical: Dataset download library ucimlrepo
-  claim_id: c_ad317e63
-  context: T029a [US3] Implement `code/analysis/validator.py` to download the UCI
-    Breast Cancer (Wisconsin Diagnostic) dataset using `ucimlrepo` with the corresponding
-    dataset identifier. (FR-006)
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Dataset_download_library_ucimlrepo
-  kind: entity_fact
-  raw_text: The system will use the ucimlrepo library to download datasets.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:03:53Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
-  canonical: Validation method Kolmogorov-Smirnov distance
-  claim_id: c_32bc7f24
-  context: T032 [US3] Implement bootstrapped power estimation on real datasets, calculate
-    Kolmogorov-Smirnov (KS) distance against simulated predictions, verify KS <= 0.10,
-    and save results to `data/simulation/real_data_power.json` (FR-006, SC-003)
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Validation_method_Kolmogorov-Smirnov_distance
-  kind: entity_fact
-  raw_text: The system will compare observed p-value distributions with simulated
-    predictions using the Kolmogorov-Smirnov distance.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:04:13Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: KS distances between simulated and observed power distributions were
-    within 0.10
-  claim_id: c_9ed34b12
-  context: "The simulation results held true when validated against real-world small-sample\
-    \ datasets. All Kolmogorov-Smirnov (KS) distances between simulated and observed\
-    \ power distributions were within the acceptable threshold (\u2264 0.10)."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "All Kolmogorov-Smirnov (KS) distances between simulated and observed\
-    \ power distributions were within the acceptable threshold (\u2264 0.10)."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:11:16Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: 10000+ simulation iterations across sample sizes 5 to 500
-  claim_id: c_e8e0f38d
-  context: 'This validation compares the empirical error rates and power distributions
-    derived from: 1. Simulation: 10,000+ iterations of synthetic data generation across
-    sample sizes (n=5 to n=500).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Simulation: 10,000+ iterations of synthetic data generation across sample
-    sizes (n=5 to n=500).'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:11:34Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: t-test KS distance is 0.0421
-  claim_id: c_8db2ca9c
-  context: Table under KS Distance Analysis showing Test Type, KS Distance, Threshold,
-    and Status.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 't-test KS Distance: 0.0421'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:11:52Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: anova KS distance is 0.0653
-  claim_id: c_16778f70
-  context: Table under KS Distance Analysis showing Test Type, KS Distance, Threshold,
-    and Status.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'anova KS Distance: 0.0653'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:12:09Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: chi-squared KS distance is 0.0892
-  claim_id: c_92d35c0a
-  context: Table under KS Distance Analysis showing Test Type, KS Distance, Threshold,
-    and Status.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'chi-squared KS Distance: 0.0892'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:12:24Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: t-test simulated power is 0.78
-  claim_id: c_635872a5
-  context: Power Estimation Summary section listing Simulated Power, Real Data Power,
-    and Difference for T-TEST.
+  canonical: Type I error nominal alpha 0.05
+  claim_id: c_49519adc
+  context: Visualize the relationship between sample size and error rates to identify
+    the specific sample size threshold where error rates deviate significantly from
+    nominal alpha (0.05).
   evidence:
     fill:
       channel: wikipedia
       conflicts: []
-      quote: This can be done with a variety of software packages. Using this methodology
-        with the values before, setting the sample size to 25 leads to an estimated
-        power of around 0.78. The small discrepancy with the previous section is due
-        mainly to inaccuracies with the normal approximation.
-      source_id: Power (statistics)
-      url: https://en.wikipedia.org/wiki/Power_(statistics)
-      value: '0.78'
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
     filled: true
   kind: numeric
-  raw_text: 'T-TEST Simulated Power: 0.78'
-  resolved_value: '0.78'
+  raw_text: Type I error nominal alpha 0.05
+  resolved_value: '0.05'
   resolver: fill:wikipedia
   source_hash: null
   source_type: external
   status: verified
-  updated_at: '2026-07-14T22:12:31Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: t-test bootstrapped real data power is 0.76
-  claim_id: c_e07bae1d
-  context: Power Estimation Summary section listing Simulated Power, Real Data Power,
-    and Difference for T-TEST.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'T-TEST Real Data Power (Bootstrapped): 0.76'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:12:52Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: t-test power difference between simulated and real data is 0.02
-  claim_id: c_149a490c
-  context: Power Estimation Summary section listing Simulated Power, Real Data Power,
-    and Difference for T-TEST.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'T-TEST Power Difference: 0.02'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:13:33Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: anova simulated power is 0.82
-  claim_id: c_89fb23dd
-  context: Power Estimation Summary section listing Simulated Power, Real Data Power,
-    and Difference for ANOVA.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'ANOVA Simulated Power: 0.82'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:13:58Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: anova bootstrapped real data power is 0.80
-  claim_id: c_4926390e
-  context: Power Estimation Summary section listing Simulated Power, Real Data Power,
-    and Difference for ANOVA.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'ANOVA Real Data Power (Bootstrapped): 0.80'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:14:22Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: anova power difference between simulated and real data is 0.02
-  claim_id: c_410b99f8
-  context: Power Estimation Summary section listing Simulated Power, Real Data Power,
-    and Difference for ANOVA.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'ANOVA Power Difference: 0.02'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:14:43Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: chi-squared simulated power is 0.75
-  claim_id: c_683f5950
-  context: Power Estimation Summary section listing Simulated Power, Real Data Power,
-    and Difference for CHI-SQUARED.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'CHI-SQUARED Simulated Power: 0.75'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:15:06Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: chi-squared bootstrapped real data power is 0.73
-  claim_id: c_28c9133a
-  context: Power Estimation Summary section listing Simulated Power, Real Data Power,
-    and Difference for CHI-SQUARED.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'CHI-SQUARED Real Data Power (Bootstrapped): 0.73'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:15:27Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: chi-squared power difference between simulated and real data is 0.02
-  claim_id: c_b9592c8f
-  context: Power Estimation Summary section listing Simulated Power, Real Data Power,
-    and Difference for CHI-SQUARED.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'CHI-SQUARED Power Difference: 0.02'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:15:58Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: UCI Breast Cancer Wisconsin Diagnostic dataset ID is 197
-  claim_id: c_01787997
-  context: Dataset Integrity section listing datasets downloaded from UCI Machine
-    Learning Repository.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Breast Cancer (Wisconsin Diagnostic) UCI ID: 197'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:16:08Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: UCI Wine dataset ID is 198
-  claim_id: c_74ad30e1
-  context: Dataset Integrity section listing datasets downloaded from UCI Machine
-    Learning Repository.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Wine UCI ID: 198'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:16:26Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: UCI Adult Census Income dataset ID is 522
-  claim_id: c_0039f465
-  context: Dataset Integrity section listing datasets downloaded from UCI Machine
-    Learning Repository.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Adult (Census Income) UCI ID: 522'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:16:40Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: t-test power at sample size 30 is 0.76 with 95% CI 0.72 to 0.80
-  claim_id: c_bf9c96a3
-  context: Bootstrapped Power Estimates (Real Data) table showing Test Type, Sample
-    Size, Power Estimate, and 95% CI.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: t-test power estimate at sample size 30 is 0.7600 with 95% CI [0.7200,
-    0.8000]
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:17:06Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: t-test power at sample size 50 is 0.84 with 95% CI 0.81 to 0.87
-  claim_id: c_2a23cf3e
-  context: Bootstrapped Power Estimates (Real Data) table showing Test Type, Sample
-    Size, Power Estimate, and 95% CI.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: t-test power estimate at sample size 50 is 0.8400 with 95% CI [0.8100,
-    0.8700]
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:17:33Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: anova power at sample size 30 is 0.80 with 95% CI 0.76 to 0.84
-  claim_id: c_559c3cd1
-  context: Bootstrapped Power Estimates (Real Data) table showing Test Type, Sample
-    Size, Power Estimate, and 95% CI.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: anova power estimate at sample size 30 is 0.8000 with 95% CI [0.7600,
-    0.8400]
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:17:58Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: anova power at sample size 50 is 0.88 with 95% CI 0.85 to 0.91
-  claim_id: c_781443d7
-  context: Bootstrapped Power Estimates (Real Data) table showing Test Type, Sample
-    Size, Power Estimate, and 95% CI.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: anova power estimate at sample size 50 is 0.8800 with 95% CI [0.8500,
-    0.9100]
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:18:15Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: chi-squared power at sample size 30 is 0.73 with 95% CI 0.69 to 0.77
-  claim_id: c_46d33403
-  context: Bootstrapped Power Estimates (Real Data) table showing Test Type, Sample
-    Size, Power Estimate, and 95% CI.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: chi-squared power estimate at sample size 30 is 0.7300 with 95% CI [0.6900,
-    0.7700]
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:18:40Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/data/reports/validation_report.md
-  attempts: 1
-  canonical: chi-squared power at sample size 50 is 0.81 with 95% CI 0.77 to 0.85
-  claim_id: c_a7ad739e
-  context: Bootstrapped Power Estimates (Real Data) table showing Test Type, Sample
-    Size, Power Estimate, and 95% CI.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: chi-squared power estimate at sample size 50 is 0.8100 with 95% CI [0.7700,
-    0.8500]
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:19:06Z'
+  updated_at: '2026-07-14T22:22:39Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
-  canonical: 'Validation datasets: UCI Breast Cancer, UCI Wine, UCI Adult'
-  claim_id: c_55c10aac
-  context: 'Goal: Validate the simulation findings by applying the identified thresholds
-    to a small number of public small-sample datasets (UCI Breast Cancer, UCI Wine,
-    UCI Adult)...'
+  canonical: power threshold 0.80
+  claim_id: c_47fc83e2
+  context: Visualize the relationship between sample size and error rates to identify
+    the specific sample size threshold where error rates deviate significantly from
+    nominal alpha (0.05) or where power drops below 0.80.
   evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Validation_datasets:_UCI_Breast_Cancer,_UCI_Wine,_UCI_Adult
-  kind: entity_fact
-  raw_text: The system uses UCI Breast Cancer (Wisconsin Diagnostic), UCI Wine, and
-    UCI Adult (Census Income) datasets for validation.
-  resolved_value: null
-  resolver: resolve_entity_fact
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: power threshold 0.80
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
   source_hash: null
   source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:23:13Z'
+  status: verified
+  updated_at: '2026-07-14T22:22:48Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
-  canonical: UCI Breast Cancer dataset ID is 197
-  claim_id: c_793397e0
-  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use ucimlrepo
-    and specific numeric IDs (197, 198, 522) to fetch datasets...'
+  canonical: small sample warning threshold 30
+  claim_id: c_bc4056e1
+  context: MUST flag n < 30 for normality warnings; supports dynamic alpha (FR-002,
+    FR-007)
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The UCI Breast Cancer dataset is fetched using the dataset identifier
-    197.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T22:23:28Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
-  canonical: UCI Wine dataset ID is 198
-  claim_id: c_24b4735b
-  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use ucimlrepo
-    and specific numeric IDs (197, 198, 522) to fetch datasets...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The UCI Wine dataset is fetched using the dataset identifier 198.
+  raw_text: small sample warning threshold n < 30
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T22:23:47Z'
+  updated_at: '2026-07-14T22:22:48Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
-  canonical: UCI Adult dataset ID is 522
-  claim_id: c_231e250a
-  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use ucimlrepo
-    and specific numeric IDs (197, 198, 522) to fetch datasets...'
+  canonical: expected cell count threshold 5
+  claim_id: c_d5c6f64d
+  context: Implement code/simulation/test_runner.py to execute t-test, ANOVA, and
+    chi-squared on generated data; MUST detect expected cell counts < 5 and route
+    to fallback logic.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The UCI Adult dataset is fetched using the dataset identifier 522.
+  raw_text: expected cell count threshold < 5 for chi-squared fallback
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:22:48Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: binomial variance check formula 1.96 * sqrt(p*(1-p)/N)
+  claim_id: c_122af02a
+  context: 'Write unit test to verify binomial variance check logic in tests/unit/test_data_generator.py
+    using formula: observed_variance <= 1.96 * sqrt(p*(1-p)/N)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: binomial variance check formula observed_variance <= 1.96 * sqrt(p*(1-p)/N)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
@@ -2195,114 +1611,155 @@
   updated_at: '2026-07-14T22:24:10Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
-  canonical: simulation uses sample sizes n=5 to n=500 with at least 10000 iterations
-    to calculate Type I and Type II error rates for t-test, ANOVA, and chi-squared
-    tests
-  claim_id: c_dabb8add
-  context: "Goal: Run a simulation that generates synthetic data with known ground\
-    \ truth across sample sizes (n=5 to n=500) to empirically calculate Type I and\
-    \ Type II error rates for t-test, ANOVA, and chi-squared tests with \u226510,000\
-    \ iterations."
+  canonical: CI timeout 6 hours
+  claim_id: c_43707580
+  context: Setup CI workflow (.github/workflows/sim.yml) with modest CPU and RAM constraints
+    and a 6h timeout
   evidence:
-    candidates:
-    - - ''
-      - 1000.0
-    - - ''
-      - 500.0
-    - - ''
-      - 5.0
-    - - ''
-      - 3.0
-    ordering_correct: false
-    source_url: https://en.wikipedia.org/wiki/Simulation_uses_sample_sizes_n%3D5_to_n%3D500_with_at_least_1000
-  kind: magnitude
-  raw_text: "Run a simulation that generates synthetic data with known ground truth\
-    \ across sample sizes (n=5 to n=500) to empirically calculate Type I and Type\
-    \ II error rates for t-test, ANOVA, and chi-squared tests with \u226510,000 iterations."
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CI timeout 6 hours
   resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: refuted
-  updated_at: '2026-07-14T22:30:31Z'
-- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
-  attempts: 1
-  canonical: identify smallest sample size where power confidence interval remains
-    below 0.80 for 3 consecutive increments
-  claim_id: c_82d10575
-  context: Implement logic in code/analysis/threshold_finder.py to identify the smallest
-    n where power CI remains < 0.80 for 3 consecutive increments (FR-004)
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Identify_smallest_sample_size_where_power_confidence_interva
-  kind: magnitude
-  raw_text: Implement logic in code/analysis/threshold_finder.py to identify the smallest
-    n where power CI remains < 0.80 for 3 consecutive increments
-  resolved_value: null
-  resolver: resolve_superlative
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T22:31:20Z'
+  updated_at: '2026-07-14T22:24:27Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
-  canonical: checksum verification performed on UCI Breast Cancer, Wine, and Adult
-    datasets
-  claim_id: c_60ea6802
-  context: Implement checksum verification for all downloaded datasets (Breast Cancer,
-    Wine, Adult) in code/analysis/validator.py and record checksums in data/simulation_metadata.json
-    (Constitution Principle III)
+  canonical: memory usage constraint 7GB
+  claim_id: c_ab95b50b
+  context: Optimize code/main.py for memory usage to ensure < 7GB RAM usage during
+    full simulation run
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Checksum_verification_performed_on_UCI_Breast_Cancer,_Wine,
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_constraint_7GB
   kind: entity_fact
-  raw_text: Implement checksum verification for all downloaded datasets (Breast Cancer,
-    Wine, Adult) in code/analysis/validator.py and record checksums in data/simulation_metadata.json
+  raw_text: memory usage constraint < 7GB RAM
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T22:31:35Z'
+  updated_at: '2026-07-14T22:24:51Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
-  canonical: verify Kolmogorov-Smirnov distance is less than or equal to 0.10 between
-    bootstrapped power estimation on real datasets and simulated predictions
-  claim_id: c_bced5c85
+  canonical: KS distance threshold 0.10
+  claim_id: c_6d09a18f
   context: Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov
     (KS) distance against simulated predictions, verify KS <= 0.10, and save results
-    to data/simulation/real_data_power.json (FR-006, SC-003)
+    to data/simulation/real_data_power.json.
   evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Verify_Kolmogorov-Smirnov_distance_is_less_than_or_equal_to
-  kind: magnitude
-  raw_text: Implement bootstrapped power estimation on real datasets, calculate Kolmogorov-Smirnov
-    (KS) distance against simulated predictions, verify KS <= 0.10, and save results
-    to data/simulation/real_data_power.json
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Kolmogorov-Smirnov distance threshold <= 0.10
   resolved_value: null
-  resolver: resolve_superlative
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T22:31:50Z'
+  updated_at: '2026-07-14T22:25:07Z'
 - artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   attempts: 1
-  canonical: spec.md Assumptions section contains placeholder deferred
-  claim_id: c_c60b3d1e
-  context: 'Note on Spec.md: The spec.md Assumptions section currently contains the
-    placeholder ''[deferred]''. This is a plan-root cause.'
+  canonical: UCI Breast Cancer dataset identifier 197
+  claim_id: c_681aa426
+  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use ucimlrepo
+    and specific numeric IDs (197, 198, 522) to fetch datasets'
   evidence:
-    entailment_evidence: md Assumptions section contains placeholder deferred
-    entailment_status: grounded
-    source_url: https://en.wikipedia.org/wiki/Spec.md_Assumptions_section_contains_placeholder_deferred
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: UCI Breast Cancer (Wisconsin Diagnostic) dataset corresponds to dataset
+    identifier 197.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:26:46Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: UCI Wine dataset identifier 198
+  claim_id: c_724508f4
+  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use ucimlrepo
+    and specific numeric IDs (197, 198, 522) to fetch datasets'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: UCI Wine dataset corresponds to dataset identifier 198.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:27:06Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: UCI Adult dataset identifier 522
+  claim_id: c_32074ada
+  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use ucimlrepo
+    and specific numeric IDs (197, 198, 522) to fetch datasets'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: UCI Adult (Census Income) dataset corresponds to dataset identifier 522.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:27:21Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: Power (statistics) Wikipedia definition
+  claim_id: c_dbe0ef9b
+  context: 'Implement logic in code/analysis/threshold_finder.py to identify the smallest
+    n where power CI remains < 0.80 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_(statistics)_Wikipedia_definition
   kind: entity_fact
-  raw_text: The spec.md Assumptions section currently contains the placeholder '[deferred]'.
-  resolved_value: spec.md Assumptions section contains placeholder deferred
+  raw_text: Power (statistics) is defined in Wikipedia.
+  resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
-  updated_at: '2026-07-14T22:31:52Z'
+  status: not_enough_info
+  updated_at: '2026-07-14T22:27:58Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: examples include test tasks
+  claim_id: c_0ffdfd80
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Examples_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:36:39Z'
+- artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
+  attempts: 1
+  canonical: ucimlrepo dataset IDs 197 198 522 for UCI datasets
+  claim_id: c_a8c43c6a
+  context: 'Real-Data Constraint: T029a/T029b/T029c must explicitly use `ucimlrepo`
+    and specific numeric IDs (197, 198, 522) to fetch datasets, not generic ''download
+    from UCI'' instructions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T029a/T029b/T029c must explicitly use ucimlrepo and specific numeric IDs
+    (197, 198, 522) to fetch datasets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:36:59Z'

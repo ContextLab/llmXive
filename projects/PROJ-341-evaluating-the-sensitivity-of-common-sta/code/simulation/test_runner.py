@@ -1,3 +1,8 @@
+"""
+Statistical test runner for simulation pipeline.
+Executes t-tests, ANOVA, and chi-squared tests with fallback logic
+and comprehensive logging.
+"""
 import numpy as np
 from scipy import stats
 from typing import Tuple, List, Dict, Any, Optional, Union
@@ -5,294 +10,311 @@ import warnings
 import json
 import os
 
-# Import logging configuration
+# Import logging utilities
 from code.simulation.logging_config import (
-    get_logger,
-    log_simulation_start,
-    log_simulation_end,
-    log_data_generation,
-    log_test_execution,
-    log_fallback_trigger,
-    log_error
+    get_logger, 
+    log_test_result, 
+    log_warning_assumption_violated,
+    log_fallback_triggered,
+    log_seed_usage
 )
-from code.simulation.data_generator import generate_normal_data, generate_contingency_table_data
+from code.simulation.data_generator import generate_normal_data, generate_multinomial_data
 from code.simulation.chi_squared_utils import run_chi_squared_with_fallback
 from code.simulation import get_rng
 
-logger = get_logger("llmXive.simulation.test_runner")
+logger = get_logger("simulation.test_runner")
 
-def run_t_test(
-    data_group1: np.ndarray,
-    data_group2: np.ndarray,
-    alpha: float = 0.05,
-    seed: Optional[int] = None
-) -> Dict[str, Any]:
+def run_t_test(group1: np.ndarray, group2: np.ndarray, 
+               alpha: float = 0.05, equal_var: bool = True) -> Dict[str, Any]:
     """
-    Performs an independent two-sample t-test.
+    Run independent samples t-test with logging.
+    
+    Args:
+        group1: First group data
+        group2: Second group data
+        alpha: Significance level
+        equal_var: Whether to assume equal variance
+    
+    Returns:
+        Dictionary with p-value, statistic, and metadata
     """
-    if seed is not None:
-        rng = get_rng(seed)
-        # Note: t-test is deterministic given data, but logging seed for traceability
+    seed = int(np.random.randint(0, 2**31))
+    log_seed_usage(seed, "t-test execution")
+    
+    # Check assumptions
+    if len(group1) < 30 or len(group2) < 30:
+        log_warning_assumption_violated("t-test", "normality assumption", 
+                                        min(len(group1), len(group2)))
     
     try:
-        t_stat, p_value = stats.ttest_ind(data_group1, data_group2, equal_var=True)
-        
-        log_test_execution(
-            "t-test",
-            t_stat,
-            p_value,
-            f"n1={len(data_group1)}, n2={len(data_group2)}"
-        )
-        
-        return {
-            "test": "t-test",
-            "statistic": float(t_stat),
-            "p_value": float(p_value),
-            "significant": p_value < alpha,
-            "alpha": alpha
-        }
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            t_stat, p_value = stats.ttest_ind(group1, group2, equal_var=equal_var)
+            
+            if w:
+                for warning in w:
+                    log_warning_assumption_violated("t-test", str(warning.message), 
+                                                    min(len(group1), len(group2)))
     except Exception as e:
-        log_error("t-test execution failed", e)
-        return {
-            "test": "t-test",
-            "statistic": None,
-            "p_value": None,
-            "significant": None,
-            "alpha": alpha,
-            "error": str(e)
-        }
-
-def run_anova(
-    groups: List[np.ndarray],
-    alpha: float = 0.05,
-    seed: Optional[int] = None
-) -> Dict[str, Any]:
-    """
-    Performs a one-way ANOVA.
-    """
-    try:
-        f_stat, p_value = stats.f_oneway(*groups)
-        
-        log_test_execution(
-            "ANOVA",
-            f_stat,
-            p_value,
-            f"k={len(groups)} groups"
-        )
-        
-        return {
-            "test": "ANOVA",
-            "statistic": float(f_stat),
-            "p_value": float(p_value),
-            "significant": p_value < alpha,
-            "alpha": alpha
-        }
-    except Exception as e:
-        log_error("ANOVA execution failed", e)
-        return {
-            "test": "ANOVA",
-            "statistic": None,
-            "p_value": None,
-            "significant": None,
-            "alpha": alpha,
-            "error": str(e)
-        }
-
-def run_chi_squared(
-    contingency_table: np.ndarray,
-    alpha: float = 0.05,
-    seed: Optional[int] = None
-) -> Dict[str, Any]:
-    """
-    Performs a chi-squared test on a contingency table.
-    Uses fallback logic for low expected counts.
-    """
-    try:
-        result = run_chi_squared_with_fallback(contingency_table, alpha)
-        
-        log_test_execution(
-            result.get("used_test", "chi-squared"),
-            result.get("statistic", 0.0),
-            result.get("p_value", 1.0),
-            f"shape={contingency_table.shape}"
-        )
-        
-        if result.get("fallback_triggered", False):
-            log_fallback_trigger(
-                "chi-squared",
-                result.get("used_test", "unknown"),
-                result.get("reason", "low expected counts")
-            )
-
-        return {
-            "test": result.get("used_test", "chi-squared"),
-            "statistic": float(result.get("statistic", 0.0)),
-            "p_value": float(result.get("p_value", 1.0)),
-            "significant": p_value < alpha if (p_value := result.get("p_value")) is not None else False,
-            "alpha": alpha,
-            "fallback_triggered": result.get("fallback_triggered", False),
-            "fallback_reason": result.get("reason", None)
-        }
-    except Exception as e:
-        log_error("Chi-squared test execution failed", e)
-        return {
-            "test": "chi-squared",
-            "statistic": None,
-            "p_value": None,
-            "significant": None,
-            "alpha": alpha,
-            "error": str(e)
-        }
-
-def run_simulation_condition(
-    n: int,
-    effect_size: float,
-    test_type: str,
-    alpha: float = 0.05,
-    iterations: int = 10000,
-    seed_base: int = 42,
-    null_hypothesis: bool = True
-) -> List[Dict[str, Any]]:
-    """
-    Runs a single simulation condition (fixed n, effect, test, alpha) for N iterations.
-    Returns a list of results for aggregation.
-    """
-    log_simulation_start(
-        sample_size=n,
-        effect_size=effect_size,
-        test_type=test_type,
-        alpha=alpha,
-        iterations=iterations,
-        seed=seed_base
-    )
-
-    results = []
-    rng = get_rng(seed_base)
-
-    for i in range(iterations):
-        # Generate unique seed for this iteration to ensure reproducibility
-        iter_seed = rng.integers(0, 2**31 - 1)
-        
-        try:
-            if test_type == "t-test":
-                # Generate data for t-test
-                # Under H0: effect_size = 0, means are same
-                # Under H1: effect_size != 0, means differ
-                if null_hypothesis:
-                    mu1, mu2 = 0.0, 0.0
-                else:
-                    mu1, mu2 = 0.0, effect_size
-                
-                data1 = generate_normal_data(n, mean=mu1, std=1.0, seed=iter_seed)
-                data2 = generate_normal_data(n, mean=mu2, std=1.0, seed=iter_seed)
-                
-                res = run_t_test(data1, data2, alpha=alpha, seed=iter_seed)
-            
-            elif test_type == "ANOVA":
-                # Generate data for ANOVA (3 groups)
-                if null_hypothesis:
-                    mus = [0.0, 0.0, 0.0]
-                else:
-                    # Spread effect across groups
-                    mus = [0.0, effect_size, -effect_size]
-                
-                groups = [generate_normal_data(n, mean=m, std=1.0, seed=iter_seed + j) 
-                          for j, m in enumerate(mus)]
-                
-                res = run_anova(groups, alpha=alpha, seed=iter_seed)
-            
-            elif test_type == "chi-squared":
-                # Generate contingency table data
-                # Under H0: independence (proportions equal)
-                # Under H1: dependence (proportions differ)
-                if null_hypothesis:
-                    probs = [[0.5, 0.5], [0.5, 0.5]]
-                else:
-                    # Introduce dependence based on effect size
-                    p1 = 0.5 + effect_size * 0.2
-                    p2 = 0.5 - effect_size * 0.2
-                    probs = [[p1, 1-p1], [p2, 1-p2]]
-                
-                table = generate_contingency_table_data(n, probs, seed=iter_seed)
-                res = run_chi_squared(table, alpha=alpha, seed=iter_seed)
-            
-            else:
-                raise ValueError(f"Unknown test type: {test_type}")
-            
-            # Log data generation for this iteration (at debug level to avoid spam)
-            # log_data_generation(test_type, {"n": n, "effect": effect_size}, n, iter_seed)
-            
-            results.append(res)
-            
-        except Exception as e:
-            log_error(f"Iteration {i} failed for condition n={n}, test={test_type}", e)
-            results.append({
-                "test": test_type,
-                "statistic": None,
-                "p_value": None,
-                "significant": None,
-                "alpha": alpha,
-                "error": str(e)
-            })
-
-    log_simulation_end(
-        sample_size=n,
-        test_type=test_type,
-        type_i_errors=sum(1 for r in results if r.get("significant") and not null_hypothesis), # Logic check: Type I is reject when H0 true
-        type_ii_errors=sum(1 for r in results if not r.get("significant") and null_hypothesis), # Logic check: Type II is fail to reject when H0 false
-        total_iterations=iterations
-    )
-
-    return results
-
-def aggregate_results(
-    results: List[Dict[str, Any]],
-    alpha: float = 0.05
-) -> Dict[str, Any]:
-    """
-    Aggregates simulation results to calculate empirical error rates.
-    """
-    if not results:
-        return {
-            "total_iterations": 0,
-            "type_i_error_rate": None,
-            "type_ii_error_rate": None,
-            "power": None,
-            "valid_iterations": 0
-        }
-
-    total = len(results)
-    valid = sum(1 for r in results if r.get("p_value") is not None)
+        logger.error(f"t-test failed: {e}")
+        raise
     
-    # We need to know if H0 was true or false for each result to classify errors.
-    # Since run_simulation_condition is called with a fixed null_hypothesis flag,
-    # we assume all results in this list share the same ground truth state.
-    # However, this function doesn't receive that flag. 
-    # To fix this, we assume the caller tracks this, or we return raw counts.
-    # For the purpose of this implementation, we will return counts and let the
-    # aggregator (T017) handle the classification based on the context passed to it.
-    # But wait, T017 expects specific keys. Let's look at T017 requirements.
-    # T017: "calculate empirical Type I (p < alpha when null true) and Type II (p > alpha when alt true)"
-    # This implies the aggregation logic needs the ground truth.
-    # Since run_simulation_condition is called separately for H0=True and H0=False scenarios
-    # (or we pass the flag), we should structure the return to include the ground truth state.
-    
-    # Let's assume the list `results` comes from a specific call to run_simulation_condition
-    # which had a specific `null_hypothesis` setting.
-    # We cannot infer this from the results list itself easily without metadata.
-    # However, typically in these pipelines, we run H0=True scenarios and H0=False scenarios
-    # separately.
-    
-    # Let's refine: The caller (T014b/T016) likely knows the context.
-    # But to make aggregate_results useful, we return the counts of significant vs non-significant.
-    
-    significant_count = sum(1 for r in results if r.get("significant") is True)
-    non_significant_count = total - significant_count
+    log_test_result("t-test", len(group1) + len(group2), 0.0, p_value, 
+                   "unknown", seed)
     
     return {
-        "total_iterations": total,
-        "valid_iterations": valid,
-        "significant_count": significant_count,
-        "non_significant_count": non_significant_count,
-        "p_values": [r.get("p_value") for r in results if r.get("p_value") is not None]
+        "test": "t-test",
+        "p_value": p_value,
+        "statistic": t_stat,
+        "alpha": alpha,
+        "significant": p_value < alpha,
+        "n_total": len(group1) + len(group2)
     }
+
+def run_anova(groups: List[np.ndarray], alpha: float = 0.05) -> Dict[str, Any]:
+    """
+    Run one-way ANOVA with logging.
+    
+    Args:
+        groups: List of group arrays
+        alpha: Significance level
+    
+    Returns:
+        Dictionary with p-value, statistic, and metadata
+    """
+    seed = int(np.random.randint(0, 2**31))
+    log_seed_usage(seed, "ANOVA execution")
+    
+    # Check assumptions
+    min_n = min(len(g) for g in groups)
+    if min_n < 30:
+        log_warning_assumption_violated("ANOVA", "normality assumption", min_n)
+    
+    try:
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            f_stat, p_value = stats.f_oneway(*groups)
+            
+            if w:
+                for warning in w:
+                    log_warning_assumption_assumption_violated("ANOVA", str(warning.message), min_n)
+    except Exception as e:
+        logger.error(f"ANOVA failed: {e}")
+        raise
+    
+    log_test_result("ANOVA", sum(len(g) for g in groups), 0.0, p_value, 
+                   "unknown", seed)
+    
+    return {
+        "test": "ANOVA",
+        "p_value": p_value,
+        "statistic": f_stat,
+        "alpha": alpha,
+        "significant": p_value < alpha,
+        "n_total": sum(len(g) for g in groups),
+        "n_groups": len(groups)
+    }
+
+def run_chi_squared(observed: np.ndarray, alpha: float = 0.05) -> Dict[str, Any]:
+    """
+    Run chi-squared test with fallback logic and logging.
+    
+    Args:
+        observed: Observed contingency table
+        alpha: Significance level
+    
+    Returns:
+        Dictionary with p-value, statistic, metadata, and fallback info
+    """
+    seed = int(np.random.randint(0, 2**31))
+    log_seed_usage(seed, "chi-squared execution")
+    
+    # Use the utility function that handles fallbacks
+    result = run_chi_squared_with_fallback(observed, alpha)
+    
+    log_test_result(
+        result.get("test_name", "chi-squared"),
+        int(result.get("n_total", 0)),
+        0.0,
+        result["p_value"],
+        "unknown",
+        seed,
+        fallback_triggered=result.get("fallback_triggered", False)
+    )
+    
+    if result.get("fallback_triggered"):
+        log_fallback_triggered(
+            "chi-squared",
+            result.get("fallback_method", "unknown"),
+            result.get("fallback_reason", "unknown")
+        )
+    
+    return result
+
+def run_simulation_condition(n: int, effect_size: float, test_type: str,
+                             hypothesis: str, alpha: float = 0.05,
+                             iterations: int = 1000) -> Dict[str, Any]:
+    """
+    Run a complete simulation condition with logging.
+    
+    Args:
+        n: Sample size per group
+        effect_size: Effect size parameter
+        test_type: Type of test ('t-test', 'ANOVA', 'chi-squared')
+        hypothesis: 'null' or 'alternative'
+        alpha: Significance level
+        iterations: Number of simulation iterations
+    
+    Returns:
+        Aggregated results dictionary
+    """
+    logger.info(f"Starting simulation: n={n}, effect={effect_size}, "
+               f"test={test_type}, H={hypothesis}, alpha={alpha}, "
+               f"iterations={iterations}")
+    
+    p_values = []
+    fallback_count = 0
+    assumption_warnings = 0
+    
+    for i in range(iterations):
+        log_iteration_status(i + 1, iterations, {
+            "n": n,
+            "effect_size": effect_size,
+            "test_type": test_type,
+            "hypothesis": hypothesis
+        })
+        
+        try:
+            # Generate data based on hypothesis
+            if hypothesis == "null":
+                # No effect - groups have same distribution
+                if test_type == "t-test":
+                    group1 = generate_normal_data(n, mean=0, std=1)
+                    group2 = generate_normal_data(n, mean=0, std=1)
+                    result = run_t_test(group1, group2, alpha)
+                elif test_type == "ANOVA":
+                    groups = [generate_normal_data(n, mean=0, std=1) for _ in range(3)]
+                    result = run_anova(groups, alpha)
+                elif test_type == "chi-squared":
+                    # Create contingency table with equal expected counts
+                    observed = np.random.multinomial(n * 4, [0.25, 0.25, 0.25, 0.25]).reshape(2, 2)
+                    result = run_chi_squared(observed, alpha)
+                else:
+                    raise ValueError(f"Unknown test type: {test_type}")
+            
+            else:  # alternative hypothesis
+                if test_type == "t-test":
+                    group1 = generate_normal_data(n, mean=0, std=1)
+                    group2 = generate_normal_data(n, mean=effect_size, std=1)
+                    result = run_t_test(group1, group2, alpha)
+                elif test_type == "ANOVA":
+                    groups = [
+                        generate_normal_data(n, mean=0, std=1),
+                        generate_normal_data(n, mean=effect_size, std=1),
+                        generate_normal_data(n, mean=effect_size * 2, std=1)
+                    ]
+                    result = run_anova(groups, alpha)
+                elif test_type == "chi-squared":
+                    # Create contingency table with different probabilities
+                    probs = [0.1, 0.2, 0.3, 0.4]
+                    observed = np.random.multinomial(n * 4, probs).reshape(2, 2)
+                    result = run_chi_squared(observed, alpha)
+                else:
+                    raise ValueError(f"Unknown test type: {test_type}")
+            
+            p_values.append(result["p_value"])
+            
+            if result.get("fallback_triggered"):
+                fallback_count += 1
+            
+            # Count assumption warnings (simplified)
+            if result.get("assumption_violated"):
+                assumption_warnings += 1
+        
+        except Exception as e:
+            logger.error(f"Iteration {i+1} failed: {e}")
+            # Skip this iteration but continue
+            continue
+    
+    # Calculate results
+    p_values = np.array(p_values)
+    type1_error_rate = np.mean(p_values < alpha) if hypothesis == "null" else None
+    type2_error_rate = np.mean(p_values >= alpha) if hypothesis == "alternative" else None
+    power = 1 - type2_error_rate if hypothesis == "alternative" else None
+    
+    result_summary = {
+        "n": n,
+        "effect_size": effect_size,
+        "test_type": test_type,
+        "hypothesis": hypothesis,
+        "alpha": alpha,
+        "iterations_run": len(p_values),
+        "iterations_total": iterations,
+        "p_values": p_values.tolist(),
+        "type1_error_rate": type1_error_rate,
+        "type2_error_rate": type2_error_rate,
+        "power": power,
+        "fallback_count": fallback_count,
+        "assumption_warnings": assumption_warnings,
+        "mean_p_value": float(np.mean(p_values)),
+        "std_p_value": float(np.std(p_values))
+    }
+    
+    logger.info(f"Simulation complete: {result_summary['iterations_run']}/{iterations} "
+               f"iterations successful")
+    
+    return result_summary
+
+def aggregate_results(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Aggregate results from multiple simulation runs.
+    
+    Args:
+        results: List of result dictionaries
+    
+    Returns:
+        Aggregated summary statistics
+    """
+    logger.info(f"Aggregating {len(results)} simulation results")
+    
+    if not results:
+        return {}
+    
+    aggregated = {
+        "total_runs": len(results),
+        "by_test_type": {},
+        "by_hypothesis": {},
+        "overall_stats": {}
+    }
+    
+    for result in results:
+        test_type = result.get("test_type", "unknown")
+        hypothesis = result.get("hypothesis", "unknown")
+        
+        # Aggregate by test type
+        if test_type not in aggregated["by_test_type"]:
+            aggregated["by_test_type"][test_type] = []
+        aggregated["by_test_type"][test_type].append(result)
+        
+        # Aggregate by hypothesis
+        if hypothesis not in aggregated["by_hypothesis"]:
+            aggregated["by_hypothesis"][hypothesis] = []
+        aggregated["by_hypothesis"][hypothesis].append(result)
+    
+    # Calculate overall statistics
+    all_p_values = []
+    for result in results:
+        if "p_values" in result:
+            all_p_values.extend(result["p_values"])
+    
+    if all_p_values:
+        aggregated["overall_stats"] = {
+            "total_p_values": len(all_p_values),
+            "mean_p_value": float(np.mean(all_p_values)),
+            "std_p_value": float(np.std(all_p_values)),
+            "min_p_value": float(np.min(all_p_values)),
+            "max_p_value": float(np.max(all_p_values))
+        }
+    
+    logger.info(f"Aggregation complete: {aggregated['overall_stats']}")
+    return aggregated

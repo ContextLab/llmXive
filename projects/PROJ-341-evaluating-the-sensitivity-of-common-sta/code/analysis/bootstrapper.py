@@ -5,214 +5,296 @@ from typing import Dict, Any, List, Optional, Tuple
 from scipy import stats
 import pandas as pd
 
+# Import from existing API surface
+from code.simulation.output_writer import load_p_values_raw
+from code.analysis.real_data_runner import load_prepared_data
+
 def bootstrap_power_estimate(
-    p_values: List[float],
-    n_iterations: int = 1000,
+    p_values: np.ndarray,
     alpha: float = 0.05,
-    seed: Optional[int] = None
+    n_bootstrap: int = 1000,
+    rng: Optional[np.random.Generator] = None
 ) -> Dict[str, Any]:
     """
-    Perform bootstrapped power estimation on a list of p-values.
+    Perform bootstrapped power estimation on a set of p-values.
     
     Args:
-        p_values: List of observed p-values from real data tests.
-        n_iterations: Number of bootstrap iterations.
+        p_values: Array of p-values from real data analysis (e.g., from T031).
         alpha: Significance threshold.
-        seed: Random seed for reproducibility.
+        n_bootstrap: Number of bootstrap iterations.
+        rng: Random number generator for reproducibility.
         
     Returns:
-        Dictionary with bootstrap statistics including estimated power,
-        confidence intervals, and standard error.
+        Dictionary containing:
+            - 'estimated_power': Mean power estimate
+            - 'ci_lower': Lower bound of 95% CI
+            - 'ci_upper': Upper bound of 95% CI
+            - 'bootstrap_distribution': The distribution of power estimates
     """
-    if seed is not None:
-        np.random.seed(seed)
+    if rng is None:
+        rng = np.random.default_rng(42)
         
-    if not p_values:
+    n = len(p_values)
+    if n == 0:
         return {
-            "estimated_power": 0.0,
-            "ci_lower": 0.0,
-            "ci_upper": 0.0,
-            "standard_error": 0.0,
-            "n_samples": 0,
-            "n_iterations": n_iterations
+            'estimated_power': 0.0,
+            'ci_lower': 0.0,
+            'ci_upper': 0.0,
+            'bootstrap_distribution': []
         }
-        
-    p_array = np.array(p_values)
-    n = len(p_array)
-    significant_count = np.sum(p_array < alpha)
     
-    # Bootstrap sampling to estimate power distribution
+    # Calculate observed power (proportion of rejections)
+    observed_power = np.mean(p_values < alpha)
+    
     bootstrap_powers = []
-    for _ in range(n_iterations):
+    for _ in range(n_bootstrap):
         # Resample with replacement
-        resampled = np.random.choice(p_array, size=n, replace=True)
-        # Calculate power as proportion of significant results
-        power = np.mean(resampled < alpha)
-        bootstrap_powers.append(power)
-        
+        resample_indices = rng.choice(n, size=n, replace=True)
+        resampled_p_values = p_values[resample_indices]
+        resampled_power = np.mean(resampled_p_values < alpha)
+        bootstrap_powers.append(resampled_power)
+    
     bootstrap_powers = np.array(bootstrap_powers)
     
     return {
-        "estimated_power": float(np.mean(bootstrap_powers)),
-        "ci_lower": float(np.percentile(bootstrap_powers, 2.5)),
-        "ci_upper": float(np.percentile(bootstrap_powers, 97.5)),
-        "standard_error": float(np.std(bootstrap_powers)),
-        "n_samples": n,
-        "n_iterations": n_iterations,
-        "observed_significant_rate": float(significant_count / n) if n > 0 else 0.0
+        'estimated_power': float(np.mean(bootstrap_powers)),
+        'ci_lower': float(np.percentile(bootstrap_powers, 2.5)),
+        'ci_upper': float(np.percentile(bootstrap_powers, 97.5)),
+        'bootstrap_distribution': bootstrap_powers.tolist(),
+        'observed_power': float(observed_power),
+        'n_samples': n,
+        'n_bootstrap': n_bootstrap
     }
 
 def calculate_ks_distance(
-    real_data_p_values: List[float],
-    simulated_power_dist: List[float]
+    simulated_power_dist: List[float],
+    real_power_dist: List[float]
 ) -> float:
     """
-    Calculate Kolmogorov-Smirnov distance between real data p-value distribution
-    and simulated power distribution.
+    Calculate the Kolmogorov-Smirnov distance between two distributions.
     
     Args:
-        real_data_p_values: Observed p-values from real datasets.
-        simulated_power_dist: Simulated power distribution values.
+        simulated_power_dist: Power distribution from simulation (T018/T020).
+        real_power_dist: Bootstrapped power distribution from real data.
         
     Returns:
-        KS distance statistic.
+        KS statistic (distance between CDFs).
     """
-    if not real_data_p_values or not simulated_power_dist:
-        return 0.0
+    if not simulated_power_dist or not real_power_dist:
+        return float('nan')
         
-    # Convert to cumulative distribution functions
-    real_dist = np.sort(real_data_p_values)
-    sim_dist = np.sort(simulated_power_dist)
-    
-    # Use scipy's KS test
-    ks_stat, _ = stats.ks_2samp(real_dist, sim_dist)
+    ks_stat, _ = stats.ks_2samp(simulated_power_dist, real_power_dist)
     return float(ks_stat)
 
 def load_simulated_power_distribution(
-    path: str = "data/simulation/error_rates_summary.csv"
+    error_rates_file: str = "data/simulation/error_rates_summary.csv",
+    test_type: str = "t_test",
+    effect_size: float = 0.5
 ) -> List[float]:
     """
-    Load simulated power distribution from aggregated results.
+    Load simulated power distribution from the aggregated error rates.
+    Power = 1 - Type II error rate.
     
     Args:
-        path: Path to the error rates summary CSV.
+        error_rates_file: Path to error_rates_summary.csv.
+        test_type: Type of test (t_test, anova, chi_squared).
+        effect_size: Effect size filter.
         
     Returns:
-        List of power values (1 - Type II error rate) from simulations.
+        List of power values across sample sizes for the specified condition.
     """
-    if not os.path.exists(path):
+    df = pd.read_csv(error_rates_file)
+    
+    # Filter by test type and effect size
+    mask = (df['test_type'] == test_type) & (np.isclose(df['effect_size'], effect_size))
+    filtered_df = df[mask]
+    
+    if filtered_df.empty:
         return []
         
-    df = pd.read_csv(path)
-    # Power is typically 1 - Type II error rate
-    # Assuming column 'power' or '1_minus_type_ii' exists
-    if 'power' in df.columns:
-        return df['power'].tolist()
-    elif '1_minus_type_ii' in df.columns:
-        return df['1_minus_type_ii'].tolist()
-    else:
-        # Fallback: calculate from Type II error if available
-        if 'type_ii_error' in df.columns:
-            return (1 - df['type_ii_error']).tolist()
-        else:
-            return []
+    # Power = 1 - Type II error rate
+    # Note: In the simulation, Type II error is calculated when H1 is true.
+    # We assume the 'type_ii_error_rate' column exists from T017/T018.
+    if 'type_ii_error_rate' not in filtered_df.columns:
+        # Fallback: if only Type I is present and we are under H1, 
+        # we might need to infer. But per spec, T017 calculates both.
+        return []
+        
+    power_values = 1.0 - filtered_df['type_ii_error_rate'].values
+    return power_values.tolist()
 
 def run_bootstrapped_validation(
-    real_p_values: List[float],
-    simulated_power_dist: List[float],
-    n_bootstrap_iterations: int = 1000,
+    real_data_pvalues_file: str = "data/simulation/real_data_pvalues.csv",
+    simulated_error_rates_file: str = "data/simulation/error_rates_summary.csv",
     alpha: float = 0.05,
-    seed: Optional[int] = None
+    n_bootstrap: int = 1000,
+    seed: int = 42
 ) -> Dict[str, Any]:
     """
-    Run complete bootstrapped validation pipeline.
+    Main orchestration function for T032.
+    
+    1. Loads real data p-values (from T031).
+    2. Bootstraps power estimates for each test type in real data.
+    3. Loads corresponding simulated power distributions.
+    4. Calculates KS distance.
+    5. Verifies KS <= 0.10.
     
     Args:
-        real_p_values: Observed p-values from real datasets.
-        simulated_power_dist: Simulated power distribution for comparison.
-        n_bootstrap_iterations: Number of bootstrap iterations.
-        alpha: Significance threshold.
+        real_data_pvalues_file: Output from T031.
+        simulated_error_rates_file: Output from T018.
+        alpha: Significance level.
+        n_bootstrap: Bootstrap iterations.
         seed: Random seed.
         
     Returns:
-        Dictionary containing all validation metrics.
+        Dictionary of results for all test types.
     """
-    # Calculate bootstrap power estimate for real data
-    bootstrap_result = bootstrap_power_estimate(
-        p_values=real_p_values,
-        n_iterations=n_bootstrap_iterations,
-        alpha=alpha,
-        seed=seed
-    )
+    rng = np.random.default_rng(seed)
     
-    # Calculate KS distance
-    ks_distance = calculate_ks_distance(real_p_values, simulated_power_dist)
+    # Load real data p-values
+    if not os.path.exists(real_data_pvalues_file):
+        raise FileNotFoundError(f"Real data p-values file not found: {real_data_pvalues_file}")
+        
+    real_df = pd.read_csv(real_data_pvalues_file)
     
-    # Determine if validation passed (KS <= 0.10)
-    validation_passed = ks_distance <= 0.10
+    results = {}
+    test_types = real_df['test_type'].unique()
     
-    return {
-        "bootstrap_power": bootstrap_result,
-        "ks_distance": ks_distance,
-        "validation_passed": validation_passed,
-        "threshold": 0.10,
-        "alpha": alpha,
-        "n_bootstrap_iterations": n_bootstrap_iterations
-    }
+    for test_type in test_types:
+        # Filter real p-values for this test type
+        # Note: real_data_pvalues.csv might contain multiple datasets.
+        # We aggregate all p-values for this test type to estimate overall power
+        # in the context of the validation datasets.
+        # However, power is typically defined per effect size. 
+        # Since real data has "unknown" effect size, we treat the observed rejection rate
+        # as the empirical power estimate for the specific dataset conditions.
+        
+        test_df = real_df[real_df['test_type'] == test_type]
+        p_values = test_df['p_value'].values
+        
+        if len(p_values) == 0:
+            continue
+            
+        # Bootstrap power estimate
+        boot_result = bootstrap_power_estimate(
+            p_values, 
+            alpha=alpha, 
+            n_bootstrap=n_bootstrap, 
+            rng=rng
+        )
+        
+        # Load simulated power distribution for comparison
+        # We need to pick a representative effect size. 
+        # For validation, we often compare against a medium effect size (0.5) 
+        # or the one most similar to the real data's implicit effect.
+        # Here we use 0.5 as a standard reference from the simulation grid.
+        sim_power_dist = load_simulated_power_distribution(
+            simulated_error_rates_file,
+            test_type=test_type,
+            effect_size=0.5
+        )
+        
+        # If simulated distribution is empty (maybe no data for this effect size),
+        # we try to find any available power distribution for this test type
+        if not sim_power_dist:
+            # Try to load from a range of effect sizes or just skip if no sim data
+            # For this task, we assume the simulation ran for effect_size=0.5
+            pass
+        
+        # Calculate KS distance
+        ks_dist = calculate_ks_distance(sim_power_dist, boot_result['bootstrap_distribution'])
+        
+        # Verification
+        is_valid = ks_dist <= 0.10 if not np.isnan(ks_dist) else False
+        
+        results[test_type] = {
+            'bootstrap_power': boot_result,
+            'simulated_power_distribution': sim_power_dist,
+            'ks_distance': ks_dist,
+            'is_valid': is_valid,
+            'threshold': 0.10
+        }
+        
+    return results
 
 def save_power_results(
     results: Dict[str, Any],
     output_path: str = "data/simulation/real_data_power.json"
 ) -> None:
     """
-    Save bootstrapped power estimation results to JSON file.
+    Save the bootstrapped power estimation and KS distance results.
     
     Args:
-        results: Dictionary of results to save.
-        output_path: Path to output JSON file.
+        results: Output from run_bootstrapped_validation.
+        output_path: Path to the JSON output file.
     """
+    # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Prepare serializable output
+    # Convert numpy types and handle large lists if necessary
+    serializable_results = {}
+    for test_type, data in results.items():
+        serializable_results[test_type] = {
+            'bootstrap_power': {
+                'estimated_power': data['bootstrap_power']['estimated_power'],
+                'ci_lower': data['bootstrap_power']['ci_lower'],
+                'ci_upper': data['bootstrap_power']['ci_upper'],
+                'observed_power': data['bootstrap_power']['observed_power'],
+                'n_samples': data['bootstrap_power']['n_samples'],
+                'n_bootstrap': data['bootstrap_power']['n_bootstrap']
+            },
+            'ks_distance': data['ks_distance'],
+            'is_valid': data['is_valid'],
+            'threshold': data['threshold'],
+            # Truncate distribution for readability if too large, 
+            # but keep the stats. The prompt asks for the file, not necessarily the full array if huge.
+            # We'll keep the full array as it's the 'distribution' but JSON handles it.
+            'simulated_power_distribution_sample': data['simulated_power_distribution'][:100] if len(data['simulated_power_distribution']) > 100 else data['simulated_power_distribution']
+        }
+    
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump(serializable_results, f, indent=2)
 
-def main() -> None:
-    """Main entry point for bootstrapped power validation."""
-    # Load real data p-values (generated by T031)
-    real_pvalues_path = "data/simulation/real_data_pvalues.csv"
-    if not os.path.exists(real_pvalues_path):
-        print(f"Error: Real data p-values file not found at {real_pvalues_path}")
-        print("Please run T031 first to generate real_data_pvalues.csv")
-        return
+def main():
+    """
+    Entry point for T032 execution.
+    """
+    print("Starting T032: Bootstrapped Power Estimation and KS Distance Validation")
+    
+    # Configuration
+    real_data_file = "data/simulation/real_data_pvalues.csv"
+    sim_error_rates_file = "data/simulation/error_rates_summary.csv"
+    output_file = "data/simulation/real_data_power.json"
+    alpha = 0.05
+    n_bootstrap = 1000
+    seed = 42
+    
+    try:
+        results = run_bootstrapped_validation(
+            real_data_pvalues_file=real_data_file,
+            simulated_error_rates_file=sim_error_rates_file,
+            alpha=alpha,
+            n_bootstrap=n_bootstrap,
+            seed=seed
+        )
         
-    df_real = pd.read_csv(real_pvalues_path)
-    
-    # Collect all p-values from the dataset
-    all_p_values = df_real['p_value'].tolist()
-    
-    # Load simulated power distribution for comparison
-    simulated_dist = load_simulated_power_distribution()
-    
-    if not simulated_dist:
-        print("Warning: Could not load simulated power distribution. Using empty comparison.")
-        simulated_dist = [0.5] * len(all_p_values)  # Fallback for KS calculation
+        save_power_results(results, output_file)
         
-    # Run bootstrapped validation
-    results = run_bootstrapped_validation(
-        real_p_values=all_p_values,
-        simulated_power_dist=simulated_dist,
-        n_bootstrap_iterations=1000,
-        alpha=0.05,
-        seed=42
-    )
-    
-    # Save results
-    output_path = "data/simulation/real_data_power.json"
-    save_power_results(results, output_path)
-    print(f"Bootstrapped power validation results saved to {output_path}")
-    print(f"KS Distance: {results['ks_distance']:.4f}")
-    print(f"Validation Passed (KS <= 0.10): {results['validation_passed']}")
-    print(f"Estimated Power: {results['bootstrap_power']['estimated_power']:.4f}")
-    print(f"Power 95% CI: [{results['bootstrap_power']['ci_lower']:.4f}, {results['bootstrap_power']['ci_upper']:.4f}]")
+        print(f"Results saved to {output_file}")
+        
+        # Print summary
+        for test_type, data in results.items():
+            status = "PASS" if data['is_valid'] else "FAIL"
+            print(f"Test: {test_type}, KS Distance: {data['ks_distance']:.4f} (Threshold: 0.10) -> {status}")
+            
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        print("Ensure T031 (real_data_pvalues.csv) and T018 (error_rates_summary.csv) have been completed.")
+        raise
+    except Exception as e:
+        print(f"An error occurred during validation: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

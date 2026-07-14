@@ -1,278 +1,211 @@
-"""
-Real Data Statistical Test Runner (Task T031)
-
-Executes t-test, ANOVA, and chi-squared tests on real-world datasets
-downloaded in T029a-T029c and T030 preprocessing.
-Saves observed p-value distributions to data/simulation/real_data_pvalues.csv.
-"""
 import os
 import csv
 import json
+from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 import pandas as pd
 from scipy import stats
-from typing import List, Dict, Any, Optional, Tuple
+import warnings
 
-# Import from existing API surface
 from code.analysis.validator import (
-    load_simulation_metadata,
-    save_simulation_metadata,
-    preprocess_dataset_for_validation,
-    ensure_data_raw_dir
+    load_prepared_data_ttest,
+    load_prepared_data_anova,
+    load_prepared_data_chi_squared,
+    get_dataset_path
 )
-from code.simulation.test_runner import (
-    run_t_test,
-    run_anova,
-    run_chi_squared
-)
+from code.simulation.chi_squared_utils import run_chi_squared_with_fallback
 
-def load_preprocessed_datasets() -> Dict[str, pd.DataFrame]:
+def load_prepared_data(dataset_type: str, dataset_name: str) -> Any:
     """
-    Load preprocessed datasets from data/raw/ directory.
-    Expects files: breast_cancer_clean.csv, wine_clean.csv, adult_clean.csv
+    Loads prepared data for a specific test type from the validator module.
     """
-    ensure_data_raw_dir()
-    data_dir = "data/raw"
-    datasets = {}
-
-    file_map = {
-        "breast_cancer": "breast_cancer_clean.csv",
-        "wine": "wine_clean.csv",
-        "adult": "adult_clean.csv"
-    }
-
-    for name, filename in file_map.items():
-        filepath = os.path.join(data_dir, filename)
-        if os.path.exists(filepath):
-            datasets[name] = pd.read_csv(filepath)
-        else:
-            raise FileNotFoundError(f"Preprocessed dataset not found: {filepath}")
-
-    return datasets
-
-def run_t_tests_on_dataset(df: pd.DataFrame, dataset_name: str) -> List[Dict[str, Any]]:
-    """
-    Run t-tests on numeric columns of the dataset.
-    Compares each numeric column against a target or between groups if a binary column exists.
-    Returns a list of results.
-    """
-    results = []
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-
-    if len(numeric_cols) < 2:
-        return results
-
-    # Strategy: If a binary target exists, compare groups. Otherwise, compare first two numeric cols.
-    # For Breast Cancer: 'diagnosis' (M/W) -> map to 0/1, compare numeric features.
-    # For Wine: No explicit binary target, compare first two features or assume class column if present.
-    # For Adult: 'class' (<=50K, >50K) -> binary.
-
-    target_col = None
-    group_col = None
-
-    # Heuristic to find a binary categorical column
-    for col in df.columns:
-        if df[col].dtype == 'object':
-            unique_vals = df[col].nunique()
-            if unique_vals == 2:
-                target_col = col
-                break
-
-    if target_col:
-        # Map object categories to 0/1 if possible, or use as group
-        if target_col in df.columns:
-            groups = df[target_col].unique()
-            if len(groups) == 2:
-                # Perform t-test for each numeric column between the two groups
-                for col in numeric_cols:
-                    if col == target_col: continue
-                    try:
-                        group1 = df[df[target_col] == groups[0]][col].dropna()
-                        group2 = df[df[target_col] == groups[1]][col].dropna()
-
-                        if len(group1) > 1 and len(group2) > 1:
-                            stat, pval = stats.ttest_ind(group1, group2)
-                            results.append({
-                                "dataset": dataset_name,
-                                "test_type": "t-test",
-                                "variable": col,
-                                "group1": str(groups[0]),
-                                "group2": str(groups[1]),
-                                "p_value": pval,
-                                "statistic": stat,
-                                "n1": len(group1),
-                                "n2": len(group2),
-                                "sample_size": len(df)
-                            })
-                    except Exception as e:
-                        continue
+    if dataset_type == 'ttest':
+        return load_prepared_data_ttest(dataset_name)
+    elif dataset_type == 'anova':
+        return load_prepared_data_anova(dataset_name)
+    elif dataset_type == 'chi_squared':
+        return load_prepared_data_chi_squared(dataset_name)
     else:
-        # Fallback: Compare first two numeric columns if no binary target found
-        if len(numeric_cols) >= 2:
-            col1, col2 = numeric_cols[0], numeric_cols[1]
-            try:
-                stat, pval = stats.ttest_ind(df[col1].dropna(), df[col2].dropna())
-                results.append({
-                    "dataset": dataset_name,
-                    "test_type": "t-test",
-                    "variable": f"{col1}_vs_{col2}",
-                    "p_value": pval,
-                    "statistic": stat,
-                    "sample_size": len(df)
-                })
-            except Exception:
-                pass
+        raise ValueError(f"Unknown dataset_type: {dataset_type}")
 
-    return results
-
-def run_anova_on_dataset(df: pd.DataFrame, dataset_name: str) -> List[Dict[str, Any]]:
+def run_ttest_on_dataset(dataset_name: str, group_col: str, value_col: str) -> Dict[str, Any]:
     """
-    Run ANOVA on dataset if a categorical column with >2 levels exists.
+    Runs an independent t-test on the specified dataset.
     """
-    results = []
-    categorical_cols = df.select_dtypes(include=['object']).columns.tolist()
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    data = load_prepared_data('ttest', dataset_name)
+    if data is None:
+        return {"error": "Data not found or invalid for t-test"}
 
-    if len(numeric_cols) < 1 or len(categorical_cols) < 1:
-        return results
+    groups = data[group_col].unique()
+    if len(groups) != 2:
+        return {"error": f"Expected 2 groups for t-test, found {len(groups)}"}
 
-    for cat_col in categorical_cols:
-        if df[cat_col].nunique() > 2:
-            # ANOVA: Compare numeric columns across groups of cat_col
-            groups = [group for _, group in df.groupby(cat_col)]
-            if len(groups) >= 3:
-                # Take first numeric column for ANOVA
-                target_num = numeric_cols[0]
-                try:
-                    f_vals = [g[target_num].dropna() for g in groups if len(g[target_num].dropna()) > 0]
-                    if len(f_vals) >= 3:
-                        f_stat, p_val = stats.f_oneway(*f_vals)
-                        results.append({
-                            "dataset": dataset_name,
-                            "test_type": "anova",
-                            "variable": target_num,
-                            "grouping_variable": cat_col,
-                            "num_groups": len(groups),
-                            "p_value": p_val,
-                            "f_statistic": f_stat,
-                            "sample_size": len(df)
-                        })
-                except Exception:
-                    continue
-    return results
+    group1_data = data[data[group_col] == groups[0]][value_col]
+    group2_data = data[data[group_col] == groups[1]][value_col]
 
-def run_chi_squared_on_dataset(df: pd.DataFrame, dataset_name: str) -> List[Dict[str, Any]]:
+    if len(group1_data) < 2 or len(group2_data) < 2:
+        return {"error": "Insufficient data points for t-test"}
+
+    try:
+        t_stat, p_val = stats.ttest_ind(group1_data, group2_data)
+        return {
+            "test_type": "t-test",
+            "dataset": dataset_name,
+            "statistic": float(t_stat),
+            "p_value": float(p_val),
+            "sample_sizes": {str(groups[0]): int(len(group1_data)), str(groups[1]): int(len(group2_data))}
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+def run_anova_on_dataset(dataset_name: str, group_col: str, value_col: str) -> Dict[str, Any]:
     """
-    Run Chi-squared test on pairs of categorical columns.
+    Runs a one-way ANOVA on the specified dataset.
     """
-    results = []
-    categorical_cols = df.select_dtypes(include=['object']).columns.tolist()
+    data = load_prepared_data('anova', dataset_name)
+    if data is None:
+        return {"error": "Data not found or invalid for ANOVA"}
 
-    if len(categorical_cols) < 2:
-        return results
+    groups = data[group_col].unique()
+    if len(groups) < 2:
+        return {"error": f"Expected at least 2 groups for ANOVA, found {len(groups)}"}
 
-    # Try all pairs
-    for i in range(len(categorical_cols)):
-        for j in range(i + 1, len(categorical_cols)):
-            col1, col2 = categorical_cols[i], categorical_cols[j]
-            try:
-                contingency = pd.crosstab(df[col1], df[col2])
-                if contingency.min().min() == 0:
-                    # Might need expected count check, but run_chi_squared_with_fallback handles it
-                    pass
-                
-                # Use the existing runner which handles fallbacks
-                # We need to convert contingency table to the format expected by run_chi_squared
-                # run_chi_squared expects (group1_data, group2_data) or similar? 
-                # Let's look at run_chi_squared signature in test_runner.py:
-                # It expects group1 and group2 as arrays/lists?
-                # Actually, for contingency table, we usually pass the table itself or raw data.
-                # The existing run_chi_squared in test_runner.py is designed for simulation (group1 vs group2).
-                # For real data with contingency tables, we use scipy.stats.chi2_contingency directly here
-                # to ensure we handle the table correctly, then wrap it in the result dict.
-                
-                stat, p_val, dof, expected = stats.chi2_contingency(contingency)
-                results.append({
-                    "dataset": dataset_name,
-                    "test_type": "chi-squared",
-                    "variable_1": col1,
-                    "variable_2": col2,
-                    "p_value": p_val,
-                    "chi2_statistic": stat,
-                    "degrees_of_freedom": dof,
-                    "sample_size": len(df)
-                })
-            except Exception:
-                continue
-    
-    return results
+    group_data = [data[data[group_col] == g][value_col] for g in groups]
+    group_data = [g.dropna() for g in group_data]
 
-def run_all_real_data_tests() -> List[Dict[str, Any]]:
+    if any(len(g) < 2 for g in group_data):
+        return {"error": "Insufficient data points in one or more groups for ANOVA"}
+
+    try:
+        f_stat, p_val = stats.f_oneway(*group_data)
+        return {
+            "test_type": "anova",
+            "dataset": dataset_name,
+            "statistic": float(f_stat),
+            "p_value": float(p_val),
+            "sample_sizes": {str(g): int(len(data[data[group_col] == g])) for g in groups}
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+def run_chi_squared_on_dataset(dataset_name: str, row_col: str, col_col: str) -> Dict[str, Any]:
     """
-    Main function to run all tests on all preprocessed datasets.
+    Runs a chi-squared test on the specified dataset.
     """
-    datasets = load_preprocessed_datasets()
-    all_results = []
+    data = load_prepared_data('chi_squared', dataset_name)
+    if data is None:
+        return {"error": "Data not found or invalid for Chi-squared"}
 
-    for name, df in datasets.items():
-        all_results.extend(run_t_tests_on_dataset(df, name))
-        all_results.extend(run_anova_on_dataset(df, name))
-        all_results.extend(run_chi_squared_on_dataset(df, name))
+    try:
+        contingency_table = pd.crosstab(data[row_col], data[col_col])
+        if contingency_table.shape[0] < 2 or contingency_table.shape[1] < 2:
+            return {"error": "Contingency table must be at least 2x2"}
 
-    return all_results
+        # Use the fallback logic from test_runner/chi_squared_utils
+        result = run_chi_squared_with_fallback(contingency_table.values)
+        
+        return {
+            "test_type": "chi-squared",
+            "dataset": dataset_name,
+            "statistic": float(result['statistic']),
+            "p_value": float(result['p_value']),
+            "method": result['method'],
+            "degrees_of_freedom": int(result.get('dof', 0)),
+            "sample_size": int(contingency_table.values.sum())
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
-def save_results_to_csv(results: List[Dict[str, Any]], output_path: str):
+def save_p_values_to_csv(results: List[Dict[str, Any]], output_path: str) -> None:
     """
-    Save results to CSV.
+    Saves the list of result dictionaries to a CSV file.
     """
     if not results:
-        # Write empty file with headers if no results
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(["dataset", "test_type", "p_value", "statistic", "sample_size", "details"])
-        return
+        raise ValueError("No results to save.")
 
-    # Determine all keys
-    keys = results[0].keys()
+    # Flatten nested dictionaries for CSV
+    flat_results = []
     for r in results:
-        keys = keys.union(r.keys())
-    
-    keys = sorted(list(keys))
+        flat_row = {k: v for k, v in r.items() if k != 'error'}
+        if 'error' in r:
+            flat_row['error'] = r['error']
+        # Handle nested sample_sizes dict if present
+        if 'sample_sizes' in r and isinstance(r['sample_sizes'], dict):
+            for k, v in r['sample_sizes'].items():
+                flat_row[f'sample_size_{k}'] = v
+            del flat_row['sample_sizes']
+        flat_results.append(flat_row)
 
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    fieldnames = list(flat_results[0].keys())
     with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=keys)
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(results)
+        writer.writerows(flat_results)
 
 def main():
     """
-    Entry point for T031.
+    Main entry point for T031: Run tests on real datasets and save p-values.
     """
-    output_dir = "data/simulation"
-    os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, "real_data_pvalues.csv")
+    output_path = "data/simulation/real_data_pvalues.csv"
+    results = []
 
-    print("Starting real data statistical tests (T031)...")
-    try:
-        results = run_all_real_data_tests()
-        print(f"Collected {len(results)} test results.")
-        save_results_to_csv(results, output_file)
-        print(f"Saved results to {output_file}")
-        
-        # Update metadata to mark T031 completion
-        metadata_path = "data/simulation_metadata.json"
-        metadata = load_simulation_metadata() if os.path.exists(metadata_path) else {}
-        if "tasks" not in metadata: metadata["tasks"] = {}
-        metadata["tasks"]["T031"] = {
-            "status": "completed",
-            "output_file": output_file,
-            "result_count": len(results)
+    # Define datasets and test configurations
+    # Based on T029a/b/c: Breast Cancer (197), Wine (198), Adult (522)
+    # We need to map these to the specific test types supported by the validator's prepared data.
+    
+    configs = [
+        # Breast Cancer: Binary classification (Diagnosis), continuous features -> t-test
+        # Assuming validator prepared 'Diagnosis' vs 'mean radius' or similar
+        {
+            "name": "breast_cancer",
+            "test": "t-test",
+            "group_col": "Diagnosis", # Assuming this column exists after preprocessing
+            "value_col": "mean_radius"
+        },
+        # Wine: Multi-class classification (Class), continuous features -> ANOVA
+        {
+            "name": "wine",
+            "test": "anova",
+            "group_col": "Class",
+            "value_col": "alcohol"
+        },
+        # Adult: Two categorical columns for Chi-squared
+        # Need to pick two categorical columns. 'Education' and 'Marital-Status' are common.
+        {
+            "name": "adult",
+            "test": "chi-squared",
+            "row_col": "Education",
+            "col_col": "Marital-Status"
         }
-        save_simulation_metadata(metadata)
-        
-    except Exception as e:
-        print(f"Error running real data tests: {e}")
-        raise
+    ]
+
+    print(f"Starting real data validation tests...")
+
+    for config in configs:
+        print(f"Running {config['test']} on {config['name']}...")
+        try:
+            if config['test'] == 't-test':
+                res = run_ttest_on_dataset(config['name'], config['group_col'], config['value_col'])
+            elif config['test'] == 'anova':
+                res = run_anova_on_dataset(config['name'], config['group_col'], config['value_col'])
+            elif config['test'] == 'chi-squared':
+                res = run_chi_squared_on_dataset(config['name'], config['row_col'], config['col_col'])
+            else:
+                res = {"error": f"Unknown test type: {config['test']}"}
+            
+            results.append(res)
+            if "error" in res:
+                print(f"  Warning: {res['error']}")
+            else:
+                print(f"  P-value: {res['p_value']:.4f}")
+        except Exception as e:
+            print(f"  Exception during {config['test']} on {config['name']}: {e}")
+            results.append({"test_type": config['test'], "dataset": config['name'], "error": str(e)})
+
+    save_p_values_to_csv(results, output_path)
+    print(f"Results saved to {output_path}")
 
 if __name__ == "__main__":
     main()

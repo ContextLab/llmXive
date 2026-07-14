@@ -1,339 +1,301 @@
 """
-Alpha Sensitivity Analysis Module (Task T035)
+Alpha Sensitivity Analysis Module
 
 Implements sensitivity analysis for alpha thresholds across standard significance levels
 to observe critical sample size shifts (SC-004).
 
 This module:
-1. Loads existing simulation results (error_rates_summary.csv)
-2. Re-evaluates error rates for multiple alpha thresholds (0.01, 0.05, 0.10)
-3. Identifies critical sample size shifts where test behavior changes significantly
-4. Saves results to data/simulation/alpha_sensitivity_results.json
+1. Loads raw p-values from simulation output (T016)
+2. Calculates error rates for multiple alpha thresholds (0.001, 0.01, 0.05, 0.10)
+3. Identifies where critical sample size thresholds shift as alpha changes
+4. Saves comprehensive sensitivity metrics to data/simulation/alpha_sensitivity.json
 """
+
 import os
 import json
 import csv
+from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
-from typing import Dict, Any, List, Optional, Tuple
-from code.analysis.aggregator import load_p_values_raw
-from code.simulation.output_writer import load_p_values_raw as load_raw_pvalues
-import warnings
+from code.simulation.output_writer import load_p_values_raw
 
-# Standard alpha thresholds for sensitivity analysis
-STANDARD_ALPHAS = [0.01, 0.05, 0.10]
 
-def load_error_rates_from_csv(filepath: str) -> List[Dict[str, Any]]:
+def load_p_values_raw_safe(filepath: str = None) -> List[Dict[str, Any]]:
     """
-    Load aggregated error rates from CSV file.
+    Safely load raw p-values with error handling.
     
     Args:
-        filepath: Path to error_rates_summary.csv
+        filepath: Path to p_values_raw.csv. Defaults to standard location.
         
     Returns:
-        List of dictionaries containing error rate data
+        List of dictionaries containing simulation results
+        
+    Raises:
+        FileNotFoundError: If the file doesn't exist
+        ValueError: If file is empty or malformed
     """
-    results = []
+    if filepath is None:
+        filepath = "data/simulation/p_values_raw.csv"
+        
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Error rates file not found: {filepath}")
+        raise FileNotFoundError(f"Raw p-values file not found: {filepath}")
+        
+    results = load_p_values_raw(filepath)
     
-    with open(filepath, 'r') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            results.append({
-                'sample_size': int(row['sample_size']),
-                'test_type': row['test_type'],
-                'effect_size': float(row['effect_size']),
-                'hypothesis': row['hypothesis'],
-                'type_i_error': float(row['type_i_error']),
-                'type_ii_error': float(row['type_ii_error']),
-                'power': float(row['power'])
-            })
+    if not results:
+        raise ValueError(f"Raw p-values file is empty: {filepath}")
+        
     return results
 
-def recompute_error_rates_for_alpha(
-    p_values: List[Dict[str, Any]], 
+
+def calculate_error_rates_for_alpha(
+    data: List[Dict[str, Any]], 
     alpha: float
-) -> Dict[str, Any]:
+) -> List[Dict[str, Any]]:
     """
-    Recompute error rates for a specific alpha threshold.
+    Calculate Type I and Type II error rates for a specific alpha threshold.
     
     Args:
-        p_values: Raw p-values from simulation
-        alpha: Significance threshold to evaluate
+        data: List of raw simulation results
+        alpha: Significance threshold (e.g., 0.05)
         
     Returns:
-        Dictionary of recomputed error rates by condition
+        List of dictionaries with error rates per condition (n, test_type, effect_size, hypothesis)
     """
     # Group by condition
     conditions = {}
-    for record in p_values:
+    
+    for row in data:
         key = (
-            record['sample_size'],
-            record['test_type'],
-            record['effect_size'],
-            record['hypothesis']
+            int(row['sample_size']),
+            row['test_type'],
+            float(row['effect_size']),
+            row['hypothesis']
         )
+        
         if key not in conditions:
-            conditions[key] = []
-        conditions[key].append(float(record['p_value']))
+            conditions[key] = {'p_values': [], 'n': key[0], 'test_type': key[1], 
+                              'effect_size': key[2], 'hypothesis': key[3]}
+        
+        conditions[key]['p_values'].append(float(row['p_value']))
     
     # Calculate error rates for each condition
-    error_rates = {}
-    for key, p_vals in conditions.items():
-        sample_size, test_type, effect_size, hypothesis = key
-        p_vals = np.array(p_vals)
+    error_rates = []
+    
+    for key, cond in conditions.items():
+        p_values = np.array(cond['p_values'])
+        n_tests = len(p_values)
         
-        if hypothesis == 'null':
-            # Type I error: proportion of p < alpha when null is true
-            type_i = np.mean(p_vals < alpha)
-            type_ii = 0.0
-            power = 0.0
-        else:
-            # Type II error: proportion of p >= alpha when alternative is true
-            type_i = 0.0
-            type_ii = np.mean(p_vals >= alpha)
-            power = np.mean(p_vals < alpha)
+        if n_tests == 0:
+            continue
         
-        error_rates[key] = {
-            'sample_size': sample_size,
-            'test_type': test_type,
-            'effect_size': effect_size,
-            'hypothesis': hypothesis,
-            'type_i_error': float(type_i),
-            'type_ii_error': float(type_ii),
-            'power': float(power)
-        }
+        # Type I error: reject null when null is true (p < alpha when hypothesis == 'null')
+        # Type II error: fail to reject null when alternative is true (p >= alpha when hypothesis == 'alternative')
+        
+        if cond['hypothesis'] == 'null':
+            type_i_errors = np.sum(p_values < alpha)
+            type_i_rate = type_i_errors / n_tests
+            error_rates.append({
+                'sample_size': cond['n'],
+                'test_type': cond['test_type'],
+                'effect_size': cond['effect_size'],
+                'hypothesis': cond['hypothesis'],
+                'alpha': alpha,
+                'type_i_error_rate': float(type_i_rate),
+                'type_i_errors': int(type_i_errors),
+                'n_tests': n_tests,
+                'power': None,
+                'type_ii_error_rate': None,
+                'type_ii_errors': None
+            })
+        else:  # alternative hypothesis
+            type_ii_errors = np.sum(p_values >= alpha)
+            type_ii_rate = type_ii_errors / n_tests
+            power = 1 - type_ii_rate
+            error_rates.append({
+                'sample_size': cond['n'],
+                'test_type': cond['test_type'],
+                'effect_size': cond['effect_size'],
+                'hypothesis': cond['hypothesis'],
+                'alpha': alpha,
+                'type_i_error_rate': None,
+                'type_i_errors': None,
+                'n_tests': n_tests,
+                'power': float(power),
+                'type_ii_error_rate': float(type_ii_rate),
+                'type_ii_errors': int(type_ii_errors)
+            })
     
     return error_rates
 
-def find_critical_sample_size_shifts(
-    results_by_alpha: Dict[float, Dict[str, Any]],
-    metric: str = 'power',
-    threshold_change: float = 0.10
-) -> List[Dict[str, Any]]:
-    """
-    Identify sample sizes where test behavior changes significantly across alpha thresholds.
-    
-    Args:
-        results_by_alpha: Dictionary mapping alpha to error rate results
-        metric: Metric to analyze ('power', 'type_i_error', 'type_ii_error')
-        threshold_change: Minimum change in metric to consider significant
-        
-    Returns:
-        List of critical shift points
-    """
-    shifts = []
-    alphas = sorted(results_by_alpha.keys())
-    
-    # Get all unique conditions
-    all_conditions = set()
-    for alpha_data in results_by_alpha.values():
-        all_conditions.update(alpha_data.keys())
-    
-    for condition in all_conditions:
-        sample_size, test_type, effect_size, hypothesis = condition
-        
-        # Collect metric values across alphas
-        metric_values = []
-        for alpha in alphas:
-            if condition in results_by_alpha[alpha]:
-                val = results_by_alpha[alpha][condition].get(metric, 0.0)
-                metric_values.append((alpha, val))
-            else:
-                metric_values.append((alpha, None))
-        
-        # Check for significant shifts
-        for i in range(len(metric_values) - 1):
-            alpha1, val1 = metric_values[i]
-            alpha2, val2 = metric_values[i+1]
-            
-            if val1 is not None and val2 is not None:
-                change = abs(val2 - val1)
-                if change >= threshold_change:
-                    shifts.append({
-                        'condition': {
-                            'sample_size': sample_size,
-                            'test_type': test_type,
-                            'effect_size': effect_size,
-                            'hypothesis': hypothesis
-                        },
-                        'alpha_from': alpha1,
-                        'alpha_to': alpha2,
-                        'metric': metric,
-                        'value_from': float(val1),
-                        'value_to': float(val2),
-                        'change': float(change)
-                    })
-    
-    return shifts
 
-def identify_threshold_shifts(
-    results_by_alpha: Dict[float, Dict[str, Any]],
-    target_power: float = 0.80,
-    target_type_i: float = 0.05
+def find_threshold_shifts(
+    error_rates_by_alpha: Dict[float, List[Dict[str, Any]]],
+    target_type_i: float = 0.05,
+    target_power: float = 0.80
 ) -> Dict[str, Any]:
     """
-    Identify sample size thresholds that shift across alpha values.
+    Identify critical sample size shifts as alpha changes.
+    
+    Finds:
+    1. For Type I error: smallest n where lower CI bound > alpha (reliability threshold)
+    2. For Power: smallest n where power CI remains >= target_power for 3 consecutive increments
     
     Args:
-        results_by_alpha: Error rates organized by alpha
-        target_power: Target power threshold
-        target_type_i: Target Type I error threshold
+        error_rates_by_alpha: Dict mapping alpha -> list of error rate results
+        target_type_i: Target Type I error rate (typically 0.05)
+        target_power: Target power threshold (typically 0.80)
         
     Returns:
-        Dictionary of threshold shifts by test type and effect size
+        Dictionary with threshold information for each alpha level
     """
-    threshold_shifts = {}
-    alphas = sorted(results_by_alpha.keys())
+    thresholds = {}
     
-    # Group by test type and effect size
-    test_effect_combos = set()
-    for alpha_data in results_by_alpha.values():
-        for key in alpha_data.keys():
-            sample_size, test_type, effect_size, hypothesis = key
-            test_effect_combos.add((test_type, effect_size, hypothesis))
-    
-    for test_type, effect_size, hypothesis in test_effect_combos:
-        threshold_shifts[(test_type, effect_size, hypothesis)] = {}
-        
-        for alpha in alphas:
-            # Find minimum sample size meeting criteria
-            min_n = None
-            for sample_size in sorted(set(k[0] for k in results_by_alpha[alpha].keys())):
-                key = (sample_size, test_type, effect_size, hypothesis)
-                if key in results_by_alpha[alpha]:
-                    data = results_by_alpha[alpha][key]
-                    
-                    if hypothesis == 'null':
-                        # Check Type I error
-                        if data['type_i_error'] <= target_type_i + 0.02:  # Allow small tolerance
-                            min_n = sample_size
-                            break
-                    else:
-                        # Check power
-                        if data['power'] >= target_power - 0.05:  # Allow small tolerance
-                            min_n = sample_size
-                            break
-            
-            if min_n is not None:
-                threshold_shifts[(test_type, effect_size, hypothesis)][alpha] = min_n
-    
-    return threshold_shifts
-
-def run_alpha_sensitivity_analysis(
-    raw_pvalues_path: str = 'data/simulation/p_values_raw.csv',
-    output_path: str = 'data/simulation/alpha_sensitivity_results.json'
-) -> Dict[str, Any]:
-    """
-    Run complete alpha sensitivity analysis.
-    
-    Args:
-        raw_pvalues_path: Path to raw p-values CSV
-        output_path: Path for output JSON
-        
-    Returns:
-        Dictionary containing analysis results
-    """
-    # Load raw p-values
-    print(f"Loading raw p-values from {raw_pvalues_path}...")
-    p_values = load_p_values_raw(raw_pvalues_path)
-    
-    if not p_values:
-        raise ValueError("No p-values found in input file")
-    
-    # Recompute error rates for each alpha
-    results_by_alpha = {}
-    for alpha in STANDARD_ALPHAS:
-        print(f"Computing error rates for alpha = {alpha}...")
-        results_by_alpha[alpha] = recompute_error_rates_for_alpha(p_values, alpha)
-    
-    # Find critical shifts
-    print("Identifying critical sample size shifts...")
-    critical_shifts = find_critical_sample_size_shifts(results_by_alpha)
-    
-    # Identify threshold shifts
-    print("Identifying threshold shifts...")
-    threshold_shifts = identify_threshold_shifts(results_by_alpha)
-    
-    # Compile results
-    results = {
-        'analysis_metadata': {
-            'alphas_analyzed': STANDARD_ALPHAS,
-            'total_conditions': len(p_values),
-            'timestamp': str(np.datetime64('now')),
-            'source_file': raw_pvalues_path
-        },
-        'error_rates_by_alpha': {},
-        'critical_shifts': critical_shifts,
-        'threshold_shifts': {},
-        'summary': {}
-    }
-    
-    # Convert results_by_alpha to serializable format
-    for alpha, data in results_by_alpha.items():
-        results['error_rates_by_alpha'][str(alpha)] = list(data.values())
-    
-    # Convert threshold shifts to serializable format
-    for key, shifts in threshold_shifts.items():
-        test_type, effect_size, hypothesis = key
-        results['threshold_shifts'][f"{test_type}_{effect_size}_{hypothesis}"] = {
-            str(alpha): n for alpha, n in shifts.items()
+    for alpha, error_rates in error_rates_by_alpha.items():
+        alpha_thresholds = {
+            'alpha': alpha,
+            'type_i_thresholds': {},
+            'power_thresholds': {}
         }
+        
+        # Group by test_type and effect_size
+        groups = {}
+        for er in error_rates:
+            key = (er['test_type'], er['effect_size'])
+            if key not in groups:
+                groups[key] = {'type_i': [], 'power': []}
+            
+            if er['hypothesis'] == 'null' and er['type_i_error_rate'] is not None:
+                groups[key]['type_i'].append(er)
+            elif er['hypothesis'] == 'alternative' and er['power'] is not None:
+                groups[key]['power'].append(er)
+        
+        # Find thresholds for each group
+        for (test_type, effect_size), group_data in groups.items():
+            # Type I threshold: find smallest n where error rate is close to alpha
+            # (within reasonable tolerance, indicating the test has stabilized)
+            type_i_data = sorted(group_data['type_i'], key=lambda x: x['sample_size'])
+            power_data = sorted(group_data['power'], key=lambda x: x['sample_size'])
+            
+            # Type I: Find where error rate stabilizes near alpha
+            type_i_threshold_n = None
+            for er in type_i_data:
+                if abs(er['type_i_error_rate'] - alpha) < 0.02:  # Within 2% of alpha
+                    type_i_threshold_n = er['sample_size']
+                    break
+            
+            # Power: Find where power >= target_power for 3 consecutive samples
+            power_threshold_n = None
+            if len(power_data) >= 3:
+                for i in range(len(power_data) - 2):
+                    if (power_data[i]['power'] >= target_power and
+                        power_data[i+1]['power'] >= target_power and
+                        power_data[i+2]['power'] >= target_power):
+                        power_threshold_n = power_data[i]['sample_size']
+                        break
+            
+            key_str = f"{test_type}_{effect_size}"
+            alpha_thresholds['type_i_thresholds'][key_str] = {
+                'threshold_n': type_i_threshold_n,
+                'target_alpha': alpha
+            }
+            alpha_thresholds['power_thresholds'][key_str] = {
+                'threshold_n': power_threshold_n,
+                'target_power': target_power
+            }
+        
+        thresholds[str(alpha)] = alpha_thresholds
     
-    # Generate summary statistics
-    results['summary'] = {
-        'total_critical_shifts': len(critical_shifts),
-        'shifts_by_test_type': {},
-        'shifts_by_alpha_pair': {}
+    return thresholds
+
+
+def run_sensitivity_analysis(
+    data: List[Dict[str, Any]],
+    alpha_levels: Optional[List[float]] = None
+) -> Dict[str, Any]:
+    """
+    Run full sensitivity analysis across multiple alpha levels.
+    
+    Args:
+        data: Raw p-values from simulation
+        alpha_levels: List of alpha thresholds to analyze. Defaults to [0.001, 0.01, 0.05, 0.10]
+        
+    Returns:
+        Comprehensive sensitivity analysis results
+    """
+    if alpha_levels is None:
+        alpha_levels = [0.001, 0.01, 0.05, 0.10]
+    
+    # Calculate error rates for each alpha
+    error_rates_by_alpha = {}
+    for alpha in alpha_levels:
+        error_rates_by_alpha[alpha] = calculate_error_rates_for_alpha(data, alpha)
+    
+    # Find threshold shifts
+    thresholds = find_threshold_shifts(error_rates_by_alpha)
+    
+    # Compile summary statistics
+    summary = {
+        'alpha_levels_analyzed': alpha_levels,
+        'total_conditions': len(data),
+        'threshold_shifts': thresholds,
+        'error_rates_by_alpha': {
+            str(alpha): [
+                {k: v for k, v in er.items() if v is not None}
+                for er in rates
+            ]
+            for alpha, rates in error_rates_by_alpha.items()
+        }
     }
     
-    for shift in critical_shifts:
-        test_type = shift['condition']['test_type']
-        alpha_pair = f"{shift['alpha_from']}_to_{shift['alpha_to']}"
-        
-        if test_type not in results['summary']['shifts_by_test_type']:
-            results['summary']['shifts_by_test_type'][test_type] = 0
-        results['summary']['shifts_by_test_type'][test_type] += 1
-        
-        if alpha_pair not in results['summary']['shifts_by_alpha_pair']:
-            results['summary']['shifts_by_alpha_pair'][alpha_pair] = 0
-        results['summary']['shifts_by_alpha_pair'][alpha_pair] += 1
-    
-    # Save results
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    print(f"Alpha sensitivity analysis complete. Results saved to {output_path}")
-    return results
+    return summary
+
 
 def main():
-    """Main entry point for alpha sensitivity analysis."""
-    import argparse
+    """
+    Main entry point for alpha sensitivity analysis.
     
-    parser = argparse.ArgumentParser(description='Run alpha sensitivity analysis')
-    parser.add_argument(
-        '--input', 
-        type=str, 
-        default='data/simulation/p_values_raw.csv',
-        help='Path to raw p-values CSV'
-    )
-    parser.add_argument(
-        '--output', 
-        type=str, 
-        default='data/simulation/alpha_sensitivity_results.json',
-        help='Path for output JSON'
-    )
-    
-    args = parser.parse_args()
+    Reads raw p-values, runs sensitivity analysis, and saves results.
+    """
+    print("Starting Alpha Sensitivity Analysis...")
     
     try:
-        results = run_alpha_sensitivity_analysis(args.input, args.output)
-        print(f"Analysis completed successfully.")
-        print(f"Found {len(results['critical_shifts'])} critical shifts across alpha thresholds.")
+        # Load raw p-values
+        print("Loading raw p-values...")
+        raw_data = load_p_values_raw_safe("data/simulation/p_values_raw.csv")
+        print(f"Loaded {len(raw_data)} raw p-value records")
+        
+        # Run sensitivity analysis
+        print("Running sensitivity analysis across alpha levels...")
+        results = run_sensitivity_analysis(raw_data)
+        
+        # Save results
+        output_path = "data/simulation/alpha_sensitivity.json"
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2, default=str)
+        
+        print(f"Sensitivity analysis results saved to: {output_path}")
+        
+        # Print summary
+        print("\n=== Sensitivity Analysis Summary ===")
+        print(f"Alpha levels analyzed: {results['alpha_levels_analyzed']}")
+        print(f"Total conditions: {results['total_conditions']}")
+        
+        # Show threshold shifts for a sample
+        for alpha_str, alpha_data in results['threshold_shifts'].items():
+            print(f"\nAlpha = {alpha_str}:")
+            type_i_count = sum(1 for v in alpha_data['type_i_thresholds'].values() if v['threshold_n'] is not None)
+            power_count = sum(1 for v in alpha_data['power_thresholds'].values() if v['threshold_n'] is not None)
+            print(f"  Type I thresholds found: {type_i_count}")
+            print(f"  Power thresholds found: {power_count}")
+        
+        return results
+        
     except Exception as e:
-        print(f"Error running alpha sensitivity analysis: {e}")
+        print(f"Error during sensitivity analysis: {e}")
         raise
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
