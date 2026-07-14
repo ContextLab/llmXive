@@ -1,52 +1,73 @@
-# Quickstart for PROJ-843-llmxive-follow-up-extending-latent-spati
+# Quickstart for the Latent Spatial Memory Project
 
-This document lists the commands required to reproduce the end‑to‑end
-research pipeline on a CPU‑only environment.
+This document describes the minimal commands required to run the full
+research pipeline on a CPU‑only environment. All commands are expected
+to succeed and produce the artefacts listed in the specification.
 
 ## 1. Prepare directories
+
 ```bash
-python -c "from config import ensure_directories; ensure_directories()"
+python -c "import code.config as cfg; cfg.ensure_directories()"
 ```
 
-## 2. Download the RealEstate10K dataset (dense baseline)
+## 2. Download datasets
+
 ```bash
 python code/data/download.py
 ```
 
 ## 3. Stratify the dataset
+
 ```bash
 python code/data/stratify.py
 ```
 
 ## 4. Extract sparse features
+
 ```bash
 python code/data/extract_features.py
 ```
 
-## 5. Run the geometry pipeline (solver + warp)
+## 5. Run geometry pipeline (solver + warp)
+
 ```bash
 python code/geometry/run_pipeline.py
 ```
 
-## 6. Compute evaluation metrics
+## 6. Aggregate warped frames (produces the missing artefact)
+
+```bash
+python code/geometry/aggregate_warps.py
+```
+
+## 7. Compute evaluation metrics
+
 ```bash
 python code/eval/metrics.py
 ```
 
-## 7. Perform ANOVA analysis
+## 8. Perform ANOVA analysis
+
 ```bash
 python code/eval/anova.py
 ```
 
-## 8. Sensitivity sweep
+## 9. Sensitivity sweep
+
 ```bash
 python code/eval/sensitivity.py
 ```
 
-## 9. Generate final report
+## 10. Final report
+
 ```bash
 python code/eval/report.py
 ```
 
-After step 6 you should find the file `data/results/metrics.json` and after
-step 9 the verification markdown `data/results/hypothesis_verification.md`.
+After the above steps complete, you should find the following files:
+
+- `data/results/sparse_warped_frames.npy` (produced by step 6)
+- `data/results/metrics.json` (produced by step 7)
+- `data/results/metrics_anova.json` (produced by step 8)
+- `data/results/sensitivity.json` (produced by step 9)
+- `data/results/hypothesis_verification.md` (produced by step 10)

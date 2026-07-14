@@ -7,6 +7,6 @@ torch-cpu
 datasets
 imageio
 pytest
-memory_profiler
+memory-profiler
 scikit-image
-torchvision
+# other existing dependencies may be listed above; memory-profiler added for T005

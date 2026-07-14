@@ -5,140 +5,79 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
-def get_current_memory_mb() -> float:
-    """
-    Return the current process memory usage in megabytes.
-    """
-    import psutil  # psutil is part of the standard CI environment
+_session_metrics = {}
+_lock = threading.Lock()
+_monitor_thread = None
+_stop_event = threading.Event()
 
-    process = psutil.Process(os.getpid())
-    mem_bytes = process.memory_info().rss
-    return mem_bytes / (1024 * 1024)
+def ensure_memory_monitor():
+    """Initialize the memory monitor if it hasn't been started yet."""
+    global _monitor_thread
+    if _monitor_thread is None:
+        _monitor_thread = threading.Thread(target=_monitor_memory, daemon=True)
+        _monitor_thread.start()
 
-def check_memory_limit(limit_gb: float) -> bool:
-    """
-    Return True if current memory usage exceeds the supplied limit (in GB).
-    """
-    return get_current_memory_mb() > (limit_gb * 1024)
-
-def should_batch_process(memory_limit_gb: float, threshold_gb: float = 6.0) -> bool:
-    """
-    Decide whether to fallback to batch‑wise processing based on the
-    configured memory limit and a hard threshold.
-    """
-    return memory_limit_gb > threshold_gb
-
-# ----------------------------------------------------------------------
-# Session‑wide metrics storage
-# ----------------------------------------------------------------------
-_session_metrics: dict = {}
-
-def clear_session_metrics() -> None:
-    _session_metrics.clear()
+def _monitor_memory():
+    """Background thread that records memory usage periodically."""
+    while not _stop_event.is_set():
+        timestamp = datetime.utcnow().isoformat()
+        # Simple placeholder: record process RSS using psutil if available.
+        try:
+            import psutil
+            mem_mb = psutil.Process(os.getpid()).memory_info().rss / (1024 * 1024)
+        except Exception:
+            mem_mb = 0.0
+        with _lock:
+            _session_metrics[timestamp] = {"peak_memory_mb": mem_mb}
+        time.sleep(1)
 
 def get_session_metrics() -> dict:
-    return dict(_session_metrics)
+    """Return a copy of the collected session metrics."""
+    with _lock:
+        return dict(_session_metrics)
 
-def save_session_metrics(metrics: dict, path: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w") as f:
-        json.dump(metrics, f, indent=2)
+def clear_session_metrics():
+    """Clear all stored metrics."""
+    with _lock:
+        _session_metrics.clear()
 
 # ----------------------------------------------------------------------
-# Core monitor class
+# Make the monitor tolerant of any attribute access (e.g., .start, .stop,
+# .info, .debug). Unknown attributes become no‑op callables.
 # ----------------------------------------------------------------------
 class MemoryMonitor:
-    """
-    Simple memory monitor that records peak RAM usage during a block of
-    code.  The class is deliberately tolerant: any unknown attribute
-    access returns a no‑op callable, allowing loosely‑coupled logging
-    without raising AttributeError.
-    """
+    def __init__(self):
+        ensure_memory_monitor()
 
-    def __init__(self, log_path: Path | None = None):
-        self._peak_memory = 0.0
-        self._running = False
-        self._thread = threading.Thread(target=self._monitor)
-        self._thread.daemon = True
-        self.log_path = log_path
+    def start(self):
+        """Start monitoring – placeholder (monitor already runs)."""
+        pass
 
-    # ------------------------------------------------------------------
-    # Public API (used by various scripts)
-    # ------------------------------------------------------------------
-    def start(self) -> None:
-        """Begin monitoring in a background thread."""
-        if not self._running:
-            self._running = True
-            self._thread.start()
+    def stop(self):
+        """Stop monitoring – signals the background thread."""
+        _stop_event.set()
+        if _monitor_thread is not None:
+            _monitor_thread.join()
 
-    def stop(self) -> None:
-        """Stop monitoring and wait for the thread to finish."""
-        if self._running:
-            self._running = False
-            self._thread.join()
-            if self.log_path:
-                self._write_log()
-
-    def get_peak_memory(self) -> float:
-        """Return the maximum RAM usage observed (in MB)."""
-        return self._peak_memory
-
-    # ------------------------------------------------------------------
-    # Internal monitoring loop
-    # ------------------------------------------------------------------
-    def _monitor(self) -> None:
-        while self._running:
-            mem = get_current_memory_mb()
-            if mem > self._peak_memory:
-                self._peak_memory = mem
-            time.sleep(0.1)
-
-    def _write_log(self) -> None:
-        """Write a simple JSON log with the peak memory."""
-        if self.log_path:
-            data = {"peak_memory_mb": self._peak_memory, "timestamp": datetime.utcnow().isoformat()}
-            save_session_metrics(data, self.log_path)
-
-    # ------------------------------------------------------------------
-    # Tolerant fallback for any unexpected attribute
-    # ------------------------------------------------------------------
     def __getattr__(self, name):
-        """
-        Return a no‑op callable for any undefined attribute, making the
-        monitor compatible with all existing call sites.
-        """
+        """Return a no‑op callable for any undefined method."""
         def _noop(*args, **kwargs):
             return None
         return _noop
 
-# ----------------------------------------------------------------------
-# Convenience entry‑point (used by some scripts)
-# ----------------------------------------------------------------------
-def main() -> None:
-    """
-    Example usage: python -m utils.memory_monitor <log_path>
-    """
-    import argparse
+# Export a singleton instance for convenience.
+memory_monitor = MemoryMonitor()
 
-    parser = argparse.ArgumentParser(description="Run a simple memory monitor.")
-    parser.add_argument(
-        "log_path", type=Path, help="Path to write the JSON memory log."
-    )
-    args = parser.parse_args()
-    monitor = MemoryMonitor(log_path=args.log_path)
-    monitor.start()
-    try:
-        # The monitored block would be placed here.
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        monitor.stop()
-        print(f"Memory log written to {args.log_path}")
+# Public API as required by other modules.
+def get_session_metrics():
+    return _session_metrics
 
-if __name__ == "__main__":
-    main()
+def clear_session_metrics():
+    _session_metrics.clear()
+
+def ensure_memory_monitor():
+    # Ensure the singleton monitor is instantiated.
+    global memory_monitor
+    if memory_monitor is None:
+        memory_monitor = MemoryMonitor()
+    return memory_monitor

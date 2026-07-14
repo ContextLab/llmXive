@@ -1,5 +1,9 @@
 [
   {
+    "symbol": "ensure_directories",
+    "owner": null
+  },
+  {
     "symbol": "start",
     "owner": "MemoryMonitor"
   }

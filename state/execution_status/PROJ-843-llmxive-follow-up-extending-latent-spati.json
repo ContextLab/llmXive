@@ -1,13 +1,15 @@
 {
   "project_id": "PROJ-843-llmxive-follow-up-extending-latent-spati",
   "ok": false,
-  "reason": "1 declared deliverable(s) absent: data/results/sparse_warped_frames.npy",
-  "artifacts": [
-    "data/results/memory_summary.json",
-    "data/results/metrics.json"
+  "reason": "4 command(s) failed: python code/main.py --phase data_prepare (rc=1); python code/main.py --phase extract_features (rc=1); python code/main.py --phase compute_geometry (rc=1); 1 declared deliverable(s) absent: data/results/sparse_warped_frames.npy",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --phase data_prepare -> rc=1\n    Downloading dataset...\nDataset saved to: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/raw/RealEstate10K\nStratifying dataset...\nStratification complete.\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 191, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 187, in main\n    agg = aggregate_mem",
+    "python code/main.py --phase extract_features -> rc=1\n    Extracting features...\nFeature extraction complete.\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 191, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 187, in main\n    agg = aggregate_memory_metrics(logs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-la",
+    "python code/main.py --phase compute_geometry -> rc=1\n    in\n    ensure_directories([results_dir])\nTypeError: ensure_directories() takes 0 positional arguments but 1 was given\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 191, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 177, in main\n    phase_compute_geometry()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-",
+    "python code/main.py --phase evaluate -> rc=1\n    not found: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 191, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 179, in main\n    phase_evaluate()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-fo"
   ],
-  "failures": [],
-  "fix_rounds": 4,
+  "fix_rounds": 7,
   "model_tier": 1,
-  "updated_at": "2026-07-14T12:50:54Z"
+  "updated_at": "2026-07-14T13:37:02Z"
 }

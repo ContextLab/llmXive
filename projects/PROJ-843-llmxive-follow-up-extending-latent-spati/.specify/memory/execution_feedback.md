@@ -2,11 +2,70 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 declared deliverable(s) absent: data/results/sparse_warped_frames.npy
+**Summary**: 4 command(s) failed: python code/main.py --phase data_prepare (rc=1); python code/main.py --phase extract_features (rc=1); python code/main.py --phase compute_geometry (rc=1); 1 declared deliverable(s) absent: data/results/sparse_warped_frames.npy
 
 ## Failing / missing run-book commands
 
-- (no per-command failures; the run produced no real data/figure artifacts — ensure scripts WRITE their declared outputs under data/ and figures/)
+- python code/main.py --phase data_prepare -> rc=1
+    Downloading dataset...
+Dataset saved to: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/raw/RealEstate10K
+Stratifying dataset...
+Stratification complete.
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 191, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 187, in main
+    agg = aggregate_memory_metrics(logs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 68, in aggregate_memory_metrics
+    phase = data.get("phase", "unknown")
+            ^^^^^^^^
+AttributeError: 'list' object has no attribute 'get'
+- python code/main.py --phase extract_features -> rc=1
+    Extracting features...
+Feature extraction complete.
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 191, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 187, in main
+    agg = aggregate_memory_metrics(logs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 68, in aggregate_memory_metrics
+    phase = data.get("phase", "unknown")
+            ^^^^^^^^
+AttributeError: 'list' object has no attribute 'get'
+- python code/main.py --phase compute_geometry -> rc=1
+    in
+    ensure_directories([results_dir])
+TypeError: ensure_directories() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 191, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 177, in main
+    phase_compute_geometry()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 125, in phase_compute_geometry
+    _run_subprocess(script)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 113, in _run_subprocess
+    subprocess.run(cmd, check=True)
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/.venv/bin/python', 'code/geometry/run_pipeline.py']' returned non-zero exit status 1.
+- python code/main.py --phase evaluate -> rc=1
+    not found: /home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 191, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 179, in main
+    phase_evaluate()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 129, in phase_evaluate
+    _run_subprocess(script)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 113, in _run_subprocess
+    subprocess.run(cmd, check=True)
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/.venv/bin/python', 'code/eval/metrics.py']' returned non-zero exit status 1.
 
 ## Declared deliverables still missing
 
@@ -19,6 +78,20 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 **CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
+
+### `ensure_directories` — defined in `code/config.py`; called 9 way(s):
+
+- code/validate_quickstart.py: ensure_directories()
+- code/geometry/run_pipeline.py: ensure_directories()
+- code/geometry/aggregate_warps.py: ensure_directories([results_dir])
+- code/data/schemas.py: ensure_directories()
+- code/eval/download_dense_baseline.py: ensure_directories()
+- code/eval/quickstart_validator.py: ensure_directories()
+- code/eval/run_dense_baseline.py: ensure_directories()
+- code/eval/anova.py: ensure_directories()
+- code/eval/metrics.py: ensure_directories()
+
+Make `ensure_directories` in `code/config.py` accept ALL of the above.
 
 ### class `MemoryMonitor` (in `code/utils/memory_monitor.py`) — accessed via method/attribute names this round: `start`
 
@@ -36,16 +109,14 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Whichever you choose, every call site of `MemoryMonitor` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`MemoryMonitor.start` call sites (3):
-- code/utils/memory_monitor.py: monitor.start()
-- code/utils/memory_monitor.py: self._thread.start()
-- code/utils/memory_monitor.py: self.monitor.start()
+`MemoryMonitor.start` call sites (0):
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/results/sparse_warped_frames.npy` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — IS a run-book command
     - `code/geometry/run_pipeline.py` — NOT invoked by the run-book
     - `code/geometry/aggregate_warps.py` — NOT invoked by the run-book
     - `code/eval/quickstart_validator.py` — NOT invoked by the run-book
@@ -60,5 +131,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/metrics.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/geometry/run_pipeline.py`, `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/metrics.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/main.py`, `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/metrics.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/main.py`, `code/geometry/run_pipeline.py`, `code/geometry/aggregate_warps.py`, `code/eval/quickstart_validator.py`, `code/eval/metrics.py`.
