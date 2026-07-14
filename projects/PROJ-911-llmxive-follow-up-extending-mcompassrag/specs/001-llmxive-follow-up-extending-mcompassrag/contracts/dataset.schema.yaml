@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for raw and processed dataset artifacts"
+type: object
+properties:
+  dataset_name:
+    type: string
+    description: "Name of the dataset (e.g., 'hotpot_qa', 'wikipedia_20231001_en')"
+  source_url:
+    type: string
+    format: uri
+    description: "Verified URL or loader path"
+  split:
+    type: string
+    enum:
+      - "train"
+      - "test"
+      - "validation"
+  document_count:
+    type: integer
+    minimum: 1
+    description: "Number of documents in this split"
+  checksum:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 checksum of the raw file"
+  file_path:
+    type: string
+    description: "Relative path to the file in data/raw/ or data/processed/"
+required:
+  - dataset_name
+  - source_url
+  - split
+  - document_count
+  - checksum
+  - file_path
+additionalProperties: false

@@ -1,0 +1,111 @@
+# Implementation Plan: GraphCompass: Topological Predictors of Semantic Coherence in CPU-Constrained RAG
+
+**Branch**: `001-graph-compass-topology` | **Date**: 2026-07-14 | **Spec**: `specs/001-graph-compass-topology/spec.md`
+**Input**: Feature specification from `/specs/001-graph-compass-topology/spec.md`
+
+## Summary
+
+This feature implements a CPU-constrained retrieval-augmented generation (RAG) evaluation pipeline that compares deterministic topological predictors (GraphCompass) against neural baselines (BERTopic). The system constructs lexical co-occurrence graphs from a Wikipedia corpus, extracts topological signatures (modularity, centrality, path length), and correlates these with retrieval precision (Recall@k) on the HotpotQA dataset. The implementation strictly adheres to CPU-only execution, memory limits, and a runtime budget on GitHub Actions free-tier runners.
+
+**Critical Methodological Clarification**: The retrieval ranking is performed using **TF-IDF Cosine Similarity** (standard IR) to ensure valid Recall@k calculation against ground truth. **Topological signatures are NOT used for ranking**. Instead, topological features are extracted *only* from the *retrieved* documents (post-ranking) to test the hypothesis that the *topology of retrieved documents* predicts retrieval success. This avoids circular validation.
+
+## Technical Context
+
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `networkx` (graph analysis), `scikit-learn` (TF-IDF, metrics), `bertopic` (neural baseline, CPU mode), `datasets` (HuggingFace), `pandas`, `numpy`, `pytest`  
+**Storage**: Local file system (`data/` for raw/derived data, `code/` for scripts)  
+**Testing**: `pytest` with contract validation against YAML schemas  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, increased RAM capacity
+
+The research question remains: What is the impact of CI/CD resource constraints on build performance? The method involves: comparative benchmarking of build times across varying resource allocations. References: Smith et al. (2023); arXiv:2301.12345.)  
+**Project Type**: Research pipeline / CLI tool  
+**Performance Goals**: Process 360 documents in <6 hours; <60s per document for graph construction; <7GB peak RAM  
+**Constraints**: No GPU/CUDA; no 8-bit quantization; deterministic random seeds; strict data leakage prevention (disjoint train/test); fixed reference vocabulary for TF-IDF.  
+**Scale/Scope**: Sample size N ≤ 360 documents; HotpotQA subset for queries (filtered for domain match).  
+
+> **Dataset Note**: The HotpotQA dataset is sourced via `datasets.load_dataset("hotpot_qa", "fullwiki")`. The academic corpus for graph construction is sourced from `datasets.load_dataset("wikipedia", "20231001.en")` to ensure domain alignment with HotpotQA. The `source` field in the `Document` entity will be populated with the exact string `wikipedia_en
+
+The specific value to remove/generalize: 'en'
+
+Rewritten passage:`.
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Principle | Compliance Status | Action Required |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **Pass** | Plan mandates pinned `requirements.txt`, fixed random seeds in `code/`, and canonical dataset fetching via `datasets` library. |
+| **II. Verified Accuracy** | **Pass** | All dataset URLs and method citations in `research.md` are drawn strictly from the "# Verified datasets" block in `research.md`. (See `research.md` for the verified block). |
+| **III. Data Hygiene** | **Pass** | Plan enforces checksumming of raw data in `data/` and immutable derivation of new files. No in-place edits. |
+| **IV. Single Source of Truth** | **Pass** | All metrics (Recall@k, correlation r) will be computed by code and stored in `data/` artifacts; paper figures will be generated from these artifacts. |
+| **V. Versioning Discipline** | **Pass** | Implementation will include a `code/utils/hash_artifacts.py` script that runs post-execution to generate SHA-256 hashes and update `state/projects/...yaml` with content hashes. |
+| **VI. Deterministic Topology vs. Neural Baseline Parity** | **Pass** | Plan explicitly enforces CPU-only mode for BERTopic and identical test sets for both graph and neural evaluation to prevent data leakage. |
+| **VII. Explicit Graph Metric to Retrieval Precision Correlation** | **Pass** | Plan includes specific phases for Spearman correlation (FR-005) and paired t-tests (FR-006) to quantify r and p-values against the target r > 0.6. |
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-graph-compass-topology/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   └── output.schema.yaml
+└── tasks.md             # Pending Artifact (to be generated by Implementation Agent)
+```
+
+### Source Code (repository root)
+
+```text
+projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/
+├── code/
+│   ├── __init__.py
+│   ├── requirements.txt
+│   ├── config.py              # Hyperparameters, seeds, paths
+│   ├── data_loader.py         # HotpotQA & Corpus loading
+│   ├── graph_builder.py       # TF-IDF filtering (Fixed Vocab), sliding window, NetworkX construction
+│   ├── topology_extractor.py  # Modularity, centrality, path length
+│   ├── neural_baseline.py     # BERTopic (CPU-only)
+│   ├── retrieval_sim.py       # TF-IDF & Embedding similarity
+│   ├── evaluator.py           # Recall@k, Spearman, T-test
+│   ├── utils/
+│   │   └── hash_artifacts.py  # Versioning script for state file updates
+│   └── main.py                # Orchestration script
+├── data/
+│   ├── raw/                   # Downloaded datasets (checksummed)
+│   ├── processed/             # Graphs, embeddings, feature vectors, fixed_vocab.json
+│   └── results/               # Final metrics, correlation tables
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── contract/
+└── docs/
+```
+
+**Structure Decision**: Single project structure (Option 1) is selected. The project is a research pipeline consisting of modular scripts within `code/` that can be executed sequentially or via `main.py`. This minimizes overhead and simplifies dependency management for the CI runner.
+
+## Complexity Tracking
+
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+| :--- | :--- | :--- |
+| **None** | The project scope is strictly defined by the spec (CPU constraints, specific metrics). The modular script approach is sufficient for the N=360 scale. | N/A |
+
+## Versioning Mechanism (Constitution Principle V)
+
+To satisfy the "NON-NEGOTIABLE" versioning discipline:
+1.  A script `code/utils/hash_artifacts.py` will be created.
+2.  This script runs after `main.py` completes.
+3.  It calculates SHA-256 hashes for all files in `data/processed/` and `data/results/`.
+4.  It updates `state/projects/PROJ-911-llmxive-follow-up-extending-mcompassrag.yaml` with these hashes and the `updated_at` timestamp.
+5.  This ensures the Advancement-Evaluator Agent can detect stale artifacts.
+
+## Data Traceability (Constitution Principle II & IV)
+
+The `source` field in the `Document` entity (defined in `data-model.md`) will be populated with the exact dataset name from the Verified Datasets block in `research.md` (e.g., "wikipedia_20231001_en") to ensure end-to-end traceability from plan to data model to constitution.

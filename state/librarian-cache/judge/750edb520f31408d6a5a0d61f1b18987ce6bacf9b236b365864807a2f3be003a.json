@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2102.11903",
+  "judged_at": "2026-07-14T08:38:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mcompassrag: topic metadata as a semantic compass for paragraph-level \" linguistics",
+  "rationale": "The paper is a general survey of neural ranking models in information retrieval and does not address the specific mechanism of \"topic metadata as a semantic compass\" for paragraph-level retrieval, nor does it focus on the linguistic domain or the specific \"MCompassRAG\" follow-up context required by the user. It fails to meet criteria (a) or (b) as it lacks the specific variable (topic metadata as a compass) and domain specificity (linguistics/paragraph-level) needed for inclusion in a targeted l",
+  "relevant": false
+}

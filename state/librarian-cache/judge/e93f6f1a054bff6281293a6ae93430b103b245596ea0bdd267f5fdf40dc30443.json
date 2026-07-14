@@ -1,6 +1,6 @@
 {
   "candidate_pointer": "2007.00643",
-  "judged_at": "2026-07-14T08:45:29Z",
+  "judged_at": "2026-07-14T08:38:33Z",
   "model": "qwen.qwen3.5-122b",
   "prompt_version": "e0a9984f6571a9b4",
   "query_normalized": "llmxive follow-up: extending \"mcompassrag: topic metadata as a semantic compass for paragraph-level \" linguistics",

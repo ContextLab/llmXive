@@ -1,9 +1,9 @@
 {
   "candidate_pointer": "2012.11583",
-  "judged_at": "2026-07-14T08:45:23Z",
+  "judged_at": "2026-07-14T08:38:22Z",
   "model": "qwen.qwen3.5-122b",
   "prompt_version": "e0a9984f6571a9b4",
   "query_normalized": "llmxive follow-up: extending \"mcompassrag: topic metadata as a semantic compass for paragraph-level \" linguistics",
-  "rationale": "The paper focuses on robotic audio-visual navigation and multimodal goal-seeking in simulated environments, which is an off-domain application of \"semantic\" concepts compared to the user's question about linguistic metadata and RAG (Retrieval-Augmented Generation) for text processing. It shares the keyword \"semantic\" but addresses a distinct construct (spatial navigation via sound) rather than the mechanism, variables, or empirical population of the user's linguistics-focused research.",
+  "rationale": "The paper focuses on robotic audio-visual navigation and multimodal grounding in physical environments, which is an entirely different domain from the user's question regarding LLM retrieval-augmented generation (RAG) and linguistic topic metadata. While both involve \"semantic\" concepts, the paper does not measure the same biological, algorithmic, or social mechanisms, nor does it address the specific variables (LLM performance, metadata as a compass) or empirical population (text corpora) relev",
   "relevant": false
 }

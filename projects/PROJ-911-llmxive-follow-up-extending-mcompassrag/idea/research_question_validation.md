@@ -1,25 +1,31 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-**Verdict**: fail
-The research question explicitly asks how topic granularity "fundamentally constrains semantic alignment... independent of the algorithmic method," yet the motivation and expected results are entirely fixated on comparing a specific graph-based implementation (TF-IDF/networkx) against a neural baseline (BERTopic) under specific hardware constraints (CPU). The question is currently framed as a method-evaluation benchmark ("Can graph X replace neural Y?") rather than a substantive inquiry into the linguistic phenomenon of how abstract structure dictates retrieval success.
+
+**Verdict**: pass
+
+The question asks about the fundamental relationship between lexical co-occurrence topology and semantic coherence in text, independent of the specific implementation of the graph algorithms. While the motivation emphasizes CPU constraints, the core scientific inquiry is whether graph structure inherently captures semantic meaning comparable to neural embeddings, rather than merely benchmarking a specific code path.
 
 ### Circularity check
+
 **Verdict**: pass
-The predictor (topic granularity derived from TF-IDF co-occurrence graphs) and the predicted variable (semantic alignment with retrieval instructions) are derived from distinct computational processes: one is a structural property of the term graph, and the other is a performance metric against external user queries. There is no mechanical guarantee that a specific graph structure yields a specific retrieval score; the relationship is empirical.
+
+The predictor variables (modularity, centrality) are derived from a lexical co-occurrence graph constructed from term frequencies within a sliding window. The predicted variable (retrieval precision/semantic coherence) is measured against ground-truth answer pairs from an external dataset (e.g., HotpotQA). These are independent data sources: the graph structure is a summary of local text statistics, while the retrieval quality is an external evaluation of semantic relevance, avoiding mechanical guarantees.
 
 ### Triviality check
-**Verdict**: concern
-While a null result (graph methods fail to match neural baselines) might be expected by the deep-learning community, a positive result (lightweight graphs match neural performance) is highly publishable as a contribution to efficient AI. However, if the "tipping point" of granularity is found to be highly dataset-specific or noisy, the result may lack generalizable theoretical value, reducing the project to a narrow engineering report rather than a linguistic insight.
+
+**Verdict**: pass
+
+A positive result would establish that lightweight graph topology is a strong proxy for neural semantic understanding, challenging the necessity of heavy transformers for metadata generation. A null result (no correlation) would be equally informative, suggesting that local co-occurrence statistics fail to capture the global semantic coherence required for complex answer retrieval, thereby validating the continued dominance of neural methods.
 
 ### Question-narrowing check
-**Verdict**: fail
-The question names a relationship between "topic structures" and "semantic alignment," which is good, but the framing is immediately undermined by the phrase "independent of the algorithmic method used," which is contradicted by the entire study design that relies on comparing two specific methods. The question effectively asks "Does this specific graph implementation work as well as this specific neural implementation?" rather than "How does the inherent granularity of topic structures in academic writing influence semantic retrieval capabilities?"
+
+**Verdict**: pass
+
+The question explicitly names a domain relationship: "To what extent do topological features... predict the semantic coherence... compared to neural topic embeddings." This frames a substantive inquiry into the nature of semantic representation in text. It does not frame the question as "Can method X run on CPU in time Y," even though that is a practical constraint mentioned in the motivation.
 
 ### Overall verdict
-**Verdict**: validator_revise
-The project has a valid engineering goal but fails the research-question check because it conflates the phenomenon (topic granularity) with the implementation (graph vs. neural). A defensible reframing exists by shifting the focus from comparing two specific algorithms to investigating the fundamental linguistic limits of topic granularity itself, using the graph method merely as a controlled probe.
-[REVISED]
-How does the intrinsic granularity of topic structures in academic abstracts fundamentally constrain semantic alignment with complex retrieval instructions, and what is the theoretical upper bound of retrieval precision achievable by any method that relies solely on structural topic metadata?
-[/REVISED]
-This reframing removes the specific comparison to neural baselines and CPU constraints from the core question, allowing the project to use the graph method as a tool to probe the linguistic phenomenon rather than making the graph method the subject of the inquiry.
+
+**Verdict**: validated
+
+All checks pass; the research question addresses a genuine gap in understanding the predictive power of graph topology for semantic coherence without falling into implementation narrowing or circular construction. The project is ready to proceed to initialization with the current framing.
