@@ -1,9 +1,7 @@
 """
-Sensitivity Analysis (Part 2): Label Definition Robustness (T030b)
-
-Varies the decline-definition threshold by ±1 point on raw MMSE/MOCA scores.
-MUST re-train the model for each variation to assess robustness of the label definition (FR-012).
-Reports false-positive/false-negative rates.
+T030a: Sensitivity Analysis (Part 1) - Decision Threshold Sweep
+Performs a decision threshold sweep over {0.45, 0.50, 0.55} on the trained model.
+Reports false-positive and false-negative rates for each threshold.
 """
 import os
 import sys
@@ -11,245 +9,241 @@ import json
 import argparse
 import warnings
 import logging
-import time
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
+from typing import Dict, List, Any, Tuple
 import numpy as np
 import pandas as pd
 import joblib
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import confusion_matrix
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
 
-# Project imports based on API surface
-from utils.logger import get_logger, log_feature_filtering
-from utils.io import load_csv, save_json, ensure_dir
-from utils.stats import check_collinearity, calculate_feature_variance, filter_low_variance_features
-from config import get_config, ensure_dir as config_ensure_dir
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-# Suppress specific warnings for cleaner logs
-warnings.filterwarnings('ignore', category=FutureWarning)
-warnings.filterwarnings('ignore', category=UserWarning)
+from utils.logger import get_logger
+from utils.io import load_json, save_json, load_csv, save_csv, ensure_dir
+from config import get_config
 
+# Configure logger
 logger = get_logger("sensitivity_analysis")
 
-def get_logger_wrapper():
-    return logger
+# Constants
+THRESHOLDS = [0.45, 0.50, 0.55]
+DEFAULT_MODEL_PATH = "data/processed/model.pkl"
+DEFAULT_METRICS_PATH = "data/processed/graph_metrics.csv"
+DEFAULT_OUTPUT_PATH = "data/processed/sensitivity_report.json"
+DEFAULT_DATA_SPLIT_PATH = "data/processed/data_split_indices.json"
 
-def load_model_and_data(graph_metrics_path: str, decline_threshold: int = 3) -> Tuple[pd.DataFrame, np.ndarray, np.ndarray]:
+def load_model_and_data(
+    model_path: str,
+    metrics_path: str,
+    split_path: Optional[str] = None
+) -> Tuple[Any, pd.DataFrame, Dict[str, List[int]]]:
     """
-    Loads graph metrics and prepares data for training with a specific decline threshold.
-    Returns features (X), labels (y), and subject IDs.
+    Load the trained model, graph metrics data, and data split indices.
+
+    Args:
+        model_path: Path to the serialized model (pkl)
+        metrics_path: Path to the graph metrics CSV
+        split_path: Path to the data split indices JSON
+
+    Returns:
+        Tuple of (model, metrics_df, split_indices)
     """
-    logger.info(f"Loading graph metrics from {graph_metrics_path}")
-    df = load_csv(graph_metrics_path)
-    
-    if df.empty:
-        raise ValueError(f"Graph metrics file is empty: {graph_metrics_path}")
-    
-    # Ensure numeric columns
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    if 'subject_id' in df.columns:
-        numeric_cols = [c for c in numeric_cols if c != 'subject_id']
-    
-    # Identify score columns (assuming 'mmse_baseline', 'mmse_followup' or similar)
-    score_cols = [c for c in df.columns if 'mmse' in c.lower() or 'moca' in c.lower()]
-    if len(score_cols) < 2:
-        raise ValueError(f"Could not find sufficient score columns for decline calculation. Found: {score_cols}")
-    
-    # Sort to find baseline and followup (usually baseline is first or has 'baseline' in name)
-    baseline_col = [c for c in score_cols if 'baseline' in c.lower()]
-    followup_col = [c for c in score_cols if 'followup' in c.lower() or 'end' in c.lower()]
-    
-    if baseline_col and followup_col:
-        b_col, f_col = baseline_col[0], followup_col[0]
-    elif len(score_cols) >= 2:
-        b_col, f_col = score_cols[0], score_cols[1] # Fallback to order
+    logger.info(f"Loading model from {model_path}")
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+    model = joblib.load(model_path)
+
+    logger.info(f"Loading graph metrics from {metrics_path}")
+    if not os.path.exists(metrics_path):
+        raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
+    metrics_df = load_csv(metrics_path)
+
+    # Ensure we have the necessary columns
+    required_cols = ['subject_id', 'decline_label']
+    for col in required_cols:
+        if col not in metrics_df.columns:
+            raise ValueError(f"Missing required column in metrics: {col}")
+
+    # Load split indices if available, otherwise create a default split
+    split_indices = {}
+    if split_path and os.path.exists(split_path):
+        logger.info(f"Loading data split indices from {split_path}")
+        split_indices = load_json(split_path)
     else:
-        raise ValueError("Cannot determine baseline and followup columns.")
-    
-    # Calculate decline
-    df['decline_score'] = df[b_col] - df[f_col]
-    
-    # Define label based on threshold
-    df['label'] = (df['decline_score'] >= decline_threshold).astype(int)
-    
-    # Filter out subjects with NaN scores
-    valid_mask = df[b_col].notna() & df[f_col].notna() & df['decline_score'].notna()
-    df = df[valid_mask].reset_index(drop=True)
-    
-    if df['label'].sum() == 0 or (len(df) - df['label'].sum()) == 0:
-        raise ValueError(f"Imbalanced labels with threshold {decline_threshold}: {df['label'].value_counts().to_dict()}")
-    
-    # Prepare features
-    feature_cols = [c for c in numeric_cols if c not in ['subject_id', 'decline_score', 'label']]
-    if not feature_cols:
-        raise ValueError("No feature columns found.")
-    
-    X = df[feature_cols].values
-    y = df['label'].values
-    subject_ids = df['subject_id'].values if 'subject_id' in df.columns else None
-    
-    logger.info(f"Data loaded: {len(X)} subjects, {sum(y)} positive, {len(X)-sum(y)} negative")
-    return df, X, y, subject_ids, feature_cols, b_col, f_col
+        logger.warning(f"Split indices not found at {split_path}. "
+                       "Creating a default 80/20 split for evaluation.")
+        # Create a deterministic split based on subject count
+        n = len(metrics_df)
+        indices = list(range(n))
+        split_point = int(n * 0.8)
+        split_indices = {
+            "train": indices[:split_point],
+            "test": indices[split_point:]
+        }
 
-def calculate_fpr_fnr(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+    return model, metrics_df, split_indices
+
+def calculate_fpr_fnr(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    threshold: float
+) -> Tuple[float, float]:
     """
-    Calculates False Positive Rate and False Negative Rate.
-    FPR = FP / (FP + TN)
-    FNR = FN / (FN + TP)
+    Calculate False Positive Rate and False Negative Rate for a given threshold.
+
+    Args:
+        y_true: True labels (0 or 1)
+        y_prob: Predicted probabilities of positive class
+        threshold: Decision threshold
+
+    Returns:
+        Tuple of (FPR, FNR)
     """
-    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    y_pred = (y_prob >= threshold).astype(int)
+
+    # True Positives, False Positives, True Negatives, False Negatives
+    tp = np.sum((y_pred == 1) & (y_true == 1))
+    fp = np.sum((y_pred == 1) & (y_true == 0))
+    tn = np.sum((y_pred == 0) & (y_true == 0))
+    fn = np.sum((y_pred == 0) & (y_true == 1))
+
+    # Calculate rates
+    # FPR = FP / (FP + TN)
     fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+    # FNR = FN / (FN + TP)
     fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
-    return {'fpr': fpr, 'fnr': fnr, 'tp': tp, 'tn': tn, 'fp': fp, 'fn': fn}
 
-def run_single_training(X: np.ndarray, y: np.ndarray, feature_cols: List[str], random_seed: int = 42) -> Dict[str, Any]:
-    """
-    Runs a simplified training pipeline (single split or simple CV) to generate predictions.
-    Since full nested CV is too heavy for a sensitivity sweep of 3 models,
-    we use a robust 5-fold stratified CV to estimate performance metrics.
-    """
-    logger.info("Running 5-fold Stratified CV for model estimation...")
-    
-    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_seed)
-    all_fpr = []
-    all_fnr = []
-    fold_metrics = []
-    
-    for fold_idx, (train_idx, test_idx) in enumerate(cv.split(X, y)):
-        X_train, X_test = X[train_idx], X[test_idx]
-        y_train, y_test = y[train_idx], y[test_idx]
-        
-        # Simple pipeline: Scaling + Random Forest
-        # Using parameters from T023 (n_estimators=100, max_depth=None) as base
-        model = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=random_seed, n_jobs=2)
-        scaler = StandardScaler()
-        
-        X_train_scaled = scaler.fit_transform(X_train)
-        X_test_scaled = scaler.transform(X_test)
-        
-        model.fit(X_train_scaled, y_train)
-        y_pred = model.predict(X_test_scaled)
-        
-        metrics = calculate_fpr_fnr(y_test, y_pred)
-        metrics['fold'] = fold_idx
-        fold_metrics.append(metrics)
-        
-        all_fpr.append(metrics['fpr'])
-        all_fnr.append(metrics['fnr'])
-    
-    return {
-        'mean_fpr': float(np.mean(all_fpr)),
-        'std_fpr': float(np.std(all_fpr)),
-        'mean_fnr': float(np.mean(all_fnr)),
-        'std_fnr': float(np.std(all_fnr)),
-        'fold_metrics': fold_metrics
-    }
+    return fpr, fnr
 
 def run_sensitivity_analysis(
-    graph_metrics_path: str,
-    output_path: str,
-    thresholds: List[int] = None
-):
+    model: Any,
+    metrics_df: pd.DataFrame,
+    split_indices: Dict[str, List[int]],
+    thresholds: List[float] = THRESHOLDS
+) -> Dict[str, Any]:
     """
-    Main logic for T030b: Vary decline threshold, re-train, report FPR/FNR.
-    """
-    if thresholds is None:
-        thresholds = [2, 3, 4] # ±1 point from default 3
-    
-    logger.info(f"Starting Sensitivity Analysis (Part 2) with thresholds: {thresholds}")
-    ensure_dir(output_path)
-    
-    results = []
-    
-    for thresh in thresholds:
-        logger.info(f"--- Processing Threshold: {thresh} ---")
-        try:
-            # 1. Load data with specific threshold
-            df, X, y, subject_ids, feature_cols, b_col, f_col = load_model_and_data(
-                graph_metrics_path, decline_threshold=thresh
-            )
-            
-            # 2. Re-train model (simulated via CV)
-            training_results = run_single_training(X, y, feature_cols)
-            
-            # 3. Compile results
-            result_entry = {
-                'threshold': thresh,
-                'baseline_score_col': b_col,
-                'followup_score_col': f_col,
-                'n_subjects': int(len(X)),
-                'n_positive': int(sum(y)),
-                'n_negative': int(len(X) - sum(y)),
-                'mean_fpr': training_results['mean_fpr'],
-                'std_fpr': training_results['std_fpr'],
-                'mean_fnr': training_results['mean_fnr'],
-                'std_fnr': training_results['std_fnr'],
-                'fold_metrics': training_results['fold_metrics']
-            }
-            results.append(result_entry)
-            logger.info(f"Threshold {thresh}: FPR={result_entry['mean_fpr']:.3f}, FNR={result_entry['mean_fnr']:.3f}")
-            
-        except Exception as e:
-            logger.error(f"Failed processing threshold {thresh}: {str(e)}")
-            results.append({
-                'threshold': thresh,
-                'error': str(e),
-                'mean_fpr': None,
-                'mean_fnr': None
-            })
-    
-    # Write output
-    output_data = {
-        'analysis_type': 'label_definition_robustness',
-        'description': 'Variance in FPR/FNR when varying the cognitive decline threshold by ±1 point',
-        'results': results
-    }
-    
-    save_json(output_data, output_path)
-    logger.info(f"Sensitivity analysis complete. Results written to {output_path}")
-    return output_data
+    Run sensitivity analysis by evaluating the model at different decision thresholds.
 
-def write_outputs(results: Dict[str, Any], output_path: str):
-    """Helper to ensure outputs are written (already done in run_sensitivity_analysis)."""
-    pass
+    Args:
+        model: Trained model object
+        metrics_df: DataFrame containing features and labels
+        split_indices: Dictionary with 'test' key containing indices for test set
+        thresholds: List of thresholds to evaluate
+
+    Returns:
+        Dictionary containing analysis results
+    """
+    # Extract test set data
+    test_indices = split_indices.get("test", [])
+    if not test_indices:
+        logger.warning("No test indices found. Using all data for evaluation.")
+        test_indices = list(range(len(metrics_df)))
+
+    # Prepare features and labels for test set
+    # Exclude non-feature columns
+    feature_cols = [col for col in metrics_df.columns 
+                    if col not in ['subject_id', 'decline_label']]
+    
+    X_test = metrics_df.loc[test_indices, feature_cols].values
+    y_true = metrics_df.loc[test_indices, 'decline_label'].values
+
+    # Get predicted probabilities from the model
+    # Assuming the model has predict_proba method (Random Forest, etc.)
+    if hasattr(model, 'predict_proba'):
+        y_prob = model.predict_proba(X_test)[:, 1]
+    elif hasattr(model, 'predict'):
+        # If only predict is available, we cannot get probabilities
+        # We will use the predictions directly and set probabilities to 0.5 for thresholding
+        logger.warning("Model does not have predict_proba. Using predictions directly. "
+                       "Threshold sweep may not be meaningful.")
+        y_pred_direct = model.predict(X_test)
+        # Fallback: treat all as 0.5 probability for thresholding purposes
+        # This is a limitation if the model doesn't support probabilities
+        y_prob = np.full_like(y_pred_direct, 0.5, dtype=float)
+    else:
+        raise ValueError("Model must have predict_proba or predict method.")
+
+    results = {
+        "thresholds": thresholds,
+        "evaluations": []
+    }
+
+    for thresh in thresholds:
+        fpr, fnr = calculate_fpr_fnr(y_true, y_prob, thresh)
+        
+        # Additional metrics for context
+        y_pred = (y_prob >= thresh).astype(int)
+        accuracy = np.mean(y_pred == y_true)
+        precision = np.sum((y_pred == 1) & (y_true == 1)) / np.sum(y_pred == 1) if np.sum(y_pred == 1) > 0 else 0.0
+        recall = np.sum((y_pred == 1) & (y_true == 1)) / np.sum(y_true == 1) if np.sum(y_true == 1) > 0 else 0.0
+
+        results["evaluations"].append({
+            "threshold": thresh,
+            "false_positive_rate": round(fpr, 4),
+            "false_negative_rate": round(fnr, 4),
+            "accuracy": round(accuracy, 4),
+            "precision": round(precision, 4),
+            "recall": round(recall, 4),
+            "num_test_samples": len(y_true)
+        })
+        logger.info(f"Threshold {thresh}: FPR={fpr:.4f}, FNR={fnr:.4f}, Acc={accuracy:.4f}")
+
+    return results
+
+def write_outputs(results: Dict[str, Any], output_path: str) -> None:
+    """
+    Write sensitivity analysis results to JSON file.
+
+    Args:
+        results: Analysis results dictionary
+        output_path: Path to output JSON file
+    """
+    ensure_dir(output_path)
+    save_json(results, output_path)
+    logger.info(f"Sensitivity analysis results written to {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Sensitivity Analysis (Part 2): Label Definition Robustness")
-    parser.add_argument(
-        '--input', 
-        type=str, 
-        default='data/processed/graph_metrics.csv',
-        help='Path to graph metrics CSV'
-    )
-    parser.add_argument(
-        '--output', 
-        type=str, 
-        default='data/processed/sensitivity_report.json',
-        help='Path to output JSON report'
-    )
-    parser.add_argument(
-        '--thresholds',
-        type=int,
-        nargs='+',
-        default=[2, 3, 4],
-        help='Decline thresholds to test (default: 2 3 4)'
-    )
+    """Main entry point for sensitivity analysis."""
+    parser = argparse.ArgumentParser(description="Sensitivity Analysis (Threshold Sweep)")
+    parser.add_argument("--model", type=str, default=DEFAULT_MODEL_PATH,
+                        help="Path to trained model file")
+    parser.add_argument("--metrics", type=str, default=DEFAULT_METRICS_PATH,
+                        help="Path to graph metrics CSV")
+    parser.add_argument("--split", type=str, default=DEFAULT_DATA_SPLIT_PATH,
+                        help="Path to data split indices JSON")
+    parser.add_argument("--output", type=str, default=DEFAULT_OUTPUT_PATH,
+                        help="Path to output JSON file")
+    
     args = parser.parse_args()
-    
-    if not os.path.exists(args.input):
-        logger.error(f"Input file not found: {args.input}")
-        logger.error("Please run code/03_compute_graph_metrics.py and code/04_train_model.py first.")
-        sys.exit(1)
-    
-    run_sensitivity_analysis(
-        graph_metrics_path=args.input,
-        output_path=args.output,
-        thresholds=args.thresholds
-    )
 
-if __name__ == '__main__':
-    main()
+    logger.info("Starting T030a: Sensitivity Analysis (Part 1)")
+    logger.info(f"Thresholds to evaluate: {THRESHOLDS}")
+
+    try:
+        # Load model and data
+        model, metrics_df, split_indices = load_model_and_data(
+            args.model, args.metrics, args.split
+        )
+
+        # Run sensitivity analysis
+        results = run_sensitivity_analysis(model, metrics_df, split_indices, THRESHOLDS)
+
+        # Write outputs
+        write_outputs(results, args.output)
+
+        logger.info("T030a completed successfully.")
+        return 0
+
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        logger.error("Please ensure the model and metrics files exist.")
+        return 1
+    except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

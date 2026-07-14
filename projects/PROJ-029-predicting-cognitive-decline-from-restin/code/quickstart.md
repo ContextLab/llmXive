@@ -1,80 +1,77 @@
-# Quickstart Guide: Predicting Cognitive Decline from Resting-State fMRI
+# Quickstart: Predicting Cognitive Decline from Resting-State fMRI Network Topology
 
-This guide walks you through the end-to-end execution of the research pipeline.
-Ensure you have installed dependencies from `code/requirements.txt` and have network access
-to download the dataset (if not cached).
+This document provides the execution order to reproduce the analysis pipeline.
+Ensure all dependencies in `code/requirements.txt` are installed.
+Ensure the dataset `ds000246` is available in `data/raw/ds000246` or that network access is available for download.
 
 ## Prerequisites
-
 - Python 3.11+
-- FSL (for motion correction) - optional if using nilearn alternatives
-- ~7GB RAM available
+- FSL (for `mcflirt` if running full preprocessing, though T018 is skipped in this minimal run if matrices exist)
+- OpenNeuro CLI (optional, for download)
 
-## Execution Steps
+## Execution Order
 
-Run the following commands in order. Each script produces specific artifacts required by the next.
+1. **Data Gate**: Verify dataset availability.
+ ```bash
+ python code/00_data_gate.py
+ ```
 
-1. **Data Gate & Download**: Verify and download the dataset.
+2. **Download and Filter**: Download raw data and filter for eligible subjects.
  ```bash
  python code/01_download_and_filter.py
  ```
- *Output*: `data/processed/eligible_subjects.csv`, `data/processed/excluded_subjects.log`
+ *Outputs*: `data/processed/eligible_subjects.csv`, `data/processed/excluded_subjects.log`
 
-2. **Preprocessing**: Generate connectivity matrices.
+3. **Preprocess and Parcellate**: (Skipped if matrices exist, otherwise requires FSL/nilearn)
  ```bash
  python code/02_preprocess_and_parcellate.py
  ```
- *Output*: `data/processed/connectivity_matrices/` (NIfTI or.npy files)
+ *Outputs*: `data/processed/connectivity_matrices/`
 
-3. **Graph Metrics**: Compute topological features.
+4. **Compute Graph Metrics**: Calculate network topology features.
  ```bash
  python code/03_compute_graph_metrics.py
  ```
- *Output*: `data/processed/graph_metrics.csv`
+ *Outputs*: `data/processed/graph_metrics.csv`
 
-4. **Collinearity Check**: Standalone analysis of feature correlations.
+5. **Collinearity Check**: Standalone analysis of feature correlations.
  ```bash
  python code/08_collinearity_check.py
  ```
- *Output*: `data/processed/collinearity_report.json`
+ *Outputs*: `data/processed/collinearity_report.json`
 
-5. **Model Training**: Train the Random Forest with Nested CV.
+6. **Train Model**: Nested Cross-Validation training.
  ```bash
  python code/04_train_model.py
  ```
- *Output*: `data/processed/model.pkl`, `data/processed/feature_selection_log.json`
+ *Outputs*: `data/processed/model.pkl`, `data/processed/performance_report.json` (initial)
 
-6. **Evaluation**: Calculate performance metrics.
+7. **Evaluate Model**: Detailed evaluation metrics.
  ```bash
  python code/05_evaluate_model.py
  ```
- *Output*: `data/processed/performance_report.json`
+ *Outputs*: `data/processed/performance_report.json` (final)
 
-7. **Permutation Test**: Assess statistical significance.
+8. **Permutation Test**: Significance testing.
  ```bash
  python code/06_permutation_test.py
  ```
- *Output*: `data/processed/permutation_results.json`
+ *Outputs*: `data/processed/permutation_results.json`
 
-8. **Sensitivity Analysis**: Test robustness of thresholds.
+9. **Sensitivity Analysis**: Threshold robustness.
  ```bash
  python code/07_sensitivity_analysis.py
  ```
- *Output*: `data/processed/sensitivity_report.json`
+ *Outputs*: `data/processed/sensitivity_report.json`
 
-9. **Report Generation**: Aggregate results into a final report.
+10. **Generate Report**: Aggregate findings.
  ```bash
  python code/09_generate_report.py
  ```
- *Output*: `data/artifacts/final_report.md`
+ *Outputs*: `data/artifacts/final_report.md`
 
-10. **Verification**: Check success criteria.
+11. **Verify Success Criteria**: Check against thresholds.
  ```bash
  python code/10_verify_success_criteria.py
  ```
- *Output*: `data/artifacts/verification_status.txt`, `data/artifacts/runtime_report.json`
-
-## Notes
-
-- If the dataset download fails due to network issues, ensure `api.openneuro.org` is reachable or use a local cache if configured.
-- The `code/08_collinearity_check.py` script is now explicitly included in the run-book to satisfy the dependency contract with the run-book documentation.
+ *Outputs*: `data/artifacts/verification_status.txt`, `data/artifacts/runtime_report.json`
