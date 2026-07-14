@@ -1,366 +1,308 @@
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Iterator, Generator
 import numpy as np
 import pandas as pd
 from utils.logging import get_module_logger
 from utils.io import check_disk_space, DiskSpaceError
+from config import get_config
 
 logger = get_module_logger(__name__)
 
-def calculate_missingness_by_environment(df: pd.DataFrame, env_cols: List[str]) -> Dict[str, float]:
-    """Calculate missingness percentage for each environmental column."""
-    missingness = {}
-    for col in env_cols:
-        if col in df.columns:
-            missing_count = df[col].isna().sum()
-            total_count = len(df)
-            missingness[col] = (missing_count / total_count) * 100 if total_count > 0 else 0.0
-        else:
-            logger.warning(f"Column {col} not found in dataframe")
-            missingness[col] = 100.0
+def stream_vcf_memory_efficient(vcf_path: str) -> Iterator[Dict[str, Any]]:
+    """
+    Stream VCF file line by line to avoid memory overflow.
+    Returns a generator of dictionaries representing each variant.
+    """
+    import cyvcf2
+    vcf = cyvcf2.VCF(vcf_path)
+    for variant in vcf:
+        yield {
+            'chrom': variant.CHROM,
+            'pos': variant.POS,
+            'id': variant.ID,
+            'ref': variant.REF,
+            'alt': variant.ALT,
+            'qual': variant.QUAL,
+            'filter': variant.FILTER,
+            'info': variant.INFO,
+            'genotypes': variant.genotypes
+        }
+    vcf.close()
+
+def calculate_missingness_by_environment(df: pd.DataFrame, env_col: str = 'env_id') -> pd.Series:
+    """
+    Calculate the percentage of missing values for each environment.
+    """
+    if env_col not in df.columns:
+        raise ValueError(f"Environment column '{env_col}' not found in dataframe.")
+    
+    # Group by environment and calculate missingness for numeric columns
+    missingness = df.groupby(env_col).apply(
+        lambda x: x.select_dtypes(include=[np.number]).isnull().mean() * 100
+    )
     return missingness
 
-def exclude_rows_by_env_missingness(df: pd.DataFrame, env_cols: List[str], threshold: float = 20.0) -> pd.DataFrame:
-    """Exclude rows where environmental metadata missingness exceeds threshold per population."""
-    if not env_cols:
-        return df
+def exclude_rows_by_env_missingness(df: pd.DataFrame, threshold: float = 20.0) -> pd.DataFrame:
+    """
+    Exclude rows where the environment has > threshold% missingness.
+    """
+    missingness = calculate_missingness_by_environment(df)
+    envs_to_exclude = missingness[missingness > threshold].index.tolist()
+    
+    logger.info(f"Excluding environments with > {threshold}% missingness: {envs_to_exclude}")
+    return df[~df['env_id'].isin(envs_to_exclude)]
 
-    # Calculate missingness per row for env columns
-    row_missingness = df[env_cols].isna().mean(axis=1) * 100
-    excluded_mask = row_missingness > threshold
-    excluded_count = excluded_mask.sum()
-    
-    if excluded_count > 0:
-        logger.warning(f"Excluding {excluded_count} rows due to environmental metadata missingness > {threshold}%")
-        # Log which populations were excluded for transparency (Constitution Principle VI)
-        excluded_indices = df[excluded_mask].index.tolist()
-        logger.debug(f"Excluded row indices: {excluded_indices}")
-    
-    return df[~excluded_mask].reset_index(drop=True)
-
-def flag_missing_env_metadata(df: pd.DataFrame, env_cols: List[str]) -> pd.DataFrame:
-    """Flag rows with missing environmental metadata."""
-    if not env_cols:
-        return df
-    
-    missing_flags = df[env_cols].isna().any(axis=1)
-    df = df.copy()
-    df['env_metadata_missing'] = missing_flags
+def flag_missing_env_metadata(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add a flag column for rows with missing environmental metadata.
+    """
+    df['env_metadata_missing'] = df.isnull().any(axis=1)
     return df
 
-def preprocess_environmental_data(df: pd.DataFrame, env_cols: List[str], threshold: float = 20.0) -> pd.DataFrame:
-    """Full preprocessing pipeline for environmental data."""
-    logger.info("Preprocessing environmental data")
-    df = exclude_rows_by_env_missingness(df, env_cols, threshold)
-    df = flag_missing_env_metadata(df, env_cols)
+def preprocess_environmental_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Basic preprocessing for environmental data: impute missing with mean per env.
+    """
+    df = exclude_rows_by_env_missingness(df)
+    df = flag_missing_env_metadata(df)
+    
+    # Impute remaining missing values with mean per environment
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    for col in numeric_cols:
+        if col != 'env_metadata_missing':
+            df[col] = df.groupby('env_id')[col].transform(lambda x: x.fillna(x.mean()))
+    
     return df
 
-def calculate_heterozygosity(genotype_matrix: np.ndarray) -> np.ndarray:
+def calculate_heterozygosity(genotypes: List[List[int]]) -> float:
     """
-    Calculate observed heterozygosity per population.
-    Assumes genotype matrix is encoded as 0, 1, 2 (homozygous ref, heterozygous, homozygous alt).
+    Calculate observed heterozygosity from genotype calls.
+    Genotypes are typically encoded as [0, 0] (ref/ref), [0, 1] (ref/alt), [1, 1] (alt/alt).
+    Heterozygosity = count(het) / total_samples
     """
-    # Heterozygosity is the proportion of heterozygous individuals (value == 1)
-    heterozygous_counts = np.sum(genotype_matrix == 1, axis=1)
-    total_individuals = genotype_matrix.shape[1]
-    if total_individuals == 0:
-        return np.zeros(genotype_matrix.shape[0])
-    return heterozygous_counts / total_individuals
+    if not genotypes:
+        return 0.0
+    hets = sum(1 for g in genotypes if len(g) >= 2 and g[0] != g[1] and g[0] != -1 and g[1] != -1)
+    total = sum(1 for g in genotypes if len(g) >= 2 and g[0] != -1 and g[1] != -1)
+    return hets / total if total > 0 else 0.0
 
-def calculate_nucleotide_diversity(genotype_matrix: np.ndarray) -> np.ndarray:
+def calculate_nucleotide_diversity(genotypes: List[List[int]]) -> float:
     """
-    Calculate nucleotide diversity (pi) per population.
-    Simplified calculation based on allele frequencies.
+    Simplified nucleotide diversity calculation (pi).
     """
-    # Allele frequency calculation (assuming diploid)
-    # Total alleles = 2 * number of individuals
-    allele_counts = np.sum(genotype_matrix, axis=1)
-    total_alleles = 2 * genotype_matrix.shape[1]
+    if not genotypes:
+        return 0.0
+    # Count allele frequencies
+    alleles = []
+    for g in genotypes:
+        if len(g) >= 2 and g[0] != -1 and g[1] != -1:
+            alleles.extend([g[0], g[1]])
     
-    if total_alleles == 0:
-        return np.zeros(genotype_matrix.shape[0])
+    if len(alleles) < 2:
+        return 0.0
     
-    p = allele_counts / total_alleles
-    q = 1 - p
-    # Nucleotide diversity pi = 2pq (for biallelic sites)
-    pi = 2 * p * q
-    # Average across loci
-    return np.mean(pi)
+    unique, counts = np.unique(alleles, return_counts=True)
+    freqs = counts / len(alleles)
+    # Pi = 1 - sum(p_i^2)
+    pi = 1 - np.sum(freqs ** 2)
+    return pi
 
-def calculate_genomic_diversity_metrics(genotype_df: pd.DataFrame, population_col: str = 'population_id') -> pd.DataFrame:
+def calculate_genomic_diversity_metrics(df: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate genomic diversity metrics (heterozygosity, nucleotide diversity) per population.
+    Assumes df has a 'genotypes' column containing list of genotype calls.
     """
-    if population_col not in genotype_df.columns:
-        raise ValueError(f"Population column '{population_col}' not found in dataframe")
+    if 'genotypes' not in df.columns:
+        logger.warning("No 'genotypes' column found. Returning dataframe unchanged.")
+        return df
     
-    # Assume genotype columns are numeric and not the population column
-    genotype_cols = [col for col in genotype_df.columns if col != population_col and genotype_df[col].dtype in ['int64', 'float64', 'int32', 'float32']]
+    df['heterozygosity'] = df['genotypes'].apply(calculate_heterozygosity)
+    df['nucleotide_diversity'] = df['genotypes'].apply(calculate_nucleotide_diversity)
     
-    if not genotype_cols:
-        logger.warning("No genotype columns found in dataframe")
-        return pd.DataFrame()
+    # Aggregate by population
+    agg_df = df.groupby('population_id').agg({
+        'heterozygosity': 'mean',
+        'nucleotide_diversity': 'mean'
+    }).reset_index()
     
-    metrics = []
-    for pop_id, group in genotype_df.groupby(population_col):
-        genotypes = group[genotype_cols].values.astype(float)
-        # Handle missing values by treating them as 0 for calculation (or could exclude)
-        genotypes = np.nan_to_num(genotypes, nan=0.0)
-        
-        het = calculate_heterozygosity(genotypes)
-        pi = calculate_nucleotide_diversity(genotypes)
-        
-        metrics.append({
-            population_col: pop_id,
-            'heterozygosity': het,
-            'nucleotide_diversity': pi
-        })
-    
-    return pd.DataFrame(metrics)
+    return agg_df
 
-def aggregate_to_population_level(df: pd.DataFrame, population_col: str = 'population_id') -> pd.DataFrame:
+def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> pd.Series:
     """
-    Aggregate data to population level by taking mean of numeric columns.
+    Calculate Variance Inflation Factor (VIF) for each predictor.
+    VIF = 1 / (1 - R^2) where R^2 is from regressing one predictor against others.
     """
-    if population_col not in df.columns:
-        raise ValueError(f"Population column '{population_col}' not found in dataframe")
+    from sklearn.linear_model import LinearRegression
     
-    # Group by population and aggregate numeric columns
-    numeric_cols = df.select_dtypes(include=[np.number]).columns
-    if population_col in numeric_cols:
-        numeric_cols = numeric_cols.drop(population_col)
+    vif_data = pd.Series(index=predictors, dtype=float)
     
-    if len(numeric_cols) == 0:
-        return df[[population_col]].drop_duplicates()
-    
-    aggregated = df.groupby(population_col)[numeric_cols].mean().reset_index()
-    return aggregated
-
-def calculate_vif(df: pd.DataFrame, features: List[str]) -> pd.Series:
-    """
-    Calculate Variance Inflation Factor (VIF) for each feature.
-    VIF > 5 indicates potential multicollinearity (per Spec Assumption 6).
-    VIF > 10 indicates severe multicollinearity (model instability).
-    """
-    if not features:
-        return pd.Series([], dtype=float)
-    
-    # Filter to only existing features
-    available_features = [f for f in features if f in df.columns]
-    if len(available_features) != len(features):
-        missing = set(features) - set(available_features)
-        logger.warning(f"Features not found in dataframe: {missing}")
-    
-    if len(available_features) < 2:
-        logger.warning("Need at least 2 features to calculate VIF")
-        return pd.Series([1.0] * len(features), index=features)
-    
-    # Prepare data
-    X = df[available_features].copy()
-    X = X.replace([np.inf, -np.inf], np.nan).dropna()
-    
-    if len(X) < len(available_features) + 1:
-        logger.warning("Not enough samples to calculate VIF reliably")
-        return pd.Series([np.nan] * len(features), index=features)
-    
-    vif_values = {}
-    for i, feature in enumerate(available_features):
-        # Regress feature against all other features
-        y = X[feature]
-        other_features = [f for f in available_features if f != feature]
-        X_other = X[other_features]
+    for i, var in enumerate(predictors):
+        X = df[predictors[:i] + predictors[i+1:]]
+        y = df[var]
         
-        # Check for singular matrix
+        # Handle constant or single-value columns
+        if X.nunique().min() < 2:
+            vif_data[var] = np.inf
+            continue
+        
+        model = LinearRegression()
         try:
-            # Add intercept
-            X_other_with_intercept = np.column_stack([np.ones(len(X_other)), X_other.values])
-            # Check condition number
-            cond_num = np.linalg.cond(X_other_with_intercept)
-            if cond_num > 1e10:
-                logger.warning(f"Feature {feature}: Singular matrix detected (condition number: {cond_num:.2e})")
-                vif_values[feature] = np.inf
-                continue
-            
-            # OLS regression
-            coeffs, residuals, rank, s = np.linalg.lstsq(X_other_with_intercept, y.values, rcond=None)
-            
-            # Calculate R-squared
-            y_pred = X_other_with_intercept @ coeffs
-            ss_res = np.sum((y.values - y_pred) ** 2)
-            ss_tot = np.sum((y.values - np.mean(y.values)) ** 2)
-            r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
-            
-            # VIF = 1 / (1 - R^2)
-            if r_squared >= 1.0:
-                vif_values[feature] = np.inf
+            model.fit(X, y)
+            r2 = model.score(X, y)
+            if r2 >= 1.0:
+                vif_data[var] = np.inf
             else:
-                vif_values[feature] = 1 / (1 - r_squared)
-        except np.linalg.LinAlgError as e:
-            logger.warning(f"Feature {feature}: Linear algebra error during VIF calculation: {e}")
-            vif_values[feature] = np.inf
+                vif_data[var] = 1 / (1 - r2)
+        except Exception as e:
+            logger.error(f"Error calculating VIF for {var}: {e}")
+            vif_data[var] = np.inf
     
-    # Create series with original feature order
-    result = pd.Series([vif_values.get(f, np.nan) for f in features], index=features)
-    return result
+    return vif_data
 
-def apply_normalization(df: pd.DataFrame, unique_studies_count: int, study_col: str = 'source_study') -> pd.DataFrame:
+def detect_model_instability(df: pd.DataFrame, predictors: List[str], vif_threshold: float = 10.0) -> Tuple[List[str], bool]:
     """
-    Apply normalization based on study diversity.
-    If unique_studies >= N-1, use global Z-score and exclude 'source_study' covariate.
+    Detect model instability based on VIF > threshold or singular matrix conditions.
+    Returns a list of predictors to remove and a boolean indicating instability was found.
+    
+    Assumption 6: If VIF > 10 or singular matrix detected, remove predictors conditionally.
+    """
+    logger.info(f"Checking for model instability with VIF threshold {vif_threshold}")
+    
+    # Filter to numeric predictors only
+    numeric_predictors = [p for p in predictors if p in df.columns and np.issubdtype(df[p].dtype, np.number)]
+    
+    if len(numeric_predictors) < 2:
+        logger.warning("Not enough numeric predictors to calculate VIF.")
+        return [], False
+    
+    # Check for constant columns (singular matrix risk)
+    constant_cols = [col for col in numeric_predictors if df[col].nunique() < 2]
+    if constant_cols:
+        logger.warning(f"Constant columns detected (singular matrix risk): {constant_cols}")
+        return constant_cols, True
+    
+    # Calculate VIF
+    try:
+        vif_scores = calculate_vif(df, numeric_predictors)
+    except Exception as e:
+        logger.error(f"VIF calculation failed: {e}")
+        return [], False
+    
+    # Identify high VIF predictors
+    high_vif_predictors = vif_scores[vif_scores > vif_threshold].index.tolist()
+    
+    if high_vif_predictors:
+        logger.warning(f"High VIF detected (> {vif_threshold}) for: {high_vif_predictors}")
+        # Remove the one with the highest VIF first (iterative approach)
+        return [high_vif_predictors[0]], True
+    
+    # Check for singular matrix via rank
+    X = df[numeric_predictors].values
+    try:
+        rank = np.linalg.matrix_rank(X)
+        if rank < X.shape[1]:
+            logger.warning(f"Singular matrix detected (rank {rank} < {X.shape[1]})")
+            # Remove the last column as a heuristic
+            return [numeric_predictors[-1]], True
+    except np.linalg.LinAlgError:
+        logger.warning("Singular matrix detected during rank check")
+        return [numeric_predictors[-1]], True
+    
+    logger.info("No model instability detected.")
+    return [], False
+
+def apply_normalization(df: pd.DataFrame, unique_studies_count: int) -> pd.DataFrame:
+    """
+    Apply normalization (Z-score) conditionally based on study count.
+    If unique_studies >= N-1, use global Z-score and exclude 'source_study'.
     Else, use per-study Z-score.
     """
     df = df.copy()
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     
-    # Remove study_col from normalization if present
-    if study_col in numeric_cols:
-        numeric_cols.remove(study_col)
+    # Remove 'source_study' if condition met
+    if unique_studies_count >= len(df) - 1 and 'source_study' in numeric_cols:
+        logger.info("Excluding 'source_study' covariate due to high study diversity.")
+        numeric_cols.remove('source_study')
     
-    if not numeric_cols:
-        return df
-    
-    N = len(df)
-    threshold = N - 1
-    
-    if unique_studies_count >= threshold:
-        logger.info(f"High study diversity ({unique_studies_count} >= {threshold}): Using global Z-score, excluding '{study_col}' covariate")
+    if 'source_study' in df.columns:
+        # Per-study Z-score
+        for col in numeric_cols:
+            if col in df.columns:
+                df[col] = df.groupby('source_study')[col].transform(
+                    lambda x: (x - x.mean()) / x.std() if x.std() > 0 else 0
+                )
+    else:
         # Global Z-score
         for col in numeric_cols:
-            mean_val = df[col].mean()
-            std_val = df[col].std()
-            if std_val > 0:
-                df[col] = (df[col] - mean_val) / std_val
-            else:
-                df[col] = 0.0
-        # Exclude study column if present
-        if study_col in df.columns:
-            df = df.drop(columns=[study_col])
-    else:
-        logger.info(f"Low study diversity ({unique_studies_count} < {threshold}): Using per-study Z-score")
-        # Per-study Z-score
-        if study_col not in df.columns:
-            logger.warning(f"Study column '{study_col}' not found for per-study normalization, falling back to global")
-            for col in numeric_cols:
-                mean_val = df[col].mean()
-                std_val = df[col].std()
-                if std_val > 0:
-                    df[col] = (df[col] - mean_val) / std_val
+            if col in df.columns:
+                mean = df[col].mean()
+                std = df[col].std()
+                if std > 0:
+                    df[col] = (df[col] - mean) / std
                 else:
-                    df[col] = 0.0
-        else:
-            for study, group in df.groupby(study_col):
-                mask = df[study_col] == study
-                for col in numeric_cols:
-                    mean_val = group[col].mean()
-                    std_val = group[col].std()
-                    if std_val > 0:
-                        df.loc[mask, col] = (group[col] - mean_val) / std_val
-                    else:
-                        df.loc[mask, col] = 0.0
+                    df[col] = 0
     
     return df
 
-def detect_model_instability(df: pd.DataFrame, features: List[str], vif_threshold: float = 10.0) -> Tuple[pd.DataFrame, List[str]]:
+def aggregate_to_population_level(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Detect model instability and conditionally remove predictors.
-    
-    Instability conditions:
-    1. VIF > vif_threshold (default 10.0) - severe multicollinearity
-    2. Singular matrix detection during VIF calculation
-    
-    Args:
-        df: DataFrame containing features
-        features: List of feature column names to check
-        vif_threshold: VIF threshold for instability (default 10.0)
-    
-    Returns:
-        Tuple of (stable_features_df, removed_features_list)
+    Aggregate all data to population level (mean for numeric columns).
     """
-    logger.info(f"Detecting model instability for {len(features)} features with VIF threshold {vif_threshold}")
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    # Exclude non-numeric grouping columns from aggregation if they exist
+    agg_dict = {col: 'mean' for col in numeric_cols if col in df.columns}
     
-    if not features:
-        return df, []
+    if not agg_dict:
+        return df
     
-    # Calculate VIF for all features
-    vif_series = calculate_vif(df, features)
-    
-    # Identify unstable features
-    unstable_features = []
-    stable_features = []
-    
-    for feature, vif_val in vif_series.items():
-        if pd.isna(vif_val) or vif_val == np.inf or vif_val > vif_threshold:
-            unstable_features.append(feature)
-            logger.warning(f"Instability detected for feature '{feature}': VIF = {vif_val}")
-        else:
-            stable_features.append(feature)
-    
-    # Log summary
-    if unstable_features:
-        logger.warning(f"Removing {len(unstable_features)} unstable features: {unstable_features}")
-        logger.info(f"Retaining {len(stable_features)} stable features: {stable_features}")
-    else:
-        logger.info("No model instability detected. All features retained.")
-    
-    # Return DataFrame with only stable features
-    if not stable_features:
-        logger.error("All features were unstable! Returning empty feature set.")
-        return df[[col for col in df.columns if col not in features]], unstable_features
-    
-    stable_df = df[stable_features].copy()
-    return stable_df, unstable_features
+    return df.groupby('population_id').agg(agg_dict).reset_index()
 
 def main():
     """
-    Main function to demonstrate model instability detection.
-    Reads processed data, detects instability, and outputs stable features.
+    Main entry point for T026: Detect model instability and remove predictors.
+    Loads processed data, detects instability, removes predictors, and saves updated feature set.
     """
-    logger.info("Starting model instability detection (T026)")
-    
-    # Define paths
-    input_path = Path("data/processed/features_vif.csv")
-    output_path = Path("data/processed/features_stable.csv")
+    config = get_config()
+    input_path = Path(config.get('paths', {}).get('processed_features', 'data/processed/features_vif.csv'))
+    output_path = Path(config.get('paths', {}).get('cleaned_features', 'data/processed/features_cleaned.csv'))
     
     if not input_path.exists():
         logger.error(f"Input file not found: {input_path}")
         sys.exit(1)
     
-    # Check disk space (estimate 100MB for processing)
+    logger.info(f"Loading data from {input_path}")
+    df = pd.read_csv(input_path)
+    
+    # Identify predictor columns (exclude target and ID columns)
+    exclude_cols = ['population_id', 'compound_id', 'target', 'env_id']
+    predictors = [col for col in df.columns if col not in exclude_cols]
+    
+    logger.info(f"Predictors to check: {predictors}")
+    
+    # Detect instability
+    to_remove, instability_found = detect_model_instability(df, predictors, vif_threshold=10.0)
+    
+    if instability_found and to_remove:
+        logger.info(f"Removing predictors due to instability: {to_remove}")
+        df = df.drop(columns=to_remove)
+        logger.info(f"Updated features shape: {df.shape}")
+    else:
+        logger.info("No predictors removed.")
+    
+    # Save output
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved cleaned features to {output_path}")
+    
+    # Check disk space
     try:
-        check_disk_space(100 * 1024 * 1024)  # 100MB
+        check_disk_space(output_path.stat().st_size * 2)
     except DiskSpaceError as e:
         logger.error(f"Disk space check failed: {e}")
         sys.exit(1)
-    
-    # Load data
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows with {len(df.columns)} columns")
-    
-    # Identify feature columns (exclude metadata columns)
-    metadata_cols = ['population_id', 'env_id', 'compound_id', 'source_study']
-    feature_cols = [col for col in df.columns if col not in metadata_cols and df[col].dtype in ['int64', 'float64', 'int32', 'float32']]
-    
-    if not feature_cols:
-        logger.error("No feature columns found in input data")
-        sys.exit(1)
-    
-    logger.info(f"Checking {len(feature_cols)} feature columns for instability")
-    
-    # Detect instability and remove unstable features
-    stable_df, removed_features = detect_model_instability(df, feature_cols)
-    
-    # Save results
-    logger.info(f"Saving stable features to {output_path}")
-    stable_df.to_csv(output_path, index=False)
-    
-    # Log summary
-    logger.info(f"Stability detection complete. Removed {len(removed_features)} features: {removed_features}")
-    logger.info(f"Output saved to {output_path}")
-    
-    return stable_df, removed_features
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

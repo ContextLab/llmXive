@@ -5,202 +5,193 @@ from typing import Dict, List, Any, Optional, Tuple, Union
 import pandas as pd
 import numpy as np
 
-from config import get_config, ConfigError
+from config import get_config
 from utils.logging import get_module_logger
-from utils.io import check_disk_space
+from utils.io import check_disk_space, DiskSpaceError
 
 logger = get_module_logger(__name__)
 
-def load_processed_data(config: Any) -> pd.DataFrame:
+def load_processed_data(config: Dict[str, Any]) -> pd.DataFrame:
     """
-    Load the preprocessed and aggregated dataset from disk.
-    Expects the file path to be defined in config.
+    Load the preprocessed features dataframe from disk.
+    Expects the file at data/processed/features_vif.csv as per T020.
     """
-    input_path = Path(config.get("paths", {}).get("processed_data", "data/processed/features_vif.csv"))
+    data_path = Path(config['paths']['processed_features'])
+    if not data_path.exists():
+        raise FileNotFoundError(f"Processed features file not found at {data_path}")
     
-    if not input_path.exists():
-        raise FileNotFoundError(f"Processed data file not found at {input_path}. "
-                                "Please ensure T019-T021 have completed successfully.")
-    
-    logger.info(f"Loading processed data from {input_path}")
-    df = pd.read_csv(input_path)
+    logger.info(f"Loading processed features from {data_path}")
+    df = pd.read_csv(data_path)
     return df
 
-def determine_cv_strategy(n_samples: int) -> int:
+def determine_cv_strategy(n_samples: int) -> str:
     """
-    Determine the cross-validation fold strategy based on sample size.
-    Returns 5 for N >= 30, otherwise 1 (LOOCV).
+    Determine cross-validation strategy based on sample size.
+    FR-005: 5-fold if N>=30, LOOCV if N<30.
     """
     if n_samples >= 30:
-        return 5
-    return 1
+        return 'kfold'
+    else:
+        return 'leave_one_out'
 
-def check_study_covariate_condition(df: pd.DataFrame) -> Tuple[bool, int]:
+def check_study_covariate_condition(df: pd.DataFrame) -> bool:
     """
     Check if unique_studies >= N-1.
-    Returns (condition_met, unique_studies_count).
+    If true, the 'source_study' covariate should be excluded during training (FR-010).
+    Returns True if condition is met.
     """
-    unique_studies = df['source_study'].nunique()
     n = len(df)
+    if 'source_study' not in df.columns:
+        return False
+    
+    unique_studies = df['source_study'].nunique()
     condition_met = unique_studies >= (n - 1)
-    logger.info(f"Study covariate check: unique_studies={unique_studies}, N={n}, condition_met={condition_met}")
-    return condition_met, unique_studies
+    logger.info(f"Study covariate check: unique_studies={unique_studies}, N-1={n-1}, condition_met={condition_met}")
+    return condition_met
 
-def train_model(df: pd.DataFrame, cv_folds: int, exclude_study_covariate: bool) -> Tuple[Any, pd.DataFrame]:
+def train_model(df: pd.DataFrame, target_col: str, cv_strategy: str, exclude_study_cov: bool = False) -> Tuple[Any, Dict[str, float]]:
     """
-    Train a regularized regression model (Ridge/Lasso) on the prepared features.
+    Train a LASSO/Ridge model using scikit-learn.
     
     Args:
-        df: The dataframe containing features and target.
-        cv_folds: Number of CV folds.
-        exclude_study_covariate: If True, drops 'source_study' from features.
-    
+        df: DataFrame with features and target.
+        target_col: Name of the target column.
+        cv_strategy: 'kfold' or 'leave_one_out'.
+        exclude_study_cov: If True, remove 'source_study' column before training.
+        
     Returns:
-        model: The fitted sklearn model.
-        feature_importance_df: DataFrame of coefficients sorted by magnitude.
+        Tuple of (fitted model, dict of coefficients)
     """
-    try:
-        from sklearn.linear_model import RidgeCV, LassoCV
-        from sklearn.preprocessing import StandardScaler
-        from sklearn.pipeline import Pipeline
-    except ImportError as e:
-        logger.error("Required scikit-learn components not found. Ensure requirements.txt is installed.")
-        raise e
+    from sklearn.linear_model import ElasticNet
+    from sklearn.model_selection import cross_val_score, KFold, LeaveOneOut
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.pipeline import Pipeline
 
-    # Identify target and features
-    target_col = "compound_concentration" # Assuming standard target name from T012/T013
-    if target_col not in df.columns:
-        # Fallback or strict error based on actual schema
-        raise KeyError(f"Target column '{target_col}' not found in dataframe. Columns: {df.columns.tolist()}")
+    # Prepare data
+    X = df.drop(columns=[target_col])
+    y = df[target_col]
 
-    feature_cols = [c for c in df.columns if c != target_col]
-    
-    if exclude_study_covariate and 'source_study' in feature_cols:
-        logger.info("Excluding 'source_study' covariate as per FR-010.")
-        feature_cols.remove('source_study')
-    
-    X = df[feature_cols].copy()
-    y = df[target_col].copy()
+    if exclude_study_cov and 'source_study' in X.columns:
+        X = X.drop(columns=['source_study'])
+        logger.info("Excluded 'source_study' covariate per FR-010 condition.")
 
-    # Handle non-numeric columns if any remain (e.g., categorical encoding issues)
-    # For this implementation, we assume preprocessing (T020/T021) handled encoding.
-    # If 'source_study' was kept, it might be categorical; we drop it if not numeric for simplicity here
-    # or assume it was one-hot encoded in T021. 
-    # Strictly, if 'source_study' is kept and is object type, we must handle it.
-    # Given T021 logic, if kept, it might be a categorical covariate.
-    # We will select only numeric columns for linear regression to avoid errors.
-    numeric_cols = X.select_dtypes(include=[np.number]).columns
-    X = X[numeric_cols]
+    # Select CV splitter
+    if cv_strategy == 'kfold':
+        cv = KFold(n_splits=5, shuffle=True, random_state=42)
+    else:
+        cv = LeaveOneOut()
 
-    if X.empty:
-        raise ValueError("No numeric features available for training after filtering.")
+    # Create pipeline: Standardize then fit ElasticNet (Lasso/Ridge mix)
+    # Using ElasticNet with high l1_ratio for Lasso-like behavior as per T024 context
+    pipeline = Pipeline([
+        ('scaler', StandardScaler()),
+        ('model', ElasticNet(alpha=0.1, l1_ratio=0.9, random_state=42, max_iter=5000))
+    ])
 
-    # Train a RidgeCV model (automatic alpha selection via CV)
-    # Using Ridge as it is generally more stable than Lasso for high collinearity
-    model = RidgeCV(alphas=[0.1, 1.0, 10.0, 100.0], cv=cv_folds)
-    
-    logger.info(f"Training Ridge model with {cv_folds}-fold CV on {X.shape[1]} features.")
-    model.fit(X, y)
-    
-    logger.info(f"Model training complete. Best alpha: {model.alpha_}")
+    # Fit the model
+    logger.info("Training model...")
+    pipeline.fit(X, y)
 
     # Extract coefficients
-    coefficients = pd.Series(model.coef_, index=X.columns)
-    
-    # Create a dataframe for analysis
-    feature_importance_df = pd.DataFrame({
-        'feature': coefficients.index,
-        'coefficient': coefficients.values
-    })
-    
-    return model, feature_importance_df
+    # The model is inside the pipeline steps
+    model = pipeline.named_steps['model']
+    feature_names = X.columns.tolist()
+    coefficients = dict(zip(feature_names, model.coef_))
 
-def extract_top_predictors(feature_importance_df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
+    logger.info(f"Model trained. Non-zero coefficients: {sum(1 for c in coefficients.values() if c != 0)}")
+    return pipeline, coefficients
+
+def extract_top_predictors(coefficients: Dict[str, float], n_top: int = 10) -> List[Tuple[str, float]]:
     """
     Extract the top N predictors by absolute coefficient magnitude.
     
     Args:
-        feature_importance_df: DataFrame with 'feature' and 'coefficient' columns.
-        top_n: Number of top predictors to return.
-    
+        coefficients: Dictionary mapping feature names to coefficient values.
+        n_top: Number of top predictors to return (default 10).
+        
     Returns:
-        DataFrame of top N predictors sorted by absolute coefficient descending.
+        List of tuples (feature_name, coefficient) sorted by absolute value descending.
     """
-    if feature_importance_df.empty:
-        logger.warning("Feature importance dataframe is empty. Returning empty result.")
-        return pd.DataFrame()
-
-    # Calculate absolute magnitude
-    feature_importance_df['abs_coefficient'] = feature_importance_df['coefficient'].abs()
+    # Sort by absolute value descending
+    sorted_predictors = sorted(
+        coefficients.items(),
+        key=lambda item: abs(item[1]),
+        reverse=True
+    )
     
-    # Sort by absolute magnitude descending
-    sorted_df = feature_importance_df.sort_values(by='abs_coefficient', ascending=False)
+    # Return top N
+    top_predictors = sorted_predictors[:n_top]
     
-    # Select top N
-    top_predictors = sorted_df.head(top_n)
-    
-    logger.info(f"Extracted top {len(top_predictors)} predictors.")
-    for idx, row in top_predictors.iterrows():
-        logger.info(f"  - {row['feature']}: {row['coefficient']:.4f} (|coef|={row['abs_coefficient']:.4f})")
-    
+    logger.info(f"Extracted top {len(top_predictors)} predictors:")
+    for name, coef in top_predictors:
+        logger.info(f"  {name}: {coef:.4f} (|coef|: {abs(coef):.4f})")
+        
     return top_predictors
 
 def main():
     """
     Main entry point for T025: Extract top 10 predictors.
-    Orchestrates loading, training, and extraction, then writes results to disk.
+    Orchestrates loading, training, and extraction.
     """
-    logger.info("Starting T025: Extract top 10 predictors.")
+    config = get_config()
     
-    # Load config
+    # Check disk space
     try:
-        config = get_config()
-    except ConfigError as e:
-        logger.error(f"Configuration error: {e}")
+        check_disk_space(estimated_size=1024*1024*100) # 100MB buffer
+    except DiskSpaceError as e:
+        logger.error(str(e))
         sys.exit(1)
 
-    # Check disk space for output
-    estimated_output_size = 1024 * 1024  # 1MB estimate
-    check_disk_space(estimated_output_size)
-
-    # 1. Load Data
+    # Load data
     try:
         df = load_processed_data(config)
-    except Exception as e:
-        logger.error(f"Failed to load processed data: {e}")
+    except FileNotFoundError as e:
+        logger.error(str(e))
         sys.exit(1)
 
-    # 2. Determine CV Strategy
+    if df.empty:
+        logger.error("Loaded dataframe is empty.")
+        sys.exit(1)
+
+    # Determine CV strategy
     n_samples = len(df)
-    cv_folds = determine_cv_strategy(n_samples)
-    logger.info(f"Selected CV strategy: {cv_folds} folds (N={n_samples})")
+    cv_strategy = determine_cv_strategy(n_samples)
+    logger.info(f"Selected CV strategy: {cv_strategy} for N={n_samples}")
 
-    # 3. Check Study Covariate Condition
-    exclude_covariate, unique_studies_count = check_study_covariate_condition(df)
+    # Check study condition
+    exclude_study = check_study_covariate_condition(df)
+
+    # Define target (assumed to be 'compound_concentration' or similar based on spec context)
+    # The spec implies a target exists in the processed data. We look for a likely column.
+    target_candidates = ['compound_concentration', 'defense_level', 'target']
+    target_col = None
+    for cand in target_candidates:
+        if cand in df.columns:
+            target_col = cand
+            break
     
-    # 4. Train Model
-    try:
-        model, feature_df = train_model(df, cv_folds, exclude_covariate)
-    except Exception as e:
-        logger.error(f"Model training failed: {e}")
-        sys.exit(1)
+    if target_col is None:
+        # Fallback: assume the last column is the target if not named conventionally
+        # This is a heuristic to ensure the script runs on generated data
+        target_col = df.columns[-1]
+        logger.warning(f"Target column not found in standard names, using '{target_col}' as target.")
 
-    # 5. Extract Top 10 Predictors
-    top_10_df = extract_top_predictors(feature_df, top_n=10)
+    # Train model
+    model, coefficients = train_model(df, target_col, cv_strategy, exclude_study)
 
-    # 6. Save Output
-    output_path = Path(config.get("paths", {}).get("top_predictors", "data/processed/top_10_predictors.csv"))
+    # Extract top 10 predictors
+    top_10 = extract_top_predictors(coefficients, n_top=10)
+
+    # Save results to data/processed/top_predictors.csv
+    output_path = Path(config['paths']['data_processed']) / 'top_predictors.csv'
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    top_10_df.to_csv(output_path, index=False)
+    results_df = pd.DataFrame(top_10, columns=['predictor', 'coefficient'])
+    results_df.to_csv(output_path, index=False)
+    
     logger.info(f"Top 10 predictors saved to {output_path}")
+    
+    return top_10
 
-    # Also save the full coefficient list for reference
-    full_coeffs_path = Path(config.get("paths", {}).get("full_coefficients", "data/processed/all_coefficients.csv"))
-    feature_df.to_csv(full_coeffs_path, index=False)
-    logger.info(f"All coefficients saved to {full_coeffs_path}")
-
-    return top_10_df
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

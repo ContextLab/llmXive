@@ -1,7 +1,3 @@
-"""
-Unit tests for permutation test logic and null distribution generation.
-Implements T035: Verify null distribution generation in permutation tests.
-"""
 import unittest
 import sys
 import os
@@ -10,259 +6,334 @@ import shutil
 from pathlib import Path
 import numpy as np
 import pandas as pd
+from unittest.mock import patch, MagicMock
 
-# Add parent directory to path to allow imports from code/
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path to allow imports
+project_root = Path(__file__).resolve().parents[2]
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from models.evaluation import run_permutation_test, calculate_p_value
+from utils.stats import benjamini_hochberg_correction, calculate_jaccard_index
 from utils.logging import get_module_logger
 
+logger = get_module_logger(__name__)
 
-class TestPermutationLogicT035(unittest.TestCase):
-    """
-    Test suite for permutation test logic (T035).
-    Verifies that null distributions are generated correctly and
-    that the statistical properties hold for known inputs.
+
+class TestPermutationTestLogic(unittest.TestCase):
+    """Unit tests for permutation test logic (T035).
+
+    Verifies:
+    1. Null distribution generation shape and type.
+    2. Correct shuffling of labels during permutation.
+    3. P-value computation based on null distribution comparison.
     """
 
     def setUp(self):
-        """Set up test fixtures."""
-        self.logger = get_module_logger(__name__)
+        """Set up temporary directories and mock data for tests."""
         self.temp_dir = tempfile.mkdtemp()
         self.data_path = Path(self.temp_dir) / "test_data.csv"
 
-    def tearDown(self):
-        """Clean up temporary files."""
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
-
-    def _create_test_dataset(self, n_samples=100, n_features=5, signal_strength=0.0):
-        """
-        Create a synthetic dataset for testing.
-        
-        Args:
-            n_samples: Number of samples
-            n_features: Number of features
-            signal_strength: Strength of the signal (0.0 = pure noise)
-        
-        Returns:
-            pd.DataFrame: Test dataset
-        """
+        # Create a deterministic synthetic dataset for testing
+        # We use a known relationship so the model should find signal
         np.random.seed(42)
+        n_samples = 100
+        n_features = 5
+
+        # Features
         X = np.random.randn(n_samples, n_features)
-        
-        if signal_strength > 0:
-            # Create a known linear relationship
-            true_coefs = np.array([signal_strength, 0, 0, 0, 0])
-            y = X @ true_coefs + np.random.randn(n_samples) * 0.5
-        else:
-            # Pure noise
-            y = np.random.randn(n_samples)
-        
-        df = pd.DataFrame(X, columns=[f"feature_{i}" for i in range(n_features)])
+
+        # Target with a known linear relationship + noise
+        true_coefficients = np.array([2.0, -1.5, 0.5, 0.0, 0.0])
+        noise = np.random.randn(n_samples) * 0.5
+        y = X @ true_coefficients + noise
+
+        df = pd.DataFrame(X, columns=[f"feat_{i}" for i in range(n_features)])
         df["target"] = y
-        return df
-
-    def test_null_distribution_generation_no_signal(self):
-        """
-        Verify that when there is no signal, the null distribution
-        centers around zero and produces high p-values.
-        
-        This is the core test for T035: verifying the null distribution
-        generation logic works correctly.
-        """
-        # Create dataset with NO signal (pure noise)
-        df = self._create_test_dataset(n_samples=50, n_features=3, signal_strength=0.0)
         df.to_csv(self.data_path, index=False)
 
-        # Run permutation test with small n for speed
-        n_permutations = 100  # Small for unit test speed
-        
+        self.df = df
+        self.feature_cols = [f"feat_{i}" for i in range(n_features)]
+        self.target_col = "target"
+
+    def tearDown(self):
+        """Clean up temporary directories."""
+        shutil.rmtree(self.temp_dir)
+
+    def test_null_distribution_shape_and_type(self):
+        """Verify that the null distribution has the correct shape and type."""
+        # Run permutation test with a small number of permutations for speed
+        n_permutations = 50
         result = run_permutation_test(
-            data_path=str(self.data_path),
-            target_col="target",
+            df=self.df,
+            feature_cols=self.feature_cols,
+            target_col=self.target_col,
             n_permutations=n_permutations,
-            random_seed=42,
-            output_dir=self.temp_dir
+            random_state=42,
+            output_path=None
         )
 
-        # Assertions for T035: Null distribution logic
-        self.assertIn("null_distribution", result)
-        self.assertIn("observed_r2", result)
-        self.assertIn("p_value", result)
-        
-        null_dist = result["null_distribution"]
-        
-        # The null distribution should have exactly n_permutations values
+        # Check that result is a dictionary
+        self.assertIsInstance(result, dict)
+
+        # Check that 'null_distribution' exists and is a list/array
+        self.assertIn('null_distribution', result)
+        null_dist = result['null_distribution']
+        self.assertIsInstance(null_dist, (list, np.ndarray))
+
+        # Check that the length matches n_permutations
         self.assertEqual(len(null_dist), n_permutations)
-        
-        # For pure noise, the mean of the null distribution should be near zero
-        # (allowing for some sampling variance)
-        self.assertAlmostEqual(np.mean(null_dist), 0.0, delta=0.1)
-        
-        # The p-value should be high (indicating no significant signal)
-        # With pure noise, p-value should typically be > 0.05
-        self.assertGreater(result["p_value"], 0.01)
 
-    def test_null_distribution_with_signal(self):
-        """
-        Verify that when there IS a signal, the observed R2 is significantly
-        higher than the null distribution, producing a low p-value.
-        """
-        # Create dataset WITH signal
-        df = self._create_test_dataset(n_samples=100, n_features=3, signal_strength=1.0)
-        df.to_csv(self.data_path, index=False)
+        # Check that values are numeric (floats)
+        for val in null_dist:
+            self.assertIsInstance(val, (int, float, np.floating))
 
-        n_permutations = 200
-        
+    def test_null_distribution_generated_by_shuffling(self):
+        """Verify that the null distribution is generated by shuffling labels.
+
+        This test ensures that the permutation test actually randomizes the target
+        variable relative to features, breaking the true relationship.
+        """
+        n_permutations = 20
         result = run_permutation_test(
-            data_path=str(self.data_path),
-            target_col="target",
+            df=self.df,
+            feature_cols=self.feature_cols,
+            target_col=self.target_col,
             n_permutations=n_permutations,
-            random_seed=42,
-            output_dir=self.temp_dir
+            random_state=123,  # Fixed seed for reproducibility
+            output_path=None
         )
 
-        # Assertions for T035: Null distribution logic
-        self.assertIn("null_distribution", result)
-        self.assertIn("observed_r2", result)
-        self.assertIn("p_value", result)
-        
-        null_dist = result["null_distribution"]
-        observed_r2 = result["observed_r2"]
-        
-        # The null distribution should have exactly n_permutations values
-        self.assertEqual(len(null_dist), n_permutations)
-        
-        # The observed R2 should be significantly higher than the null distribution
-        # (i.e., greater than the 95th percentile of the null)
-        self.assertGreater(observed_r2, np.percentile(null_dist, 95))
-        
-        # The p-value should be low (indicating significant signal)
-        self.assertLess(result["p_value"], 0.1)  # Relaxed for small sample
+        null_dist = result['null_distribution']
 
-    def test_deterministic_permutation_with_seed(self):
+        # The null distribution should have variance > 0 (since we're shuffling)
+        # If the model always predicts 0 or a constant, variance would be 0
+        # With random shuffling, R^2 values should vary
+        self.assertGreater(np.std(null_dist), 0.0,
+                           "Null distribution should have non-zero variance")
+
+        # Most R^2 values in the null distribution should be low (near 0 or negative)
+        # since we broke the relationship by shuffling
+        # Allow some tolerance for small sample sizes
+        mean_null = np.mean(null_dist)
+        self.assertLess(mean_null, 0.5,
+                        "Mean of null distribution should be low when relationship is broken")
+
+    def test_p_value_computation_correct(self):
+        """Verify that p-value is computed correctly from null distribution.
+
+        P-value = (count of null R^2 >= observed R^2 + 1) / (n_permutations + 1)
         """
-        Verify that permutation tests are deterministic when a seed is provided.
-        This ensures the null distribution generation is reproducible.
+        # First, get the observed R^2 by running without permutation
+        # We'll manually calculate this to verify
+        from sklearn.linear_model import Ridge
+        from sklearn.model_selection import cross_val_score
+
+        X = self.df[self.feature_cols].values
+        y = self.df[self.target_col].values
+
+        model = Ridge(alpha=1.0)
+        cv_scores = cross_val_score(model, X, y, cv=5, scoring='r2')
+        observed_r2 = np.mean(cv_scores)
+
+        # Run permutation test
+        n_permutations = 100
+        result = run_permutation_test(
+            df=self.df,
+            feature_cols=self.feature_cols,
+            target_col=self.target_col,
+            n_permutations=n_permutations,
+            random_state=42,
+            output_path=None
+        )
+
+        null_dist = np.array(result['null_distribution'])
+
+        # Calculate p-value manually
+        # P-value = (number of null R^2 >= observed R^2 + 1) / (n_permutations + 1)
+        count_ge = np.sum(null_dist >= observed_r2)
+        expected_p_value = (count_ge + 1) / (n_permutations + 1)
+
+        # Check that the returned p-value matches our calculation
+        self.assertAlmostEqual(result['p_value'], expected_p_value, places=10,
+                               msg="P-value calculation should match standard permutation test formula")
+
+    def test_p_value_significant_when_signal_exists(self):
+        """Verify that p-value is significant (low) when true signal exists.
+
+        Since our synthetic data has a known strong linear relationship,
+        the permutation test should yield a low p-value.
         """
-        df = self._create_test_dataset(n_samples=50, n_features=3, signal_strength=0.5)
-        df.to_csv(self.data_path, index=False)
+        n_permutations = 100
+        result = run_permutation_test(
+            df=self.df,
+            feature_cols=self.feature_cols,
+            target_col=self.target_col,
+            n_permutations=n_permutations,
+            random_state=42,
+            output_path=None
+        )
+
+        # With a strong signal and 100 permutations, p-value should be low
+        # (typically < 0.05 for a well-powered test)
+        self.assertLess(result['p_value'], 0.10,
+                        "P-value should be low when true signal exists in the data")
+
+    def test_p_value_non_significant_when_no_signal(self):
+        """Verify that p-value is non-significant when no true signal exists.
+
+        We create a dataset with no relationship between features and target.
+        """
+        # Create data with no relationship
+        np.random.seed(999)
+        n_samples = 50
+        n_features = 3
+
+        X = np.random.randn(n_samples, n_features)
+        y = np.random.randn(n_samples)  # Pure noise, no relationship
+
+        df_no_signal = pd.DataFrame(X, columns=[f"feat_{i}" for i in range(n_features)])
+        df_no_signal["target"] = y
 
         n_permutations = 50
-        
-        # Run twice with the same seed
-        result1 = run_permutation_test(
-            data_path=str(self.data_path),
+        result = run_permutation_test(
+            df=df_no_signal,
+            feature_cols=[f"feat_{i}" for i in range(n_features)],
             target_col="target",
             n_permutations=n_permutations,
-            random_seed=123,
-            output_dir=self.temp_dir
+            random_state=42,
+            output_path=None
+        )
+
+        # When there's no signal, p-value should be high (non-significant)
+        # We use a loose threshold since sample size is small
+        self.assertGreater(result['p_value'], 0.10,
+                           "P-value should be high when no true signal exists")
+
+    def test_permutation_test_with_output_file(self):
+        """Verify that permutation test correctly writes results to file."""
+        output_path = Path(self.temp_dir) / "permutation_results.json"
+
+        n_permutations = 20
+        result = run_permutation_test(
+            df=self.df,
+            feature_cols=self.feature_cols,
+            target_col=self.target_col,
+            n_permutations=n_permutations,
+            random_state=42,
+            output_path=str(output_path)
+        )
+
+        # Check that file was created
+        self.assertTrue(output_path.exists(), "Output file should be created")
+
+        # Check that file is valid JSON and contains expected keys
+        import json
+        with open(output_path, 'r') as f:
+            saved_result = json.load(f)
+
+        self.assertIn('observed_r2', saved_result)
+        self.assertIn('null_distribution', saved_result)
+        self.assertIn('p_value', saved_result)
+        self.assertEqual(len(saved_result['null_distribution']), n_permutations)
+
+    def test_random_state_reproducibility(self):
+        """Verify that permutation test is reproducible with same random state."""
+        n_permutations = 30
+
+        result1 = run_permutation_test(
+            df=self.df,
+            feature_cols=self.feature_cols,
+            target_col=self.target_col,
+            n_permutations=n_permutations,
+            random_state=42,
+            output_path=None
         )
 
         result2 = run_permutation_test(
-            data_path=str(self.data_path),
-            target_col="target",
+            df=self.df,
+            feature_cols=self.feature_cols,
+            target_col=self.target_col,
             n_permutations=n_permutations,
-            random_seed=123,
-            output_dir=self.temp_dir
+            random_state=42,
+            output_path=None
         )
 
-        # Verify determinism for T035
-        self.assertEqual(result1["observed_r2"], result2["observed_r2"])
-        self.assertEqual(result1["p_value"], result2["p_value"])
-        np.testing.assert_array_equal(
-            result1["null_distribution"], 
-            result2["null_distribution"],
-            err_msg="Null distributions should be identical with same seed"
-        )
-
-    def test_p_value_calculation_edge_cases(self):
-        """
-        Test p-value calculation logic for edge cases.
-        """
-        # Case 1: Observed value is the maximum in null distribution
-        null_dist = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
-        observed = 0.6
-        p_val = calculate_p_value(observed, null_dist)
-        # p-value = (count >= observed + 1) / (n + 1) = (0 + 1) / 6 = 0.166...
-        expected_p = 1.0 / (len(null_dist) + 1)
-        self.assertAlmostEqual(p_val, expected_p)
-
-        # Case 2: Observed value is the minimum
-        observed = 0.0
-        p_val = calculate_p_value(observed, null_dist)
-        # All values are >= observed, so (5 + 1) / 6 = 1.0
-        self.assertAlmostEqual(p_val, 1.0)
-
-        # Case 3: Observed value is in the middle
-        observed = 0.25
-        p_val = calculate_p_value(observed, null_dist)
-        # Values >= 0.25: [0.3, 0.4, 0.5] -> count = 3
-        # p = (3 + 1) / 6 = 0.666...
-        expected_p = 4.0 / 6.0
-        self.assertAlmostEqual(p_val, expected_p)
-
-    def test_null_distribution_shape(self):
-        """
-        Verify that the null distribution approximates a normal distribution
-        for large N, as expected by the Central Limit Theorem.
-        """
-        df = self._create_test_dataset(n_samples=200, n_features=5, signal_strength=0.0)
-        df.to_csv(self.data_path, index=False)
-
-        n_permutations = 1000
-        
-        result = run_permutation_test(
-            data_path=str(self.data_path),
-            target_col="target",
-            n_permutations=n_permutations,
-            random_seed=42,
-            output_dir=self.temp_dir
-        )
-
-        null_dist = result["null_distribution"]
-        
-        # For large N, the null distribution should be approximately normal
-        # Check skewness is close to 0
-        skewness = pd.Series(null_dist).skew()
-        self.assertLess(abs(skewness), 0.5, "Null distribution should be approximately symmetric")
-
-        # Check kurtosis is close to 3 (normal distribution)
-        kurtosis = pd.Series(null_dist).kurtosis() + 3
-        self.assertGreater(kurtosis, 2.0)
-        self.assertLess(kurtosis, 4.0)
-
-    def test_permutation_test_output_file(self):
-        """
-        Verify that the permutation test saves results to disk correctly.
-        """
-        df = self._create_test_dataset(n_samples=50, n_features=3, signal_strength=0.0)
-        df.to_csv(self.data_path, index=False)
-
-        n_permutations = 50
-        output_file = Path(self.temp_dir) / "permutation_results.json"
-        
-        result = run_permutation_test(
-            data_path=str(self.data_path),
-            target_col="target",
-            n_permutations=n_permutations,
-            random_seed=42,
-            output_dir=self.temp_dir
-        )
-
-        # Verify file was created
-        self.assertTrue(output_file.exists(), "Permutation results file should be created")
-
-        # Verify file contains expected data
-        import json
-        with open(output_file, 'r') as f:
-            saved_data = json.load(f)
-        
-        self.assertIn("observed_r2", saved_data)
-        self.assertIn("p_value", saved_data)
-        self.assertIn("null_distribution", saved_data)
-        self.assertEqual(len(saved_data["null_distribution"]), n_permutations)
+        # Results should be identical with same random state
+        self.assertEqual(result1['null_distribution'], result2['null_distribution'])
+        self.assertEqual(result1['p_value'], result2['p_value'])
+        self.assertEqual(result1['observed_r2'], result2['observed_r2'])
 
 
-if __name__ == "__main__":
+class TestBenjaminiHochbergCorrection(unittest.TestCase):
+    """Unit tests for Benjamini-Hochberg correction (T033, T036)."""
+
+    def test_bh_correction_basic(self):
+        """Test basic BH correction functionality."""
+        p_values = [0.01, 0.04, 0.03, 0.20, 0.15, 0.001]
+        feature_names = ["f1", "f2", "f3", "f4", "f5", "f6"]
+
+        result = benjamini_hochberg_correction(p_values, feature_names, alpha=0.05)
+
+        # Check that result is a dictionary
+        self.assertIsInstance(result, dict)
+        self.assertIn('adjusted_p_values', result)
+        self.assertIn('significant', result)
+
+        # Check that adjusted p-values are in [0, 1]
+        for adj_p in result['adjusted_p_values']:
+            self.assertGreaterEqual(adj_p, 0.0)
+            self.assertLessEqual(adj_p, 1.0)
+
+        # Check that significant is boolean list
+        self.assertIsInstance(result['significant'], list)
+        self.assertEqual(len(result['significant']), len(p_values))
+
+    def test_bh_correction_monotonicity(self):
+        """Test that adjusted p-values are monotonically increasing with rank."""
+        p_values = [0.001, 0.01, 0.05, 0.1, 0.2, 0.5]
+        feature_names = [f"f{i}" for i in range(len(p_values))]
+
+        result = benjamini_hochberg_correction(p_values, feature_names, alpha=0.05)
+
+        adjusted = result['adjusted_p_values']
+
+        # BH adjusted p-values should be monotonically increasing
+        for i in range(1, len(adjusted)):
+            self.assertGreaterEqual(adjusted[i], adjusted[i-1],
+                                    "Adjusted p-values should be monotonically increasing")
+
+
+class TestJaccardIndex(unittest.TestCase):
+    """Unit tests for Jaccard index calculations (T032, T036)."""
+
+    def test_jaccard_index_basic(self):
+        """Test basic Jaccard index calculation."""
+        set1 = {"a", "b", "c", "d"}
+        set2 = {"c", "d", "e", "f"}
+
+        jaccard = calculate_jaccard_index(set1, set2)
+
+        # Jaccard = |A ∩ B| / |A ∪ B| = 2 / 6 = 0.333...
+        expected = 2 / 6
+        self.assertAlmostEqual(jaccard, expected, places=10)
+
+    def test_jaccard_index_identical_sets(self):
+        """Test Jaccard index for identical sets (should be 1.0)."""
+        set1 = {"a", "b", "c"}
+        set2 = {"a", "b", "c"}
+
+        jaccard = calculate_jaccard_index(set1, set2)
+        self.assertEqual(jaccard, 1.0)
+
+    def test_jaccard_index_disjoint_sets(self):
+        """Test Jaccard index for disjoint sets (should be 0.0)."""
+        set1 = {"a", "b", "c"}
+        set2 = {"d", "e", "f"}
+
+        jaccard = calculate_jaccard_index(set1, set2)
+        self.assertEqual(jaccard, 0.0)
+
+
+if __name__ == '__main__':
     unittest.main()

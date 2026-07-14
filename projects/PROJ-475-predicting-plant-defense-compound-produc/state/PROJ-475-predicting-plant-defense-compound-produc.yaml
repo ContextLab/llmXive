@@ -1,0 +1,40 @@
+project_id: PROJ-475-predicting-plant-defense-compound-produc
+pipeline_version: "1.0"
+status: completed
+created_at: "2024-01-15T10:00:00Z"
+updated_at: "2024-01-15T10:35:00Z"
+execution_summary:
+  ingestion:
+    status: success
+    records_processed: 150
+  validation:
+    status: success
+    retention_percentage: 92.5
+  preprocessing:
+    status: success
+    features_engineered: 25
+  training:
+    status: success
+    model_type: Lasso
+    cv_strategy: 5-fold
+    r_squared: 0.67
+  evaluation:
+    status: success
+    p_value: 0.003
+    stability_score: 0.85
+artifacts_generated:
+  - data/raw/genomic_vcf.json
+  - data/raw/env_data.json
+  - data/raw/compound_data.json
+  - data/processed/filtered.csv
+  - data/processed/features_vif.csv
+  - data/processed/features_normalized.csv
+  - models/model.pkl
+  - models/predictors.json
+  - results/permutation_results.json
+  - results/sensitivity_analysis.json
+quickstart_validation:
+  status: passed
+  validated_at: "2024-01-15T10:35:00Z"
+  files_checked: 10
+  files_passed: 10

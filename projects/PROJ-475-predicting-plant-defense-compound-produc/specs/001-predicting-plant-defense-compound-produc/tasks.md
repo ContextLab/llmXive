@@ -102,9 +102,9 @@
 - [X] T022 [US2] Implement `code/models/training.py` to load data and check N count for CV strategy (5-fold if N≥30, LOOCV if N<30) per FR-005
 - [X] T023 [US2] Implement `code/models/training.py` to check `unique_studies >= N-1` condition; if met, exclude 'source_study' covariate and use global Z-score per FR-010
 - [X] T024 [US2] Implement `code/models/training.py` to train LASSO/Ridge model with `scikit-learn` using selected CV strategy
-- [ ] T025 [US2] Implement `code/models/training.py` to extract top 10 predictors by absolute coefficient magnitude
-- [ ] T026 [US2] Implement `code/data/preprocessing.py` to detect 'model instability' (e.g., VIF > 10 or singular matrix) and perform conditional removal of predictors as per Assumption 6. **Output**: Updated feature set for training.
-- [ ] T027 [US2] Write unit tests for feature engineering in `code/tests/test_preprocessing.py` (verify metrics calculation)
+- [X] T025 [US2] Implement `code/models/training.py` to extract top 10 predictors by absolute coefficient magnitude
+- [X] T026 [US2] Implement `code/data/preprocessing.py` to detect 'model instability' (e.g., VIF > 10 or singular matrix) and perform conditional removal of predictors as per Assumption 6. **Output**: Updated feature set for training.
+- [X] T027 [US2] Write unit tests for feature engineering in `code/tests/test_preprocessing.py` (verify metrics calculation)
 - [X] T028 [US2] Write unit tests for model training logic in `code/tests/test_models.py` (verify CV switch and covariate logic)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -121,12 +121,12 @@
 
 - [X] T029 [P] [US3] Implement `code/models/evaluation.py` to execute permutation test (n=1000) and generate null distribution per FR-006
 - [X] T030 [US3] Implement `code/models/evaluation.py` to calculate p-value comparing observed R² against null distribution (SC-002, SC-003)
-- [~] T031 [US3] Implement `code/models/evaluation.py` to perform sensitivity analysis sweeping alpha values across a range of small significance levels per FR-007
-- [~] T032 [US3] Implement `code/utils/stats.py` to calculate Jaccard index for feature selection stability across the sweep (SC-004)
-- [~] T033 [US3] Implement `code/utils/stats.py` to apply Benjamini-Hochberg correction to predictor p-values per FR-008
-- [~] T034 [US3] Implement `code/main.py` to orchestrate the full pipeline: Ingestion → Validation → Feature Eng → Training → Evaluation; explicitly include Constitution Principle V requirement to update `state/PROJ-475-predicting-plant-defense-compound-produc.yaml` key `updated_at` with current timestamp upon completion. **Dependency**: Must run after T019, T028, T033.
-- [~] T035 [US3] Write unit tests for permutation test logic in `code/tests/test_stats.py` (verify null distribution generation)
-- [ ] T036 [US3] Write unit tests for BH correction and Jaccard index in `code/tests/test_stats.py`
+- [X] T031 [US3] Implement `code/models/evaluation.py` to perform sensitivity analysis sweeping alpha values across a range of small significance levels per FR-007
+- [X] T032 [US3] Implement `code/utils/stats.py` to calculate Jaccard index for feature selection stability across the sweep (SC-004)
+- [X] T033 [US3] Implement `code/utils/stats.py` to apply Benjamini-Hochberg correction to predictor p-values per FR-008
+- [X] T034 [US3] Implement `code/main.py` to orchestrate the full pipeline: Ingestion → Validation → Feature Eng → Training → Evaluation; explicitly include Constitution Principle V requirement to update `state/PROJ-475-predicting-plant-defense-compound-produc.yaml` key `updated_at` with current timestamp upon completion. **Dependency**: Must run after T019, T028, T033.
+- [X] T035 [US3] Write unit tests for permutation test logic in `code/tests/test_stats.py` (verify null distribution generation)
+- [X] T036 [US3] Write unit tests for BH correction and Jaccard index in `code/tests/test_stats.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -136,11 +136,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Update `README.md` with setup instructions and `docs/api.md` with module documentation
-- [ ] T038 Refactor `code/data/ingestion.py` for DRY principle and `code/utils/stats.py` for type hinting
-- [ ] T039 Optimize `code/data/preprocessing.py` to stream VCF using `cyvcf2` to ensure memory usage < 7GB
-- [ ] T040 [P] Run `quickstart.md` validation
-- [ ] T041 Ensure `data/manifest.yaml` is updated with all generated artifacts and checksums
+- [X] T037 [P] Update `README.md` with setup instructions and `docs/api.md` with module documentation
+- [X] T038 Refactor `code/data/ingestion.py` for DRY principle and `code/utils/stats.py` for type hinting
+- [X] T039 Optimize `code/data/preprocessing.py` to stream VCF using `cyvcf2` to ensure memory usage < 7GB
+- [X] T040 [P] Run `quickstart.md` validation
+- [X] T041 Ensure `data/manifest.yaml` is updated with all generated artifacts and checksums
 
 ---
 
