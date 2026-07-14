@@ -1,0 +1,576 @@
+{
+  "fetched_at": "2026-07-14T08:45:45Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass for Paragraph-Level \"",
+      "target_n": 5
+    },
+    "duration_seconds": 79.377,
+    "ended_at": "2026-07-14T08:45:45Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "semantic compass for retrieval augmented generation"
+        ],
+        [
+          2,
+          "topic metadata guided RAG"
+        ],
+        [
+          3,
+          "paragraph-level semantic navigation in LLMs"
+        ],
+        [
+          4,
+          "metadata-enhanced retrieval for large language models"
+        ],
+        [
+          5,
+          "topic-aware semantic search in RAG systems"
+        ],
+        [
+          6,
+          "hierarchical topic modeling for document retrieval"
+        ],
+        [
+          7,
+          "semantic indexing using topic metadata"
+        ],
+        [
+          8,
+          "paragraph-level context retrieval with metadata"
+        ],
+        [
+          9,
+          "metadata-driven semantic orientation in NLP"
+        ],
+        [
+          10,
+          "topic-based semantic clustering for RAG"
+        ],
+        [
+          11,
+          "fine-grained semantic retrieval in language models"
+        ],
+        [
+          12,
+          "metadata as a guide for semantic search"
+        ],
+        [
+          13,
+          "topic-guided document retrieval systems"
+        ],
+        [
+          14,
+          "semantic compass for natural language understanding"
+        ],
+        [
+          15,
+          "structured metadata for paragraph retrieval"
+        ],
+        [
+          16,
+          "topic coherence in retrieval augmented generation"
+        ],
+        [
+          17,
+          "semantic orientation using topic embeddings"
+        ],
+        [
+          18,
+          "metadata-assisted semantic navigation in corpora"
+        ],
+        [
+          19,
+          "topic metadata for improving RAG precision"
+        ],
+        [
+          20,
+          "semantic compass mechanisms in information retrieval"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass for Paragraph-Level \" linguistics": 0,
+        "metadata-enhanced retrieval for large language models": 5,
+        "paragraph-level semantic navigation in LLMs": 3,
+        "semantic compass for retrieval augmented generation": 1,
+        "topic metadata guided RAG": 0
+      },
+      "total_queries_issued": 4
+    },
+    "extracted_queries": [
+      "metadata-guided retrieval semantic alignment",
+      "RAG topic modeling corpus linguistics",
+      "discourse structure metadata annotation",
+      "paragraph-level passage retrieval evaluation",
+      "semantic navigation information seeking linguistics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2505.21439"
+      ]
+    },
+    "per_query_hit_count": {
+      "RAG topic modeling corpus linguistics": 2,
+      "discourse structure metadata annotation": 3,
+      "llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass for Paragraph-Level \" linguistics": 3,
+      "metadata-guided retrieval semantic alignment": 3,
+      "paragraph-level passage retrieval evaluation": 3,
+      "semantic navigation information seeking linguistics": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "2506.06962",
+          "rationale": "The paper focuses on image generation and visual patch retrieval, which is an off-domain application compared to the user's question regarding paragraph-level text retrieval and linguistic topic metadata. While both involve \"Retrieval Augmented Generation\" (RAG), the specific mechanisms (visual patches vs. semantic text topics) and domains (computer vision vs. linguistics) are distinct, failing the criteria for same-mechanism evidence or shared empirical population.",
+          "title": "AR-RAG: Autoregressive Retrieval Augmentation for Image Generation"
+        },
+        {
+          "primary_pointer": "2012.11583",
+          "rationale": "The paper focuses on robotic audio-visual navigation and multimodal goal-seeking in simulated environments, which is an off-domain application of \"semantic\" concepts compared to the user's question about linguistic metadata and RAG (Retrieval-Augmented Generation) for text processing. It shares the keyword \"semantic\" but addresses a distinct construct (spatial navigation via sound) rather than the mechanism, variables, or empirical population of the user's linguistics-focused research.",
+          "title": "Semantic Audio-Visual Navigation"
+        },
+        {
+          "primary_pointer": "2605.02862",
+          "rationale": "The paper focuses on applying LLM-inspired heuristics to robotic path planning and navigation, which is an entirely different domain (robotics/control systems) from the user's question regarding linguistics and semantic metadata for RAG. While both involve LLMs, the paper does not measure the same biological, physical, or algorithmic mechanisms related to linguistic topic metadata, nor does it study the same empirical population or variables required for a literature review on the user's specifi",
+          "title": "Semantic Risk-Aware Heuristic Planning for Robotic Navigation in Dynamic Environments: An LLM-Inspired Approach"
+        },
+        {
+          "primary_pointer": "2007.00643",
+          "rationale": "The paper focuses on robotic object-goal navigation and semantic mapping in physical or simulated 3D environments, which is an off-domain application of \"semantic exploration\" compared to the user's question about LLM retrieval-augmented generation (RAG) and linguistic topic metadata. While both involve \"semantics,\" the constructs (robotic path planning vs. text retrieval) and domains (robotics vs. NLP) are distinct, failing the criteria for same-mechanism evidence or shared domain variables.",
+          "title": "Object Goal Navigation using Goal-Oriented Semantic Exploration"
+        },
+        {
+          "primary_pointer": "2503.01763",
+          "rationale": "The paper focuses on benchmarking and improving information retrieval models for selecting external *tools* (APIs/functions) for LLM agents, which is a distinct construct from the user's question about using *topic metadata* as a semantic compass for *paragraph-level retrieval* in a RAG (Retrieval-Augmented Generation) system. While both involve retrieval, the domain (tool selection vs. document/paragraph retrieval) and the specific mechanism (tool metadata vs. topic metadata) are different enou",
+          "title": "Retrieval Models Aren't Tool-Savvy: Benchmarking Tool Retrieval for Large Language Models"
+        },
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on general techniques for improving human-like qualities (emotional intelligence, reasoning patterns) in LLMs, which is a distinct construct from the user's specific question about using \"topic metadata\" as a \"semantic compass\" for \"paragraph-level\" retrieval or analysis. It fails to address the specific mechanism (metadata-guided navigation), the specific granularity (paragraph-level), or the specific domain (linguistics/RAG architecture) required by the user's query, and thus",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2310.14025",
+          "rationale": "The paper focuses on Visual Word Sense Disambiguation (VWSD) using multimodal retrieval and LLMs, which is a distinct task from the user's question regarding \"Topic Metadata as a Semantic Compass\" for paragraph-level retrieval in a text-only (linguistics) context. While both involve LLMs and retrieval, the candidate paper does not measure the same mechanism (topic metadata as a semantic compass), nor does it address the specific domain or variables (paragraph-level semantic navigation via metada",
+          "title": "Large Language Models and Multimodal Retrieval for Visual Word Sense Disambiguation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-14T08:44:26Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"mcompassrag: topic metadata as a semantic compass for paragraph-level \" linguistics",
+      "raw": "llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass for Paragraph-Level \" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Online recruitment platforms require recommendation methods capable of retrieving relevant job opportunities from large and heterogeneous collections of job postings. Keyword-based search is efficient and interpretable, but it may fail to retrieve relevant postings when equivalent roles are expressed using different terminology. This study presents a metadata-driven job recommendation system that combines TF-IDF lexical matching, Sentence-BERT semantic retrieval, query-aware filtering, optional Cross-Encoder re-ranking, and explanation generation. The proposed system utilizes structured metadata fields including job title, company name, location, seniority level, job function, employment type, and industry without relying on full job descriptions or user interaction histories. Experiments conducted on a cleaned LinkedIn job posting dataset containing 31262 records demonstrate that the best hybrid configuration achieved a Precision at 10 score of 0.8032 and an nDCG at 10 score of 0.9496. Under the internal evaluation protocol, Cross-Encoder re-ranking improved Precision at 10 from 0.7896 to 0.7948 and nDCG at 10 from 0.9666 to 0.9739. These findings indicate that lexical and semantic retrieval techniques can be effectively combined to provide explainable job recommendations when only structured metadata is available.",
+          "claimed_authors": [
+            "Hussein Al Awad",
+            "Khaled Fathi Omar"
+          ],
+          "claimed_title": "Developing an Intelligent Job Recommendation System Using Semantic Retrieval and Explainable AI Techniques",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.27656"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='Developing an Intelligent Job Recommendation System Using Semantic Retrieval and Explainable AI Techniques')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many questions cannot be answered simply; their answers must include numerous nuanced details and additional context. Complex Answer Retrieval (CAR) is the retrieval of answers to such questions. In their simplest form, these questions are constructed from a topic entity (e.g., `cheese') and a facet (e.g., `health effects'). While topic matching has been thoroughly explored, we observe that some facets use general language that is unlikely to appear verbatim in answers. We call these low-utility facets. In this work, we present an approach to CAR that identifies and addresses low-utility facets. We propose two estimators of facet utility. These include exploiting the hierarchical structure of CAR queries and using facet frequency information from training data. To improve the retrieval performance on low-utility headings, we also include entity similarity scores using knowledge graph embeddings. We apply our approaches to a leading neural ranking technique, and evaluate using the TREC CAR dataset. We find that our approach perform significantly better than the unmodified neural ranker and other leading CAR techniques. We also provide a detailed analysis of our results, and verify that low-utility facets are indeed more difficult to match, and that our approach improves the performance for these difficult queries.",
+          "claimed_authors": [
+            "Sean MacAvaney",
+            "Andrew Yates",
+            "Arman Cohan",
+            "Luca Soldaini",
+            "Kai Hui",
+            "Nazli Goharian",
+            "Ophir Frieder"
+          ],
+          "claimed_title": "Overcoming low-utility facets for complex answer retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.08772"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='Overcoming low-utility facets for complex answer retrieval')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper proposes a novel approach to semantic ontology alignment using contextual descriptors. A formalization was developed that enables the integration of essential and contextual descriptors to create a comprehensive knowledge model. The hierarchical structure of the semantic approach and the mathematical apparatus for analyzing potential conflicts between concepts, particularly in the example of \"Transparency\" and \"Privacy\" in the context of artificial intelligence, are demonstrated. Experimental studies showed a significant improvement in ontology alignment metrics after the implementation of contextual descriptors, especially in the areas of privacy, responsibility, and freedom & autonomy. The application of contextual descriptors achieved an average overall improvement of approximately 4.36%. The results indicate the effectiveness of the proposed approach for more accurately reflecting the complexity of knowledge and its contextual dependence.",
+          "claimed_authors": [
+            "Eduard Manziuk",
+            "Oleksander Barmak",
+            "Pavlo Radiuk",
+            "Vladislav Kuznetsov",
+            "Iurii Krak",
+            "Sergiy Yakovlev"
+          ],
+          "claimed_title": "Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.19113"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic temporal ordering of events described in discourse has been of great interest in recent years. Event orderings are conveyed in text via va rious linguistic mechanisms including the use of expressions such as \"before\", \"after\" or \"during\" that explicitly assert a temporal relation -- temporal signals. In this paper, we investigate the role of temporal signals in temporal relation extraction and provide a quantitative analysis of these expres sions in the TimeBank annotated corpus.",
+          "claimed_authors": [
+            "Leon Derczynski",
+            "Robert Gaizauskas"
+          ],
+          "claimed_title": "A Corpus-based Study of Temporal Signals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1203.5066"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='A Corpus-based Study of Temporal Signals')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study discusses the essential components that a Retrieval-Augmented Generation (RAG)-based LLM system should possess in order to support Japanese medical litigation procedures complying with legal norms. In litigation, expert commissioners, such as physicians, architects, accountants, and engineers, provide specialized knowledge to help judges clarify points of dispute. When considering the substitution of these expert roles with a RAG-based LLM system, the constraint of strict adherence to legal norms is imposed. Specifically, three requirements arise: (1) the retrieval module must retrieve appropriate external knowledge relevant to the disputed issues in accordance with the principle prohibiting the use of private knowledge, (2) the responses generated must originate from the context provided by the RAG and remain faithful to that context, and (3) the retrieval module must reference external knowledge with appropriate timestamps corresponding to the issues at hand. This paper discusses the design of a RAG-based LLM system that satisfies these requirements.",
+          "claimed_authors": [
+            "Yuya Ishihara",
+            "Atsushi Keyaki",
+            "Hiroaki Yamada",
+            "Ryutaro Ohara",
+            "Mihoko Sumida"
+          ],
+          "claimed_title": "RAG System for Supporting Japanese Litigation Procedures: Faithful Response Generation Complying with Legal Norms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.22858"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='RAG System for Supporting Japanese Litigation Procedures: Faithful Response Generation Complying with Legal Norms')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Computational engineering generates knowledge through the analysis and interpretation of research data, which is produced by computer simulation. Supercomputers produce huge amounts of research data. To address a research question, a lot of simulations are run over a large parameter space. Therefore, handling this data and keeping an overview becomes a challenge. Data documentation is mostly handled by file and folder names in inflexible file systems, making it almost impossible for data to be findable, accessible, interopable and hence reusable. To enable and improve a structured documentation of research data from computational engineering, we developed EngMeta as a metadata model. We built this model by incorporating existing standards for general descriptive and technical information and adding metadata fields for disciplinespecific information like the components and parameters of the simulated target system and information about the research process like the used methods, software and computational environment. EngMeta functions, in practical use, as the descriptive core for an institutional repository. In order to reduce the burden of description on scientists, we have developed an approach for automatically extracting metadata information from the output and log files of computer simulations. Through a qualitative analysis, we show that EngMeta fulfills the criteria of a good metadata model. Through a quantitative survey, we can show that it meets the needs of engineering scientists.",
+          "claimed_authors": [
+            "Björn Schembera",
+            "Dorothea Iglezakis"
+          ],
+          "claimed_title": "EngMeta -- Metadata for Computational Engineering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.01637"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='EngMeta -- Metadata for Computational Engineering')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An essential capability of the Virtual Observatory is a means for describing what data and computational facilities are available where, and once identified, how to use them. The data themselves have associated metadata (e.g., FITS keywords), and similarly we require metadata about data collections and data services so that VO users can easily find information of interest. Furthermore, such metadata are needed in order to manage distributed queries efficiently; if a user is interested in finding x-ray images there is no point in querying the HST archive, for example. In this document we suggest an architecture for resource and service metadata and describe the relationship of this architecture to emerging Web Services standards. We also define an initial set of metadata concepts.",
+          "claimed_authors": [
+            "Robert Hanisch",
+            "the IVOA Resource Registry Working Group",
+            "the NVO Metadata Working Group"
+          ],
+          "claimed_title": "IVOA Recommendation: Resource Metadata for the Virtual Observatory Version 1.12",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.0514"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='IVOA Recommendation: Resource Metadata for the Virtual Observatory Version 1.12')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present novel automatic metrics for machine translation evaluation that use discourse structure and convolution kernels to compare the discourse tree of an automatic translation with that of the human reference. We experiment with five transformations and augmentations of a base discourse tree representation based on the rhetorical structure theory, and we combine the kernel scores for each of them into a single score. Finally, we add other metrics from the ASIYA MT evaluation toolkit, and we tune the weights of the combination on actual human judgments. Experiments on the WMT12 and WMT13 metrics shared task datasets show correlation with human judgments that outperforms what the best systems that participated in these years achieved, both at the segment and at the system level.",
+          "claimed_authors": [
+            "Shafiq Joty",
+            "Francisco Guzman",
+            "Lluis Marquez",
+            "Preslav Nakov"
+          ],
+          "claimed_title": "DiscoTK: Using Discourse Structure for Machine Translation Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.12547"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='DiscoTK: Using Discourse Structure for Machine Translation Evaluation')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "State-of-the-art important passage retrieval methods obtain very good results, but do not take into account privacy issues. In this paper, we present a privacy preserving method that relies on creating secure representations of documents. Our approach allows for third parties to retrieve important passages from documents without learning anything regarding their content. We use a hashing scheme known as Secure Binary Embeddings to convert a key phrase and bag-of-words representation to bit strings in a way that allows the computation of approximate distances, instead of exact ones. Experiments show that our secure system yield similar results to its non-private counterpart on both clean text and noisy speech recognized text.",
+          "claimed_authors": [
+            "Luis Marujo",
+            "José Portêlo",
+            "David Martins de Matos",
+            "João P. Neto",
+            "Anatole Gershman",
+            "Jaime Carbonell",
+            "Isabel Trancoso",
+            "Bhiksha Raj"
+          ],
+          "claimed_title": "Privacy-Preserving Important Passage Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1407.5416"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='Privacy-Preserving Important Passage Retrieval')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a simple and effective re-ranking method for improving passage retrieval in open question answering. The re-ranker re-scores retrieved passages with a zero-shot question generation model, which uses a pre-trained language model to compute the probability of the input question conditioned on a retrieved passage. This approach can be applied on top of any retrieval method (e.g. neural or keyword-based), does not require any domain- or task-specific training (and therefore is expected to generalize better to data distribution shifts), and provides rich cross-attention between query and passage (i.e. it must explain every token in the question). When evaluated on a number of open-domain retrieval datasets, our re-ranker improves strong unsupervised retrieval models by 6%-18% absolute and strong supervised models by up to 12% in terms of top-20 passage retrieval accuracy. We also obtain new state-of-the-art results on full open-domain question answering by simply adding the new re-ranker to existing models with no further changes.",
+          "claimed_authors": [
+            "Devendra Singh Sachan",
+            "Mike Lewis",
+            "Mandar Joshi",
+            "Armen Aghajanyan",
+            "Wen-tau Yih",
+            "Joelle Pineau",
+            "Luke Zettlemoyer"
+          ],
+          "claimed_title": "Improving Passage Retrieval with Zero-Shot Question Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.07496"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='Improving Passage Retrieval with Zero-Shot Question Generation')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pre-trained language model (PTM) has been shown to yield powerful text representations for dense passage retrieval task. The Masked Language Modeling (MLM) is a major sub-task of the pre-training process. However, we found that the conventional random masking strategy tend to select a large number of tokens that have limited effect on the passage retrieval task (e,g. stop-words and punctuation). By noticing the term importance weight can provide valuable information for passage retrieval, we hereby propose alternative retrieval oriented masking (dubbed as ROM) strategy where more important tokens will have a higher probability of being masked out, to capture this straightforward yet essential information to facilitate the language model pre-training process. Notably, the proposed new token masking method will not change the architecture and learning objective of original PTM. Our experiments verify that the proposed ROM enables term importance information to help language model pre-training thus achieving better performance on multiple passage retrieval benchmarks.",
+          "claimed_authors": [
+            "Dingkun Long",
+            "Yanzhao Zhang",
+            "Guangwei Xu",
+            "Pengjun Xie"
+          ],
+          "claimed_title": "Retrieval Oriented Masking Pre-training Language Model for Dense Passage Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.15133"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='Retrieval Oriented Masking Pre-training Language Model for Dense Passage Retrieval')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is natural for humans to collaborate while dealing with complex problems. In this article I consider this process of collaboration in the context of information seeking. The study and discussion presented here are driven by two dissatisfactions: (1) the majority of IR systems today do not facilitate collaboration directly, and (2) the concept of collaboration itself is not well-understood. I begin by probing the notion of collaboration and propose a model that helps us understand the requirements for a successful collaboration. A model of a Collaborative Information Seeking (CIS) environment is then rendered based on an extended model of information seeking.",
+          "claimed_authors": [
+            "Chirag Shah"
+          ],
+          "claimed_title": "Toward Collaborative Information Seeking (CIS)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0908.0709"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='Toward Collaborative Information Seeking (CIS)')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent work on audio-visual navigation assumes a constantly-sounding target and restricts the role of audio to signaling the target's position. We introduce semantic audio-visual navigation, where objects in the environment make sounds consistent with their semantic meaning (e.g., toilet flushing, door creaking) and acoustic events are sporadic or short in duration. We propose a transformer-based model to tackle this new semantic AudioGoal task, incorporating an inferred goal descriptor that captures both spatial and semantic properties of the target. Our model's persistent multimodal memory enables it to reach the goal even long after the acoustic event stops. In support of the new task, we also expand the SoundSpaces audio simulations to provide semantically grounded sounds for an array of objects in Matterport3D. Our method strongly outperforms existing audio-visual navigation methods by learning to associate semantic, acoustic, and visual cues.",
+          "claimed_authors": [
+            "Changan Chen",
+            "Ziad Al-Halah",
+            "Kristen Grauman"
+          ],
+          "claimed_title": "Semantic Audio-Visual Navigation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.11583"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='Semantic Audio-Visual Navigation')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "People can help other people find information in networked information seeking environments. Recently, many such systems and algorithms have proliferated in industry and in academia. Unfortunately, it is difficult to compare the systems in meaningful ways because they often define collaboration in different ways. In this paper, we propose a model of possible kinds of collaboration, and illustrate it with examples from literature. The model contains four dimensions: intent, depth, concurrency and location. This model can be used to classify existing systems and to suggest possible opportunities for design in this space.",
+          "claimed_authors": [
+            "Gene Golovchinsky",
+            "Jeremy Pickens",
+            "Maribeth Back"
+          ],
+          "claimed_title": "A Taxonomy of Collaboration in Online Information Seeking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0908.0704"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MCompassRAG: Topic Metadata as a Semantic Compass ', candidate_title='A Taxonomy of Collaboration in Online Information Seeking')",
+        "failed_at": "2026-07-14T08:44:56Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zahra Khalila",
+            "Arbi Haza Nasution",
+            "Winda Monika",
+            "Aytug Onan",
+            "Yohei Murakami",
+            "Yasir Bin Ismail Radi",
+            "Noor Mohammad Osmani"
+          ],
+          "title": "Investigating Retrieval-Augmented Generation in Quranic Studies: A Study of 13 Open-Source Large Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.16581",
+        "summary": "Accurate and contextually faithful responses are critical when applying large language models (LLMs) to sensitive and domain-specific tasks, such as answering queries related to quranic studies. General-purpose LLMs often struggle with hallucinations, where generated responses deviate from authoritative sources, raising concerns about their reliability in religious contexts. This challenge highlights the need for systems that can integrate domain-specific knowledge while maintaining response accuracy, relevance, and faithfulness. In this study, we investigate 13 open-source LLMs categorized into large (e.g., Llama3:70b, Gemma2:27b, QwQ:32b), medium (e.g., Gemma2:9b, Llama3:8b), and small (e.g., Llama3.2:3b, Phi3:3.8b). A Retrieval-Augmented Generation (RAG) is used to make up for the problems that come with using separate models. This research utilizes a descriptive dataset of Quranic surahs including the meanings, historical context, and qualities of the 114 surahs, allowing the model to gather relevant knowledge before responding. The models are evaluated using three key metrics set by human evaluators: context relevance, answer faithfulness, and answer relevance. The findings reveal that large models consistently outperform smaller models in capturing query semantics and producing accurate, contextually grounded responses. The Llama3.2:3b model, even though it is considered small, does very well on faithfulness (4.619) and relevance (4.857), showing the promise of smaller architectures that have been well optimized. This article examines the trade-offs between model size, computational efficiency, and response quality while using LLMs in domain-specific applications.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.16581",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T08:45:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuchen Zhuang",
+            "Aaron Trinh",
+            "Rushi Qiang",
+            "Haotian Sun",
+            "Chao Zhang",
+            "Hanjun Dai",
+            "Bo Dai"
+          ],
+          "title": "Towards Better Instruction Following Retrieval Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.21439",
+        "summary": "Modern information retrieval (IR) models, trained exclusively on standard <query, passage> pairs, struggle to effectively interpret and follow explicit user instructions. We introduce InF-IR, a large-scale, high-quality training corpus tailored for enhancing retrieval models in Instruction-Following IR. InF-IR expands traditional training pairs into over 38,000 expressive <instruction, query, passage> triplets as positive samples. In particular, for each positive triplet, we generate two additional hard negative examples by poisoning both instructions and queries, then rigorously validated by an advanced reasoning model (o3-mini) to ensure semantic plausibility while maintaining instructional incorrectness. Unlike existing corpora that primarily support computationally intensive reranking tasks for decoder-only language models, the highly contrastive positive-negative triplets in InF-IR further enable efficient representation learning for smaller encoder-only models, facilitating direct embedding-based retrieval. Using this corpus, we train InF-Embed, an instruction-aware Embedding model optimized through contrastive learning and instruction-query attention mechanisms to align retrieval outcomes precisely with user intents. Extensive experiments across five instruction-based retrieval benchmarks demonstrate that InF-Embed significantly surpasses competitive baselines by 8.1% in p-MRR, measuring the instruction-following capabilities.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.21439",
+          "http_status": 200,
+          "pdf_sample_score": 0.2661,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T08:45:17Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"mcompassrag: topic metadata as a semantic compass for paragraph-level \" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

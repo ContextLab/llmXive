@@ -1387,6 +1387,10 @@
     "classified_at": "2026-07-03T07:29:12Z",
     "verdict": false
   },
+  "PROJ-911-llmxive-follow-up-extending-mcompassrag::1.6.0": {
+    "classified_at": "2026-07-14T08:44:56Z",
+    "verdict": false
+  },
   "PROJ-912-llmxive-follow-up-extending-audio-intera::1.6.0": {
     "classified_at": "2026-07-10T00:52:56Z",
     "verdict": false

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.01763",
+  "judged_at": "2026-07-14T08:45:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mcompassrag: topic metadata as a semantic compass for paragraph-level \" linguistics",
+  "rationale": "The paper focuses on benchmarking and improving information retrieval models for selecting external *tools* (APIs/functions) for LLM agents, which is a distinct construct from the user's question about using *topic metadata* as a semantic compass for *paragraph-level retrieval* in a RAG (Retrieval-Augmented Generation) system. While both involve retrieval, the domain (tool selection vs. document/paragraph retrieval) and the specific mechanism (tool metadata vs. topic metadata) are different enou",
+  "relevant": false
+}

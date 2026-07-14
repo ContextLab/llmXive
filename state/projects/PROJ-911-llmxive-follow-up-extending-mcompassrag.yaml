@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T23:54:51.881228Z'
-current_stage: brainstormed
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-911-llmxive-follow-up-extending-mcompassrag
-last_run_id: null
+last_run_id: 5935e487-7a50-4f0d-986a-dc986d2d7ef0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "MCompassRAG: Topic Metadata as a Semantic Compass
   for Paragraph-Level "'
-updated_at: '2026-07-02T23:54:51.881228Z'
+updated_at: '2026-07-14T08:49:31.204011Z'

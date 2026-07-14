@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.21439",
+  "judged_at": "2026-07-14T08:45:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mcompassrag: topic metadata as a semantic compass for paragraph-level \" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) by addressing the core mechanism of \"instruction-following\" in retrieval systems, which is the functional prerequisite for the user's proposed \"MCompassRAG\" system that uses topic metadata as a semantic compass. While the user's question focuses on a specific metadata-driven architecture, the candidate paper provides essential prior work on the broader domain of instruction-aware retrieval models and the empirical baselines for measuring instruction-foll",
+  "relevant": true
+}
