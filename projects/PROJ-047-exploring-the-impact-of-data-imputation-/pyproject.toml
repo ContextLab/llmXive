@@ -1,0 +1,32 @@
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+# Extend the ruff config from code/.ruff.toml
+# Note: ruff will automatically look for .ruff.toml in the current dir or parents.
+# We include it here for completeness if the user runs ruff from root.
+extend = "code/.ruff.toml"
+line-length = 88
+target-version = "py311"
+src = ["code", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]
+addopts = "-v"

@@ -18,7 +18,7 @@ This feature implements a simulation study to quantify the bias introduced by st
 **Project Type**: Computational research simulation.  
 **Performance Goals**: Complete 200 simulation runs + sensitivity analysis within 4 hours.  
 **Constraints**: No GPU, no CUDA, no 8-bit/4-bit quantization. Data subset to fit <7GB RAM.  
-**Scale/Scope**: Multiple simulation runs, Multiple MNAR parameter steps ($\beta \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$), 3 imputation methods, 2 estimators.  
+**Scale/Scope**: Multiple simulation runs, Multiple MNAR parameter steps ($\beta \in \{,, 0.5, 0.8, 1.0\}$), imputation methods, estimators.  
 **Power Analysis**: For N=1000 with expected missingness rate [deferred], effective N ≈ 700. Post-hoc power calculation (Phase 3 Task T033) verifies [deferred] power to detect moderate effect size (Cohen's d) in bias differences between methods. If power < 80%, limitation is explicitly flagged in paper.
 
 ## Constitution Check
@@ -144,7 +144,7 @@ projects/PROJ-047-exploring-the-impact-of-data-imputation-/
 **Statistical Test (Task T028)** — Integrated Decision Tree:
 1. Compute Shapiro-Wilk test on bias distribution for each beta level.
 2. If $p < 0.05$ (non-normal) → **Friedman Test**.
-3. If $p \ge 0.05$ (normal) → **Repeated-Measures ANOVA**.
+3. If $p \ge$ the conventional significance threshold (normal) → **Repeated-Measures ANOVA**.
 4. **Independently** (always): If skewness > 1 or < -1 → Compute **Bootstrap CIs** (1000 iterations) for difference in medians as robust alternative.
 5. Write results to `data/results/statistical_tests.json` with schema matching `contracts/statistical_test.schema.yaml`. Fields: test_type (anova/friedman/bootstrap), p_value, test_statistic, skewness, bootstrap_ci_diff.
 
@@ -167,7 +167,7 @@ projects/PROJ-047-exploring-the-impact-of-data-imputation-/
   - Parallelize runs if possible (using `joblib` with `n_jobs=2`), otherwise sequential.
   - **No GPU**: All libraries (`scikit-learn`, `statsmodels`) used in CPU mode.
   - **Runtime**: Target < 4 hours.
-  - **Power Analysis (Task T033)**: Post-hoc power calculation verifies adequate power to detect Cohen's d ≈ 0.5 in bias differences. If power < 80%, limitation is explicitly flagged in paper.
+  - **Power Analysis (Task T033)**: Post-hoc power calculation verifies adequate power to detect a moderate Cohen's d in bias differences. If power < 80%, limitation is explicitly flagged in paper.
 
 ### 6. Research Question Clarification
 
@@ -220,7 +220,7 @@ projects/PROJ-047-exploring-the-impact-of-data-imputation-/
 - **T026**: Implement main simulation loop (iterate over runs and beta sweep).
 - **T027**: Implement data aggregation logic (write to CSV).
 - **T028.5**: Implement schema validation (verify simulation_summary.csv has all required columns before visualization).
-- **T029a**: Loop Orchestration: Iterate over 200 runs and beta sweep. Explicit dependencies and error handling.
+- **T029a**: Loop Orchestration: Iterate over multiple runs and beta sweep. Explicit dependencies and error handling.
 - **T029b**: Data Generation: Call regenerate_ground_truth(seed, beta) for each run.
 - **T029c**: Imputation/Estimation: Apply all 3 imputation methods and 2 estimators.
 - **T029d**: CSV Aggregation: Write results to simulation_summary.csv. Store ground_truth_ate, mnar_alpha, mnar_beta for every row.
@@ -230,7 +230,7 @@ projects/PROJ-047-exploring-the-impact-of-data-imputation-/
 - **T030**: Implement bias trend analysis. Compute Spearman rho and p-value for bias vs. beta. Verify rho > 0.9 AND p < 0.05. Write to data/results/sensitivity_analysis.json with monotonicity_confirmed flag.
 - **T031**: Implement divergence check between IPW and PSM. Calculate |bias_IPW - bias_PSM|. If > 0.1, flag as interaction effect in statistical_tests.json.
 - **T032**: Implement power sensitivity analysis (vary number of runs per beta). If power < 80%, flag in paper.
-- **T033**: Post-hoc power calculation. Verify [deferred] power for Cohen's d ≈ 0.5 difference in bias.
+- **T033**: Post-hoc power calculation. Verify [deferred] power for a moderate Cohen's d difference in bias.
 - **T034**: (REMOVED — bootstrap integrated into Task T028).
 - **T035**: Implement coverage trend analysis. Compute regression slope for coverage vs. beta. Verify slope < 0 AND p < 0.05. Write to data/results/sensitivity_analysis.json with negative_slope_confirmed flag.
 - **T036**: Implement oracle benchmark (IPW on complete data). Compute bias relative to oracle for independent validation.
