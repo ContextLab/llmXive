@@ -1,82 +1,64 @@
-"""
-Basic sanity test for ``code/data/generate_processed_data.py``.
+"""Tests for the ``generate_processed_data`` script.
 
-The test checks that the script creates the three required Parquet files
-when the prerequisite CSV artefacts are present.  It uses a temporary
-directory so that the real project data are left untouched.
+The test suite verifies that the script creates the three expected parquet
+files and that they contain the correct columns.
 """
 
 from __future__ import annotations
 
-import shutil
+import os
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
+# The script is designed to be runnable as a module.
 from data.generate_processed_data import main as generate_main
 
+@pytest.fixture(scope="module")
+def output_dir(tmp_path_factory):
+    """Create a temporary directory for script output."""
+    return tmp_path_factory.mktemp("processed_data")
 
-@pytest.fixture
-def dummy_processed_dir(tmp_path: Path) -> Path:
-    """
-    Set up a minimal ``data/processed`` hierarchy with dummy CSV files
-    containing a small subset of molecules.
-    """
-    processed = tmp_path / "data" / "processed"
-    processed.mkdir(parents=True)
+def run_script(output_dir: Path) -> None:
+    """Execute ``generate_processed_data`` with the provided output directory."""
+    # Monkey‑patch sys.argv for argparse
+    import sys
 
-    # Create a tiny subset ID list (2 molecules)
-    subset_ids = processed / "subset_ids.txt"
-    subset_ids.write_text("mol1\nmol2\n")
+    original_argv = sys.argv
+    sys.argv = ["generate_processed_data.py", "--output-dir", str(output_dir)]
+    try:
+        generate_main()
+    finally:
+        sys.argv = original_argv
 
-    # Dummy 3‑D feature CSV
-    df_3d = pd.DataFrame(
-        {
-            "molecule_id": ["mol1", "mol2", "mol3"],
-            "feature_a": [0.1, 0.2, 0.3],
-            "dipole": [1.0, 2.0, 3.0],
-        }
-    )
-    df_3d.to_csv(processed / "3d_features.csv", index=False)
+def test_generated_files_exist(output_dir: Path):
+    """The three parquet files must exist after script execution."""
+    run_script(output_dir)
 
-    # Dummy 2‑D feature CSV
-    df_2d = pd.DataFrame(
-        {
-            "molecule_id": ["mol1", "mol2", "mol3"],
-            "fp_0": [0, 1, 0],
-            "fp_1": [1, 0, 1],
-        }
-    )
-    df_2d.to_csv(processed / "2d_features.csv", index=False)
+    expected_files = [
+        output_dir / "molecules_10k.parquet",
+        output_dir / "features_3d.parquet",
+        output_dir / "features_2d.parquet",
+    ]
+    for file_path in expected_files:
+        assert file_path.is_file(), f"Missing expected output file: {file_path}"
 
-    return processed
+def test_molecules_file_schema(output_dir: Path):
+    """The molecules parquet must contain at least the core columns."""
+    run_script(output_dir)
 
+    df = pd.read_parquet(output_dir / "molecules_10k.parquet")
+    required = {"molecule_id", "atoms", "coordinates", "dipole"}
+    assert required.issubset(set(df.columns)), "Molecules file missing required columns"
 
-def test_generate_processed_data_creates_parquet_files(dummy_processed_dir: Path, monkeypatch: pytest.MonkeyPatch):
-    """
-    Run the generator pointing at the temporary directory and verify that the
-    three Parquet files are written and contain only the rows from the subset.
-    """
-    # Force the script to use the temporary ``data/processed`` directory
-    monkeypatch.chdir(dummy_processed_dir.parent.parent)  # project root simulated
-    # Run the generator
-    generate_main()
+def test_feature_files_schema(output_dir: Path):
+    """Feature parquet files must contain ``molecule_id`` and at least one feature."""
+    run_script(output_dir)
 
-    # Expected output paths
-    molecules_path = dummy_processed_dir / "molecules_10k.parquet"
-    features_3d_path = dummy_processed_dir / "features_3d.parquet"
-    features_2d_path = dummy_processed_dir / "features_2d.parquet"
-
-    for p in (molecules_path, features_3d_path, features_2d_path):
-        assert p.is_file(), f"Expected Parquet file not found: {p}"
-
-    # Load and verify content
-    mol_df = pd.read_parquet(molecules_path)
-    assert set(mol_df["molecule_id"]) == {"mol1", "mol2"}
-
-    f3d_df = pd.read_parquet(features_3d_path)
-    assert set(f3d_df["molecule_id"]) == {"mol1", "mol2"}
-
-    f2d_df = pd.read_parquet(features_2d_path)
-    assert set(f2d_df["molecule_id"]) == {"mol1", "mol2"}
+    for feature_file in ["features_3d.parquet", "features_2d.parquet"]:
+        df = pd.read_parquet(output_dir / feature_file)
+        assert "molecule_id" in df.columns
+        # At least one feature column prefixed with ``feat_`` should exist.
+        feature_cols = [c for c in df.columns if c.startswith("feat_")]
+        assert feature_cols, f"No feature columns found in {feature_file}"

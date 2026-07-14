@@ -1,9 +1,7 @@
+torch>=2.0
 pandas
-torch
+pyarrow
+numpy
 scikit-learn
 tqdm
-numpy
-scipy
-pyarrow
-# The project already pins a specific version of numpy via the shim; the real
-# package is required for pandas and scipy to operate correctly.
+# Existing dependencies from earlier phases are assumed to be present.

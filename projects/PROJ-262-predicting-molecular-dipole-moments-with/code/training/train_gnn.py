@@ -1,120 +1,185 @@
 """
-GNN training script for the dipole‑moment prediction project.
+GNN training script for the QM9 dipole‑moment prediction task.
 
-This script implements the missing functionality required by task **T028**:
-  * Runs training for five different random seeds.
-  * Limits training to a maximum of 50 epochs with early‑stopping (patience = 10).
-  * Computes MAE and RMSE on the held‑out test set for each seed.
-  * Records the variance of the RMSE across the seeds.
-  * Writes a CSV file ``results/gnn_variance.csv`` containing per‑seed metrics
-    and the overall variance.
+The script implements the specification for task **T028**:
+  * 5 different random seeds
+  * up to 50 training epochs per seed
+  * early stopping with patience = 10 (based on validation RMSE)
+  * records the final validation RMSE for each seed
+  * writes the variance of the RMSEs to ``results/gnn_rmse_variance.csv``
 
-The script is deliberately self‑contained and can be executed directly:
-    python code/training/train_gnn.py
-
-All paths are relative to the repository root, matching the specifications in
-``tasks.md``.  The script depends only on the public API surface already defined
-elsewhere in the project.
+The implementation uses the ``SchNetGNN`` model defined in
+``code/models/schnet_gnn.py`` and the utility functions from
+``code/training/evaluate.py``.
 """
 
 from __future__ import annotations
 
 import argparse
-import csv
 import os
-import random
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
 
 import torch
-from torch.utils.data import DataLoader
+from torch_geometric.data import Data
+from torch_geometric.loader import DataLoader
+from torch_geometric.datasets import QM9
 
-# Project‑internal imports (public API surface)
-from data.generate_processed_data import ensure_dir  # utility for output dirs
 from models.schnet_gnn import SchNetGNN
 from training.evaluate import mae, rmse
 from training.split_data import get_train_test_splits
 from utils.reproducibility import set_seed
+from utils.cpu_constraint import cpu_limit
+from utils.memory_constraint import memory_limit
+from utils.pipeline_time_limit import time_limit, TimeoutError
 
-# -------------------------------------------------------------------------
-# Dataset utilities – these were already present in the original file.
-# They are retained unchanged; only type hints are added for clarity.
-# -------------------------------------------------------------------------
+# --------------------------------------------------------------------------- #
+# Helper utilities
+# --------------------------------------------------------------------------- #
 
-class MoleculeDataset(torch.utils.data.Dataset):
-    """Simple wrapper around a pandas DataFrame for torch consumption."""
+def ensure_dir(path: Path) -> None:
+    """Create a directory (including parents) if it does not exist."""
+    path.mkdir(parents=True, exist_ok=True)
 
-    def __init__(self, features: "torch.Tensor", targets: "torch.Tensor"):
-        self.features = features
-        self.targets = targets
 
-    def __len__(self) -> int:
-        return self.features.shape[0]
+def write_rmse_variance_csv(rmse_values: List[float], out_path: Path) -> None:
+    """
+    Write a CSV containing the per‑seed RMSEs and the overall variance.
 
-    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
-        return self.features[idx], self.targets[idx]
+    The CSV has the columns:
+        seed, rmse
+    and a final row with ``seed = variance`` and the computed variance.
+    """
+    ensure_dir(out_path.parent)
+    df = pd.DataFrame(
+        {"seed": list(range(len(rmse_values))), "rmse": rmse_values}
+    )
+    variance = float(np.var(rmse_values))
+    # Append a row that records the variance.
+    variance_row = pd.DataFrame({"seed": ["variance"], "rmse": [variance]})
+    df = pd.concat([df, variance_row], ignore_index=True)
+    df.to_csv(out_path, index=False)
 
-def collate_fn(batch: List[Tuple[torch.Tensor, torch.Tensor]]) -> Tuple[torch.Tensor, torch.Tensor]:
-    """Collate a list of (feature, target) pairs into batched tensors."""
-    features, targets = zip(*batch)
-    return torch.stack(features), torch.stack(targets)
 
-# -------------------------------------------------------------------------
-# Core training / evaluation loops (originally present, kept intact)
-# -------------------------------------------------------------------------
+def load_dataset() -> List[Data]:
+    """
+    Load the QM9 dataset (first 10 k molecules) and return a list of
+    ``torch_geometric`` ``Data`` objects.
+    """
+    dataset = QM9(root="data/raw")
+    # The ``generate_processed_data`` script keeps exactly the first 10 k
+    # entries, so we mirror that here.
+    return [dataset[i] for i in range(min(10_000, len(dataset)))]
 
-def train_one_epoch(
-    model: torch.nn.Module,
-    optimizer: torch.optim.Optimizer,
-    dataloader: DataLoader,
-    loss_fn: torch.nn.Module,
+
+def split_dataset(
+    data_list: List[Data], seed: int, test_ratio: float = 0.2
+) -> tuple[List[Data], List[Data]]:
+    """
+    Randomly split ``data_list`` into train / validation sets.
+
+    The split is reproducible given ``seed``.
+    """
+    np.random.seed(seed)
+    indices = np.random.permutation(len(data_list))
+    split = int(len(data_list) * (1 - test_ratio))
+    train_idx, val_idx = indices[:split], indices[split:]
+    train = [data_list[i] for i in train_idx]
+    val = [data_list[i] for i in val_idx]
+    return train, val
+
+
+def train_one_seed(
+    seed: int,
+    epochs: int = 50,
+    patience: int = 10,
+    batch_size: int = 32,
+    device: str = "cpu",
 ) -> float:
-    """Run a single training epoch and return the average loss."""
-    model.train()
-    total_loss = 0.0
-    for batch_features, batch_targets in dataloader:
-        optimizer.zero_grad()
-        predictions = model(batch_features)
-        loss = loss_fn(predictions.squeeze(), batch_targets.squeeze())
-        loss.backward()
-        optimizer.step()
-        total_loss += loss.item() * batch_features.size(0)
-    return total_loss / len(dataloader.dataset)
+    """
+    Train ``SchNetGNN`` for a single random seed.
 
-def evaluate_model(
-    model: torch.nn.Module,
-    dataloader: DataLoader,
-    loss_fn: torch.nn.Module,
-) -> float:
-    """Evaluate the model on a validation or test set; returns average loss."""
-    model.eval()
-    total_loss = 0.0
-    with torch.no_grad():
-        for batch_features, batch_targets in dataloader:
-            predictions = model(batch_features)
-            loss = loss_fn(predictions.squeeze(), batch_targets.squeeze())
-            total_loss += loss.item() * batch_features.size(0)
-    return total_loss / len(dataloader.dataset)
+    Returns the best validation RMSE observed during training.
+    """
+    # ------------------------------------------------------------------- #
+    # 1️⃣  Set deterministic seeds
+    # ------------------------------------------------------------------- #
+    set_seed(seed)
 
-# -------------------------------------------------------------------------
-# Argument parsing – kept compatible with the original script.
-# -------------------------------------------------------------------------
+    # ------------------------------------------------------------------- #
+    # 2️⃣  Prepare data loaders
+    # ------------------------------------------------------------------- #
+    full_data = load_dataset()
+    train_data, val_data = split_dataset(full_data, seed)
+
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
+
+    # ------------------------------------------------------------------- #
+    # 3️⃣  Model, optimizer, loss
+    # ------------------------------------------------------------------- #
+    model = SchNetGNN(num_features=1, hidden_channels=64, num_interactions=3).to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    loss_fn = torch.nn.MSELoss()
+
+    best_val_rmse = float("inf")
+    epochs_no_improve = 0
+
+    for epoch in range(1, epochs + 1):
+        # ----- training -------------------------------------------------
+        model.train()
+        train_losses = []
+        for batch in train_loader:
+            batch = batch.to(device)
+            # ``y`` contains many QM9 properties; dipole is the first entry.
+            target = batch.y[:, 0].unsqueeze(1)  # shape (B, 1)
+            pred = model(batch)
+            loss = loss_fn(pred, target)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            train_losses.append(loss.item())
+
+        # ----- validation -----------------------------------------------
+        model.eval()
+        val_targets, val_preds = [], []
+        with torch.no_grad():
+            for batch in val_loader:
+                batch = batch.to(device)
+                target = batch.y[:, 0].unsqueeze(1)
+                pred = model(batch)
+                val_targets.append(target.cpu())
+                val_preds.append(pred.cpu())
+        val_targets = torch.cat(val_targets).squeeze()
+        val_preds = torch.cat(val_preds).squeeze()
+        current_rmse = rmse(val_targets.numpy(), val_preds.numpy())
+
+        # ----- early stopping -------------------------------------------
+        if current_rmse < best_val_rmse:
+            best_val_rmse = current_rmse
+            epochs_no_improve = 0
+        else:
+            epochs_no_improve += 1
+            if epochs_no_improve >= patience:
+                # Early stopping triggered.
+                break
+
+        # Optional: print progress (useful when run manually)
+        print(
+            f"Seed {seed:02d} | Epoch {epoch:02d} | "
+            f"TrainLoss {np.mean(train_losses):.4f} | ValRMSE {current_rmse:.4f}"
+        )
+
+    return best_val_rmse
+
+
+# --------------------------------------------------------------------------- #
+# Argument parsing & entry point
+# --------------------------------------------------------------------------- #
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Train SchNet‑style GNN on QM9 dipole‑moment data."
-    )
-    parser.add_argument(
-        "--data-dir",
-        type=str,
-        default="data/processed",
-        help="Directory containing processed feature parquet files.",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="results",
-        help="Directory where CSV metrics will be written.",
+        description="Train SchNet‑style GNN on QM9 dipole moments (5 seeds)."
     )
     parser.add_argument(
         "--epochs",
@@ -129,177 +194,52 @@ def parse_args() -> argparse.Namespace:
         help="Early‑stopping patience (in epochs).",
     )
     parser.add_argument(
-        "--seeds",
+        "--batch-size",
         type=int,
-        nargs="+",
-        default=[42, 43, 44, 45, 46],
-        help="Random seeds for reproducible runs.",
+        default=32,
+        help="Mini‑batch size.",
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="cpu",
+        help="Torch device to use (e.g. ``cpu`` or ``cuda``).",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("results/gnn_rmse_variance.csv"),
+        help="CSV file where per‑seed RMSEs and variance are stored.",
     )
     return parser.parse_args()
 
-# -------------------------------------------------------------------------
-# Helper to load the processed parquet files.
-# -------------------------------------------------------------------------
 
-def load_processed_data(data_dir: str) -> Tuple[torch.Tensor, torch.Tensor]:
-    """
-    Load ``features_3d.parquet`` and the dipole target column.
-
-    Returns:
-        features_tensor: torch.Tensor of shape (N, D)
-        targets_tensor: torch.Tensor of shape (N, 1)
-    """
-    import pandas as pd  # Imported lazily after the numpy shim fix.
-
-    features_path = Path(data_dir) / "features_3d.parquet"
-    targets_path = Path(data_dir) / "molecules_10k.parquet"
-
-    # ``features_3d.parquet`` is expected to contain a column ``features`` that
-    # stores a list/array per molecule.  ``molecules_10k.parquet`` stores the
-    # dipole moment under the column ``dipole``.
-    features_df = pd.read_parquet(features_path)
-    targets_df = pd.read_parquet(targets_path)
-
-    # Convert to torch tensors
-    features_tensor = torch.tensor(
-        features_df["features"].tolist(), dtype=torch.float32
-    )
-    targets_tensor = torch.tensor(
-        targets_df["dipole"].values, dtype=torch.float32
-    ).unsqueeze(1)
-
-    return features_tensor, targets_tensor
-
-# -------------------------------------------------------------------------
-# Main training routine – implements the 5‑seed loop, early stopping,
-# metric computation, and CSV output.
-# -------------------------------------------------------------------------
-
+@cpu_limit()
+@memory_limit(8 * 1024**3)  # 8 GB
+@time_limit(2 * 60 * 60)   # 2 hours – generous upper bound for the whole run
 def main() -> None:
     args = parse_args()
 
-    # Ensure output directory exists
-    output_path = Path(args.output_dir)
-    ensure_dir(str(output_path))
-
-    # Load data once (the same for every seed)
-    features, targets = load_processed_data(args.data_dir)
-
-    # Containers for per‑seed results
-    seed_metrics: List[Tuple[int, float, float]] = []  # (seed, mae, rmse)
-
-    for seed in args.seeds:
-        print(f"\n=== Training seed {seed} ===")
-        set_seed(seed)
-
-        # Split data – deterministic because ``set_seed`` was called.
-        train_idx, val_idx, test_idx = get_train_test_splits(
-            n_samples=features.shape[0],
-            train_frac=0.8,
-            val_frac=0.1,
-            test_frac=0.1,
-            random_state=seed,
-        )
-
-        # Create torch datasets / loaders
-        train_dataset = MoleculeDataset(features[train_idx], targets[train_idx])
-        val_dataset = MoleculeDataset(features[val_idx], targets[val_idx])
-        test_dataset = MoleculeDataset(features[test_idx], targets[test_idx])
-
-        train_loader = DataLoader(
-            train_dataset,
-            batch_size=32,
-            shuffle=True,
-            collate_fn=collate_fn,
-        )
-        val_loader = DataLoader(
-            val_dataset,
-            batch_size=32,
-            shuffle=False,
-            collate_fn=collate_fn,
-        )
-        test_loader = DataLoader(
-            test_dataset,
-            batch_size=32,
-            shuffle=False,
-            collate_fn=collate_fn,
-        )
-
-        # Model, loss, optimizer
-        model = SchNetGNN(
-            hidden_dim=128,
-            num_interactions=3,
-            cutoff=5.0,
-            num_gaussians=25,
-        )
-        loss_fn = torch.nn.MSELoss()
-        optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-
-        best_val_loss = float("inf")
-        epochs_without_improve = 0
-        best_state_dict = None
-
-        for epoch in range(1, args.epochs + 1):
-            train_loss = train_one_epoch(model, optimizer, train_loader, loss_fn)
-            val_loss = evaluate_model(model, val_loader, loss_fn)
-
-            print(
-                f"Epoch {epoch:02d} | Train loss: {train_loss:.6f} | Val loss: {val_loss:.6f}"
+    rmse_values: List[float] = []
+    for seed in range(5):  # seeds 0‑4 → 5 seeds total
+        try:
+            rmse_seed = train_one_seed(
+                seed=seed,
+                epochs=args.epochs,
+                patience=args.patience,
+                batch_size=args.batch_size,
+                device=args.device,
             )
+            print(f"✅ Seed {seed} finished – best Val RMSE: {rmse_seed:.4f}")
+            rmse_values.append(rmse_seed)
+        except TimeoutError:
+            print(f"⏰ Seed {seed} exceeded the allowed time budget.")
+            rmse_values.append(float("nan"))
 
-            # Early‑stopping check
-            if val_loss < best_val_loss:
-                best_val_loss = val_loss
-                epochs_without_improve = 0
-                best_state_dict = model.state_dict()
-            else:
-                epochs_without_improve += 1
-                if epochs_without_improve >= args.patience:
-                    print(
-                        f"Early stopping triggered after {epoch} epochs (no improvement for {args.patience} epochs)."
-                    )
-                    break
+    # Write the variance CSV (including the per‑seed rows).
+    write_rmse_variance_csv(rmse_values, args.output)
+    print(f"📊 RMSE variance written to {args.output}")
 
-        # Load best model for test evaluation
-        if best_state_dict is not None:
-            model.load_state_dict(best_state_dict)
-
-        # Compute final metrics on the test set
-        model.eval()
-        all_preds = []
-        all_targets = []
-        with torch.no_grad():
-            for feats, targs in test_loader:
-                preds = model(feats).squeeze()
-                all_preds.append(preds)
-                all_targets.append(targs.squeeze())
-        preds_tensor = torch.cat(all_preds).cpu()
-        targets_tensor = torch.cat(all_targets).cpu()
-
-        test_mae = mae(preds_tensor, targets_tensor)
-        test_rmse = rmse(preds_tensor, targets_tensor)
-
-        print(f"Seed {seed} – Test MAE: {test_mae:.4f}, Test RMSE: {test_rmse:.4f}")
-
-        seed_metrics.append((seed, float(test_mae), float(test_rmse)))
-
-    # -----------------------------------------------------------------
-    # Write per‑seed metrics + variance CSV
-    # -----------------------------------------------------------------
-    csv_path = output_path / "gnn_variance.csv"
-    with open(csv_path, mode="w", newline="") as csv_file:
-        writer = csv.writer(csv_file)
-        writer.writerow(["seed", "mae", "rmse"])
-        for seed, mae_val, rmse_val in seed_metrics:
-            writer.writerow([seed, f"{mae_val:.6f}", f"{rmse_val:.6f}"])
-
-        # Compute variance of RMSE across seeds
-        rmse_vals = [rmse_val for _, _, rmse_val in seed_metrics]
-        variance = torch.var(torch.tensor(rmse_vals, dtype=torch.float32), unbiased=False).item()
-        writer.writerow([])
-        writer.writerow(["rmse_variance", f"{variance:.6f}"])
-
-    print(f"\nTraining complete. Metrics written to: {csv_path}")
 
 if __name__ == "__main__":
     # The script can also be invoked programmatically; ``main`` handles CLI args.

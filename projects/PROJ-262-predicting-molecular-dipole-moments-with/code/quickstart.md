@@ -1,40 +1,27 @@
-# Quick‑start Run‑book
-
-This document lists the commands that constitute a full end‑to‑end run of the
-research pipeline. Running the commands in the order shown will:
- 1. Download the QM9 dataset,
- 2. Create a reproducible 10 k molecule subset,
- 3. Generate the processed parquet artefacts,
- 4. Train the GNN and Random‑Forest baselines,
- 5. Produce performance plots and significance analysis,
- 6. Summarise the results,
- 7. Validate that all expected artefacts exist.
+# Quickstart Run‑Book
+This file orchestrates the end‑to‑end execution of the research pipeline.
+Each command is expected to exit with status 0 and produce the artefacts
+declared in the specification.
 
 ```bash
-# 1️⃣ Download raw QM9 data (handles DOI fall‑back)
-python code/data/download_qm9.py
-
-# 2️⃣ Create a reproducible 10 k subset [UNRESOLVED-CLAIM: c_8bd58b5c — status=not_enough_info]
-python code/data/create_subset.py
-
-# 3️⃣ Generate processed parquet files (the artefact this task implements)
+# 1️⃣ Download & prepare the QM9 dataset (generates the three parquet files)
 python code/data/generate_processed_data.py
 
-# 4️⃣ Train the SchNet‑style GNN (5 seeds, early‑stopping, 50 epochs)
+# 2️⃣ Train the SchNet‑style GNN (requires the parquet files produced above)
 python code/training/train_gnn.py
 
-# 5️⃣ Train the Random‑Forest baseline (5 seeds)
+# 3️⃣ Train the Random‑Forest baseline
 python code/training/train_rf.py
 
-# 6️⃣ Produce performance plots
+# 4️⃣ Generate performance plots
 python code/analysis/generate_performance_plots.py
 
-# 7️⃣ Compute statistical significance of the performance gap
+# 5️⃣ Compute statistical significance
 python code/analysis/generate_significance.py
 
-# 8️⃣ Assemble the final markdown summary
+# 6️⃣ Produce the final summary markdown
 python code/generate_summary.py
-
-# 9️⃣ Validate that the quick‑start succeeded (checks for all declared files)
-python code/quickstart_validation.py
 ```
+The quickstart validation script (`code/quickstart_validation.py`) checks that
+all declared artefacts exist after the above steps. No additional manual
+steps are required.

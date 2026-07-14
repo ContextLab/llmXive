@@ -1,28 +1,44 @@
 """
-Site customization to ensure that the real NumPy package is used.
-
-Some project modules (e.g., `numpy_real.py`) may unintentionally shadow the
-actual NumPy installation, causing libraries like pandas to import an
-incomplete stub that lacks required attributes such as ``__version__``.
-
-This file forces the import of the genuine NumPy package and registers it
-in ``sys.modules`` under the name ``numpy`` before any other imports occur.
+Site customization module to ensure that the real NumPy package is used
+throughout the project, even if a local module named ``numpy`` shadows the
+external dependency. This file is automatically imported by Python at
+interpreter start‑up if it is located on the import path (the project root
+is added to ``sys.path`` by the test harness).
 """
-
 import importlib
 import sys
+from types import ModuleType
 
-# If ``numpy`` is already mapped to a stub (e.g., ``numpy_real``) or missing,
-# import the real NumPy package from the environment and replace the entry.
-_numpy_mod = sys.modules.get("numpy")
-if (
-    _numpy_mod is None
-    or getattr(_numpy_mod, "__name__", "") == "numpy_real"
-    or not hasattr(_numpy_mod, "__version__")
-):
-    # Import the actual NumPy package from site‑packages.
-    real_numpy = importlib.import_module("numpy")
-    sys.modules["numpy"] = real_numpy
+def _load_real_numpy() -> ModuleType:
+    """
+    Load the genuine NumPy package from the environment, bypassing any
+    project‑local ``numpy`` modules that might shadow it.
+    """
+    # Attempt to import the real NumPy using its spec from site‑packages.
+    # ``importlib.import_module`` would resolve to the first matching name on
+    # ``sys.path`` which could be the local stub; therefore we locate the
+    # spec manually and load it.
+    spec = importlib.util.find_spec("numpy")
+    if spec is None or spec.origin is None:
+        raise ImportError("Unable to locate the real NumPy installation.")
 
-# Clean up temporary names.
-del importlib, sys, _numpy_mod, real_numpy
+    # If the spec points to this project (i.e., a stub), fall back to the
+    # package installed in ``site‑packages`` by re‑searching with ``pip``'s
+    # metadata. The simplest reliable approach is to import the helper
+    # module ``numpy_real`` which imports NumPy using an absolute import.
+    try:
+        from .numpy_real import _real_numpy  # type: ignore
+        return _real_numpy
+    except Exception as exc:
+        raise ImportError("Failed to import the real NumPy via numpy_real.") from exc
+
+try:
+    import numpy as _np  # noqa: F401
+    # If the imported module lacks the expected attributes, replace it.
+    if not hasattr(_np, "__version__"):
+        real_np = _load_real_numpy()
+        sys.modules["numpy"] = real_np
+except Exception:
+    # In the unlikely event that ``import numpy`` itself raises, ensure the
+    # real implementation is loaded.
+    sys.modules["numpy"] = _load_real_numpy()
