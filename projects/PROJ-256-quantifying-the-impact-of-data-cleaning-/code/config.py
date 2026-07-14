@@ -1,9 +1,3 @@
-"""
-Configuration management module.
-
-Provides a Config class that wraps environment variables and provides
-a tolerant interface for accessing configuration values.
-"""
 import os
 from typing import List, Optional, Any, Dict
 from dotenv import load_dotenv
@@ -16,109 +10,72 @@ logger = logging.getLogger(__name__)
 
 class Config:
     """
-    Configuration manager.
-    
-    Acts as a tolerant dictionary-like object for accessing environment variables.
-    Implements __getattr__ to handle dynamic attribute access (e.g., config.get(...))
-    and method calls (e.g., config.info(...)) gracefully.
+    Configuration manager for the project.
+    Tolerant of missing attributes by returning default values or None.
     """
     
     def __init__(self):
-        # Cache of loaded values
-        self._cache: Dict[str, Any] = {}
-        # Load defaults if not in env
-        self.defaults = {
-            "RAW_DATA_PATH": "data/raw",
-            "PROCESSED_DATA_PATH": "data/processed",
-            "FIGURES_PATH": "figures",
-            "RANDOM_SEED": "42",
-            "BOOTSTRAP_ITERATIONS": "1000",
-            "LOG_LEVEL": "INFO",
-            "DATASET_URLS": "https://archive.ics.uci.edu/ml/machine-learning-databases/"
+        self._config = {
+            "DATASET_URLS": os.getenv("DATASET_URLS", "https://archive.ics.uci.edu/ml/machine-learning-databases/"),
+            "OUTPUT_PATH": os.getenv("OUTPUT_PATH", "data/processed"),
+            "RAW_DATA_PATH": os.getenv("RAW_DATA_PATH", "data/raw"),
+            "PROCESSED_DATA_PATH": os.getenv("PROCESSED_DATA_PATH", "data/processed"),
+            "RANDOM_SEED": int(os.getenv("RANDOM_SEED", "42")),
+            "BOOTSTRAP_ITERATIONS": int(os.getenv("BOOTSTRAP_ITERATIONS", "1000")),
+            "OUTCOME_COLUMN": os.getenv("OUTCOME_COLUMN", "outcome"),
+            "PREDICTOR_COLUMN": os.getenv("PREDICTOR_COLUMN", "predictor"),
+            "LOG_LEVEL": os.getenv("LOG_LEVEL", "INFO")
         }
     
-    def get(self, key: str, default: Optional[Any] = None) -> Any:
+    def get(self, key: str, default: Any = None) -> Any:
         """
-        Get a configuration value.
-        
-        Priority:
-        1. Environment variable
-        2. Internal cache
-        3. Default value from self.defaults
-        4. Provided default argument
+        Get a configuration value by key.
         """
-        if key in self._cache:
-            return self._cache[key]
-        
-        val = os.getenv(key)
-        if val is not None:
-            self._cache[key] = val
-            return val
-        
-        if key in self.defaults:
-            self._cache[key] = self.defaults[key]
-            return self.defaults[key]
-        
-        if default is not None:
-            self._cache[key] = default
-            return default
-        
-        return None
-
+        return self._config.get(key, default)
+    
     def __getattr__(self, name: str) -> Any:
         """
-        Tolerant attribute access.
-        
-        Allows calls like config.info(), config.warning(), etc., to be no-ops.
-        Allows access like config.RAW_DATA_PATH to be mapped to get().
+        Fallback for attribute access (e.g., config.some_var).
+        Returns None if not found.
         """
-        # Handle logger-style method calls (info, warning, error, debug)
-        if name in ['info', 'warning', 'error', 'debug', 'critical', 'exception']:
-            def _noop_logger(*args, **kwargs):
-                # Optionally log if logger is configured, otherwise ignore
-                # We use the module-level logger to avoid infinite recursion
-                if hasattr(logging, name):
-                    func = getattr(logger, name)
-                    func(*args, **kwargs)
-                return None
-            return _noop_logger
-        
-        # Handle standard config access (e.g., config.RAW_DATA_PATH)
-        # If it looks like a config key, try to get it
-        if name.isupper() or name in self.defaults:
-            return self.get(name)
-        
-        # Default fallback for unknown attributes
-        return None
+        if name.startswith('_'):
+            raise AttributeError(name)
+        return self._config.get(name, None)
+    
+    def __getitem__(self, key: str) -> Any:
+        """
+        Allow dictionary-style access: config['key']
+        """
+        return self._config.get(key, None)
+    
+    def __contains__(self, key: str) -> bool:
+        return key in self._config
 
-    def reload(self):
-        """Reload configuration from environment variables."""
-        self._cache.clear()
-        load_dotenv(override=True)
+# Global instance
+_config_instance = None
 
 def get_config() -> Config:
-    """Return a singleton Config instance."""
-    # Simple singleton pattern
-    if not hasattr(get_config, "_instance"):
-        get_config._instance = Config()
-    return get_config._instance
+    global _config_instance
+    if _config_instance is None:
+        _config_instance = Config()
+    return _config_instance
 
-def reload_config():
-    """Reload the singleton config."""
-    cfg = get_config()
-    cfg.reload()
+def reload_config() -> Config:
+    global _config_instance
+    _config_instance = Config()
+    return _config_instance
 
 def main():
-    """Test configuration."""
+    """
+    Test config loading.
+    """
     cfg = get_config()
-    print(f"RAW_DATA_PATH: {cfg.get('RAW_DATA_PATH')}")
-    print(f"PROCESSED_DATA_PATH: {cfg.get('PROCESSED_DATA_PATH')}")
-    print(f"Unknown Key (should be None): {cfg.get('NONEXISTENT_KEY')}")
-    print(f"Unknown Key with default: {cfg.get('NONEXISTENT_KEY', 'default_val')}")
-    
-    # Test tolerant attribute access
-    cfg.info("This is an info message via config")
-    cfg.warning("This is a warning message via config")
+    print(f"Output Path: {cfg.get('OUTPUT_PATH')}")
+    print(f"Random Seed: {cfg.get('RANDOM_SEED')}")
+    # Test tolerant access
+    print(f"Unknown Key: {cfg.get('UNKNOWN_KEY', 'default')}")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

@@ -1,9 +1,3 @@
-"""
-T030: Implement dataset size binning sensitivity analysis.
-
-Bins datasets by size (n<50, 50-200, >200) and analyzes p-value shifts
-within each bin. Logs warnings if bins are empty or have <1 dataset.
-"""
 import os
 import json
 import logging
@@ -11,38 +5,10 @@ from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 from utils import setup_logging, pin_random_seed
 
-# Import from reporting module for utility functions
-try:
-    from reporting import calculate_p_value_shift
-except ImportError:
-    # Fallback if reporting not fully ready (should not happen in final run)
-    def calculate_p_value_shift(base_p: float, clean_p: float) -> float:
-        return abs(clean_p - base_p) if base_p and clean_p else 0.0
-
+# Configure logging
 logger = logging.getLogger(__name__)
 
-# Constants for binning
-BIN_THRESHOLDS = [50, 200]  # n < 50, 50 <= n <= 200, n > 200
-BIN_LABELS = ["small_n", "medium_n", "large_n"]
-
-def bin_dataset_size(n_rows: int) -> str:
-    """
-    Assign a dataset to a size bin based on row count.
-
-    Args:
-        n_rows: Number of rows in the dataset.
-
-    Returns:
-        Bin label: 'small_n' (<50), 'medium_n' (50-200), 'large_n' (>200).
-    """
-    if n_rows < BIN_THRESHOLDS[0]:
-        return BIN_LABELS[0]
-    elif n_rows <= BIN_THRESHOLDS[1]:
-        return BIN_LABELS[1]
-    else:
-        return BIN_LABELS[2]
-
-def load_baseline_metrics(filepath: str) -> Dict[str, Any]:
+def load_baseline_metrics(filepath: str = "data/processed/baseline_metrics.json") -> Dict[str, Any]:
     """Load baseline metrics from JSON file."""
     if not os.path.exists(filepath):
         logger.warning(f"Baseline metrics file not found: {filepath}")
@@ -50,7 +16,7 @@ def load_baseline_metrics(filepath: str) -> Dict[str, Any]:
     with open(filepath, 'r') as f:
         return json.load(f)
 
-def load_cleaned_metrics(filepath: str) -> Dict[str, Any]:
+def load_cleaned_metrics(filepath: str = "data/processed/cleaned_metrics.json") -> Dict[str, Any]:
     """Load cleaned metrics from JSON file."""
     if not os.path.exists(filepath):
         logger.warning(f"Cleaned metrics file not found: {filepath}")
@@ -58,203 +24,227 @@ def load_cleaned_metrics(filepath: str) -> Dict[str, Any]:
     with open(filepath, 'r') as f:
         return json.load(f)
 
+def calculate_p_value_shift(base_p: float, clean_p: float) -> float:
+    """Calculate absolute difference between baseline and cleaned p-values."""
+    return abs(clean_p - base_p)
+
+def bin_dataset_size(n_rows: int) -> str:
+    """
+    Bin dataset size according to thresholds:
+    - n < 50: "small"
+    - 50 <= n <= 200: "medium"
+    - n > 200: "large"
+    """
+    if n_rows < 50:
+        return "small"
+    elif n_rows <= 200:
+        return "medium"
+    else:
+        return "large"
+
 def analyze_size_bin(
-    bin_label: str,
+    bin_name: str,
     datasets: List[Dict[str, Any]],
     baseline_metrics: Dict[str, Any],
     cleaned_metrics: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
-    Analyze p-value shifts for datasets in a specific size bin.
-
-    Args:
-        bin_label: The bin label (e.g., 'small_n').
-        datasets: List of datasets belonging to this bin.
-        baseline_metrics: Full baseline metrics dictionary.
-        cleaned_metrics: Full cleaned metrics dictionary.
-
-    Returns:
-        Dictionary with bin analysis results.
+    Analyze a specific size bin.
+    Returns summary statistics for p-value shifts within the bin.
     """
     if not datasets:
         return {
-            "bin": bin_label,
+            "bin": bin_name,
             "count": 0,
             "avg_p_value_shift": None,
-            "avg_ci_width_change": None,
-            "avg_effect_size_delta": None,
-            "datasets": []
+            "min_p_value_shift": None,
+            "max_p_value_shift": None,
+            "datasets_analyzed": []
         }
 
     shifts = []
-    ci_changes = []
-    effect_deltas = []
     dataset_details = []
 
-    baseline_map = {d['dataset_name']: d for d in baseline_metrics.get('datasets', [])}
-    cleaned_map = {d['dataset_name']: d for d in cleaned_metrics.get('datasets', [])}
+    for entry in datasets:
+        ds_name = entry.get('dataset_name') or entry.get('dataset_id')
+        n_rows = entry.get('n_rows') or entry.get('dataset_size', 0)
+        
+        # Find corresponding baseline and cleaned entries
+        base_entry = None
+        clean_entry = None
 
-    for ds in datasets:
-        ds_name = ds['dataset_name']
-        n_rows = ds['n_rows']
-        bin_name = ds['bin']
+        if 'datasets' in baseline_metrics:
+            for b in baseline_metrics['datasets']:
+                if (b.get('dataset_name') == ds_name or b.get('dataset_id') == ds_name):
+                    base_entry = b
+                    break
 
-        base_entry = baseline_map.get(ds_name)
-        clean_entry = cleaned_map.get(ds_name)
+        if 'datasets' in cleaned_metrics:
+            for c in cleaned_metrics['datasets']:
+                if (c.get('dataset_name') == ds_name or c.get('dataset_id') == ds_name):
+                    clean_entry = c
+                    break
 
         if not base_entry or not clean_entry:
-            logger.warning(f"Missing metrics for {ds_name} in bin {bin_name}")
+            logger.warning(f"Could not find matching metrics for {ds_name} in bin {bin_name}")
             continue
 
-        # Extract p-values (handle multiple tests if present)
-        base_tests = base_entry.get('analysis', {}).get('t_test', {})
-        clean_tests = clean_entry.get('analysis', {}).get('t_test', {})
+        # Extract p-values (assume t-test for simplicity, or aggregate if multiple)
+        # Assuming structure: base_entry['analysis']['t_test']['p_value']
+        base_p = None
+        clean_p = None
 
-        # Calculate shifts for available tests
-        for test_name in base_tests:
-            base_p = base_tests[test_name].get('p_value')
-            clean_p = clean_tests.get(test_name, {}).get('p_value')
+        if 'analysis' in base_entry and 't_test' in base_entry['analysis']:
+            base_p = base_entry['analysis']['t_test'].get('p_value')
+        elif 'p_value' in base_entry:
+            base_p = base_entry['p_value']
 
-            if base_p is not None and clean_p is not None:
-                shift = calculate_p_value_shift(base_p, clean_p)
-                shifts.append(shift)
+        if 'analysis' in clean_entry and 't_test' in clean_entry['analysis']:
+            clean_p = clean_entry['analysis']['t_test'].get('p_value')
+        elif 'p_value' in clean_entry:
+            clean_p = clean_entry['p_value']
 
-                # CI width change (if available)
-                base_ci = base_tests[test_name].get('ci', [None, None])
-                clean_ci = clean_tests.get(test_name, {}).get('ci', [None, None])
+        if base_p is not None and clean_p is not None:
+            shift = calculate_p_value_shift(base_p, clean_p)
+            shifts.append(shift)
+            dataset_details.append({
+                "dataset_name": ds_name,
+                "n_rows": n_rows,
+                "base_p": base_p,
+                "clean_p": clean_p,
+                "shift": shift
+            })
 
-                if base_ci[0] is not None and clean_ci[0] is not None:
-                    base_width = base_ci[1] - base_ci[0]
-                    clean_width = clean_ci[1] - clean_ci[0]
-                    ci_changes.append(clean_width - base_width)
+    if not shifts:
+        return {
+            "bin": bin_name,
+            "count": len(datasets),
+            "avg_p_value_shift": None,
+            "min_p_value_shift": None,
+            "max_p_value_shift": None,
+            "datasets_analyzed": dataset_details,
+            "note": "No valid p-value pairs found in this bin."
+        }
 
-                # Effect size delta (if available)
-                base_cohen = base_tests[test_name].get('cohen_d')
-                clean_cohen = clean_tests.get(test_name, {}).get('cohen_d')
-
-                if base_cohen is not None and clean_cohen is not None:
-                    effect_deltas.append(abs(clean_cohen - base_cohen))
-
-        dataset_details.append({
-            "dataset_name": ds_name,
-            "n_rows": n_rows,
-            "p_value_shift": shifts[-1] if shifts else None
-        })
-
-    avg_shift = sum(shifts) / len(shifts) if shifts else None
-    avg_ci = sum(ci_changes) / len(ci_changes) if ci_changes else None
-    avg_effect = sum(effect_deltas) / len(effect_deltas) if effect_deltas else None
-
+    avg_shift = sum(shifts) / len(shifts)
     return {
-        "bin": bin_label,
+        "bin": bin_name,
         "count": len(datasets),
-        "avg_p_value_shift": round(avg_shift, 4) if avg_shift is not None else None,
-        "avg_ci_width_change": round(avg_ci, 4) if avg_ci is not None else None,
-        "avg_effect_size_delta": round(avg_effect, 4) if avg_effect is not None else None,
-        "datasets": dataset_details
+        "avg_p_value_shift": round(avg_shift, 6),
+        "min_p_value_shift": round(min(shifts), 6),
+        "max_p_value_shift": round(max(shifts), 6),
+        "datasets_analyzed": dataset_details
     }
 
 def run_sensitivity_analysis(
-    baseline_path: str,
-    cleaned_path: str,
-    output_path: str
-) -> bool:
+    baseline_filepath: str = "data/processed/baseline_metrics.json",
+    cleaned_filepath: str = "data/processed/cleaned_metrics.json",
+    output_filepath: str = "data/processed/sensitivity_by_size.json"
+) -> Dict[str, Any]:
     """
-    Run the full dataset size sensitivity analysis.
-
-    Args:
-        baseline_path: Path to baseline_metrics.json.
-        cleaned_path: Path to cleaned_metrics.json.
-        output_path: Path to write sensitivity_analysis.json.
-
-    Returns:
-        True if successful, False otherwise.
+    Run dataset size binning sensitivity analysis.
+    Bins: n < 50, 50-200, > 200.
+    Logs warnings if bins are empty or have < 1 dataset.
     """
-    logger.info("Starting dataset size sensitivity analysis (T030)...")
-    logger.info(f"Input: {baseline_path}, {cleaned_path}")
-    logger.info(f"Output: {output_path}")
+    logger.info("Starting dataset size sensitivity analysis...")
+    
+    try:
+        baseline_data = load_baseline_metrics(baseline_filepath)
+        cleaned_data = load_cleaned_metrics(cleaned_filepath)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        return {"error": str(e)}
 
-    # Load metrics
-    baseline_metrics = load_baseline_metrics(baseline_path)
-    cleaned_metrics = load_cleaned_metrics(cleaned_path)
+    # Aggregate all datasets from baseline and cleaned
+    all_datasets = []
+    seen_names = set()
 
-    if not baseline_metrics.get('datasets'):
-        logger.error("No baseline datasets found. Cannot run sensitivity analysis.")
-        return False
+    # Process baseline datasets
+    if 'datasets' in baseline_data:
+        for ds in baseline_data['datasets']:
+            name = ds.get('dataset_name') or ds.get('dataset_id')
+            if name and name not in seen_names:
+                all_datasets.append({
+                    "dataset_name": name,
+                    "dataset_id": ds.get('dataset_id'),
+                    "n_rows": ds.get('n_rows') or ds.get('dataset_size', 0)
+                })
+                seen_names.add(name)
 
-    # Bin datasets by size
-    bins: Dict[str, List[Dict[str, Any]]] = {label: [] for label in BIN_LABELS}
+    # Process cleaned datasets (ensure we don't duplicate if already in baseline)
+    if 'datasets' in cleaned_data:
+        for ds in cleaned_data['datasets']:
+            name = ds.get('dataset_name') or ds.get('dataset_id')
+            if name and name not in seen_names:
+                all_datasets.append({
+                    "dataset_name": name,
+                    "dataset_id": ds.get('dataset_id'),
+                    "n_rows": ds.get('n_rows') or ds.get('dataset_size', 0)
+                })
+                seen_names.add(name)
 
-    for ds in baseline_metrics.get('datasets', []):
-        n_rows = ds.get('dataset_size', ds.get('n_rows', 0))
-        bin_label = bin_dataset_size(n_rows)
-        bins[bin_label].append({
-            "dataset_name": ds['dataset_name'],
-            "n_rows": n_rows,
-            "bin": bin_label
-        })
+    if not all_datasets:
+        logger.warning("No datasets found in baseline or cleaned metrics.")
+        return {"error": "No datasets found."}
 
-    # Log warnings for empty bins or bins with <1 dataset
-    for label in BIN_LABELS:
-        count = len(bins[label])
-        if count == 0:
-            logger.warning(f"CONSTRAINT_VIOLATION: Bin '{label}' is empty (0 datasets).")
-        elif count < 1:
-            # This case is logically impossible if count == 0 check exists,
-            # but kept for explicit requirement satisfaction.
-            logger.warning(f"CONSTRAINT_VIOLATION: Bin '{label}' has fewer than 1 dataset ({count}).")
+    # Bin datasets
+    bins = {
+        "small": [],   # n < 50
+        "medium": [],  # 50 <= n <= 200
+        "large": []    # n > 200
+    }
+
+    for ds in all_datasets:
+        bin_name = bin_dataset_size(ds['n_rows'])
+        bins[bin_name].append(ds)
+
+    # Log warnings for empty or low-count bins
+    for bin_name, ds_list in bins.items():
+        if len(ds_list) == 0:
+            logger.warning(f"CONSTRAINT_VIOLATION: Bin '{bin_name}' is empty (0 datasets).")
+        elif len(ds_list) < 1:
+            # This case is technically covered by len==0, but keeping for explicit logic
+            logger.warning(f"CONSTRAINT_VIOLATION: Bin '{bin_name}' has fewer than 1 dataset.")
         else:
-            logger.info(f"Bin '{label}' contains {count} dataset(s).")
+            logger.info(f"Bin '{bin_name}' contains {len(ds_list)} datasets.")
 
     # Analyze each bin
-    results = []
-    for label in BIN_LABELS:
-        bin_result = analyze_size_bin(
-            label,
-            bins[label],
-            baseline_metrics,
-            cleaned_metrics
-        )
-        results.append(bin_result)
-        logger.info(f"Bin {label}: n={bin_result['count']}, avg_shift={bin_result['avg_p_value_shift']}")
-
-    # Compile final report
-    report = {
+    results = {
         "analysis_type": "dataset_size_sensitivity",
-        "timestamp": datetime.now().isoformat(),
-        "bin_thresholds": BIN_THRESHOLDS,
-        "bin_labels": BIN_LABELS,
-        "results": results,
+        "generated_at": datetime.now().isoformat(),
+        "bins": {},
         "summary": {
-            "total_datasets": len(baseline_metrics.get('datasets', [])),
-            "bins_with_data": sum(1 for r in results if r['count'] > 0)
+            "total_datasets": len(all_datasets),
+            "bin_distribution": {k: len(v) for k, v in bins.items()}
         }
     }
 
-    # Write output
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
+    for bin_name, ds_list in bins.items():
+        bin_result = analyze_size_bin(bin_name, ds_list, baseline_data, cleaned_data)
+        results["bins"][bin_name] = bin_result
 
-    logger.info(f"Sensitivity analysis complete. Output written to {output_path}")
-    return True
+    # Write output
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    with open(output_filepath, 'w') as f:
+        json.dump(results, f, indent=2)
+
+    logger.info(f"Sensitivity analysis complete. Output written to {output_filepath}")
+    return results
 
 def main():
-    """Main entry point for T030."""
+    """Main entry point for the script."""
     setup_logging("INFO")
     pin_random_seed(42)
-
-    # Paths
-    baseline_path = "data/processed/baseline_metrics.json"
-    cleaned_path = "data/processed/cleaned_metrics.json"
-    output_path = "data/processed/sensitivity_analysis.json"
-
-    success = run_sensitivity_analysis(baseline_path, cleaned_path, output_path)
-
-    if not success:
-        logger.error("T030 failed.")
+    
+    result = run_sensitivity_analysis()
+    
+    if "error" in result:
+        logger.error(f"Analysis failed: {result['error']}")
         return 1
+    
+    logger.info("Analysis completed successfully.")
     return 0
 
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    sys.exit(main())

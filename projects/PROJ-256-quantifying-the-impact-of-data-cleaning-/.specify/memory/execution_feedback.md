@@ -1,44 +1,31 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
-
-The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
-
-1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
-2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
-3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
-
-- code/t033_outlier_threshold_sweep.py: synthetic/fake INPUT data not authorized by the spec — “…l dataset     # We use a dummy dataset name since this is a gen…”
-- code/t033_outlier_threshold_sweep.py: synthetic/fake INPUT data not authorized by the spec — “…# Create a simple synthetic dataset for null generation if n…”
-- code/t033_outlier_threshold_sweep.py: synthetic/fake INPUT data not authorized by the spec — “…er.warning("Running with simulated data for demonstration")…”
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/t033_outlier_threshold_sweep.py: synthetic/fake INPUT data not authorized by the spec — “…l dataset     # We use a dummy dataset name since this is a gen…”; code/t033_outlier_threshold_sweep.py: synthetic/fake INPUT data not authorized by the spec — “…# Create a simple synthetic dataset for null generation if n…”; code/t033_outlier_threshold_sweep.py: synthetic/fake INPUT data not authorized by the spec — “…er.warning("Running with simulated data for demonstration")…”; 1 command(s) failed: python code/main.py (rc=1); 3 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json
+**Summary**: 1 command(s) failed: python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json
 
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-    son
-2026-07-14 03:18:33,787 - analysis - INFO - run_baseline_analysis called with input type: str
-2026-07-14 03:18:33,788 - analysis - INFO - Loaded dataset: sample_data with shape (50, 7)
+    ta/processed/baseline_metrics.json
+2026-07-14 03:45:45 - analysis - INFO - Running baseline analysis on directory: data/raw
+2026-07-14 03:45:45 - analysis - INFO - Loaded dataset: placeholder_dataset (20 rows)
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py", line 50, in <module>
-    success = main()
-              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py", line 40, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py", line 52, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py", line 42, in main
     success = run_baseline_analysis(raw_dir, output_file, config)
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/analysis.py", line 327, in run_baseline_analysis
-    'analysis_timestamp': datetime.now().isoformat(),
-                          ^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/analysis.py", line 302, in run_baseline_analysis
+    "generated_at": datetime.now().isoformat(),
+                    ^^^^^^^^
 NameError: name 'datetime' is not defined
-2026-07-14 03:18:33,927 - __main__ - ERROR - Script t012_run_baseline_analysis.py failed with return code 1
-2026-07-14 03:18:33,927 - __main__ - ERROR - Pipeline failed at t012_run_baseline_analysis.py
+2026-07-14 03:45:45 - __main__ - ERROR - Script t012_run_baseline_analysis.py failed with return code 1
+2026-07-14 03:45:45 - __main__ - ERROR - Pipeline failed at t012_run_baseline_analysis.py
 
 ## Declared deliverables still missing
 
-- data/processed/baseline_metrics.json
 - data/processed/cleaned_metrics.json
 - data/processed/null_fpr_metrics.json
 
@@ -50,18 +37,19 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `run_baseline_analysis` — defined in `code/analysis.py`; called 10 way(s):
+### `run_baseline_analysis` — defined in `code/analysis.py`; called 11 way(s):
 
+- code/t023_reanalyze_cleaned_variants.py: # The function signature is: run_baseline_analysis(df, dataset_name=..., config=config)
 - code/t023_reanalyze_cleaned_variants.py: result = run_baseline_analysis(
 - code/t012_run_baseline_analysis.py: success = run_baseline_analysis(raw_dir, output_file, config)
-- code/t013_record_baseline_metrics.py: result = run_baseline_analysis(df, dataset_name=dataset_name, config=config)
-- code/t013_record_baseline_metrics.py: success = run_baseline_analysis(raw_dir, output_path, cfg_dict)
+- code/t013_record_baseline_metrics.py: results = run_baseline_analysis(df, dataset_name=dataset_name, config=config)
+- code/t013_record_baseline_metrics.py: # We need to load the dataframe here to pass to run_baseline_analysis(df, ...)
 - code/analysis.py: 1. run_baseline_analysis(raw_dir, output_file, config) -> writes file, returns bool
 - code/analysis.py: 2. run_baseline_analysis(df, dataset_name=...) -> returns dict
 - code/analysis.py: 3. run_baseline_analysis(df_cleaned, dataset_name=..., config=config) -> returns dict
-- code/analysis.py: success = run_baseline_analysis("data/raw", "data/processed/baseline_metrics.json")
-- code/t033_outlier_threshold_sweep.py: result = run_baseline_analysis(
-- code/t032_permutation_null_fpr.py: result = run_baseline_analysis(
+- code/analysis.py: success = run_baseline_analysis(raw_dir, output_file, config=config)
+- code/t033_outlier_threshold_sweep.py: result = run_baseline_analysis(df_cleaned, dataset_name=f"null_k_{k}", config=None)
+- code/t032_permutation_null_fpr.py: results = run_baseline_analysis(df=df_null, dataset_name=dataset_name, config=config)
 
 Make `run_baseline_analysis` in `code/analysis.py` accept ALL of the above.
 
@@ -103,6 +91,7 @@ Whichever you choose, every call site of `Config` across the codebase must stop 
 - code/t034_generate_forest_plot.py: strategy = cleaned_item.get('strategy', cleaned_item.get('cleaning_strategy', 'Unknown'))
 - code/t034_generate_forest_plot.py: output_dir = config.get('OUTPUT_PATH', 'data/processed')
 - code/t045_conditional_bootstrap_reduction.py: size = data.get('dataset_size') or data.get('n_rows')
+- code/t023_reanalyze_cleaned_variants.py: if result and result.get('success', True):
 - code/t023_reanalyze_cleaned_variants.py: seed = config.get("RANDOM_SEED", 42)
 - code/t023_reanalyze_cleaned_variants.py: processed_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
 - code/t012_run_baseline_analysis.py: raw_dir = config.get("RAW_DATA_PATH", "data/raw")
@@ -112,28 +101,19 @@ Whichever you choose, every call site of `Config` across the codebase must stop 
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/processed/baseline_metrics.json` is declared but was NOT written. Scripts referencing it:
-    - `code/t036_pvalue_shift_reporting.py` — NOT invoked by the run-book
-    - `code/run_quickstart_validation.py` — NOT invoked by the run-book
-    - `code/t037_ci_width_reporting.py` — NOT invoked by the run-book
-    - `code/t034_generate_forest_plot.py` — NOT invoked by the run-book
-    - `code/t012_run_baseline_analysis.py` — NOT invoked by the run-book
-    - `code/t035_generate_ci_heatmap.py` — NOT invoked by the run-book
-    - `code/t031_bootstrap_variance.py` — NOT invoked by the run-book
-    - `code/reporting.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/baseline_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/cleaned_metrics.json` is declared but was NOT written. Scripts referencing it:
     - `code/t036_pvalue_shift_reporting.py` — NOT invoked by the run-book
     - `code/run_quickstart_validation.py` — NOT invoked by the run-book
     - `code/t037_ci_width_reporting.py` — NOT invoked by the run-book
     - `code/t034_generate_forest_plot.py` — NOT invoked by the run-book
     - `code/t023_reanalyze_cleaned_variants.py` — NOT invoked by the run-book
+    - `code/config.py` — NOT invoked by the run-book
+    - `code/models.py` — NOT invoked by the run-book
     - `code/t035_generate_ci_heatmap.py` — NOT invoked by the run-book
-    - `code/t031_bootstrap_variance.py` — NOT invoked by the run-book
-    - `code/reporting.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/cleaned_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/null_fpr_metrics.json` is declared but was NOT written. Scripts referencing it:
     - `code/run_quickstart_validation.py` — NOT invoked by the run-book
+    - `code/config.py` — NOT invoked by the run-book
     - `code/t041_generate_final_report.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
     - `code/t032_permutation_null_fpr.py` — NOT invoked by the run-book

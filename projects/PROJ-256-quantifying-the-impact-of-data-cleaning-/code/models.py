@@ -1,3 +1,6 @@
+"""
+Data models and entities for the Quantifying Impact of Data Cleaning project.
+"""
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field, field_validator
@@ -20,8 +23,8 @@ class Dataset(BaseModel):
     path: str
     rows: int
     columns: int
-    checksum: str
     missing_rate: float
+    checksum: str
 
 class CleaningStrategy(BaseModel):
     type: CleaningStrategyType
@@ -29,32 +32,24 @@ class CleaningStrategy(BaseModel):
     description: str
 
 class AnalysisResult(BaseModel):
-    dataset_name: str
-    strategy_used: Optional[str] = None
-    p_value: float
-    ci_lower: float
-    ci_upper: float
-    effect_size: float
-    test_type: str  # e.g., "t_test", "linear_regression"
-    coefficients: Optional[List[float]] = None
+    dataset_id: str
+    strategy: Optional[str] = None
+    t_tests: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
+    regressions: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
+    effect_sizes: Dict[str, float] = Field(default_factory=dict)
+    execution_time: float
 
 class ComparisonReport(BaseModel):
-    """
-    The core entity for T040.
-    Contains baseline metrics, cleaned metrics, diffs, and sensitivity analysis.
-    """
-    metadata: Dict[str, Any] = Field(default_factory=dict)
-    comparison: Dict[str, Any] = Field(default_factory=dict)
-    sensitivity_analysis: Optional[Dict[str, Any]] = None
-
-    @field_validator('comparison')
-    def validate_comparison_structure(cls, v):
-        required_keys = ['baseline', 'cleaned', 'absolute_diff', 'relative_diff', 'summary']
-        for key in required_keys:
-            if key not in v:
-                raise ValueError(f"Missing required key in comparison: {key}")
-        return v
+    id: str
+    created_at: str
+    baseline_metrics: Dict[str, Any]
+    cleaned_metrics: Dict[str, Any]
+    absolute_diff: float
+    relative_diff: float
+    sensitivity_analysis: Dict[str, Any]
+    dataset_comparisons: List[Dict[str, Any]] = Field(default_factory=list)
+    summary: Dict[str, Any] = Field(default_factory=dict)
 
 def main():
-    """Entry point for models module if run directly."""
+    """Main entry point for model validation (if needed)."""
     pass

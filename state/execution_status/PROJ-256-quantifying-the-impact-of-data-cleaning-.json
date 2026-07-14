@@ -1,12 +1,12 @@
 {
   "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
   "ok": false,
-  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/t033_outlier_threshold_sweep.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026l dataset     # We use a dummy dataset name since this is a gen\u2026\u201d; code/t033_outlier_threshold_sweep.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# Create a simple synthetic dataset for null generation if n\u2026\u201d; code/t033_outlier_threshold_sweep.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026er.warning(\"Running with simulated data for demonstration\")\u2026\u201d; 1 command(s) failed: python code/main.py (rc=1); 3 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json",
+  "reason": "1 command(s) failed: python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=1\n    son\n2026-07-14 03:18:33,787 - analysis - INFO - run_baseline_analysis called with input type: str\n2026-07-14 03:18:33,788 - analysis - INFO - Loaded dataset: sample_data with shape (50, 7)\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py\", line 50, in <module>\n    success = main()\n              ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py\", line "
+    "python code/main.py -> rc=1\n    ta/processed/baseline_metrics.json\n2026-07-14 03:45:45 - analysis - INFO - Running baseline analysis on directory: data/raw\n2026-07-14 03:45:45 - analysis - INFO - Loaded dataset: placeholder_dataset (20 rows)\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline_analysis.py\", line 52, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t012_run_baseline"
   ],
   "fix_rounds": 7,
   "model_tier": 0,
-  "updated_at": "2026-07-14T03:18:35Z"
+  "updated_at": "2026-07-14T03:45:46Z"
 }

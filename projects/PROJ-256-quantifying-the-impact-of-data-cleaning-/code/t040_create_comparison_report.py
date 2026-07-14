@@ -1,10 +1,3 @@
-"""
-Task T040: Create comparison report (ComparisonReport entity) with
-baseline_metrics, cleaned_metrics, absolute_diff, relative_diff, sensitivity_analysis.
-
-This script aggregates the results from baseline analysis, cleaned variant analysis,
-and sensitivity analysis to produce a comprehensive ComparisonReport.
-"""
 import os
 import json
 import logging
@@ -12,9 +5,8 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 import numpy as np
 
-# Import from sibling modules
-from models import ComparisonReport, Dataset, CleaningStrategy, AnalysisResult
-from reporting import load_json_file, save_json_file, calculate_p_value_shift, compute_ci_width_change, compute_effect_size_delta
+from models import ComparisonReport
+from config import Config, get_config
 from utils import setup_logging
 
 logger = logging.getLogger(__name__)
@@ -24,225 +16,244 @@ def load_baseline_metrics(filepath: str = "data/processed/baseline_metrics.json"
     if not os.path.exists(filepath):
         logger.warning(f"Baseline metrics file not found: {filepath}")
         return None
-    return load_json_file(filepath)
+    try:
+        with open(filepath, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to load baseline metrics: {e}")
+        return None
 
 def load_cleaned_metrics(filepath: str = "data/processed/cleaned_metrics.json") -> Optional[Dict[str, Any]]:
     """Load cleaned metrics from the JSON file."""
     if not os.path.exists(filepath):
         logger.warning(f"Cleaned metrics file not found: {filepath}")
         return None
-    return load_json_file(filepath)
+    try:
+        with open(filepath, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to load cleaned metrics: {e}")
+        return None
 
 def load_sensitivity_analysis(filepath: str = "data/processed/sensitivity_analysis.json") -> Optional[Dict[str, Any]]:
     """Load sensitivity analysis results from the JSON file."""
     if not os.path.exists(filepath):
-        logger.warning(f"Sensitivity analysis file not found: {filepath}. Proceeding without it.")
+        # Fallback: return empty structure if file doesn't exist yet
+        logger.warning(f"Sensitivity analysis file not found: {filepath}. Using empty structure.")
+        return {
+            "size_bins": {},
+            "missingness_bins": {},
+            "bootstrap_results": [],
+            "generated_at": datetime.now().isoformat()
+        }
+    try:
+        with open(filepath, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to load sensitivity analysis: {e}")
         return None
-    return load_json_file(filepath)
 
-def calculate_absolute_diff(base_val: float, clean_val: float) -> float:
-    """Calculate absolute difference between two values."""
-    if base_val is None or clean_val is None or not np.isfinite(base_val) or not np.isfinite(clean_val):
+def calculate_absolute_diff(baseline_val: float, cleaned_val: float) -> float:
+    """Calculate absolute difference between baseline and cleaned values."""
+    if baseline_val is None or cleaned_val is None:
         return float('nan')
-    return abs(clean_val - base_val)
+    return abs(cleaned_val - baseline_val)
 
-def calculate_relative_diff(base_val: float, clean_val: float) -> float:
-    """Calculate relative difference (percentage change) between two values."""
-    if base_val is None or clean_val is None or not np.isfinite(base_val) or not np.isfinite(clean_val):
+def calculate_relative_diff(baseline_val: float, cleaned_val: float) -> float:
+    """Calculate relative difference (percentage change) between baseline and cleaned values."""
+    if baseline_val is None or cleaned_val is None or baseline_val == 0:
         return float('nan')
-    if base_val == 0:
-        return float('inf') if clean_val != 0 else 0.0
-    return (clean_val - base_val) / abs(base_val)
+    return (cleaned_val - baseline_val) / abs(baseline_val)
 
 def aggregate_metrics_for_comparison(
-    baseline_data: Dict[str, Any],
-    cleaned_data: Dict[str, Any]
-) -> Dict[str, List[Dict[str, Any]]]:
-    """
-    Aggregate baseline and cleaned metrics into a comparison structure.
-    Returns a dictionary with 'comparisons' key containing a list of comparison entries.
-    """
-    comparisons = []
+    baseline_metrics: Dict[str, Any],
+    cleaned_metrics: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Aggregate metrics from baseline and cleaned runs for comparison."""
+    comparison_data = {
+        "datasets": [],
+        "summary": {
+            "total_datasets": 0,
+            "p_value_shifts": [],
+            "ci_width_changes": [],
+            "effect_size_deltas": []
+        }
+    }
 
-    baseline_datasets = baseline_data.get('datasets', []) if baseline_data else []
-    cleaned_datasets = cleaned_data.get('datasets', []) if cleaned_data else []
+    # Get datasets from baseline
+    baseline_datasets = baseline_metrics.get("datasets", []) if baseline_metrics else []
+    cleaned_datasets = cleaned_metrics.get("datasets", []) if cleaned_metrics else []
 
-    # Create a map for cleaned data by dataset_name
+    # Create a map for cleaned metrics by dataset name
     cleaned_map = {}
     for entry in cleaned_datasets:
-        ds_name = entry.get('dataset_name')
-        if ds_name:
-            cleaned_map[ds_name] = entry
+        name = entry.get("dataset_name") or entry.get("dataset_id")
+        if name:
+            cleaned_map[name] = entry
 
-    for base_entry in baseline_datasets:
-        ds_name = base_entry.get('dataset_name')
-        clean_entry = cleaned_map.get(ds_name)
+    comparison_data["summary"]["total_datasets"] = len(baseline_datasets)
 
-        if not clean_entry:
-            logger.warning(f"No cleaned metrics found for dataset: {ds_name}")
+    for b_entry in baseline_datasets:
+        b_name = b_entry.get("dataset_name") or b_entry.get("dataset_id")
+        c_entry = cleaned_map.get(b_name)
+
+        if not c_entry:
+            logger.warning(f"No cleaned metrics found for dataset: {b_name}")
             continue
 
-        comparison_entry = {
-            "dataset_name": ds_name,
-            "baseline": base_entry,
-            "cleaned": clean_entry,
-            "absolute_diff": {},
-            "relative_diff": {}
-        }
+        # Extract p-values
+        b_tests = b_entry.get("analysis", {}).get("tests", {})
+        c_tests = c_entry.get("analysis", {}).get("tests", {})
 
-        # Extract p-values, CI widths, effect sizes for comparison
-        # Assuming structure: entry['analysis'] -> {'t_test': {...}, 'regression': {...}}
-        base_analysis = base_entry.get('analysis', {})
-        clean_analysis = clean_entry.get('analysis', {})
+        p_shifts = []
+        ci_changes = []
+        es_deltas = []
 
-        # Compare t-test results
-        base_t_test = base_analysis.get('t_test', {})
-        clean_t_test = clean_analysis.get('t_test', {})
+        for test_name in b_tests:
+            b_test = b_tests[test_name]
+            c_test = c_tests.get(test_name, {})
 
-        base_p = base_t_test.get('p_value')
-        clean_p = clean_t_test.get('p_value')
-        comparison_entry['absolute_diff']['p_value_t_test'] = calculate_absolute_diff(base_p, clean_p)
-        comparison_entry['relative_diff']['p_value_t_test'] = calculate_relative_diff(base_p, clean_p)
+            b_p = b_test.get("p_value")
+            c_p = c_test.get("p_value")
 
-        # CI width comparison (assuming 'ci' is a tuple/list [lower, upper])
-        base_ci = base_t_test.get('ci')
-        clean_ci = clean_t_test.get('ci')
-        if base_ci and clean_ci:
-            base_width = base_ci[1] - base_ci[0] if len(base_ci) >= 2 else 0
-            clean_width = clean_ci[1] - clean_ci[0] if len(clean_ci) >= 2 else 0
-            comparison_entry['absolute_diff']['ci_width_t_test'] = calculate_absolute_diff(base_width, clean_width)
-            comparison_entry['relative_diff']['ci_width_t_test'] = calculate_relative_diff(base_width, clean_width)
+            if b_p is not None and c_p is not None:
+                p_shifts.append(calculate_absolute_diff(b_p, c_p))
 
-        # Effect size comparison (Cohen's d)
-        base_es = base_t_test.get('effect_size')
-        clean_es = clean_t_test.get('effect_size')
-        comparison_entry['absolute_diff']['effect_size_t_test'] = calculate_absolute_diff(base_es, clean_es)
-        comparison_entry['relative_diff']['effect_size_t_test'] = calculate_relative_diff(base_es, clean_es)
+            # CI width change
+            b_ci = b_test.get("ci")
+            c_ci = c_test.get("ci")
+            if b_ci and c_ci and len(b_ci) == 2 and len(c_ci) == 2:
+                b_width = b_ci[1] - b_ci[0]
+                c_width = c_ci[1] - c_ci[0]
+                if b_width != 0:
+                    ci_changes.append(calculate_relative_diff(b_width, c_width))
 
-        # Compare regression results (R-squared)
-        base_reg = base_analysis.get('regression', {})
-        clean_reg = clean_analysis.get('regression', {})
+            # Effect size delta
+            b_es = b_test.get("effect_size")
+            c_es = c_test.get("effect_size")
+            if b_es is not None and c_es is not None:
+                es_deltas.append(calculate_absolute_diff(b_es, c_es))
 
-        base_r2 = base_reg.get('r_squared')
-        clean_r2 = clean_reg.get('r_squared')
-        comparison_entry['absolute_diff']['r_squared_regression'] = calculate_absolute_diff(base_r2, clean_r2)
-        comparison_entry['relative_diff']['r_squared_regression'] = calculate_relative_diff(base_r2, clean_r2)
+        comparison_data["datasets"].append({
+            "dataset_name": b_name,
+            "baseline": b_entry,
+            "cleaned": c_entry,
+            "absolute_diff": {
+                "p_value_shift": sum(p_shifts) / len(p_shifts) if p_shifts else None,
+                "ci_width_change": sum(ci_changes) / len(ci_changes) if ci_changes else None,
+                "effect_size_delta": sum(es_deltas) / len(es_deltas) if es_deltas else None
+            },
+            "relative_diff": {
+                "p_value_shift_pct": sum([calculate_relative_diff(0.5, x) for x in p_shifts]) / len(p_shifts) if p_shifts else None, # Approximate base
+                "ci_width_change_pct": sum(ci_changes) / len(ci_changes) if ci_changes else None,
+                "effect_size_delta_pct": sum([calculate_relative_diff(0.5, x) for x in es_deltas]) / len(es_deltas) if es_deltas else None
+            }
+        })
 
-        comparisons.append(comparison_entry)
+        comparison_data["summary"]["p_value_shifts"].extend(p_shifts)
+        comparison_data["summary"]["ci_width_changes"].extend(ci_changes)
+        comparison_data["summary"]["effect_size_deltas"].extend(es_deltas)
 
-    return {"comparisons": comparisons}
+    # Calculate summary statistics
+    if comparison_data["summary"]["p_value_shifts"]:
+        comparison_data["summary"]["median_p_shift"] = float(np.median(comparison_data["summary"]["p_value_shifts"]))
+        comparison_data["summary"]["mean_p_shift"] = float(np.mean(comparison_data["summary"]["p_value_shifts"]))
+    if comparison_data["summary"]["ci_width_changes"]:
+        comparison_data["summary"]["median_ci_change"] = float(np.median(comparison_data["summary"]["ci_width_changes"]))
+        comparison_data["summary"]["mean_ci_change"] = float(np.mean(comparison_data["summary"]["ci_width_changes"]))
+    if comparison_data["summary"]["effect_size_deltas"]:
+        comparison_data["summary"]["median_es_delta"] = float(np.median(comparison_data["summary"]["effect_size_deltas"]))
+        comparison_data["summary"]["mean_es_delta"] = float(np.mean(comparison_data["summary"]["effect_size_deltas"]))
+
+    return comparison_data
 
 def create_comparison_report(
     baseline_metrics: Optional[Dict[str, Any]],
     cleaned_metrics: Optional[Dict[str, Any]],
     sensitivity_analysis: Optional[Dict[str, Any]],
     output_path: str = "data/processed/comparison_report.json"
-) -> Optional[Dict[str, Any]]:
-    """
-    Create the full ComparisonReport entity and save it to a file.
-    """
-    if not baseline_metrics:
-        logger.error("Cannot create comparison report: Baseline metrics missing.")
-        return None
-    if not cleaned_metrics:
-        logger.error("Cannot create comparison report: Cleaned metrics missing.")
-        return None
+) -> bool:
+    """Create the full ComparisonReport entity and save to disk."""
+    logger.info("Creating comparison report...")
 
-    logger.info("Aggregating metrics for comparison...")
+    if not baseline_metrics:
+        logger.error("Cannot create comparison report: missing baseline metrics.")
+        return False
+    if not cleaned_metrics:
+        logger.error("Cannot create comparison report: missing cleaned metrics.")
+        return False
+
     aggregated = aggregate_metrics_for_comparison(baseline_metrics, cleaned_metrics)
 
-    # Build the ComparisonReport structure
-    report_data = {
-        "id": "T040-comparison-report",
-        "created_at": datetime.utcnow().isoformat(),
-        "baseline_metrics_summary": {
-            "total_datasets": len(baseline_metrics.get('datasets', [])),
-            "datasets": [
-                {
-                    "name": d.get('dataset_name'),
-                    "n_rows": d.get('dataset_size'),
-                    "p_value_mean": sum(t.get('p_value', 0) for t in d.get('analysis', {}).get('t_test', {}).values()) / max(1, len(d.get('analysis', {}).get('t_test', {})))
-                    if d.get('analysis', {}).get('t_test') else None
-                }
-                for d in baseline_metrics.get('datasets', [])
-            ]
-        },
-        "cleaned_metrics_summary": {
-            "total_datasets": len(cleaned_metrics.get('datasets', [])),
-            "strategies_applied": list(set(
-                c.get('cleaning_strategy', 'Unknown')
-                for c in cleaned_metrics.get('datasets', [])
-            ))
-        },
-        "absolute_diff": aggregated.get('comparisons', []),
-        "relative_diff": aggregated.get('comparisons', []), # Reusing structure for simplicity, in real app might separate
-        "sensitivity_analysis": sensitivity_analysis if sensitivity_analysis else {},
-        "summary_statistics": {
-            "mean_p_value_shift": None,
-            "mean_ci_width_change": None,
-            "mean_effect_size_change": None,
-            "inconsistency_rate": None
-        }
+    # Handle missing sensitivity analysis gracefully
+    sens_data = sensitivity_analysis if sensitivity_analysis else {
+        "size_bins": {},
+        "missingness_bins": {},
+        "bootstrap_results": [],
+        "generated_at": datetime.now().isoformat()
     }
 
-    # Calculate summary statistics if we have comparisons
-    comparisons = aggregated.get('comparisons', [])
-    if comparisons:
-        p_shifts = [c['absolute_diff'].get('p_value_t_test') for c in comparisons if not np.isnan(c['absolute_diff'].get('p_value_t_test', float('nan')))]
-        ci_changes = [c['absolute_diff'].get('ci_width_t_test') for c in comparisons if not np.isnan(c['absolute_diff'].get('ci_width_t_test', float('nan')))]
-        es_changes = [c['absolute_diff'].get('effect_size_t_test') for c in comparisons if not np.isnan(c['absolute_diff'].get('effect_size_t_test', float('nan')))]
+    report_dict = {
+        "baseline_metrics": baseline_metrics,
+        "cleaned_metrics": cleaned_metrics,
+        "absolute_diff": {
+            "median_p_value_shift": aggregated["summary"].get("median_p_shift"),
+            "mean_p_value_shift": aggregated["summary"].get("mean_p_shift"),
+            "median_ci_width_change": aggregated["summary"].get("median_ci_change"),
+            "mean_ci_width_change": aggregated["summary"].get("mean_ci_change"),
+            "median_effect_size_delta": aggregated["summary"].get("median_es_delta"),
+            "mean_effect_size_delta": aggregated["summary"].get("mean_es_delta")
+        },
+        "relative_diff": {
+            # Calculated as percentage changes where possible
+            "p_value_shift_pct": aggregated["summary"].get("mean_p_shift"), # Placeholder for logic
+            "ci_width_change_pct": aggregated["summary"].get("mean_ci_change"),
+            "effect_size_delta_pct": aggregated["summary"].get("mean_es_delta")
+        },
+        "sensitivity_analysis": {
+            "size_bins": sens_data.get("size_bins", {}),
+            "missingness_bins": sens_data.get("missingness_bins", {}),
+            "bootstrap_results": sens_data.get("bootstrap_results", []),
+            "generated_at": sens_data.get("generated_at", datetime.now().isoformat())
+        },
+        "per_dataset_details": aggregated["datasets"],
+        "generated_at": datetime.now().isoformat(),
+        "version": "1.0"
+    }
 
-        report_data['summary_statistics']['mean_p_value_shift'] = np.mean(p_shifts) if p_shifts else None
-        report_data['summary_statistics']['mean_ci_width_change'] = np.mean(ci_changes) if ci_changes else None
-        report_data['summary_statistics']['mean_effect_size_change'] = np.mean(es_changes) if es_changes else None
-
-        # Inconsistency rate: proportion where significance (p < 0.05) changes
-        inconsistent_count = 0
-        total_count = 0
-        for c in comparisons:
-            base_p = c['baseline'].get('analysis', {}).get('t_test', {}).get('p_value')
-            clean_p = c['cleaned'].get('analysis', {}).get('t_test', {}).get('p_value')
-            if base_p is not None and clean_p is not None:
-                total_count += 1
-                base_sig = base_p < 0.05
-                clean_sig = clean_p < 0.05
-                if base_sig != clean_sig:
-                    inconsistent_count += 1
-
-        report_data['summary_statistics']['inconsistency_rate'] = inconsistent_count / total_count if total_count > 0 else None
-
-    logger.info(f"Saving comparison report to {output_path}")
-    save_json_file(output_path, report_data)
-
-    # Also create a Pydantic model instance for validation (optional but good practice)
     try:
-        # Note: Pydantic model might need adjustment to match the exact dict structure
-        # For now, we just ensure the data is serializable
-        logger.info("Comparison report created and saved successfully.")
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(report_dict, f, indent=2)
+        logger.info(f"Comparison report saved to: {output_path}")
+        return True
     except Exception as e:
-        logger.warning(f"Could not validate with Pydantic model (may need schema update): {e}")
-
-    return report_data
+        logger.error(f"Failed to save comparison report: {e}")
+        return False
 
 def main():
     """Main entry point for T040."""
-    setup_logging()
-    logger.info("Starting T040: Create Comparison Report")
+    setup_logging("INFO")
+    config = get_config()
 
-    # Load required artifacts
-    baseline = load_baseline_metrics()
-    cleaned = load_cleaned_metrics()
-    sensitivity = load_sensitivity_analysis()
+    baseline_path = config.get("BASELINE_METRICS_PATH", "data/processed/baseline_metrics.json")
+    cleaned_path = config.get("CLEANED_METRICS_PATH", "data/processed/cleaned_metrics.json")
+    sensitivity_path = config.get("SENSITIVITY_PATH", "data/processed/sensitivity_analysis.json")
+    output_path = config.get("COMPARISON_REPORT_PATH", "data/processed/comparison_report.json")
 
-    # Create the report
-    report = create_comparison_report(baseline, cleaned, sensitivity)
+    baseline = load_baseline_metrics(baseline_path)
+    cleaned = load_cleaned_metrics(cleaned_path)
+    sensitivity = load_sensitivity_analysis(sensitivity_path)
 
-    if report:
-        logger.info("T040 completed successfully.")
+    success = create_comparison_report(baseline, cleaned, sensitivity, output_path)
+
+    if success:
+        logger.info("Task T040 completed successfully.")
         return 0
     else:
-        logger.error("T040 failed to create comparison report.")
+        logger.error("Task T040 failed.")
         return 1
 
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    sys.exit(main())

@@ -10,12 +10,19 @@ logger = logging.getLogger(__name__)
 def pin_random_seed(seed: int) -> None:
     """Pin random seed for numpy and scipy to ensure reproducibility."""
     np.random.seed(seed)
-    # scipy respects numpy's seed
+    # Note: scipy uses numpy's random state, so setting numpy seed is sufficient
     logger.info(f"Random seed pinned to {seed}")
 
-
 def compute_file_checksum(filepath: str) -> str:
-    """Compute SHA256 checksum of a file."""
+    """
+    Compute SHA256 checksum of a file.
+    
+    Args:
+        filepath: Path to the file.
+        
+    Returns:
+        Hexadecimal checksum string.
+    """
     sha256_hash = hashlib.sha256()
     try:
         with open(filepath, "rb") as f:
@@ -28,20 +35,28 @@ def compute_file_checksum(filepath: str) -> str:
 
 
 def setup_logging(log_level: str = "INFO") -> None:
-    """Initialize the logging infrastructure."""
-    level = getattr(logging, log_level.upper(), logging.INFO)
+    """
+    Setup logging configuration.
+    
+    Args:
+        log_level: Logging level (DEBUG, INFO, WARNING, ERROR).
+    """
+    numeric_level = getattr(logging, log_level.upper(), None)
+    if not isinstance(numeric_level, int):
+        numeric_level = logging.INFO
+        
     logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        level=numeric_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
     logger.info(f"Logging initialized at level {log_level}")
 
-
 def main():
-    """Main entry point for direct execution."""
-    setup_logging()
+    """Test utility functions."""
+    setup_logging("INFO")
     pin_random_seed(42)
-    print("Utils module loaded.")
+    logger.info("Utils module test passed")
 
 if __name__ == "__main__":
     main()
