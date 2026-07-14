@@ -4,6 +4,12 @@
     "required": []
   },
   {
+    "data_file": "engineered_data.csv",
+    "required": [
+      "results_dir"
+    ]
+  },
+  {
     "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/cleaned_data.csv",
     "required": []
   }

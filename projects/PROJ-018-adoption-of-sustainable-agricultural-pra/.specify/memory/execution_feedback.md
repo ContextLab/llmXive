@@ -9,68 +9,210 @@ The gate detected that your reported numbers are NOT real measurements: they are
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Sustainabl…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…culture Adoption Study.  Generates a realistic synthetic dataset conforming to th…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…iculture Adoption Study. Generates a realistic synthetic dataset conforming to th…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…> Dict[str, Any]:     """Generate a single synthetic respondent record."""…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate the full synthetic dataset.      Args:…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…print(f"Generating synthetic data for {2000} respondents..…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…int(f"Successfully wrote synthetic data to {output_file}")     p…”
-- code/03_engineer_features.py: synthetic/fake INPUT data not authorized by the spec — “…might need mapping, but synthetic data usually uses 0/1.     pr…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the full synthetic dataset."""     data = […”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…ata)  def main():     """Generate and save synthetic data."""     logger = lo…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Generating synthetic data for {2000} respondents..…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…nfo(f"Successfully wrote synthetic data to {output_file}")  if _…”
 - data/metadata.yaml: synthetic/fake INPUT data not authorized by the spec — “…grammatically."       - "Synthetic data approximates distributio…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 8 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Sustainabl…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…culture Adoption Study.  Generates a realistic synthetic dataset conforming to th…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…> Dict[str, Any]:     """Generate a single synthetic respondent record."""…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/01_download_data.py --synthetic; 5 command(s) failed: python code/02_clean_data.py (rc=1); python code/03_engineer_features.py (rc=1); python code/04_model_analysis.py (rc=1)
+**Summary**: 10 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Sustainabl…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…iculture Adoption Study. Generates a realistic synthetic dataset conforming to th…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…> Dict[str, Any]:     """Generate a single synthetic respondent record."""…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/01_download_data.py --synthetic; 5 command(s) failed: python code/02_clean_data.py (rc=1); python code/03_engineer_features.py (rc=1); python code/04_model_analysis.py (rc=1); 1 declared deliverable(s) absent: data/processed/cleaned_data.csv
 
 ## Failing / missing run-book commands
 
 - python code/01_download_data.py --synthetic -> rc=2 [script missing]
     /home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/01_download_data.py': [Errno 2] No such file or directory
 - python code/02_clean_data.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 292, in <module>
+    .PathLike or integer, not NoneType
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 293, in main
+    df = load_raw_data()
+         ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 69, in load_raw_data
+    raise CustomDataError(f"Failed to load raw data: {e}")
+CustomDataError: Failed to load raw data: stat: path should be string, bytes, os.PathLike or integer, not NoneType
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 344, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 233, in main
-    raw_file = get_data_path(config['raw_data_file'])
-                             ~~~~~~^^^^^^^^^^^^^^^^^
-TypeError: 'Config' object is not subscriptable
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 336, in main
+    update_log_section("error", {"message": str(e)})
+TypeError: update_log_section() missing 1 required positional argument: 'log_path'
 - python code/03_engineer_features.py -> rc=1
-    2026-07-14 02:11:35,354 - __main__ - INFO - Starting Feature Engineering (T020)...
+    2026-07-14 04:11:13,358 - __main__ - INFO - Starting Feature Engineering (T020, T021, T022)...
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 346, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 361, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 313, in main
-    raise FileNotFoundError(f"Cleaned data not found at {input_path}. Run T014 first.")
-FileNotFoundError: Cleaned data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/cleaned_data.csv. Run T014 first.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 318, in main
+    results_dir = get_data_path(config['paths']['results_dir'])
+                                ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+KeyError: 'results_dir'
 - python code/04_model_analysis.py -> rc=1
-    nalysis (E-values) will be skipped.
-  warnings.warn("evalues library not installed. Sensitivity analysis (E-values) will be skipped.")
-2026-07-14 02:11:37,520 - research_pipeline - INFO - Starting Mediation Analysis and Model Diagnostics (T040)
-2026-07-14 02:11:37,520 - research_pipeline - ERROR - Mediation analysis failed: 'Config' object is not subscriptable
-2026-07-14 02:11:37,521 - research_pipeline - INFO - Updating section 'mediation_analysis' in modeling_log.yaml
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 530, in <module>
-    main()
+    k (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 418, in main
     df = load_engineered_data()
          ^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 38, in load_engineered_data
-    path = Path(config['paths']['processed_data']) / 'engineered_data.csv'
-                ~~~~~~^^^^^^^^^
-TypeError: 'Config' object is not subscriptable
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 40, in load_engineered_data
+    raise CustomDataError(f"Engineered data not found at {path}. Run 03_engineer_features.py first.")
+CustomDataError: Engineered data not found at data/processed/engineered_data.csv. Run 03_engineer_features.py first.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 530, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 526, in main
+    update_log_section('mediation_analysis', {'status': 'failed', 'error': str(e)})
+TypeError: update_log_section() missing 1 required positional argument: 'log_path'
 - python code/05_generate_report.py -> rc=1
     Error: Cleaned data not found at data/processed/cleaned_data.csv. Run T014 first.
 
-2026-07-14 02:11:38,566 - __main__ - INFO - Starting PDF report generation (T042).
-2026-07-14 02:11:38,566 - __main__ - ERROR - Missing required data file: Cleaned data not found at data/processed/cleaned_data.csv. Run T014 first.
-2026-07-14 02:11:38,566 - __main__ - ERROR - Report generation failed: Cleaned data not found at data/processed/cleaned_data.csv. Run T014 first.
+2026-07-14 04:11:15,824 - __main__ - INFO - Starting PDF report generation (T042).
+2026-07-14 04:11:15,824 - __main__ - ERROR - Missing required data file: Cleaned data not found at data/processed/cleaned_data.csv. Run T014 first.
+2026-07-14 04:11:15,824 - __main__ - ERROR - Report generation failed: Cleaned data not found at data/processed/cleaned_data.csv. Run T014 first.
 - python code/02_clean_data.py --input data/raw/survey_data.csv -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 292, in <module>
+    .PathLike or integer, not NoneType
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 293, in main
+    df = load_raw_data()
+         ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 69, in load_raw_data
+    raise CustomDataError(f"Failed to load raw data: {e}")
+CustomDataError: Failed to load raw data: stat: path should be string, bytes, os.PathLike or integer, not NoneType
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 344, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 233, in main
-    raw_file = get_data_path(config['raw_data_file'])
-                             ~~~~~~^^^^^^^^^^^^^^^^^
-TypeError: 'Config' object is not subscriptable
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 336, in main
+    update_log_section("error", {"message": str(e)})
+TypeError: update_log_section() missing 1 required positional argument: 'log_path'
+
+## Declared deliverables still missing
+
+- data/processed/cleaned_data.csv
+
+## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
+
+One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
+
+**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
+
+**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
+
+### `update_log_section` — defined in `code/logging_config.py`; called 4 way(s):
+
+- code/02_clean_data.py: update_log_section("error", {"message": str(e)})
+- code/05_generate_report.py: update_log_section("report_generation", {
+- code/04_model_analysis.py: update_log_section('mediation_analysis', log_data)
+- code/04_model_analysis.py: update_log_section('mediation_analysis', {'status': 'failed', 'error': str(e)})
+
+Make `update_log_section` in `code/logging_config.py` accept ALL of the above.
+
+## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module
+
+`code/logging_config.py` keeps breaking across rounds because it mixes the stdlib `logging` module (whose `Logger.log(level, msg)` needs an INTEGER level and has no `to_json`) with a custom `LogEntry`. That hybrid can never satisfy all callers. Replace the contents of `code/logging_config.py` with the self-contained reference below — it ALREADY defines every symbol callers need (`get_logger`, `log_operation`, `ReproducibilityLogger`, `LogEntry`), returns a `LogEntry` (with `.to_json()`) from direct `log_operation(...)` calls, supports `@log_operation`, and resolves any `.info`/`.debug`/`.warning` via `__getattr__`. Do NOT reach for the stdlib `logging` module again. Adjust only if a call site listed above needs a field it lacks.
+
+```python
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
+
+import functools
+import json
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from typing import Any
+
+
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+
+
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
+
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list = []
+
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
+
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
+    """
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
+
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
+
+        return _wrapper
+
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
+```
+
+## Declared deliverables NOT produced — make the run-book produce them
+
+Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
+
+- `data/processed/cleaned_data.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/02_clean_data.py` — IS a run-book command
+    - `code/config.py` — NOT invoked by the run-book
+    - `code/03_engineer_features.py` — IS a run-book command
+    - `code/06_finalize_results.py` — NOT invoked by the run-book
+    - `code/05_generate_report.py` — IS a run-book command
+    - `code/validate_quickstart.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/cleaned_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 
@@ -78,12 +220,20 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 **This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
 
+### `engineered_data.csv`
+
+- ACTUAL columns/keys the producer wrote: `(file not on disk this run)`
+- REQUIRED by the consumer(s): `[results_dir]`
+- PRODUCER(s) to edit: `code/03_engineer_features.py`, `code/06_finalize_results.py`, `code/04_model_analysis.py`
+- CONSUMER(s) that read it: `code/config.py`, `code/03_engineer_features.py`, `code/06_finalize_results.py`, `code/05_generate_report.py`, `code/validate_quickstart.py`, `code/04_model_analysis.py`
+  → Edit the producer so every required name [results_dir] is in `engineered_data.csv`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
+
 ### `data/processed/cleaned_data.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/03_engineer_features.py`, `code/06_finalize_results.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/cleaned_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/03_engineer_features.py`, `code/06_finalize_results.py`, `code/05_generate_report.py`, `code/validate_quickstart.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/02_clean_data.py`, `code/06_finalize_results.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/cleaned_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/02_clean_data.py`, `code/config.py`, `code/06_finalize_results.py`, `code/05_generate_report.py`, `code/validate_quickstart.py`.
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/cleaned_data.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/03_engineer_features.py`, `code/06_finalize_results.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/cleaned_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/03_engineer_features.py`, `code/06_finalize_results.py`, `code/05_generate_report.py`, `code/validate_quickstart.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/02_clean_data.py`, `code/06_finalize_results.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/cleaned_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/02_clean_data.py`, `code/config.py`, `code/06_finalize_results.py`, `code/05_generate_report.py`, `code/validate_quickstart.py`.
