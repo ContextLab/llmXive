@@ -9,3 +9,25 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-13T06:46:53.661474Z'
+- artifact_hash: 418f0a57bccaeebbed72917e6d9e4c2fc0d1e1cfe602f4f0d19a8f5a521d32a6
+  artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2606.07591'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-07-14T09:52:35.289246Z'
+- artifact_hash: 7bf3b564eb65af3b666ccd18fb4069df7f844353929a843c82838e9dfeaf49be
+  artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/realKnownCause.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/realKnownCause.csv
+  verified_at: '2026-07-14T10:43:55.878607Z'

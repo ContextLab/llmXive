@@ -1,55 +1,63 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "ResearchClawBench Scoring Rubric",
-  "description": "Defines the logic for scoring Protocol Alignment and Scientific Core. Includes validation for orthogonality and prompt bias.",
+  "title": "ResearchClawBench Rubric Schema",
+  "description": "Defines the scoring logic for Protocol Alignment and Scientific Core metrics.",
   "type": "object",
   "properties": {
-    "version": {
-      "type": "string",
-      "const": "1.0.0"
-    },
     "metrics": {
       "type": "object",
       "properties": {
         "protocol_alignment": {
           "type": "object",
+          "description": "Score (0-50) measuring adherence to procedural steps.",
           "properties": {
-            "name": { "type": "string", "const": "Protocol Alignment" },
-            "range": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
-            "description": { "type": "string" },
-            "scoring_logic": { "type": "string" }
+            "weight": { "type": "number", "default": 1.0 },
+            "criteria": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "step_id": { "type": "string" },
+                  "description": { "type": "string" },
+                  "points": { "type": "integer" }
+                },
+                "required": ["step_id", "description", "points"]
+              }
+            }
           },
-          "required": ["name", "range", "description", "scoring_logic"]
+          "required": ["weight", "criteria"]
         },
         "scientific_core": {
           "type": "object",
+          "description": "Score (0-50) measuring hypothesis quality and reasoning.",
           "properties": {
-            "name": { "type": "string", "const": "Scientific Core" },
-            "range": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
-            "description": { "type": "string" },
-            "scoring_logic": { "type": "string" },
-            "prompt_independence_check": {
-              "type": "string",
-              "description": "Logic to ensure score is not biased by scaffold text presence."
+            "weight": { "type": "number", "default": 1.0 },
+            "criteria": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "criterion_id": { "type": "string" },
+                  "description": { "type": "string" },
+                  "points": { "type": "integer" }
+                },
+                "required": ["criterion_id", "description", "points"]
+              }
             }
           },
-          "required": ["name", "range", "description", "scoring_logic", "prompt_independence_check"]
+          "required": ["weight", "criteria"]
         }
       },
       "required": ["protocol_alignment", "scientific_core"]
     },
-    "validation_tests": {
+    "validation_rules": {
       "type": "object",
+      "description": "Rules for contract testing (FR-008).",
       "properties": {
-        "set_a_expected": { "type": "number" },
-        "set_b_expected": { "type": "number" },
-        "pilot_irr_margin": { "type": "number", "description": "Maximum acceptable IRR for TOST margin validity (default 5)." }
-      },
-      "required": ["set_a_expected", "set_b_expected", "pilot_irr_margin"]
+        "set_a_expected": { "type": "string", "description": "Low score expected (scaffold text but no steps)." },
+        "set_b_expected": { "type": "string", "description": "High score expected (steps but no scaffold text)." }
+      }
     }
   },
-  "required": ["version", "metrics", "validation_tests"]
+  "required": ["metrics", "validation_rules"]
 }
-
-
-## projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/contracts/score_output.schema.yaml

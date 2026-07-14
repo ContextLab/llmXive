@@ -1,30 +1,30 @@
-resolved_at: '2026-07-13T06:47:20.988111+00:00'
+resolved_at: '2026-07-14T09:43:49.055601+00:00'
 datasets:
 - intent: ResearchClawBench
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/69c600dcf6b072bc6deb81c6/899cf9884ab53fe0764ea8909dd3d8b2ab679a9a745d1f4af54bce53e2041920?user_id=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27fig6_data.csv%3B+filename%3D%22fig6_data.csv%22%3B&X-Xet-Cas-Uid=public&Expires=1783928832&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjljNjAwZGNmNmIwNzJiYzZkZWI4MWM2Lzg5OWNmOTg4NGFiNTNmZTA3NjRlYTg5MDlkZDNkOGIyYWI2NzlhOWE3NDVkMWY0YWY1NGJjZTUzZTIwNDE5MjBcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZmlnNl9kYXRhLmNzdiUzQitmaWxlbmFtZSUzRCUyMmZpZzZfZGF0YS5jc3YlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzkyODgzMn19fV19&Signature=MEQCIGxsnN1pr0jpapOA4WQCqlyVMTGa0Qhh5rGIKgGJ~xJeAiALJHY8nQhPjXgJnU2CEmgC9V1CO~rfAl-ScphY6CWUAg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/69c600dcf6b072bc6deb81c6/899cf9884ab53fe0764ea8909dd3d8b2ab679a9a745d1f4af54bce53e2041920?Expires=1784025821&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY5YzYwMGRjZjZiMDcyYmM2ZGViODFjNi84OTljZjk4ODRhYjUzZmUwNzY0ZWE4OTA5ZGQzZDhiMmFiNjc5YTlhNzQ1ZDFmNGFmNTRiY2U1M2UyMDQxOTIwKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDAyNTgyMX19fV19&Signature=MEYCIQCQG-dZOoSzog2LHp8voH0j6zUVi74hTG2ohSvFkgKeHQIhAKLP1mcEMsfATsT3FJwR7-sSCAaXvE-Kvvw1yyqVRgEY&Key-Pair-Id=K3EPXBYC3CKDRZ&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27fig6_data.csv%3B+filename%3D%22fig6_data.csv%22%3B&X-Xet-Cas-Uid=public&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T094341Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f0063955abc8b3eb9eaa2ea6fe9aaf87a0548d4db07251fca5405b59f6f3f5e1
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Multi-Class_Ovarian_Cancer_Subtype_Classification_b_/32972447
+  - url: https://figshare.com/articles/dataset/Matbench_Discovery_-_Model_Predictions_for_Geometry_Optimization/28642406
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Raw_Data_Supporting_Area-Wide_Suppression_of_the_Mediterranean_Fruit_Fly_Ceratitis_capitata_Using_a_Male-Only_Sterile_Insect_Technique_Program_in_Citrus_Orchards_of_Western_T_rkiye/32956388
+  - url: https://figshare.com/articles/dataset/_b_Exploring_the_Therapeutic_Landscape_of_Mugwort_for_Mild_Cognitive_Impairment_A_Network_Pharmacology-Based_Analysis_of_Targets_and_Pathways_b_/32020341
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Surveillance_of_Migratory_Shorebirds_and_Seabirds_in_2024_in_Australia_Reveals_Incursions_of_a_Diversity_of_Low_Pathogenicity_Avian_Influenza_Viruses_but_Not_High_Pathogenicity_Avian_Influenza_H5N1/32972531
+  - url: https://figshare.com/articles/dataset/Yiddish_Positive_Emotions_Lexical_attestations_and_conceptual_mappings/32806058
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.curtin.edu.au/articles/thesis/Relationship_agency_and_vulnerability_Understanding_and_responding_to_violence_against_women_across_the_lifespan/32972498
+  - url: https://tandf.figshare.com/articles/journal_contribution/Incorporating_Species_Sensitivity_Distribution_SSD_Curves_and_the_Comprehensive_Quality_Impact_Index_IICQ_into_the_Risk_Assessment_of_Heavy_Metal_loid_s_Synergistic_Pollution_in_the_Soil-Rice_System_of_a_Selenium-Enriched_Area_in_Northern_A/32982259
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/Digital_Marketing/32972507
+  - url: https://figshare.com/articles/dataset/_b_Data_and_code_for_food-system_trade-attributed_cropland-conversion_carbon_effects_b_/32982275
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

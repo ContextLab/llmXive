@@ -1,27 +1,36 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ResearchClawBench Task Metadata"
-description: "Schema for the filtered task subset used in the experiment."
+title: "ResearchClawBench Task Metadata Schema"
+description: "Defines the structure of task metadata required for filtering and execution."
 type: object
 properties:
   task_id:
     type: string
     description: "Unique identifier for the task."
+  description:
+    type: string
+    description: "The experimental task description."
+  hidden_target_paper:
+    type: string
+    description: "The hidden target paper or reference."
   failure_mode:
     type: string
-    description: "The dominant failure mode detected (e.g., 'experimental protocol mismatch')."
-    enum:
-      - "experimental protocol mismatch"
-      - "retrieval failure"
-      - "reasoning error"
-      - "other"
+    description: "The dominant failure mode (e.g., 'experimental protocol mismatch')."
   domain:
     type: string
-    description: "Scientific domain of the task."
-  template_id:
-    type: string
-    description: "ID of the curated template to inject (if scaffolded)."
+    description: "The scientific domain (e.g., 'chemistry', 'biology')."
+  metadata:
+    type: object
+    description: "Additional task-specific metadata."
+    properties:
+      protocol_constraints:
+        type: array
+        items:
+          type: string
+        description: "List of constraints that must be respected by the scaffold."
 required:
   - task_id
+  - description
   - failure_mode
   - domain
-  - template_id
+additionalProperties: true
+description: "This schema ensures that the dataset contains the 'failure_mode' field required by FR-001 and FR-006."

@@ -1,0 +1,18 @@
+# FR-007: Constraint keywords for conflict detection
+# These keywords are used to validate that an injected scaffold does not contradict
+# the specific constraints of a task (e.g., temperature, pressure, solvent).
+
+keywords:
+  - "temperature"
+  - "pressure"
+  - "pH"
+  - "solvent"
+  - "catalyst"
+  - "reaction_time"
+  - "concentration"
+  - "atmosphere"
+  - "stirring_rate"
+  - "light_exposure"
+
+# If a task metadata contains a keyword that contradicts the template's default value,
+# the system logs a "Scaffold Conflict" warning and excludes the run.

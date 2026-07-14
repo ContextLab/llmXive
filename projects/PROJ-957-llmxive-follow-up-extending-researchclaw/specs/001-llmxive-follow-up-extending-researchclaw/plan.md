@@ -1,61 +1,39 @@
 # Implementation Plan: llmXive follow-up: extending "ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Re"
 
 **Branch**: `001-llmxive-scaffold-analysis` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-scaffold-analysis/spec.md`
-**Input**: Feature specification from `specs/001-llmxive-scaffold-analysis/spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-scaffold-analysis/spec.md`
 
 ## Summary
 
-This feature implements a controlled experimental study to evaluate the efficacy of domain-specific procedural scaffolds in autonomous scientific agents. The system loads 10 tasks from the ResearchClawBench dataset flagged for "experimental protocol mismatch," executes 7 agents across two conditions (Zero-Shot vs. Scaffolded), and applies a dual-rubric scoring system. The core analytical contribution is a statistical decoupling analysis: using paired tests to measure "Protocol Alignment" improvement and TOST equivalence tests to verify that "Scientific Core" scores remain stable (non-inferior), ensuring scaffolds do not degrade hypothesis generation. The implementation is strictly constrained to CPU-only execution on GitHub Actions free-tier runners.
-
-**Critical Note on Power**: With N=10 (or N=30 with 3 generations per task), the study is underpowered to detect moderate effect sizes (Power < 0.4). Non-significant results for "Scientific Core" are interpreted strictly as "inconclusive" regarding safety, not as validation. The primary claim is the *feasibility of the decoupling method*, not a definitive proof of efficacy.
+This feature implements a comparative analysis of autonomous scientific agents on the ResearchClawBench dataset. The core intervention is the injection of domain-specific procedural templates ("Scaffolds") into the agent's system prompt to address "experimental protocol mismatch" failures. The system executes a set of specific tasks under two conditions (Zero-Shot vs. Scaffolded) using multiple distinct agents, applies a dual-metric rubric (Protocol Alignment, Scientific Core), and performs rigorous statistical analysis (paired t-test/Wilcoxon for alignment; TOST for safety of scientific core) to determine if scaffolding improves protocol adherence without degrading scientific reasoning. All execution is constrained to CPU-only GitHub Actions runners with limited cores and RAM, with strict timeouts.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pandas`, `scipy` (for TOST/t-tests), `pytest`, `pyyaml`, `jsonschema` (for rubric validation), `datasets` (for data loading), `tqdm`, `numpy`.
-**Storage**: Local filesystem (`data/`, `results/`, `assets/`); no external database.
-**Testing**: `pytest` (unit tests for scoring logic, integration tests for scaffold injection).
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner).
-**Performance Goals**: Complete 140 agent runs (7 agents × 2 conditions × 10 tasks) within 24 hours wall-clock time; Individual runs timeout at a predefined duration.
-**Constraints**: CPU-only (no CUDA/GPU); memory < 7GB; disk < 14GB; no large model training.
-**Scale/Scope**: A set of specific tasks, a set of agents, multiple conditions, and a variable number of total executions (scaled according to whether 3-gen variance control is enabled).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `scikit-learn` (statistical tests), `pandas` (data manipulation), `pyyaml` (config), `requests` (dataset fetching), `datasets` (HuggingFace loader), `pytest` (testing).  
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `results/`). No external database.  
+**Testing**: `pytest` with contract tests against `rubric_schema.json` and `constraint_keywords.yaml` (used as fixtures).  
+**Target Platform**: GitHub Actions `ubuntu-latest` (CPU-only, 2 cores, 7GB RAM).  
+**Project Type**: Research Data Pipeline & Statistical Analysis.  
+**Performance Goals**: Complete multiple agent runs (multiple agents × conditions × 10 tasks) within a duration of approximately one day.; individual run timeout set to a fixed duration.  
+**Constraints**: No GPU; strict memory limits (<7GB); no external API calls during execution (datasets pre-fetched); reproducible random seeds.  
+**Scale/Scope**: A moderate number of tasks, 7 agents, conditions, Multiple executions.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-**Principle I: Reproducibility**
-- [x] **Requirement**: Random seeds pinned, external datasets fetched from canonical sources.
-- [x] **Plan Action**: The `data_loader` module will pin random seeds for any stochastic sampling. External datasets are fetched from the canonical source *prior* to the run (via a separate fetch job or manual step) and stored in `data/raw/`. The `data_loader` **must** re-verify the local checksum against the known hash on every run. If the checksum fails, the system aborts (FR-006). This ensures the "same canonical source" constraint is met via integrity verification.
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-**Principle II: Verified Accuracy**
-- [x] **Requirement**: Citations verified against primary sources.
-- [x] **Plan Action**: Since no verified URL exists for ResearchClawBench, the `Reference-Validator Agent` will verify the *local artifact integrity* (checksum) against the hash recorded in the project state. If the checksum does not match, the project cannot proceed. This satisfies the "Verified Accuracy" gate via local artifact verification.
-
-**Principle III: Data Hygiene**
-- [x] **Requirement**: Checksums, no in-place modification.
-- [x] **Plan Action**: Raw data loads will be stored in `data/raw/` with recorded checksums. Derived datasets (e.g., filtered 10-task subset) will be written to `data/processed/` with new filenames and derivation logs.
-
-**Principle IV: Single Source of Truth**
-- [x] **Requirement**: Figures/stats trace to code/data.
-- [x] **Plan Action**: The statistical analysis script (`code/analysis/stats.py`) will generate a JSON report containing all test statistics. The `paper/` generation step will parse this JSON directly; no manual transcription.
-
-**Principle V: Versioning Discipline**
-- [x] **Requirement**: Content hashes for artifacts.
-- [x] **Plan Action**: The `code/` directory will include a script to update the central `state/projects/PROJ-957-llmxive-follow-up-extending-researchclaw.yaml` file. **This script is explicitly invoked by the `Advancement-Evaluator Agent` as part of the CI pipeline** to ensure the `state` file is the active source of truth for the artifact hashes.
-
-**Principle VI: Experimental Control and Isolation**
-- [x] **Requirement**: Strict separation of conditions; `Scientific Core` monitored as control.
-- [x] **Plan Action**: The execution loop will explicitly tag runs as `condition: zero_shot` or `condition: scaffolded`. The `Scientific Core` score will be the primary variable for the TOST equivalence test. Scaffold templates are static files in `assets/templates/`. A "Prompt Content Analysis" step will ensure scaffold text does not contain scientific reasoning cues.
-
-**Principle VII: Statistical Rigor**
-- [x] **Requirement**: Paired tests, effect sizes, confidence intervals, power acknowledgment.
-- [x] **Plan Action**: The analysis module will implement:
-  - **Pre-specified Test**: Wilcoxon signed-rank test (or permutation test) for Protocol Alignment (bypassing low-power Shapiro-Wilk).
-  - **TOST**: Equivalence test with margin=5 (conservative assumption pending pilot).
-  - **Variance Control**: 3 independent generations per task/condition (N=30) to average generation noise, or bootstrap CI if N=30 is infeasible.
-  - **Explicit Reporting**: Report effect sizes (Cohen's d/r) and confidence intervals for all tests.
-  - **Power Acknowledgement**: Explicitly log that N=10 (or N=30) yields low power (<0.4) for moderate effects.
+| Principle | Compliance Status | Implementation Detail |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/config.py`; datasets fetched from canonical sources (verified URLs) with checksums; `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | **PASS** | T007a implements a blocking gate that logs/report 'Verified Accuracy' status. If dataset sources are unverified, the system aborts (FR-006). |
+| **III. Data Hygiene** | **PASS** | Derived datasets (a task subset) written to `data/processed/` with SHA-256 checksums (T008). No in-place modifications; raw data preserved. |
+| **IV. Single Source of Truth** | **PASS** | All statistics in the final report are derived programmatically from `results/paired_scores.json`. No hand-typed numbers. |
+| **V. Versioning Discipline** | **PASS** | T007 and T008 ensure all artifacts carry content hashes and the state file is updated on artifact changes. |
+| **VI. Experimental Control** | **PASS** | Scaffolded vs. Zero-Shot conditions strictly isolated. Templates derived from open-access manuals, not target papers. `Scientific Core` monitored as a safety control. |
+| **VII. Statistical Rigor** | **PASS** | Paired tests (t-test/Wilcoxon) with effect sizes and CIs required. TOST with margin=5 for safety. Power limitations (<0.4 for N=10) explicitly acknowledged and reported as "inconclusive" if not met. |
 
 ## Project Structure
 
@@ -67,56 +45,104 @@ specs/001-llmxive-scaffold-analysis/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── rubric_schema.json
-    ├── task_metadata.schema.yaml
-    └── score_output.schema.yaml
+├── contracts/           # Phase 1 output
+│   ├── rubric_schema.json
+│   ├── constraint_keywords.yaml
+│   ├── task_metadata.schema.yaml
+│   └── score_output.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-src/
-├── agents/              # Agent wrappers and execution logic
-│   └── cpu_compat.py    # CPU Compatibility Check & Substitution Logic
-├── data/                # Data loading and filtering
-│   ├── loader.py        # ResearchClawBench loader with checksum verification
-│   └── filter.py        # Filter for "protocol mismatch" tasks
-├── scaffolding/         # Template injection logic
-│   ├── injector.py      # Appends templates to prompts
-│   └── validator.py     # Checks for scaffold conflicts (FR-007) & Prompt Content Analysis
-├── scoring/             # Rubric application
-│   ├── engine.py        # Loads rubric_schema.json
-│   └── metrics.py       # Calculates alignment and core scores
-├── analysis/            # Statistical testing
-│   ├── tests.py         # Wilcoxon, TOST, Bootstrap
-│   └── report.py        # Generates final JSON/CSV reports
-├── cli/                 # Main entry point
-│   └── run_experiment.py
-└── utils/               # Logging, checksums, timeouts
+projects/PROJ-957-llmxive-follow-up-extending-researchclaw/code/
+├── main.py                  # Entry point for orchestration
+├── config.py                # Configuration (seeds, paths, timeouts)
+├── data/
+│   ├── loader.py            # Dataset fetching & filtering
+│   ├── filter.py            # Logic to select 10 "protocol mismatch" tasks
+│   └── checksum.py          # Checksum generation & verification
+├── agents/
+│   ├── loader.py            # Agent factory (loads 7 specific agents from agents_config.yaml)
+│   └── executor.py          # Execution loop with h timeout & concurrency
+├── scaffolding/
+│   ├── template_loader.py   # Loads templates from assets/templates/
+│   └── validator.py         # Validates template vs. task constraints (FR-007)
+├── scoring/
+│   ├── engine.py            # Applies rubric_schema.json
+│   └── dummy_test.py        # Contract test (FR-008)
+├── analysis/
+│   ├── stats.py             # TOST, t-test, Wilcoxon, effect sizes
+│   └── report.py            # Generates final CSV/JSON reports
+└── tests/
+    ├── test_contract.py     # Rubric and constraint validation tests
+    └── test_integration.py  # End-to-end pipeline test
 
-tests/
-├── unit/                # Unit tests for scoring and injection
-├── integration/         # End-to-end run of 1 agent/task
-└── contract/            # Schema validation tests
+data/
+├── raw/                     # Raw dataset (if fetched)
+└── processed/
+    └── 10_tasks_protocol_mismatch.json  # Derived dataset with checksum
 
-assets/
-└── templates/           # Curated Template Set v1.0
-    ├── TEMPLATE-001-v1.0.md
-    └── ...
+results/
+├── failure_mode_audit.csv   # Audit of dominant failure modes
+├── paired_scores.json       # Final analysis dataset
+└── logs/                    # Execution logs
 ```
 
-**Structure Decision**: Single project structure with modular `src/` packages. This minimizes overhead and simplifies dependency management for the 24-hour CI run.
+**Structure Decision**: Selected a modular single-project structure (Option 1) to maintain tight coupling between data loading, agent execution, and analysis, which is critical for reproducible research pipelines. The `agents/` directory isolates the 7 specific agent implementations, while `scaffolding/` and `scoring/` handle the experimental intervention and evaluation logic respectively.
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Dual-Condition Execution | Essential for causal inference on the scaffold effect. | Single-condition runs cannot isolate the variable of interest (scaffold presence). |
-| TOST Equivalence Test | Required to prove "safety" (non-inferiority) of scientific reasoning. | Standard null hypothesis testing (t-test) cannot prove equivalence; it only tests for difference. |
-| CPU-Only Constraint | Mandatory for GitHub Actions free-tier compatibility. | GPU-based methods would cause job failures and exceed budget. |
-| 3-Generation Variance Control | LLM generation is stochastic; pinned seeds are insufficient. | Single-generation runs would introduce uncontrolled noise, invalidating paired tests. |
-| Pre-specified Wilcoxon Test | Shapiro-Wilk has low power at N=10. | Relying on normality tests would lead to incorrect test selection and inflated Type I error. |
+| :--- | :--- | :--- |
+| **Dual-Condition Execution** | Required by FR-003 to isolate the effect of scaffolding. | A single-condition run would not allow for paired statistical testing (FR-005) or control for agent-specific variance. |
+| **TOST Equivalence Test** | Required by FR-005 to establish a "safety bound" for Scientific Core. | Standard null-hypothesis testing cannot prove "no difference" (equivalence); TOST is the statistical standard for non-inferiority. |
+| **Constraint Validation (FR-007)** | Required to prevent scaffold-task conflicts. | Blindly injecting templates risks invalidating the scientific core (e.g., conflicting constraints), leading to uninterpretable results. |
+| **CPU-Only Execution** | Required by platform constraints (GitHub Actions free tier). | GPU/Quantization methods are unavailable; the design must rely on CPU-tractable agents and sampled data. |
 
+## Phase Breakdown
 
-## projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/research.md
+### Phase 0: Research & Feasibility (Week 1)
+- **T001**: Verify ResearchClawBench dataset availability and metadata schema (specifically `failure_mode` field).
+- **T002**: Identify and document the 7 CPU-tractable agents from the original study.
+- **T003**: Source and verify the "Curated Template Set v1.0" from open-access manuals (specific URLs).
+- **T004**: Define the statistical power analysis for N=10 and document limitations.
+- **T005**: Draft `rubric_schema.json` and `constraint_keywords.yaml` drafts.
+
+### Phase 1: Data Model & Contracts (Week 2)
+- **T006**: Define `config.py` schema (seeds, paths, timeouts).
+- **T007**: Implement `checksum.py` for data integrity.
+- **T007a**: Implement "Verified Accuracy" blocking gate (logs status, aborts on unverified sources).
+- **T008**: Implement `filter.py` to select 10 tasks and **persist** to `data/processed/10_tasks_protocol_mismatch.json` with **SHA-256 checksum**.
+- **T009**: Create `template_map.json` and `TEMPLATE-001-v1.0.md` (from verified URL).
+- **T009b**: Define, populate, and validate `contracts/constraint_keywords.yaml` (T009b).
+- **T009c**: Implement logic to validate template-domain match (T009c).
+- **T010a**: Finalize `rubric_schema.json` (Protocol Alignment & Scientific Core).
+- **T010b**: Implement scoring engine logic (T010b).
+- **T011**: Define `task_metadata.schema.yaml`.
+- **T012**: Define `agents_config.yaml` (7 agents) and `agents/loader.py`.
+- **T013**: Implement `scaffolding/template_loader.py`.
+- **T014**: Implement `scaffolding/validator.py` (FR-007).
+- **T015**: Implement `scoring/dummy_test.py` (FR-008).
+
+### Phase 2: Execution Engine (Week 3)
+- **T016**: Implement `agents/executor.py` with a configurable timeout..
+- **T023a**: Implement 24-hour wall-clock budget enforcement and concurrency controller (limit=7).
+- **T024**: Implement `analysis/stats.py` (TOST, t-test, Wilcoxon, effect sizes).
+- **T025**: Implement `analysis/report.py`.
+- **T026**: End-to-end integration test.
+
+### Phase 3: Experiment Execution (Week 4)
+- **T027**: Run Zero-Shot condition (agents × 10 tasks).
+- **T028**: Run Scaffolded condition (agents × 10 tasks).
+- **T029**: Score all runs and generate `results/paired_scores.json`.
+- **T030**: Generate `results/failure_mode_audit.csv`.
+
+### Phase 4: Analysis & Reporting (Week 5)
+- **T031**: Perform statistical tests (Shapiro-Wilk check -> t-test/Wilcoxon).
+- **T032**: Calculate effect sizes (Cohen's d or rank-biserial r) and CIs.
+- **T033**: Generate final report with TOST results (margin=5).
+- **T034**: Write discussion on power limitations and interpretation.

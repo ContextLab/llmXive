@@ -2,66 +2,109 @@
 
 ## Overview
 
-This document defines the data structures used for task selection, execution logging, scoring, and statistical analysis. All data is stored in local files (CSV, JSON, YAML) to ensure reproducibility and compliance with the "Single Source of Truth" principle.
+This document defines the data structures, schemas, and persistence strategy for the project. All data is stored in JSON/CSV formats with strict checksumming for reproducibility.
 
-## Key Entities
+## Entities
 
-### 1. Task Instance
-Represents a single task from ResearchClawBench.
-- **Fields**: `task_id`, `description`, `target_paper`, `failure_mode`, `domain`, `template_id`.
-- **Source**: Filtered subset of ResearchClawBench.
+### Task Instance
+A specific experimental task from ResearchClawBench.
+- **Fields**: `task_id`, `description`, `hidden_target_paper`, `failure_mode`, `domain`, `metadata`.
+- **Source**: ResearchClawBench dataset.
 
-### 2. Execution Log
-Records the outcome of a single agent run.
-- **Fields**: `run_id`, `task_id`, `agent_id`, `condition` (zero_shot/scaffolded), `generation_id` (1-3), `status` (success/timeout/conflict), `start_time`, `end_time`, `output_path`.
-- **Derived**: Scores are not stored here; they are computed separately.
+### Protocol Scaffold
+A static, domain-specific procedural template.
+- **Fields**: `template_id`, `version`, `content_path`, `constraint_keywords`.
+- **Source**: `assets/templates/`.
 
-### 3. Score Pair
-Aggregated scores for a specific task/agent/condition pair (averaged over generations).
-- **Fields**: `task_id`, `agent_id`, `condition`, `protocol_alignment_score`, `scientific_core_score`, `rubric_version`, `n_generations`.
-- **Constraint**: `protocol_alignment_score` ∈ [0, 50].
+### Execution Log
+The complete trace of an agent's interaction.
+- **Fields**: `run_id`, `task_id`, `agent_id`, `condition` (Zero-Shot/Scaffolded), `start_time`, `end_time`, `status` (Success/Timeout/Error), `output_text`, `prompt_snapshot`.
+- **Storage**: `results/logs/`.
 
-### 4. Statistical Report
-Final output of the analysis module.
-- **Fields**: `metric_name`, `test_type`, `p_value`, `effect_size`, `ci_lower`, `ci_upper`, `equivalence_margin`, `equivalence_status` (safe/inconclusive), `n_samples`, `power_estimate`.
+### Score Pair
+Linked scores for a single task instance under both conditions.
+- **Fields**: `task_id`, `zero_shot_protocol`, `zero_shot_core`, `scaffolded_protocol`, `scaffolded_core`, `diff_protocol`, `diff_core`.
+- **Storage**: `results/paired_scores.json`.
+
+### Constraint Keywords
+A list of keywords used to detect scaffold-task conflicts.
+- **Fields**: `keywords` (list of strings).
+- **Source**: `contracts/constraint_keywords.yaml`.
 
 ## File Formats
 
-### `data/raw/researchclaw_full.json`
-Raw dataset dump (if available) or placeholder for loader.
+### Input: Dataset Subset (`data/processed/10_tasks_protocol_mismatch.json`)
+```json
+[
+  {
+    "task_id": "RCB-001",
+    "description": "...",
+    "failure_mode": "experimental protocol mismatch",
+    "domain": "chemistry"
+  },
+  ...
+]
+```
 
-### `data/processed/selected_tasks.csv`
-A set of tasks selected for the experiment.
-- Columns: `task_id`, `failure_mode`, `domain`, `template_id`.
+### Input: Rubric Schema (`contracts/rubric_schema.json`)
+See `contracts/rubric_schema.json` for the full schema.
 
-### `results/execution_logs.csv`
-Log of all runs (up to 420).
-- Columns: `run_id`, `task_id`, `agent_id`, `condition`, `generation_id`, `status`, `duration_seconds`.
+### Input: Constraint Keywords (`contracts/constraint_keywords.yaml`)
+```yaml
+# FR-007: Constraint keywords for conflict detection
+keywords:
+  - "temperature"
+  - "pressure"
+  - "pH"
+  - "solvent"
+  - "catalyst"
+  - "reaction_time"
+  - "concentration"
+  - "atmosphere"
+  - "stirring_rate"
+  - "light_exposure"
+```
 
-### `results/scores.csv`
-Aggregated scores (averaged over generations).
-- Columns: `task_id`, `agent_id`, `condition`, `protocol_alignment`, `scientific_core`, `n_generations`.
+### Output: Execution Log (`results/logs/run_{run_id}.json`)
+```json
+{
+  "run_id": "uuid-1234",
+  "task_id": "RCB-001",
+  "agent_id": "agent-7",
+  "condition": "Scaffolded",
+  "start_time": "2026-07-12T10:00:00Z",
+  "end_time": "2026-07-12T11:30:00Z",
+  "status": "Success",
+  "output_text": "...",
+  "prompt_snapshot": "..."
+}
+```
 
-### `results/stats_report.json`
-Final statistical findings.
-- JSON structure containing test results for both metrics.
+### Output: Paired Scores (`results/paired_scores.json`)
+```json
+[
+  {
+    "task_id": "RCB-001",
+    "zero_shot_protocol": 25,
+    "zero_shot_core": 40,
+    "scaffolded_protocol": 45,
+    "scaffolded_core": 38,
+    "diff_protocol": 20,
+    "diff_core": -2
+  },
+  ...
+]
+```
 
-### `results/failure_mode_audit.csv`
-(Generated if needed)
-- Columns: `task_id`, `detected_mode`, `expected_mode`.
+### Output: Failure Mode Audit (`results/failure_mode_audit.csv`)
+```csv
+task_id,dominant_failure_mode,expected_mode,match
+RCB-001,experimental protocol mismatch,experimental protocol mismatch,true
+RCB-002,retrieval_failure,experimental protocol mismatch,false
+```
 
-### `results/pilot_irr.json`
-(Generated by Rubric Orthogonality Validation)
-- Fields: `metric_name`, `irr_score`, `standard_error`, `margin_validity` (true/false).
-
-## Data Flow
-
-1. **Load**: `loader.py` reads ResearchClawBench and verifies checksum.
-2. **Filter**: `filter.py` selects 10 tasks with "protocol mismatch".
-3. **Validate**: `scoring/validate_rubric.py` runs Pilot IRR and Prompt Content Analysis.
-4. **Execute**: `run_experiment.py` generates logs (Multiple generations per task/condition).
-5. **Score**: `scoring/engine.py` reads logs and rubric, writes `scores.csv`.
-6. **Analyze**: `analysis/tests.py` reads `scores.csv`, writes `stats_report.json`.
-
-
-## projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/quickstart.md
+## Checksum & Versioning
+- **Raw Data**: `data/raw/` files are checksummed on fetch.
+- **Derived Data**: `data/processed/` files are checksummed on creation (T008).
+- **State File**: `state/projects/PROJ-957-.../artifact_hashes` maps file paths to SHA-256 hashes.
+- **Reproducibility**: Any change to input data invalidates downstream results; state file is updated.

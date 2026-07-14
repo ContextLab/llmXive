@@ -67,7 +67,7 @@ The system must perform a Two One-Sided Tests (TOST) equivalence test on the "Sc
 
 - **FR-001**: System MUST load exactly 10 tasks from the ResearchClawBench dataset that are pre-flagged for "experimental protocol mismatch" and retrieve the corresponding domain-specific protocol template from the fixed "Curated Template Set v1.0" (stored in `assets/templates/`) for each. (See US-1)
 - **FR-002**: System MUST append the retrieved protocol template to the system prompt of the agent without modifying the original task description or hidden target paper content. (See US-1)
-- **FR-003**: System MUST execute all autonomous agents from the original study on both the original Zero-Shot tasks and the new Scaffolded tasks (totaling execution runs across all agents, conditions, and tasks) with a strict 6-hour timeout per run, utilizing a concurrency limit of 7, within a total wall-clock time budget of 24 hours on a GitHub Actions `ubuntu-latest` runner (2-core, 7GB RAM). (See US-2)
+- **FR-003**: System MUST execute all autonomous agents from the original study on both the original Zero-Shot tasks and the new Scaffolded tasks (totaling execution runs across all agents, conditions, and tasks) with a strict time limit per run, utilizing a concurrency limit of, within a total wall-clock time budget of 24 hours on a GitHub Actions `ubuntu-latest` runner (2-core, 7GB RAM). (See US-2)
 - **FR-004**: System MUST load the scoring logic from `rubric_schema.json` and apply it to extract "Protocol Alignment" (0-50) and "Scientific Core" sub-scores for every completed run in both conditions. (See US-2)
 - **FR-005**: System MUST perform a paired statistical test (t-test or Wilcoxon signed-rank) on the "Protocol Alignment" scores and perform a Two One-Sided Tests (TOST) equivalence test with an equivalence margin of 5 points on the "Scientific Core" scores to establish a safety bound. (See US-3)
 - **FR-006**: System MUST abort the experiment, log a critical error to `stderr`, and exit with code 1 if the ResearchClawBench dataset lacks the specific "protocol mismatch" metadata required to select the 10 tasks. (See US-1)
@@ -99,7 +99,7 @@ The system must perform a Two One-Sided Tests (TOST) equivalence test on the "Sc
 ## Assumptions
 
 - The ResearchClawBench dataset (arXiv:2606.07591) contains a metadata field or error log that explicitly identifies "experimental protocol mismatch" as the dominant failure mode for at least 10 tasks.
-- The seven autonomous agents from the original study can be instantiated and executed on a GitHub Actions `ubuntu-latest` runner (multi-core, standard RAM) without requiring GPU acceleration or 8-bit quantization.
+- The seven autonomous agents from the original study can be instantiated and executed on a GitHub Actions `ubuntu-latest` runner (multi-core, standard RAM) without requiring GPU acceleration or extreme quantization.
 - The domain-specific protocol templates are static, curated artifacts from open-access laboratory manuals, stored in `assets/templates/`, and do not require generation at runtime.
 - The "Scientific Core" rubric, as defined in `rubric_schema.json`, is robust enough to score both Zero-Shot and Scaffolded outputs without penalizing the presence of the scaffold text (validated by FR-008).
 - The statistical power of the test is low (<0.4) with N=10 paired observations for detecting moderate effect sizes; therefore, non-significant results for "Scientific Core" are interpreted as "inconclusive" or a "safety bound" rather than a definitive validation of independence.
