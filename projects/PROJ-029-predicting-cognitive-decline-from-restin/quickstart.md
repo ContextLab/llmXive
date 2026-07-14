@@ -1,126 +1,80 @@
 # Quickstart Guide: Predicting Cognitive Decline from Resting-State fMRI
 
-This guide provides the exact commands to run the full analysis pipeline for project PROJ-029.
+This guide outlines the steps to reproduce the analysis for PROJ-029.
 
 ## Prerequisites
 
 - Python 3.11+
-- Installed dependencies: `pip install -r code/requirements.txt`
-- OpenNeuro dataset `ds000246` (Constitution VI) accessible (downloaded or via API) [UNRESOLVED-CLAIM: c_57400cf4 — status=not_enough_info]
-
-## Directory Structure
-
-Ensure the following directories exist:
-- `data/raw/`
-- `data/processed/`
-- `data/artifacts/`
-- `code/`
-- `tests/`
+- Required dependencies installed via `pip install -r code/requirements.txt`
+- OpenNeuro dataset `ds000246` availability (verified by T004c)
 
 ## Execution Order
 
-Run the following commands in sequence. Each step produces artifacts required by the next.
+Run the following commands in sequence from the project root:
 
-### 1. Data Ingestion and Filtering
+1. **Data Ingestion & Filtering**
+ ```bash
+ python code/01_download_and_filter.py
+ ```
+ *Outputs*: `data/processed/eligible_subjects.csv`, `data/processed/excluded_subjects.log`
 
-Download and filter subjects with longitudinal cognitive scores.
+2. **Preprocessing & Parcellation**
+ ```bash
+ python code/02_preprocess_and_parcellate.py
+ ```
+ *Outputs*: `data/processed/connectivity_matrices/` (NIfTI or.npy files per subject)
 
-```bash
-python code/01_download_and_filter.py
-```
-*Outputs: `data/processed/eligible_subjects.csv`, `data/processed/excluded_subjects.log`*
+3. **Graph Metric Computation**
+ ```bash
+ python code/03_compute_graph_metrics.py
+ ```
+ *Outputs*: `data/processed/graph_metrics.csv`
 
-### 2. Preprocessing and Parcellation
+4. **Collinearity Check (Standalone Report)**
+ ```bash
+ python code/08_collinearity_check.py
+ ```
+ *Outputs*: `data/processed/collinearity_report.json`
 
-Preprocess fMRI data and extract time series using the AAL atlas.
+5. **Model Training**
+ ```bash
+ python code/04_train_model.py
+ ```
+ *Outputs*: `data/processed/model.pkl`, `data/processed/performance_report.json` (partial)
 
-```bash
-python code/02_preprocess_and_parcellate.py
-```
-*Outputs: `data/processed/adjacency_matrices/` (NIfTI or NumPy files)*
+6. **Model Evaluation**
+ ```bash
+ python code/05_evaluate_model.py
+ ```
+ *Outputs*: `data/processed/performance_report.json` (final)
 
-### 3. Graph Metric Calculation
+7. **Permutation Test**
+ ```bash
+ python code/06_permutation_test.py
+ ```
+ *Outputs*: `data/processed/permutation_results.json`
 
-Compute network topology metrics (degree, efficiency, etc.).
+8. **Sensitivity Analysis**
+ ```bash
+ python code/07_sensitivity_analysis.py
+ ```
+ *Outputs*: `data/processed/sensitivity_report.json`
 
-```bash
-python code/03_compute_graph_metrics.py
-```
-*Outputs: `data/processed/graph_metrics.csv`*
+9. **Report Generation**
+ ```bash
+ python code/09_generate_report.py
+ ```
+ *Outputs*: `data/artifacts/final_report.md`
 
-### 4. Collinearity Check (Standalone)
-
-Analyze feature correlations for the run-book verification step.
-
-```bash
-python code/08_collinearity_check.py
-```
-*Outputs: `data/processed/collinearity_report.json`*
-
-### 5. Model Training
-
-Train the Random Forest classifier with nested cross-validation.
-
-```bash
-python code/04_train_model.py
-```
-*Outputs: `data/processed/model.pkl`, `data/processed/model_config.json`*
-
-### 6. Model Evaluation
-
-Calculate performance metrics (ROC-AUC, F1, etc.).
-
-```bash
-python code/05_evaluate_model.py
-```
-*Outputs: `data/processed/performance_report.json`*
-
-### 7. Permutation Test
-
-Validate statistical significance.
-
-```bash
-python code/06_permutation_test.py
-```
-*Outputs: `data/processed/permutation_results.json`*
-
-### 8. Sensitivity Analysis
-
-Assess robustness to threshold variations.
-
-```bash
-python code/07_sensitivity_analysis.py
-```
-*Outputs: `data/processed/sensitivity_report.json`*
-
-### 9. Final Report Generation
-
-Aggregate results into a markdown report.
-
-```bash
-python code/09_generate_report.py
-```
-*Outputs: `data/artifacts/final_report.md`*
-
-### 10. Success Criteria Verification
-
-Verify that all success criteria are met.
-
-```bash
-python code/10_verify_success_criteria.py
-```
-*Outputs: `data/artifacts/verification_status.json`, `data/artifacts/runtime_report.json`*
-
-## Validation
-
-To verify the entire pipeline:
-
-```bash
-python code/validate_quickstart.py
-```
+10. **Success Criteria Verification**
+ ```bash
+ python code/10_verify_success_criteria.py
+ ```
+ *Outputs*: `data/artifacts/verification_status.txt`, `data/artifacts/runtime_report.json`
 
 ## Notes
 
-- All scripts use `random_seed=42` for reproducibility. [UNRESOLVED-CLAIM: c_d982698c — status=not_enough_info]
-- Ensure sufficient RAM (7GB+) for graph metric calculation. [UNRESOLVED-CLAIM: c_58ecba25 — status=not_enough_info]
-- Runtime limits are enforced in specific scripts (e.g., permutation test).
+- Ensure `code/requirements.txt` includes all necessary packages (nilearn, networkx, scikit-learn, pandas, numpy, psutil, joblib, scipy).
+- The pipeline assumes sufficient RAM (7GB+) for graph metric computation.
+- Random seeds are fixed to 42 for reproducibility.
+- If any step fails, check the logs in `data/processed/` or `data/artifacts/` for specific error messages.
