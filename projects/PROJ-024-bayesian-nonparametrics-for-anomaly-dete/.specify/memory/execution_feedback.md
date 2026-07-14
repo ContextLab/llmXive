@@ -13,13 +13,13 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”
 - code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…())                  # Return placeholder result         return EvaluationResu…”
 - code/scripts/verify_confusion_matrix.py: metric `y_scores` assigned from an RNG draw (line 50)
+- code/src/data/synthetic_generator.py: metric `duration` assigned from an RNG draw (line 196)
+- code/src/data/synthetic_generator.py: metric `duration` assigned from an RNG draw (line 242)
 - code/src/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363)
-- code/src/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348)
-- code/src/services/threshold_calibrator.py: metric `normal_scores` assigned from an RNG draw (line 418)
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 84 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 6 command(s) failed: python code/src/config.py --check (rc=1); python code/src/data/download_datasets.py (rc=1); python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 (rc=1); 1 declared deliverable(s) absent: data/processed/results/simulation_snr.csv
+**Summary**: 90 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 6 command(s) failed: python code/src/config.py --check (rc=1); python code/src/data/download_datasets.py (rc=1); python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 (rc=1); 1 declared deliverable(s) absent: data/processed/results/simulation_snr.csv
 
 ## Failing / missing run-book commands
 
@@ -28,72 +28,60 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Configuration Check
 ============================================================
 ✓ Configuration file exists: /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/config.yaml
-  Current size: 652 bytes (limit: 2048 bytes)
+  Current size: 653 bytes (limit: 2048 bytes)
 ✓ Configuration file size is within limits
 ERROR: Missing required key: base_paths
 ❌ FAIL: Configuration structure validation failed
 - python code/src/data/download_datasets.py -> rc=1
-    ic.csv: module 'urllib.request' has no attribute 'report_hook'
-2026-07-14 06:44:48,823 - ERROR -   ✗ traffic: Download failed
-2026-07-14 06:44:48,823 - INFO - Processing dataset: synthetic_control_chart
-2026-07-14 06:44:48,840 - INFO - Downloading from https://archive.ics.uci.edu/ml/machine-learning-databases/00258/synthetic_control.data to /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/data/raw/synthetic_control.csv
-2026-07-14 06:44:48,840 - ERROR - Unexpected error downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00258/synthetic_control.data: module 'urllib.request' has no attribute 'report_hook'
-2026-07-14 06:44:48,841 - ERROR -   ✗ synthetic_control_chart: Download failed
-2026-07-14 06:44:48,841 - INFO - ======================================================================
-2026-07-14 06:44:48,841 - INFO - Download Summary: 0/3 datasets successful
-2026-07-14 06:44:48,841 - INFO - ======================================================================
-2026-07-14 06:44:48,841 - INFO - 
-Verifying integrity of downloaded datasets...
-2026-07-14 06:44:48,841 - ERROR - 
+    2026-07-14 12:03:54,630 - INFO - Downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt to data/raw/electricity_load.csv
+2026-07-14 12:03:55,435 - ERROR - Download failed: HTTP Error 404: Not Found
+2026-07-14 12:03:55,452 - INFO - Downloading https://pems.dot.ca.gov/data/traffic_data.csv to data/raw/traffic_data.csv
+2026-07-14 12:03:55,719 - ERROR - Download failed: HTTP Error 404: Not Found
+2026-07-14 12:03:55,736 - INFO - Downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00258/synthetic_control.data to data/raw/synthetic_control.csv
+2026-07-14 12:03:56,022 - ERROR - Download failed: HTTP Error 404: Not Found
+2026-07-14 12:03:56,022 - INFO - Download Summary: 0/3 datasets successful
+2026-07-14 12:03:56,022 - ERROR - 
 ✗ Some datasets failed download or verification.
 - python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 -> rc=1
-    s/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/data/synthetic_generator.py", line 240, in save_synthetic_dataset
-    json.dump({
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/__init__.py", line 179, in dump
-    for chunk in iterable:
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 432, in _iterencode
-    yield from _iterencode_dict(o, _current_indent_level)
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
-    yield from chunks
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
-    yield from chunks
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 326, in _iterencode_list
-    yield from chunks
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 439, in _iterencode
-    o = _default(o)
-        ^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/json/encoder.py", line 180, in default
-    raise TypeError(f'Object of type {o.__class__.__name__} '
-TypeError: Object of type int64 is not JSON serializable
+    /code/src/data/synthetic_generator.py", line 490, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/data/synthetic_generator.py", line 480, in main
+    dataset = generate_synthetic_timeseries(signal_config, anomaly_config, args.length)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/data/synthetic_generator.py", line 296, in generate_synthetic_timeseries
+    values, ground_truth = inject_collective_anomalies(values, anomaly_config, ground_truth)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/data/synthetic_generator.py", line 242, in inject_collective_anomalies
+    duration = np.random.randint(config.anomaly_duration_min * 2, config.anomaly_duration_max * 2 + 1)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'AnomalyConfig' object has no attribute 'anomaly_duration_min'
 - python code/src/services/anomaly_detector.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 28, in <module>
-    from models.dp_gmm import DPGMMModel, DPGMMConfig
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/dp_gmm.py", line 21, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 24, in <module>
     from models.anomaly_score import AnomalyScore
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/anomaly_score.py", line 8, in <module>
-    class AnomalyScore:
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/models/anomaly_score.py", line 27, in AnomalyScore
-    component_assignments: Optional[List[int]] = field(default=None)
-                                    ^^^^
-NameError: name 'List' is not defined. Did you mean: 'list'?
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/models/__init__.py", line 5, in <module>
+    from .dp_gmm import DPGMMConfig, DPGMMModel, ELBOHistory, ClusterAnomalyResult, main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/models/dp_gmm.py", line 125, in <module>
+    import _winapi
+ModuleNotFoundError: No module named '_winapi'
 - python code/src/evaluation/simulation.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/simulation.py", line 33, in <module>
-    from models.dpgmm import DPGMMModel, DPGMMConfig
-ModuleNotFoundError: No module named 'models.dpgmm'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/simulation.py", line 27, in <module>
+    from src.models.dpgmm import DPGMMModel, DPGMMConfig
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/models/__init__.py", line 5, in <module>
+    from .dp_gmm import DPGMMConfig, DPGMMModel, ELBOHistory, ClusterAnomalyResult, main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/models/dp_gmm.py", line 125, in <module>
+    import _winapi
+ModuleNotFoundError: No module named '_winapi'
 - python code/src/evaluation/robustness.py --subset-size 50 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/robustness.py", line 32, in <module>
-    from ..data.windowing import sliding_window
-ImportError: attempted relative import with no known parent package
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/robustness.py", line 37, in <module>
-    from code.src.data.windowing import sliding_window
-ModuleNotFoundError: No module named 'code.src.data.windowing'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/robustness.py", line 36, in <module>
+    from src.models.dpgmm import DPGMMModel, DPGMMConfig
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/models/__init__.py", line 5, in <module>
+    from .dp_gmm import DPGMMConfig, DPGMMModel, ELBOHistory, ClusterAnomalyResult, main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/models/dp_gmm.py", line 125, in <module>
+    import _winapi
+ModuleNotFoundError: No module named '_winapi'
 
 ## Declared deliverables still missing
 
@@ -106,6 +94,24 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 **CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
+
+### class `AnomalyConfig` (in `code/src/data/synthetic_generator.py`) — accessed via method/attribute names this round: `anomaly_duration_min`
+
+`AnomalyConfig` is used like a logger: different scripts call DIFFERENT method names on it, and the set grows every round. Adding only the name(s) above will fail next round on the NEXT name. Make the class tolerant of ANY method name **without removing the ones it already has**, by either:
+  1. defining the full method set explicitly (keep existing methods like the ones already in `code/src/data/synthetic_generator.py` AND add the missing ones), or
+  2. adding a permissive fallback so unknown attributes resolve to a no-op callable, e.g.:
+
+     ```python
+     def __getattr__(self, name):
+         # any logger-style call (.info/.debug/.warning/.error/...) becomes a tolerant no-op
+         def _noop(*args, **kwargs):
+             return None
+         return _noop
+     ```
+
+Whichever you choose, every call site of `AnomalyConfig` across the codebase must stop raising `AttributeError`/`TypeError`.
+
+`AnomalyConfig.anomaly_duration_min` call sites (0):
 
 ### class `SignalConfig` (in `code/src/data/synthetic_generator.py`) — accessed via method/attribute names this round: `__init__`
 

@@ -12,3 +12,4 @@ requests>=2.28.0
 _  # auto-added: imported by run-book but missing from venv
 pytest  # auto-added: imported by run-book but missing from venv
 torch  # auto-added: imported by run-book but missing from venv
+pytensor  # auto-added: imported by run-book but missing from venv

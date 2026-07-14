@@ -2,5 +2,9 @@
   {
     "symbol": "__init__",
     "owner": "SignalConfig"
+  },
+  {
+    "symbol": "anomaly_duration_min",
+    "owner": "AnomalyConfig"
   }
 ]
