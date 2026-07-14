@@ -1,3 +1,3 @@
 """
-Utility functions for HEA yield strength prediction.
+Utility modules for logging, configuration, and unit conversion.
 """

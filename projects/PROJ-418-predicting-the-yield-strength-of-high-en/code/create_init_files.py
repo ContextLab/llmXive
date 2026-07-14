@@ -6,31 +6,33 @@ def create_init_files():
     Creates __init__.py files in all code/ and tests/ subdirectories
     to ensure they are recognized as Python packages.
     """
-    # Define the directories that need __init__.py files
-    # Based on the project structure: code/, code/data, code/utils, code/models, tests/
-    init_paths = [
-        "code",
-        "code/data",
-        "code/utils",
-        "code/models",
-        "tests"
-    ]
+    # Define the root directories to scan
+    root_dirs = ['code', 'tests']
+    
+    # Directories that should NOT have __init__.py (data storage, output)
+    skip_dirs = {
+        'data/raw', 'data/processed', 'output', 'output/plots',
+        'data/raw/*', 'data/processed/*', 'output/*', 'output/plots/*'
+    }
 
-    for path in init_paths:
-        init_file_path = os.path.join(path, "__init__.py")
-        if not os.path.exists(init_file_path):
-            try:
-                with open(init_file_path, "w") as f:
-                    f.write('"""\n'
-                            f'{path.replace("/", " ").replace("_", " ").title()} Module\n'
-                            f'"""\n')
-                print(f"Created: {init_file_path}")
-            except Exception as e:
-                print(f"Error creating {init_file_path}: {e}")
-        else:
-            print(f"Exists: {init_file_path}")
+    for root_dir in root_dirs:
+        if not os.path.exists(root_dir):
+            print(f"Warning: Directory {root_dir} does not exist. Skipping.")
+            continue
 
-    print("Initialization files creation complete.")
+        for dirpath, dirnames, filenames in os.walk(root_dir):
+            # Create __init__.py in the current directory if it doesn't exist
+            init_path = os.path.join(dirpath, '__init__.py')
+            if not os.path.exists(init_path):
+                with open(init_path, 'w') as f:
+                    f.write('"""\n')
+                    f.write(f'{dirpath} module.\n')
+                    f.write('"""\n')
+                print(f"Created: {init_path}")
+            else:
+                print(f"Exists: {init_path}")
+
+    print("Initialization complete.")
 
 if __name__ == "__main__":
     create_init_files()

@@ -1,140 +1,124 @@
-$schema: http://json-schema.org/draft-07/schema#
+%YAML 1.2
+---
 title: Meta-Analysis Result Schema
-description: >
-  Defines the structure for the aggregated results of the meta-analysis.
-  Supports both quantitative synthesis (random/fixed effects) and qualitative narrative fallback.
+description: Schema for the aggregated results of the meta-analysis pipeline.
 type: object
 required:
   - analysis_id
   - timestamp
   - synthesis_mode
   - study_count
+  - results
 properties:
   analysis_id:
     type: string
     description: Unique identifier for this analysis run.
-    pattern: "^[a-z0-9]{32}$"
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of the analysis execution.
+    description: ISO 8601 timestamp when analysis was completed.
   synthesis_mode:
     type: string
     enum:
       - quantitative
       - narrative
-      - null_result
-    description: The mode of synthesis used based on study count and data quality.
+      - empty
+    description: Mode of synthesis based on study count.
   study_count:
     type: integer
-    description: Total number of eligible studies included in the analysis.
+    description: Number of eligible studies included in the analysis.
     minimum: 0
-  quantitative_results:
+  results:
     type: object
-    description: Results if synthesis_mode is 'quantitative'. Null if narrative.
-    nullable: true
-    required:
-      - model_type
-      - weighted_mean_r
-      - confidence_interval
-      - heterogeneity
-    properties:
-      model_type:
-        type: string
-        enum:
-          - random_effects
-          - fixed_effects
-        description: Type of meta-analysis model used.
-      weighted_mean_r:
-        type: number
-        description: Pooled effect size (weighted mean correlation).
-      confidence_interval:
-        type: object
-        properties:
-          lower:
-            type: number
-          upper:
-            type: number
+    description: Results container based on synthesis mode.
+    oneOf:
+      - title: Quantitative Results
         required:
-          - lower
-          - upper
-      heterogeneity:
-        type: object
-        description: I² and Tau² statistics.
+          - weighted_mean_r
+          - confidence_interval
+          - i_squared
+          - heterogeneity_p_value
+          - egger_test
         properties:
+          weighted_mean_r:
+            type: number
+            description: Pooled effect size (random-effects model).
+          confidence_interval:
+            type: object
+            required:
+              - lower
+              - upper
+            properties:
+              lower:
+                type: number
+              upper:
+                type: number
           i_squared:
             type: number
-            description: I² statistic (percentage of variation due to heterogeneity).
-          tau_squared:
+            description: Heterogeneity statistic (I²) with two decimal places.
+            minimum: 0.0
+            maximum: 100.0
+          heterogeneity_p_value:
             type: number
-            description: Estimated variance of true effects.
-          q_statistic:
+            description: P-value for Q-test of heterogeneity.
+          egger_test:
+            type: object
+            description: Egger's regression test results.
+            required:
+              - intercept
+              - p_value
+            properties:
+              intercept:
+                type: number
+              p_value:
+                type: number
+                description: P-value for Egger's test.
+          correction_method:
+            type: string
+            description: Method used for multiple comparison correction (e.g., Bonferroni).
+          adjusted_threshold:
             type: number
-            description: Cochran's Q statistic.
-          p_value_q:
-            type: number
-            description: P-value for Cochran's Q test.
-      bias_assessment:
-        type: object
-        description: Results of Egger's regression test.
-        nullable: true
+            description: Adjusted significance threshold if correction applied.
+          limitations:
+            type: string
+            description: Notes on limitations (e.g., Bonferroni conservatism).
+      - title: Narrative Results
+        required:
+          - narrative_summary
         properties:
-          egger_intercept:
-            type: number
-          egger_p_value:
-            type: number
+          narrative_summary:
+            type: object
+            required:
+              - overview
+              - themes
+              - limitations
+            properties:
+              overview:
+                type: string
+              themes:
+                type: array
+                items:
+                  type: string
+              limitations:
+                type: string
           egger_skipped_reason:
             type: string
-            description: Present if test was skipped due to low N.
-      correction:
-        type: object
-        description: Multiple comparison correction details.
-        nullable: true
+            description: Reason for skipping Egger's test if N < 10.
+      - title: Empty Results
+        required:
+          - message
         properties:
-          method:
+          message:
             type: string
-            enum:
-              - bonferroni
-              - none
-          adjusted_alpha:
-            type: number
-            description: Adjusted significance threshold.
-  narrative_results:
-    type: object
-    description: Results if synthesis_mode is 'narrative'. Null if quantitative.
-    nullable: true
-    required:
-      - overview
-      - themes
-      - limitations
-    properties:
-      overview:
-        type: string
-        description: Structured study overview text.
-      themes:
-        type: array
-        description: List of identified qualitative themes.
-        items:
-          type: object
-          properties:
-            theme_name:
-              type: string
-            description:
-              type: string
-            supporting_studies:
-              type: array
-              items:
-                type: string
-      limitations:
-        type: string
-        description: Structured limitations text.
+            description: Message indicating no studies were found.
   metadata:
     type: object
+    description: Additional metadata about the run.
     properties:
       config_hash:
         type: string
-        description: Hash of the configuration used for reproducibility.
-      input_file_checksum:
-        type: string
-        description: MD5/SHA256 of the input data file.
+      input_files:
+        type: array
+        items:
+          type: string
 additionalProperties: false

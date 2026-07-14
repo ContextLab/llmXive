@@ -55,9 +55,9 @@
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement pipeline orchestrator in `code/data/pipeline.py` to define the sequence: download -> preprocess (filter) -> normalize -> descriptors -> filter_missing. **Depends on T005, T006, T007**.
-- [~] T008 [P] [US1] Implement data downloader in `code/data/download.py` to fetch from `research.verified_datasets['hea_compositions']` in `research.md`. If no verified URL exists, the system MUST terminate immediately with error code `DATA_SOURCE_MISSING` and log the specific missing requirement. **DO NOT** attempt fallback public search or local file loading. **Depends on T005, T007**.
-- [~] T009 [P] [US1] Implement data preprocessor in `code/data/preprocess.py` to filter single-phase, room-temp (20-25°C), and handle missing yield strength values. **Depends on T005, T008**.
+- [ ] T014 [US1] Implement pipeline orchestrator in `code/data/pipeline.py` to define the sequence: download -> preprocess (filter) -> normalize -> descriptors -> filter_missing. **Depends on T005, T006, T007**.
+- [ ] T008 [P] [US1] Implement data downloader in `code/data/download.py` to fetch from `research.verified_datasets['hea_compositions']` in `research.md`. If no verified URL exists, the system MUST terminate immediately with error code `DATA_SOURCE_MISSING` and log the specific missing requirement. **DO NOT** attempt fallback public search or local file loading. **Depends on T005, T007**.
+- [ ] T009 [P] [US1] Implement data preprocessor in `code/data/preprocess.py` to filter single-phase, room-temp (20-25°C), and handle missing yield strength values. **Depends on T005, T008**.
 - [~] T010 [US1] Implement unit normalizer in `code/data/preprocess.py` to convert all yield strength to MPa. **Depends on T009**.
 - [~] T011 [P] [US1] Implement elemental property loader in `code/data/descriptors.py` (atomic radii, electronegativity, valence counts) with fallback to standard databases. **Depends on T005**.
 - [~] T012 [US1] Implement descriptor calculator in `code/data/descriptors.py` for δ, Δχ, VEC, mixing entropy, and melting temperature variance. **Depends on T010, T011**.
@@ -81,10 +81,10 @@
 - [~] T018 [P] [US2] Implement Random Forest trainer with 5-fold CV and grid search (trees ≤ 50, depth ≤ 10) in `code/models/train.py`. **Depends on T016**.
 - [~] T019 [P] [US2] Implement Gradient Boosting trainer with 5-fold CV and grid search (trees ≤ 50, depth ≤ 10) in `code/models/train.py`. **Depends on T016**.
 - [~] T020 [US2] Implement evaluation runner in `code/models/evaluate.py` to compute R², MAE, RMSE on held-out test set. **Depends on T017, T018, T019**.
-- [ ] T021 [US2] Create `output/metrics.json` writer to record metrics for all models (RF, GB, Linear). **Depends on T020**.
-- [ ] T022 [US2] Add runtime tracker in `code/models/train.py` to enforce ≤ 3 hour limit and log warnings if exceeded. **Depends on T018, T019**.
-- [ ] T029a [P] [US2] Implement plot disclaimer injector in `code/utils/plot_utils.py` to append "Associational analysis only; no causal inference" to all generated matplotlib/seaborn figures. **Depends on T004**.
-- [ ] T029b [P] [US2] Implement report disclaimer injector in `code/utils/report_utils.py` to append the mandatory disclaimer to report markdown text. **Depends on T004**.
+- [~] T021 [US2] Create `output/metrics.json` writer to record metrics for all models (RF, GB, Linear). **Depends on T020**.
+- [~] T022 [US2] Add runtime tracker in `code/models/train.py` to enforce ≤ 3 hour limit and log warnings if exceeded. **Depends on T018, T019**.
+- [~] T029a [P] [US2] Implement plot disclaimer injector in `code/utils/plot_utils.py` to append "Associational analysis only; no causal inference" to all generated matplotlib/seaborn figures. **Depends on T004**.
+- [~] T029b [P] [US2] Implement report disclaimer injector in `code/utils/report_utils.py` to append the mandatory disclaimer to report markdown text. **Depends on T004**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -98,13 +98,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Implement VIF calculator in `code/models/evaluate.py` for the **Linear Regression baseline ONLY**. Calculate VIF for all descriptors in the linear model and flag any VIF > 10. **DO NOT** calculate VIF for RF or GB models. **Depends on T017**.
-- [ ] T024 [US3] Implement permutation importance tester in `code/models/evaluate.py` (1000 permutations) to calculate p-values for all descriptors. **If N < 50, SKIP this test entirely** and write `output/power_analysis.json` with `status: 'insufficient_power'`. **Depends on T018, T019**.
-- [ ] T025 [US3] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg) in `code/models/evaluate.py`. **Depends on T024**.
-- [ ] T026 [US3] Implement bootstrap resampling in `code/models/evaluate.py` (1000 resamples) for the full model (RF/GB) to calculate 95% CI for R². **If N < 50, SKIP this test entirely** and ensure `output/power_analysis.json` reflects `status: 'insufficient_power'`. **Depends on T018, T019**.
-- [ ] T027 [US3] Implement sensitivity analysis runner in `code/models/evaluate.py` to sweep α over the discrete set **{0.01, 0.05, 0.1}** and report how the count of significant descriptors and R² values vary. **Depends on T024, T025**.
-- [ ] T030 [US3] Handle edge case: if N < 50, ensure `output/power_analysis.json` is written with `status: 'insufficient_power'` and log message `'INSUFFICIENT_POWER: N={n} < 50'` at WARNING level. **Depends on T024, T026**.
-- [ ] T028 [US3] Create statistical report generator in `output/report.md` including all p-values, CIs, VIF flags, and integrating disclaimers from T029a/T029b. **Depends on T023, T024, T025, T026, T027, T029a, T029b**.
+- [~] T023 [US3] Implement VIF calculator in `code/models/evaluate.py` for the **Linear Regression baseline ONLY**. Calculate VIF for all descriptors in the linear model and flag any VIF > 10. **DO NOT** calculate VIF for RF or GB models. **Depends on T017**.
+- [~] T024 [US3] Implement permutation importance tester in `code/models/evaluate.py` (1000 permutations) to calculate p-values for all descriptors. **If N < 50, SKIP this test entirely** and write `output/power_analysis.json` with `status: 'insufficient_power'`. **Depends on T018, T019**.
+- [~] T025 [US3] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg) in `code/models/evaluate.py`. **Depends on T024**.
+- [~] T026 [US3] Implement bootstrap resampling in `code/models/evaluate.py` (1000 resamples) for the full model (RF/GB) to calculate 95% CI for R². **If N < 50, SKIP this test entirely** and ensure `output/power_analysis.json` reflects `status: 'insufficient_power'`. **Depends on T018, T019**.
+- [~] T027 [US3] Implement sensitivity analysis runner in `code/models/evaluate.py` to sweep α over the discrete set **{0.01, 0.05, 0.1}** and report how the count of significant descriptors and R² values vary. **Depends on T024, T025**.
+- [~] T030 [US3] Handle edge case: if N < 50, ensure `output/power_analysis.json` is written with `status: 'insufficient_power'` and log message `'INSUFFICIENT_POWER: N={n} < 50'` at WARNING level. **Depends on T024, T026**.
+- [~] T028 [US3] Create statistical report generator in `output/report.md` including all p-values, CIs, VIF flags, and integrating disclaimers from T029a/T029b. **Depends on T023, T024, T025, T026, T027, T029a, T029b**.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -114,7 +114,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] Documentation updates in `README.md` and `quickstart.md`
+- [~] T031 [P] Documentation updates in `README.md` and `quickstart.md`
 - [ ] T032a Run `ruff check` and fix all linting errors in `code/`
 - [ ] T032b Run `black` and format all Python files in `code/`
 - [ ] T033a Profile execution with `cProfile`, generate `output/profile.log` identifying top 3 bottlenecks

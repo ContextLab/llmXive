@@ -1,80 +1,67 @@
-$schema: http://json-schema.org/draft-07/schema#
+%YAML 1.2
+---
 title: Study Record Schema
-description: >
-  Defines the structure for individual study records extracted from the literature.
-  Includes bibliographic metadata, quantitative effect sizes (r, n), and qualitative descriptors.
+description: Schema for individual study records extracted for meta-analysis.
 type: object
 required:
   - study_id
   - author
   - year
-  - title
   - tract_name
+  - effect_size_r
+  - sample_size_n
 properties:
   study_id:
     type: string
-    description: Unique identifier for the study record (e.g., hash of title + author).
-    pattern: "^[a-z0-9]{32}$"
+    description: Unique identifier for the study (e.g., PMID or DOI).
+    pattern: "^[A-Za-z0-9._-]+$"
   author:
     type: string
-    description: Primary author's last name.
+    description: First author's last name.
+    minLength: 1
   year:
     type: integer
+    description: Publication year.
     minimum: 1900
     maximum: 2100
-  title:
-    type: string
-    description: Full title of the publication.
-  journal:
-    type: string
-    description: Name of the journal or conference proceedings.
   tract_name:
     type: string
-    description: The specific white matter tract investigated (harmonized name).
-    examples:
-      - "arcuate_fasciculus"
-      - "cingulum_bundle"
-      - "uncinate_fasciculus"
+    description: Name of the brain tract (harmonized via JHU Atlas).
+    minLength: 1
   effect_size_r:
     type: number
-    description: Pearson correlation coefficient.
+    description: Pearson correlation coefficient (r).
     minimum: -1.0
     maximum: 1.0
-    nullable: true
   sample_size_n:
     type: integer
-    description: Number of participants in the study.
+    description: Total sample size of the study.
     minimum: 1
-    nullable: true
-  qualitative_descriptor:
+  qualitative_notes:
     type: string
-    description: >
-      Textual description of the association if quantitative data is missing.
-      Extracted via specific pattern matching (e.g., "increased connectivity associated with").
-    nullable: true
-  directionality:
+    description: Extracted qualitative descriptors regarding neural circuitry.
+    default: ""
+  direction:
     type: string
     enum:
       - positive
       - negative
-      - mixed
       - null
-    description: Inferred direction of the correlation.
-  quality_score:
+    description: Direction of the correlation.
+  p_value:
     type: number
-    description: Quality assessment score (0.0 to 1.0).
+    description: Reported p-value.
     minimum: 0.0
     maximum: 1.0
-    default: 0.0
-  raw_source:
-    type: object
-    description: Original data block from the source file for auditability.
-    additionalProperties: true
-  extraction_notes:
-    type: string
-    description: Notes on the extraction process or ambiguities found.
     nullable: true
-  timestamp_extracted:
+  no_qualitative_data:
+    type: boolean
+    description: Flag indicating if no specific descriptors were found.
+    default: false
+  source_file:
+    type: string
+    description: Original filename where this study was found.
+  extraction_timestamp:
     type: string
     format: date-time
     description: ISO 8601 timestamp of extraction.

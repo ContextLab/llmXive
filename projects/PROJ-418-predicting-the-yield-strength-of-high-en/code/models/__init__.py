@@ -1,3 +1,3 @@
 """
-Machine learning models for HEA yield strength prediction.
+Machine learning model training and evaluation modules.
 """

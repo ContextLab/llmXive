@@ -321,3 +321,6 @@ ready:
 - project_id: PROJ-256-quantifying-the-impact-of-data-cleaning-
   revision_spec_path: specs/auto-revisions/PROJ-256-quantifying-the-impact-of-data-cleaning-/round-1
   queued_at: '2026-07-14T10:28:16.860590+00:00'
+- project_id: PROJ-256-quantifying-the-impact-of-data-cleaning-
+  revision_spec_path: specs/auto-revisions/PROJ-256-quantifying-the-impact-of-data-cleaning-/round-2
+  queued_at: '2026-07-14T16:03:41.167045+00:00'

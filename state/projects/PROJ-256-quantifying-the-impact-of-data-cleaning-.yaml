@@ -6,13 +6,13 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-256-quantifying-the-impact-of-data-cleaning-
-last_run_id: 6fdb9ec1-0485-4a62-843c-afce58d16330
+last_run_id: 1227c254-ec63-4868-8d1f-486c5cd46ac7
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-256-quantifying-the-impact-of-data-cleaning-/round-2
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning
 title: Quantifying the Impact of Data Cleaning on Statistical Inference
-updated_at: '2026-07-14T10:30:59.959758Z'
+updated_at: '2026-07-14T16:03:41.211442Z'

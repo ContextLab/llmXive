@@ -1,3 +1,3 @@
 """
-llmXive HEA Yield Strength Prediction - Code Package
+llmXive Research Pipeline: Code Modules
 """

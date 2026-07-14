@@ -1,137 +1,203 @@
-"""
-Validation utilities for the meta-analysis pipeline.
-Specifically handles validation of effect sizes and input data integrity.
-"""
 import logging
 import math
+import os
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-
 from utils.logger import get_logger, log_error_context
 
 logger = get_logger(__name__)
 
+MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
 
-def validate_effect_size(
-    r_value: Optional[float],
-    n_value: Optional[int],
-    study_id: str,
-    row_index: int
-) -> Tuple[bool, Optional[str]]:
+def validate_effect_size(r: float, n: int) -> Tuple[bool, Optional[str]]:
     """
-    Validates the presence and validity of effect size data (r, n).
-
+    Validate effect size parameters.
+    
     Args:
-        r_value: The correlation coefficient (r).
-        n_value: The sample size (n).
-        study_id: Identifier for the study (for logging).
-        row_index: The row index in the source file (for logging).
-
+        r: Correlation coefficient.
+        n: Sample size.
+    
     Returns:
-        A tuple (is_valid, error_message).
-        If valid, error_message is None.
-        If invalid, is_valid is False and error_message explains the reason.
+        Tuple of (is_valid, error_message).
     """
-    if r_value is None or n_value is None:
-        return False, f"Missing effect size data (r={r_value}, n={n_value})"
-
-    if not isinstance(n_value, int) or n_value <= 0:
-        return False, f"Invalid sample size: {n_value} (must be positive integer)"
-
-    if not isinstance(r_value, (int, float)):
-        return False, f"Invalid correlation value: {r_value} (must be numeric)"
-
-    # Check for NaN or Inf
-    if math.isnan(r_value) or math.isinf(r_value):
-        return False, f"Invalid correlation value: {r_value} (NaN or Inf)"
-
-    # Check range [-1, 1]
-    if not (-1.0 <= r_value <= 1.0):
-        return False, f"Correlation value out of range: {r_value} (must be between -1 and 1)"
-
+    if not isinstance(n, int) or n <= 0:
+        return False, f"Invalid sample size: {n}. Must be a positive integer."
+    
+    if not isinstance(r, (int, float)) or math.isnan(r) or math.isinf(r):
+        return False, f"Invalid correlation coefficient: {r}. Must be a number."
+    
+    if not -1.0 <= r <= 1.0:
+        return False, f"Correlation coefficient out of range: {r}. Must be between -1 and 1."
+    
     return True, None
 
-
-def validate_study_row(
-    row: Dict[str, Any],
-    study_id_col: str = "study_id",
-    r_col: str = "r",
-    n_col: str = "n"
-) -> Tuple[bool, Optional[str]]:
+def validate_study_row(row: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
     """
-    Validates a single study row extracted from CSV/JSON.
-
+    Validate a study row from the input data.
+    
     Args:
-        row: Dictionary representing the study row.
-        study_id_col: Key for the study ID.
-        r_col: Key for the correlation coefficient.
-        n_col: Key for the sample size.
-
+        row: Dictionary containing study data.
+    
     Returns:
-        A tuple (is_valid, error_message).
+        Tuple of (is_valid, error_message).
     """
-    study_id = row.get(study_id_col, "Unknown")
-    row_idx = row.get("row_index", -1)
+    required_fields = ["study_id", "tract", "r", "n"]
+    
+    for field in required_fields:
+        if field not in row:
+            return False, f"Missing required field: {field}"
+    
+    is_valid_r, err_r = validate_effect_size(row.get("r"), row.get("n"))
+    if not is_valid_r:
+        return False, f"Invalid effect size data: {err_r}"
+    
+    # Validate tract name is not empty
+    if not row.get("tract") or not str(row.get("tract")).strip():
+        return False, "Tract name is missing or empty"
+    
+    return True, None
 
-    r_val = row.get(r_col)
-    n_val = row.get(n_col)
-
-    # Convert string numbers to float/int if necessary
-    if isinstance(r_val, str):
-        try:
-            r_val = float(r_val)
-        except ValueError:
-            return False, f"Cannot convert r value '{r_val}' to float"
-
-    if isinstance(n_val, str):
-        try:
-            n_val = int(float(n_val)) # Handle "10.0" -> 10
-        except ValueError:
-            return False, f"Cannot convert n value '{n_val}' to integer"
-
-    return validate_effect_size(r_val, n_val, study_id, row_idx)
-
-
-def filter_valid_studies(
-    studies: List[Dict[str, Any]],
-    r_col: str = "r",
-    n_col: str = "n",
-    study_id_col: str = "study_id"
-) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def filter_valid_studies(studies: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
-    Filters a list of studies, keeping only those with valid effect sizes.
-    Logs excluded studies.
-
+    Filter a list of studies, separating valid and invalid entries.
+    
     Args:
         studies: List of study dictionaries.
-        r_col: Key for correlation.
-        n_col: Key for sample size.
-        study_id_col: Key for study ID.
-
+    
     Returns:
-        A tuple (valid_studies, excluded_studies).
+        Tuple of (valid_studies, invalid_studies_with_reasons).
     """
     valid = []
-    excluded = []
-
-    for study in studies:
-        is_valid, error_msg = validate_study_row(
-            study, study_id_col, r_col, n_col
-        )
-
+    invalid = []
+    
+    for i, study in enumerate(studies):
+        is_valid, reason = validate_study_row(study)
         if is_valid:
             valid.append(study)
         else:
-            study_id = study.get(study_id_col, "Unknown")
-            row_idx = study.get("row_index", -1)
-            logger.warning(
-                f"Excluding study {study_id} (Row {row_idx}): {error_msg}"
-            )
-            excluded.append({
-                "study": study,
-                "reason": error_msg
+            invalid.append({
+                "index": i,
+                "study_id": study.get("study_id", f"unknown_{i}"),
+                "reason": reason
             })
+            log_error_context(logger, ValueError(reason), {"study_id": study.get("study_id"), "row_index": i})
+    
+    return valid, invalid
 
-    if excluded:
-        logger.info(f"Filtered out {len(excluded)} studies due to invalid effect sizes.")
+def validate_file_size(file_path: str, max_size_bytes: int = MAX_FILE_SIZE_BYTES) -> Tuple[bool, Optional[str]]:
+    """
+    Validate that a generated file does not exceed the maximum allowed size.
+    
+    Args:
+        file_path: Path to the file to validate.
+        max_size_bytes: Maximum allowed file size in bytes (default 5MB).
+    
+    Returns:
+        Tuple of (is_valid, error_message).
+    """
+    path = Path(file_path)
+    
+    if not path.exists():
+        return False, f"File does not exist: {file_path}"
+    
+    file_size = path.stat().st_size
+    
+    if file_size > max_size_bytes:
+        size_mb = file_size / (1024 * 1024)
+        max_mb = max_size_bytes / (1024 * 1024)
+        return False, f"File size {size_mb:.2f}MB exceeds limit {max_mb}MB"
+    
+    logger.info(f"File validation passed: {file_path} ({file_size} bytes)")
+    return True, None
 
-    return valid, excluded
+def validate_generated_plots(plot_dir: str, max_size_bytes: int = MAX_FILE_SIZE_BYTES) -> Tuple[bool, List[Dict[str, Any]]]:
+    """
+    Validate all PNG files in a directory against size constraints.
+    
+    Args:
+        plot_dir: Path to the directory containing generated plots.
+        max_size_bytes: Maximum allowed file size in bytes (default 5MB).
+    
+    Returns:
+        Tuple of (all_valid, list_of_validation_results).
+    """
+    dir_path = Path(plot_dir)
+    
+    if not dir_path.exists():
+        return False, [{"directory": plot_dir, "error": "Directory does not exist"}]
+    
+    results = []
+    all_valid = True
+    
+    png_files = list(dir_path.glob("*.png"))
+    
+    if not png_files:
+        logger.warning(f"No PNG files found in {plot_dir}")
+        return True, []
+    
+    for png_file in png_files:
+        is_valid, error = validate_file_size(str(png_file), max_size_bytes)
+        result = {
+            "file": str(png_file),
+            "size_bytes": png_file.stat().st_size,
+            "valid": is_valid
+        }
+        if not is_valid:
+            result["error"] = error
+            all_valid = False
+            logger.error(f"Plot validation failed: {error}")
+        else:
+            logger.info(f"Plot validation passed: {png_file.name} ({result['size_bytes']} bytes)")
+        results.append(result)
+    
+    return all_valid, results
+
+def main():
+    """CLI entry point for validation utilities."""
+    import argparse
+    import json
+    
+    parser = argparse.ArgumentParser(description="Study data and artifact validation")
+    parser.add_argument("--input", help="Path to input JSON file containing studies")
+    parser.add_argument("--plots", help="Path to directory containing generated plots for size validation")
+    
+    args = parser.parse_args()
+    
+    exit_code = 0
+    
+    if args.input:
+        with open(args.input, "r") as f:
+            data = json.load(f)
+        
+        studies = data if isinstance(data, list) else data.get("studies", [])
+        
+        valid, invalid = filter_valid_studies(studies)
+        
+        print(f"Total studies: {len(studies)}")
+        print(f"Valid: {len(valid)}")
+        print(f"Invalid: {len(invalid)}")
+        
+        if invalid:
+            print("\nInvalid studies:")
+            for item in invalid:
+                print(f"  - {item['study_id']}: {item['reason']}")
+            exit_code = 1
+    
+    if args.plots:
+        all_valid, results = validate_generated_plots(args.plots)
+        
+        print(f"\nPlot Validation Results ({args.plots}):")
+        for res in results:
+            status = "PASS" if res["valid"] else "FAIL"
+            print(f"  [{status}] {res['file']} ({res['size_bytes']} bytes)")
+            if not res["valid"] and "error" in res:
+                print(f"       Reason: {res['error']}")
+        
+        if not all_valid:
+            exit_code = 1
+    
+    return exit_code
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

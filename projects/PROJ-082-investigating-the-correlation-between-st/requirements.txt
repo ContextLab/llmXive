@@ -1,3 +1,4 @@
+# Python 3.11+ dependencies for llmXive: Investigating the Correlation Between Structural Brain Connectivity and Individual Music Preferences
 pandas>=2.0.0
 numpy>=1.24.0
 scipy>=1.11.0

@@ -1,3 +1,3 @@
 """
-Test suite for HEA yield strength prediction.
+Test suite for llmXive research pipeline.
 """

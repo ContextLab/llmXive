@@ -1,3 +1,6 @@
-'T001a Create directory structure: `code/`, `data/raw`, `data/processed`, `output/`, `tests/`, `output/plots`': 2
-T001b Create `__init__.py` files in all `code/` and `tests/` subdirectories: 2
-T001c Create `requirements.txt` and `README.md` scaffolding: 2
+T001a: 1
+T001b: 1
+T001c: 1
+T008: 1
+T009: 1
+T014: 1

@@ -6,89 +6,136 @@ from utils.logger import get_logger, log_error_context
 
 logger = get_logger(__name__)
 
-def calculate_md5(file_path: str) -> Optional[str]:
-    """Calculate MD5 checksum of a file."""
-    path = Path(file_path)
-    if not path.exists():
-        log_error_context(logger, f"File not found: {file_path}")
-        return None
+def calculate_md5(file_path: Union[str, Path]) -> str:
+    """
+    Calculate the MD5 checksum of a file.
     
+    Args:
+        file_path: Path to the file.
+    
+    Returns:
+        Hexadecimal MD5 hash string.
+    """
     hash_md5 = hashlib.md5()
-    try:
-        with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hash_md5.update(chunk)
-        return hash_md5.hexdigest()
-    except Exception as e:
-        log_error_context(logger, f"Error calculating MD5 for {file_path}", e)
-        return None
-
-def calculate_sha256(file_path: str) -> Optional[str]:
-    """Calculate SHA256 checksum of a file."""
     path = Path(file_path)
-    if not path.exists():
-        log_error_context(logger, f"File not found: {file_path}")
-        return None
     
-    hash_sha256 = hashlib.sha256()
-    try:
-        with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hash_sha256.update(chunk)
-        return hash_sha256.hexdigest()
-    except Exception as e:
-        log_error_context(logger, f"Error calculating SHA256 for {file_path}", e)
-        return None
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    
+    return hash_md5.hexdigest()
 
-def verify_checksum(file_path: str, expected_checksum: str, algorithm: str = "md5") -> bool:
-    """Verify file checksum against an expected value."""
-    if algorithm.lower() == "md5":
+def calculate_sha256(file_path: Union[str, Path]) -> str:
+    """
+    Calculate the SHA256 checksum of a file.
+    
+    Args:
+        file_path: Path to the file.
+    
+    Returns:
+        Hexadecimal SHA256 hash string.
+    """
+    hash_sha256 = hashlib.sha256()
+    path = Path(file_path)
+    
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_sha256.update(chunk)
+    
+    return hash_sha256.hexdigest()
+
+def verify_checksum(file_path: Union[str, Path], expected_checksum: str, algorithm: str = "md5") -> bool:
+    """
+    Verify a file's checksum against an expected value.
+    
+    Args:
+        file_path: Path to the file.
+        expected_checksum: Expected checksum string.
+        algorithm: Hash algorithm ('md5' or 'sha256').
+    
+    Returns:
+        True if checksum matches, False otherwise.
+    """
+    if algorithm == "md5":
         actual = calculate_md5(file_path)
-    elif algorithm.lower() == "sha256":
+    elif algorithm == "sha256":
         actual = calculate_sha256(file_path)
     else:
-        logger.error(f"Unsupported algorithm: {algorithm}")
-        return False
-    
-    if actual is None:
-        return False
+        raise ValueError(f"Unsupported algorithm: {algorithm}")
     
     return actual.lower() == expected_checksum.lower()
 
-def validate_input_file(file_path: str, required_checksum: Optional[str] = None) -> Tuple[bool, Optional[str]]:
-    """Validate input file existence and optionally checksum."""
-    path = Path(file_path)
-    if not path.exists():
-        return False, f"File not found: {file_path}"
+def validate_input_file(file_path: Union[str, Path], expected_checksum: Optional[str] = None) -> Tuple[bool, Optional[str]]:
+    """
+    Validate an input file exists and optionally matches a checksum.
     
-    if required_checksum:
-        # Infer algorithm from checksum length if not specified (simple heuristic)
-        algo = "sha256" if len(required_checksum) == 64 else "md5"
-        if not verify_checksum(file_path, required_checksum, algo):
-            return False, f"Checksum mismatch for {file_path} (expected {required_checksum})"
+    Args:
+        file_path: Path to the file.
+        expected_checksum: Optional expected checksum.
+    
+    Returns:
+        Tuple of (is_valid, error_message).
+    """
+    path = Path(file_path)
+    
+    if not path.exists():
+        return False, f"File not found: {path}"
+    
+    if not path.is_file():
+        return False, f"Path is not a file: {path}"
+    
+    if expected_checksum:
+        # Try to detect algorithm from length or default to md5
+        if len(expected_checksum) == 64:
+            if not verify_checksum(path, expected_checksum, "sha256"):
+                return False, "SHA256 checksum mismatch"
+        elif len(expected_checksum) == 32:
+            if not verify_checksum(path, expected_checksum, "md5"):
+                return False, "MD5 checksum mismatch"
+        else:
+            # Assume MD5 for 32 chars, but if length is ambiguous, try MD5 first
+            if not verify_checksum(path, expected_checksum, "md5"):
+                return False, "Checksum mismatch"
     
     return True, None
 
 def main():
-    import sys
-    if len(sys.argv) < 2:
-        print("Usage: python -m utils.checksum <file_path> [expected_checksum]")
-        sys.exit(1)
+    """CLI entry point for checksum utilities."""
+    import argparse
+    parser = argparse.ArgumentParser(description="File checksum utilities")
+    parser.add_argument("file", help="Path to the file")
+    parser.add_argument("--algorithm", choices=["md5", "sha256"], default="md5", help="Hash algorithm")
+    parser.add_argument("--verify", help="Verify against expected checksum")
     
-    file_path = sys.argv[1]
-    expected = sys.argv[2] if len(sys.argv) > 2 else None
+    args = parser.parse_args()
     
-    valid, error = validate_input_file(file_path, expected)
-    if valid:
-        print(f"Validation passed for {file_path}")
-        if not expected:
-            md5 = calculate_md5(file_path)
-            sha = calculate_sha256(file_path)
-            print(f"MD5: {md5}")
-            print(f"SHA256: {sha}")
+    path = Path(args.file)
+    if not path.exists():
+        print(f"Error: File not found: {path}")
+        return 1
+    
+    if args.verify:
+        is_valid, error = validate_input_file(path, args.verify)
+        if is_valid:
+            print("Checksum verified successfully.")
+            return 0
+        else:
+            print(f"Verification failed: {error}")
+            return 1
     else:
-        print(f"Validation failed: {error}")
-        sys.exit(1)
+        if args.algorithm == "md5":
+            checksum = calculate_md5(path)
+        else:
+            checksum = calculate_sha256(path)
+        print(f"{args.algorithm.upper()}: {checksum}")
+        return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

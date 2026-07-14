@@ -59,7 +59,7 @@
 - [X] T006 [P] Setup configuration management: `code/utils/config.py` (seed pinning, path loading)
 - [ ] T007 Create base data models: `contracts/study_record.schema.yaml` and `contracts/meta_analysis_result.schema.yaml`
 - [ ] T008 [P] Implement tract harmonization logic: `code/analysis/tract_mapping.py` (JHU Atlas mapping, string normalization). **Constraint**: This task MUST NOT implement any prioritization or filtering logic. It must only standardize tract names. Prioritization logic is gated by the study count check in T016.
-- [~] T009 Setup logging infrastructure: `code/utils/logger.py` (structured logging for convergence warnings, fallbacks)
+- [X] T009 Setup logging infrastructure: `code/utils/logger.py` (structured logging for convergence warnings, fallbacks)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -116,13 +116,13 @@ Additionally, include a JSON metadata block at the top with keys: `study_count`,
 
 - [~] T021 [US2] Implement `code/analysis/bias.py` Egger's linear regression test. **Skip Logic**: Explicitly SKIP if `study_count` (from T014) < 10. **Input Verification**: Read `study_count` from T014 output JSON to determine skip condition. **Output Requirement**: If N >= 10, report the intercept and p-value. If N < 10, output the exact string `egger_skipped_reason: "Skipped: Insufficient studies (N < 10) for Egger's regression"` as a runtime value in the result JSON. **Depends on: T014**
 - [~] T021b [US2] Implement `code/analysis/heterogeneity.py` I² calculation. **Precision Requirement**: The output MUST report the I² statistic with **exactly two decimal places** (e.g., 52.34) as mandated by **SC-002** and **FR-002**. **Parallel Safety**: This task reads from T014 and writes to the heterogeneity section of the output JSON. **Depends on: T021** (to ensure atomic writes to the shared JSON artifact).
-- [ ] T022 [US2] Implement `code/analysis/correction.py` for multiple comparison correction. **Decision Logic**:
+- [~] T022 [US2] Implement `code/analysis/correction.py` for multiple comparison correction. **Decision Logic**:
  1. Apply **Bonferroni correction** ONLY if N ≥ 10 AND k ≥ 2 tracts (for the independent subset).
  2. **Strict Requirement**: If N < 10, skip and trigger narrative mode.
  3. **Constraint**: Do NOT implement Robust Variance Estimation (RVE). The spec mandates Bonferroni correction only.
  4. Include a mandatory "Limitations" note in the output report acknowledging that Bonferroni is conservative due to tract non-independence.
  5. **Output Requirement**: Report the **adjusted significance threshold** value in the output report. **Depends on: T014, T008**
-- [ ] T023 [US2] Integrate bias assessment into `code/main.py` (run after meta-analysis, update `MetaAnalysisResult` JSON).
+- [~] T023 [US2] Integrate bias assessment into `code/main.py` (run after meta-analysis, update `MetaAnalysisResult` JSON).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -136,13 +136,13 @@ Additionally, include a JSON metadata block at the top with keys: `study_count`,
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Integration test for plot generation in `tests/integration/test_plots.py` (verify file existence, size < 5MB, peak memory < 6GB using tracemalloc, and correct axis labels).
+- [~] T025 [P] [US3] Integration test for plot generation in `tests/integration/test_plots.py` (verify file existence, size < 5MB, peak memory < 6GB using tracemalloc, and correct axis labels).
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement `code/visualization/plots.py` to generate all required plots: Forest plot (summary diamond aligns with `weighted_mean_r`), Funnel plot (standard error vs effect size, symmetry line at pooled effect), and Correlation summary plot. **Optimization**: Implement PNG compression settings (optimize=True, dpi=150) to ensure file size < 5MB.
-- [ ] T028 [US3] Integrate visualization into `code/main.py` (save PNGs to `data/derived/` after analysis).
-- [ ] T031 [US3] Implement file size validation logic in `code/utils/validator.py`: Add a function to verify generated PNGs are < 5MB. Integrate this check into the `main.py` pipeline post-generation. **Depends on: T027**
+- [~] T027 [P] [US3] Implement `code/visualization/plots.py` to generate all required plots: Forest plot (summary diamond aligns with `weighted_mean_r`), Funnel plot (standard error vs effect size, symmetry line at pooled effect), and Correlation summary plot. **Optimization**: Implement PNG compression settings (optimize=True, dpi=150) to ensure file size < 5MB.
+- [~] T028 [US3] Integrate visualization into `code/main.py` (save PNGs to `data/derived/` after analysis).
+- [~] T031 [US3] Implement file size validation logic in `code/utils/validator.py`: Add a function to verify generated PNGs are < 5MB. Integrate this check into the `main.py` pipeline post-generation. **Depends on: T027**
 
 **Checkpoint**: All user stories should now be independently functional
 

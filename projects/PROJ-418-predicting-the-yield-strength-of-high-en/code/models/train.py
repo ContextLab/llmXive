@@ -4,269 +4,289 @@ import json
 import time
 import traceback
 from typing import Dict, Any, Tuple, Optional, List
-
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
-from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-
-from utils.logging import get_logger, set_seeds, get_seed
-from utils.config import get_config
+from utils.logging import get_logger, get_seed
 
 logger = get_logger(__name__)
 
-# Constants for Gradient Boosting constraints (from task T019)
-MAX_TREES_GB = 50
-MAX_DEPTH_GB = 10
+# Constants for runtime tracking
+MAX_RUNTIME_HOURS = 3
+MAX_RUNTIME_SECONDS = MAX_RUNTIME_HOURS * 3600
 
-def load_processed_data(filepath: str = "data/processed/hea_descriptors.csv") -> pd.DataFrame:
-    """
-    Load the processed HEA dataset with calculated descriptors.
-    """
+def load_processed_data(filepath: str) -> pd.DataFrame:
+    """Load processed data from CSV."""
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Processed data file not found: {filepath}")
-    logger.info(f"Loading processed data from {filepath}")
-    df = pd.read_csv(filepath)
-    return df
+    return pd.read_csv(filepath)
 
-def prepare_features_target(df: pd.DataFrame, target_col: str = "yield_strength_mpa") -> Tuple[pd.DataFrame, pd.Series]:
-    """
-    Separate features and target variable.
-    """
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in dataframe. Available columns: {df.columns.tolist()}")
-    
-    X = df.drop(columns=[target_col])
-    y = df[target_col]
-    logger.info(f"Prepared features (shape: {X.shape}) and target (shape: {y.shape})")
+def prepare_features_target(df: pd.DataFrame, target_col: str = 'yield_strength_mpa') -> Tuple[np.ndarray, np.ndarray]:
+    """Separate features and target."""
+    feature_cols = [col for col in df.columns if col not in [target_col, 'composition']]
+    X = df[feature_cols].values
+    y = df[target_col].values
     return X, y
 
-def create_stratified_split(X: pd.DataFrame, y: pd.Series, test_size: float = 0.2, random_state: Optional[int] = None) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    """
-    Create stratified train/test split.
-    Since y is continuous, we bin it for stratification.
-    """
+def create_stratified_split(X: np.ndarray, y: np.ndarray, test_size: float = 0.2, random_state: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Create stratified train/test split."""
     if random_state is None:
         random_state = get_seed()
     
-    # Bin y for stratification
-    y_binned = pd.qcut(y, q=5, labels=False, duplicates='drop')
+    # For regression, we bin the target for stratification
+    y_binned = pd.qcut(y, q=10, labels=False, duplicates='drop')
     
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=random_state, stratify=y_binned
     )
-    logger.info(f"Split data: Train={X_train.shape[0]}, Test={X_test.shape[0]}")
     return X_train, X_test, y_train, y_test
 
-def save_split_info(split_info: Dict[str, Any], filepath: str = "output/split_info.json"):
-    """
-    Save split configuration to JSON.
-    """
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, 'w') as f:
+def save_split_info(split_info: Dict[str, Any], output_path: str):
+    """Save split information to JSON."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(split_info, f, indent=2)
-    logger.info(f"Saved split info to {filepath}")
 
-def train_linear_regression(X_train: pd.DataFrame, y_train: pd.Series, X_test: pd.DataFrame, y_test: pd.Series) -> Dict[str, Any]:
-    """
-    Train Linear Regression baseline.
-    """
-    logger.info("Training Linear Regression baseline...")
+def train_linear_regression(X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray) -> Tuple[LinearRegression, Dict[str, float]]:
+    """Train Linear Regression baseline."""
     model = LinearRegression()
     model.fit(X_train, y_train)
     
     y_pred = model.predict(X_test)
     metrics = {
-        "r2": r2_score(y_test, y_pred),
-        "mae": mean_absolute_error(y_test, y_pred),
-        "rmse": np.sqrt(mean_squared_error(y_test, y_pred))
+        'r2': float(r2_score(y_test, y_pred)),
+        'mae': float(mean_absolute_error(y_test, y_pred)),
+        'rmse': float(np.sqrt(mean_squared_error(y_test, y_pred)))
     }
-    logger.info(f"Linear Regression Metrics: R2={metrics['r2']:.4f}, MAE={metrics['mae']:.4f}, RMSE={metrics['rmse']:.4f}")
-    return {"model": model, "metrics": metrics, "type": "linear"}
+    return model, metrics
 
-def train_random_forest(X_train: pd.DataFrame, y_train: pd.Series, X_test: pd.DataFrame, y_test: pd.Series, random_state: Optional[int] = None) -> Dict[str, Any]:
-    """
-    Train Random Forest with 5-fold CV and grid search (trees <= 50, depth <= 10).
-    """
-    if random_state is None:
-        random_state = get_seed()
-    
-    logger.info("Training Random Forest with GridSearchCV...")
-    
-    from sklearn.ensemble import RandomForestRegressor
-    
-    param_grid = {
-        'n_estimators': [10, 30, 50],
-        'max_depth': [3, 5, 7, 10],
-        'min_samples_split': [2, 5]
-    }
-    
-    rf_base = RandomForestRegressor(random_state=random_state)
-    
-    # 5-fold CV as per spec
-    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
-    # Note: RF regression doesn't strictly need stratified CV on continuous y, 
-    # but we follow the instruction to use 5-fold CV. 
-    # Using simple KFold for regression usually, but sticking to instruction logic:
-    # If we strictly need StratifiedKFold, we need to bin y again here or use KFold.
-    # Given T016 used StratifiedKFold on binned y, we can do similar here or just KFold.
-    # Let's use KFold for regression to avoid potential binning issues if y range is small.
-    cv_reg = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state) 
-    # Actually, for regression, KFold is standard. But T016 specified Stratified.
-    # Let's use KFold for RF to be safe, as stratification on continuous targets is heuristic.
-    from sklearn.model_selection import KFold
-    cv_reg = KFold(n_splits=5, shuffle=True, random_state=random_state)
-
-    grid_search = GridSearchCV(
-        rf_base, 
-        param_grid, 
-        cv=cv_reg, 
-        scoring='r2', 
-        n_jobs=-1,
-        verbose=1
-    )
-    
-    grid_search.fit(X_train, y_train)
-    
-    best_model = grid_search.best_estimator_
-    logger.info(f"Random Forest Best Params: {grid_search.best_params_}")
-    
-    y_pred = best_model.predict(X_test)
-    metrics = {
-        "r2": r2_score(y_test, y_pred),
-        "mae": mean_absolute_error(y_test, y_pred),
-        "rmse": np.sqrt(mean_squared_error(y_test, y_pred))
-    }
-    logger.info(f"Random Forest Metrics: R2={metrics['r2']:.4f}, MAE={metrics['mae']:.4f}, RMSE={metrics['rmse']:.4f}")
-    
-    return {
-        "model": best_model, 
-        "metrics": metrics, 
-        "type": "random_forest",
-        "best_params": grid_search.best_params_
-    }
-
-def train_gradient_boosting(X_train: pd.DataFrame, y_train: pd.Series, X_test: pd.DataFrame, y_test: pd.Series, random_state: Optional[int] = None) -> Dict[str, Any]:
-    """
-    Implement Gradient Boosting trainer with 5-fold CV and grid search.
-    Constraints: trees <= 50, depth <= 10.
-    """
-    if random_state is None:
-        random_state = get_seed()
-    
-    logger.info("Training Gradient Boosting with GridSearchCV...")
-    
-    param_grid = {
-        'n_estimators': [10, 30, 50],
-        'max_depth': [3, 5, 7, 10],
-        'learning_rate': [0.05, 0.1, 0.2],
-        'min_samples_split': [2, 5]
-    }
-    
-    gb_base = GradientBoostingRegressor(random_state=random_state)
-    
-    # 5-fold CV
-    from sklearn.model_selection import KFold
-    cv_reg = KFold(n_splits=5, shuffle=True, random_state=random_state)
-
-    grid_search = GridSearchCV(
-        gb_base, 
-        param_grid, 
-        cv=cv_reg, 
-        scoring='r2', 
-        n_jobs=-1,
-        verbose=1
-    )
-    
-    grid_search.fit(X_train, y_train)
-    
-    best_model = grid_search.best_estimator_
-    logger.info(f"Gradient Boosting Best Params: {grid_search.best_params_}")
-    
-    y_pred = best_model.predict(X_test)
-    metrics = {
-        "r2": r2_score(y_test, y_pred),
-        "mae": mean_absolute_error(y_test, y_pred),
-        "rmse": np.sqrt(mean_squared_error(y_test, y_pred))
-    }
-    logger.info(f"Gradient Boosting Metrics: R2={metrics['r2']:.4f}, MAE={metrics['mae']:.4f}, RMSE={metrics['rmse']:.4f}")
-    
-    return {
-        "model": best_model, 
-        "metrics": metrics, 
-        "type": "gradient_boosting",
-        "best_params": grid_search.best_params_
-    }
-
-def evaluate_model(model_result: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Return the metrics from a trained model result.
-    """
-    return model_result.get("metrics", {})
-
-def run_training_pipeline():
-    """
-    Main entry point to run the full training pipeline including Gradient Boosting.
-    """
-    logger.info("Starting Training Pipeline...")
+def train_random_forest(X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray, max_runtime: float = MAX_RUNTIME_SECONDS) -> Tuple[RandomForestRegressor, Dict[str, float]]:
+    """Train Random Forest with 5-fold CV and grid search."""
     start_time = time.time()
     
-    try:
-        # 1. Load Data
-        df = load_processed_data()
-        X, y = prepare_features_target(df)
-        
-        # 2. Split Data
-        X_train, X_test, y_train, y_test = create_stratified_split(X, y)
-        
-        split_info = {
-            "train_size": len(X_train),
-            "test_size": len(X_test),
-            "seed": get_seed(),
-            "test_ratio": 0.2
-        }
-        save_split_info(split_info)
-        
-        # 3. Train Models
-        # Linear
-        lr_result = train_linear_regression(X_train, y_train, X_test, y_test)
-        
-        # Random Forest
-        rf_result = train_random_forest(X_train, y_train, X_test, y_test)
-        
-        # Gradient Boosting (T019)
-        gb_result = train_gradient_boosting(X_train, y_train, X_test, y_test)
-        
-        # 4. Compile Metrics
-        all_metrics = {
-            "linear_regression": lr_result["metrics"],
-            "random_forest": rf_result["metrics"],
-            "gradient_boosting": gb_result["metrics"]
-        }
-        
-        # 5. Save Metrics
-        os.makedirs("output", exist_ok=True)
-        metrics_path = "output/metrics.json"
-        with open(metrics_path, 'w') as f:
-            json.dump(all_metrics, f, indent=2)
-        logger.info(f"Metrics saved to {metrics_path}")
-        
-        elapsed = time.time() - start_time
-        logger.info(f"Training pipeline completed in {elapsed:.2f} seconds")
-        
-        if elapsed > 3 * 3600:
-            logger.warning("Training pipeline exceeded 3-hour limit.")
-        
-        return all_metrics
-        
-    except Exception as e:
-        logger.error(f"Pipeline failed: {str(e)}")
-        traceback.print_exc()
-        raise
+    param_grid = {
+        'n_estimators': [10, 25, 50],
+        'max_depth': [None, 5, 10]
+    }
+    
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=get_seed())
+    y_binned = pd.qcut(y_train, q=10, labels=False, duplicates='drop')
+    
+    rf = RandomForestRegressor(random_state=get_seed())
+    
+    # Check runtime before each grid search step if possible, or run and check after
+    grid_search = GridSearchCV(
+        rf, param_grid, cv=cv, scoring='r2', n_jobs=-1, refit=True
+    )
+    
+    grid_search.fit(X_train, y_train)
+    
+    elapsed = time.time() - start_time
+    if elapsed > max_runtime:
+        logger.warning(f"Random Forest training exceeded runtime limit: {elapsed:.2f}s > {max_runtime}s")
+    
+    best_model = grid_search.best_estimator_
+    y_pred = best_model.predict(X_test)
+    
+    metrics = {
+        'r2': float(r2_score(y_test, y_pred)),
+        'mae': float(mean_absolute_error(y_test, y_pred)),
+        'rmse': float(np.sqrt(mean_squared_error(y_test, y_pred)))
+    }
+    
+    logger.info(f"Random Forest best params: {grid_search.best_params_}")
+    return best_model, metrics
 
-if __name__ == "__main__":
-    run_training_pipeline()
+def train_gradient_boosting(X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray, max_runtime: float = MAX_RUNTIME_SECONDS) -> Tuple[GradientBoostingRegressor, Dict[str, float]]:
+    """Train Gradient Boosting with 5-fold CV and grid search."""
+    start_time = time.time()
+    
+    param_grid = {
+        'n_estimators': [10, 25, 50],
+        'max_depth': [3, 5, 10],
+        'learning_rate': [0.05, 0.1]
+    }
+    
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=get_seed())
+    y_binned = pd.qcut(y_train, q=10, labels=False, duplicates='drop')
+    
+    gb = GradientBoostingRegressor(random_state=get_seed())
+    
+    grid_search = GridSearchCV(
+        gb, param_grid, cv=cv, scoring='r2', n_jobs=-1, refit=True
+    )
+    
+    grid_search.fit(X_train, y_train)
+    
+    elapsed = time.time() - start_time
+    if elapsed > max_runtime:
+        logger.warning(f"Gradient Boosting training exceeded runtime limit: {elapsed:.2f}s > {max_runtime}s")
+    
+    best_model = grid_search.best_estimator_
+    y_pred = best_model.predict(X_test)
+    
+    metrics = {
+        'r2': float(r2_score(y_test, y_pred)),
+        'mae': float(mean_absolute_error(y_test, y_pred)),
+        'rmse': float(np.sqrt(mean_squared_error(y_test, y_pred)))
+    }
+    
+    logger.info(f"Gradient Boosting best params: {grid_search.best_params_}")
+    return best_model, metrics
+
+def evaluate_model(model, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
+    """Evaluate a model on test set."""
+    y_pred = model.predict(X_test)
+    return {
+        'r2': float(r2_score(y_test, y_pred)),
+        'mae': float(mean_absolute_error(y_test, y_pred)),
+        'rmse': float(np.sqrt(mean_squared_error(y_test, y_pred)))
+    }
+
+def run_training_pipeline(
+    data_path: str,
+    output_dir: str,
+    max_runtime_hours: int = MAX_RUNTIME_HOURS
+) -> Dict[str, Any]:
+    """
+    Run the full training pipeline with runtime enforcement.
+    
+    Enforces a maximum runtime limit (default 3 hours). If the total
+    training time exceeds this limit, a warning is logged and the
+    pipeline attempts to save what has been completed so far.
+    """
+    start_total_time = time.time()
+    max_total_seconds = max_runtime_hours * 3600
+    
+    logger.info(f"Starting training pipeline. Max runtime: {max_runtime_hours} hours")
+    
+    # Load data
+    try:
+        df = load_processed_data(data_path)
+        logger.info(f"Loaded {len(df)} samples from {data_path}")
+    except Exception as e:
+        logger.error(f"Failed to load data: {e}")
+        return {'status': 'error', 'message': str(e)}
+    
+    # Prepare features
+    X, y = prepare_features_target(df)
+    logger.info(f"Features shape: {X.shape}, Target shape: {y.shape}")
+    
+    # Split data
+    X_train, X_test, y_train, y_test = create_stratified_split(X, y)
+    logger.info(f"Train: {len(X_train)}, Test: {len(X_test)}")
+    
+    # Save split info
+    split_info = {
+        'train_size': len(X_train),
+        'test_size': len(X_test),
+        'feature_names': list(df.columns[df.columns != 'yield_strength_mpa' if 'yield_strength_mpa' in df.columns else df.columns[0]])
+    }
+    os.makedirs(output_dir, exist_ok=True)
+    save_split_info(split_info, os.path.join(output_dir, 'split_info.json'))
+    
+    results = {
+        'linear_regression': None,
+        'random_forest': None,
+        'gradient_boosting': None,
+        'status': 'running',
+        'start_time': time.strftime('%Y-%m-%d %H:%M:%S')
+    }
+    
+    # Train Linear Regression
+    try:
+        logger.info("Training Linear Regression...")
+        lr_model, lr_metrics = train_linear_regression(X_train, y_train, X_test, y_test)
+        results['linear_regression'] = lr_metrics
+        logger.info(f"Linear Regression metrics: {lr_metrics}")
+    except Exception as e:
+        logger.error(f"Linear Regression failed: {e}")
+        results['linear_regression'] = {'error': str(e)}
+    
+    # Check runtime
+    elapsed = time.time() - start_total_time
+    if elapsed > max_total_seconds:
+        logger.warning(f"Runtime limit exceeded during Linear Regression. Total: {elapsed:.2f}s > {max_total_seconds}s")
+        results['status'] = 'timeout'
+        results['elapsed_seconds'] = elapsed
+        return results
+    
+    # Train Random Forest
+    try:
+        logger.info("Training Random Forest...")
+        rf_model, rf_metrics = train_random_forest(X_train, y_train, X_test, y_test, max_runtime=max_total_seconds - elapsed)
+        results['random_forest'] = rf_metrics
+        logger.info(f"Random Forest metrics: {rf_metrics}")
+    except Exception as e:
+        logger.error(f"Random Forest failed: {e}")
+        results['random_forest'] = {'error': str(e)}
+    
+    # Check runtime
+    elapsed = time.time() - start_total_time
+    if elapsed > max_total_seconds:
+        logger.warning(f"Runtime limit exceeded during Random Forest. Total: {elapsed:.2f}s > {max_total_seconds}s")
+        results['status'] = 'timeout'
+        results['elapsed_seconds'] = elapsed
+        return results
+    
+    # Train Gradient Boosting
+    try:
+        logger.info("Training Gradient Boosting...")
+        gb_model, gb_metrics = train_gradient_boosting(X_train, y_train, X_test, y_test, max_runtime=max_total_seconds - elapsed)
+        results['gradient_boosting'] = gb_metrics
+        logger.info(f"Gradient Boosting metrics: {gb_metrics}")
+    except Exception as e:
+        logger.error(f"Gradient Boosting failed: {e}")
+        results['gradient_boosting'] = {'error': str(e)}
+    
+    # Finalize
+    elapsed = time.time() - start_total_time
+    results['status'] = 'completed' if elapsed <= max_total_seconds else 'timeout'
+    results['elapsed_seconds'] = elapsed
+    results['end_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
+    
+    if elapsed > max_total_seconds:
+        logger.warning(f"TOTAL PIPELINE RUNTIME EXCEEDED LIMIT: {elapsed:.2f}s > {max_total_seconds}s")
+    else:
+        logger.info(f"Pipeline completed successfully in {elapsed:.2f}s")
+    
+    return results
+
+def main():
+    """Entry point for the training pipeline."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Train HEA yield strength prediction models')
+    parser.add_argument('--data', type=str, default='data/processed/hea_descriptors.csv',
+                      help='Path to processed data CSV')
+    parser.add_argument('--output', type=str, default='output',
+                      help='Output directory for results')
+    parser.add_argument('--max-runtime', type=int, default=3,
+                      help='Maximum runtime in hours (default: 3)')
+    
+    args = parser.parse_args()
+    
+    results = run_training_pipeline(
+        data_path=args.data,
+        output_dir=args.output,
+        max_runtime_hours=args.max_runtime
+    )
+    
+    # Write results to metrics.json
+    metrics_path = os.path.join(args.output, 'metrics.json')
+    with open(metrics_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Results written to {metrics_path}")
+    
+    if results.get('status') == 'timeout':
+        logger.warning("Pipeline timed out. Some models may be incomplete.")
+        sys.exit(1)
+    
+    sys.exit(0)
+
+if __name__ == '__main__':
+    main()

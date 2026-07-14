@@ -1,13 +1,5 @@
-? 'T001 [P] Initialize project directory structure: Create `code/`, `tests/`, `data/`,
-  and `docs/` directories in a single step.'
-: 2
-? T002 Initialize Python 3.11 project with `requirements.txt` dependencies (pandas,
-  numpy, scipy, statsmodels, matplotlib, seaborn, pyyaml)
-: 2
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
-'T007 Create base data models: `contracts/study_record.schema.yaml` and `contracts/meta_analysis_result.schema.yaml`': 2
-? 'T008 [P] Implement tract harmonization logic: `code/analysis/tract_mapping.py`
-  (JHU Atlas mapping, string normalization). **Constraint**: This task MUST NOT implement
-  any prioritization or filtering logic. It must only standardize tract names. Prioritization
-  logic is gated by the study count check in T016.'
-: 1
+T001: 1
+T002: 1
+T003: 1
+T007: 1
+T008: 1
