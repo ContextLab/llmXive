@@ -1,62 +1,52 @@
-"""
-Data models and entities for the Quantifying Impact of Data Cleaning project.
-Defines Pydantic models for Dataset, CleaningStrategy, AnalysisResult, and ComparisonReport.
-"""
 from datetime import datetime
-from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, field_validator
-from enum import Enum
+from typing import Any, Dict, List, Optional
 
-class ImputationMethod(str, Enum):
+from pydantic import BaseModel, Field
+
+
+class ImputationMethod(str):
+    """Enum‑like holder for imputation method names."""
     MEAN = "mean"
     MEDIAN = "median"
     KNN = "knn"
 
-class CleaningStrategyType(str, Enum):
-    OUTLIER_REMOVAL = "outlier_removal"
-    IMPUTATION = "imputation"
-    RECODING = "recoding"
+
+class CleaningStrategyType(str):
+    """Enum‑like holder for cleaning strategy identifiers."""
+    IQR_OUTLIER = "iqr_outlier_removal"
+    MEAN_IMPUTATION = "mean_imputation"
+    MEDIAN_IMPUTATION = "median_imputation"
+    KNN_IMPUTATION = "knn_imputation"
+    CATEGORICAL_RECODING = "categorical_recoding"
+
 
 class Dataset(BaseModel):
-    dataset_id: str
-    dataset_name: str
-    source_url: Optional[str] = None
-    checksum: Optional[str] = None
-    row_count: int
-    column_count: int
-    missing_rate: float
+    name: str
+    description: Optional[str] = None
+    n_rows: int
+    n_columns: int
+    path: str
+
 
 class CleaningStrategy(BaseModel):
-    """Defines a cleaning strategy to be applied."""
-    strategy_type: CleaningStrategyType
+    name: CleaningStrategyType
     parameters: Dict[str, Any] = Field(default_factory=dict)
-    description: str
+
 
 class AnalysisResult(BaseModel):
-    dataset_id: str
-    test_type: str  # e.g., "t_test", "regression"
-    p_value: float
-    ci_lower: Optional[float] = None
-    ci_upper: Optional[float] = None
-    effect_size: Optional[float] = None
-    r_squared: Optional[float] = None
-    coefficients: Optional[List[float]] = None
-    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+    dataset_name: str
+    analysis: Dict[str, Any]  # raw output from ``analysis.run_baseline_analysis``
+
 
 class ComparisonReport(BaseModel):
-    report_id: str
-    created_at: str
-    baseline_metrics: Dict[str, Any]
-    cleaned_metrics: Dict[str, Any]
-    absolute_diff: List[float]
-    relative_diff: List[float]
-    comparison_details: Optional[List[Dict[str, Any]]] = None
-    sensitivity_analysis: Optional[Dict[str, Any]] = None
-    file_checksum: Optional[str] = None
-
-    @field_validator('created_at')
-    @classmethod
-    def check_created_at(cls, v):
-        if not v:
-            raise ValueError('created_at is required')
-        return v
+    """
+    Consolidated report comparing baseline and cleaned analysis results.
+    """
+    generated_at: str = Field(
+        default_factory=lambda: datetime.utcnow().isoformat() + "Z"
+    )
+    baseline_metrics: Dict[str, Any] = Field(default_factory=dict)
+    cleaned_metrics: Dict[str, Any] = Field(default_factory=dict)
+    absolute_diff: Dict[str, Any] = Field(default_factory=dict)
+    relative_diff: Dict[str, Any] = Field(default_factory=dict)
+    sensitivity_analysis: Dict[str, Any] = Field(default_factory=dict)

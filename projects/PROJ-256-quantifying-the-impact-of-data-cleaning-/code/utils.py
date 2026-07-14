@@ -1,76 +1,85 @@
+import logging
 import os
 import hashlib
-import logging
-import random
 import numpy as np
-from typing import Optional, Any, Callable, Union, List, Dict
+from typing import Any
 
-logger = logging.getLogger(__name__)
+# ----------------------------------------------------------------------
+# Utility functions for the project
+# ----------------------------------------------------------------------
 
-def setup_logging(log_level: Union[str, int, None] = None, name: Optional[str] = None) -> logging.Logger:
+def pin_random_seed(seed: int = 42) -> None:
     """
-    Setup logging configuration.
-    Tolerant to various call signatures:
-    - setup_logging()
-    - setup_logging("INFO")
-    - setup_logging(log_level="INFO")
-    - setup_logging(logging.INFO)
-    - setup_logging(name="my_logger")
-    - setup_logging(log_level="INFO", name="my_logger")
+    Set the random seed for reproducibility across numpy and the standard
+    library ``random`` module.
+
+    Parameters
+    ----------
+    seed : int, optional
+        Seed value to use. Default is 42.
     """
-    # Normalize log_level
-    if log_level is None:
-        level = logging.INFO
-    elif isinstance(log_level, str):
-        level = getattr(logging, log_level.upper(), logging.INFO)
-    elif isinstance(log_level, int):
-        level = log_level
-    else:
-        level = logging.INFO
+    import random
 
-    # Determine logger name
-    logger_name = name if name else "llmXive"
-
-    # Get or create logger
-    log = logging.getLogger(logger_name)
-    log.setLevel(level)
-
-    # Avoid adding handlers multiple times
-    if not log.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        handler.setFormatter(formatter)
-        log.addHandler(handler)
-
-    return log
-
-def pin_random_seed(seed: int) -> None:
-    """Pin random seed for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    # If other libraries (e.g., torch) are added later they can be seeded here.
+
 
 def compute_file_checksum(filepath: str) -> str:
-    """Compute SHA256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
+    """
+    Compute the SHA256 checksum of a file.
+
+    Parameters
+    ----------
+    filepath : str
+        Path to the file.
+
+    Returns
+    -------
+    str
+        Hexadecimal SHA256 checksum.
+    """
+    sha256 = hashlib.sha256()
     with open(filepath, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
-def main():
-    # Test setup_logging
-    log1 = setup_logging()
-    log1.info("Default logging setup")
-    
-    log2 = setup_logging("DEBUG")
-    log2.debug("Debug logging setup")
-    
-    log3 = setup_logging(log_level="WARNING", name="test_logger")
-    log3.warning("Custom logger setup")
 
-if __name__ == "__main__":
-    main()
+def setup_logging(log_level: str = "INFO", *args: Any, **kwargs: Any) -> logging.Logger:
+    """
+    Initialise logging for the project.
+
+    This function is deliberately tolerant: it accepts a positional
+    ``log_level`` argument, a keyword ``log_level`` argument, or no argument
+    at all.  Additional ``*args``/``**kwargs`` are ignored so that callers
+    with different signatures do not raise errors.
+
+    Parameters
+    ----------
+    log_level : str, optional
+        Logging level name (e.g., "INFO", "DEBUG"). If omitted, defaults
+        to "INFO".
+
+    Returns
+    -------
+    logging.Logger
+        Configured root logger.
+    """
+    # Resolve the log level (positional takes precedence, then keyword)
+    if args:
+        level = str(args[0])
+    else:
+        level = str(kwargs.get("log_level", log_level))
+
+    level = level.upper()
+    numeric_level = getattr(logging, level, logging.INFO)
+
+    logging.basicConfig(
+        level=numeric_level,
+        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logger = logging.getLogger()
+    logger.setLevel(numeric_level)
+    return logger

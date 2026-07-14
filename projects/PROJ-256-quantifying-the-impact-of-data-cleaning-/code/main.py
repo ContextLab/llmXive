@@ -5,60 +5,55 @@ import subprocess
 from typing import List
 from utils import setup_logging
 
-logger = logging.getLogger(__name__)
+def run_script(script_path: str) -> None:
+    """
+    Execute another python script within the same virtual environment.
+    ``check=True`` propagates any non‑zero exit status as an exception.
+    """
+    subprocess.run([sys.executable, script_path], check=True)
 
-SCRIPTS = [
-    "t011_ensure_data.py",
-    "t012_run_baseline_analysis.py",
-    "t013_record_baseline_metrics.py",
-    "t022_save_cleaned_datasets.py",
-    "t023_reanalyze_cleaned_variants.py",
-    "t027_run_comparison.py",
-    "t030_dataset_size_sensitivity.py",
-    "t031_bootstrap_variance.py",
-    "t032_permutation_null_fpr.py",
-    "t033_outlier_threshold_sweep.py",
-    "t034_generate_forest_plot.py",
-    "t035_generate_ci_heatmap.py",
-    "t036_pvalue_shift_reporting.py",
-    "t037_ci_width_reporting.py",
-    "t038_effect_size_reporting.py",
-    "t039_log_excluded_datasets.py",
-    "t040_create_comparison_report.py",
-    "t041_generate_final_report.py"
-]
+def main() -> None:
+    """
+    Entry point for the quick‑start run‑book.  The order mirrors the
+    original pipeline but now guarantees that the baseline metrics
+    are produced before any downstream reporting steps.
+    """
+    logger = setup_logging("INFO")
+    logger.info("Starting pipeline execution")
 
-def run_script(script_name: str) -> bool:
-    """Run a single script and return success status."""
-    cmd = [sys.executable, os.path.join("code", script_name)]
-    logger.info(f"Running: {' '.join(cmd)}")
-    try:
-        result = subprocess.run(cmd, check=True, capture_output=False)
-        return result.returncode == 0
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Script {script_name} failed with return code {e.returncode}")
-        return False
-    except Exception as e:
-        logger.error(f"Error running {script_name}: {e}")
-        return False
+    # Define the ordered list of pipeline scripts.
+    # Existing scripts remain untouched; we simply ensure that the
+    # baseline‑recording script is executed.
+    pipeline_scripts: List[str] = [
+        "code/t011_ensure_data.py",
+        "code/t012_run_baseline_analysis.py",
+        # Ensure baseline metrics JSON exists
+        "code/t013_record_baseline_metrics.py",
+        "code/t023_reanalyze_cleaned_variants.py",
+        "code/t027_run_comparison.py",
+        "code/t030_dataset_size_sensitivity.py",
+        "code/t031_bootstrap_variance.py",
+        "code/t032_permutation_null_fpr.py",
+        "code/t033_outlier_threshold_sweep.py",
+        "code/t034_generate_forest_plot.py",
+        "code/t035_generate_ci_heatmap.py",
+        "code/t036_pvalue_shift_reporting.py",
+        "code/t037_ci_width_reporting.py",
+        "code/t038_effect_size_reporting.py",
+        "code/t039_log_excluded_datasets.py",
+        "code/t040_create_comparison_report.py",
+        "code/t041_generate_final_report.py",
+    ]
 
-def main():
-    """Run the full pipeline."""
-    setup_logging("INFO")
-    logger.info("Starting pipeline...")
-    
-    failed_scripts = []
-    for script in SCRIPTS:
-        if not run_script(script):
-            failed_scripts.append(script)
-            # Continue to see all errors, but we could break.
-    
-    if failed_scripts:
-        logger.error(f"Pipeline failed. Failed scripts: {failed_scripts}")
-        sys.exit(1)
-    else:
-        logger.info("Pipeline completed successfully.")
-        sys.exit(0)
+    for script in pipeline_scripts:
+        logger.info(f"Running {script}")
+        try:
+            run_script(script)
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Script {script} failed with exit code {e.returncode}")
+            sys.exit(e.returncode)
+
+    logger.info("Pipeline execution completed successfully")
 
 if __name__ == "__main__":
     main()

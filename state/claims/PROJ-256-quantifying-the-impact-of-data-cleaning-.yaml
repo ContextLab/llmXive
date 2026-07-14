@@ -45,3 +45,120 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T08:56:31Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: only two verified datasets (UCI HAR and UCI Shopper) are available
+  claim_id: c_ab050fce
+  context: "Dataset feasibility: A limited number of verified datasets (UCI HAR, UCI\
+    \ Shopper) are available.; SC-006 (\u226510 datasets) flagged for spec kickback\
+    \ - median/IQR tasks (T036-T038) now active with fallback logic."
+  evidence:
+    entailment_evidence: Only two verified datasets (UCI HAR and UCI Shopper) are
+      ava
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Only_two_verified_datasets_(UCI_HAR_and_UCI_Shopper)_are_ava
+  kind: entity_fact
+  raw_text: A limited number of verified datasets (UCI HAR, UCI Shopper) are available.
+  resolved_value: only two verified datasets (UCI HAR and UCI Shopper) are available
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T09:42:45Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: scipy, statsmodels, and scikit-learn are CPU-only and have no GPU/CUDA
+    dependencies
+  claim_id: c_ddc65ac8
+  context: 'CPU-tractability: All statistical methods (scipy, statsmodels, scikit-learn)
+    are CPU-only; no GPU/CUDA dependencies.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scipy,_statsmodels,_and_scikit-learn_are_CPU-only_and_have_n
+  kind: entity_fact
+  raw_text: All statistical methods (scipy, statsmodels, scikit-learn) are CPU-only;
+    no GPU/CUDA dependencies.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:12Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: scipy, statsmodels, scikit-learn are CPU-only
+  claim_id: c_7c5abcbb
+  context: 'CPU-tractability: All statistical methods (scipy, statsmodels, scikit-learn)
+    are CPU-only; no GPU/CUDA dependencies'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scipy,_statsmodels,_scikit-learn_are_CPU-only
+  kind: entity_fact
+  raw_text: All statistical methods (scipy, statsmodels, scikit-learn) are CPU-only;
+    no GPU/CUDA dependencies
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:43:30Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: scipy, statsmodels, and scikit-learn are CPU-only with no GPU/CUDA dependencies
+  claim_id: c_1f71a93e
+  context: All statistical methods (scipy, statsmodels, scikit-learn) are CPU-only;
+    no GPU/CUDA dependencies
+  evidence:
+    entailment_evidence: Scipy, statsmodels, and scikit-learn are CPU-only with no
+      GP
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Scipy,_statsmodels,_and_scikit-learn_are_CPU-only_with_no_GP
+  kind: entity_fact
+  raw_text: All statistical methods (scipy, statsmodels, scikit-learn) are CPU-only;
+    no GPU/CUDA dependencies
+  resolved_value: scipy, statsmodels, and scikit-learn are CPU-only with no GPU/CUDA
+    dependencies
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T09:43:56Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Baseline analysis script outputs p-values between 0 and 1 and finite
+    confidence intervals in baseline_metrics.json
+  claim_id: c_66109479
+  context: User Story 1 specifies that the baseline analysis script must produce a
+    report file containing p-values that lie between 0 and 1 and confidence interval
+    bounds that are finite.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline analysis script produces baseline_metrics.json with valid
+    p-values (0 < p < 1) and finite CIs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:48:43Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: download_dataset returns 200 status and non-empty content for UCI HAR
+    URL
+  claim_id: c_3c36115e
+  context: 'Contract test in `tests/unit/test_acquisition.py`: Verify `download_dataset`
+    returns 200 status and non-empty content for UCI HAR URL.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify `download_dataset` returns 200 status and non-empty content for
+    UCI HAR URL.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:58:46Z'

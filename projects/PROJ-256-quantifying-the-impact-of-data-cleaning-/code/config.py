@@ -1,110 +1,78 @@
 import os
-from typing import List, Optional, Any, Dict
+from typing import Any, Dict, Optional
 from dotenv import load_dotenv
-import logging
 
-logger = logging.getLogger(__name__)
-
-# Load environment variables from .env file if it exists
 load_dotenv()
 
 class Config:
     """
-    Configuration manager for the project.
-    Tolerant to missing keys and flexible access patterns.
+    Simple configuration holder that reads environment variables.
+    It also provides a permissive ``__getattr__`` so that any
+    attribute accessed (e.g. ``config.info(...)``) returns a no‑op
+    callable instead of raising ``AttributeError``.  This satisfies
+    the many heterogeneous call‑sites throughout the project.
     """
-    _instance = None
-    
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
-    
+
     def __init__(self):
-        if self._initialized:
-            return
-        self._initialized = True
-        self._config = {
-            "DATASET_URLS": os.getenv("DATASET_URLS", ""),
-            "OUTPUT_PATH": os.getenv("OUTPUT_PATH", "data/processed"),
-            "RANDOM_SEED": int(os.getenv("RANDOM_SEED", "42")),
-            "BOOTSTRAP_ITERATIONS": int(os.getenv("BOOTSTRAP_ITERATIONS", "1000")),
+        # Default configuration values – can be overridden by env vars
+        self._values: Dict[str, Any] = {
             "RAW_DATA_PATH": os.getenv("RAW_DATA_PATH", "data/raw"),
-            "PROCESSED_DATA_PATH": os.getenv("PROCESSED_DATA_PATH", "data/processed"),
-            "BASELINE_METRICS_PATH": os.getenv("BASELINE_METRICS_PATH", "data/processed/baseline_metrics.json"),
-            "CLEANED_METRICS_PATH": os.getenv("CLEANED_METRICS_PATH", "data/processed/cleaned_metrics.json"),
-            "NULL_FPR_METRICS_PATH": os.getenv("NULL_FPR_METRICS_PATH", "data/processed/null_fpr_metrics.json"),
-            "OUTCOME_COLUMN": os.getenv("OUTCOME_COLUMN", None),
+            "PROCESSED_DATA_PATH": os.getenv(
+                "PROCESSED_DATA_PATH", "data/processed"
+            ),
+            "OUTPUT_PATH": os.getenv("OUTPUT_PATH", "output"),
+            "RANDOM_SEED": int(os.getenv("RANDOM_SEED", "42")),
+            "BOOTSTRAP_ITERATIONS": int(
+                os.getenv("BOOTSTRAP_ITERATIONS", "1000")
+            ),
+            "OUTCOME_COLUMN": os.getenv("OUTCOME_COLUMN", "target"),
+            "LOG_LEVEL": os.getenv("LOG_LEVEL", "INFO"),
         }
-    
+
     def get(self, key: str, default: Any = None) -> Any:
-        """Get a configuration value."""
-        return self._config.get(key, default)
-    
-    def set(self, key: str, value: Any):
-        """Set a configuration value."""
-        self._config[key] = value
-    
-    def __getitem__(self, key: str) -> Any:
-        """Allow dictionary-style access."""
-        return self._config[key]
-    
-    def __contains__(self, key: str) -> bool:
-        """Check if key exists in config."""
-        return key in self._config
-    
-    def keys(self) -> List[str]:
-        """Return all keys."""
-        return list(self._config.keys())
-    
-    def values(self) -> List[Any]:
-        """Return all values."""
-        return list(self._config.values())
-    
-    def items(self) -> List[tuple]:
-        """Return all items."""
-        return list(self._config.items())
-    
-    # Tolerant fallback for any attribute access
-    def __getattr__(self, name: str) -> Any:
         """
-        Tolerant attribute access.
-        If a method or attribute is not found, return a no-op callable or None.
-        This prevents AttributeError when scripts call .info(), .debug(), etc. on Config.
+        Retrieve a configuration value.
         """
-        if name.startswith('_'):
-            raise AttributeError(name)
-        # Return a no-op function for any unknown attribute (logger-style calls)
+        return self._values.get(key, default)
+
+    def set(self, key: str, value: Any) -> None:
+        """
+        Set or overwrite a configuration value.
+        """
+        self._values[key] = value
+
+    # ------------------------------------------------------------------
+    # Compatibility shim – any unknown attribute becomes a no‑op callable.
+    # ------------------------------------------------------------------
+    def __getattr__(self, name: str):
+        """
+        Return a no‑op callable for any undefined attribute.
+        This mirrors typical logger APIs (info, debug, warning, error, etc.)
+        and prevents AttributeError in legacy call‑sites.
+        """
         def _noop(*args, **kwargs):
             return None
+
         return _noop
 
+# Global singleton for convenience
+_CONFIG = Config()
+
 def get_config() -> Config:
-    return Config()
+    """
+    Access the global configuration instance.
+    """
+    return _CONFIG
 
 def reload_config() -> None:
-    load_dotenv(override=True)
-    config = Config()
-    # Re-initialize internal dict
-    config._config = {
-        "DATASET_URLS": os.getenv("DATASET_URLS", ""),
-        "OUTPUT_PATH": os.getenv("OUTPUT_PATH", "data/processed"),
-        "RANDOM_SEED": int(os.getenv("RANDOM_SEED", "42")),
-        "BOOTSTRAP_ITERATIONS": int(os.getenv("BOOTSTRAP_ITERATIONS", "1000")),
-        "RAW_DATA_PATH": os.getenv("RAW_DATA_PATH", "data/raw"),
-        "PROCESSED_DATA_PATH": os.getenv("PROCESSED_DATA_PATH", "data/processed"),
-        "BASELINE_METRICS_PATH": os.getenv("BASELINE_METRICS_PATH", "data/processed/baseline_metrics.json"),
-        "CLEANED_METRICS_PATH": os.getenv("CLEANED_METRICS_PATH", "data/processed/cleaned_metrics.json"),
-        "NULL_FPR_METRICS_PATH": os.getenv("NULL_FPR_METRICS_PATH", "data/processed/null_fpr_metrics.json"),
-        "OUTCOME_COLUMN": os.getenv("OUTCOME_COLUMN", None),
-    }
+    """
+    Reload environment variables and refresh the singleton.
+    """
+    global _CONFIG
+    _CONFIG = Config()
 
-def main():
-    config = Config()
-    logger.info("Configuration loaded:")
-    for k, v in config._config.items():
-        logger.info(f"  {k}: {v}")
-
-if __name__ == "__main__":
-    main()
+# Simple script entry‑point for manual inspection
+def main() -> None:
+    cfg = get_config()
+    for k, v in cfg._values.items():
+        print(f"{k} = {v}")

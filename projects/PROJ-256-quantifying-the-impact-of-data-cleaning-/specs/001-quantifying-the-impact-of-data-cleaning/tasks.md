@@ -137,15 +137,15 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 - [X] T029 [US3] Implement missingness rate binning with explicit thresholds: non-missing, low, moderate, and high. **Requirement**: Log warning: "Warning: Missingness bin thresholds [0, 5, 10, 20] used. If bins are empty, log CONSTRAINT_VIOLATION but do not skip logic." **Control Flow**: If bins are empty, log warning and proceed.
 - [X] T030 [US3] Implement dataset size binning sensitivity analysis (n<50, 50-200, >200). **Requirement**: Log warning if <1 dataset per bin. **Control Flow**: If bins are empty, log CONSTRAINT_VIOLATION warning and proceed. **Dependency**: Depends on baseline metrics.
 - [X] T031 [US3] Implement bootstrap variance estimation (≥1000 resamples per dataset, default 1000, fallback to 500 if dataset size > 5000 rows) for metric shifts with 95% CI. **Dependency**: Depends on existence of metric artifacts (T012, T023).
-- [ ] T032 [US3] Implement permutation null dataset generation (outcome variable shuffled) for false-positive rate (FPR) estimation per FR-011. **Requirement**: Generate null datasets by shuffling outcomes while keeping predictors fixed. Output `data/processed/null_fpr_metrics.json`.
-- [ ] T033 [US3] Implement outlier threshold sweep for k ∈ {, a specific threshold} with FPR calculation AND inconsistency rate per threshold per FR-006. **Requirement**: Calculate FPR as proportion of tests with p ≤ 0.05 in null datasets. Calculate Inconsistency Rate as proportion of datasets where significance status changes. **Dependency**: Depends on cleaning functions (T017-T021) and analysis functions (T012, T023).
+- [X] T032 [US3] Implement permutation null dataset generation (outcome variable shuffled) for false-positive rate (FPR) estimation per FR-011. **Requirement**: Generate null datasets by shuffling outcomes while keeping predictors fixed. Output `data/processed/null_fpr_metrics.json`.
+- [X] T033 [US3] Implement outlier threshold sweep for k ∈ {, a specific threshold} with FPR calculation AND inconsistency rate per threshold per FR-006. **Requirement**: Calculate FPR as proportion of tests with p ≤ 0.05 in null datasets. Calculate Inconsistency Rate as proportion of datasets where significance status changes. **Dependency**: Depends on cleaning functions (T017-T021) and analysis functions (T012, T023).
 - [X] T034 [US3] Generate forest plot of p-value shifts using matplotlib/seaborn and save as PNG to `output/`.
 - [X] T035 [US3] Generate heatmap of CI-width changes across strategies and dataset bins and save as PNG to `output/`.
 - [X] T036 [US3] Implement per-dataset p-value shift reporting. **Requirement**: Calculate Median and IQR of p-value shifts. If n=2, log "STATISTICAL_LIMITATION: Median/IQR calculated on n=2, results are unstable." Do not skip calculation.
 - [X] T037 [US3] Implement per-dataset CI width change reporting. **Requirement**: Calculate Median and IQR of CI width changes. If n=2, log "STATISTICAL_LIMITATION: Median/IQR calculated on n=2, results are unstable." Do not skip calculation.
 - [X] T038 [US3] Implement per-dataset effect-size change reporting. **Requirement**: Calculate Median and IQR of effect-size changes. If n=2, log "STATISTICAL_LIMITATION: Median/IQR calculated on n=2, results are unstable." Do not skip calculation.
 - [X] T039 [US3] Log excluded datasets (>80% missing outcome) with warning and record exclusion reason.
-- [~] T040 [US3] Create comparison report (ComparisonReport entity) with baseline_metrics, cleaned_metrics, absolute_diff, relative_diff, sensitivity_analysis. <!-- FAILED: unspecified -->
+- [X] T040 [US3] Create comparison report (ComparisonReport entity) with baseline_metrics, cleaned_metrics, absolute_diff, relative_diff, sensitivity_analysis. <!-- FAILED: unspecified -->
 - [X] T041 [US3] Generate final report with all metrics aggregated and visualizations referenced.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -261,8 +261,8 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU-tractability**: All statistical methods (scipy, statsmodels, scikit-learn) are CPU-only; no GPU/CUDA dependencies
-- **Dataset feasibility**: A limited number of verified datasets (UCI HAR, UCI Shopper) are available.; SC-006 (≥10 datasets) flagged for spec kickback - median/IQR tasks (T036-T038) now active with fallback logic (per-dataset reporting) to preserve constraint intent.
+- **CPU-tractability**: {{claim:c_1f71a93e}}
+- **Dataset feasibility**: {{claim:c_ab050fce}}; SC-006 (≥10 datasets) flagged for spec kickback - median/IQR tasks (T036-T038) now active with fallback logic (per-dataset reporting) to preserve constraint intent.
 - **Bootstrap iterations**: A default number of iterations will be used for the simulation., fallback to 500 if dataset size > 5000 rows per plan assumptions (T031) - Constitution Principle VI minimum preserved
 - **Edge cases**: Handle no outliers, >80% missing outcome, ≥50% row removal, variance reduction ≥20%
 - **Spec deviations**: T011 acknowledges OpenML→UCI deviation; T028 acknowledges FDR vs FWER distinction; T033 acknowledges FR-006 inconsistency rate requirement

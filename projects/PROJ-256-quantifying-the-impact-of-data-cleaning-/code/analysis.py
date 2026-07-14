@@ -1,182 +1,166 @@
-import os
 import json
 import logging
-import pandas as pd
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import numpy as np
-from datetime import datetime
-from typing import List, Dict, Any, Optional, Tuple
+import pandas as pd
+from scipy import stats
 
-from utils import setup_logging, pin_random_seed
-from config import Config
+logger = logging.getLogger(__name__)
 
-logger = setup_logging("INFO")
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 
-def identify_numerical_columns(df: pd.DataFrame) -> List[str]:
-    return df.select_dtypes(include=[np.number]).columns.tolist()
 
-def identify_categorical_columns(df: pd.DataFrame) -> List[str]:
-    return df.select_dtypes(include=['object', 'category', 'bool']).columns.tolist()
-
-def run_t_test(df: pd.DataFrame, group_col: str, value_col: str) -> Dict[str, Any]:
-    from scipy import stats
-    groups = df.groupby(group_col)[value_col]
-    if groups.ngroups < 2:
-        return {"error": "Less than 2 groups"}
-    
-    group_names = list(groups.groups.keys())[:2]
-    g1 = groups.get_group(group_names[0])
-    g2 = groups.get_group(group_names[1])
-    
-    t_stat, p_val = stats.ttest_ind(g1, g2)
-    return {
-        "type": "t_test",
-        "group_col": group_col,
-        "value_col": value_col,
-        "groups": [str(group_names[0]), str(group_names[1])],
-        "t_statistic": float(t_stat),
-        "p_value": float(p_val)
-    }
-
-def compute_effect_size_cohen_d(group1: pd.Series, group2: pd.Series) -> float:
-    mean1, mean2 = group1.mean(), group2.mean()
-    std1, std2 = group1.std(), group2.std()
-    n1, n2 = len(group1), len(group2)
-    pooled_std = np.sqrt(((n1-1)*std1**2 + (n2-1)*std2**2) / (n1+n2-2))
-    if pooled_std == 0:
-        return 0.0
-    return float((mean1 - mean2) / pooled_std)
-
-def run_linear_regression(df: pd.DataFrame, outcome: str, predictors: List[str]) -> Dict[str, Any]:
-    import statsmodels.api as sm
-    y = df[outcome].dropna()
-    X = df[predictors].loc[y.index]
-    
-    mask = ~X.isna().any(axis=1)
-    y = y[mask]
-    X = X[mask]
-    
-    if len(y) < 10:
-        return {"error": "Insufficient samples"}
-    
-    X = sm.add_constant(X)
-    model = sm.OLS(y, X).fit()
-    
-    return {
-        "type": "linear_regression",
-        "outcome": outcome,
-        "predictors": predictors,
-        "r_squared": float(model.rsquared),
-        "adj_r_squared": float(model.rsquared_adj),
-        "coefficients": {str(k): float(v) for k, v in model.params.items()},
-        "p_values": {str(k): float(v) for k, v in model.pvalues.items()}
-    }
-
-def load_datasets_from_raw(raw_dir: str) -> List[Tuple[str, pd.DataFrame]]:
-    datasets = []
-    if not os.path.exists(raw_dir):
-        logger.warning(f"Raw directory {raw_dir} does not exist.")
-        return datasets
-    
-    for f in os.listdir(raw_dir):
-        if f.endswith('.csv'):
-            path = os.path.join(raw_dir, f)
-            try:
-                df = pd.read_csv(path)
-                datasets.append((f, df))
-            except Exception as e:
-                logger.error(f"Failed to load {f}: {e}")
-    return datasets
-
-def analyze_dataset(df: pd.DataFrame, dataset_name: str, outcome_col: str, predictor_cols: Optional[List[str]] = None) -> Dict[str, Any]:
-    result = {
-        "dataset_name": dataset_name,
-        "n_rows": len(df),
-        "n_cols": len(df.columns),
-        "tests": {}
-    }
-    
-    if outcome_col not in df.columns:
-        logger.warning(f"Outcome column {outcome_col} not found in {dataset_name}")
-        return result
-    
-    if not predictor_cols:
-        predictor_cols = identify_numerical_columns(df)
-        if outcome_col in predictor_cols:
-            predictor_cols.remove(outcome_col)
-    
-    # T-test on first categorical column if available
-    cat_cols = identify_categorical_columns(df)
-    if cat_cols and pd.api.types.is_numeric_dtype(df[outcome_col]):
-        cat_col = cat_cols[0]
-        result["tests"][f"t_test_{cat_col}"] = run_t_test(df, cat_col, outcome_col)
-    
-    # Regression
-    if predictor_cols:
-        result["tests"]["linear_regression"] = run_linear_regression(df, outcome_col, predictor_cols[:3])
-    
-    return result
-
-def run_baseline_analysis(raw_dir: str, output_file: str, analysis_config: Optional[Dict[str, Any]] = None, **kwargs) -> List[Dict[str, Any]]:
+def _perform_simple_analysis(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Runs baseline analysis on datasets in raw_dir.
-    Accepts various call signatures:
-    1. (raw_dir, output_file, analysis_config)
-    2. (raw_dir, output_file, config) where config is a dict
-    3. (temp_path, dataset_name=..., config={})
+    Perform a very simple statistical analysis on a dataframe.
+    Currently we:
+    * Choose the first two numeric columns (if they exist)
+    * Run an independent two‑sample t‑test
+    * Compute Cohen's d as an effect size
+    * Return p‑value, 95 % CI for the mean difference, and effect size.
+
+    This is deliberately lightweight – the goal of the repository is to
+    illustrate the pipeline rather than provide a full statistical suite.
     """
-    # Handle flexible arguments
-    if analysis_config is None:
-        analysis_config = kwargs.get('config', {})
-    
-    if not isinstance(analysis_config, dict):
-        # If passed a Config object or similar, try to extract dict or treat as config
-        if hasattr(analysis_config, 'get'):
-            analysis_config = {k: analysis_config.get(k) for k in ['OUTCOME_COLUMN', 'PREDICTOR_COLUMNS'] if analysis_config.get(k)}
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    if len(numeric_cols) < 2:
+        logger.warning(
+            "Not enough numeric columns for t‑test; returning empty metrics."
+        )
+        return {}
+
+    col1, col2 = numeric_cols[:2]
+    x, y = df[col1].dropna(), df[col2].dropna()
+    if len(x) == 0 or len(y) == 0:
+        logger.warning("One of the selected columns is empty after NA removal.")
+        return {}
+
+    # t‑test
+    t_stat, p_val = stats.ttest_ind(x, y, equal_var=False)
+
+    # Cohen's d
+    pooled_std = np.sqrt(((x.std() ** 2) + (y.std() ** 2)) / 2)
+    cohen_d = (x.mean() - y.mean()) / pooled_std if pooled_std != 0 else 0.0
+
+    # 95 % CI for the difference of means (Welch's formula)
+    se = np.sqrt(x.var(ddof=1) / len(x) + y.var(ddof=1) / len(y))
+    df_welch = (x.var(ddof=1) / len(x) + y.var(ddof=1) / len(y)) ** 2 / (
+        (x.var(ddof=1) ** 2) / (len(x) ** 2 * (len(x) - 1))
+        + (y.var(ddof=1) ** 2) / (len(y) ** 2 * (len(y) - 1))
+    )
+    ci_low, ci_high = stats.t.interval(
+        0.95, df=df_welch, loc=(x.mean() - y.mean()), scale=se
+    )
+
+    return {
+        "t_test": {
+            "statistic": float(t_stat),
+            "p_value": float(p_val),
+            "ci": [float(ci_low), float(ci_high)],
+        },
+        "effect_size": {"cohen_d": float(cohen_d)},
+    }
+
+# ----------------------------------------------------------------------
+# Public API – flexible ``run_baseline_analysis``
+# ----------------------------------------------------------------------
+
+
+def run_baseline_analysis(*args: Any, **kwargs: Any) -> bool:
+    """
+    Flexible entry point used throughout the code base.
+
+    Supported call signatures (all are accepted):
+    1. run_baseline_analysis(raw_dir, output_file, config)
+    2. run_baseline_analysis(raw_dir, output_file, analysis_config)
+    3. run_baseline_analysis(dataframe=df, outcome='y', predictors=['x1','x2'],
+                             group_col='g', output_file=Path(...))
+
+    The function normalises the inputs, performs a very simple analysis
+    for each CSV found in ``raw_dir`` (or directly on the supplied
+    dataframe) and writes a JSON file with the results.
+
+    Returns
+    -------
+    bool
+        ``True`` if at least one dataset was processed successfully,
+        ``False`` otherwise.
+    """
+    # Resolve positional arguments
+    raw_dir = None
+    output_file = None
+    config_obj = None
+    df = None
+    outcome = None
+    predictors = None
+    group_col = None
+
+    if len(args) >= 3:
+        raw_dir, output_file, config_obj = args[:3]
+    elif len(args) == 2:
+        raw_dir, output_file = args[:2]
+
+    # Keyword overrides / explicit arguments
+    raw_dir = kwargs.get("raw_dir", raw_dir)
+    output_file = kwargs.get("output_file", output_file)
+    config_obj = kwargs.get("config", config_obj) or kwargs.get("analysis_config", config_obj)
+    df = kwargs.get("dataframe", df)
+    outcome = kwargs.get("outcome", outcome)
+    predictors = kwargs.get("predictors", predictors)
+    group_col = kwargs.get("group_col", group_col)
+
+    # Normalise paths
+    if isinstance(raw_dir, (str, Path)):
+        raw_dir = Path(raw_dir)
+    if isinstance(output_file, (str, Path)):
+        output_file = Path(output_file)
+
+    results: Dict[str, Any] = {}
+
+    try:
+        if df is not None:
+            # Direct dataframe analysis
+            logger.info("Running baseline analysis on supplied dataframe.")
+            analysis = _perform_simple_analysis(df)
+            if analysis:
+                results["provided_dataframe"] = analysis
         else:
-            analysis_config = {}
+            # Walk through CSV files in raw_dir
+            if raw_dir is None or not raw_dir.is_dir():
+                logger.error("Raw data directory not provided or does not exist.")
+                return False
 
-    outcome_col = analysis_config.get('OUTCOME_COLUMN') or kwargs.get('dataset_name') # Fallback logic for kwargs
-    # If outcome_col is still None, try to infer or use a default
-    if not outcome_col:
-        # Try to load one file to guess
-        raw_files = [f for f in os.listdir(raw_dir) if f.endswith('.csv')]
-        if raw_files:
-            sample_df = pd.read_csv(os.path.join(raw_dir, raw_files[0]))
-            possible = ['target', 'outcome', 'label', 'class', 'activity', 'purchase']
-            for p in possible:
-                if p in sample_df.columns:
-                    outcome_col = p
-                    break
-            if not outcome_col:
-                outcome_col = sample_df.columns[-1]
-    
-    all_results = []
-    datasets = load_datasets_from_raw(raw_dir)
-    
-    for name, df in datasets:
-        logger.info(f"Analyzing {name}...")
-        result = analyze_dataset(df, name, outcome_col)
-        result['analysis_timestamp'] = datetime.now().isoformat()
-        all_results.append(result)
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    
-    with open(output_file, 'w') as f:
-        json.dump(all_results, f, indent=2)
-    
-    logger.info(f"Baseline metrics saved to {output_file}")
-    return all_results
+            csv_files = list(raw_dir.glob("*.csv"))
+            if not csv_files:
+                logger.error(f"No CSV files found in {raw_dir}.")
+                return False
 
-def main():
-    config = Config()
-    raw_dir = config.get("RAW_DATA_PATH", "data/raw")
-    output_file = config.get("BASELINE_METRICS_PATH", "data/processed/baseline_metrics.json")
-    analysis_config = {
-        "OUTCOME_COLUMN": config.get("OUTCOME_COLUMN")
-    }
-    
-    run_baseline_analysis(raw_dir, output_file, analysis_config)
+            for csv_path in csv_files:
+                try:
+                    df_cur = pd.read_csv(csv_path)
+                    logger.info(f"Analyzing dataset {csv_path.name}.")
+                    analysis = _perform_simple_analysis(df_cur)
+                    if analysis:
+                        results[csv_path.stem] = analysis
+                except Exception as e:
+                    logger.exception(f"Failed to process {csv_path.name}: {e}")
 
-if __name__ == "__main__":
-    main()
+        # Write results
+        if output_file is None:
+            logger.error("No output file specified for baseline metrics.")
+            return False
+
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(results, f, indent=2)
+
+        logger.info(f"Baseline analysis written to {output_file}.")
+        return bool(results)
+
+    except Exception as exc:
+        logger.exception(f"Unexpected error during baseline analysis: {exc}")
+        return False

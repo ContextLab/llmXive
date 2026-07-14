@@ -1,68 +1,60 @@
-import os
-import sys
-import json
+"""
+t027_run_comparison.py
+======================
+
+Small wrapper script that invokes the comparison logic implemented in
+``code/reporting.py``.  The script is part of the quick‑start pipeline and
+therefore must be executable as ``python code/t027_run_comparison.py``.
+"""
+
 import logging
-from datetime import datetime
-from typing import Dict, Any, List, Optional
+import sys
+from pathlib import Path
+
+# Import the tolerant logging helper from utils (it already accepts various signatures)
 from utils import setup_logging
-from reporting import generate_comparison_report
 
-logger = setup_logging("INFO")
+# Import the functions we need from reporting
+from reporting import load_baseline_metrics, load_cleaned_metrics, generate_comparison_report, save_json_file
 
-def load_baseline_metrics(filepath: str) -> Dict[str, Any]:
-    """Load baseline metrics from JSON file."""
-    if not os.path.exists(filepath):
-        logger.error(f"Baseline metrics file not found: {filepath}")
-        return {"datasets": [], "total_datasets": 0}
-    
-    with open(filepath, 'r') as f:
-        data = json.load(f)
-    
-    # Ensure consistent structure
-    if isinstance(data, list):
-        return {"datasets": data, "total_datasets": len(data)}
-    return data
+def main() -> int:
+    """
+    Execute the comparison step.
 
-def load_cleaned_metrics(filepath: str) -> Dict[str, Any]:
-    """Load cleaned metrics from JSON file."""
-    if not os.path.exists(filepath):
-        logger.error(f"Cleaned metrics file not found: {filepath}")
-        return {"datasets": [], "total_datasets": 0}
-    
-    with open(filepath, 'r') as f:
-        data = json.load(f)
-    
-    # Ensure consistent structure
-    if isinstance(data, list):
-        return {"datasets": data, "total_datasets": len(data)}
-    return data
+    Returns
+    -------
+    int
+        Exit status (0 = success, non‑zero = error).
+    """
+    # Initialise logging – the helper is deliberately permissive.
+    logger = setup_logging("INFO")
 
-def main():
-    """Main entry point for comparison analysis."""
-    logger.info("Starting comparison analysis")
-    
-    baseline_path = "data/processed/baseline_metrics.json"
-    cleaned_path = "data/processed/cleaned_metrics.json"
-    output_path = "data/processed/comparison_report.json"
-    
-    baseline_metrics = load_baseline_metrics(baseline_path)
-    cleaned_metrics = load_cleaned_metrics(cleaned_path)
-    
-    if not baseline_metrics.get("datasets") and not cleaned_metrics.get("datasets"):
-        logger.warning("No metrics found for comparison")
-        return
-    
+    # Resolve the default output location for the comparison report.
+    output_path = Path("data/processed/comparison_report.json")
+
+    # Load the two metric artefacts.
+    baseline = load_baseline_metrics()
+    cleaned = load_cleaned_metrics()
+
+    if not baseline:
+        logger.error("Baseline metrics not found – cannot generate comparison report.")
+        return 1
+    if not cleaned:
+        logger.error("Cleaned metrics not found – cannot generate comparison report.")
+        return 1
+
+    # Build the report.
+    report = generate_comparison_report(baseline, cleaned)
+
+    # Persist the report.
     try:
-        report = generate_comparison_report(baseline_metrics, cleaned_metrics)
-        
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(report, f, indent=2)
-        
-        logger.info(f"Comparison report written to {output_path}")
-    except Exception as e:
-        logger.error(f"Comparison analysis failed: {e}")
-        raise
+        save_json_file(report, str(output_path))
+    except Exception as exc:
+        logger.exception("Failed to write comparison report: %s", exc)
+        return 1
+
+    logger.info("Comparison report written to %s", output_path)
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

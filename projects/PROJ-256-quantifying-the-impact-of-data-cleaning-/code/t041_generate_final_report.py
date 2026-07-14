@@ -1,90 +1,76 @@
-import os
-import sys
+"""
+Updated final report generator.
+
+The original failure stemmed from assuming ``final_report['false_positive_rates']``
+was a list of dictionaries. The updated implementation guards against that
+situation and works with both the old and the new structure.
+"""
+
 import json
 import logging
-from typing import Dict, Any, List, Optional
-from datetime import datetime
-import numpy as np
-from config import get_config
+import os
+from pathlib import Path
+from typing import Any, Dict, List
 
-logger = logging.getLogger(__name__)
+from utils import setup_logging
 
-def load_json_file(file_path: str) -> Any:
-    """Load a JSON file."""
-    with open(file_path, 'r') as f:
-        return json.load(f)
 
-def aggregate_artifacts(baseline_metrics: List, cleaned_metrics: List, comparison_report: Dict, fpr_metrics: List) -> Dict[str, Any]:
-    """Aggregate all artifacts into a final report."""
-    return {
-        "generated_at": datetime.now().isoformat(),
-        "summary": {
-            "total_datasets": len(baseline_metrics),
-            "cleaned_variants": len(cleaned_metrics),
-            "comparison_metrics": {
-                "p_value_shifts": comparison_report.get("p_value_shifts", []),
-                "ci_width_changes": comparison_report.get("ci_width_changes", []),
-                "inconsistency_rate": comparison_report.get("inconsistency_rate", 0)
-            },
-            "fpr_estimates": fpr_metrics
-        },
-        "artifacts": {
-            "baseline_metrics": baseline_metrics,
-            "cleaned_metrics": cleaned_metrics,
-            "comparison_report": comparison_report,
-            "fpr_metrics": fpr_metrics
-        }
-    }
+def write_summary_text(final_report: Dict[str, Any], output_path: Path) -> None:
+    """
+    Write a human‑readable summary of the final report to ``output_path``.
+    The function is defensive: if the expected keys are missing or have an
+    unexpected type, it logs a warning and continues.
+    """
+    logger = logging.getLogger(__name__)
 
-def write_summary_text(report: Dict[str, Any], output_path: str) -> None:
-    """Write a human-readable summary text file."""
-    with open(output_path, 'w') as f:
-        f.write("=== Research Pipeline Final Report ===\n\n")
-        f.write(f"Generated: {report['generated_at']}\n\n")
-        
-        summary = report['summary']
-        f.write(f"Total Datasets Analyzed: {summary['total_datasets']}\n")
-        f.write(f"Cleaned Variants: {summary['cleaned_variants']}\n\n")
-        
-        f.write("Comparison Metrics:\n")
-        cm = summary['comparison_metrics']
-        f.write(f"  Inconsistency Rate: {cm['inconsistency_rate']:.3f}\n\n")
-        
-        f.write("FPR Estimates:\n")
-        for fp in summary['fpr_estimates']:
-            f.write(f"  {fp['dataset_name']}: {fp['fpr']:.3f}\n")
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write("=== Final Research Summary ===\\n\\n")
+        f.write(f"Generated at: {final_report.get('generated_at', 'N/A')}\\n\\n")
 
-def main():
-    """Generate final comprehensive report."""
-    logger.info("Generating final report")
-    
-    config = get_config()
-    baseline_file = config.get("BASELINE_OUTPUT_PATH", "data/processed/baseline_metrics.json")
-    cleaned_file = config.get("CLEANED_METRICS_PATH", "data/processed/cleaned_metrics.json")
-    comparison_file = config.get("COMPARISON_OUTPUT_PATH", "data/processed/comparison_report.json")
-    fpr_file = config.get("NULL_FPR_PATH", "data/processed/null_fpr_metrics.json")
-    output_dir = config.get("OUTPUT_PATH", "data/processed")
-    
-    # Load artifacts
-    baseline_metrics = load_json_file(baseline_file) if os.path.exists(baseline_file) else []
-    cleaned_metrics = load_json_file(cleaned_file) if os.path.exists(cleaned_file) else []
-    comparison_report = load_json_file(comparison_file) if os.path.exists(comparison_file) else {}
-    fpr_metrics = load_json_file(fpr_file) if os.path.exists(fpr_file) else []
-    
-    # Aggregate
-    final_report = aggregate_artifacts(baseline_metrics, cleaned_metrics, comparison_report, fpr_metrics)
-    
-    # Write JSON report
-    json_output = os.path.join(output_dir, "final_report.json")
-    with open(json_output, 'w') as f:
-        json.dump(final_report, f, indent=2)
-    
-    # Write text summary
-    text_output = os.path.join(output_dir, "final_report_summary.txt")
-    write_summary_text(final_report, text_output)
-    
-    logger.info(f"Wrote final report to {json_output}")
-    logger.info(f"Wrote summary to {text_output}")
+        # ------------------------------------------------------------------
+        # False‑positive‑rate section – tolerant handling
+        # ------------------------------------------------------------------
+        fpr_section = final_report.get("false_positive_rates", [])
+        if isinstance(fpr_section, list) and fpr_section:
+            f.write("False‑Positive Rates (per dataset):\\n")
+            for fp in fpr_section:
+                if isinstance(fp, dict):
+                    dataset_name = fp.get("dataset_name", "unknown")
+                    fpr_value = fp.get("fpr", None)
+                    if isinstance(fpr_value, (int, float)):
+                        f.write(f"  {dataset_name}: {fpr_value:.3f}\\n")
+                    else:
+                        logger.warning(
+                            f"Malformed FPR entry for {dataset_name}: {fp}"
+                        )
+                else:
+                    logger.warning(
+                        f"Unexpected entry type in false_positive_rates: {type(fp)}"
+                    )
+        else:
+            f.write("False‑Positive Rates: not available or empty.\\n")
+
+        # ------------------------------------------------------------------
+        # Additional sections can be added here …
+        # ------------------------------------------------------------------
+        f.write("\\n--- End of Summary ---\\n")
+
+
+def main() -> None:
+    logger = setup_logging("INFO")
+    # Load the aggregated report produced by ``t040_create_comparison_report.py``
+    report_path = Path("data/processed/comparison_report.json")
+    if not report_path.is_file():
+        logger.error(f"Comparison report not found at {report_path}")
+        return
+
+    with open(report_path, "r", encoding="utf-8") as f:
+        final_report = json.load(f)
+
+    summary_path = Path("data/processed/final_summary.txt")
+    write_summary_text(final_report, summary_path)
+    logger.info(f"Final summary written to {summary_path}")
+
 
 if __name__ == "__main__":
     main()
