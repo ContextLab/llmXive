@@ -1,39 +1,63 @@
-"""Unit tests for the graph‑metric computation utilities.
+"""Unit tests for the graph‑metric computation helpers."""
 
-The tests focus on the ``compute_subject_metrics`` helper in
-``code/03_compute_graph_metrics.py``. They construct a tiny synthetic adjacency
-matrix where the expected metrics can be derived analytically.
-"""
 import numpy as np
 import pytest
 
-from code._03_compute_graph_metrics import compute_subject_metrics  # type: ignore
+from utils.graph import (
+    calculate_global_efficiency,
+    calculate_clustering_coefficient,
+    calculate_degree_centrality,
+    calculate_shortest_path_length,
+    create_graph_from_adjacency,
+)
 
 
 @pytest.fixture
-def simple_adj():
-    # A 3‑node fully connected undirected graph (weights = 1)
-    mat = np.array(
+def simple_matrix():
+    """A tiny 3‑node fully‑connected weighted adjacency matrix."""
+    return np.array(
         [
-            [0, 1, 1],
-            [1, 0, 1],
-            [1, 1, 0],
-        ],
-        dtype=float,
+            [0.0, 1.0, 0.5],
+            [1.0, 0.0, 0.2],
+            [0.5, 0.2, 0.0],
+        ]
     )
-    return mat
 
 
-def test_compute_subject_metrics_fully_connected(simple_adj):
-    metrics = compute_subject_metrics(simple_adj)
+def test_create_graph(simple_matrix):
+    G = create_graph_from_adjacency(simple_matrix)
+    assert G.number_of_nodes() == 3
+    # Fully connected undirected graph => 3 edges
+    assert G.number_of_edges() == 3
 
-    # In a fully connected 3‑node graph:
-    # - Degree centrality for each node = 2 / (N‑1) = 1.0
-    # - Average degree = 1.0
-    # - Global efficiency = 1.0 (all shortest paths length = 1)
-    # - Clustering coefficient = 1.0 (each node's neighbours are connected)
-    # - Average shortest path length = 1.0
-    assert pytest.approx(metrics["degree"], rel=1e-6) == 1.0
-    assert pytest.approx(metrics["global_efficiency"], rel=1e-6) == 1.0
-    assert pytest.approx(metrics["clustering_coefficient"], rel=1e-6) == 1.0
-    assert pytest.approx(metrics["average_path_length"], rel=1e-6) == 1.0
+
+def test_degree_centrality(simple_matrix):
+    G = create_graph_from_adjacency(simple_matrix)
+    deg = calculate_degree_centrality(G)
+    # Degree centrality for undirected graph = degree / (n-1)
+    expected = {0: 2 / 2, 1: 2 / 2, 2: 2 / 2}
+    for n in deg:
+        assert pytest.approx(deg[n]) == expected[n]
+
+
+def test_global_efficiency(simple_matrix):
+    G = create_graph_from_adjacency(simple_matrix)
+    eff = calculate_global_efficiency(G)
+    # For a fully connected 3‑node graph, global efficiency = 1.0
+    assert pytest.approx(eff) == 1.0
+
+
+def test_clustering_coefficient(simple_matrix):
+    G = create_graph_from_adjacency(simple_matrix)
+    clust = calculate_clustering_coefficient(G)
+    # Fully connected triangle => clustering coefficient 1 for each node
+    for v in clust.values():
+        assert pytest.approx(v) == 1.0
+
+
+def test_shortest_path_length(simple_matrix):
+    G = create_graph_from_adjacency(simple_matrix)
+    spl = calculate_shortest_path_length(G)
+    # Direct connections => shortest path = 1 for each pair
+    for v in spl.values():
+        assert pytest.approx(v) == 1.0

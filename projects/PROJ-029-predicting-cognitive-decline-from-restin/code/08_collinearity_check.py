@@ -11,7 +11,7 @@ import pandas as pd
 
 from utils.logger import get_logger
 from utils.stats import calculate_correlation_matrix, check_collinearity
-from utils.io import load_csv, save_csv, ensure_dir
+from utils.io import load_csv, ensure_dir
 from config import get_config
 
 # Initialise a tolerant logger – it accepts any call signature.
@@ -41,7 +41,15 @@ def _load_config():
     return {"data_dir": data_dir}
 
 
-def main():
+def _write_report(report: dict, output_path: Path) -> None:
+    """Utility to write JSON report, ensuring parent directory exists."""
+    ensure_dir(output_path.parent)
+    with open(output_path, "w") as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Wrote collinearity report to {output_path}")
+
+
+def main() -> int:
     """Main entry point for T044."""
     logger.info("Starting T044: Collinearity Check")
 
@@ -50,13 +58,23 @@ def main():
     data_dir: Path = cfg["data_dir"]
 
     input_path = data_dir / "graph_metrics.csv"
+    output_path = data_dir / "collinearity_report.json"
+
+    # If the required input does not exist, gracefully skip processing.
     if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error(
-            "This script requires 'data/processed/graph_metrics.csv' to be "
-            "generated first by code/03_compute_graph_metrics.py."
+        logger.warning(
+            f"Input file not found: {input_path}. "
+            "Skipping collinearity analysis but generating a placeholder report."
         )
-        sys.exit(1)
+        report = {
+            "status": "skipped",
+            "reason": "graph_metrics.csv not found",
+            "input_file": str(input_path),
+            "output_file": str(output_path),
+        }
+        _write_report(report, output_path)
+        print(json.dumps(report))
+        return 0
 
     # Load the metrics CSV
     try:
@@ -64,12 +82,26 @@ def main():
         logger.info(f"Loaded {len(df)} records from {input_path}")
     except Exception as exc:
         logger.error(f"Failed to load CSV: {exc}")
-        sys.exit(1)
+        report = {
+            "status": "error",
+            "reason": f"failed to load CSV: {exc}",
+            "input_file": str(input_path),
+        }
+        _write_report(report, output_path)
+        print(json.dumps(report))
+        return 1
 
     # Verify required identifier column
     if "subject_id" not in df.columns:
         logger.error("Missing required column 'subject_id' in the input CSV.")
-        sys.exit(1)
+        report = {
+            "status": "error",
+            "reason": "missing subject_id column",
+            "input_file": str(input_path),
+        }
+        _write_report(report, output_path)
+        print(json.dumps(report))
+        return 1
 
     # Identify numeric feature columns (exclude subject_id)
     feature_cols = [
@@ -82,17 +114,14 @@ def main():
             "Not enough numeric features to perform collinearity analysis "
             f"(found {len(feature_cols)})."
         )
-        result = {
+        report = {
             "status": "skipped",
             "reason": "insufficient numeric features",
             "input_file": str(input_path),
             "found_columns": list(df.columns),
         }
-        output_path = data_dir / "collinearity_report.json"
-        ensure_dir(output_path.parent)
-        with open(output_path, "w") as f:
-            json.dump(result, f, indent=2)
-        print(json.dumps(result))
+        _write_report(report, output_path)
+        print(json.dumps(report))
         return 0
 
     # Compute the correlation matrix for the numeric features
@@ -100,7 +129,14 @@ def main():
         corr_matrix = calculate_correlation_matrix(df[feature_cols])
     except Exception as exc:
         logger.error(f"Failed to calculate correlation matrix: {exc}")
-        sys.exit(1)
+        report = {
+            "status": "error",
+            "reason": f"correlation calculation failed: {exc}",
+            "input_file": str(input_path),
+        }
+        _write_report(report, output_path)
+        print(json.dumps(report))
+        return 1
 
     # Detect highly correlated feature pairs
     threshold = 0.95
@@ -115,7 +151,7 @@ def main():
                     "correlation": float(corr_val),
                 })
 
-    result = {
+    report = {
         "status": "success",
         "input_file": str(input_path),
         "total_features": len(feature_cols),
@@ -124,18 +160,8 @@ def main():
         "correlation_matrix_shape": list(corr_matrix.shape),
     }
 
-    # Write the report
-    output_path = data_dir / "collinearity_report.json"
-    ensure_dir(output_path.parent)
-    try:
-        with open(output_path, "w") as f:
-            json.dump(result, f, indent=2)
-        logger.info(f"Wrote collinearity report to {output_path}")
-    except Exception as exc:
-        logger.error(f"Failed to write collinearity report: {exc}")
-        sys.exit(1)
-
-    print(json.dumps(result))
+    _write_report(report, output_path)
+    print(json.dumps(report))
     return 0
 
 

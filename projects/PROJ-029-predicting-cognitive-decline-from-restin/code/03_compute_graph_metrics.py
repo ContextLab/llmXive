@@ -1,226 +1,192 @@
-"""Compute graph metrics for each subject in parallel.
+"""Compute graph‑theoretic metrics for each subject’s functional connectivity matrix.
 
-This module loads a list of eligible subjects, reads their precomputed
-connectivity matrices, constructs graphs, computes a set of graph‑theoretic
-metrics and writes the results to ``data/processed/graph_metrics.csv``.
-The implementation uses ``joblib.Parallel`` with ``n_jobs=2`` to satisfy
-the performance target of < 30 min for 100 subjects.
+This script is part of the *Predicting Cognitive Decline from Resting‑State fMRI*
+pipeline (User Story 1). It reads the list of eligible subjects, loads each
+subject’s 90 × 90 adjacency matrix (produced by ``02_preprocess_and_parcellate.py``),
+computes a suite of network metrics, and writes the results to
+``data/processed/graph_metrics.csv``.
 
-Public API (as declared in the project spec):
-  - load_config()
-  - get_data_directories()
-  - load_subject_list()
-  - load_connectivity_matrix(subject_id)
-  - compute_subject_metrics(subject_id)
-  - write_outputs(metrics_list)
-  - main()
+The implementation respects the 7 GB RAM limit by processing subjects one‑by‑one
+(now parallelised with joblib) and invoking ``psutil`` to abort if memory usage
+would exceed the threshold.
 """
+
 from __future__ import annotations
 
-import json
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List
+from typing import List, Tuple, Dict, Any
 
 import numpy as np
+import pandas as pd
+import psutil
 from joblib import Parallel, delayed
 
 # Project utilities
-from utils.io import ensure_dir, load_csv, save_csv
+from utils.logger import get_logger, log_operation
+from utils.io import load_csv, save_csv
 from utils.graph import (
     create_graph_from_adjacency,
+    calculate_degree_centrality,
     calculate_global_efficiency,
     calculate_clustering_coefficient,
-    calculate_degree_centrality,
     calculate_shortest_path_length,
 )
-from utils.logger import get_logger
+from config import load_config
 
-# ----------------------------------------------------------------------
-# Configuration handling
-# ----------------------------------------------------------------------
-def load_config() -> Dict:
-    """Load the JSON configuration file.
 
-    The configuration file location is resolved relative to this script.
-    If the file cannot be read, the function logs the error and exits
-    with a non‑zero status code.
-    """
-    logger = get_logger("load_config")
-    config_path = Path(__file__).parent.parent / "config" / "config.json"
-    if not config_path.is_file():
-        logger.error("Configuration file not found at %s", config_path)
-        sys.exit(1)
-    try:
-        with config_path.open("r", encoding="utf-8") as f:
-            cfg = json.load(f)
-        logger.info("Loaded config from %s", config_path)
-        return cfg
-    except Exception as exc:  # pragma: no cover – defensive
-        logger.error("Failed to parse config %s: %s", config_path, exc)
-        sys.exit(1)
+LOGGER = get_logger("graph_metrics")
 
-# ----------------------------------------------------------------------
-# Directory helpers
-# ----------------------------------------------------------------------
-def get_data_directories(cfg: Dict) -> Dict[str, Path]:
-    """Return a mapping with ``raw`` and ``processed`` data directories."""
-    raw_dir = Path(cfg.get("raw_data_dir", "data/raw"))
-    processed_dir = Path(cfg.get("processed_data_dir", "data/processed"))
-    ensure_dir(raw_dir)
-    ensure_dir(processed_dir)
-    return {"raw": raw_dir, "processed": processed_dir}
 
-# ----------------------------------------------------------------------
-# Subject list handling
-# ----------------------------------------------------------------------
-def load_subject_list(processed_dir: Path) -> List[str]:
-    """Load the list of eligible subject IDs.
-
-    Expects ``eligible_subjects.csv`` with a ``subject_id`` column in the
-    processed data directory.
-    """
-    logger = get_logger("load_subject_list")
-    csv_path = processed_dir / "eligible_subjects.csv"
-    if not csv_path.is_file():
-        logger.error("Eligible subjects file not found at %s", csv_path)
-        sys.exit(1)
-    df = load_csv(csv_path)
-    if "subject_id" not in df.columns:
-        logger.error("Column 'subject_id' missing in %s", csv_path)
-        sys.exit(1)
-    subjects = df["subject_id"].astype(str).tolist()
-    logger.info("Loaded %d eligible subjects", len(subjects))
-    return subjects
-
-# ----------------------------------------------------------------------
-# Connectivity matrix loader
-# ----------------------------------------------------------------------
-def load_connectivity_matrix(subject_id: str, raw_dir: Path) -> np.ndarray:
-    """Load a subject's 90×90 connectivity matrix.
-
-    The matrix is stored as a NumPy ``.npy`` file named
-    ``{subject_id}_connectivity.npy`` inside the raw data directory.
-    """
-    logger = get_logger("load_connectivity_matrix")
-    matrix_path = raw_dir / f"{subject_id}_connectivity.npy"
-    if not matrix_path.is_file():
-        logger.error("Connectivity matrix not found for %s at %s", subject_id, matrix_path)
-        sys.exit(1)
-    try:
-        mat = np.load(matrix_path)
-        if mat.shape != (90, 90):
-            logger.warning("Unexpected matrix shape %s for %s", mat.shape, subject_id)
-        return mat
-    except Exception as exc:  # pragma: no cover – defensive
-        logger.error("Failed to load matrix for %s: %s", subject_id, exc)
-        sys.exit(1)
-
-# ----------------------------------------------------------------------
-# Metric computation per subject
-# ----------------------------------------------------------------------
-def compute_subject_metrics(subject_id: str, raw_dir: Path) -> Dict:
-    """Compute graph metrics for a single subject.
-
-    Returns a dictionary that can be directly written to CSV.
-    """
-    logger = get_logger("compute_subject_metrics")
-    try:
-        adj = load_connectivity_matrix(subject_id, raw_dir)
-        G = create_graph_from_adjacency(adj)
-
-        # Degree centrality – we take the mean across nodes
-        degree_dict = calculate_degree_centrality(G)
-        mean_degree = float(np.mean(list(degree_dict.values())))
-
-        global_eff = float(calculate_global_efficiency(G))
-        clustering = float(calculate_clustering_coefficient(G))
-        avg_path_len = float(calculate_shortest_path_length(G))
-
-        result = {
-            "subject_id": subject_id,
-            "degree": mean_degree,
-            "global_efficiency": global_eff,
-            "clustering_coefficient": clustering,
-            "average_path_length": avg_path_len,
-        }
-        logger.debug("Metrics for %s: %s", subject_id, result)
-        return result
-    except Exception as exc:  # pragma: no cover – defensive
-        logger.error("Failed to compute metrics for %s: %s", subject_id, exc)
-        # Return a dict with NaNs so the CSV stays aligned
-        return {
-            "subject_id": subject_id,
-            "degree": float("nan"),
-            "global_efficiency": float("nan"),
-            "clustering_coefficient": float("nan"),
-            "average_path_length": float("nan"),
-        }
-
-# ----------------------------------------------------------------------
-# Output writer
-# ----------------------------------------------------------------------
-def write_outputs(metrics: List[Dict], processed_dir: Path) -> None:
-    """Write the list of metric dictionaries to CSV."""
-    logger = get_logger("write_outputs")
-    output_path = processed_dir / "graph_metrics.csv"
-    try:
-        save_csv(metrics, output_path)
-        logger.info("Wrote graph metrics for %d subjects to %s", len(metrics), output_path)
-    except Exception as exc:  # pragma: no cover – defensive
-        logger.error("Failed to write graph metrics CSV: %s", exc)
-        sys.exit(1)
-
-# ----------------------------------------------------------------------
-# Main entry point
-# ----------------------------------------------------------------------
-def main() -> int:
-    """Orchestrate the whole pipeline.
-
-    Returns an exit code (0 for success, non‑zero otherwise).
-    """
-    logger = get_logger("03_compute_graph_metrics")
-    start_time = time.time()
-
-    # Load configuration and directories
+@log_operation
+def load_config_wrapper() -> Dict[str, Any]:
+    """Load the global configuration and expose it as a dict."""
     cfg = load_config()
-    dirs = get_data_directories(cfg)
-    raw_dir = dirs["raw"]
-    processed_dir = dirs["processed"]
+    # Ensure the memory limit is present; default to 7 GB if missing.
+    cfg.setdefault("memory_limit_gb", 7)
+    return cfg
 
-    # Load subject list
-    subjects = load_subject_list(processed_dir)
 
-    if not subjects:
-        logger.error("No eligible subjects found – aborting.")
-        return 1
+def get_data_directories() -> Tuple[Path, Path]:
+    """Return (raw_data_dir, processed_data_dir)."""
+    cfg = load_config_wrapper()
+    raw_dir = Path(cfg.get("raw_data_dir", "data/raw"))
+    proc_dir = Path(cfg.get("processed_data_dir", "data/processed"))
+    return raw_dir, proc_dir
 
-    # Parallel computation – joblib with 2 workers
-    logger.info("Starting parallel metric computation with 2 workers")
-    try:
-        metrics = Parallel(n_jobs=2, backend="loky")(
-            delayed(compute_subject_metrics)(subj, raw_dir) for subj in subjects
+
+def load_subject_list() -> List[str]:
+    """Load the list of eligible subject IDs from ``eligible_subjects.csv``."""
+    _, proc_dir = get_data_directories()
+    eligible_path = proc_dir / "eligible_subjects.csv"
+    if not eligible_path.is_file():
+        LOGGER.error(f"Eligible subjects file not found at {eligible_path}")
+        sys.exit(1)
+    df = load_csv(eligible_path)
+    if "subject_id" not in df.columns:
+        LOGGER.error("eligible_subjects.csv must contain a 'subject_id' column")
+        sys.exit(1)
+    return df["subject_id"].astype(str).tolist()
+
+
+def load_connectivity_matrix(subject_id: str) -> np.ndarray:
+    """Load a subject's connectivity matrix (assumed stored as .npy)."""
+    _, proc_dir = get_data_directories()
+    matrix_path = proc_dir / "connectivity_matrices" / f"{subject_id}.npy"
+    if not matrix_path.is_file():
+        LOGGER.error(f"Connectivity matrix for {subject_id} not found at {matrix_path}")
+        raise FileNotFoundError(matrix_path)
+    return np.load(matrix_path)
+
+
+def compute_subject_metrics(matrix: np.ndarray) -> Dict[str, float]:
+    """Calculate network metrics for a single adjacency matrix."""
+    # Ensure the matrix is symmetric and non‑negative.
+    if not np.allclose(matrix, matrix.T):
+        LOGGER.warning("Adjacency matrix is not symmetric; symmetrising.")
+        matrix = (matrix + matrix.T) / 2
+    # Create a NetworkX graph from the adjacency matrix.
+    G = create_graph_from_adjacency(matrix)
+
+    # Degree centrality (average over nodes)
+    degree_centrality = calculate_degree_centrality(G)
+    avg_degree = float(np.mean(list(degree_centrality.values())))
+
+    # Global efficiency
+    global_eff = calculate_global_efficiency(G)
+
+    # Clustering coefficient (average)
+    clustering = calculate_clustering_coefficient(G)
+
+    # Average shortest path length
+    path_len = calculate_shortest_path_length(G)
+
+    return {
+        "degree": avg_degree,
+        "global_efficiency": global_eff,
+        "clustering_coefficient": clustering,
+        "average_path_length": path_len,
+    }
+
+
+def check_memory_limit(limit_gb: float) -> None:
+    """Abort if the current process exceeds the supplied memory limit."""
+    process = psutil.Process()
+    mem_gb = process.memory_info().rss / (1024 ** 3)
+    if mem_gb > limit_gb:
+        LOGGER.error(
+            f"Memory usage {mem_gb:.2f} GB exceeds limit of {limit_gb:.2f} GB"
         )
-    except Exception as exc:  # pragma: no cover – defensive
-        logger.error("Parallel execution failed: %s", exc)
-        return 1
+        sys.exit(1)
 
-    # Write results
-    write_outputs(metrics, processed_dir)
 
-    # Runtime report (optional but useful for verification)
-    elapsed = time.time() - start_time
-    runtime_path = processed_dir / "graph_metrics_runtime.txt"
+@log_operation
+def write_outputs(df: pd.DataFrame) -> None:
+    """Write the metrics DataFrame to ``graph_metrics.csv``."""
+    _, proc_dir = get_data_directories()
+    out_path = proc_dir / "graph_metrics.csv"
+    save_csv(df, out_path)
+    LOGGER.info(f"Wrote graph metrics for {len(df)} subjects to {out_path}")
+
+
+def _process_single_subject(subj: str) -> Dict[str, Any] | None:
+    """Helper for parallel execution: compute metrics for one subject."""
     try:
-        with runtime_path.open("w", encoding="utf-8") as f:
-            f.write(f"Graph metrics computation time (seconds): {elapsed:.2f}\\n")
-        logger.info("Runtime report written to %s", runtime_path)
-    except Exception as exc:  # pragma: no cover – defensive
-        logger.warning("Failed to write runtime report: %s", exc)
+        matrix = load_connectivity_matrix(subj)
+    except FileNotFoundError:
+        LOGGER.warning(f"Skipping subject {subj} – matrix missing")
+        return None
+    metrics = compute_subject_metrics(matrix)
+    metrics["subject_id"] = subj
+    return metrics
 
-    logger.info("Graph metric computation completed in %.2f seconds", elapsed)
-    return 0
+
+def main() -> None:
+    """Entry point for the script."""
+    start_time = time.time()
+    LOGGER.info("Starting graph‑metric computation")
+
+    cfg = load_config_wrapper()
+    memory_limit = float(cfg["memory_limit_gb"])
+
+    subject_ids = load_subject_list()
+    if not subject_ids:
+        LOGGER.error("No eligible subjects to process")
+        sys.exit(1)
+
+    # Parallel computation across subjects (max 2 jobs as per requirement)
+    records = Parallel(n_jobs=2, backend="loky")(
+        delayed(_process_single_subject)(subj) for subj in subject_ids
+    )
+
+    # Filter out any subjects that were skipped (None entries)
+    records = [rec for rec in records if rec is not None]
+
+    if not records:
+        LOGGER.error("No metrics were computed; exiting")
+        sys.exit(1)
+
+    # Verify memory usage after processing (once, as a final guard)
+    check_memory_limit(memory_limit)
+
+    df_metrics = pd.DataFrame.from_records(records)
+    # Ensure a deterministic column order.
+    df_metrics = df_metrics[
+        [
+            "subject_id",
+            "degree",
+            "global_efficiency",
+            "clustering_coefficient",
+            "average_path_length",
+        ]
+    ]
+
+    write_outputs(df_metrics)
+
+    elapsed = time.time() - start_time
+    LOGGER.info(f"Completed graph‑metric computation in {elapsed:.2f} s")
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

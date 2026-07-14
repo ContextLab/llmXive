@@ -10,60 +10,43 @@ from typing import Any
 
 @dataclass
 class LogEntry:
-    """A single log entry describing an operation."""
-
     operation: str = ""
     parameters: dict = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
     def to_json(self) -> str:
-        """Serialise the entry as JSON."""
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 
 class ReproducibilityLogger:
-    """A logger that tolerates any call shape and never raises.
+    """Accepts ANY call shape and never raises.
 
-    It deliberately does **not** delegate to the stdlib ``logging`` module,
-    because that API is strict about argument types (e.g. ``log(level,
-    msg)`` expects an integer level).  All methods simply accept ``*args``
-    and ``**kwargs`` and either record a ``LogEntry`` (for ``log``) or act
-    as a no‑op (for ``info``, ``debug``, ``warning``, etc.).
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.entries: list[LogEntry] = []
+        self.entries: list = []
 
-    def log(self, *args: Any, **kwargs: Any) -> LogEntry:
-        """Record a generic log entry.
-
-        The first positional argument (if any) is interpreted as the operation
-        name; any keyword arguments become the ``parameters`` mapping.
-        """
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
         op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
         return entry
 
-    # Any standard logging method (info, debug, warning, error, critical, etc.)
-    # simply returns a no‑op function that discards its arguments.
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
     def __getattr__(self, name: str):
         def _noop(*args: Any, **kwargs: Any) -> None:
             return None
         return _noop
 
 
-_GLOBAL_LOGGER: ReproducibilityLogger | None = None
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
 
 
-def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
-    """Return a singleton ``ReproducibilityLogger``.
-
-    The first positional argument or the ``name`` keyword is used as the
-    logger's identifier.  Subsequent calls return the same instance,
-    regardless of the arguments supplied.
-    """
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
@@ -71,12 +54,11 @@ def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
 
 
 def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual‑purpose helper that works as a decorator *or* a direct logger.
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
 
-    - As a decorator: ``@log_operation`` wraps a function and returns it
-      unchanged.
-    - As a direct call: ``log_operation('my_op', key=value)`` records a
-      ``LogEntry`` via the global logger and returns that entry.
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
     """
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]

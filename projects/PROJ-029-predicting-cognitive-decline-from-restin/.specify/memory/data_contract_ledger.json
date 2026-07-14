@@ -28,9 +28,17 @@
     "required": []
   },
   {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/raw/ds000246/participants.tsv",
+    "required": []
+  },
+  {
     "data_file": "model.pkl",
     "required": [
       "data"
     ]
+  },
+  {
+    "data_file": "participants.tsv",
+    "required": []
   }
 ]

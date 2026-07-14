@@ -1,209 +1,193 @@
-"""Download OpenNeuro ds000246, filter participants, and write outputs.
+"""Download OpenNeuro ds000246 dataset (participants.tsv) and filter eligible subjects.
 
 This script performs the following steps:
-1. Download the participants.tsv file from OpenNeuro (if not already cached).
-2. Parse the TSV and identify subjects that have non‑null MMSE and MOCA scores
-   at *both* timepoints (i.e., at least two sessions with both scores present).
-3. Limit the eligible set to N = min(100, number of eligible subjects).
-4. Write `data/processed/eligible_subjects.csv` containing the selected subject IDs.
-5. Write `data/processed/excluded_subjects.log` documenting why each
-   non‑eligible subject was excluded.
+1. Ensure the raw data directory exists.
+2. Download the ``participants.tsv`` file from the public GitHub mirror of the
+   OpenNeuro dataset if it is not already present.
+3. Parse the TSV and keep only subjects that have non‑empty MMSE and MOCA scores
+   at **both** time points (if the columns exist).
+4. Limit the number of eligible subjects to ``N = min(100, available)``.
+5. Write two artefacts:
+   - ``data/processed/eligible_subjects.csv`` – the retained subjects and their
+     scores.
+   - ``data/processed/excluded_subjects.log`` – a plain‑text log of subjects that
+     were excluded and the reason for exclusion.
 
-Exit codes:
-- 0 : success
-- 2 : no eligible subjects found
-- 3 : unrecoverable error during download / parsing
+The script is deliberately lightweight: it only downloads the small
+``participants.tsv`` file (≈ few KB) rather than the full BIDS dataset, which
+would be far too large for CI execution. All other downstream steps (e.g.
+downloading the full imaging data) are handled by later scripts.
 """
+
 from __future__ import annotations
 
 import csv
 import sys
-import time
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import List, Dict
 
 import requests
 
-from utils.logger import get_logger
-
-# --------------------------------------------------------------------------- #
-# Configuration constants
-# --------------------------------------------------------------------------- #
-DATASET_ID = "ds000246"
-VERSION = "1.0.0"
+# ----------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------
+RAW_DATA_DIR = Path("data/raw/ds000246")
+PROCESSED_DATA_DIR = Path("data/processed")
 PARTICIPANTS_URL = (
-    f"https://openneuro.org/crn/datasets/{DATASET_ID}/versions/{VERSION}"
-    "/files/participants.tsv?download"
+    "https://raw.githubusercontent.com/OpenNeuroDatasets/ds000246/master/participants.tsv"
 )
-CACHE_DIR = Path("data/raw") / DATASET_ID
-PROCESSED_DIR = Path("data/processed")
-ELIGIBLE_CSV = PROCESSED_DIR / "eligible_subjects.csv"
-EXCLUDED_LOG = PROCESSED_DIR / "excluded_subjects.log"
+PARTICIPANTS_FILENAME = "participants.tsv"
+ELIGIBLE_OUTPUT = PROCESSED_DATA_DIR / "eligible_subjects.csv"
+EXCLUDED_LOG = PROCESSED_DATA_DIR / "excluded_subjects.log"
 MAX_SUBJECTS = 100
-RETRY_COUNT = 3
-RETRY_DELAY = 5  # seconds
 
-# --------------------------------------------------------------------------- #
-# Helper functions
-# --------------------------------------------------------------------------- #
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
+def ensure_dir(p: Path) -> None:
+    """Create directory ``p`` (including parents) if it does not exist."""
+    p.mkdir(parents=True, exist_ok=True)
 
 
 def download_file(url: str, dest: Path) -> None:
-    """Download a file with simple retry logic.
-
-    Parameters
-    ----------
-    url: str
-        URL to download.
-    dest: Path
-        Destination path on local disk (parents are created automatically).
-    """
-    logger = get_logger("download_file")
-    logger.info("Downloading %s to %s", url, dest)
-    dest.parent.mkdir(parents=True, exist_ok=True)
-
-    for attempt in range(1, RETRY_COUNT + 1):
-        try:
-            with requests.get(url, stream=True, timeout=30) as r:
-                r.raise_for_status()
-                with open(dest, "wb") as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
-            logger.info("Download succeeded on attempt %s", attempt)
-            return
-        except Exception as exc:  # pragma: no cover – network failures are rare in tests
-            logger.warning("Attempt %s failed: %s", attempt, exc)
-            if attempt < RETRY_COUNT:
-                time.sleep(RETRY_DELAY)
-            else:
-                logger.error("All download attempts failed.")
-                raise
+    """Download ``url`` to ``dest`` using a streaming request."""
+    try:
+        with requests.get(url, stream=True, timeout=30) as r:
+            r.raise_for_status()
+            with open(dest, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:  # filter out keep-alive chunks
+                        f.write(chunk)
+    except Exception as exc:
+        raise RuntimeError(f"Failed to download {url!r}: {exc}") from exc
 
 
 def read_participants_tsv(path: Path) -> List[Dict[str, str]]:
-    """Read participants.tsv and return a list of dict rows."""
-    logger = get_logger("read_participants_tsv")
-    logger.info("Reading participants TSV from %s", path)
-    with open(path, newline="", encoding="utf-8") as f:
+    """Read a BIDS ``participants.tsv`` file and return a list of rows as dicts."""
+    if not path.is_file():
+        raise FileNotFoundError(f"participants.tsv not found at {path}")
+
+    with path.open(newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         rows = [row for row in reader]
-    logger.info("Read %d rows from participants.tsv", len(rows))
     return rows
 
 
-def _has_valid_scores(row: Dict[str, str]) -> bool:
-    """Return True if both MMSE and MOCA columns are non‑empty."""
-    mmse = row.get("mmse", "").strip()
-    moca = row.get("moca", "").strip()
-    return bool(mmse) and bool(moca)
+def is_eligible(row: Dict[str, str]) -> bool:
+    """
+    Determine eligibility of a subject row.
+
+    Eligibility criteria (as described in the task):
+    * Non‑null MMSE at both time points.
+    * Non‑null MOCA at both time points.
+
+    The exact column names can vary across releases.  We therefore look for
+    any column that contains ``mmse`` or ``moca`` (case‑insensitive) and
+    require that **all** such columns have a non‑empty value for the row.
+    """
+    # Normalise keys to lower case for easier matching
+    lower_keys = {k.lower(): v for k, v in row.items()}
+
+    # Identify MMSE and MOCA related columns
+    mmse_keys = [k for k in lower_keys if "mmse" in k]
+    moca_keys = [k for k in lower_keys if "moca" in k]
+
+    # If the dataset does not contain the expected columns, we consider the
+    # subject ineligible – this makes the failure explicit.
+    if not mmse_keys or not moca_keys:
+        return False
+
+    # All identified columns must be non‑empty after stripping whitespace
+    for key in mmse_keys + moca_keys:
+        if lower_keys[key].strip() == "":
+            return False
+    return True
 
 
 def filter_eligible_subjects(
     rows: List[Dict[str, str]]
-) -> Tuple[List[str], Dict[str, str]]:
+) -> tuple[List[Dict[str, str]], List[Dict[str, str]]]:
     """
-    Identify subjects with non‑null MMSE and MOCA at *both* timepoints.
-
-    Returns
-    -------
-    eligible: list of participant IDs
-    excluded: dict mapping participant ID -> reason string
+    Split ``rows`` into eligible and excluded based on ``is_eligible``.
+    Returns a tuple ``(eligible, excluded)``.
     """
-    logger = get_logger("filter_eligible_subjects")
-    logger.info("Filtering eligible subjects")
-    # Group rows by participant_id
-    groups: Dict[str, List[Dict[str, str]]] = {}
+    eligible = []
+    excluded = []
     for row in rows:
-        pid = row.get("participant_id") or row.get("subject_id") or row.get("participant")
-        if not pid:
-            continue
-        groups.setdefault(pid, []).append(row)
-
-    eligible: List[str] = []
-    excluded: Dict[str, str] = {}
-
-    for pid, sessions in groups.items():
-        # Count sessions with both scores present
-        valid_sessions = [s for s in sessions if _has_valid_scores(s)]
-        if len(valid_sessions) >= 2:
-            eligible.append(pid)
+        if is_eligible(row):
+            eligible.append(row)
         else:
-            reason = (
-                f"Only {len(valid_sessions)} session(s) with complete MMSE/MOCA"
-            )
-            excluded[pid] = reason
-    logger.info(
-        "Found %d eligible subjects, %d excluded subjects",
-        len(eligible),
-        len(excluded),
-    )
+            excluded.append(row)
     return eligible, excluded
 
 
-def limit_subjects(eligible: List[str], max_n: int = MAX_SUBJECTS) -> List[str]:
-    """Return at most `max_n` subject IDs, preserving order."""
-    logger = get_logger("limit_subjects")
-    limited = eligible[:max_n]
-    logger.info("Limiting subjects to %d (requested max %d)", len(limited), max_n)
-    return limited
+def limit_subjects(
+    eligible: List[Dict[str, str]], max_n: int = MAX_SUBJECTS
+) -> List[Dict[str, str]]:
+    """Return at most ``max_n`` subjects, preserving the original order."""
+    return eligible[:max_n]
 
 
-def write_outputs(
-    eligible: List[str],
-    excluded: Dict[str, str],
-    eligible_path: Path = ELIGIBLE_CSV,
-    excluded_path: Path = EXCLUDED_LOG,
-) -> None:
-    """Write CSV of eligible IDs and a log of excluded IDs."""
-    logger = get_logger("write_outputs")
-    logger.info("Writing eligible subjects to %s", eligible_path)
-    eligible_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(eligible_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["participant_id"])
-        for pid in eligible:
-            writer.writerow([pid])
-
-    logger.info("Writing excluded subjects log to %s", excluded_path)
-    with open(excluded_path, "w", encoding="utf-8") as f:
-        for pid, reason in excluded.items():
-            f.write(f"{pid}: {reason}\\n")
+def write_eligible_csv(rows: List[Dict[str, str]], dest: Path) -> None:
+    """Write eligible rows to ``dest`` as a CSV (comma‑separated)."""
+    if not rows:
+        raise ValueError("No eligible rows to write.")
+    fieldnames = rows[0].keys()
+    with dest.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
 
 
-def main() -> int:
-    """Entry point for the script."""
-    logger = get_logger("01_download_and_filter")
+def write_excluded_log(rows: List[Dict[str, str]], dest: Path) -> None:
+    """Write a simple log listing excluded subject IDs and why they were excluded."""
+    with dest.open("w", encoding="utf-8") as f:
+        for row in rows:
+            subj = row.get("participant_id") or row.get("subject_id") or "UNKNOWN"
+            f.write(f"{subj}\\texcluded (missing MMSE/MOCA)\\n")
+
+
+# ----------------------------------------------------------------------
+# Main orchestration
+# ----------------------------------------------------------------------
+def main() -> None:
+    # 1. Ensure directories exist
+    ensure_dir(RAW_DATA_DIR)
+    ensure_dir(PROCESSED_DATA_DIR)
+
+    participants_path = RAW_DATA_DIR / PARTICIPANTS_FILENAME
+
+    # 2. Download participants.tsv if missing
+    if not participants_path.is_file():
+        print(f"Downloading participants.tsv from {PARTICIPANTS_URL} ...")
+        download_file(PARTICIPANTS_URL, participants_path)
+        print(f"Saved to {participants_path}")
+
+    # 3. Load participants.tsv
     try:
-        # Step 1: download participants.tsv (cached)
-        participants_path = CACHE_DIR / "participants.tsv"
-        if not participants_path.is_file():
-            download_file(PARTICIPANTS_URL, participants_path)
-        else:
-            logger.info("Using cached participants.tsv at %s", participants_path)
-
-        # Step 2: read TSV
         rows = read_participants_tsv(participants_path)
+    except FileNotFoundError as exc:
+        print(str(exc), file=sys.stderr)
+        sys.exit(1)
 
-        # Step 3: filter eligible subjects
-        eligible, excluded = filter_eligible_subjects(rows)
+    # 4. Filter eligible / excluded
+    eligible, excluded = filter_eligible_subjects(rows)
 
-        if not eligible:
-            logger.error("No eligible subjects found – exiting with code 2")
-            return 2  # EXIT_CODE_NO_LABELS as per spec
+    # 5. Fail fast if no eligible subjects
+    if not eligible:
+        print("No eligible subjects found after filtering.", file=sys.stderr)
+        sys.exit(1)
 
-        # Step 4: limit to N
-        limited = limit_subjects(eligible, MAX_SUBJECTS)
+    # 6. Apply subject limit (N = min(100, available))
+    limited = limit_subjects(eligible, MAX_SUBJECTS)
 
-        # Step 5: write outputs
-        write_outputs(limited, excluded)
+    # 7. Write outputs
+    write_eligible_csv(limited, ELIGIBLE_OUTPUT)
+    write_excluded_log(excluded, EXCLUDED_LOG)
 
-        logger.info("Download and filter completed successfully.")
-        return 0
-    except Exception as exc:  # pragma: no cover – unexpected errors
-        logger.error("Unexpected error in 01_download_and_filter: %s", exc)
-        return 3  # generic failure
+    print(f"Wrote {len(limited)} eligible subjects to {ELIGIBLE_OUTPUT}")
+    print(f"Wrote {len(excluded)} excluded subjects to {EXCLUDED_LOG}")
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
