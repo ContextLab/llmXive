@@ -12,10 +12,12 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…n subject_ids:         # Generate synthetic input         raw_path =…”
 - code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…cessing steps (no-op for synthetic data in this context)…”
 - code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…If not, we might need to generate synthetic.          # Check if fun…”
+- code/viz/network.py: synthetic/fake INPUT data not authorized by the spec — “…ping = {}     # Generate mock data for 400 nodes     module…”
+- code/viz/network.py: synthetic/fake INPUT data not authorized by the spec — “…eate a realistic-looking mock dataset     n_nodes = 400     np…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…5)) -> None:     """     Generates a synthetic NIfTI file for validatio…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…n subject_ids:         # Generate synthetic input         raw_path =…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…cessing steps (no-op for synthetic data in this context)…”; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=1); python code/main.py --step analyze (rc=1); 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv
+**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…5)) -> None:     """     Generates a synthetic NIfTI file for validatio…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…n subject_ids:         # Generate synthetic input         raw_path =…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…cessing steps (no-op for synthetic data in this context)…”; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=1); python code/main.py --step analyze (rc=1); 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv
 
 ## Failing / missing run-book commands
 
@@ -90,7 +92,7 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 ### `generate_scatter_plot` — defined in `code/viz/scatter.py`; called 1 way(s):
 
-- code/viz/scatter.py: path = generate_scatter_plot(
+- code/viz/scatter.py: generated_path = generate_scatter_plot(
 
 Make `generate_scatter_plot` in `code/viz/scatter.py` accept ALL of the above.
 

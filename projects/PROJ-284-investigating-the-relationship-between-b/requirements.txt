@@ -9,4 +9,3 @@ nilearn==0.10.2
 requests==2.31.0
 pytest==7.4.0
 statsmodels==0.14.1
-psutil>=5.9.0

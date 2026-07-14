@@ -1,31 +1,36 @@
+"""
+Runner script for PCA analysis.
+Invokes the PCA logic from code/analysis/correlations.py.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
-from code.analysis.correlations import load_metrics_data, run_pca_on_metrics, generate_full_metrics
+
 from code.logging_config import get_logger
+from code.analysis.correlations import load_metrics_data, run_pca_on_metrics, save_pca_results
 
 logger = get_logger(__name__)
 
-def main() -> None:
+def main():
     """
-    Runner script to execute PCA and generate full metrics.
-    This script is invoked by the run-book to ensure T023a and T023b outputs are generated.
+    Execute PCA on network metrics and save results.
     """
-    logger.log("pca_runner", step="T023a/T023b", status="started")
+    logger.log("pca_runner", step="start")
+    
     try:
         # Load data
-        metrics_df = load_metrics_data()
+        df = load_metrics_data()
         
         # Run PCA
-        loadings_df, factor_scores_df = run_pca_on_metrics(metrics_df)
+        pca_model, factor_scores = run_pca_on_metrics(df)
         
-        # Generate full metrics (merging raw + PCA)
-        full_df = generate_full_metrics(metrics_df, factor_scores_df)
+        # Save results
+        save_pca_results(pca_model, factor_scores)
         
-        logger.log("pca_runner", step="T023a/T023b", status="completed")
+        logger.log("pca_runner", step="complete", success=True)
     except Exception as e:
-        logger.log("pca_runner", step="T023a/T023b", status="failed", error=str(e))
+        logger.log("pca_runner", step="error", error=str(e))
         raise
 
 if __name__ == "__main__":
