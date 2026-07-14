@@ -1,56 +1,51 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
-
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
-
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
-
-- `python code/01_download_and_filter.py`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 command(s) failed: python code/01_download_and_filter.py (rc=2); python code/03_compute_graph_metrics.py (rc=1); python code/04_train_model.py (rc=1); 4 declared deliverable(s) absent: data/processed/graph_metrics.csv; data/processed/performance_report.json; data/processed/permutation_results.json
+**Summary**: 7 command(s) failed: python code/01_download_and_filter.py (rc=1); python code/03_compute_graph_metrics.py (rc=1); python code/04_train_model.py (rc=1); 4 declared deliverable(s) absent: data/processed/graph_metrics.csv; data/processed/performance_report.json; data/processed/permutation_results.json
 
 ## Failing / missing run-book commands
 
-- python code/01_download_and_filter.py -> rc=2
-    2026-07-14 02:27:04,369 - 01_download_and_filter - INFO - Starting T017: Download and Filter
-2026-07-14 02:27:04,540 - 01_download_and_filter - ERROR - Failed to check dataset availability: HTTPSConnectionPool(host='datasets.openneuro.org', port=443): Max retries exceeded with url: /datasets/ds000246/versions (Caused by NameResolutionError("HTTPSConnection(host='datasets.openneuro.org', port=443): Failed to resolve 'datasets.openneuro.org' ([Errno -2] Name or service not known)"))
-2026-07-14 02:27:04,541 - 01_download_and_filter - ERROR - Dataset ds000246 not available.
-- python code/03_compute_graph_metrics.py -> rc=1
-    2026-07-14 02:27:05,034 - __main__ - INFO - Starting graph metrics computation with parallel processing (joblib).
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/03_compute_graph_metrics.py", line 198, in <module>
+- python code/01_download_and_filter.py -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py", line 345, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/03_compute_graph_metrics.py", line 144, in main
-    eligible_ids = set(eligible_df["subject_id"].tolist())
-                       ~~~~~~~~~~~^^^^^^^^^^^^^^
-TypeError: list indices must be integers or slices, not str
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py", line 307, in main
+    config = get_config()
+             ^^^^^^^^^^
+NameError: name 'get_config' is not defined
+- python code/03_compute_graph_metrics.py -> rc=1
+    2026-07-14 03:05:28,584 - graph_metrics - INFO - Starting graph metrics computation with parallel processing (joblib).
+2026-07-14 03:05:28,584 - graph_metrics - ERROR - Failed to load connectivity matrices: Input directory not found: data/processed/connectivity_matrices
 - python code/04_train_model.py -> rc=1
-    2026-07-14 02:27:06,183 - __main__ - INFO - Starting model training (T023).
-2026-07-14 02:27:06,184 - __main__ - ERROR - Failed to load data: [Errno 21] Is a directory: 'data/processed/graph_metrics.csv'
+    2026-07-14 03:05:29,913 - __main__ - INFO - Starting model training (T023).
+2026-07-14 03:05:29,913 - __main__ - ERROR - Graph metrics file not found: data/processed/graph_metrics.csv
+2026-07-14 03:05:29,913 - __main__ - ERROR - Please run code/03_compute_graph_metrics.py first.
 - python code/05_evaluate_model.py -> rc=1
-    2026-07-14 02:27:07,307 - evaluate_model - INFO - Starting model evaluation (T024).
-2026-07-14 02:27:07,307 - evaluate_model - ERROR - Model file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/model.pkl. Run T023 (04_train_model.py) first.
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/05_evaluate_model.py", line 27, in <module>
+    sys.path.insert(0, str(PROJECT_ROOT / "code"))
+                           ^^^^^^^^^^^^
+NameError: name 'PROJECT_ROOT' is not defined
 - python code/06_permutation_test.py -> rc=1
-    2026-07-14 02:27:08,452 - __main__ - INFO - Starting Permutation Test (T029)
-2026-07-14 02:27:08,452 - __main__ - ERROR - Model file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/model.pkl. Run training first.
+    2026-07-14 03:05:32,128 - __main__ - INFO - Starting Permutation Test (T029)
+2026-07-14 03:05:32,128 - __main__ - ERROR - Model file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/model.pkl. Run training first.
 - python code/07_sensitivity_analysis.py -> rc=1
-    2026-07-14 02:27:08,882 - __main__ - INFO - Starting Sensitivity Analysis (Part 1: Threshold Sweep)
-2026-07-14 02:27:08,883 - __main__ - ERROR - Model file not found: data/processed/model.pkl
-2026-07-14 02:27:08,883 - __main__ - ERROR - Please run code/04_train_model.py first.
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/07_sensitivity_analysis.py", line 162, in <module>
+    def write_outputs(results: Dict[str, Any]) -> None:
+                               ^^^^
+NameError: name 'Dict' is not defined. Did you mean: 'dict'?
 - python code/08_collinearity_check.py -> rc=1
-    2026-07-14 02:27:09,812 - 08_collinearity_check - INFO - Loading data from data/processed/graph_metrics.csv
-2026-07-14 02:27:09,813 - 08_collinearity_check - ERROR - Failed to load data: [Errno 21] Is a directory: 'data/processed/graph_metrics.csv'
+    2026-07-14 03:05:34,184 - 08_collinearity_check - ERROR - Input file not found: data/processed/graph_metrics.csv
+2026-07-14 03:05:34,184 - 08_collinearity_check - ERROR - This script requires 'data/processed/graph_metrics.csv' to be generated first by code/03_compute_graph_metrics.py.
 
 ## Declared deliverables still missing
 
 - data/processed/graph_metrics.csv
 - data/processed/performance_report.json
+- data/processed/permutation_results.json
+- data/processed/sensitivity_report.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -91,9 +86,14 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 **This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
 
+### `data/processed/eligible_subjects.csv`
+
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/01_download_and_filter.py`, `code/04_train_model.py`, `code/validate_quickstart.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/eligible_subjects.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/01_download_and_filter.py`, `code/06_runtime_verifier.py`, `code/04_train_model.py`, `code/validate_quickstart.py`.
+
 ### `data/processed/graph_metrics.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/08_collinearity_check.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/validate_quickstart.py`, `code/07_sensitivity_analysis.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/graph_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/08_collinearity_check.py`, `code/04_train_model.py`, `code/validate_quickstart.py`, `code/07_sensitivity_analysis.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/graph_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
 Consumers waiting on it: `code/06_permutation_test.py`, `code/08_collinearity_check.py`, `code/06_runtime_verifier.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`, `code/07_sensitivity_analysis.py`.
 
 ### `data/processed/model.pkl`
@@ -103,7 +103,7 @@ Consumers waiting on it: `code/06_permutation_test.py`, `code/04_train_model.py`
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/graph_metrics.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/08_collinearity_check.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/validate_quickstart.py`, `code/07_sensitivity_analysis.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/graph_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/08_collinearity_check.py`, `code/04_train_model.py`, `code/validate_quickstart.py`, `code/07_sensitivity_analysis.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/graph_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
 Consumers waiting on it: `code/06_permutation_test.py`, `code/08_collinearity_check.py`, `code/06_runtime_verifier.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`, `code/07_sensitivity_analysis.py`.
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/model.pkl`
