@@ -1,13 +1,13 @@
 {
   "project_id": "PROJ-736-predicting-personal-sleep-quality-from-r",
   "ok": false,
-  "reason": "4 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/download_hcp.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026raint without hardcoding fake data: # We will attempt to do\u2026\u201d; code/data/download_hcp.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026but we MUST NOT generate fake data.  # Strategy:  # 1. Chec\u2026\u201d; code/data/download_hcp.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ther, raise an error. No fake data generation allowed.  # F\u2026\u201d; 2 command(s) failed: python code/data/download_hcp.py (rc=1); python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/predictions.npy; data/raw/behavioral/hcp1200_behavioral_data.csv",
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/config.py: self-declared fabricated metric \u2014 \u201c\u2026rn env_val          # Default hardcoded values for the pipeline     default\u2026\u201d; code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026regions = 400          # Generate synthetic but realistic-looking da\u2026\u201d; code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ounds is None:         # Generate synthetic confounds         confou\u2026\u201d; 2 command(s) failed: python code/data/download_hcp.py (rc=1); python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/predictions.npy; data/raw/behavioral/hcp1200_behavioral_data.csv",
   "artifacts": [],
   "failures": [
-    "python code/data/download_hcp.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py\", line 341, in <module>\n    success = main()\n              ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py\", line 303, in main\n    log_stage_start(\"Download HCP Data\")\nTypeError: log_stage_start() missing 1 required positional argument: 'stage'",
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py\", line 22, in <module>\n    from data.download_hcp import main as download_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/__init__.py\", line 2, in <module>\n    from .download_hcp import download_hcp_data, load_behavioral_data, filter_subjects\nImportError: cannot import name 'download_hcp_data' from 'data.download_hcp' (/home/runner/work/llmXive/llmX"
+    "python code/data/download_hcp.py -> rc=1\n    ",
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py\", line 12, in <module>\n    from data.download_hcp import download_hcp_data\nImportError: cannot import name 'download_hcp_data' from 'data.download_hcp' (/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py)"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "model_tier": 0,
-  "updated_at": "2026-07-13T22:41:34Z"
+  "updated_at": "2026-07-14T00:06:51Z"
 }

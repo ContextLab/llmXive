@@ -1,174 +1,240 @@
 """
-Evaluation module for model performance assessment.
-Handles permutation tests, bootstrap resampling, and sensitivity analysis.
+Evaluation module for User Story 2.
+Implements bootstrap resampling of outer-fold predictions to estimate R² confidence intervals.
 """
-import os
-import sys
+from __future__ import annotations
+
 import json
+import os
 import signal
+import sys
 import time
-import numpy as np
 from pathlib import Path
-import logging
+from typing import Dict, Any, List, Optional, Tuple
+
+import numpy as np
 import pandas as pd
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Local imports based on API surface
+from config import get_paths, ensure_dirs, get_hyperparameter
+from utils.logging import get_logger, log_stage_start, log_stage_complete, log_stage_error, LogEntry
+from utils.metrics import r_squared
 
-from config import get_paths, get_hyperparameter, ensure_dirs
-from utils.logging import log_stage_start, log_stage_complete, log_stage_error
-from utils.metrics import calculate_metrics
+# Global state for graceful shutdown
+_SHUTDOWN_EVENT = threading.Event()
+_RESULTS_BUFFER: Optional[List[Dict[str, Any]]] = None
+_OUTPUT_PATH: Optional[str] = None
 
-def load_predictions():
+def _signal_handler(signum, frame):
+    """Handle SIGINT/SIGTERM to flush partial results."""
+    if _RESULTS_BUFFER is not None and _OUTPUT_PATH is not None:
+        try:
+            with open(_OUTPUT_PATH, 'w') as f:
+                json.dump({"bootstrap_samples": _RESULTS_BUFFER, "status": "interrupted"}, f, indent=2)
+            print(f"Interrupted. Partial results saved to {_OUTPUT_PATH}")
+        except Exception as e:
+            print(f"Failed to save partial results: {e}")
+    sys.exit(1)
+
+import threading
+
+def load_predictions(predictions_path: str = "data/processed/predictions.npy") -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Load predictions from disk.
-    
-    Returns:
-        Tuple of (y_true, y_pred) arrays.
+    Load outer-fold predictions, true values, and subject IDs.
+    Returns: (predictions, y_true, subject_ids)
     """
-    paths = get_paths()
-    predictions_path = paths['processed_dir'] / "predictions.npy"
-    behavioral_path = paths['processed_dir'] / "filtered_behavioral.csv"
+    logger = get_logger()
+    log_stage_start(logger, "Loading Data")
     
-    if not predictions_path.exists():
-        raise FileNotFoundError(f"Predictions not found: {predictions_path}")
+    if not os.path.exists(predictions_path):
+        raise FileNotFoundError(f"Predictions file not found at {predictions_path}. "
+                                "Run code/modeling/train.py first to generate this file.")
     
-    if not behavioral_path.exists():
-        raise FileNotFoundError(f"Behavioral data not found: {behavioral_path}")
+    data = np.load(predictions_path, allow_pickle=True).item()
+    predictions = data['predictions']
+    y_true = data['y_true']
+    subject_ids = data.get('subject_ids', np.arange(len(y_true)))
     
-    # Load predictions (array of shape [n_subjects, 1] or [n_subjects])
-    y_pred = np.load(predictions_path)
-    if y_pred.ndim > 1:
-        y_pred = y_pred.flatten()
-    
-    # Load true values
-    df = pd.read_csv(behavioral_path)
-    if 'SleepScore' not in df.columns:
-        raise ValueError("SleepScore column not found in behavioral data")
-    
-    y_true = df['SleepScore'].values
-    
-    # Ensure alignment (assuming same order as processed)
-    if len(y_true) != len(y_pred):
-        raise ValueError(f"Length mismatch: y_true={len(y_true)}, y_pred={len(y_pred)}")
-    
-    return y_true, y_pred
+    log_stage_complete(logger, "Data loaded")
+    return predictions, y_true, subject_ids
 
 def calculate_r2(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """
-    Calculate R-squared metric.
-    
-    Args:
-        y_true: True values
-        y_pred: Predicted values
-        
-    Returns:
-        R-squared value
-    """
-    ss_res = np.sum((y_true - y_pred) ** 2)
-    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
-    if ss_tot == 0:
-        return 0.0
-    return 1 - (ss_res / ss_tot)
+    """Calculate R² score."""
+    return r_squared(y_true, y_pred)
 
-def bootstrap_resample_r2(y_true: np.ndarray, y_pred: np.ndarray, n_bootstrap: int = 1000) -> Dict[str, float]:
+def bootstrap_resample_r2(
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    n_iterations: int = 1000,
+    random_state: int = 42
+) -> List[float]:
     """
-    Perform bootstrap resampling to get confidence intervals for R².
+    Perform bootstrap resampling to generate a distribution of R² scores.
     
     Args:
-        y_true: True values
-        y_pred: Predicted values
-        n_bootstrap: Number of bootstrap samples
+        y_true: True values.
+        y_pred: Predicted values.
+        n_iterations: Number of bootstrap resamples.
+        random_state: Random seed for reproducibility.
         
     Returns:
-        Dictionary with R² and confidence intervals
+        List of R² scores from each bootstrap iteration.
     """
+    logger = get_logger()
+    log_stage_start(logger, "Bootstrap Resampling (1000 iterations)")
+    
+    rng = np.random.default_rng(random_state)
     n_samples = len(y_true)
-    bootstrap_r2 = []
+    bootstrap_scores = []
     
-    # Set seed for reproducibility
-    np.random.seed(get_hyperparameter('random_seed'))
-    
-    for i in range(n_bootstrap):
-        # Resample with replacement
-        indices = np.random.choice(n_samples, size=n_samples, replace=True)
+    start_time = time.time()
+    for i in range(n_iterations):
+        if _SHUTDOWN_EVENT.is_set():
+            break
+            
+        # Resample indices with replacement
+        indices = rng.choice(n_samples, size=n_samples, replace=True)
         y_true_boot = y_true[indices]
         y_pred_boot = y_pred[indices]
         
-        # Calculate R²
+        # Calculate R² for this resample
         r2 = calculate_r2(y_true_boot, y_pred_boot)
-        bootstrap_r2.append(r2)
+        bootstrap_scores.append(r2)
         
         # Progress logging every 100 iterations
         if (i + 1) % 100 == 0:
-            logging.info(f"Bootstrap progress: {i + 1}/{n_bootstrap}")
+            elapsed = time.time() - start_time
+            logger.log_operation("bootstrap_progress", iteration=i+1, elapsed_seconds=elapsed)
     
-    bootstrap_r2 = np.array(bootstrap_r2)
-    
-    # Calculate confidence intervals
-    ci_lower = np.percentile(bootstrap_r2, 2.5)
-    ci_upper = np.percentile(bootstrap_r2, 97.5)
-    r2_mean = np.mean(bootstrap_r2)
-    
-    return {
-        'r2_mean': float(r2_mean),
-        'r2_ci_lower': float(ci_lower),
-        'r2_ci_upper': float(ci_upper),
-        'n_bootstrap': n_bootstrap,
-        'bootstrap_std': float(np.std(bootstrap_r2))
-    }
+    log_stage_complete(logger, f"Bootstrap complete. Generated {len(bootstrap_scores)} samples.")
+    return bootstrap_scores
 
-def save_bootstrap_results(results: Dict[str, float]):
+def save_bootstrap_results(
+    bootstrap_scores: List[float],
+    output_path: str = "data/results/bootstrap_ci.json",
+    confidence_level: float = 0.95
+) -> Dict[str, Any]:
     """
-    Save bootstrap results to disk.
+    Save bootstrap results and calculate confidence intervals.
     
     Args:
-        results: Bootstrap results dictionary
+        bootstrap_scores: List of R² scores from bootstrap iterations.
+        output_path: Path to save results.
+        confidence_level: Confidence level for CI (default 0.95).
+        
+    Returns:
+        Dictionary containing CI results and statistics.
     """
-    paths = get_paths()
-    output_path = paths['results_dir'] / "bootstrap_results.json"
+    logger = get_logger()
+    log_stage_start(logger, "Saving Bootstrap Results")
+    
+    if not bootstrap_scores:
+        raise ValueError("No bootstrap scores to save.")
+    
+    scores_array = np.array(bootstrap_scores)
+    mean_r2 = float(np.mean(scores_array))
+    std_r2 = float(np.std(scores_array))
+    
+    # Calculate percentile-based confidence interval
+    lower_percentile = (1 - confidence_level) / 2
+    upper_percentile = 1 - lower_percentile
+    ci_lower = float(np.percentile(scores_array, lower_percentile * 100))
+    ci_upper = float(np.percentile(scores_array, upper_percentile * 100))
+    
+    result = {
+        "bootstrap_samples": len(bootstrap_scores),
+        "mean_r2": mean_r2,
+        "std_r2": std_r2,
+        "confidence_level": confidence_level,
+        "ci_lower": ci_lower,
+        "ci_upper": ci_upper,
+        "ci_width": ci_upper - ci_lower,
+        "distribution": {
+            "min": float(np.min(scores_array)),
+            "max": float(np.max(scores_array)),
+            "median": float(np.median(scores_array)),
+            "percentiles": {
+                "5": float(np.percentile(scores_array, 5)),
+                "25": float(np.percentile(scores_array, 25)),
+                "75": float(np.percentile(scores_array, 75)),
+                "95": float(np.percentile(scores_array, 95))
+            }
+        }
+    }
+    
+    # Ensure output directory exists
     ensure_dirs()
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    with open(output_file, 'w') as f:
+        json.dump(result, f, indent=2)
     
-    logging.info(f"Saved bootstrap results to {output_path}")
+    log_stage_complete(logger, f"Results saved to {output_path}")
+    return result
 
-def main():
+def main() -> bool:
     """
-    Main function to run evaluation.
+    Main entry point for T023: Bootstrap resampling of outer-fold predictions.
+    
+    1. Load predictions from data/processed/predictions.npy
+    2. Perform 1000 bootstrap resamples
+    3. Calculate 95% CI on R²
+    4. Save results to data/results/bootstrap_ci.json
     """
-    logger = logging.getLogger(__name__)
+    logger = get_logger()
     log_stage_start(logger, "Evaluation")
     
+    # Setup signal handlers for graceful shutdown
+    signal.signal(signal.SIGINT, _signal_handler)
+    signal.signal(signal.SIGTERM, _signal_handler)
+    
     try:
-        # Load predictions and true values
-        log_stage_start(logger, "Loading Data")
-        y_true, y_pred = load_predictions()
-        log_stage_complete(logger, "Loading Data")
+        # Load predictions
+        predictions_path = "data/processed/predictions.npy"
+        predictions, y_true, subject_ids = load_predictions(predictions_path)
         
-        # Calculate initial metrics
-        metrics = calculate_metrics(y_true, y_pred)
-        logger.info(f"Initial R²: {metrics['r_squared']:.4f}, r: {metrics['pearson_r']:.4f}")
+        # Validate data
+        if len(predictions) != len(y_true):
+            raise ValueError("Predictions and true values length mismatch.")
+        if len(predictions) == 0:
+            raise ValueError("No predictions found in input file.")
         
-        # Bootstrap resampling
-        log_stage_start(logger, "Bootstrap Resampling (1000 iterations)")
-        n_bootstrap = get_hyperparameter('n_bootstrap', 1000)
-        bootstrap_results = bootstrap_resample_r2(y_true, y_pred, n_bootstrap=n_bootstrap)
-        save_bootstrap_results(bootstrap_results)
-        log_stage_complete(logger, "Bootstrap Resampling")
+        logger.log_operation("data_validation", n_samples=len(predictions))
         
-        # Log summary
-        logger.info(f"Bootstrap R² mean: {bootstrap_results['r2_mean']:.4f}")
-        logger.info(f"95% CI: [{bootstrap_results['r2_ci_lower']:.4f}, {bootstrap_results['r2_ci_upper']:.4f}]")
+        # Perform bootstrap resampling
+        bootstrap_scores = bootstrap_resample_r2(
+            y_true=y_true,
+            y_pred=predictions,
+            n_iterations=1000,
+            random_state=get_hyperparameter("random_seed", 42)
+        )
         
-        log_stage_complete(logger, "Evaluation")
+        if not bootstrap_scores:
+            raise RuntimeError("Bootstrap resampling was interrupted or produced no results.")
+        
+        # Save results
+        output_path = "data/results/bootstrap_ci.json"
+        results = save_bootstrap_results(bootstrap_scores, output_path)
+        
+        # Log final metrics
+        logger.log_operation(
+            "bootstrap_complete",
+            mean_r2=results["mean_r2"],
+            ci_95=[results["ci_lower"], results["ci_upper"]]
+        )
+        
+        print(f"Bootstrap analysis complete. Results saved to {output_path}")
+        print(f"Mean R²: {results['mean_r2']:.4f}")
+        print(f"95% CI: [{results['ci_lower']:.4f}, {results['ci_upper']:.4f}]")
+        
+        return True
         
     except Exception as e:
-        log_stage_error(logger, "Evaluation", str(e))
-        raise
+        log_stage_error(logger, str(e))
+        print(f"Error during evaluation: {e}")
+        return False
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    sys.exit(0 if success else 1)

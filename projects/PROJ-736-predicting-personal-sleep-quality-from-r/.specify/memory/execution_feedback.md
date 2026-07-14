@@ -8,31 +8,22 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/data/download_hcp.py: synthetic/fake INPUT data not authorized by the spec — “…raint without hardcoding fake data: # We will attempt to do…”
-- code/data/download_hcp.py: synthetic/fake INPUT data not authorized by the spec — “…but we MUST NOT generate fake data.  # Strategy:  # 1. Chec…”
-- code/data/download_hcp.py: synthetic/fake INPUT data not authorized by the spec — “…ther, raise an error. No fake data generation allowed.  # F…”
-- code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…h)     # BUT we must not fake data. We will raise an error…”
+- code/config.py: self-declared fabricated metric — “…rn env_val          # Default hardcoded values for the pipeline     default…”
+- code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…regions = 400          # Generate synthetic but realistic-looking da…”
+- code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…ounds is None:         # Generate synthetic confounds         confou…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data/download_hcp.py: synthetic/fake INPUT data not authorized by the spec — “…raint without hardcoding fake data: # We will attempt to do…”; code/data/download_hcp.py: synthetic/fake INPUT data not authorized by the spec — “…but we MUST NOT generate fake data.  # Strategy:  # 1. Chec…”; code/data/download_hcp.py: synthetic/fake INPUT data not authorized by the spec — “…ther, raise an error. No fake data generation allowed.  # F…”; 2 command(s) failed: python code/data/download_hcp.py (rc=1); python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/predictions.npy; data/raw/behavioral/hcp1200_behavioral_data.csv
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/config.py: self-declared fabricated metric — “…rn env_val          # Default hardcoded values for the pipeline     default…”; code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…regions = 400          # Generate synthetic but realistic-looking da…”; code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…ounds is None:         # Generate synthetic confounds         confou…”; 2 command(s) failed: python code/data/download_hcp.py (rc=1); python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/predictions.npy; data/raw/behavioral/hcp1200_behavioral_data.csv
 
 ## Failing / missing run-book commands
 
 - python code/data/download_hcp.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py", line 341, in <module>
-    success = main()
-              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py", line 303, in main
-    log_stage_start("Download HCP Data")
-TypeError: log_stage_start() missing 1 required positional argument: 'stage'
+    
 - python code/main.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py", line 22, in <module>
-    from data.download_hcp import main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/__init__.py", line 2, in <module>
-    from .download_hcp import download_hcp_data, load_behavioral_data, filter_subjects
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py", line 12, in <module>
+    from data.download_hcp import download_hcp_data
 ImportError: cannot import name 'download_hcp_data' from 'data.download_hcp' (/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py)
 
 ## Declared deliverables still missing
@@ -48,19 +39,32 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `log_stage_start` — defined in `code/utils/logging.py`; called 12 way(s):
+### `log_stage_start` — defined in `code/utils/logging.py`; called 25 way(s):
 
-- code/main.py: log_stage_start("full_pipeline")
-- code/data/download_hcp.py: log_stage_start("Download HCP Data")
-- code/data/preprocess.py: log_stage_start(logger, "Preprocessing")
-- code/data/feature_engineering.py: log_stage_start(logger, "Feature Engineering")
+- code/main.py: log_stage_start("full_pipeline", message="[Pipeline] START: Beginning end-to-end execution")
+- code/main.py: log_stage_start("Data Download", message="[Data Download] START: Fetching HCP data")
+- code/main.py: log_stage_start("Preprocessing", message="[Preprocessing] START: Running nuisance regression and filtering")
+- code/main.py: log_stage_start("Feature Engineering", message="[Feature Engineering] START: Computing connectivity vectors")
+- code/main.py: log_stage_start("Model Training", message="[Model Training] START: Running ElasticNetCV")
+- code/utils/logging.py: log_stage_start(stage)
+- code/utils/logging.py: log_stage_start(stage, message=...)
+- code/utils/logging.py: log_stage_start(logger, stage)
+- code/utils/logging.py: log_stage_start(logger, stage, message=...)
+- code/data/download_hcp.py: log_stage_start("download_behavioral_csv", message=f"Downloading to {dest_path}")
+- code/data/download_hcp.py: log_stage_start("create_filtered_subjects", message=f"Reading {csv_path}")
+- code/data/preprocess.py: log_stage_start("Preprocessing", message="[Preprocessing] START: Beginning nuisance regression and filtering")
+- code/data/feature_engineering.py: log_stage_start("Feature Engineering", message="[Feature Engineering] START: Computing connectivity vectors")
 - code/modeling/interpret.py: log_stage_start("Interpretation", "Extracting non-zero coefficients")
-- code/modeling/evaluate.py: log_stage_start(logger, "Evaluation")
 - code/modeling/evaluate.py: log_stage_start(logger, "Loading Data")
 - code/modeling/evaluate.py: log_stage_start(logger, "Bootstrap Resampling (1000 iterations)")
-- code/modeling/train.py: log_stage_start("training_pipeline")
+- code/modeling/evaluate.py: log_stage_start(logger, "Saving Bootstrap Results")
+- code/modeling/evaluate.py: log_stage_start(logger, "Evaluation")
+- code/modeling/train.py: log_stage_start("load_data", message="Reading feature matrix and labels")
+- code/modeling/train.py: log_stage_start(
 - code/modeling/report_generator.py: log_stage_start(logger, "Report Generation")
-- code/modeling/validate_plot.py: log_stage_start("T033", "Validating plot file")
+- code/modeling/visualize.py: log_stage_start(logger, "Interpretation", "Extracting non-zero coefficients")
+- code/modeling/visualize.py: log_stage_start(logger, "Visualization", "Loading Schaefer coordinates")
+- code/modeling/visualize.py: log_stage_start(logger, "Visualization", "Generating brain surface plot")
 - code/modeling/validate_plot.py: log_stage_start("T033", f"Validating {plot_path}")
 
 Make `log_stage_start` in `code/utils/logging.py` accept ALL of the above.
@@ -150,12 +154,15 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/predictions.npy` is declared but was NOT written. Scripts referencing it:
-    - `code/modeling/pipeline_factory.py` — NOT invoked by the run-book
+    - `code/utils/metrics.py` — NOT invoked by the run-book
+    - `code/modeling/__init__.py` — NOT invoked by the run-book
     - `code/modeling/evaluate.py` — NOT invoked by the run-book
     - `code/modeling/train.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/predictions.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/behavioral/hcp1200_behavioral_data.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/config.py` — NOT invoked by the run-book
     - `code/data/download_hcp.py` — IS a run-book command
+    - `code/modeling/train.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/behavioral/hcp1200_behavioral_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
@@ -168,6 +175,6 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 - ACTUAL columns/keys the producer wrote: `(file not on disk this run)`
 - REQUIRED by the consumer(s): `[raw_dir]`
-- PRODUCER(s) to edit: `code/data/download_hcp.py`
-- CONSUMER(s) that read it: `code/data/download_hcp.py`
+- PRODUCER(s) to edit: `code/data/download_hcp.py`, `code/modeling/train.py`
+- CONSUMER(s) that read it: `code/config.py`, `code/data/download_hcp.py`, `code/modeling/train.py`
   → Edit the producer so every required name [raw_dir] is in `hcp1200_behavioral_data.csv`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
