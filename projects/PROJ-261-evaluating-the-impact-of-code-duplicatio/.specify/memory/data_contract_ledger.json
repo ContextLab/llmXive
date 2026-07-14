@@ -1,5 +1,9 @@
 [
   {
+    "data_file": "data/processed/clone_metrics.csv",
+    "required": []
+  },
+  {
     "data_file": "data/raw/github-code-sample.csv",
     "required": []
   }

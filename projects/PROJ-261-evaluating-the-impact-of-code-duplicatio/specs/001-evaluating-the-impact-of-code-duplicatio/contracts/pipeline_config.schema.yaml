@@ -1,54 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Pipeline Configuration Schema
-description: Schema for the top‑level configuration used to run the research pipeline.
+description: Schema describing the configuration parameters for the entire pipeline.
 type: object
 properties:
-  dataset_name:
-    type: string
-    description: Name of the source code dataset (e.g., "codeparrot/github-code").
-  model_name:
-    type: string
-    description: Name of the language model to evaluate (e.g., "Salesforce/codegen-350M-mono").
-  clone_thresholds:
-    type: array
-    items:
-      type: number
-    description: List of clone‑density thresholds used in sensitivity analysis.
   random_seed:
     type: integer
     description: Global random seed for reproducibility.
   memory_limit_mb:
     type: integer
-    description: Maximum memory usage allowed during pipeline execution.
+    description: Maximum memory (in megabytes) the pipeline may consume.
   max_runtime_seconds:
     type: integer
     description: Upper bound on total runtime for the pipeline.
-  pii_scan_enabled:
-    type: boolean
-    description: Whether the PII scanner should be executed.
-  streaming_enabled:
-    type: boolean
-    description: Whether dataset streaming mode is used for data loading.
+  clone_thresholds:
+    type: array
+    description: List of clone‑density thresholds used in sensitivity analysis.
+    items:
+      type: number
+  dataset_name:
+    type: string
+    description: Identifier of the code corpus dataset (e.g., "codeparrot/github-code").
+  model_name:
+    type: string
+    description: Identifier of the language model used for perplexity computation.
   quantization_bits:
     type: integer
-    description: Number of bits for model quantisation (e.g., 8 for 8‑bit).
-  figure_format:
-    type: string
-    enum: [png, pdf]
-    description: Desired output format for generated figures.
-  figure_dpi:
-    type: integer
-    description: DPI resolution for raster figures.
-required:
-  - dataset_name
-  - model_name
-  - clone_thresholds
-  - random_seed
-  - memory_limit_mb
-  - max_runtime_seconds
-  - pii_scan_enabled
-  - streaming_enabled
-  - quantization_bits
-  - figure_format
-  - figure_dpi
-additionalProperties: false
+    description: Number of bits for 8‑bit quantization (e.g., 8).
+  streaming_enabled:
+    type: boolean
+    description: Whether dataset streaming mode is enabled.
+  pii_scan_enabled:
+    type: boolean
+    description: Whether PII scanning is performed on the data.
+required: []

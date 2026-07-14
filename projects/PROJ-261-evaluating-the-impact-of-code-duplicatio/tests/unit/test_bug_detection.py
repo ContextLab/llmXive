@@ -1,96 +1,67 @@
-# -*- coding: utf-8 -*-
-"""
-Unit tests for the bug_detection module.
-
-The tests verify that the public API functions behave as expected when
-provided with minimal in‑memory fixtures. They do **not** require the
-presence of the large external datasets, keeping CI fast.
-"""
-import builtins
-import io
-import os
-import sys
-from pathlib import Path
-
 import pandas as pd
 import pytest
 
-# Import the module under test
 from bug_detection import (
-    compute_pass1_accuracy,
-    load_clone_metrics,
     load_humaneval_dataset,
+    load_clone_metrics,
+    compute_pass1_accuracy,
     save_results,
-    setup_logging,
 )
+from pathlib import Path
 
-# --------------------------------------------------------------------------- #
-# Helper fixtures
-# --------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------
+# Fixtures
+# -------------------------------------------------------------------------
 @pytest.fixture
-def dummy_clone_csv(tmp_path: Path) -> Path:
-    """Create a tiny clone_metrics CSV with deterministic values."""
-    csv_path = tmp_path / "clone_metrics.csv"
-    df = pd.DataFrame(
-        {
-            "task_id": [f"HumanEval/{i}" for i in range(5)],
-            "clone_density": [0.1, 0.6, 0.4, 0.9, 0.2],
-        }
-    )
-    df.to_csv(csv_path, index=False)
-    return csv_path
+def dummy_clone_metrics(tmp_path):
+    """Create a minimal clone‑metrics CSV for testing."""
+    path = tmp_path / "clone_metrics.csv"
+    df = pd.DataFrame({"clone_density": [0.42]})
+    df.to_csv(path, index=False)
+    # Patch the constant used in the module.
+    import importlib
+    bug_mod = importlib.import_module("bug_detection")
+    bug_mod.CLONE_METRICS_PATH = path
+    return path
 
-@pytest.fixture
-def dummy_output_csv(tmp_path: Path) -> Path:
-    return tmp_path / "bug_detection_results.csv"
-
-# --------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------
 # Tests
-# --------------------------------------------------------------------------- #
-def test_setup_logging_creates_file(tmp_path: Path):
-    log_path = tmp_path / "bug_detection.log"
-    logger = setup_logging(log_path)
-    logger.info("test message")
-    assert log_path.is_file()
-    with log_path.open() as f:
-        contents = f.read()
-    assert "test message" in contents
-
-def test_load_humaneval_dataset_returns_expected_number():
-    # The real dataset is large; we only need to ensure the function returns
-    # a list of dictionaries with a ``task_id`` key.
-    problems = load_humaneval_dataset(limit=3)
-    assert isinstance(problems, list)
-    assert len(problems) == 3
-    for prob in problems:
-        assert isinstance(prob, dict)
-        assert "task_id" in prob
-
-def test_load_clone_metrics_reads_file(dummy_clone_csv: Path):
-    df = load_clone_metrics(dummy_clone_csv)
+# -------------------------------------------------------------------------
+def test_load_humaneval_dataset():
+    df = load_humaneval_dataset(sample_size=5, seed=123)
     assert isinstance(df, pd.DataFrame)
-    assert list(df["clone_density"]) == [0.1, 0.6, 0.4, 0.9, 0.2]
+    assert len(df) == 5
+    assert "prompt" in df.columns
 
-def test_compute_pass1_accuracy_respects_threshold(dummy_clone_csv: Path):
-    clone_df = load_clone_metrics(dummy_clone_csv)
-    # Create a minimal HumanEval‑like list that matches the IDs in the CSV.
-    humaneval = [{"task_id": f"HumanEval/{i}"} for i in range(5)]
-    result_df = compute_pass1_accuracy(humaneval, clone_df, density_threshold=0.5)
-    # Expected pass flags: densities < 0.5 => [1,0,1,0,1]
-    assert result_df["pass1"].tolist() == [1, 0, 1, 0, 1]
+def test_load_clone_metrics(dummy_clone_metrics):
+    df = load_clone_metrics()
+    assert isinstance(df, pd.DataFrame)
+    assert "clone_density" in df.columns
+    assert pd.api.types.is_float_dtype(df["clone_density"])
 
-def test_save_results_writes_csv(dummy_output_csv: Path):
-    df = pd.DataFrame(
+def test_compute_pass1_accuracy():
+    # Minimal synthetic HumanEval frame – the heuristic looks for the word “return”.
+    df_humaneval = pd.DataFrame(
         {
-            "task_id": ["HumanEval/0", "HumanEval/1"],
-            "clone_density": [0.2, 0.7],
-            "pass1": [1, 0],
+            "prompt": [
+                "def foo():\\n    return 1",
+                "def bar():\\n    pass",
+            ]
         }
     )
-    save_results(df, dummy_output_csv)
-    assert dummy_output_csv.is_file()
-    reloaded = pd.read_csv(dummy_output_csv)
-    pd.testing.assert_frame_equal(df, reloaded)
+    df_clone = pd.DataFrame({"clone_density": [0.5]})
+    result = compute_pass1_accuracy(df_humaneval, df_clone)
+    # Should return a DataFrame with the required columns.
+    assert set(result.columns) == {"problem_id", "clone_density", "passed", "pass@1"}
+    # Passed flag should be [1, 0] based on the heuristic.
+    assert result["passed"].tolist() == [1, 0]
+    # pass@1 is the cumulative mean: first row 1.0, second row 0.5
+    assert result["pass@1"].tolist() == [1.0, 0.5]
 
-# The ``main`` function is intentionally not exercised here because it
-# performs network calls. Integration tests cover the end‑to‑end behaviour.
+def test_save_results(tmp_path):
+    df = pd.DataFrame({"a": [1, 2]})
+    out_path = tmp_path / "out.csv"
+    save_results(df, out_path)
+    assert out_path.is_file()
+    reloaded = pd.read_csv(out_path)
+    pd.testing.assert_frame_equal(df, reloaded)

@@ -1,56 +1,54 @@
-"""
-main.py
--------
-Orchestrates the end‑to‑end pipeline for User Story 1.
-Updated to guarantee that the required CSV artefacts are produced.
+"""main.py
+Orchestrates the full pipeline. Updated to call the newly tolerant
+functions and to verify that the required CSV artefacts are produced.
 """
 from __future__ import annotations
 
 import logging
-import sys
 from pathlib import Path
 
-# Absolute imports to avoid relative‑import issues when the script is executed directly.
 from data_loader import download_and_save_sample
 from ast_cloner import compute_clone_density_batch
 from model_metrics import compute_perplexity_batch
-from memory_monitor import setup_memory_monitoring
+from bug_detection import main as bug_detection_main
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("pipeline")
+logger.setLevel(logging.INFO)
 
-def run_pipeline() -> int:
+
+def _ensure_output(path: Path) -> None:
+    """Utility used by the pipeline to assert that a file exists."""
+    if not path.is_file():
+        raise FileNotFoundError(f"Pipeline expected output not found: {path}")
+
+
+def run_pipeline() -> None:
     """
-    Execute the pipeline.
-
-    Returns
-    -------
-    int
-        Exit code (0 = success, non‑zero = failure).
+    End‑to‑end pipeline:
+    1. Download a small, reproducible sample.
+    2. Compute clone‑density metrics.
+    3. Compute surrogate perplexity scores.
+    4. Run the bug‑detection step (produces its own artefacts).
+    5. Verify that the two core CSV files exist.
     """
-    try:
-        # 1. Download a modest sample (default 100 files – fast on CI)
-        download_and_save_sample(sample_size=100)
+    # Step 1: download a small sample (used by downstream steps)
+    download_and_save_sample(sample_size=100)
 
-        # 2. Compute clone density (writes data/processed/clone_metrics.csv)
-        compute_clone_density_batch()
+    # Step 2: compute clone density
+    compute_clone_density_batch()
 
-        # 3. Compute perplexity (writes data/processed/perplexity_scores.csv)
-        compute_perplexity_batch()
+    # Step 3: compute perplexity (implementation unchanged)
+    compute_perplexity_batch()
 
-        # 4. Start a background memory monitor (non‑blocking)
-        _ = setup_memory_monitoring()
+    # Step 4: bug detection & pass@1
+    bug_detection_main()
 
-        logger.info("Pipeline completed successfully.")
-        return 0
-    except Exception as exc:  # pragma: no cover – any unexpected error is logged
-        logger.exception("Pipeline failed: %s", exc)
-        return 1
+    # Verify that the artefacts required by quickstart_validation exist
+    _ensure_output(Path("data/processed/clone_metrics.csv"))
+    _ensure_output(Path("data/processed/perplexity_scores.csv"))
+
+    logger.info("Pipeline completed successfully.")
 
 
 if __name__ == "__main__":
-    # Configure a very simple root logger for direct script execution.
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(name)s – %(message)s",
-    )
-    sys.exit(run_pipeline())
+    run_pipeline()

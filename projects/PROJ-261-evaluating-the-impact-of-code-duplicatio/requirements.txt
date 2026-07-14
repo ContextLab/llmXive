@@ -1,14 +1,12 @@
-# Core dependencies for the project
-datasets>=2.0
-transformers>=4.30
-torch>=2.0
-bitsandbytes>=0.41
+datasets
+transformers
+bitsandbytes
 scipy
 matplotlib
-pandas
-psutil
-# Linting / formatting (already present in the repo)
-black
-flake8
-isort
 pytest
+torch
+scikit-learn
+numpy
+
+# The project already includes other dependencies; they are listed above.
+# Ensure the CI environment installs these packages before running the pipeline.
