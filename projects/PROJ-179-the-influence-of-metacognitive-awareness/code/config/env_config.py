@@ -1,9 +1,3 @@
-"""
-Configuration management for the metacognitive awareness project.
-
-Provides configuration loading, environment variable handling, and
-a tolerant configuration access pattern for various callers.
-"""
 import os
 import logging
 from pathlib import Path
@@ -11,123 +5,92 @@ from typing import Optional, Dict, Any
 from dataclasses import dataclass, field
 import yaml
 
-# Configure logging
+# Setup basic logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger(__name__)
 
-@dataclass
-class TolerantDict:
-    """A dictionary-like class that tolerates missing keys gracefully."""
-    _data: Dict[str, Any] = field(default_factory=dict)
-    
-    def __getitem__(self, key):
-        return self._data.get(key)
-    
-    def __getattr__(self, key):
-        return self._data.get(key)
-    
-    def get(self, key, default=None):
-        return self._data.get(key, default)
+class TolerantDict(dict):
+    """A dictionary that tolerates missing keys gracefully."""
+    def __missing__(self, key):
+        return None
 
 class AppConfig:
-    """Application configuration with tolerant access patterns."""
+    """Configuration manager with tolerant access patterns."""
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        self._config = config or {}
+    def __init__(self, config_dict: Optional[Dict[str, Any]] = None):
+        self._config = config_dict or TolerantDict()
     
     def get(self, key: str, default: Any = None) -> Any:
-        """Get configuration value with nested key support."""
-        keys = key.split('.')
-        value = self._config
-        for k in keys:
-            if isinstance(value, dict):
-                value = value.get(k)
-            else:
-                return default
-            if value is None:
-                return default
-        return value
+        """Get a configuration value with nested key support."""
+        if '.' in key:
+            keys = key.split('.')
+            value = self._config
+            for k in keys:
+                if isinstance(value, dict):
+                    value = value.get(k, TolerantDict())
+                else:
+                    return default
+            return value if value is not None else default
+        return self._config.get(key, default)
     
-    def __getattr__(self, name: str) -> Any:
-        """Allow attribute-style access to config values."""
-        if name.startswith('_'):
-            raise AttributeError(name)
-        return self._data.get(name) if hasattr(self, '_data') else None
-    
-    def __getitem__(self, key: str) -> Any:
-        """Allow dictionary-style access to config values."""
+    def __getitem__(self, key):
         return self._config.get(key)
+    
+    def __contains__(self, key):
+        return key in self._config
 
-def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+def load_config(config_path: Optional[str] = None) -> AppConfig:
     """Load configuration from YAML file."""
     if config_path is None:
-        # Default paths to try
-        possible_paths = [
-            Path(__file__).parent / "env_config.yaml",
-            Path(__file__).parent.parent / "config" / "env_config.yaml",
-            Path.cwd() / "config" / "env_config.yaml"
-        ]
-        for path in possible_paths:
-            if path.exists():
-                config_path = str(path)
-                break
-        else:
-            logger.warning("No config file found, using defaults")
-            return {}
+        config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
     
-    try:
-        with open(config_path, 'r') as f:
-            config = yaml.safe_load(f)
-            return config if config else {}
-    except Exception as e:
-        logger.error(f"Error loading config from {config_path}: {e}")
-        return {}
-
-def setup_logging(level: str = "INFO") -> logging.Logger:
-    """Setup logging configuration."""
-    # Handle different input types gracefully
-    if isinstance(level, str):
-        level = level.upper()
+    if os.path.exists(config_path):
+        try:
+            with open(config_path, 'r') as f:
+                config_dict = yaml.safe_load(f) or {}
+            return AppConfig(config_dict)
+        except Exception as e:
+            logger.warning(f"Failed to load config from {config_path}: {e}")
+            return AppConfig()
     else:
-        level = "INFO"
-    
-    numeric_level = getattr(logging, level, None)
-    if not isinstance(numeric_level, int):
-        numeric_level = logging.INFO
+        logger.info(f"No config file found at {config_path}, using defaults")
+        return AppConfig()
+
+def setup_logging(config: Optional[AppConfig] = None) -> logging.Logger:
+    """Setup logging based on configuration."""
+    level = logging.INFO
+    if config:
+        log_level = config.get('logging.level', 'INFO')
+        if log_level == 'DEBUG':
+            level = logging.DEBUG
+        elif log_level == 'WARNING':
+            level = logging.WARNING
+        elif log_level == 'ERROR':
+            level = logging.ERROR
     
     logging.basicConfig(
-        level=numeric_level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        level=level,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
     return logging.getLogger(__name__)
 
-def get_seed(seed_name: str = "default") -> int:
-    """Get random seed from environment or config."""
-    env_var = f"RANDOM_SEED_{seed_name.upper()}"
-    seed = os.getenv(env_var)
-    if seed:
-        try:
-            return int(seed)
-        except ValueError:
-            pass
-    
-    # Try config
-    config = load_config()
-    seed_val = config.get('random_seeds', {}).get(seed_name, 42)
-    return seed_val
+def get_seed(config: Optional[AppConfig] = None) -> int:
+    """Get random seed from configuration."""
+    if config:
+        seed = config.get('random.seed', 42)
+        return int(seed)
+    return 42
 
 def main():
-    """Main function for testing."""
+    """Main entry point for config module (testing purposes)."""
     config = load_config()
-    logger.info(f"Loaded config: {config}")
-    
-    app_config = AppConfig(config)
-    logger.info(f"Config paths.base: {app_config.get('paths.base', 'default')}")
-    
-    logger.info("Configuration module loaded successfully")
+    logger.info("Configuration loaded successfully")
+    logger.info(f"Base path: {config.get('paths.base', 'default')}")
 
 if __name__ == "__main__":
     main()

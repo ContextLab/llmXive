@@ -1,87 +1,87 @@
-# Quick Start Guide for PROJ-179
+# Quickstart Guide for PROJ-179: The Influence of Metacognitive Awareness on Reality Testing
 
-This guide shows how to run the complete analysis pipeline for the metacognitive awareness study.
+## Overview
+
+This project analyzes the relationship between metacognitive awareness (Type-2 AUC) and reality testing accuracy (d') using behavioral data. The analysis follows a hold-out design to ensure independence between predictor and outcome measures.
 
 ## Prerequisites
 
-- Python 3.9+
-- Install dependencies: `pip install -r requirements.txt`
+- Python 3.8+
+- Required packages listed in `requirements.txt`
 
-## Data Pipeline
+## Installation
 
-1. **Download dataset** (T005):
- ```bash
- python code/data/download.py
- ```
+```bash
+pip install -r requirements.txt
+```
 
-2. **Validate dataset** (T006):
- ```bash
- python code/data/validate_data.py
- ```
+## Data Availability Warning
 
-3. **Preprocess data** (T012):
- ```bash
- python code/data/preprocess.py
- ```
+This project requires a valid behavioral dataset containing `confidence_rating` and `source_label` columns. If no valid dataset is found, the pipeline will abort with an error.
 
-## Analysis Pipeline
+## Running the Analysis
 
-4. **Compute correlation metrics** (T014):
- ```bash
- python code/src/analysis/correlation.py
- ```
+Execute the full analysis pipeline:
 
-5. **Run bootstrap analysis** (T015):
- ```bash
- python code/src/analysis/bootstrap.py
- ```
+```bash
+python code/analysis.py
+```
 
-6. **Run regression analysis** (T020):
- ```bash
- python code/src/analysis/regression.py
- ```
+This command will:
+1. Validate data availability (T004)
+2. Download the dataset (T005)
+3. Validate data fields (T006)
+4. Preprocess trial data (T012)
+5. Compute correlation metrics (T014)
+6. Run bootstrap analysis (T015)
+7. Perform hierarchical regression (T020)
+8. Filter by modality (T026)
+9. Run robustness analysis (T027)
+10. Generate reports (T016, T022, T028)
 
-7. **Run diagnostics** (T021):
- ```bash
- python code/src/analysis/diagnostics.py
- ```
+## Output Files
 
-8. **Filter by modality** (T026):
- ```bash
- python code/src/analysis/filter.py
- ```
+After successful execution, the following files will be generated:
 
-9. **Run robustness analysis** (T027):
- ```bash
- python code/src/analysis/robustness.py
- ```
+### Data Files
+- `data/derived/trial_data.csv` - Preprocessed trial-level data
+- `data/derived/visual_trials.csv` - Visual modality trials
+- `data/derived/auditory_trials.csv` - Auditory modality trials
 
-10. **Generate reports** (T016, T022, T028):
- ```bash
- python code/src/report/generate.py
- ```
+### Results Files
+- `data/results/bootstrap_config.json` - Bootstrap configuration and runtime info
+- `data/results/primary_analysis.json` - Primary correlation analysis results
+- `data/results/regression_analysis.json` - Hierarchical regression results
+- `data/results/robustness_analysis.json` - Modality-specific robustness analysis
 
 ## Validation
 
-11. **Run quickstart validator**:
- ```bash
- python code/quickstart_validator.py
- ```
+To validate all output files:
 
-## Expected Outputs
+```bash
+python code/quickstart_validator.py
+```
 
-After successful completion, the following files will be created:
+## Troubleshooting
 
-- `data/derived/trial_data.csv`
-- `data/derived/visual_trials.csv`
-- `data/derived/auditory_trials.csv`
-- `data/results/bootstrap_config.json`
-- `data/results/primary_analysis.json`
-- `data/results/regression_analysis.json`
-- `data/results/robustness_analysis.json`
+### Data Download Failed
 
-## Notes
+If the download fails, check your internet connection and ensure the dataset URLs are accessible. The pipeline will attempt multiple sources before failing.
 
-- All scripts exit with code 0 on success, non-zero on failure.
-- Logs are printed to stdout with timestamps.
-- The pipeline requires a valid behavioral dataset with `confidence_rating` and `source_label` columns.
+### Missing Required Columns
+
+If validation fails due to missing columns, ensure the dataset contains:
+- `participant_id`
+- `trial_id`
+- `stimulus_modality`
+- `source_label`
+- `participant_response`
+- `confidence_rating`
+
+### Runtime Exceeded
+
+If bootstrap analysis exceeds 5.5 hours, the count will be automatically reduced to 500 resamples.
+
+## License
+
+This project is part of the llmXive automated science pipeline.

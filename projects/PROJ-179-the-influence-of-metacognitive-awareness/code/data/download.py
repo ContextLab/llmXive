@@ -1,15 +1,3 @@
-"""
-T005: Implement data/download.py to fetch the VALID behavioral dataset.
-
-This script attempts to download a behavioral dataset containing 'confidence_rating'
-and 'source_label' columns. It validates the dataset against known checksums if available.
-If the primary source (OpenNeuro ds003386) is detected as invalid (lacking behavioral fields),
-it searches for alternative public datasets.
-
-Constraint: This task assumes T004 has passed. Do NOT attempt to fetch OpenNeuro ds003386
-as a "reference" if it is invalid.
-"""
-
 import hashlib
 import json
 import logging
@@ -17,67 +5,40 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import Optional, Dict, Any, List, Tuple
-
 import requests
 import pandas as pd
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Base directory for the project
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = BASE_DIR / "data"
-DOWNLOADED_DIR = DATA_DIR / "downloaded"
+# Project root path (relative to where the script is run)
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+RAW_DATA_DIR = DATA_DIR / "raw"
 CHECKSUMS_FILE = DATA_DIR / "checksums.json"
 
-# Ensure directories exist
-DOWNLOADED_DIR.mkdir(parents=True, exist_ok=True)
-
-# Dataset sources to try
-# Note: We use a reliable, public sample dataset hosted on GitHub Gist or similar
-# that is known to contain the required columns: 'confidence_rating', 'source_label'.
-# The URLs below are real, publicly accessible CSV files.
-DATASET_SOURCES = [
+# Known datasets with their URLs and required columns
+DATASETS = [
     {
+        "name": "Metacognitive Awareness Behavioral Sample",
         "url": "https://raw.githubusercontent.com/psychoinformatics-de/psychoinformatics-data/main/behavioral_metacognition_sample.csv",
-        "name": "psychoinformatics_behavioral_sample",
-        "checksum": None  # Checksum not available for this specific public sample
-    },
-    {
-        "url": "https://raw.githubusercontent.com/llmXive/datasets/main/sample_behavioral_data.csv",
-        "name": "llmXive_sample_behavioral",
-        "checksum": None
-    },
-    # Fallback: A known public dataset on HuggingFace datasets library (streamed)
-    # We will try to fetch a small sample via direct CSV link if available
-    # or use a placeholder URL that redirects to a real CSV.
-    # Since direct HuggingFace API might be complex without `datasets` lib,
-    # we stick to direct CSV links for simplicity and reliability in this script.
+        "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",  # Placeholder, will be updated on first download
+        "required_columns": ["participant_id", "trial_id", "stimulus_modality", "source_label", "participant_response", "confidence_rating"],
+        "description": "Behavioral dataset with confidence ratings and source labels"
+    }
 ]
 
-# If the above fail, we try to generate a small, REAL synthetic dataset 
-# ONLY if no real source is found, BUT per constraints, we must NOT fabricate.
-# However, if the project spec implies a specific dataset structure that is not public,
-# we must fail loudly. 
-# To satisfy the "real data only" constraint while ensuring the pipeline runs:
-# We will attempt to download from a known public source that contains the required fields.
-# If that fails, we will try to generate a minimal REAL dataset based on standard 
-# metacognition task parameters (e.g., from a published paper's supplementary data if available).
-# For this implementation, we rely on the first two URLs. If they fail, we raise an error.
-
-def log_info(message: str):
+def log_info(message):
     logger.info(message)
 
-def log_error(message: str):
+def log_error(message):
     logger.error(message)
 
-def calculate_sha256(file_path: Path) -> str:
+def calculate_sha256(file_path):
     """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -85,127 +46,122 @@ def calculate_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_checksums() -> Dict[str, str]:
+def load_checksums():
     """Load existing checksums from file."""
     if CHECKSUMS_FILE.exists():
         with open(CHECKSUMS_FILE, "r") as f:
             return json.load(f)
     return {}
 
-def save_checksums(checksums: Dict[str, str]):
+def save_checksums(checksums):
     """Save checksums to file."""
     with open(CHECKSUMS_FILE, "w") as f:
         json.dump(checksums, f, indent=2)
 
-def validate_checksum(file_path: Path, expected_checksum: Optional[str], name: str) -> bool:
-    """Validate the checksum of a downloaded file."""
+def validate_checksum(file_path, expected_checksum):
+    """Validate file checksum."""
     if not expected_checksum:
-        log_info(f"No checksum provided for {name}. Skipping validation.")
-        return True
-    
+        return True  # Skip validation if no checksum provided
     actual_checksum = calculate_sha256(file_path)
-    if actual_checksum == expected_checksum:
-        log_info(f"Checksum validation passed for {name}.")
-        return True
-    else:
-        log_error(f"Checksum validation FAILED for {name}.")
-        log_error(f"Expected: {expected_checksum}")
-        log_error(f"Actual: {actual_checksum}")
-        return False
+    return actual_checksum == expected_checksum
 
-def check_required_columns(df: pd.DataFrame, name: str) -> bool:
-    """Check if the dataset has required columns."""
-    required_cols = ['confidence_rating', 'source_label']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    
-    if missing_cols:
-        log_error(f"Dataset {name} is missing required columns: {missing_cols}")
-        return False
-    
-    log_info(f"Dataset {name} has all required columns.")
-    return True
+def check_required_columns(df, required_columns):
+    """Check if DataFrame has required columns."""
+    missing = [col for col in required_columns if col not in df.columns]
+    if missing:
+        return False, missing
+    return True, []
 
-def download_dataset(url: str, name: str) -> Optional[Path]:
-    """Download a dataset from a URL and save it locally."""
-    output_path = DOWNLOADED_DIR / f"{name}.csv"
-    
-    # Skip if already downloaded and valid
-    if output_path.exists():
-        log_info(f"Dataset {name} already exists at {output_path}. Skipping download.")
-        # Optional: Re-validate checksum if available
-        checksums = load_checksums()
-        if name in checksums:
-            if validate_checksum(output_path, checksums[name], name):
-                return output_path
-            else:
-                log_info("Re-downloading due to checksum mismatch.")
-                output_path.unlink()
-    
+def download_dataset(url, output_path):
+    """Download dataset from URL."""
     try:
         log_info(f"Attempting to download from: {url}")
         response = requests.get(url, timeout=30)
         response.raise_for_status()
         
-        # Save content
+        # Create output directory if it doesn't exist
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Save the file
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(response.text)
         
-        log_info(f"Downloaded {name} to {output_path}")
-        return output_path
-        
+        log_info(f"Successfully downloaded to: {output_path}")
+        return True
     except requests.exceptions.RequestException as e:
         log_error(f"Failed to download from {url}: {e}")
-        return None
+        return False
+    except Exception as e:
+        log_error(f"Unexpected error during download: {e}")
+        return False
 
-def load_and_validate_dataset(name: str, url: str, checksum: Optional[str]) -> Optional[Path]:
-    """Download and validate a dataset."""
-    file_path = download_dataset(url, name)
-    if not file_path:
-        return None
-    
-    # Validate checksum
-    if checksum:
-        if not validate_checksum(file_path, checksum, name):
-            return None
-    
-    # Load and check columns
+def load_and_validate_dataset(file_path):
+    """Load and validate a dataset."""
     try:
         df = pd.read_csv(file_path)
-        if check_required_columns(df, name):
-            return file_path
-        else:
-            file_path.unlink() # Remove invalid file
-            return None
+        
+        # Check for required columns
+        dataset_info = next((d for d in DATASETS if d["name"] in str(file_path)), None)
+        if dataset_info:
+            required_cols = dataset_info["required_columns"]
+            valid, missing = check_required_columns(df, required_cols)
+            if not valid:
+                log_error(f"Missing required columns: {missing}")
+                return None
+        
+        log_info(f"Successfully loaded dataset with {len(df)} rows and {len(df.columns)} columns")
+        return df
     except Exception as e:
-        log_error(f"Failed to load or validate dataset {name}: {e}")
-        if file_path.exists():
-            file_path.unlink()
+        log_error(f"Failed to load dataset: {e}")
         return None
 
 def main():
-    """Main entry point for T005."""
+    """Main function to download and validate behavioral dataset."""
     log_info("Starting data download (T005)...")
     
-    # Try each source
-    for source in DATASET_SOURCES:
-        url = source["url"]
-        name = source["name"]
-        checksum = source.get("checksum")
-        
-        result_path = load_and_validate_dataset(name, url, checksum)
-        if result_path:
-            log_info(f"Successfully downloaded and validated dataset: {name}")
-            # Save checksum if we have it
-            if checksum:
-                checksums = load_checksums()
-                checksums[name] = checksum
-                save_checksums(checksums)
-            return 0
+    # Ensure data directories exist
+    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
     
-    # If all sources failed
-    log_error("Failed to download and validate any known behavioral dataset.")
-    log_error("Project cannot proceed without valid behavioral data.")
-    return 1
+    # Try to download each known dataset
+    downloaded = False
+    for dataset in DATASETS:
+        output_file = RAW_DATA_DIR / f"{dataset['name'].replace(' ', '_').lower()}.csv"
+        
+        # Check if file already exists and is valid
+        if output_file.exists():
+            log_info(f"Found existing file: {output_file}")
+            df = load_and_validate_dataset(output_file)
+            if df is not None:
+                log_info(f"Using existing valid dataset: {dataset['name']}")
+                downloaded = True
+                break
+        
+        # Attempt download
+        if download_dataset(dataset["url"], output_file):
+            # Validate downloaded file
+            df = load_and_validate_dataset(output_file)
+            if df is not None:
+                log_info(f"Successfully downloaded and validated: {dataset['name']}")
+                downloaded = True
+                
+                # Update checksum
+                checksums = load_checksums()
+                checksums[dataset["name"]] = calculate_sha256(output_file)
+                save_checksums(checksums)
+                break
+            else:
+                log_error(f"Downloaded file is invalid: {dataset['name']}")
+                output_file.unlink()  # Remove invalid file
+        
+        log_info(f"Failed to download: {dataset['name']}")
+    
+    if not downloaded:
+        log_error("Failed to download and validate any known behavioral dataset.")
+        log_error("Project cannot proceed without valid behavioral data.")
+        sys.exit(1)
+    
+    log_info("Data download completed successfully.")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
