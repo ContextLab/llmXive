@@ -1,12 +1,14 @@
-# Project‑wide configuration defaults.
-#
-# Paths are expressed relative to the repository root. Scripts resolve
-# them using the helper functions defined in ``code/config.py``.
+# Base configuration for the adoption‑of‑sustainable‑agriculture project.
+# All paths are interpreted relative to ``project_root`` (default: current dir).
+
 project_root: .
 data_path: data
-raw_data_path: raw
-processed_data_path: processed
+raw_data_path: data/raw
+processed_data_path: data/processed
 results_path: results
 modeling_log_path: modeling_log.yaml
+
+# Random seed used throughout the pipeline for reproducibility.
 random_seed: 42
-# Additional keys can be added as needed by downstream scripts.
+# Example placeholder for other parameters that downstream scripts may use.
+n_respondents: 1000

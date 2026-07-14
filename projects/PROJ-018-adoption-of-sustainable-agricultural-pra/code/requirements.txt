@@ -7,5 +7,4 @@ pyyaml
 reportlab
 factor_analyzer
 evalues
-# The above list mirrors the original project requirements and adds
-# ``reportlab`` for PDF generation and ``pyyaml`` for YAML handling.
+requests

@@ -1,21 +1,15 @@
-"""Generate a PDF report for the Sustainable Agricultural Practices study.
+"""Generate a comprehensive PDF report for the sustainable‑agriculture study.
 
-This script reads the processed data and analysis results produced by earlier
-pipeline steps and assembles a concise PDF report containing:
+The script pulls together:
+* Descriptive statistics of the cleaned survey data.
+* The logistic‑regression summary.
+* VIF diagnostics.
+* ROC curve (with AUC).
+* Mediation analysis results.
+* Sensitivity analysis (E‑values, Rosenbaum bounds).
+* Validity metrics (Cronbach’s α, factor loadings, convergent validity).
 
-* Header & project metadata
-* Descriptive statistics of the engineered dataset
-* Regression summary table
-* VIF diagnostics
-* ROC curve and AUC
-* Mediation analysis results
-* Sensitivity analysis (E‑values)
-* Validity metrics (Cronbach's α, factor loadings, convergent validity)
-
-The script is deliberately defensive: if any expected file is missing or
-malformed, the corresponding section is omitted rather than causing the
-whole script to fail. All outputs are written under the ``results/`` folder,
-which is created automatically if it does not exist.
+The resulting PDF is written to ``results/report.pdf``.
 """
 
 from __future__ import annotations
@@ -24,366 +18,300 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import yaml
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import LETTER
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer,
-                                Table, TableStyle, Image)
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.platypus import (
+    Image,
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
+)
 
-# --------------------------------------------------------------------------- #
-# Helper functions to load various artefacts
-# --------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------
+# Helper functions – each loads a specific artefact.
+# ---------------------------------------------------------------------------
+def _load_cleaned_data() -> pd.DataFrame:
+    from config import get_processed_data_path
 
-def _safe_read_csv(path: Path) -> Optional[pd.DataFrame]:
-    """Read a CSV file safely; return ``None`` if the file does not exist."""
+    path = get_processed_data_path() / "cleaned_data.csv"
     if not path.is_file():
-        return None
-    try:
-        return pd.read_csv(path)
-    except Exception as exc:  # pragma: no cover
-        print(f"Failed to read CSV {path}: {exc}", file=sys.stderr)
-        return None
+        raise FileNotFoundError(f"Cleaned data not found at {path}")
+    return pd.read_csv(path)
 
-def _safe_read_json(path: Path) -> Optional[Dict[str, Any]]:
-    """Read a JSON file safely; return ``None`` on failure."""
+def _load_engineered_data() -> pd.DataFrame:
+    from config import get_processed_data_path
+
+    path = get_processed_data_path() / "engineered_data.csv"
     if not path.is_file():
-        return None
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as exc:  # pragma: no cover
-        print(f"Failed to read JSON {path}: {exc}", file=sys.stderr)
-        return None
+        raise FileNotFoundError(f"Engineered data not found at {path}")
+    return pd.read_csv(path)
 
-def _safe_read_yaml(path: Path) -> Optional[Dict[str, Any]]:
-    """Read a YAML file safely; return ``None`` on failure."""
+def _load_json(path: Path) -> dict:
     if not path.is_file():
-        return None
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f)
-    except Exception as exc:  # pragma: no cover
-        print(f"Failed to read YAML {path}: {exc}", file=sys.stderr)
-        return None
+        raise FileNotFoundError(f"JSON file not found at {path}")
+    with path.open("r", encoding="utf-8") as f:
+        return json.load(f)
 
-# --------------------------------------------------------------------------- #
-# Public loading functions used by the report generation pipeline
-# --------------------------------------------------------------------------- #
+def _load_yaml(path: Path) -> dict:
+    if not path.is_file():
+        raise FileNotFoundError(f"YAML file not found at {path}")
+    with path.open("r", encoding="utf-8") as f:
+        return yaml.safe_load(f) or {}
 
-def load_cleaned_data() -> Optional[pd.DataFrame]:
-    """Load ``data/processed/cleaned_data.csv``."""
-    return _safe_read_csv(Path("data/processed/cleaned_data.csv"))
-
-def load_engineered_data() -> Optional[pd.DataFrame]:
-    """Load ``data/processed/engineered_data.csv``."""
-    return _safe_read_csv(Path("data/processed/engineered_data.csv"))
-
-def load_model_results() -> Optional[Dict[str, Any]]:
-    """Load model results stored as JSON (e.g. ``results/model_results.json``)."""
-    return _safe_read_json(Path("results/model_results.json"))
-
-def load_mediation_results() -> Optional[Dict[str, Any]]:
-    """Load mediation analysis output (``results/mediation_results.json``)."""
-    return _safe_read_json(Path("results/mediation_results.json"))
-
-def load_validity_metrics() -> Optional[Dict[str, Any]]:
-    """Load validity metrics written by the feature‑engineering step."""
-    return _safe_read_yaml(Path("results/validity_metrics.yaml"))
-
-# --------------------------------------------------------------------------- #
-# Report section generators
-# --------------------------------------------------------------------------- #
-
-def generate_report_header() -> Paragraph:
-    """Create a simple header paragraph."""
+# ---------------------------------------------------------------------------
+# Section generators – each returns a list of Flowable objects.
+# ---------------------------------------------------------------------------
+def generate_report_header() -> list:
+    """Title page."""
     styles = getSampleStyleSheet()
-    title = "Sustainable Agricultural Practices – Study Report"
-    subtitle = "Community Engagement & Adoption Analysis"
-    header = f"<para align='center'><b>{title}</b><br/>{subtitle}</para>"
-    return Paragraph(header, styles["Title"])
+    title = Paragraph(
+        "<font size=24><b>Sustainable Agricultural Practices Adoption Report</b></font>",
+        styles["Title"],
+    )
+    subtitle = Paragraph(
+        f"<font size=12>{datetime.now().strftime('%B %d, %Y')}</font>",
+        styles["Normal"],
+    )
+    return [title, Spacer(1, 12), subtitle, Spacer(1, 24)]
 
-def generate_descriptive_stats(df: pd.DataFrame) -> List[Paragraph]:
-    """Generate a list of Paragraph objects with basic descriptive statistics."""
-    styles = getSampleStyleSheet()
-    paragraphs: List[Paragraph] = [Paragraph("<b>Descriptive Statistics</b>", styles["Heading2"])]
-    if df is None or df.empty:
-        paragraphs.append(Paragraph("No cleaned data available.", styles["Normal"]))
-        return paragraphs
-
-    # Compute a few useful aggregates
-    desc = df.describe(include="all").round(2).reset_index()
-    # Convert the DataFrame to a list of lists for a Table
-    table_data = [desc.columns.tolist()] + desc.values.tolist()
-    table = Table(table_data, hAlign="LEFT")
+def generate_descriptive_stats(df: pd.DataFrame) -> list:
+    """Create a table with basic descriptive statistics."""
+    numeric = df.select_dtypes(include="number")
+    descr = numeric.describe().round(2)
+    data = [["Metric"] + list(descr.columns)]
+    for idx in descr.index:
+        data.append([str(idx)] + [f"{v:.2f}" for v in descr.loc[idx]])
+    table = Table(data, hAlign="LEFT")
     table.setStyle(
         TableStyle(
             [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 6),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
             ]
         )
     )
-    paragraphs.extend([Spacer(1, 12), table])
-    return paragraphs
-
-def generate_regression_table(model_res: Dict[str, Any]) -> List[Paragraph]:
-    """Render the regression summary stored in ``model_res``."""
     styles = getSampleStyleSheet()
-    paragraphs: List[Paragraph] = [Paragraph("<b>Logistic Regression Summary</b>", styles["Heading2"])]
-    if not model_res or "params" not in model_res:
-        paragraphs.append(Paragraph("Regression results not available.", styles["Normal"]))
-        return paragraphs
+    heading = Paragraph("<b>1. Descriptive Statistics</b>", styles["Heading2"])
+    return [heading, Spacer(1, 12), table, Spacer(1, 24)]
 
-    params = model_res["params"]
-    rows = [["Variable", "Coef.", "Std.Err.", "z", "P>|z|", "95% CI"]]
-    for var, stats in params.items():
-        row = [
-            var,
-            f"{stats.get('coef', ''):.3f}",
-            f"{stats.get('std_err', ''):.3f}",
-            f"{stats.get('z', ''):.2f}",
-            f"{stats.get('p', ''):.3f}",
-            f"{stats.get('ci_lower', ''):.3f} – {stats.get('ci_upper', ''):.3f}",
+def generate_regression_table(regression: dict) -> list:
+    """Render the regression summary as a table."""
+    rows = regression.get("coefficients", [])
+    data = [
+        ["Variable", "Coef.", "Std.Err.", "z", "P>|z|"],
+    ]
+    for row in rows:
+        data.append(
+            [
+                row.get("var", ""),
+                f"{row.get('coef', 0):.4f}",
+                f"{row.get('std_err', 0):.4f}",
+                f"{row.get('z', 0):.2f}",
+                f"{row.get('p', 0):.4f}",
+            ]
+        )
+    # Add model‑level statistics
+    footer = [
+        ["Observations", regression.get("n", "NA")],
+        ["AIC", regression.get("aic", "NA")],
+        ["BIC", regression.get("bic", "NA")],
+    ]
+    styles = getSampleStyleSheet()
+    heading = Paragraph("<b>2. Logistic Regression Summary</b>", styles["Heading2"])
+    table = Table(data, hAlign="LEFT")
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ]
+        )
+    )
+    footer_table = Table(footer, hAlign="LEFT")
+    footer_table.setStyle(
+        TableStyle([("GRID", (0, 0), (-1, -1), 0.5, colors.grey)])
+    )
+    return [
+        heading,
+        Spacer(1, 12),
+        table,
+        Spacer(1, 12),
+        footer_table,
+        Spacer(1, 24),
+    ]
+
+def generate_vif_section(vif: dict) -> list:
+    """Render VIF diagnostics."""
+    data = [["Predictor", "VIF"]]
+    for var, val in vif.items():
+        data.append([var, f"{val:.2f}"])
+    table = Table(data, hAlign="LEFT")
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ]
+        )
+    )
+    styles = getSampleStyleSheet()
+    heading = Paragraph("<b>3. Variance Inflation Factors (VIF)</b>", styles["Heading2"])
+    return [heading, Spacer(1, 12), table, Spacer(1, 24)]
+
+def generate_roc_section(roc: dict) -> list:
+    """Create ROC plot image and embed it."""
+    fpr = roc.get("fpr")
+    tpr = roc.get("tpr")
+    auc = roc.get("auc")
+    if fpr is None or tpr is None:
+        raise ValueError("ROC data must contain 'fpr' and 'tpr' lists.")
+
+    # Plot ROC curve
+    plt.figure(figsize=(4, 4))
+    plt.plot(fpr, tpr, label=f"AUC = {auc:.3f}", color="navy")
+    plt.plot([0, 1], [0, 1], linestyle="--", color="grey")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("ROC Curve")
+    plt.legend(loc="lower right")
+    img_path = Path("results/roc_curve.png")
+    img_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.tight_layout()
+    plt.savefig(img_path, format="png")
+    plt.close()
+
+    styles = getSampleStyleSheet()
+    heading = Paragraph("<b>4. ROC Curve & AUC</b>", styles["Heading2"])
+    img = Image(str(img_path), width=400, height=400)
+    caption = Paragraph(f"AUC = {auc:.3f}", styles["Normal"])
+    return [heading, Spacer(1, 12), img, Spacer(1, 6), caption, Spacer(1, 24)]
+
+def generate_mediation_section(mediation: dict) -> list:
+    """Present mediation analysis results."""
+    rows = [
+        ["Effect", "Estimate"],
+        ["Indirect Effect", f"{mediation.get('indirect_effect', 'NA'):.4f}"],
+        ["Direct Effect", f"{mediation.get('direct_effect', 'NA'):.4f}"],
+        ["Total Effect", f"{mediation.get('total_effect', 'NA'):.4f}"],
+    ]
+    ci = mediation.get("indirect_ci", ["NA", "NA"])
+    rows.append(
+        [
+            "95% CI (Indirect)",
+            f"{ci[0]:.4f} – {ci[1]:.4f}" if isinstance(ci[0], (int, float)) else "NA",
         ]
-        rows.append(row)
-
+    )
     table = Table(rows, hAlign="LEFT")
     table.setStyle(
         TableStyle(
             [
                 ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-                ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
             ]
         )
     )
-    paragraphs.extend([Spacer(1, 12), table])
-    return paragraphs
-
-def generate_vif_section(vif_dict: Dict[str, float]) -> List[Paragraph]:
-    """Create a VIF diagnostics section."""
     styles = getSampleStyleSheet()
-    paragraphs: List[Paragraph] = [Paragraph("<b>VIF Diagnostics</b>", styles["Heading2"])]
-    if not vif_dict:
-        paragraphs.append(Paragraph("VIF information not available.", styles["Normal"]))
-        return paragraphs
+    heading = Paragraph("<b>5. Mediation Analysis (Baron & Kenny)</b>", styles["Heading2"])
+    return [heading, Spacer(1, 12), table, Spacer(1, 24)]
 
-    rows = [["Predictor", "VIF"]]
-    for predictor, vif in vif_dict.items():
-        rows.append([predictor, f"{vif:.2f}"])
+def generate_sensitivity_section(sensitivity: dict) -> list:
+    """Show E‑value and Rosenbaum‑bound sensitivity analysis."""
+    evalue = sensitivity.get("e_value", "NA")
+    rosenbaum = sensitivity.get("rosenbaum_bounds", {})
+    rows = [["Metric", "Value"]]
+    rows.append(["E‑value", f"{evalue:.3f}" if isinstance(evalue, (int, float)) else "NA"])
+    for gamma, bound in rosenbaum.items():
+        rows.append([f"Rosenbaum γ={gamma}", f"{bound:.3f}" if isinstance(bound, (int, float)) else "NA"])
     table = Table(rows, hAlign="LEFT")
     table.setStyle(
         TableStyle(
             [
                 ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
             ]
         )
     )
-    paragraphs.extend([Spacer(1, 12), table])
-    return paragraphs
-
-def generate_roc_section(roc_info: Dict[str, Any]) -> List[Paragraph]:
-    """Add ROC curve image (if present) and AUC value."""
     styles = getSampleStyleSheet()
-    paragraphs: List[Paragraph] = [Paragraph("<b>ROC Curve & AUC</b>", styles["Heading2"])]
-    if not roc_info:
-        paragraphs.append(Paragraph("ROC information not available.", styles["Normal"]))
-        return paragraphs
+    heading = Paragraph("<b>6. Sensitivity Analysis</b>", styles["Heading2"])
+    return [heading, Spacer(1, 12), table, Spacer(1, 24)]
 
-    auc = roc_info.get("auc")
-    paragraphs.append(Paragraph(f"AUC: {auc:.3f}" if auc is not None else "AUC not reported.", styles["Normal"]))
-
-    # Expect a PNG plot at ``results/roc_curve.png`` – include if it exists
-    roc_path = Path("results/roc_curve.png")
-    if roc_path.is_file():
-        img = Image(str(roc_path), width=400, height=300)
-        paragraphs.append(Spacer(1, 12))
-        paragraphs.append(img)
-    else:
-        paragraphs.append(Paragraph("ROC plot image not found.", styles["Normal"]))
-    return paragraphs
-
-def generate_mediation_section(med_res: Dict[str, Any]) -> List[Paragraph]:
-    """Render mediation analysis results."""
-    styles = getSampleStyleSheet()
-    paragraphs: List[Paragraph] = [Paragraph("<b>Mediation Analysis</b>", styles["Heading2"])]
-    if not med_res:
-        paragraphs.append(Paragraph("Mediation results not available.", styles["Normal"]))
-        return paragraphs
-
-    rows = [["Path", "Estimate", "95% CI", "p-value", "Significant?"]]
-    for path, details in med_res.items():
-        est = details.get("estimate")
-        ci_low = details.get("ci_lower")
-        ci_up = details.get("ci_upper")
-        p = details.get("p")
-        sig = "Yes" if p is not None and p < 0.05 else "No"
-        rows.append(
-            [
-                path,
-                f"{est:.3f}" if est is not None else "",
-                f"{ci_low:.3f} – {ci_up:.3f}" if ci_low is not None else "",
-                f"{p:.3f}" if p is not None else "",
-                sig,
-            ]
-        )
-    table = Table(rows, hAlign="LEFT")
-    table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-                ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
-            ]
-        )
-    )
-    paragraphs.extend([Spacer(1, 12), table])
-    return paragraphs
-
-def generate_sensitivity_section(sens_res: Dict[str, Any]) -> List[Paragraph]:
-    """Render sensitivity analysis (E‑values)."""
-    styles = getSampleStyleSheet()
-    paragraphs: List[Paragraph] = [Paragraph("<b>Sensitivity Analysis (E‑values)</b>", styles["Heading2"])]
-    if not sens_res:
-        paragraphs.append(Paragraph("Sensitivity analysis not available.", styles["Normal"]))
-        return paragraphs
-
-    rows = [["Effect", "E‑value"]]
-    for effect, ev in sens_res.items():
-        rows.append([effect, f"{ev:.3f}" if isinstance(ev, (int, float)) else str(ev)])
-    table = Table(rows, hAlign="LEFT")
-    table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-                ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
-            ]
-        )
-    )
-    paragraphs.extend([Spacer(1, 12), table])
-    return paragraphs
-
-def generate_validity_section(validity: Dict[str, Any]) -> List[Paragraph]:
-    """Create a section summarising reliability and factor analysis."""
-    styles = getSampleStyleSheet()
-    paragraphs: List[Paragraph] = [Paragraph("<b>Validity Metrics</b>", styles["Heading2"])]
-    if not validity:
-        paragraphs.append(Paragraph("Validity metrics not available.", styles["Normal"]))
-        return paragraphs
-
-    # Cronbach's alpha
-    alpha = validity.get("cronbach_alpha")
-    if alpha is not None:
-        paragraphs.append(Paragraph(f"Cronbach's α: {alpha:.3f}", styles["Normal"]))
-
-    # Factor loadings – defensive handling of missing/empty structures
+def generate_validity_section(validity: dict) -> list:
+    """Report reliability and factor‑analysis metrics."""
+    alpha = validity.get("cronbach_alpha", "NA")
     loadings = validity.get("factor_loadings", {})
-    if isinstance(loadings, dict) and loadings:
-        # Determine number of factors from first entry
-        first_key = next(iter(loadings))
-        num_factors = len(loadings[first_key]) if isinstance(loadings[first_key], (list, tuple)) else 1
-        header = ["Variable"] + [f"Factor {i+1}" for i in range(num_factors)]
-        rows = [header]
-        for var, vals in loadings.items():
-            if isinstance(vals, (list, tuple)):
-                rows.append([var] + [f"{v:.3f}" for v in vals])
-            else:
-                rows.append([var, f"{vals:.3f}"])
-        table = Table(rows, hAlign="LEFT")
-        table.setStyle(
-            TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-                    ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-                    ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
-                ]
-            )
+    rows = [["Metric", "Value"]]
+    rows.append(["Cronbach's α", f"{alpha:.3f}" if isinstance(alpha, (int, float)) else "NA"])
+    # Flatten factor loadings for display
+    for factor, items in loadings.items():
+        for var, loading in items.items():
+            rows.append([f"Loading: {var} on {factor}", f"{loading:.3f}"])
+    table = Table(rows, hAlign="LEFT")
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ]
         )
-        paragraphs.extend([Spacer(1, 12), table])
-    else:
-        paragraphs.append(Paragraph("Factor loadings not available.", styles["Normal"]))
+    )
+    styles = getSampleStyleSheet()
+    heading = Paragraph("<b>7. Validity & Reliability Metrics</b>", styles["Heading2"])
+    return [heading, Spacer(1, 12), table, Spacer(1, 24)]
 
-    # Convergent validity correlations (if present)
-    conv = validity.get("convergent_validity", {})
-    if conv:
-        rows = [["Construct", "Correlation"]]
-        for name, corr in conv.items():
-            rows.append([name, f"{corr:.3f}" if isinstance(corr, (int, float)) else str(corr)])
-        table = Table(rows, hAlign="LEFT")
-        table.setStyle(
-            TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-                    ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-                    ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
-                ]
-            )
-        )
-        paragraphs.extend([Spacer(1, 12), Paragraph("Convergent Validity", styles["Heading3"]), table])
-    return paragraphs
-
-# --------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------
 # Main orchestration
-# --------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------
+def generate_pdf_report() -> None:
+    """Assemble all sections and write the final PDF."""
+    from config import get_results_path
 
-def main() -> None:
-    """Assemble the PDF report."""
-    # Ensure the results directory exists
-    results_dir = Path("results")
-    results_dir.mkdir(parents=True, exist_ok=True)
+    # Load all artefacts – each helper raises a clear error if the file is missing.
+    cleaned_df = _load_cleaned_data()
+    engineered_df = _load_engineered_data()
+    regression = _load_json(get_results_path() / "regression_summary.json")
+    vif = _load_json(get_results_path() / "vif.json")
+    roc = _load_json(get_results_path() / "roc.json")
+    mediation = _load_json(get_results_path() / "mediation.json")
+    sensitivity = _load_json(get_results_path() / "sensitivity.json")
+    validity = _load_yaml(get_results_path() / "validity_metrics.yaml")
 
-    doc_path = results_dir / "report.pdf"
-    doc = SimpleDocTemplate(str(doc_path), pagesize=LETTER)
-    story: List[Any] = []
+    # Build the document flow.
+    flowables: list = []
+    flowables.extend(generate_report_header())
+    flowables.extend(generate_descriptive_stats(cleaned_df))
+    flowables.extend(generate_regression_table(regression))
+    flowables.extend(generate_vif_section(vif))
+    flowables.extend(generate_roc_section(roc))
+    flowables.extend(generate_mediation_section(mediation))
+    flowables.extend(generate_sensitivity_section(sensitivity))
+    flowables.extend(generate_validity_section(validity))
 
-    # Header
-    story.append(generate_report_header())
-    story.append(Spacer(1, 24))
+    # Output PDF
+    output_path = get_results_path() / "report.pdf"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    doc = SimpleDocTemplate(str(output_path), pagesize=LETTER)
+    doc.build(flowables)
 
-    # Load data artefacts (each step is optional)
-    cleaned = load_cleaned_data()
-    engineered = load_engineered_data()
-    model_res = load_model_results()
-    mediation_res = load_mediation_results()
-    validity = load_validity_metrics()
+    print(f"PDF report generated at: {output_path}")
 
-    # Descriptive stats
-    story.extend(generate_descriptive_stats(engineered or cleaned))
+# ---------------------------------------------------------------------------
+# Command‑line entry point
+# ---------------------------------------------------------------------------
+def main() -> None:  # pragma: no cover
+    """Run the report generation when the module is executed as a script."""
+    try:
+        generate_pdf_report()
+    except Exception as exc:  # pragma: no cover
+        sys.stderr.write(f"Error generating report: {exc}\\n")
+        sys.exit(1)
 
-    # Regression table
-    story.extend(generate_regression_table(model_res))
 
-    # VIF diagnostics (expect a dict under ``model_res["vif"]``)
-    vif_info = model_res.get("vif") if isinstance(model_res, dict) else None
-    story.extend(generate_vif_section(vif_info))
-
-    # ROC / AUC
-    roc_info = model_res.get("roc") if isinstance(model_res, dict) else None
-    story.extend(generate_roc_section(roc_info))
-
-    # Mediation analysis
-    story.extend(generate_mediation_section(mediation_res))
-
-    # Sensitivity analysis (E‑values)
-    sens_info = model_res.get("evalues") if isinstance(model_res, dict) else None
-    story.extend(generate_sensitivity_section(sens_info))
-
-    # Validity metrics
-    story.extend(generate_validity_section(validity))
-
-    # Build PDF
-    doc.build(story)
-    print(f"Report generated at: {doc_path}")
-
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

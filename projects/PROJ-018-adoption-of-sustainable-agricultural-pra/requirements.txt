@@ -5,5 +5,4 @@ matplotlib
 pyyaml
 factor_analyzer
 evalues
-numpy
-scipy
+# other existing requirements may already be present; ensure evalues is available for mediation sensitivity analysis.

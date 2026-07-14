@@ -22,7 +22,7 @@
   verification_status: verified
   verified_against_url: https://github.com/astral-sh/ruff-pre-commit
   verified_at: '2026-06-29T22:26:51.828148Z'
-- artifact_hash: c99a4d11d8c99f43802e236004d1d9b486c08f43f1aba0e4bff98d960f937eb8
+- artifact_hash: 173efa59242a29498d16cc0b4132032007487963e1ac07fea556b581826ba494
   artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -31,5 +31,5 @@
   kind: url
   value: https://www.wikidata.org/wiki/Q21159976
   verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q21159976
-  verified_at: '2026-07-14T17:49:02.622391Z'
+  verified_against_url: https://www.wikidata.org/wiki/Q117453145
+  verified_at: '2026-07-14T18:17:23.702185Z'

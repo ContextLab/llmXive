@@ -1,16 +1,19 @@
 """
 Synthetic Data Generator (T005)
 
-This script creates a synthetic agricultural survey dataset that conforms to the
-project's data schema. It is intended as a *fallback* when real data sources
-cannot be accessed. The generated CSV is written to the location supplied via
-``--output`` (default: ``data/raw/survey_data.csv``) and provenance metadata is
-recorded in ``modeling_log.yaml`` using the project's lightweight logging helper.
+Generates a synthetic survey dataset that conforms to the project's data
+schema when real data sources are unavailable.  The script can be run
+directly from the command line:
+
+    python code/00_generate_synthetic_data.py --output data/raw/survey_data.csv --n 1000
+
+The generated CSV is written to the specified ``--output`` path and a
+provenance entry is added to ``modeling_log.yaml`` via the shared logging
+utilities.
 """
 from __future__ import annotations
 
 import argparse
-import json
 import random
 from datetime import datetime
 from pathlib import Path
@@ -22,26 +25,22 @@ import yaml
 # Project utilities
 from config import get_config, set_random_seed
 
-# -------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # Helper functions
-# -------------------------------------------------------------------------
-
-def _load_config_overrides() -> Dict[str, Any]:
-    """
-    Load optional configuration overrides from ``code/config.yaml``.
-    Returns an empty dict if the file does not exist.
-    """
+# ----------------------------------------------------------------------
+def load_config() -> Dict[str, Any]:
+    """Load optional overrides from ``code/config.yaml`` if it exists."""
     config_path = Path(get_config("config_path", "code/config.yaml"))
     if config_path.is_file():
         with config_path.open("r", encoding="utf-8") as f:
             return yaml.safe_load(f) or {}
     return {}
 
-def _generate_survey_response(rng: random.Random, cfg: Dict[str, Any]) -> Dict[str, Any]:
+def generate_survey_response(rng: random.Random, config: Dict[str, Any]) -> Dict[str, Any]:
     """
     Produce a single synthetic respondent record.
 
-    The field names are deliberately aligned with the schema located at
+    The fields are aligned with the schema defined in
     ``specs/018-adoption-sustainable-agriculture/contracts/dataset.schema.yaml``.
     """
     # Demographics
@@ -94,7 +93,7 @@ def _generate_survey_response(rng: random.Random, cfg: Dict[str, Any]) -> Dict[s
     }
     return record
 
-def _assemble_dataset(n: int, cfg: Dict[str, Any]) -> pd.DataFrame:
+def generate_synthetic_dataset(n: int, config: Dict[str, Any]) -> pd.DataFrame:
     """
     Build a full synthetic dataset with ``n`` respondents.
     """
@@ -102,42 +101,13 @@ def _assemble_dataset(n: int, cfg: Dict[str, Any]) -> pd.DataFrame:
     records: List[Dict[str, Any]] = [_generate_survey_response(rng, cfg) for _ in range(n)]
     return pd.DataFrame(records)
 
-def _write_provenance(log_path: Path, provenance: Dict[str, Any]) -> None:
-    """
-    Append provenance information to ``modeling_log.yaml`` under the
-    ``data_source_metadata`` key. If the file does not exist, it is created.
-    """
-    if log_path.is_file():
-        with log_path.open("r", encoding="utf-8") as f:
-            try:
-                log_data = yaml.safe_load(f) or {}
-            except yaml.YAMLError:
-                log_data = {}
-    else:
-        log_data = {}
-
-    # Ensure the top‑level key exists
-    log_data.setdefault("data_source_metadata", {})
-    # Overwrite/extend with the new provenance entry
-    log_data["data_source_metadata"] = provenance
-
-    # Write back atomically
-    temp_path = log_path.with_suffix(".tmp")
-    with temp_path.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(log_data, f, default_flow_style=False, sort_keys=False)
-    temp_path.replace(log_path)
-
-# -------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # CLI entry point
-# -------------------------------------------------------------------------
-
+# ----------------------------------------------------------------------
+@log_operation("synthetic_data_generation_main")
 def main() -> None:
     """
-    Generate a synthetic CSV file and record provenance.
-
-    The command line interface mirrors the original specification:
-
-    ``python code/00_generate_synthetic_data.py --output <path> --n <records>``
+    Generate a synthetic CSV file and record provenance metadata.
     """
     parser = argparse.ArgumentParser(
         description="Generate synthetic agricultural survey data (fallback when real data cannot be fetched)."
@@ -156,16 +126,16 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # Load any configuration overrides (e.g., custom random seed)
-    cfg = _load_config_overrides()
-    n_records = args.n if args.n is not None else cfg.get("n_respondents", 1000)
-    random_seed = cfg.get("random_seed", 42)
+    # Load optional configuration overrides
+    config_overrides = load_config()
+    n = args.n if args.n is not None else config_overrides.get("n_respondents", 1000)
+    random_seed = config_overrides.get("random_seed", 42)
     set_random_seed(random_seed)
 
-    print(f"Generating {n_records} synthetic respondents (seed={random_seed})...")
-    df = _assemble_dataset(n_records, cfg)
+    print(f"Generating {n} synthetic records with seed {random_seed}...")
+    df = generate_synthetic_dataset(n, config_overrides)
 
-    # Write the CSV
+    # Write the CSV file
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
@@ -181,8 +151,12 @@ def main() -> None:
         "schema_version": "1.0",
         "note": "Synthetic data generated as a fallback when real data sources are unavailable.",
     }
-    _write_provenance(log_path, provenance)
-    print(f"Provenance logged to: {log_path}")
+    update_log_section(
+        "data_source_metadata",
+        {"data_source_metadata": provenance},
+        log_path=log_path,
+    )
+    print(f"Modeling log updated at {log_path}")
 
 if __name__ == "__main__":
     main()
