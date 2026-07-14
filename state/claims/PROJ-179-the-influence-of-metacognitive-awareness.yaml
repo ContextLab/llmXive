@@ -102,3 +102,297 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T21:53:19Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds003386 lacks required behavioral fields
+  claim_id: c_99f4618c
+  context: 'If OpenNeuro ds003386 (structural MRI) is detected as the only source,
+    the script MUST exit with code 1 and log: ''ERROR: Project blocked. OpenNeuro
+    ds003386 lacks required behavioral fields. Aborting.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds003386_lacks_required_behavioral_fields
+  kind: entity_fact
+  raw_text: OpenNeuro ds003386 lacks required behavioral fields
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T06:18:31Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds003386 lacks required behavioral fields
+  claim_id: c_e4f806ce
+  context: Data validation task T004 specifies that the script must abort if OpenNeuro
+    ds003386 is the only source because it lacks the required behavioral fields.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If OpenNeuro ds003386 (structural MRI) is detected as the only source,
+    the script MUST exit with code 1 and log: ''ERROR: Project blocked. OpenNeuro
+    ds003386 lacks required behavioral fields. Aborting.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T06:19:42Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds003386 lacks required behavioral fields
+  claim_id: c_d7053c65
+  context: 'T004 logic specifies that if OpenNeuro ds003386 (structural MRI) is detected
+    as the only source, the script MUST exit with code 1 and log: "ERROR: Project
+    blocked. OpenNeuro ds003386 lacks required behavioral fields. Aborting."'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds003386_lacks_required_behavioral_fields
+  kind: entity_fact
+  raw_text: OpenNeuro ds003386 (structural MRI) lacks required behavioral fields.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T06:20:28Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: data validation script exits with code 1 when only ds003386 is detected
+  claim_id: c_000604c8
+  context: T004 logic specifies that if OpenNeuro ds003386 (structural MRI) is detected
+    as the only source, the script MUST exit with code 1 and log an error.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data validation script exits with code 1 when only OpenNeuro ds003386
+    is detected as the dataset source.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T06:20:48Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds003386 does not contain the required behavioral fields
+  claim_id: c_54ea9f66
+  context: 'If OpenNeuro ds003386 (structural MRI) is detected as the only source,
+    the script MUST exit with code 1 and log: ''ERROR: Project blocked. OpenNeuro
+    ds003386 lacks required behavioral fields. Aborting.'''
+  evidence:
+    entailment_evidence: OpenNeuro ds003386 does not contain the required behavioral
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds003386_does_not_contain_the_required_behavioral
+  kind: entity_fact
+  raw_text: OpenNeuro ds003386 lacks required behavioral fields
+  resolved_value: OpenNeuro ds003386 does not contain the required behavioral fields
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T06:21:13Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds003386 is a structural MRI dataset lacking behavioral fields
+  claim_id: c_31798fd8
+  context: 'Logic: If OpenNeuro ds003386 (structural MRI) is detected as the only
+    source, the script MUST exit with code 1 and log: "ERROR: Project blocked..."'
+  evidence:
+    entailment_evidence: OpenNeuro ds003386 is a structural MRI dataset lacking behav
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds003386_is_a_structural_MRI_dataset_lacking_behav
+  kind: entity_fact
+  raw_text: OpenNeuro ds003386 (structural MRI) is the only source and lacks behavioral
+    fields
+  resolved_value: OpenNeuro ds003386 is a structural MRI dataset lacking behavioral
+    fields
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T06:21:39Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: pipeline produces Pearson correlation coefficient with 95% bootstrapped
+    confidence interval
+  claim_id: c_385cefa7
+  context: 'Independent Test: Running the pipeline produces a Pearson correlation
+    coefficient (r) with 95% bootstrapped CI, verifying that confidence (Type-2 AUC)
+    and accuracy (d'') are computed from disjoint trial sets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Running the pipeline produces a Pearson correlation coefficient (r) with
+    95% bootstrapped CI, verifying that confidence (Type-2 AUC) and accuracy (d')
+    are computed from disjoint trial sets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T06:23:05Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: "regression produces incremental R\xB2 change and F-change statistic\
+    \ with assumption checks"
+  claim_id: c_cf8af18d
+  context: "Independent Test: Running the regression produces incremental R\xB2 change\
+    \ (\u0394R\xB2) and F-change statistic, with assumption checks (normality, homoscedasticity,\
+    \ VIF)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_produces_incremental_R%C2%B2_change_and_F-change_stati
+  kind: entity_fact
+  raw_text: "Running the regression produces incremental R\xB2 change (\u0394R\xB2\
+    ) and F-change statistic, with assumption checks (normality, homoscedasticity,\
+    \ VIF)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T06:23:45Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds003386 lacks behavioral fields
+  claim_id: c_c657ad4a
+  context: In the data validation gate (T004), the script checks for the existence
+    of a valid behavioral dataset; if OpenNeuro ds003386 is the only source, it exits
+    with an error because it lacks the required behavioral fields.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds003386_lacks_behavioral_fields
+  kind: entity_fact
+  raw_text: OpenNeuro ds003386 (structural MRI) is detected as the only source and
+    lacks behavioral fields
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T06:25:23Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds003386 is a structural MRI dataset
+  claim_id: c_04c88315
+  context: If OpenNeuro ds003386 (structural MRI) is detected as the only source,
+    the script MUST exit with code 1 and log an error.
+  evidence:
+    entailment_evidence: OpenNeuro ds003386 is a structural MRI dataset
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds003386_is_a_structural_MRI_dataset
+  kind: entity_fact
+  raw_text: OpenNeuro ds003386 (structural MRI)
+  resolved_value: OpenNeuro ds003386 is a structural MRI dataset
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T06:27:11Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds003386 does not contain required behavioral fields such as
+    confidence_rating and source_label
+  claim_id: c_90e9bdaf
+  context: If OpenNeuro ds003386 is the only source and it lacks behavioral fields,
+    the pipeline MUST exit with a clear error message and NOT proceed to analysis
+    tasks.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds003386_does_not_contain_required_behavioral_fiel
+  kind: entity_fact
+  raw_text: OpenNeuro ds003386 lacks behavioral fields
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T06:27:44Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds003386 lacks behavioral fields
+  claim_id: c_f21acf01
+  context: If data/validate_data_availability.py detects that OpenNeuro ds003386 is
+    the only source and it lacks behavioral fields, the pipeline MUST exit with a
+    clear error message and NOT proceed to analysis tasks.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds003386_lacks_behavioral_fields
+  kind: entity_fact
+  raw_text: OpenNeuro ds003386 lacks behavioral fields
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T06:31:19Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: pipeline produces Pearson correlation coefficient with 95% bootstrapped
+    confidence interval
+  claim_id: c_d3086a2a
+  context: 'Goal: Compute and visualize the correlation between metacognitive awareness
+    (Type-2 AUC from training split) and reality testing accuracy (d'' from test split)
+    using a Hold-Out design. Independent Test: Running the pipeline produces a Pearson
+    correlation coefficient (r) with 95% bootstrapped CI, verifying that confidence
+    (Type-2 AUC) and accuracy (d'') are computed from disjoint trial sets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Running the pipeline produces a Pearson correlation coefficient (r) with
+    95% bootstrapped CI, verifying that confidence (Type-2 AUC) and accuracy (d')
+    are computed from disjoint trial sets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T06:33:10Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/quickstart.md
+  attempts: 1
+  canonical: pipeline produces primary_analysis.json, bootstrap_config.json, robustness_analysis.json
+    with corrected p-values
+  claim_id: c_b5ce79a7
+  context: The document lists a sequence of commands to run, and then states that
+    after these steps the specified result files should be present.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_primary_analysis.json,_bootstrap_config.js
+  kind: entity_fact
+  raw_text: "After these steps, the following files should exist: data/results/primary_analysis.json,\
+    \ data/results/bootstrap_config.json, data/results/robustness_analysis.json (now\
+    \ contains corrected p\u2011values)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T06:34:52Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 0
+  canonical: OpenNeuro ds003386 lacks required behavioral fields
+  claim_id: c_fcdd3c23
+  context: If data/validate_data_availability.py (T004) detects that OpenNeuro ds003386
+    is the only source and it lacks behavioral fields, the pipeline MUST exit with
+    a clear error message and NOT proceed to analysis tasks.
+  evidence:
+    entailment_evidence: OpenNeuro ds003386 is a structural MRI dataset lacking behav
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds003386_is_a_structural_MRI_dataset_lacking_behav
+  kind: entity_fact
+  raw_text: OpenNeuro ds003386 is the only source and it lacks behavioral fields
+  resolved_value: OpenNeuro ds003386 is a structural MRI dataset lacking behavioral
+    fields
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T06:34:57Z'

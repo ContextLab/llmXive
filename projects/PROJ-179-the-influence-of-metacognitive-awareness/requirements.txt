@@ -8,6 +8,5 @@ seaborn
 requests
 pyyaml
 pybids
-# Added for data download in T035
-urllib3
-# End of requirements
+# Added for download script testing
+# No additional packages required beyond the ones above.

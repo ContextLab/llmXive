@@ -1,9 +1,12 @@
 """
-Filter analysis by stimulus modality.
+src/analysis/filter.py
+-----------------------
 
-This script splits the trial data by stimulus modality (visual vs. auditory)
-to enable modality-specific analysis.
+Utility for splitting the unified trial CSV into modality‑specific files.
+The script is also executable so that the quick‑start run‑book can call it
+directly if needed.
 """
+
 import json
 import logging
 import os
@@ -11,100 +14,73 @@ import sys
 from pathlib import Path
 import pandas as pd
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+# ----------------------------------------------------------------------
+# Logging helpers
+# ----------------------------------------------------------------------
+def _setup_logging() -> None:
+    logger = logging.getLogger(__name__)
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
 
-# Configuration
-BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
-DATA_DIR = BASE_DIR / "data"
-DERIVED_DIR = DATA_DIR / "derived"
-RESULTS_DIR = DATA_DIR / "results"
+def log_info(message: str) -> None:
+    _setup_logging()
+    logging.getLogger(__name__).info(message)
 
-def setup_directories():
-    """Create necessary output directories."""
-    DERIVED_DIR.mkdir(parents=True, exist_ok=True)
+def log_error(message: str) -> None:
+    _setup_logging()
+    logging.getLogger(__name__).error(message)
 
-def load_trial_data():
-    """Load trial data from preprocessed file."""
-    file_path = DERIVED_DIR / "trial_data.csv"
-    if not file_path.exists():
-        log_error(f"Trial data not found at {file_path}")
-        return None
-    
-    try:
-        df = pd.read_csv(file_path)
-        log_info(f"Loaded {len(df)} trials for filtering")
-        return df
-    except Exception as e:
-        log_error(f"Error loading trial data: {e}")
-        return None
+# ----------------------------------------------------------------------
+# Core functionality
+# ----------------------------------------------------------------------
+def setup_directories(project_root: Path) -> dict:
+    """Ensure required directories exist and return their paths."""
+    raw_dir = project_root / "data" / "raw"
+    derived_dir = project_root / "data" / "derived"
+    derived_dir.mkdir(parents=True, exist_ok=True)
+    return {"raw": raw_dir, "derived": derived_dir}
 
-def filter_by_modality(df):
-    """Filter data by stimulus modality."""
-    if df is None:
-        return None
-    
-    if 'stimulus_modality' not in df.columns:
-        log_error("No 'stimulus_modality' column found in data")
-        # Create default visual data
-        df['stimulus_modality'] = 'visual'
-    
-    modalities = df['stimulus_modality'].unique()
-    log_info(f"Found modalities: {modalities}")
-    
-    filtered_data = {}
-    for modality in modalities:
-        modality_df = df[df['stimulus_modality'] == modality]
-        filtered_data[modality] = modality_df
-        log_info(f"Filtered {len(modality_df)} trials for {modality} modality")
-    
-    return filtered_data
+def load_trial_data(csv_path: Path) -> list:
+    """Load a CSV of trials and return a list of dicts."""
+    df = pd.read_csv(csv_path)
+    return df.to_dict(orient="records")
 
-def write_output(filtered_data):
-    """Write filtered data to files."""
-    for modality, df in filtered_data.items():
-        output_path = DERIVED_DIR / f"{modality}_trials.csv"
-        df.to_csv(output_path, index=False)
-        log_info(f"Wrote {len(df)} trials to {output_path}")
+def filter_by_modality(trial_rows: list, modality: str) -> list:
+    """Return only rows where ``stimulus_modality`` matches ``modality``."""
+    return [row for row in trial_rows if row.get("stimulus_modality") == modality]
 
-def run_filter_analysis():
-    """Run full filter analysis."""
-    log_info("Starting filter analysis (T026)...")
-    
-    # Setup directories
-    setup_directories()
-    
-    # Load data
-    df = load_trial_data()
-    if df is None:
-        return 1
-    
-    # Filter by modality
-    filtered_data = filter_by_modality(df)
-    if filtered_data is None:
-        return 1
-    
-    # Write output
-    write_output(filtered_data)
-    
-    log_info("Filter analysis complete.")
-    return 0
+def write_output(trial_rows: list, output_path: Path) -> None:
+    """Write a list of trial dictionaries to ``output_path`` as CSV."""
+    if not trial_rows:
+        log_error(f"No data to write for {output_path}")
+        return
+    df = pd.DataFrame(trial_rows)
+    df.to_csv(output_path, index=False)
+    log_info(f"Wrote {len(trial_rows)} rows to {output_path}")
 
-def main():
-    """Main function."""
-    try:
-        result = run_filter_analysis()
-        return result
-    except Exception as e:
-        log_error(f"Error in filter analysis: {e}")
-        return 1
+def run_filter_analysis() -> None:
+    """Convenient CLI entry point used by quick‑start."""
+    project_root = Path(__file__).resolve().parents[3]
+    dirs = setup_directories(project_root)
+
+    # Load the unified trial file.
+    trial_path = dirs["derived"] / "trial_data.csv"
+    if not trial_path.is_file():
+        log_error(f"Unified trial file not found: {trial_path}")
+        sys.exit(1)
+
+    trial_rows = load_trial_data(trial_path)
+
+    for modality in ("visual", "auditory"):
+        filtered = filter_by_modality(trial_rows, modality)
+        out_path = dirs["derived"] / f"{modality}_trials.csv"
+        write_output(filtered, out_path)
+
+    sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    run_filter_analysis()

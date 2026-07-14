@@ -1,131 +1,187 @@
 """
-T006: Validate downloaded dataset for required behavioral fields.
+Data validation script for the PROJ-179-the-influence-of-metacognitive-awareness project.
 
-Checks for the existence of 'confidence_rating' and 'source_label' columns
-in the dataset downloaded by T005.
+This script checks that the downloaded behavioral dataset contains the required
+columns ``confidence_rating`` and ``source_label``.  It writes a JSON validation
+report to ``data/validation_report.json`` and exits with status code 0 on success
+or 1 on failure.
 
-Output: data/validation_report.json
+The public API of this module (as listed in the project specification) is:
+
+    - log_info
+    - log_error
+    - find_csv_files
+    - load_dataset
+    - validate_fields
+    - write_report
+    - main
 """
+
 import json
 import logging
-import os
 import sys
-import pandas as pd
 from pathlib import Path
+from typing import List, Tuple
 
-# Configure logging to stderr
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    stream=sys.stderr
-)
+import pandas as pd
+
+# --------------------------------------------------------------------------- #
+# Logging helpers
+# --------------------------------------------------------------------------- #
+LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 logger = logging.getLogger(__name__)
 
-# Project root relative to this script's location
-# Script is at code/data/validate_data.py, project root is parent of code/
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DIR = DATA_DIR / "raw"
-REPORT_PATH = DATA_DIR / "validation_report.json"
 
-REQUIRED_COLUMNS = ["confidence_rating", "source_label"]
+def log_info(message: str) -> None:
+    """Convenient wrapper for ``logger.info`` used throughout the codebase."""
+    logger.info(message)
 
-def find_input_file():
+
+def log_error(message: str) -> None:
+    """Convenient wrapper for ``logger.error`` used throughout the codebase."""
+    logger.error(message)
+
+
+# --------------------------------------------------------------------------- #
+# Core validation functions
+# --------------------------------------------------------------------------- #
+REQUIRED_FIELDS = {"confidence_rating", "source_label"}
+
+
+def find_csv_files(raw_dir: Path) -> List[Path]:
     """
-    Scan the raw data directory for a CSV file to validate.
-    Returns the path to the first valid CSV found, or None.
+    Return a list of CSV files found in ``raw_dir`` (non‑recursive).
+
+    Parameters
+    ----------
+    raw_dir: Path
+        Directory that should contain the raw behavioural CSV(s).
+
+    Returns
+    -------
+    List[Path]
+        Paths to CSV files (may be empty).
     """
-    if not RAW_DIR.exists():
-        logger.error(f"Raw data directory not found: {RAW_DIR}")
-        return None
+    if not raw_dir.is_dir():
+        log_error(f"Raw data directory does not exist: {raw_dir}")
+        return []
+    csv_files = [p for p in raw_dir.iterdir() if p.is_file() and p.suffix.lower() == ".csv"]
+    log_info(f"Found {len(csv_files)} CSV file(s) in {raw_dir}")
+    return csv_files
 
-    csv_files = list(RAW_DIR.glob("*.csv"))
-    if not csv_files:
-        logger.error("No CSV files found in raw data directory.")
-        return None
 
-    # Prefer the most recently modified file if multiple exist
-    csv_files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-    return csv_files[0]
-
-def load_dataset(file_path: Path) -> pd.DataFrame:
+def load_dataset(csv_path: Path) -> pd.DataFrame:
     """
-    Load the dataset from the given file path.
+    Load a CSV file into a pandas DataFrame.
+
+    Parameters
+    ----------
+    csv_path: Path
+        Path to the CSV file.
+
+    Returns
+    -------
+    pd.DataFrame
     """
     try:
-        df = pd.read_csv(file_path)
-        logger.info(f"Successfully loaded dataset from {file_path}")
-        logger.info(f"Dataset shape: {df.shape}")
+        df = pd.read_csv(csv_path)
+        log_info(f"Loaded dataset with shape {df.shape} from {csv_path.name}")
         return df
-    except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
+    except Exception as exc:
+        log_error(f"Failed to read CSV {csv_path}: {exc}")
         raise
 
-def validate_fields(df: pd.DataFrame) -> bool:
+
+def validate_fields(df: pd.DataFrame) -> Tuple[bool, List[str]]:
     """
-    Check if the dataframe contains the required columns.
-    Raises ValueError if missing.
+    Verify that ``df`` contains all required columns.
+
+    Returns
+    -------
+    Tuple[bool, List[str]]
+        (is_valid, missing_fields). ``is_valid`` is ``True`` when no required
+        column is missing.
     """
-    missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+    present = set(df.columns.str.lower())
+    missing = [field for field in REQUIRED_FIELDS if field.lower() not in present]
+    is_valid = len(missing) == 0
+    if is_valid:
+        log_info("All required fields are present.")
+    else:
+        log_error(f"Missing required fields: {missing}")
+    return is_valid, missing
+
+
+def write_report(report_path: Path, status: str, missing: List[str] | None = None) -> None:
+    """
+    Write a JSON validation report.
+
+    Parameters
+    ----------
+    report_path: Path
+        Destination path for the JSON report.
+    status: str
+        Either ``PASS`` or ``FAIL``.
+    missing: list, optional
+        List of missing fields (included only when status == ``FAIL``).
+    """
+    report = {"status": status}
     if missing:
-        error_msg = f"Required fields missing: {', '.join(missing)}"
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    logger.info("Validation passed: All required fields present.")
-    return True
-
-def write_report(status: str, details: str = None, file_path: Path = None):
-    """
-    Write the validation report to a JSON file.
-    """
-    if file_path is None:
-        file_path = REPORT_PATH
-    
-    # Ensure output directory exists
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    report = {
-        "status": status,
-        "timestamp": pd.Timestamp.now().isoformat(),
-        "file_validated": str(RAW_DIR.glob("*.csv")) if RAW_DIR.exists() else "N/A",
-        "details": details
-    }
-    
-    with open(file_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Validation report written to {file_path}")
-
-def main():
-    """
-    Main entry point for T006.
-    """
-    logger.info("Starting data validation (T006)...")
-    
+        report["missing_fields"] = missing
     try:
-        # 1. Find input file
-        input_file = find_input_file()
-        if input_file is None:
-            write_report("FAIL", "No valid input dataset found in known locations.")
-            sys.exit(1)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        with report_path.open("w", encoding="utf-8") as fp:
+            json.dump(report, fp, indent=2)
+        log_info(f"Validation report written to {report_path}")
+    except Exception as exc:
+        log_error(f"Failed to write validation report: {exc}")
+        raise
 
-        # 2. Load dataset
-        df = load_dataset(input_file)
 
-        # 3. Validate fields
-        validate_fields(df)
+# --------------------------------------------------------------------------- #
+# Main entry point
+# --------------------------------------------------------------------------- #
+def main() -> None:
+    """
+    Orchestrates the validation workflow.
 
-        # 4. Success
-        write_report("PASS", "All required behavioral fields found.")
+    Expected directory layout (relative to the repository root):
+        data/
+            raw/          <- contains the downloaded CSV(s)
+            validation_report.json  <- output
+    """
+    log_info("Starting data validation (T006)...")
+
+    # Resolve the project root (two levels up from this file: code/data/validate_data.py)
+    project_root = Path(__file__).resolve().parents[2]
+    raw_dir = project_root / "data" / "raw"
+    report_path = project_root / "data" / "validation_report.json"
+
+    csv_files = find_csv_files(raw_dir)
+
+    if not csv_files:
+        log_error("No CSV files found in raw data directory.")
+        write_report(report_path, status="FAIL", missing=list(REQUIRED_FIELDS))
+        sys.exit(1)
+
+    # For simplicity we validate the first CSV file found.
+    dataset_path = csv_files[0]
+    try:
+        df = load_dataset(dataset_path)
+    except Exception:
+        write_report(report_path, status="FAIL", missing=list(REQUIRED_FIELDS))
+        sys.exit(1)
+
+    is_valid, missing = validate_fields(df)
+
+    if is_valid:
+        write_report(report_path, status="PASS")
         sys.exit(0)
+    else:
+        write_report(report_path, status="FAIL", missing=missing)
+        sys.exit(1)
 
-    except ValueError as e:
-        write_report("FAIL", str(e))
-        sys.exit(1)
-    except Exception as e:
-        write_report("FAIL", f"Unexpected error: {str(e)}")
-        sys.exit(1)
 
 if __name__ == "__main__":
     main()

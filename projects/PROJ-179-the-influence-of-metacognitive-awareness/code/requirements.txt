@@ -8,3 +8,4 @@ seaborn
 requests
 pyyaml
 pybids
+pytest  # auto-added: imported by run-book but missing from venv

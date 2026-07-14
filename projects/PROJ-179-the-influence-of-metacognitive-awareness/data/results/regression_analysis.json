@@ -1,0 +1,11 @@
+{
+  "coefficients": [],
+  "standard_errors": [],
+  "t_statistics": [],
+  "p_values": [],
+  "diagnostics": {
+    "normality_passed": false,
+    "homoscedasticity_passed": false,
+    "collinearity_flagged": false
+  }
+}
