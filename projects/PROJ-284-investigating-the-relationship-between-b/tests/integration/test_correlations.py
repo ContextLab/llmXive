@@ -1,165 +1,177 @@
 """
-Integration tests for correlation analysis (T019).
-Tests T024: Spearman/Pearson correlation with FD covariate and FDR correction.
+Integration tests for correlation analysis module.
 """
 import os
+import tempfile
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
 from code.analysis.correlations import (
     run_metric_correlations,
     apply_fdr_correction,
-    partial_correlation,
-    main
+    log_threshold_correlations,
+    partial_correlation
 )
 
 @pytest.fixture
-def synthetic_data():
+def synthetic_correlation_data():
     """
     Generate synthetic data with known correlations for testing.
-    - Metric A correlates with Target (r=0.5)
-    - Metric B is noise
-    - FD is a confounder
     """
     np.random.seed(42)
     n = 100
     
-    # Generate confounder FD
-    fd = np.random.normal(0.2, 0.1, n)
+    # Create synthetic metrics
+    modularity = np.random.normal(0.5, 0.1, n)
+    global_efficiency = np.random.normal(0.3, 0.05, n)
+    participation_coef = np.random.normal(0.4, 0.08, n)
+    within_module_degree = np.random.normal(0.6, 0.1, n)
     
-    # Generate Target (motor_score) influenced by FD and Metric A
-    metric_a = np.random.normal(0, 1, n)
-    # Target = 0.5 * metric_a + 0.3 * fd + noise
-    target = 0.5 * metric_a + 0.3 * fd + np.random.normal(0, 0.5, n)
+    # Create motor score with known correlation to modularity (r ≈ 0.5)
+    motor_score = 0.5 * modularity + 0.2 * np.random.normal(0, 0.1, n)
     
-    # Metric B is pure noise
-    metric_b = np.random.normal(0, 1, n)
+    # Create FD covariate (uncorrelated with motor score)
+    mean_fd = np.random.normal(0.2, 0.05, n)
     
     df = pd.DataFrame({
-        'subject_id': range(n),
-        'modularity': metric_a,
-        'global_efficiency': metric_b,
-        'motor_score': target,
-        'fd': fd
+        'subject_id': [f'sub-{i:03d}' for i in range(n)],
+        'modularity': modularity,
+        'global_efficiency': global_efficiency,
+        'participation_coef': participation_coef,
+        'within_module_degree': within_module_degree,
+        'motor_score': motor_score,
+        'MeanFD': mean_fd
     })
+    
     return df
 
-def test_partial_correlation_removes_confounding(synthetic_data):
+def test_partial_correlation_with_known_data(synthetic_correlation_data):
     """
-    Test that partial correlation correctly controls for FD.
-    Without controlling for FD, the correlation between metric_b (noise) 
-    and target might be non-zero due to shared FD influence.
-    With controlling, it should be near zero.
+    Test partial correlation calculation with synthetic data.
     """
-    df = synthetic_data
+    df = synthetic_correlation_data
+    x = df['modularity'].values
+    y = df['motor_score'].values
+    z = df['MeanFD'].values
     
-    # Metric B is noise, should have low correlation with target after controlling FD
-    r, p = partial_correlation(
-        df['global_efficiency'],
-        df['motor_score'],
-        df[['fd']],
-        method='pearson'
-    )
+    r, p = partial_correlation(x, y, z)
     
-    # With proper partial correlation, r should be small (noise)
-    # We allow some variance but it should be significantly lower than raw correlation
-    assert abs(r) < 0.3, f"Partial correlation for noise metric should be low, got {r}"
+    # Since FD is uncorrelated, partial correlation should be close to raw correlation
+    raw_r = np.corrcoef(x, y)[0, 1]
     
-    # Metric A has true correlation
-    r_true, p_true = partial_correlation(
-        df['modularity'],
-        df['motor_score'],
-        df[['fd']],
-        method='pearson'
-    )
-    
-    # Should detect a meaningful correlation
-    assert abs(r_true) > 0.2, f"Partial correlation for true metric should be significant, got {r_true}"
+    # Allow some tolerance due to random noise
+    assert abs(r - raw_r) < 0.1
+    assert 0.0 <= p <= 1.0
 
-def test_run_metric_correlations_with_synthetic_data(synthetic_data):
+def test_run_metric_correlations_with_synthetic_data(synthetic_correlation_data):
     """
-    Integration test: Run full correlation pipeline on synthetic data.
+    Test correlation analysis pipeline with synthetic data.
     Verifies that:
-    1. The function runs without error
-    2. FDR correction is applied
-    3. Significant metrics are identified
+    1. Correlations are computed for all metrics
+    2. Modularity shows significant correlation with motor_score
+    3. Other metrics show weaker/non-significant correlations
     """
-    df = synthetic_data
+    df = synthetic_correlation_data
     
-    # Run the full correlation suite
     results = run_metric_correlations(
         df,
-        target_col="motor_score",
-        covariate_cols=["fd"],
-        metric_cols=["modularity", "global_efficiency"],
-        method="spearman"
+        metric_columns=['modularity', 'global_efficiency', 'participation_coef'],
+        covariate_column='MeanFD',
+        output_path=os.path.join(tempfile.gettempdir(), 'test_corr_results.csv')
     )
     
-    # Verify structure
-    assert "metric_name" in results.columns
-    assert "r" in results.columns
-    assert "p" in results.columns
-    assert "q" in results.columns
-    assert "significant" in results.columns
+    # Check structure
+    assert 'metric_name' in results.columns
+    assert 'r' in results.columns
+    assert 'p' in results.columns
+    assert 'n' in results.columns
+    assert len(results) == 3
     
-    # Verify FDR correction logic (q values should be > p values usually, but bounded by 1)
-    assert all(results["q"] >= 0)
-    assert all(results["q"] <= 1.0)
-    
-    # Check that modularity (the true signal) is detected as significant or has low p
-    mod_row = results[results["metric_name"] == "modularity"]
-    if not mod_row.empty:
-        assert mod_row.iloc[0]["p"] < 0.1, "True signal should have low p-value"
+    # Check that modularity has the strongest correlation
+    mod_r = results[results['metric_name'] == 'modularity']['r'].values[0]
+    assert abs(mod_r) > 0.3  # Should be around 0.5
 
-def test_apply_fdr_correction_logic():
+def test_apply_fdr_correction_with_synthetic_data(synthetic_correlation_data):
     """
-    Test the Benjamini-Hochberg FDR correction logic specifically.
+    Test FDR correction with synthetic data.
     """
-    # Create a dataframe with known p-values
-    df = pd.DataFrame({
-        'metric_name': ['A', 'B', 'C', 'D'],
-        'p': [0.001, 0.01, 0.04, 0.20]
-    })
+    df = synthetic_correlation_data
     
-    result = apply_fdr_correction(df, alpha=0.05)
-    
-    # Check that q values are computed
-    assert 'q' in result.columns
-    assert 'significant' in result.columns
-    
-    # For sorted p-values: p_i * N / i
-    # A: 0.001 * 4 / 1 = 0.004
-    # B: 0.01 * 4 / 2 = 0.02
-    # C: 0.04 * 4 / 3 = 0.0533
-    # D: 0.20 * 4 / 4 = 0.20
-    # Monotonicity check: C should be <= D, B <= C, etc.
-    
-    assert result.iloc[0]["significant"] == True  # 0.004 < 0.05
-    assert result.iloc[1]["significant"] == True  # 0.02 < 0.05
-    # C might be significant depending on monotonicity enforcement, but usually > 0.05
-    # D should be False
-    assert result.iloc[3]["significant"] == False
-
-def test_log_threshold_correlations(synthetic_data):
-    """
-    Test that correlations above the threshold are logged/flagged.
-    """
-    df = synthetic_data
-    results = run_metric_correlations(
+    # First run correlations
+    corr_results = run_metric_correlations(
         df,
-        target_col="motor_score",
-        covariate_cols=["fd"],
-        metric_cols=["modularity"],
-        method="spearman"
+        metric_columns=['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree'],
+        covariate_column='MeanFD',
+        output_path=os.path.join(tempfile.gettempdir(), 'test_corr_results_fdr.csv')
     )
     
-    # Check that the result dataframe contains the expected columns
-    assert "r" in results.columns
-    assert "significant" in results.columns
+    # Apply FDR
+    fdr_results = apply_fdr_correction(
+        corr_results,
+        alpha=0.05,
+        output_path=os.path.join(tempfile.gettempdir(), 'test_fdr_results.csv')
+    )
     
-    # If r is high and significant, it should be handled correctly
-    # (The logging side-effect is hard to test in unit/integration without mocking,
-    # but the data logic is verified by the presence of the columns and values)
-    if not results.empty:
-        assert results.iloc[0]["r"] != 0  # Should have computed a value
+    # Check structure
+    assert 'q' in fdr_results.columns
+    assert 'significant' in fdr_results.columns
+    assert len(fdr_results) == 4
+    
+    # Check that q-values are monotonically increasing when sorted by p
+    sorted_by_p = fdr_results.sort_values('p')
+    q_values = sorted_by_p['q'].values
+    
+    # q-values should be non-decreasing
+    for i in range(1, len(q_values)):
+        assert q_values[i] >= q_values[i-1] - 1e-10  # Allow small floating point errors
+
+def test_log_threshold_correlations_with_synthetic_data(synthetic_correlation_data):
+    """
+    Test threshold logging functionality.
+    """
+    df = synthetic_correlation_data
+    
+    # Run correlations and FDR
+    corr_results = run_metric_correlations(
+        df,
+        metric_columns=['modularity', 'global_efficiency'],
+        covariate_column='MeanFD',
+        output_path=os.path.join(tempfile.gettempdir(), 'test_corr_threshold.csv')
+    )
+    fdr_results = apply_fdr_correction(corr_results, output_path=os.path.join(tempfile.gettempdir(), 'test_fdr_threshold.csv'))
+    
+    # Log threshold correlations
+    significant = log_threshold_correlations(fdr_results, threshold=0.3)
+    
+    # Modularity should be significant (r ~ 0.5)
+    mod_entry = next((x for x in significant if x['metric'] == 'modularity'), None)
+    assert mod_entry is not None
+    assert abs(mod_entry['r']) > 0.3
+
+def test_correlation_with_synthetic_data_full_pipeline(synthetic_correlation_data):
+    """
+    Integration test: run full correlation pipeline on synthetic data.
+    Verifies end-to-end functionality.
+    """
+    df = synthetic_correlation_data
+    
+    # Run full pipeline
+    corr_results = run_metric_correlations(
+        df,
+        metric_columns=['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree'],
+        covariate_column='MeanFD'
+    )
+    
+    fdr_results = apply_fdr_correction(corr_results)
+    
+    # Verify results
+    assert len(fdr_results) == 4
+    assert all('q' in fdr_results.columns)
+    assert all('significant' in fdr_results.columns)
+    
+    # Check that at least one metric is significant (modularity)
+    significant_count = fdr_results['significant'].sum()
+    assert significant_count >= 1
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

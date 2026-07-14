@@ -1,5 +1,6 @@
 """
-Runner script for correlation analysis.
+Main runner for correlation analysis pipeline.
+Orchestrates the full workflow: load -> PCA -> merge -> correlate -> FDR.
 """
 import logging
 from pathlib import Path
@@ -10,15 +11,19 @@ logger = get_logger(__name__)
 
 def main():
     """
-    Entry point for correlation analysis pipeline.
+    Entry point for correlation analysis.
     """
-    logger.log("correlation_runner_start", operation="main")
-    try:
-        _correlations_main()
-        logger.log("correlation_runner_complete", status="success")
-    except Exception as e:
-        logger.log("correlation_runner_error", error=str(e))
-        raise
+    logger.log("correlation_main_runner_start")
+    
+    # Run the full correlation pipeline
+    _correlations_main(
+        metrics_path="data/processed/aggregated_metrics.csv",
+        output_correlations="data/analysis/correlation_results.csv",
+        output_fdr="data/analysis/fdr_corrected_results.csv",
+        output_full_metrics="data/analysis/full_metrics.csv"
+    )
+    
+    logger.log("correlation_main_runner_complete")
 
 if __name__ == "__main__":
     main()

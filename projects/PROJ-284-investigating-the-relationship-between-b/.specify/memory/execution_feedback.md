@@ -8,42 +8,46 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
+- code/analysis/create_full_metrics.py: synthetic/fake INPUT data not authorized by the spec — “…path}")         # Create synthetic data for testing         logg…”
+- code/analysis/create_full_metrics.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Creating synthetic data for testing")         me…”
+- code/analysis/pca_runner.py: synthetic/fake INPUT data not authorized by the spec — “…path}")         # Create synthetic data for testing         logg…”
+- code/analysis/pca_runner.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Creating synthetic data for testing")         me…”
 - code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…# Mock execution for CI (synthetic data path)         # Create a…”
 - code/viz/network.py: synthetic/fake INPUT data not authorized by the spec — “…d if available,     # or generate a synthetic one for demonstration.…”
 - code/viz/network.py: synthetic/fake INPUT data not authorized by the spec — “…g synthetic.")         # Generate a synthetic connectivity matrix (400…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…# Mock execution for CI (synthetic data path)         # Create a…”; code/viz/network.py: synthetic/fake INPUT data not authorized by the spec — “…d if available,     # or generate a synthetic one for demonstration.…”; code/viz/network.py: synthetic/fake INPUT data not authorized by the spec — “…g synthetic.")         # Generate a synthetic connectivity matrix (400…”; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=1); python code/main.py --step analyze (rc=1); 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv
+**Summary**: 7 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/create_full_metrics.py: synthetic/fake INPUT data not authorized by the spec — “…path}")         # Create synthetic data for testing         logg…”; code/analysis/create_full_metrics.py: synthetic/fake INPUT data not authorized by the spec — “…logger.warning("Creating synthetic data for testing")         me…”; code/analysis/pca_runner.py: synthetic/fake INPUT data not authorized by the spec — “…path}")         # Create synthetic data for testing         logg…”; 2 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step viz_report (rc=1); 1 declared deliverable(s) absent: data/analysis/full_metrics.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --step download_preprocess --subjects 50 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 8, in <module>
-    from code.logging_config import setup_logging, get_logger
-ImportError: cannot import name 'setup_logging' from 'code.logging_config' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/logging_config.py)
-- python code/main.py --step extract_metrics -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 8, in <module>
-    from code.logging_config import setup_logging, get_logger
-ImportError: cannot import name 'setup_logging' from 'code.logging_config' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/logging_config.py)
-- python code/main.py --step analyze -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 8, in <module>
-    from code.logging_config import setup_logging, get_logger
-ImportError: cannot import name 'setup_logging' from 'code.logging_config' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/logging_config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 74, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 71, in main
+    run_pipeline(args.step, args.subjects)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 29, in run_pipeline
+    from code.data.download import main as download_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/download.py", line 11, in <module>
+    from nilearn import datasets
+ImportError: cannot import name 'datasets' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/nilearn/__init__.py)
 - python code/main.py --step viz_report -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 8, in <module>
-    from code.logging_config import setup_logging, get_logger
-ImportError: cannot import name 'setup_logging' from 'code.logging_config' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/logging_config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 74, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 71, in main
+    run_pipeline(args.step, args.subjects)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 62, in run_pipeline
+    from code.report.generate import main as report_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/report/generate.py", line 9, in <module>
+    from logging_config import setup_logging, get_logger
+ImportError: cannot import name 'setup_logging' from 'logging_config' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/logging_config.py)
 
 ## Declared deliverables still missing
 
-- data/analysis/factor_scores.csv
 - data/analysis/full_metrics.csv
-- data/analysis/pca_loadings.csv
 
 ## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
 
@@ -192,12 +196,8 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/analysis/factor_scores.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/correlations.py` — NOT invoked by the run-book
-    - `code/analysis/pca_runner.py` — NOT invoked by the run-book
-    - `code/analysis/create_full_metrics.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/analysis/factor_scores.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/analysis/full_metrics.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — IS a run-book command
     - `code/viz/network.py` — NOT invoked by the run-book
     - `code/viz/scatter.py` — NOT invoked by the run-book
     - `code/analysis/correlations.py` — NOT invoked by the run-book
@@ -206,7 +206,14 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/create_full_metrics.py` — NOT invoked by the run-book
     - `code/tools/verify_batching.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/analysis/full_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/analysis/pca_loadings.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/correlations.py` — NOT invoked by the run-book
-    - `code/analysis/pca_runner.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/analysis/pca_loadings.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+
+## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
+
+One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
+
+**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
+
+### `data/processed/aggregated_metrics.csv`
+
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/analysis/correlations.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/aggregated_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/analysis/correlations.py`, `code/analysis/generate_full_metrics.py`, `code/tools/verify_batching.py`.
