@@ -1,0 +1,127 @@
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/code/research.md
+  attempts: 1
+  canonical: Cohen's d of 0.45 for difference in squared errors between CNN and Baseline
+    on N=1500 dataset
+  claim_id: c_0bf84de9
+  context: 'Effect Size Estimation: Based on preliminary runs on the public dataset
+    (N=1500), the expected Cohen''s d for the difference in squared errors (CNN vs.
+    Baseline) is estimated at 0.45 (medium effect).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Based on preliminary runs on the public dataset (N=1500), the expected
+    Cohen's d for the difference in squared errors (CNN vs. Baseline) is estimated
+    at 0.45 (medium effect).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:53:41Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/code/research.md
+  attempts: 1
+  canonical: Minimum of 128 test samples required for 80% power based on statsmodels
+    power analysis
+  claim_id: c_a596a490
+  context: 'Required Sample Size: A power analysis (using statsmodels.stats.power.tt_solve_power)
+    indicates that a minimum of N=128 samples in the test set is required to achieve
+    80% power.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A power analysis (using statsmodels.stats.power.tt_solve_power) indicates
+    that a minimum of N=128 samples in the test set is required to achieve 80% power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:54:22Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/code/research.md
+  attempts: 1
+  canonical: Test set contains approximately 225 samples with 70/15/15 split on 1500
+    image dataset
+  claim_id: c_846f63e5
+  context: 'Dataset Capacity: The full dataset contains 1,500 images. With a standard
+    70/15/15 split (Train/Val/Test), the test set will contain approximately 225 samples,
+    which exceeds the required threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: With a standard 70/15/15 split (Train/Val/Test), the test set will contain
+    approximately 225 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:54:45Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/code/research.md
+  attempts: 1
+  canonical: Full dataset contains 1500 images
+  claim_id: c_342dd34f
+  context: 'Dataset Capacity: The full dataset contains 1,500 images. With a standard
+    70/15/15 split (Train/Val/Test), the test set will contain approximately 225 samples,
+    which exceeds the required threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full dataset contains 1,500 images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:55:04Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/code/research.md
+  attempts: 1
+  canonical: Yield strength labels verified to fall within 200 to 800 MPa range
+  claim_id: c_bc45cd1a
+  context: "Validation: Labels are verified to fall within the physically plausible\
+    \ range (200\u2013800 MPa) for the target material class. Outliers are flagged\
+    \ in results/validation_report.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Labels are verified to fall within the physically plausible range (200\u2013\
+    800 MPa) for the target material class."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:55:21Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/code/research.md
+  attempts: 1
+  canonical: Base friction stress is 50 MPa calibrated for target alloy class
+  claim_id: c_c16ad805
+  context: 'Where: - sigma_0 (base friction stress): 50 MPa (calibrated for the target
+    alloy class)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base friction stress (sigma_0) is 50 MPa (calibrated for the target
+    alloy class).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:55:45Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/code/research.md
+  attempts: 1
+  canonical: "Hall-Petch slope is 0.25 MPa\xB7m^1/2 standard value for FCC metals"
+  claim_id: c_fe74f54a
+  context: "Where: - k_y (Hall-Petch slope): 0.25 MPa\xB7m^1/2 (standard value for\
+    \ FCC metals)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Hall-Petch slope (k_y) is 0.25 MPa\xB7m^1/2 (standard value for FCC\
+    \ metals)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T11:56:04Z'

@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Write script `scripts/scaffold.py` to create the exact directory tree per implementation plan (`projects/PROJ-477-predicting-material-strength-from-micros/`) including `data/raw`, `data/processed`, `code`, `tests`, `results`.
-- [ ] T002 Create `code/requirements.txt` containing the following pinned versions: PyTorch (CPU), torchvision, scikit-learn, pandas, numpy, matplotlib, opencv-python-headless, huggingface-hub.
-- [ ] T003 [P] Create `code/.ruff.toml` and `code/pyproject.toml` with linting (ruff) and formatting (black) rules enabled.
+- [X] T001 Write script `scripts/scaffold.py` to create the exact directory tree per implementation plan (`projects/PROJ-477-predicting-material-strength-from-micros/`) including `data/raw`, `data/processed`, `code`, `tests`, `results`.
+- [X] T002 Create `code/requirements.txt` containing the following pinned versions: PyTorch (CPU), torchvision, scikit-learn, pandas, numpy, matplotlib, opencv-python-headless, huggingface-hub.
+- [X] T003 [P] Create `code/.ruff.toml` and `code/pyproject.toml` with linting (ruff) and formatting (black) rules enabled.
 
 ---
 
@@ -55,12 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Setup seed configuration and path management in `code/utils/config.py`
-- [ ] T005 [P] Implement batch loading strategy to prevent OOM on constrained memory in `code/data/loader.py`
-- [ ] T022 Implement grain size feature extraction for every image in `code/data/extract_features.py` (FR-009, Mandatory per Plan). Output: `data/processed/grain_features.csv` with schema: `image_id`, `grain_size_um`.
-- [ ] T008 Implement Hall-Petch label generation logic in `code/data/label_generator.py` (Mandatory per Plan: Physics-Based Label Generation). Depends on T022 output.
-- [ ] T006 Create base data structures `MicrostructureImage` and `YieldStrengthValue` Pydantic models in `code/data/models.py` with fields from data-model.md.
-- [ ] T007 [P] Create `code/utils/logging_config.py` that initializes a logger writing to `results/metrics.log` and `results/metrics.json` with the specified JSON schema.
+- [X] T004 [P] Setup seed configuration and path management in `code/utils/config.py`
+- [X] T005 [P] Implement batch loading strategy to prevent OOM on constrained memory in `code/data/loader.py`
+- [X] T022 Implement grain size feature extraction for every image in `code/data/extract_features.py` (FR-009, Mandatory per Plan). Output: `data/processed/grain_features.csv` with schema: `image_id`, `grain_size_um`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T008 Implement Hall-Petch label generation logic in `code/data/label_generator.py` (Mandatory per Plan: Physics-Based Label Generation). Depends on T022 output.
+- [X] T006 Create base data structures `MicrostructureImage` and `YieldStrengthValue` Pydantic models in `code/data/models.py` with fields from data-model.md.
+- [X] T007 [P] Create `code/utils/logging_config.py` that initializes a logger writing to `results/metrics.log` and `results/metrics.json` with the specified JSON schema.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,9 +83,9 @@
 
 - [ ] T011 [P] [US1] Implement dataset downloader in `code/data/download.py` (Fetch from verified HuggingFace/Zenodo source, verify checksum)
 - [ ] T012 [US1] Implement image preprocessor in `code/data/preprocess.py` (Resize to 224x224, normalize, handle aspect ratios/depths per Edge Cases)
-- [ ] T013 [US1] Implement data splitter in `code/data/split.py` (Stratified split into train/val/test, generate manifest)
-- [ ] T014 [US1] Create `code/data/validate.py` that outputs `results/validation_report.json` containing the invalid pair count and exits with code 1 if invalid ratio > 1%.
-- [ ] T015 [US1] Create orchestration script `code/data/process_all.py` to chain download -> preprocess -> split -> validate
+- [X] T013 [US1] Implement data splitter in `code/data/split.py` (Stratified split into train/val/test, generate manifest)
+- [~] T014 [US1] Create `code/data/validate.py` that outputs `results/validation_report.json` containing the invalid pair count and exits with code 1 if invalid ratio > 1%.
+- [~] T015 [US1] Create orchestration script `code/data/process_all.py` to chain download -> preprocess -> split -> validate
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,19 +99,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Unit test for metric calculation (MSE, R²) in `tests/unit/test_metrics.py`
-- [ ] T017 [P] [US2] Integration test for training loop with early stopping in `tests/integration/test_training.py`
+- [~] T016 [P] [US2] Unit test for metric calculation (MSE, R²) in `tests/unit/test_metrics.py`
+- [~] T017 [P] [US2] Integration test for training loop with early stopping in `tests/integration/test_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement CNN model definition (MobileNetV2/ResNet-18 frozen backbone) in `code/models/cnn.py` (FR-002)
-- [ ] T019 [P] [US2] Implement naive mean baseline predictor in `code/models/baseline.py` (FR-004)
-- [ ] T020 [US2] Implement data augmentation transforms (random rotation, flip, brightness) in `code/train/augment.py` (FR-003)
-- [ ] T021 [US2] Implement training loop with early stopping (patience=5) and checkpoint saving in `code/train/trainer.py`
-- [ ] T023 [US2] Implement physics-based baseline (Hall-Petch predictor) in `code/models/physics_baseline.py` (Plan Phase 2 Task 2.4). Depends on T022.
-- [ ] T024 [US2] Implement evaluation logic: MSE, R², and **single-sample t-test** (α=0.05) on squared errors comparing CNN error to baseline error in `code/eval/metrics.py` (FR-005, SC-002).
-- [ ] T025 [US2] Implement Null Hypothesis Protocol: **If R² < 0.2**, write `results/null_hypothesis_report.json` with schema: `{status: str, r2_value: float, threshold: float}` and raise `SystemExit(1)` in `code/eval/evaluator.py` (Plan Phase 3 Task 3.6)
-- [ ] T026 [US2] Create main training orchestration script `code/main.py` supporting `--no-augmentation` flag for ablation study (Plan Phase 2 Task 2.2)
+- [~] T018 [P] [US2] Implement CNN model definition (MobileNetV2/ResNet-18 frozen backbone) in `code/models/cnn.py` (FR-002)
+- [~] T019 [P] [US2] Implement naive mean baseline predictor in `code/models/baseline.py` (FR-004)
+- [~] T020 [US2] Implement data augmentation transforms (random rotation, flip, brightness) in `code/train/augment.py` (FR-003)
+- [~] T021 [US2] Implement training loop with early stopping (patience=5) and checkpoint saving in `code/train/trainer.py`
+- [~] T023 [US2] Implement physics-based baseline (Hall-Petch predictor) in `code/models/physics_baseline.py` (Plan Phase 2 Task 2.4). Depends on T022.
+- [~] T024 [US2] Implement evaluation logic: MSE, R², and **single-sample t-test** (α=0.05) on squared errors comparing CNN error to baseline error in `code/eval/metrics.py` (FR-005, SC-002).
+- [~] T025 [US2] Implement Null Hypothesis Protocol: **If R² < 0.2**, write `results/null_hypothesis_report.json` with schema: `{status: str, r2_value: float, threshold: float}` and raise `SystemExit(1)` in `code/eval/evaluator.py` (Plan Phase 3 Task 3.6)
+- [~] T026 [US2] Create main training orchestration script `code/main.py` supporting `--no-augmentation` flag for ablation study (Plan Phase 2 Task 2.2)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,16 +125,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for Grad-CAM generation in `tests/unit/test_interpret.py`
-- [ ] T028 [P] [US3] Integration test for sensitivity sweep in `tests/integration/test_sensitivity.py`
+- [~] T027 [P] [US3] Unit test for Grad-CAM generation in `tests/unit/test_interpret.py`
+- [~] T028 [P] [US3] Integration test for sensitivity sweep in `tests/integration/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement Grad-CAM visualization generator in `code/eval/interpret.py` (FR-006)
-- [ ] T030 [US3] Implement IoU calculation: Calculate **IoU ≥ 0.4** between Grad-CAM heatmaps and manually annotated grain boundaries (if available) OR generate an expert review report. Input: `data/processed/grain_features.csv` or manual annotation file. Output: `results/interpretability_iou.json` (SC-005). Depends on T029 and T022.
-- [ ] T031 [US3] Implement sensitivity analysis: Binarize using **median predicted strength** of test set (per FR-007, overriding plan.md), sweep thresholds {0.01, 0.05, 0.1}, compute FPR/FNR in `code/eval/sensitivity.py` (FR-007)
-- [ ] T032 [US3] Implement confidence interval calculation: Use **Monte Carlo Dropout (30 samples)** with a **verification step** to ensure [deferred] coverage. Append `ci_lower` and `ci_upper` columns to `results/predictions.csv` in `code/eval/predictor.py` (FR-008)
-- [ ] T033 [US3] Create analysis orchestration script `code/analyze.py` to run interpretability and sensitivity on the test set
+- [~] T029 [P] [US3] Implement Grad-CAM visualization generator in `code/eval/interpret.py` (FR-006)
+- [~] T030 [US3] Implement IoU calculation: Calculate **IoU ≥ 0.4** between Grad-CAM heatmaps and manually annotated grain boundaries (if available) OR generate an expert review report. Input: `data/processed/grain_features.csv` or manual annotation file. Output: `results/interpretability_iou.json` (SC-005). Depends on T029 and T022.
+- [~] T031 [US3] Implement sensitivity analysis: Binarize using **median predicted strength** of test set (per FR-007, overriding plan.md), sweep thresholds {0.01, 0.05, 0.1}, compute FPR/FNR in `code/eval/sensitivity.py` (FR-007)
+- [~] T032 [US3] Implement confidence interval calculation: Use **Monte Carlo Dropout (30 samples)** with a **verification step** to ensure [deferred] coverage. Append `ci_lower` and `ci_upper` columns to `results/predictions.csv` in `code/eval/predictor.py` (FR-008)
+- [~] T033 [US3] Create analysis orchestration script `code/analyze.py` to run interpretability and sensitivity on the test set
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -144,7 +144,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Documentation updates: Append the label generation protocol and power analysis status to `research.md` under section "Data Labeling Strategy".
+- [~] T034 [P] Documentation updates: Append the label generation protocol and power analysis status to `research.md` under section "Data Labeling Strategy".
 - [ ] T035 Run ruff check --fix on `code/` and verify exit code 0
 - [ ] T036 Run `code/data/loader.py` with `--stress-test` flag and record peak memory usage in `results/memory_profile.json`; fail if > 7GB.
 - [ ] T037 [P] Additional unit tests for edge cases (corrupted data, extreme aspect ratios) in `tests/unit/`
@@ -160,8 +160,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -227,9 +227,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
