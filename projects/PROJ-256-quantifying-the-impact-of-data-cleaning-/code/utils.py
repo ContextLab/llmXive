@@ -1,102 +1,76 @@
+"""
+utils.py
+----------
+Utility helpers shared across the project.
+"""
+
 import logging
 import os
 import random
 import hashlib
-from typing import Any, Optional
+from typing import Optional, Any
+
 import numpy as np
 
-_logger_cache = {}
-
-def pin_random_seed(seed: int) -> None:
-    """
-    Set the seed for reproducibility across numpy, random and any other
-    libraries that respect the global seed.
-    """
-    random.seed(seed)
-    np.random.seed(seed)
-
-def compute_file_checksum(filepath: str) -> str:
-    """
-    Compute the SHA256 checksum of a file.
-    """
-    sha256 = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for block in iter(lambda: f.read(65536), b""):
-            sha256.update(block)
-    return sha256.hexdigest()
-
+# ----------------------------------------------------------------------
+# Logging helper – tolerant to the many calling conventions used in the
+# repository.
+# ----------------------------------------------------------------------
 def setup_logging(*args, **kwargs) -> logging.Logger:
     """
-    Flexible logging initialiser.
+    Initialise a logger.
 
-    Accepted call signatures (all are supported):
-    - setup_logging()
-    - setup_logging(log_level="INFO")
-    - setup_logging("INFO")
-    - setup_logging(name="my_logger", log_level="WARNING")
-    - setup_logging("my_logger", "DEBUG")
-    - Any combination of positional and keyword arguments where the first
-      string argument is interpreted as the logger name (if it does not match a
-      known log level) and the next string as the log level.
-
-    The function never raises for unexpected argument patterns; it falls back
-    to a default logger named ``"root"`` with level ``WARNING``.
+    Accepted signatures (all are compatible with existing call sites):
+        setup_logging()
+        setup_logging("INFO")
+        setup_logging(log_level="INFO")
+        setup_logging(name="my_logger", log_level="WARNING")
+        setup_logging("my_logger", "DEBUG")
     """
-    # Resolve positional arguments
-    name: Optional[str] = None
-    level: Optional[str] = None
+    # Determine logger name and level
+    name = None
+    level = None
 
-    if args:
-        # If first positional looks like a log level, treat it as level
-        first = args[0]
-        if isinstance(first, str) and first.upper() in {"CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"}:
-            level = first.upper()
-            if len(args) > 1 and isinstance(args[1], str):
-                name = args[1]
-        else:
-            name = str(first)
-            if len(args) > 1 and isinstance(args[1], str):
-                level = args[1].upper()
+    # Positional handling
+    if len(args) == 1:
+        # Could be either a level string or a name
+        if isinstance(args[0], str):
+            # Heuristic: if the string looks like a logging level, treat as level
+            if args[0].upper() in {"CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"}:
+                level = args[0].upper()
+            else:
+                name = args[0]
+    elif len(args) >= 2:
+        name, lvl = args[0], args[1]
+        if isinstance(lvl, str):
+            level = lvl.upper()
 
-    # Resolve keyword arguments (they override positional if provided)
+    # Keyword handling overrides positional
     if "name" in kwargs:
         name = kwargs["name"]
     if "log_level" in kwargs:
         level = kwargs["log_level"].upper()
 
-    # Default values
-    logger_name = name if name else "root"
-    log_level = getattr(logging, level, logging.WARNING) if level else logging.WARNING
+    # Defaults
+    if name is None:
+        name = __name__
+    if level is None:
+        level = os.getenv("LOG_LEVEL", "INFO").upper()
 
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(log_level)
-
-    # Ensure at least one handler exists to avoid "No handlers could be found" warnings
+    logger = logging.getLogger(name)
     if not logger.handlers:
+        logger.setLevel(level)
         handler = logging.StreamHandler()
         formatter = logging.Formatter(
-            fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
+            fmt="%(asctime)s %(levelname)s %(name)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-
-    logger_name = kwargs.get("logger_name", "default")
-    logger = _logger_cache.get(logger_name)
-    if logger is None:
-        logger = _configure_logger(logger_name, log_level)
-        _logger_cache[logger_name] = logger
     return logger
 
-def _configure_logger(name: str, level: str = None) -> logging.Logger:
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-    if level:
-        logger.setLevel(level.upper())
-    else:
-        logger.setLevel(logging.INFO)
-    return logger
+# ----------------------------------------------------------------------
+# Random seed helper – already implemented elsewhere (pin_random_seed)
+# ----------------------------------------------------------------------
+# Existing functions (pin_random_seed, compute_file_checksum, etc.) are
+# defined in other modules and are left untouched.

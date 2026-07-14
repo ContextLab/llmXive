@@ -75,7 +75,7 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet%60
   verified_at: '2026-06-30T01:45:27.467581Z'
-- artifact_hash: 7c126b97768de7f700fbcfbcc5f35ad5e5b96c57010eebd1c53a19b94b368bad
+- artifact_hash: 80d368390097815d3cd8c8038631e6f0d8decaae85aab7492bb7dae22afda98d
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,15 +85,15 @@
   value: https://www.wikidata.org/wiki/Q28914856
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q28914856
-  verified_at: '2026-07-14T19:56:58.369942Z'
-- artifact_hash: 7c126b97768de7f700fbcfbcc5f35ad5e5b96c57010eebd1c53a19b94b368bad
+  verified_at: '2026-07-14T22:41:35.470422Z'
+- artifact_hash: 80d368390097815d3cd8c8038631e6f0d8decaae85aab7492bb7dae22afda98d
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: False discovery rate - Wikipedia
+  fetched_title: Bonferroni correction - Wikidata
   kind: url
-  value: https://en.wikipedia.org/wiki/False_discovery_rate
+  value: https://www.wikidata.org/wiki/Q385989
   verification_status: verified
-  verified_against_url: https://en.wikipedia.org/wiki/False_discovery_rate
-  verified_at: '2026-07-14T19:56:58.369942Z'
+  verified_against_url: https://www.wikidata.org/wiki/Q385989
+  verified_at: '2026-07-14T22:41:35.470422Z'

@@ -25,12 +25,7 @@ def setup_environment():
     """Ensure required directories exist before each test."""
     os.makedirs("data/processed", exist_ok=True)
     yield
-    # Optionally clean up after tests
-    # if os.path.exists(BASELINE_RAW_FILE):
-    #     os.remove(BASELINE_RAW_FILE)
-    # if os.path.exists(BASELINE_FINAL_FILE):
-    #     os.remove(BASELINE_FINAL_FILE)
-
+    # Optional cleanup can be added here
 
 def test_baseline_pipeline_execution():
     """
@@ -47,7 +42,6 @@ def test_baseline_pipeline_execution():
     exit_code_13 = record_metrics_main()
     assert exit_code_13 == 0, f"T013 failed with exit code {exit_code_13}"
     assert os.path.exists(BASELINE_FINAL_FILE), f"T013 did not produce {BASELINE_FINAL_FILE}"
-
 
 def test_baseline_metrics_content():
     """
@@ -87,7 +81,6 @@ def test_baseline_metrics_content():
         assert eff_size is not None, f"Effect size missing for {ds_name}"
 
         logger.debug(f"Validated {ds_name}: p={p_val}, CI=({ci_lower}, {ci_upper}), ES={eff_size}")
-
 
 def test_precision_requirement():
     """

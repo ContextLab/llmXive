@@ -1,67 +1,81 @@
 """
-Unit test for the permutation null FPR generation script (Task T032).
-
-The test creates a temporary CSV file with a tiny synthetic dataset,
-runs the ``generate_null_fpr_metrics`` function on that file, and checks
-that the expected JSON output is produced and contains a non‑empty
-metrics dictionary for the synthetic dataset.
-
-The test does **not** depend on any external data sources.
+Basic integration test for T032 – ensures that the null‑FPR generation script
+runs without error and creates the expected JSON artifact.
 """
 
 import json
 import os
-import tempfile
 from pathlib import Path
 
-import pandas as pd
 import pytest
 
-# Import the function under test.
-from t032_permutation_null_fpr import generate_null_fpr_metrics
+from t032_permutation_null_fpr import generate_null_fpr_metrics, main
 
-@pytest.fixture
-def synthetic_csv(tmp_path: Path) -> Path:
-    """Create a minimal CSV file with an outcome column and two predictors."""
+@pytest.fixture(scope="module")
+def raw_data_dir(tmp_path_factory):
+    """
+    Create a tiny synthetic raw dataset (real data is not required for the
+    functionality test – the script only needs a CSV with at least one
+    numeric predictor and an outcome column).  The fixture lives in a
+    temporary directory that is cleaned up automatically.
+    """
+    base = tmp_path_factory.mktemp("raw")
+    df_path = base / "dummy.csv"
+    # Simple deterministic data
+    import pandas as pd
+
     df = pd.DataFrame(
         {
+            "outcome": [0, 1, 0, 1, 0],
             "feat1": [1, 2, 3, 4, 5],
             "feat2": [5, 4, 3, 2, 1],
-            "outcome": [0, 1, 0, 1, 0],
         }
     )
-    csv_path = tmp_path / "synthetic_dataset.csv"
-    df.to_csv(csv_path, index=False)
-    return csv_path
+    df.to_csv(df_path, index=False)
+    return str(base)
 
-def test_generate_null_fpr_metrics_creates_output(synthetic_csv: Path, tmp_path: Path):
-    """
-    Verify that the null‑FPR generation writes a JSON file containing
-    metrics for the synthetic dataset.
-    """
-    # Arrange: point the function at a temporary processed directory.
-    processed_dir = synthetic_csv.parent
+def test_generate_null_fpr_metrics_creates_file(raw_data_dir, tmp_path):
     output_path = tmp_path / "null_fpr_metrics.json"
+    metrics = generate_null_fpr_metrics(
+        raw_dir=raw_data_dir,
+        outcome="outcome",
+        repetitions=10,
+        output_file=str(output_path),
+    )
+    # Verify return structure
+    assert isinstance(metrics, dict)
+    assert "dummy.csv" in metrics
+    assert len(metrics["dummy.csv"]) == 10
 
-    # Act
-    generate_null_fpr_metrics(processed_dir=processed_dir, output_path=output_path)
+    # Verify file exists and is valid JSON
+    assert output_path.is_file()
+    with output_path.open() as f:
+        content = json.load(f)
+    assert content == metrics
 
-    # Assert: output file exists.
-    assert output_path.is_file(), "null_fpr_metrics.json was not created"
-
-    # Load JSON and check structure.
-    with open(output_path, "r", encoding="utf-8") as f:
+def test_cli_entry_point(monkeypatch, raw_data_dir, tmp_path):
+    """
+    Run the module as a script via its ``main`` function, checking that it
+    respects command‑line arguments and writes the expected file.
+    """
+    output_file = tmp_path / "cli_null_fpr.json"
+    test_args = [
+        "t032_permutation_null_fpr.py",
+        "--raw-dir",
+        raw_data_dir,
+        "--outcome",
+        "outcome",
+        "--repetitions",
+        "5",
+        "--output",
+        str(output_file),
+    ]
+    monkeypatch.setattr("sys.argv", test_args)
+    # Importing the module runs the top‑level guard only when __name__ == "__main__"
+    # so we call main() directly.
+    main()
+    assert output_file.is_file()
+    with output_file.open() as f:
         data = json.load(f)
-
-    # The key should be the stem of the CSV file.
-    dataset_key = synthetic_csv.stem
-    assert dataset_key in data, f"Missing entry for dataset '{dataset_key}'"
-
-    # Metrics should be a dict (could be empty if analysis fails, but still a dict).
-    assert isinstance(data[dataset_key], dict), "Metrics entry is not a dict"
-
-    # Basic sanity: the metrics dict should contain at least one top‑level key
-    # (e.g., 't_test' or 'regression') when the analysis succeeds.
-    # If the analysis failed, the dict may be empty; we allow that but still
-    # ensure the script completed without raising.
-    # No further content checks are required for this unit test.
+    assert "dummy.csv" in data
+    assert len(data["dummy.csv"]) == 5

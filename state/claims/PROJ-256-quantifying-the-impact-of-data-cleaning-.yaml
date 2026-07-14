@@ -535,3 +535,220 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T19:59:12Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction is for Family-Wise Error Rate (FWER)
+  claim_id: c_38ed4c12
+  context: The task specifies implementing Bonferroni correction for controlling the
+    Family-Wise Error Rate, referencing the Wikipedia article on False discovery rate.
+  evidence:
+    entailment_evidence: Bonferroni correction is for Family-Wise Error Rate (FWER)
+      - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_is_for_Family-Wise_Error_Rate_(FWER)
+  kind: entity_fact
+  raw_text: 'Implement Bonferroni correction (Wikipedia: False discovery rate, https://en.wikipedia.org/wiki/False_discovery_rate)
+    for Family-Wise Error Rate (FWER) in `code/reporting.py`.'
+  resolved_value: Bonferroni correction is for Family-Wise Error Rate (FWER)
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T22:16:47Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: download_dataset returns HTTP 200 and non-empty content for UCI HAR URL
+  claim_id: c_23b3b0ca
+  context: Unit test in tests/unit/test_acquisition.py verifies that download_dataset
+    returns 200 status and non-empty content for UCI HAR URL.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: download_dataset returns 200 status and non-empty content for UCI HAR
+    URL.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:22:23Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline analysis script produces baseline_metrics.json with p-values
+    between 0 and 1 and finite confidence intervals
+  claim_id: c_e431d239
+  context: Integration test in tests/integration/test_baseline.py verifies that the
+    baseline analysis script produces baseline_metrics.json with valid p-values (0
+    < p < 1) and finite CIs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: baseline analysis script produces baseline_metrics.json with valid p-values
+    (0 < p < 1) and finite confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:22:44Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Bootstrap variance estimation uses at least 1000 resamples per dataset,
+    falling back to 500 when dataset size exceeds 5000 rows
+  claim_id: c_c749c1c9
+  context: "T031 [US3] Implement bootstrap variance estimation (\u22651000 resamples\
+    \ per dataset, default 1000, fallback to 500 if dataset size > 5000 rows) for\
+    \ metric shifts with 95% CI."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_variance_estimation_uses_at_least_1000_resamples_p
+  kind: magnitude
+  raw_text: "bootstrap variance estimation (\u22651000 resamples per dataset, default\
+    \ 1000, fallback to 500 if dataset size > 5000 rows)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:28:44Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Fallback to 500 iterations when dataset size exceeds 5000 rows
+  claim_id: c_14a262c2
+  context: 'Bootstrap iterations: A default number of iterations will be used for
+    the simulation., fallback to 500 if dataset size > 5000 rows per plan assumptions
+    (T031) - Constitution Principle VI minimum preserved'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fallback to 500 if dataset size > 5000 rows per plan assumptions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:29:14Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: download_dataset returns HTTP 200 and non-empty content for UCI HAR URL
+  claim_id: c_add5a849
+  context: The acquisition unit test ensures that the dataset download function succeeds
+    with a 200 HTTP status and provides non-empty content when accessing the UCI HAR
+    URL.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Contract test in `tests/unit/test_acquisition.py`: Verify `download_dataset`
+    returns 200 status and non-empty content for UCI HAR URL.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:37:42Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline analysis script produces baseline_metrics.json with p-values
+    between 0 and 1 and finite confidence intervals
+  claim_id: c_1a82cc39
+  context: "The integration test checks that the baseline analysis pipeline outputs\
+    \ a JSON file containing p\u2011values strictly between 0 and 1 and confidence\u2011\
+    interval bounds that are finite."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Integration test in `tests/integration/test_baseline.py`: Verify baseline
+    analysis script produces `baseline_metrics.json` with valid p-values (0 < p <
+    1) and finite CIs.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:38:15Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_iqr_outlier_removal removes rows where absolute z-score exceeds
+    k and logs count
+  claim_id: c_2a68441d
+  context: "The cleaning unit test confirms that the IQR outlier removal function\
+    \ deletes any rows whose absolute z\u2011score is greater than the threshold k\
+    \ and records how many rows were removed."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_iqr_outlier_removal_removes_rows_where_absolute_z-scor
+  kind: entity_fact
+  raw_text: 'Unit test in `tests/unit/test_cleaning.py`: Verify `apply_iqr_outlier_removal`
+    removes rows where |z-score| > k and logs count.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:40:04Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_mean_imputation results in zero missing values in target columns
+  claim_id: c_dcd23688
+  context: The test asserts that after applying mean imputation, the specified target
+    columns contain no missing values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_mean_imputation_results_in_zero_missing_values_in_targ
+  kind: causal
+  raw_text: 'Unit test in `tests/unit/test_cleaning.py`: Verify `apply_mean_imputation`
+    results in zero missing values in target columns.'
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:40:06Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: calculate_p_value_shift returns absolute difference with at least three
+    decimal precision
+  claim_id: c_85278d65
+  context: "The reporting unit test checks that the function computing p\u2011value\
+    \ shifts outputs results rounded to a minimum of three decimal places."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calculate_p_value_shift_returns_absolute_difference_with_at
+  kind: magnitude
+  raw_text: "Unit test in `tests/unit/test_reporting.py`: Verify `calculate_p_value_shift`\
+    \ returns absolute difference with \u22653 decimal precision."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T22:40:27Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_bonferroni_correction correctly adjusts p-values for family-wise
+    error rate control
+  claim_id: c_21de4332
+  context: "The test ensures that the Bonferroni correction function modifies p\u2011\
+    values appropriately to control the family\u2011wise error rate."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P2812: BonferroniCorrection'
+      source_id: Q385989
+      url: https://www.wikidata.org/wiki/Q385989
+      value: BonferroniCorrection
+    filled: true
+  kind: entity_fact
+  raw_text: 'Unit test in `tests/unit/test_reporting.py`: Verify `apply_bonferroni_correction`
+    correctly adjusts p-values for FWER control.'
+  resolved_value: BonferroniCorrection
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T22:40:42Z'

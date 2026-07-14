@@ -1,47 +1,47 @@
-"""
-T013 – Record baseline metrics
-
-This script orchestrates the generation of baseline statistical metrics
-(p‑value, 95 % confidence interval, Cohen's d / R²) and writes them to
-``data/processed/baseline_metrics.json`` with at least three‑decimal
-precision.
-
-It relies on the flexible ``run_baseline_analysis`` function defined in
-``code/analysis.py`` and uses the project's shared logging utilities.
-"""
-
+import json
+import logging
 import sys
 from pathlib import Path
+from utils import setup_logging
 
-from utils import setup_logging, pin_random_seed
-from analysis import run_baseline_analysis
+logger = setup_logging("INFO")
 
+RAW_FILE = Path("data/processed/baseline_raw_output.json")
+FINAL_FILE = Path("data/processed/baseline_metrics.json")
+
+def _round_metric(value: float) -> float:
+    """Round to three decimal places."""
+    return round(value, 3)
 
 def main() -> int:
     """
-    Execute the baseline analysis and ensure the output file exists.
-    Returns an exit code suitable for ``sys.exit``.
+    Reads the raw baseline JSON, rounds numeric fields to three decimals,
+    and writes the final metrics file.
+    Returns 0 on success, non‑zero on error.
     """
-    # Initialise logging – accept any call signature
-    logger = setup_logging(log_level="INFO")
+    try:
+        if not RAW_FILE.is_file():
+            logger.error(f"Raw baseline file missing: {RAW_FILE}")
+            return 1
 
-    # Ensure reproducibility across the pipeline
-    pin_random_seed(42)
+        with open(RAW_FILE, "r") as f:
+            raw = json.load(f)
 
-    # Define paths (respecting possible environment overrides via Config)
-    raw_dir = Path("data/raw")
-    output_file = Path("data/processed/baseline_metrics.json")
+        datasets = raw.get("datasets", [])
+        for entry in datasets:
+            for key in ["p_value", "ci_lower", "ci_upper", "effect_size"]:
+                if key in entry and isinstance(entry[key], (int, float)):
+                    entry[key] = _round_metric(entry[key])
 
-    logger.info("Starting baseline metrics recording...")
-    success = run_baseline_analysis(raw_dir=raw_dir, output_file=output_file)
+        FINAL_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(FINAL_FILE, "w") as f:
+            json.dump({"datasets": datasets}, f, indent=2)
 
-    if success and output_file.is_file():
-        logger.info(f"Baseline metrics successfully written to {output_file}")
+        logger.info(f"Baseline metrics written to {FINAL_FILE}")
         return 0
-    else:
-        logger.error("Baseline metrics generation failed.")
+    except Exception as e:
+        logger.exception("Failed to record baseline metrics")
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,108 +1,84 @@
 import json
 import os
-import tempfile
 from pathlib import Path
+
+import pytest
 
 from reporting import (
     calculate_absolute_diff,
     calculate_relative_diff,
     calculate_inconsistency_rate,
-    aggregate_metrics_for_comparison,
-    generate_comparison_report,
 )
 
-
-def _make_dummy_metrics(tmp_dir: Path, name: str, p_value: float, ci_low: float, ci_high: float, r2: float):
-    data = {
-        "datasets": [
-            {
-                "dataset_name": name,
-                "t_test": {"p_value": p_value, "ci": [ci_low, ci_high]},
-                "regression": {"r_squared": r2, "coefficients": []},
-            }
-        ]
+@pytest.fixture
+def dummy_metrics():
+    """Two tiny metric dicts mimicking the structure produced by analysis."""
+    baseline = {
+        "t_test": {"p_value": 0.04, "ci": [0.1, 0.5]},
+        "effect_size": 0.8,
     }
-    path = tmp_dir / f"{name}_{name}.json"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(data, f)
-    return path
+    cleaned = {
+        "t_test": {"p_value": 0.06, "ci": [0.2, 0.6]},
+        "effect_size": 0.5,
+    }
+    return baseline, cleaned
 
+def test_absolute_diff(dummy_metrics):
+    base, clean = dummy_metrics
+    diff = calculate_absolute_diff(base, clean)
+    assert diff["p_value_abs"] == pytest.approx(0.02, rel=1e-3)
+    assert diff["ci_width_change_abs"] == pytest.approx(0.2, rel=1e-3)
+    assert diff["effect_size_delta"] == pytest.approx(-0.3, rel=1e-3)
 
-def test_absolute_and_relative_differences(tmp_path):
+def test_relative_diff(dummy_metrics):
+    base, clean = dummy_metrics
+    rel = calculate_relative_diff(base, clean)
+    # p‑value increase from 0.04 to 0.06 → 50 %
+    assert rel["p_value_rel"] == pytest.approx(50.0, rel=1e-3)
+    # CI width: base 0.4, clean 0.4 → 0 %
+    assert rel["ci_width_rel"] == pytest.approx(0.0, rel=1e-3)
+    # Effect size change from 0.8 to 0.5 → -37.5 %
+    assert rel["effect_size_rel"] == pytest.approx(-37.5, rel=1e-3)
+
+def test_inconsistency_rate():
+    base = {"t_test": {"p_value": 0.03}}
+    clean = {"t_test": {"p_value": 0.07}}
+    assert calculate_inconsistency_rate(base, clean) == 1.0
+    clean2 = {"t_test": {"p_value": 0.02}}
+    assert calculate_inconsistency_rate(base, clean2) == 0.0
+
+def test_report_generation(tmp_path, monkeypatch):
+    """
+    End‑to‑end test that the reporting module writes a comparison JSON file.
+    """
+    # Create temporary baseline / cleaned JSON files
     baseline_path = tmp_path / "baseline.json"
     cleaned_path = tmp_path / "cleaned.json"
+    baseline_path.write_text(json.dumps({"ds.csv": {
+        "t_test": {"p_value": 0.04, "ci": [0.1, 0.5]},
+        "effect_size": 0.8,
+    }}))
+    cleaned_path.write_text(json.dumps({"ds.csv": {
+        "t_test": {"p_value": 0.06, "ci": [0.2, 0.6]},
+        "effect_size": 0.5,
+    }}))
 
-    baseline = {
-        "datasets": [
-            {
-                "dataset_name": "ds1",
-                "t_test": {"p_value": 0.10, "ci": [0.5, 1.5]},
-                "regression": {"r_squared": 0.30, "coefficients": []},
-            }
-        ]
-    }
-    cleaned = {
-        "datasets": [
-            {
-                "dataset_name": "ds1",
-                "t_test": {"p_value": 0.08, "ci": [0.6, 1.4]},
-                "regression": {"r_squared": 0.35, "coefficients": []},
-            }
-        ]
-    }
+    # Patch the paths used inside reporting
+    monkeypatch.setattr("reporting.load_baseline_metrics", lambda: json.loads(baseline_path.read_text()))
+    monkeypatch.setattr("reporting.load_cleaned_metrics", lambda: json.loads(cleaned_path.read_text()))
 
-    with baseline_path.open("w", encoding="utf-8") as f:
-        json.dump(baseline, f)
-    with cleaned_path.open("w", encoding="utf-8") as f:
-        json.dump(cleaned, f)
+    # Run report generation
+    from reporting import generate_comparison_report
 
-    abs_diff = calculate_absolute_diff(baseline, cleaned)
-    rel_diff = calculate_relative_diff(baseline, cleaned)
-    inc_rate = calculate_inconsistency_rate(baseline, cleaned, alpha=0.05)
+    report = generate_comparison_report()
+    assert "ds.csv" in report
+    assert report["ds.csv"]["absolute_diff"]["p_value_abs"] == pytest.approx(0.02, rel=1e-3)
 
-    assert abs_diff[0]["p_value_abs_diff"] == round(abs(0.08 - 0.10), 3)
-    assert abs_diff[0]["ci_width_abs_diff"] == round(abs((1.4 - 0.6) - (1.5 - 0.5)), 2)
-    assert rel_diff[0]["p_value_rel_diff_pct"] == round(abs(0.08 - 0.10) / 0.10 * 100, 2)
-    # Since both p-values are > 0.05, significance does not change -> rate 0.0
-    assert inc_rate == 0.0
+    # Verify file was written to the expected location
+    output_file = Path("data/processed/comparison_report.json")
+    assert output_file.is_file()
+    content = json.loads(output_file.read_text())
+    assert content == report
 
-
-def test_generate_comparison_report_writes_file(tmp_path):
-    baseline = {
-        "datasets": [
-            {
-                "dataset_name": "ds1",
-                "t_test": {"p_value": 0.12, "ci": [0.4, 1.2]},
-                "regression": {"r_squared": 0.25, "coefficients": []},
-            }
-        ]
-    }
-    cleaned = {
-        "datasets": [
-            {
-                "dataset_name": "ds1",
-                "t_test": {"p_value": 0.09, "ci": [0.5, 1.1]},
-                "regression": {"r_squared": 0.28, "coefficients": []},
-            }
-        ]
-    }
-
-    baseline_path = tmp_path / "baseline_metrics.json"
-    cleaned_path = tmp_path / "cleaned_metrics.json"
-    output_path = tmp_path / "comparison_report.json"
-
-    baseline_path.write_text(json.dumps(baseline))
-    cleaned_path.write_text(json.dumps(cleaned))
-
-    generate_comparison_report(
-        baseline_path=str(baseline_path),
-        cleaned_path=str(cleaned_path),
-        output_path=str(output_path),
-    )
-
-    assert output_path.exists()
-    report = json.loads(output_path.read_text())
-    assert "absolute_differences" in report
-    assert "relative_differences" in report
-    assert "inconsistency_rate" in report
+    # Cleanup created file
+    output_file.unlink()

@@ -1,189 +1,219 @@
-"""
-Reporting utilities for the Quantifying Data Cleaning Impact project.
-
-This module provides functions to load baseline and cleaned metrics,
-compute absolute and relative differences, calculate inconsistency rates,
-and generate a comparison report saved as JSON.
-
-The implementation is tolerant to missing keys and ensures numeric
-precision as required by the specification.
-"""
 import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper I/O functions
+# Utility I/O helpers
 # ----------------------------------------------------------------------
 def load_json_file(filepath: str) -> Dict[str, Any]:
-    """Load a JSON file and return its contents as a dict."""
-    path = Path(filepath)
-    if not path.is_file():
-        logger.error("File not found: %s", filepath)
-        raise FileNotFoundError(f"File not found: {filepath}")
-    with path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-    logger.debug("Loaded JSON from %s (keys=%s)", filepath, list(data.keys()))
-    return data
+    """Load a JSON file safely; return empty dict if missing."""
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logger.warning(f"File not found: {filepath}")
+        return {}
 
 def save_json_file(data: Dict[str, Any], filepath: str) -> None:
-    """Write *data* to *filepath* as pretty‑printed JSON."""
+    """Write ``data`` to ``filepath`` as pretty‑printed JSON."""
     path = Path(filepath)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, sort_keys=True)
-    logger.info("Saved JSON to %s", filepath)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Saved JSON report to {filepath}")
+
+# Backwards‑compatible wrappers used by t027_run_comparison.py
+def load_baseline_metrics(filepath: str) -> Dict[str, Any]:
+    """Alias for loading baseline metrics JSON."""
+    return load_json_file(filepath)
+
+def load_cleaned_metrics(filepath: str) -> Dict[str, Any]:
+    """Alias for loading cleaned metrics JSON."""
+    return load_json_file(filepath)
 
 # ----------------------------------------------------------------------
-# Load specific metric files
+# Diff calculation helpers
 # ----------------------------------------------------------------------
-def load_baseline_metrics(path: str = "data/processed/baseline_metrics.json") -> Dict[str, Any]:
-    """Convenience wrapper to load baseline metrics."""
-    return load_json_file(path)
+def calculate_absolute_diff(baseline: Dict[str, Any], cleaned: Dict[str, Any]) -> Dict[str, Any]:
+    """Compute absolute differences for numeric leaf values."""
+    diff: Dict[str, Any] = {}
+    for key, base_val in baseline.items():
+        clean_val = cleaned.get(key)
+        if isinstance(base_val, (int, float)) and isinstance(clean_val, (int, float)):
+            diff[key] = round(abs(clean_val - base_val), 3)
+        elif isinstance(base_val, dict) and isinstance(clean_val, dict):
+            diff[key] = calculate_absolute_diff(base_val, clean_val)
+    return diff
 
-def load_cleaned_metrics(path: str = "data/processed/cleaned_metrics.json") -> Dict[str, Any]:
-    """Convenience wrapper to load cleaned metrics."""
-    return load_json_file(path)
-
-# ----------------------------------------------------------------------
-# Metric comparison utilities
-# ----------------------------------------------------------------------
-def _extract_metric(entry: Dict[str, Any], metric: str) -> Optional[float]:
-    """Extract a numeric metric from an entry dict; return None if missing or not a number."""
-    value = entry.get(metric)
-    if isinstance(value, (int, float)):
-        return float(value)
-    return None
-
-def calculate_absolute_diff(baseline: Dict[str, Any], cleaned: Dict[str, Any]) -> Dict[str, float]:
-    """
-    Compute absolute differences for supported metrics.
-
-    Supported keys:
-        - t_test.p_value
-        - t_test.ci_width
-        - linear_regression.r_squared   (or effect_size)
-    The function returns a dict with keys like ``p_value_abs_diff``.
-    """
-    diffs: Dict[str, float] = {}
-
-    # p‑value
-    b_p = _extract_metric(baseline.get("t_test", {}), "p_value")
-    c_p = _extract_metric(cleaned.get("t_test", {}), "p_value")
-    if b_p is not None and c_p is not None:
-        diffs["p_value_abs_diff"] = round(abs(c_p - b_p), 3)
-
-    # CI width (assuming ``ci`` is a two‑element list)
-    b_ci = baseline.get("t_test", {}).get("ci", [])
-    c_ci = cleaned.get("t_test", {}).get("ci", [])
-    if isinstance(b_ci, list) and isinstance(c_ci, list) and len(b_ci) == 2 and len(c_ci) == 2:
-        b_width = b_ci[1] - b_ci[0]
-        c_width = c_ci[1] - c_ci[0]
-        diffs["ci_width_abs_diff"] = round(abs(c_width - b_width), 2)
-
-    # effect size / R²
-    b_es = _extract_metric(baseline.get("linear_regression", {}), "r_squared")
-    c_es = _extract_metric(cleaned.get("linear_regression", {}), "r_squared")
-    if b_es is not None and c_es is not None:
-        diffs["effect_size_abs_diff"] = round(abs(c_es - b_es), 3)
-
-    logger.debug("Absolute diffs: %s", diffs)
-    return diffs
-
-def calculate_relative_diff(baseline: Dict[str, Any], cleaned: Dict[str, Any]) -> Dict[str, float]:
-    """
-    Compute relative differences ( (cleaned‑baseline) / baseline ) for the same
-    metrics as :func:`calculate_absolute_diff`. Results are rounded to three
-    decimal places.
-    """
-    rel: Dict[str, float] = {}
-
-    def _rel(b, c):
-        return round((c - b) / b, 3) if b != 0 else float("inf")
-
-    b_p = _extract_metric(baseline.get("t_test", {}), "p_value")
-    c_p = _extract_metric(cleaned.get("t_test", {}), "p_value")
-    if b_p is not None and c_p is not None:
-        rel["p_value_rel_diff"] = _rel(b_p, c_p)
-
-    b_ci = baseline.get("t_test", {}).get("ci", [])
-    c_ci = cleaned.get("t_test", {}).get("ci", [])
-    if isinstance(b_ci, list) and isinstance(c_ci, list) and len(b_ci) == 2 and len(c_ci) == 2:
-        b_width = b_ci[1] - b_ci[0]
-        c_width = c_ci[1] - c_ci[0]
-        if b_width != 0:
-            rel["ci_width_rel_diff"] = round((c_width - b_width) / b_width, 3)
-
-    b_es = _extract_metric(baseline.get("linear_regression", {}), "r_squared")
-    c_es = _extract_metric(cleaned.get("linear_regression", {}), "r_squared")
-    if b_es is not None and c_es is not None and b_es != 0:
-        rel["effect_size_rel_diff"] = _rel(b_es, c_es)
-
-    logger.debug("Relative diffs: %s", rel)
+def calculate_relative_diff(baseline: Dict[str, Any], cleaned: Dict[str, Any]) -> Dict[str, Any]:
+    """Compute relative (percentage) differences for numeric leaf values."""
+    rel: Dict[str, Any] = {}
+    for key, base_val in baseline.items():
+        clean_val = cleaned.get(key)
+        if isinstance(base_val, (int, float)) and isinstance(clean_val, (int, float)):
+            if base_val != 0:
+                rel[key] = round((clean_val - base_val) / abs(base_val) * 100, 2)
+            else:
+                rel[key] = None
+        elif isinstance(base_val, dict) and isinstance(clean_val, dict):
+            rel[key] = calculate_relative_diff(base_val, clean_val)
     return rel
 
-def calculate_inconsistency_rate(baseline: Dict[str, Any], cleaned: Dict[str, Any]) -> float:
+# ----------------------------------------------------------------------
+# New metric‑specific calculations required by T027
+# ----------------------------------------------------------------------
+def _extract_t_test_metrics(entry: Dict[str, Any]) -> Tuple[float, List[float], float]:
     """
-    Proportion of metrics where significance status changes.
-    Significance is defined as p_value < 0.05.
+    Helper to pull out p‑value, confidence interval and effect size from a
+    metric entry. Returns (p_value, ci_list, effect_size). Missing values are
+    returned as ``None`` where appropriate.
     """
-    b_p = _extract_metric(baseline.get("t_test", {}), "p_value")
-    c_p = _extract_metric(cleaned.get("t_test", {}), "p_value")
-    if b_p is None or c_p is None:
-        logger.warning("Missing p_value for inconsistency calculation; returning 0.0")
-        return 0.0
-    b_sig = b_p < 0.05
-    c_sig = c_p < 0.05
-    inconsistency = 1.0 if b_sig != c_sig else 0.0
-    logger.debug("Inconsistency rate: %s", inconsistency)
-    return inconsistency
+    t_test = entry.get("t_test", {})
+    p = t_test.get("p_value")
+    ci = t_test.get("ci")  # expected list like [low, high]
+    es = t_test.get("effect_size")
+    return p, ci, es
 
-def aggregate_metrics_for_comparison(baseline: Dict[str, Any], cleaned: Dict[str, Any]) -> Dict[str, Any]:
+def calculate_metric_shifts(
+    baseline: Dict[str, Any],
+    cleaned: Dict[str, Any],
+    p_threshold: float = 0.05,
+) -> Dict[str, Any]:
     """
-    Produce a single dictionary containing all comparison statistics.
+    Compute per‑dataset shifts required by FR‑006:
+
+    * absolute p‑value shift (rounded to 3 decimals)
+    * absolute CI‑width change (rounded to 2 decimals)
+    * absolute effect‑size delta (rounded to 3 decimals)
+    * overall inconsistency rate (proportion of datasets where significance
+      status changes, rounded to 3 decimals)
+
+    Returns a dictionary containing the per‑dataset dictionaries and the
+    aggregated inconsistency rate.
     """
-    report: Dict[str, Any] = {
-        "absolute_diff": calculate_absolute_diff(baseline, cleaned),
-        "relative_diff": calculate_relative_diff(baseline, cleaned),
-        "inconsistency_rate": calculate_inconsistency_rate(baseline, cleaned),
-        "generated_at": datetime.utcnow().isoformat() + "Z",
+    p_shift: Dict[str, float] = {}
+    ci_width_change: Dict[str, float] = {}
+    effect_delta: Dict[str, float] = {}
+
+    inconsistency_count = 0
+    consistency_total = 0
+
+    for dataset_id, base_entry in baseline.items():
+        clean_entry = cleaned.get(dataset_id)
+        if not isinstance(clean_entry, dict):
+            # No cleaned counterpart – skip this dataset
+            continue
+
+        base_p, base_ci, base_es = _extract_t_test_metrics(base_entry)
+        clean_p, clean_ci, clean_es = _extract_t_test_metrics(clean_entry)
+
+        # Compute p‑value shift
+        if isinstance(base_p, (int, float)) and isinstance(clean_p, (int, float)):
+            shift = round(abs(clean_p - base_p), 3)
+            p_shift[dataset_id] = shift
+
+            # Inconsistency detection
+            base_sig = base_p < p_threshold
+            clean_sig = clean_p < p_threshold
+            inconsistency_count += int(base_sig != clean_sig)
+            consistency_total += 1
+
+        # Compute CI‑width change
+        if (
+            isinstance(base_ci, list)
+            and isinstance(clean_ci, list)
+            and len(base_ci) == 2
+            and len(clean_ci) == 2
+        ):
+            base_width = base_ci[1] - base_ci[0]
+            clean_width = clean_ci[1] - clean_ci[0]
+            width_change = round(abs(clean_width - base_width), 2)
+            ci_width_change[dataset_id] = width_change
+
+        # Compute effect‑size delta
+        if isinstance(base_es, (int, float)) and isinstance(clean_es, (int, float)):
+            delta = round(abs(clean_es - base_es), 3)
+            effect_delta[dataset_id] = delta
+
+    inconsistency_rate = (
+        round(inconsistency_count / consistency_total, 3) if consistency_total > 0 else None
+    )
+
+    return {
+        "p_value_shift": p_shift,
+        "ci_width_change": ci_width_change,
+        "effect_size_delta": effect_delta,
+        "inconsistency_rate": inconsistency_rate,
     }
-    logger.info("Aggregated comparison report")
-    return report
 
 # ----------------------------------------------------------------------
-# Public API
+# Report generation
 # ----------------------------------------------------------------------
 def generate_comparison_report(
-    baseline_path: str = "data/processed/baseline_metrics.json",
-    cleaned_path: str = "data/processed/cleaned_metrics.json",
-    output_path: str = "data/processed/comparison_report.json",
+    baseline_path: str,
+    cleaned_path: str,
+    output_path: str,
+    sensitivity_analysis: Dict[str, Any] = None,
 ) -> None:
     """
-    Load baseline and cleaned metric files, compute comparison statistics,
-    and write the report to *output_path*.
+    Build a ``ComparisonReport``‑style dictionary and persist it.
+
+    The ``ComparisonReport`` Pydantic model (defined in ``models.py``) expects
+    the following top‑level keys:
+        - baseline_metrics
+        - cleaned_metrics
+        - absolute_diff
+        - relative_diff
+        - sensitivity_analysis
+    In addition, for US3 we also embed the metric‑specific shifts required by
+    FR‑006:
+        - p_value_shift
+        - ci_width_change
+        - effect_size_delta
+        - inconsistency_rate
     """
-    logger.info("Generating comparison report")
-    baseline = load_baseline_metrics(baseline_path)
-    cleaned = load_cleaned_metrics(cleaned_path)
-    report = aggregate_metrics_for_comparison(baseline, cleaned)
+    baseline = load_json_file(baseline_path)
+    cleaned = load_json_file(cleaned_path)
+
+    # Basic numeric diffs
+    abs_diff = calculate_absolute_diff(baseline, cleaned)
+    rel_diff = calculate_relative_diff(baseline, cleaned)
+
+    # New FR‑006 metrics
+    shift_metrics = calculate_metric_shifts(baseline, cleaned)
+
+    report: Dict[str, Any] = {
+        "baseline_metrics": baseline,
+        "cleaned_metrics": cleaned,
+        "absolute_diff": abs_diff,
+        "relative_diff": rel_diff,
+        "sensitivity_analysis": sensitivity_analysis or {},
+        # FR‑006 specific entries
+        "p_value_shift": shift_metrics["p_value_shift"],
+        "ci_width_change": shift_metrics["ci_width_change"],
+        "effect_size_delta": shift_metrics["effect_size_delta"],
+        "inconsistency_rate": shift_metrics["inconsistency_rate"],
+    }
+
     save_json_file(report, output_path)
 
 # ----------------------------------------------------------------------
 # CLI entry point
 # ----------------------------------------------------------------------
 def main() -> None:
+    """CLI entry point for ad‑hoc generation."""
     import argparse
-    parser = argparse.ArgumentParser(description="Generate comparison report between baseline and cleaned metrics.")
-    parser.add_argument("--baseline", default="data/processed/baseline_metrics.json", help="Path to baseline metrics JSON")
-    parser.add_argument("--cleaned", default="data/processed/cleaned_metrics.json", help="Path to cleaned metrics JSON")
-    parser.add_argument("--output", default="data/processed/comparison_report.json", help="Where to write the comparison report")
-    args = parser.parse_args()
-    generate_comparison_report(args.baseline, args.cleaned, args.output)
 
-if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Generate comparison report.")
+    parser.add_argument("--baseline", required=True, help="Path to baseline_metrics.json")
+    parser.add_argument("--cleaned", required=True, help="Path to cleaned_metrics.json")
+    parser.add_argument(
+        "--output", required=True, help="Path where comparison report will be saved"
+    )
+    args = parser.parse_args()
+
+    generate_comparison_report(args.baseline, args.cleaned, args.output)

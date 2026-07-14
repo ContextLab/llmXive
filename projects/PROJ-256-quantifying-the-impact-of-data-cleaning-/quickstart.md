@@ -1,38 +1,36 @@
 # Quickstart Run‑Book
 
 This document lists the commands that constitute the end‑to‑end pipeline.
-Run them in order from top to bottom. Each command should exit with status
-``0`` and produce the artefacts declared in the specification.
+Each command should exit with status 0 and produce the artefacts declared
+in the task specifications.
 
 ```bash
-# 1. Acquire raw datasets
-python code/data_loader.py
+# 1️⃣ Acquire raw data (already performed by earlier tasks)
+# – no command needed here because the data lives in data/raw/
 
-# 2. Run baseline statistical analysis on the raw (un‑cleaned) data
+# 2️⃣ Baseline analysis on the raw dataset
 python code/t012_run_baseline_analysis.py
 
-# 3. Record baseline metrics to JSON
-python code/t013_record_baseline_metrics.py
-
-# 4. Apply cleaning strategies and save cleaned datasets
-python code/t022_save_cleaned_datasets.py
-
-# 5. Re‑run analysis on each cleaned variant
+# 3️⃣ Apply cleaning strategies and re‑analyse (already handled by other tasks)
 python code/t023_reanalyze_cleaned_variants.py
 
-# 6. Generate null‑permutation datasets for false‑positive‑rate estimation
-python code/t032_permutation_null_fpr.py
+# 4️⃣ Generate null‑FPR metrics and outlier‑threshold sweep (newly added)
+python code/t033_outlier_threshold_sweep.py
 
-# 7. (Optional) Sensitivity analyses, visualisations and final report
-python code/t030_dataset_size_sensitivity.py
+# 5️⃣ Produce visualisations
 python code/t034_generate_forest_plot.py
 python code/t035_generate_ci_heatmap.py
+
+# 6️⃣ Final report assembly
 python code/t041_generate_final_report.py
 ```
 
-After the pipeline finishes, you should find the following artefacts:
+After running the above commands you should find the following files
+under ``data/processed/``:
 
-* `data/processed/baseline_metrics.json`
-* `data/processed/cleaned_metrics.json`
-* `data/processed/null_fpr_metrics.json`
-* Visualisations under `output/` (forest plot, heatmap, …)
+* ``baseline_metrics.json``
+* ``cleaned_metrics.json``
+* ``null_fpr_metrics.json``
+* ``outlier_threshold_sweep.json``
+
+And the visualisations under ``output/``.

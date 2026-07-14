@@ -5,5 +5,7 @@ statsmodels
 scikit-learn
 matplotlib
 seaborn
+pytest
+# Additional utilities
 python-dotenv
-# existing dependencies from earlier phases are already present
+# End of requirements
