@@ -1,22 +1,37 @@
+"""
+Wrapper script that executes the baseline analysis and returns an exit code.
+"""
+
 import logging
 import sys
-from pathlib import Path
+
+from utils import setup_logging, pin_random_seed
 from analysis import run_baseline_analysis
 
-logger = logging.getLogger(__name__)
+logger = setup_logging("INFO")
+
 
 def main() -> int:
     """
-    Executes baseline analysis and writes the raw output JSON.
-    Returns 0 on success, non‑zero on failure.
+    Entry point for the baseline analysis step (T012).
+
+    Returns
+    -------
+    int
+        0 on success, non‑zero on failure.
     """
-    try:
-        # Use default arguments – the function handles defaults internally.
-        run_baseline_analysis()
-        return 0
-    except Exception as e:
-        logger.exception("Baseline analysis failed")
-        return 1
+    logger.info("Starting baseline analysis (T012).")
+    # Ensure reproducibility
+    pin_random_seed(42)
+
+    # Run the analysis; rely on defaults for paths
+    exit_code = run_baseline_analysis()
+    if exit_code == 0:
+        logger.info("Baseline analysis completed successfully.")
+    else:
+        logger.error("Baseline analysis failed.")
+    return exit_code
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -75,18 +75,18 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet%60
   verified_at: '2026-06-30T01:45:27.467581Z'
-- artifact_hash: 80d368390097815d3cd8c8038631e6f0d8decaae85aab7492bb7dae22afda98d
+- artifact_hash: bba40fc21191888636ad7e0664d5717a2e678e64dccb0028726c0b47f35a17de
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Catalogue of suspected variable stars - Wikidata
+  fetched_title: Logic - Wikipedia
   kind: url
-  value: https://www.wikidata.org/wiki/Q28914856
+  value: https://en.wikipedia.org/wiki/Logic
   verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q28914856
-  verified_at: '2026-07-14T22:41:35.470422Z'
-- artifact_hash: 80d368390097815d3cd8c8038631e6f0d8decaae85aab7492bb7dae22afda98d
+  verified_against_url: https://en.wikipedia.org/wiki/Logic
+  verified_at: '2026-07-14T23:51:26.248385Z'
+- artifact_hash: bba40fc21191888636ad7e0664d5717a2e678e64dccb0028726c0b47f35a17de
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -96,4 +96,15 @@
   value: https://www.wikidata.org/wiki/Q385989
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q385989
-  verified_at: '2026-07-14T22:41:35.470422Z'
+  verified_at: '2026-07-14T23:51:26.248385Z'
+- artifact_hash: bba40fc21191888636ad7e0664d5717a2e678e64dccb0028726c0b47f35a17de
+  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Canada - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q13265725
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q13265725
+  verified_at: '2026-07-14T23:51:26.248385Z'

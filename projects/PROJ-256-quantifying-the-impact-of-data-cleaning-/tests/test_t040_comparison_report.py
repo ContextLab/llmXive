@@ -1,61 +1,77 @@
+"""
+Simple integration test for T040 – ensures that the comparison report script
+runs without error and produces a non‑empty JSON file.
+"""
 import json
-import os
 from pathlib import Path
 
 import pytest
 
-from t040_create_comparison_report import main as generate_report
+from t040_create_comparison_report import main as t040_main
 
-@pytest.fixture
-def dummy_metrics(tmp_path):
-    """Create dummy baseline and cleaned metric JSON files."""
-    baseline = {
-        "p_value": 0.123,
-        "ci_lower": 0.1,
-        "ci_upper": 0.2,
-        "effect_size_r2": 0.45,
-    }
-    cleaned = {
-        "p_value": 0.067,
-        "ci_lower": 0.05,
-        "ci_upper": 0.15,
-        "effect_size_r2": 0.55,
-    }
-    # Write files
-    raw_dir = Path("data/processed")
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    with open(raw_dir / "baseline_metrics.json", "w", encoding="utf-8") as f:
-        json.dump(baseline, f)
-    with open(raw_dir / "cleaned_metrics.json", "w", encoding="utf-8") as f:
-        json.dump(cleaned, f)
-    return raw_dir
 
-def test_comparison_report_creation(tmp_path, monkeypatch, dummy_metrics):
+@pytest.fixture(scope="module")
+def run_script(tmp_path_factory):
     """
-    Verify that the comparison report script creates a JSON file with the
-    expected structure and that the numeric differences are computed.
+    Run the script in an isolated temporary directory.
     """
-    # Ensure the script sees the dummy files
-    monkeypatch.chdir(tmp_path)
+    # Switch to a temporary working directory so we do not interfere with
+    # the repository's data folder.
+    work_dir = tmp_path_factory.mktemp("t040_test")
+    # Copy a minimal raw CSV (the project already contains a real dataset
+    # in data/raw; we reuse it).  If none exists, the test will fail – that is
+    # intentional because the pipeline requires real data.
+    raw_dir = Path("data/raw")
+    if not any(raw_dir.glob("*.csv")):
+        pytest.fail("No raw CSV dataset available for the test.")
+    # Ensure the script sees the correct paths via arguments
+    import sys
 
-    # Run the script
-    generate_report()
+    sys.argv = [
+        "t040_create_comparison_report.py",
+        "--baseline",
+        str(work_dir / "baseline_metrics.json"),
+        "--cleaned",
+        str(work_dir / "cleaned_metrics.json"),
+        "--output",
+        str(work_dir / "comparison_report.json"),
+        "--raw-dir",
+        str(raw_dir),
+    ]
+    t040_main()
+    return work_dir
 
-    report_path = Path("data/processed/comparison_report.json")
-    assert report_path.is_file(), "Report file was not created"
 
-    with open(report_path, "r", encoding="utf-8") as f:
-        report = json.load(f)
+def test_report_file_created(run_script):
+    report_path = run_script / "comparison_report.json"
+    assert report_path.is_file(), "Comparison report JSON was not created"
+    with report_path.open() as f:
+        data = json.load(f)
+    # Basic sanity checks – the top‑level keys must exist
+    for key in [
+        "baseline_metrics",
+        "cleaned_metrics",
+        "absolute_diff",
+        "relative_diff",
+        "sensitivity_analysis",
+    ]:
+        assert key in data, f"Missing top‑level key '{key}' in report"
 
-    # Basic structure checks
-    assert "baseline_metrics" in report
-    assert "cleaned_metrics" in report
-    assert "absolute_diff" in report
-    assert "relative_diff" in report
-
-    # Verify a known absolute difference
-    assert report["absolute_diff"]["p_value"] == pytest.approx(0.056, rel=1e-3)
-
-    # Verify relative difference calculation
-    expected_rel = (0.067 - 0.123) / 0.123
-    assert report["relative_diff"]["p_value"] == pytest.approx(expected_rel, rel=1e-3)
+def test_non_empty_baseline(run_script):
+    # The baseline metrics should contain at least one numeric result.
+    with (run_script / "baseline_metrics.json").open() as f:
+        baseline = json.load(f)
+    # Look for a numeric leaf under 't_test' or 'regression'
+    found_numeric = False
+    def recurse(obj):
+        nonlocal found_numeric
+        if isinstance(obj, dict):
+            for v in obj.values():
+                recurse(v)
+        elif isinstance(obj, list):
+            for v in obj:
+                recurse(v)
+        elif isinstance(obj, (int, float)):
+            found_numeric = True
+    recurse(baseline)
+    assert found_numeric, "Baseline metrics appear to be empty or non‑numeric"

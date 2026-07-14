@@ -1,11 +1,12 @@
 pandas
 numpy
 scipy
-statsmodels
 scikit-learn
+statsmodels
 matplotlib
 seaborn
 pytest
-# Additional utilities
 python-dotenv
-# End of requirements
+pydantic
+tqdm
+# The above includes all packages referenced throughout the project.

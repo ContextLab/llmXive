@@ -276,24 +276,6 @@
   updated_at: '2026-07-14T19:52:47Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
-  canonical: apply_mean_imputation results in zero missing values in target columns
-  claim_id: c_c4be845a
-  context: Unit test verifies apply_mean_imputation results in zero missing values
-    in target columns.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address causal claim
-    source_url: https://en.wikipedia.org/wiki/Apply_mean_imputation_results_in_zero_missing_values_in_targ
-  kind: causal
-  raw_text: apply_mean_imputation results in zero missing values in target columns.
-  resolved_value: null
-  resolver: resolve_causal
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:52:48Z'
-- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
-  attempts: 1
   canonical: apply_median_imputation results in zero missing values in target columns
   claim_id: c_cf85d0fb
   context: Unit test verifies apply_median_imputation results in zero missing values
@@ -752,3 +734,455 @@
   source_type: external
   status: verified
   updated_at: '2026-07-14T22:40:42Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Verify {{claim:c_8d828dcf}}
+  claim_id: c_38195c23
+  context: 'Integration test in `tests/integration/test_cleaning.py`: Verify {{claim:c_8d828dcf}}
+    (Wikidata Q28914856, https://www.wikidata.org/wiki/Q28914856).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q4099686
+        url: https://www.wikidata.org/wiki/Q4099686
+        value: Q16695773
+      quote: 'P31: Wikimedia content project'
+      source_id: Q2013
+      url: https://www.wikidata.org/wiki/Q2013
+      value: Wikimedia content project
+    filled: true
+  kind: entity_fact
+  raw_text: Verify {{claim:c_8d828dcf}} (Wikidata Q28914856, https://www.wikidata.org/wiki/Q28914856)
+  resolved_value: Wikimedia content project
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T23:21:52Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: '{{claim:c_21de4332}}'
+  claim_id: c_664a9dfb
+  context: T025 [P] {{claim:c_21de4332}} (Wikidata Q385989, https://www.wikidata.org/wiki/Q385989).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P31: statistical procedure'
+      source_id: Q385989
+      url: https://www.wikidata.org/wiki/Q385989
+      value: statistical procedure
+    filled: true
+  kind: entity_fact
+  raw_text: '{{claim:c_21de4332}} (Wikidata Q385989, https://www.wikidata.org/wiki/Q385989)'
+  resolved_value: statistical procedure
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T23:22:16Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: '{{claim:c_38ed4c12}}'
+  claim_id: c_676fa5ef
+  context: 'T028 [US3] {{claim:c_38ed4c12}} **Requirement**: Log a warning: "Warning:
+    FR-007 requests FWER control. Benjamini-Hochberg controls FDR. Implemented Bonferroni
+    (FWER) to satisfy FR-007."'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q14624136
+        url: https://www.wikidata.org/wiki/Q14624136
+        value: '1471365'
+      - channel: wikidata
+        source_id: Q16
+        url: https://www.wikidata.org/wiki/Q16
+        value: Ottawa
+      quote: Canada
+      source_id: Q13265725
+      url: https://www.wikidata.org/wiki/Q13265725
+      value: Canada
+    filled: true
+  kind: entity_fact
+  raw_text: '{{claim:c_38ed4c12}}'
+  resolved_value: Canada
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T23:23:20Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: 'CPU-tractability: {{claim:c_1f71a93e}}'
+  claim_id: c_3bf95fb8
+  context: 'Notes section: **CPU-tractability**: {{claim:c_1f71a93e}}.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1416: Project 211'
+      source_id: Q5099853
+      url: https://www.wikidata.org/wiki/Q5099853
+      value: Project 211
+    filled: true
+  kind: entity_fact
+  raw_text: 'CPU-tractability: {{claim:c_1f71a93e}}'
+  resolved_value: Project 211
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T23:24:13Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: 'Dataset feasibility: {{claim:c_ab050fce}}'
+  claim_id: c_c70e8849
+  context: "Notes section: **Dataset feasibility**: {{claim:c_ab050fce}}; SC-006 (\u2265\
+    10 datasets) flagged for spec kickback."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P275: Q1224853'
+      source_id: Q66049091
+      url: https://www.wikidata.org/wiki/Q66049091
+      value: Q1224853
+    filled: true
+  kind: entity_fact
+  raw_text: 'Dataset feasibility: {{claim:c_ab050fce}}'
+  resolved_value: Q1224853
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T23:25:16Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: download_dataset returns HTTP 200 status and non-empty content for UCI
+    HAR URL
+  claim_id: c_3df12436
+  context: '- [X] T009 [P] [US1] Contract test in `tests/unit/test_acquisition.py`:
+    Verify `download_dataset` returns 200 status and non-empty content for UCI HAR
+    URL.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '`download_dataset` returns 200 status and non-empty content for UCI HAR
+    URL'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:28:37Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_mean_imputation results in zero missing values in target columns
+  claim_id: c_f1270e5f
+  context: '- [X] T015 [P] [US2] Unittest in `tests/unit/test_cleaning.py`: Verify
+    `apply_mean_imputation` results in zero missing values in target columns.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_mean_imputation_results_in_zero_missing_values_in_targ
+  kind: causal
+  raw_text: '`apply_mean_imputation` results in zero missing values in target columns'
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:28:38Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: download_dataset returns 200 status and non-empty content for UCI HAR
+    URL
+  claim_id: c_9492eff8
+  context: Contract test in tests/unit/test_acquisition.py verifies download_dataset
+    returns 200 status and non-empty content for UCI HAR URL.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: download_dataset returns 200 status and non-empty content for UCI HAR
+    URL.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:30:29Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline analysis script produces baseline_metrics.json with valid p-values
+    between 0 and 1 and finite confidence intervals
+  claim_id: c_5251a317
+  context: Integration test verifies baseline analysis script produces baseline_metrics.json
+    with valid p-values (0 < p < 1) and finite CIs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: baseline analysis script produces baseline_metrics.json with valid p-values
+    (0 < p < 1) and finite CIs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:31:19Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_iqr_outlier_removal removes rows where absolute z-score exceeds
+    k and logs count
+  claim_id: c_f8b16ede
+  context: Unit test verifies apply_iqr_outlier_removal removes rows where |z-score|
+    > k and logs count.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_iqr_outlier_removal_removes_rows_where_absolute_z-scor
+  kind: entity_fact
+  raw_text: apply_iqr_outlier_removal removes rows where |z-score| > k and logs count.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:33:20Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 2
+  canonical: apply_mean_imputation results in zero missing values in target columns
+  claim_id: c_c4be845a
+  context: Unit test verifies apply_mean_imputation results in zero missing values
+    in target columns.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_mean_imputation_results_in_zero_missing_values_in_targ
+  kind: causal
+  raw_text: apply_mean_imputation results in zero missing values in target columns.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:33:25Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: '{{claim:c_38195c23}}'
+  claim_id: c_907d2d34
+  context: 'Integration test in `tests/integration/test_cleaning.py`: {{claim:c_38195c23}}
+    (Wikidata Q2013, https://www.wikidata.org/wiki/Q2013)'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Logic has been studied since antiquity. Early approaches include Aristotelian
+        logic, Stoic logic, Nyaya, and Mohism. Aristotelian logic focuses on reasoning
+        in the form of syllogisms. It was considered the main system of logic in the
+        Western world until it was replaced by modern formal logic, which has its
+        roots in the work of late 19th-century mathematicians such as Gottlob Frege.
+        Today, the most commonly used system is classical logic. It consists of propositional
+        logic and first-order logic. Propositional logic only considers logical relations
+        between full propositions. First-order logic also takes the internal parts
+        of propositions into account, like predicates and quantifiers. Extended logics
+        accept the basic intuitions behind classical logic and apply it to other fields,
+        such as metaphysics, ethics, and epistemology, as frameworks for reasoning
+        about what is possible or necessary, what is or should be, and what is believed
+        or known. Deviant logics, on the other hand, reject certain classical intuitions
+        and provide alternative explanations of the basic laws of logic.
+      source_id: Logic
+      url: https://en.wikipedia.org/wiki/Logic
+      value: classical logic
+    filled: true
+  kind: entity_fact
+  raw_text: '{{claim:c_38195c23}}'
+  resolved_value: classical logic
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T23:36:57Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: '{{claim:c_664a9dfb}}'
+  claim_id: c_39247ff1
+  context: T025 [P] {{claim:c_664a9dfb}} (Wikidata Q385989, https://www.wikidata.org/wiki/Q385989)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/%7B%7Bclaim:c_664a9dfb%7D%7D
+  kind: entity_fact
+  raw_text: '{{claim:c_664a9dfb}}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:37:59Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: '{{claim:c_676fa5ef}}'
+  claim_id: c_18b7d988
+  context: 'T028 {{claim:c_676fa5ef}} (Wikidata Q13265725, https://www.wikidata.org/wiki/Q13265725)
+    **Requirement**: Log a warning: "Warning: FR-007 requests FWER control..."'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Logic has been studied since antiquity. Early approaches include Aristotelian
+        logic, Stoic logic, Nyaya, and Mohism. Aristotelian logic focuses on reasoning
+        in the form of syllogisms. It was considered the main system of logic in the
+        Western world until it was replaced by modern formal logic, which has its
+        roots in the work of late 19th-century mathematicians such as Gottlob Frege.
+        Today, the most commonly used system is classical logic. It consists of propositional
+        logic and first-order logic. Propositional logic only considers logical relations
+        between full propositions. First-order logic also takes the internal parts
+        of propositions into account, like predicates and quantifiers. Extended logics
+        accept the basic intuitions behind classical logic and apply it to other fields,
+        such as metaphysics, ethics, and epistemology, as frameworks for reasoning
+        about what is possible or necessary, what is or should be, and what is believed
+        or known. Deviant logics, on the other hand, reject certain classical intuitions
+        and provide alternative explanations of the basic laws of logic.
+      source_id: Logic
+      url: https://en.wikipedia.org/wiki/Logic
+      value: classical logic
+    filled: true
+  kind: entity_fact
+  raw_text: '{{claim:c_676fa5ef}}'
+  resolved_value: classical logic
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T23:38:22Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: '{{claim:c_1f71a93e}}'
+  claim_id: c_83ab98c3
+  context: '- **CPU-tractability**: {{claim:c_1f71a93e}}'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/%7B%7Bclaim:c_1f71a93e%7D%7D
+  kind: entity_fact
+  raw_text: '{{claim:c_1f71a93e}}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:39:31Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: '{{claim:c_ab050fce}}'
+  claim_id: c_40b6729a
+  context: "- **Dataset feasibility**: {{claim:c_ab050fce}}; SC-006 (\u226510 datasets)\
+    \ flagged for spec kickback - median/IQR tasks (T036-T038) now active with fallback\
+    \ logic..."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/%7B%7Bclaim:c_ab050fce%7D%7D
+  kind: entity_fact
+  raw_text: '{{claim:c_ab050fce}}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:41:03Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: download_dataset returns HTTP 200 status for UCI HAR URL
+  claim_id: c_4e14351e
+  context: 'Contract test in tests/unit/test_acquisition.py: Verify download_dataset
+    returns 200 status and non-empty content for UCI HAR URL.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: download_dataset returns 200 status and non-empty content for UCI HAR
+    URL.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:50:35Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline analysis script produces baseline_metrics.json with p-values
+    between 0 and 1 and finite confidence intervals
+  claim_id: c_90ec836d
+  context: 'Integration test in tests/integration/test_baseline.py: Verify baseline
+    analysis script produces baseline_metrics.json with valid p-values (0 < p < 1)
+    and finite CIs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: baseline analysis script produces baseline_metrics.json with valid p-values
+    (0 < p < 1) and finite confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:50:49Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_iqr_outlier_removal removes rows with absolute z-score greater
+    than k and logs the number of rows removed
+  claim_id: c_37b5f207
+  context: 'Unit test in tests/unit/test_cleaning.py: Verify apply_iqr_outlier_removal
+    removes rows where |z-score| > k and logs count.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_iqr_outlier_removal_removes_rows_with_absolute_z-score
+  kind: magnitude
+  raw_text: apply_iqr_outlier_removal removes rows where |z-score| > k and logs count.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:50:51Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_mean_imputation produces zero missing values in target columns
+  claim_id: c_a654601a
+  context: 'Unit test in tests/unit/test_cleaning.py: Verify apply_mean_imputation
+    results in zero missing values in target columns.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_mean_imputation_produces_zero_missing_values_in_target
+  kind: causal
+  raw_text: apply_mean_imputation results in zero missing values in target columns.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:50:52Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_knn_imputation results in zero missing values after imputation
+  claim_id: c_a13d059e
+  context: 'Unit test in tests/unit/test_cleaning.py: Verify apply_knn_imputation
+    validates zero missing values post-op.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_knn_imputation_results_in_zero_missing_values_after_im
+  kind: causal
+  raw_text: apply_knn_imputation validates zero missing values post-operation.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T23:50:54Z'

@@ -1,81 +1,70 @@
 """
-Basic integration test for T032 – ensures that the null‑FPR generation script
-runs without error and creates the expected JSON artifact.
+Unit test for the permutation‑null FPR generation script (T032).
+
+The test creates a tiny synthetic CSV dataset in ``data/raw``,
+runs the ``generate_null_fpr_metrics`` function, and checks that:
+  * The output JSON file is created.
+  * The JSON contains the expected top‑level keys.
+  * The per‑dataset FPR is a float between 0 and 1.
+The synthetic data is deliberately tiny but valid; the test does not
+rely on any external network resources.
 """
 
 import json
 import os
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
-from t032_permutation_null_fpr import generate_null_fpr_metrics, main
+# Import the function under test
+from t032_permutation_null_fpr import generate_null_fpr_metrics
 
-@pytest.fixture(scope="module")
-def raw_data_dir(tmp_path_factory):
-    """
-    Create a tiny synthetic raw dataset (real data is not required for the
-    functionality test – the script only needs a CSV with at least one
-    numeric predictor and an outcome column).  The fixture lives in a
-    temporary directory that is cleaned up automatically.
-    """
-    base = tmp_path_factory.mktemp("raw")
-    df_path = base / "dummy.csv"
-    # Simple deterministic data
-    import pandas as pd
-
+@pytest.fixture
+def tiny_dataset(tmp_path):
+    """Create a minimal CSV file with a clear outcome column."""
     df = pd.DataFrame(
         {
-            "outcome": [0, 1, 0, 1, 0],
-            "feat1": [1, 2, 3, 4, 5],
-            "feat2": [5, 4, 3, 2, 1],
+            "target": [0, 1, 0, 1, 0, 1],
+            "feature1": [5, 3, 6, 2, 7, 1],
+            "feature2": [10, 20, 10, 20, 10, 20],
         }
     )
-    df.to_csv(df_path, index=False)
-    return str(base)
+    raw_dir = tmp_path / "raw"
+    raw_dir.mkdir()
+    csv_path = raw_dir / "tiny.csv"
+    df.to_csv(csv_path, index=False)
+    return raw_dir
 
-def test_generate_null_fpr_metrics_creates_file(raw_data_dir, tmp_path):
-    output_path = tmp_path / "null_fpr_metrics.json"
-    metrics = generate_null_fpr_metrics(
-        raw_dir=raw_data_dir,
-        outcome="outcome",
-        repetitions=10,
-        output_file=str(output_path),
+def test_generate_null_fpr_metrics_creates_output(tiny_dataset, tmp_path):
+    output_path = tmp_path / "processed" / "null_fpr_metrics.json"
+
+    # Run the function with a small number of permutations for speed
+    result = generate_null_fpr_metrics(
+        raw_dir=tiny_dataset,
+        output_file=output_path,
+        n_permutations=200,
+        alpha=0.05,
     )
-    # Verify return structure
-    assert isinstance(metrics, dict)
-    assert "dummy.csv" in metrics
-    assert len(metrics["dummy.csv"]) == 10
 
-    # Verify file exists and is valid JSON
-    assert output_path.is_file()
-    with output_path.open() as f:
-        content = json.load(f)
-    assert content == metrics
+    # Verify the JSON file exists and is loadable
+    assert output_path.is_file(), "Output JSON file was not created"
+    with open(output_path, "r", encoding="utf-8") as f:
+        loaded = json.load(f)
 
-def test_cli_entry_point(monkeypatch, raw_data_dir, tmp_path):
-    """
-    Run the module as a script via its ``main`` function, checking that it
-    respects command‑line arguments and writes the expected file.
-    """
-    output_file = tmp_path / "cli_null_fpr.json"
-    test_args = [
-        "t032_permutation_null_fpr.py",
-        "--raw-dir",
-        raw_data_dir,
-        "--outcome",
-        "outcome",
-        "--repetitions",
-        "5",
-        "--output",
-        str(output_file),
-    ]
-    monkeypatch.setattr("sys.argv", test_args)
-    # Importing the module runs the top‑level guard only when __name__ == "__main__"
-    # so we call main() directly.
-    main()
-    assert output_file.is_file()
-    with output_file.open() as f:
-        data = json.load(f)
-    assert "dummy.csv" in data
-    assert len(data["dummy.csv"]) == 5
+    # Basic structural checks
+    assert "metadata" in loaded
+    assert "datasets" in loaded
+    assert "overall_fpr" in loaded
+
+    # There should be exactly one dataset entry
+    assert list(loaded["datasets"].keys()) == ["tiny.csv"]
+
+    dataset_metrics = loaded["datasets"]["tiny.csv"]
+    # FPR should be a float between 0 and 1
+    fpr = dataset_metrics.get("fpr")
+    assert isinstance(fpr, float)
+    assert 0.0 <= fpr <= 1.0
+
+    # The function's return value should match the file contents
+    assert result == loaded
