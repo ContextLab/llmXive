@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create project directories: `code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/processed/analysis/`, `logs/`
-- [ ] T001b Create `code/requirements.txt` with pinned versions: rkit, lightgbm, pandas, numpy, scikit-learn, shap, pyyaml, pytest, safety
-- [ ] T001c Create `.gitignore` excluding `data/raw/`, `data/processed/`, `logs/`, `*.pkl`, `__pycache__/`
+- [X] T001a Create project directories: `code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/processed/analysis/`, `logs/`
+- [X] T001b Create `code/requirements.txt` with pinned versions: rkit, lightgbm, pandas, numpy, scikit-learn, shap, pyyaml, pytest, safety
+- [X] T001c Create `.gitignore` excluding `data/raw/`, `data/processed/`, `logs/`, `*.pkl`, `__pycache__/`
 
 ---
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/utils/config.py` for global seeds (hardcoded), paths, and hyperparameter defaults (loadable from `code/config.yaml` to align with plan's `pyyaml` dependency). **Constraint**: Random seeds MUST be hardcoded in code for reproducibility; hyperparameters MAY be loaded from YAML.
-- [ ] T005 [P] Implement `code/utils/validators.py` with runtime assertions for 3D exclusion (no `EmbedMolecule`, `Get3DConformer`)
-- [ ] T006 [P] Setup `tests/contract/` schema validators for dataset and model output
-- [ ] T007 [P] Create base data loading utilities in `code/data/loader.py` with functions `load_batch(filepath, batch_size)` and `iterate_smiles(filepath)` yielding (smiles, target) tuples; include input validation for SMILES format.
-- [ ] T008 [P] Configure error handling and logging infrastructure in `code/utils/logging_config.py` using `RotatingFileHandler` for `logs/app.log` with JSON format and specific log level configuration.
+- [X] T004 [P] Implement `code/utils/config.py` for global seeds (hardcoded), paths, and hyperparameter defaults (loadable from `code/config.yaml` to align with plan's `pyyaml` dependency). **Constraint**: Random seeds MUST be hardcoded in code for reproducibility; hyperparameters MAY be loaded from YAML.
+- [X] T005 [P] Implement `code/utils/validators.py` with runtime assertions for 3D exclusion (no `EmbedMolecule`, `Get3DConformer`)
+- [X] T006 [P] Setup `tests/contract/` schema validators for dataset and model output
+- [X] T007 [P] Create base data loading utilities in `code/data/loader.py` with functions `load_batch(filepath, batch_size)` and `iterate_smiles(filepath)` yielding (smiles, target) tuples; include input validation for SMILES format.
+- [X] T008 [P] Configure error handling and logging infrastructure in `code/utils/logging_config.py` using `RotatingFileHandler` for `logs/app.log` with JSON format and specific log level configuration.
 - [ ] T007b [P] Create orchestration script `code/main.py` with entry point for the full pipeline to ensure file exists before T019.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -84,11 +84,11 @@
 
 - [ ] T013 [US1] Implement `code/data/download_qm9.py` to fetch QM9 from verified URL (Maxwell/Zenodo) with checksum validation and SMILES format validation.
 - [ ] T014 [US1] Implement `code/data/preprocess_2d.py` to compute 2D descriptors (rdkit.Descriptors) excluding TPSA, TPSA_E, and SMARTS patterns. **Include inline runtime assertions** to verify no 3D conformer generation functions are called during execution. **Note**: This task implements the core pipeline; see T015 for the spec-mandated target-correlation filter.
-- [ ] T015 [US1] Implement target-correlation filtering in `code/data/preprocess_2d.py` to exclude features with |r| > 0.85 correlation to the target dipole moment. **Conflict Note**: This task implements spec FR-001(c) which contradicts the current plan.md stance. The code must explicitly document this deviation from the plan to satisfy the spec's functional requirement.
-- [ ] T016 [US1] Implement NaN handling in `code/data/preprocess_2d.py` with deterministic logic: If >5% missing values in a column, drop the record; otherwise, impute with column median. Log the action taken.
-- [ ] T017 [US1] Implement batch processing logic in `code/data/preprocess_2d.py` to ensure <6GB RAM usage by processing `data/raw/` in chunks.
-- [ ] T018 [US1] Save processed feature matrix to `data/processed/descriptors.parquet`.
-- [ ] T019 [US1] Add runtime assertion in `code/main.py` to verify the orchestration pipeline executes without 3D calls and that `data/processed/descriptors.parquet` is valid before downstream tasks.
+- [~] T015 [US1] Implement target-correlation filtering in `code/data/preprocess_2d.py` to exclude features with |r| > 0.85 correlation to the target dipole moment. **Conflict Note**: This task implements spec FR-001(c) which contradicts the current plan.md stance. The code must explicitly document this deviation from the plan to satisfy the spec's functional requirement.
+- [~] T016 [US1] Implement NaN handling in `code/data/preprocess_2d.py` with deterministic logic: If >5% missing values in a column, drop the record; otherwise, impute with column median. Log the action taken.
+- [~] T017 [US1] Implement batch processing logic in `code/data/preprocess_2d.py` to ensure <6GB RAM usage by processing `data/raw/` in chunks.
+- [~] T018 [US1] Save processed feature matrix to `data/processed/descriptors.parquet`.
+- [~] T019 [US1] Add runtime assertion in `code/main.py` to verify the orchestration pipeline executes without 3D calls and that `data/processed/descriptors.parquet` is valid before downstream tasks.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,18 +102,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
-- [ ] T021 [P] [US2] Integration test for full training pipeline in `tests/integration/test_full_pipeline.py`
-- [ ] T028 [P] [US2] Unit test for 3D exclusion in training pipeline in `tests/unit/test_3d_exclusion_training.py` (asserts no 3D functions are called during training execution)
+- [~] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
+- [~] T021 [P] [US2] Integration test for full training pipeline in `tests/integration/test_full_pipeline.py`
+- [~] T028 [P] [US2] Unit test for 3D exclusion in training pipeline in `tests/unit/test_3d_exclusion_training.py` (asserts no 3D functions are called during training execution)
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/data/split_data.py` for standard random train/test split (no target stratification) using `data/processed/descriptors.parquet`.
-- [ ] T023 [US2] Implement `code/models/train_lightgbm.py` with LightGBM Regressor.
-- [ ] T024 [US2] Implement k-fold cross-validation loop in `code/models/train_lightgbm.py` for hyperparameter tuning.
-- [ ] T025 [US2] Implement logging of optimal parameters (`num_leaves`, `learning_rate`) to `code/config.yaml`.
-- [ ] T026 [US2] Train final model on full training set and save to `data/processed/model.pkl`.
-- [ ] T027 [US2] Implement `code/models/evaluate.py` to compute R², RMSE, and compare against null model (R²=0).
+- [~] T022 [US2] Implement `code/data/split_data.py` for standard random train/test split (no target stratification) using `data/processed/descriptors.parquet`.
+- [~] T023 [US2] Implement `code/models/train_lightgbm.py` with LightGBM Regressor.
+- [~] T024 [US2] Implement k-fold cross-validation loop in `code/models/train_lightgbm.py` for hyperparameter tuning.
+- [~] T025 [US2] Implement logging of optimal parameters (`num_leaves`, `learning_rate`) to `code/config.yaml`.
+- [~] T026 [US2] Train final model on full training set and save to `data/processed/model.pkl`.
+- [~] T027 [US2] Implement `code/models/evaluate.py` to compute R², RMSE, and compare against null model (R²=0).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,14 +127,14 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Unit test for SHAP stability calculation in `tests/unit/test_shap_stability.py`
-- [ ] T030 [P] [US3] Unit test for VIF clustering logic in `tests/unit/test_vif_clustering.py`
+- [~] T029 [P] [US3] Unit test for SHAP stability calculation in `tests/unit/test_shap_stability.py`
+- [~] T030 [P] [US3] Unit test for VIF clustering logic in `tests/unit/test_vif_clustering.py`
 
 ### Implementation for User Story 3
 
-- [ ] T031a [US3] Implement `code/data/feature_clustering.py` to compute VIF and group correlated features (|r| > 0.8) into clusters for DIAGNOSTIC PURPOSES ONLY. **NO features are removed** based on VIF thresholds (per plan.md FR-007).
-- [ ] T031b [US3] Implement `code/data/feature_clustering.py` iterative VIF-based feature removal loop (remove feature with highest VIF if VIF > 5.0 until all VIF ≤ 5.0). **Conflict Note**: This task implements spec FR-007 which contradicts the plan.md FR-007 "diagnostic only" stance. The code must explicitly document this deviation to satisfy the spec's functional requirement.
-- [ ] T032 [US3] Implement `code/models/interpret.py` with Cluster-Aware SHAP analysis using `data/processed/descriptors.parquet` and `data/processed/model.pkl`.
+- [~] T031a [US3] Implement `code/data/feature_clustering.py` to compute VIF and group correlated features (|r| > 0.8) into clusters for DIAGNOSTIC PURPOSES ONLY. **NO features are removed** based on VIF thresholds (per plan.md FR-007).
+- [~] T031b [US3] Implement `code/data/feature_clustering.py` iterative VIF-based feature removal loop (remove feature with highest VIF if VIF > 5.0 until all VIF ≤ 5.0). **Conflict Note**: This task implements spec FR-007 which contradicts the plan.md FR-007 "diagnostic only" stance. The code must explicitly document this deviation to satisfy the spec's functional requirement.
+- [~] T032 [US3] Implement `code/models/interpret.py` with Cluster-Aware SHAP analysis using `data/processed/descriptors.parquet` and `data/processed/model.pkl`.
 - [ ] T033a [US3] Implement two-stage bootstrap in `code/models/interpret.py` (SHAP-only resampling as per plan.md Complexity Tracking): resample SHAP values without re-training.
 - [ ] T033b [US3] Implement full dataset bootstrapping in `code/models/interpret.py` (resample dataset multiple times, re-train model, compute SHAP) to verify feature-set stability as per spec FR-005. **Conflict Note**: This task implements spec FR-005 which contradicts the plan.md "SHAP-only" approach.
 - [ ] T034a [US3] Calculate Jaccard similarity of top feature clusters across multiple bootstrap resamples (from T033a/T033b).
@@ -174,8 +174,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -242,9 +242,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

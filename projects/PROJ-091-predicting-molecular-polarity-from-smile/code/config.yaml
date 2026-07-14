@@ -1,0 +1,25 @@
+# Hyperparameter Configuration for Molecular Polarity Prediction
+# This file allows overriding default hyperparameters.
+# NOTE: Random seeds defined here will be IGNORED by code/utils/config.py
+# to ensure reproducibility. Seeds are hardcoded in the Python module.
+
+model:
+  n_estimators: 1500
+  learning_rate: 0.03
+  num_leaves: 63
+  max_depth: -1
+  subsample: 0.9
+  colsample_bytree: 0.9
+  reg_alpha: 0.1
+  reg_lambda: 1.5
+  verbose: -1
+  n_jobs: -1
+
+preprocessing:
+  nan_threshold_drop: 0.05
+  nan_strategy: median
+  correlation_threshold: 0.85
+
+training:
+  test_size: 0.2
+  cv_folds: 5

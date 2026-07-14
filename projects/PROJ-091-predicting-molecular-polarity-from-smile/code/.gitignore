@@ -1,0 +1,35 @@
+# Data directories
+data/raw/
+data/processed/
+logs/
+
+# Pickle files
+*.pkl
+
+# Python cache
+__pycache__/
+*.py[cod]
+$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints
+
+# Testing
+.pytest_cache/
+coverage.xml
+htmlcov/
