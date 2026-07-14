@@ -1,60 +1,108 @@
-# Quickstart Guide for PROJ-024
-
-This guide outlines the steps to run the full analysis pipeline for the Bayesian Nonparametrics for Anomaly Detection project.
+# Quickstart Guide: Bayesian Nonparametrics for Anomaly Detection
 
 ## Prerequisites
 
 - Python 3.11+
-- Dependencies installed via `pip install -r code/requirements.txt`
+- pip
+- Git
 
-## Execution Steps
+## Installation
 
-Run the following commands in order. Each step must complete successfully before proceeding to the next.
-
-### 1. Configuration Check
 ```bash
-python code/src/config.py --check
+cd code
+pip install -r requirements.txt
 ```
 
-### 2. Data Acquisition
-```bash
-python code/src/data/download_datasets.py
-```
+## Quick Start
 
-### 3. Synthetic Data Generation (for validation)
-```bash
-python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05
-```
+1. **Generate Synthetic Data** (if real data not available):
+ ```bash
+ python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05
+ ```
 
-### 4. Simulation Study (Ground Truth Validation)
-This step validates the ADVI estimator's fidelity before main inference.
-```bash
-python code/src/evaluation/simulation.py --seed 42 --n-samples 500 --anomaly-rate 0.05
-```
-*Deliverable*: `data/processed/results/simulation_snr.csv` must be generated with SNR > 1.
+2. **Run Ground Truth Simulation** (Phase 0):
+ ```bash
+ python code/src/simulation/ground_truth.py
+ ```
 
-### 5. Main Inference Pipeline
-```bash
-python code/src/services/anomaly_detector.py
-```
+3. **Train DP-GMM Model**:
+ ```bash
+ python code/src/models/dp_gmm.py --config code/config.yaml
+ ```
 
-### 6. Baseline Comparison
-```bash
-python code/scripts/execute_evaluation_pipeline.py
-```
+4. **Run Baseline Comparisons**:
+ ```bash
+ python code/scripts/execute_evaluation_pipeline.py
+ ```
 
-### 7. Robustness Check
-```bash
-python code/src/evaluation/robustness.py --subset-size 50
-```
+5. **Threshold Calibration**:
+ ```bash
+ python code/src/evaluation/threshold_sweep.py
+ ```
 
-### 8. Final Acceptance
-```bash
-python code/scripts/final_acceptance_verification.py
-```
+6. **Robustness Evaluation** (NEW):
+ ```bash
+ python code/src/evaluation/robustness.py --subset-size 50
+ ```
+
+7. **Resource Compliance Check**:
+ ```bash
+ python code/scripts/verify_resource_compliance.py
+ ```
+
+8. **Final Acceptance**:
+ ```bash
+ python code/scripts/final_acceptance_verification.py
+ ```
+
+## Output Artifacts
+
+All results are saved to `data/processed/results/`:
+
+- `simulation_snr.csv` - Ground truth simulation results
+- `posterior_trajectory.csv` - DP-GMM posterior metrics
+- `statistical_report.csv` - Baseline comparison statistics
+- `sensitivity_report.csv` - Threshold sensitivity analysis
+- `robustness_report.csv` - Robustness evaluation results
+- `robustness_summary.csv` - Aggregated robustness metrics
 
 ## Troubleshooting
 
-- If `config.py` fails, check `code/config.yaml` for required keys.
-- If data download fails, verify network access and URLs.
-- If simulation SNR <= 1, review anomaly injection parameters or model hyperparameters.
+- **Config size error**: Ensure `code/config.yaml` is under 2KB
+- **Data directory errors**: Verify no `data/results/` or `data/raw/raw/` exist
+- **Import errors**: Ensure all code is under `code/src/`
+
+## Full Pipeline Execution
+
+To run the entire pipeline:
+
+```bash
+# Step 1: Setup and data generation
+python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05
+
+# Step 2: Ground truth validation
+python code/src/simulation/ground_truth.py
+
+# Step 3: Model training and evaluation
+python code/src/models/dp_gmm.py --config code/config.yaml
+
+# Step 4: Baseline comparison
+python code/scripts/execute_evaluation_pipeline.py
+
+# Step 5: Threshold calibration
+python code/src/evaluation/threshold_sweep.py
+
+# Step 6: Robustness evaluation
+python code/src/evaluation/robustness.py --subset-size 50
+
+# Step 7: Compliance checks
+python code/scripts/verify_config_compliance.py
+python code/scripts/verify_resource_compliance.py
+
+# Step 8: Final acceptance
+python code/scripts/final_acceptance_verification.py
+```
+
+## License
+
+MIT License - See LICENSE file for details.

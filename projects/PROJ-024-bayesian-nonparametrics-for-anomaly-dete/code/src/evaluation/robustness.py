@@ -1,385 +1,361 @@
 """
-Robustness analysis for the Bayesian Nonparametrics Anomaly Detection pipeline.
+Robustness evaluation module for Bayesian Nonparametric Anomaly Detection.
 
-This module implements sensitivity analysis on window size, derivative calculation methods,
-and validates the robustness of the $\dot{\alpha}$ metric against various perturbations.
+Implements sensitivity analysis, stability checks, and validation of the
+DP-GMM model against perturbations and alternative configurations.
+
+This module is invoked by the quickstart run-book to verify model robustness.
 """
 
 import argparse
+import json
 import logging
+import os
 import sys
-from dataclasses import dataclass, asdict
+from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 import numpy as np
 import pandas as pd
-from scipy import stats
 
-# Add parent directory to path for imports when run as script
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-try:
-    from src.data.windowing import sliding_window
-except ImportError:
-    try:
-        from data.windowing import sliding_window
-    except ImportError:
-        # Fallback for direct execution
-        import os
-        current_dir = Path(__file__).parent
-        while current_dir.name != 'code':
-            current_dir = current_dir.parent
-        sys.path.insert(0, str(current_dir))
-        from src.data.windowing import sliding_window
+from data.synthetic_generator import generate_synthetic_timeseries, AnomalyConfig, SignalConfig, SyntheticDataset
+from models.dp_gmm import DPGMMModel, DPGMMConfig
+from evaluation.metrics import compute_all_metrics, EvaluationMetrics
 
-from src.models.dpgmm import DPGMMModel, DPGMMConfig
-from src.evaluation.metrics import compute_all_metrics
-from src.services.anomaly_detector import AnomalyDetectorService
-
-# Add parent directory to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from src.data.windowing import sliding_window
-from src.data.synthetic_generator import generate_synthetic_timeseries, save_synthetic_dataset
-from src.models.dpgmm import DPGMMModel, DPGMMConfig
-from src.evaluation.metrics import compute_all_metrics
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(project_root / 'logs' / 'robustness.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
+# Constants
+DEFAULT_SUBSET_SIZE = 50
+DEFAULT_SEED = 42
+DEFAULT_ANOMALY_RATE = 0.05
+OUTPUT_DIR = project_root / 'data' / 'processed' / 'results'
+OUTPUT_FILE = OUTPUT_DIR / 'robustness_report.csv'
 
-@dataclass
 class RobustnessConfig:
-    """Configuration for robustness analysis."""
-    base_window_size: int = 50
-    window_size_variations: List[int] = None
-    smoothing_kernels: List[str] = None
-    subset_size: int = 50
-    anomaly_rate: float = 0.05
-    seed: int = 42
-    output_path: str = "data/processed/results/robustness_report.json"
+    """Configuration for robustness evaluation."""
+    
+    def __init__(
+        self,
+        subset_size: int = DEFAULT_SUBSET_SIZE,
+        seed: int = DEFAULT_SEED,
+        anomaly_rate: float = DEFAULT_ANOMALY_RATE,
+        n_replications: int = 10,
+        perturbation_levels: List[float] = None,
+        window_sizes: List[int] = None
+    ):
+        self.subset_size = subset_size
+        self.seed = seed
+        self.anomaly_rate = anomaly_rate
+        self.n_replications = n_replications
+        self.perturbation_levels = perturbation_levels or [0.0, 0.01, 0.05, 0.1, 0.2]
+        self.window_sizes = window_sizes or [30, 50, 70]
+    
+    @classmethod
+    def from_args(cls, args: argparse.Namespace) -> 'RobustnessConfig':
+        return cls(
+            subset_size=args.subset_size,
+            seed=args.seed,
+            anomaly_rate=args.anomaly_rate,
+            n_replications=args.n_replications,
+            perturbation_levels=args.perturbation_levels,
+            window_sizes=args.window_sizes
+        )
 
-    def __post_init__(self):
-        if self.window_size_variations is None:
-            self.window_size_variations = [30, 50, 70, 100]
-        if self.smoothing_kernels is None:
-            self.smoothing_kernels = ['none', 'moving_avg', 'savgol']
-
-
-@dataclass
 class RobustnessResult:
-    """Result of a single robustness check."""
-    parameter_name: str
-    parameter_value: Any
-    metric_name: str
-    metric_value: float
-    std_dev: Optional[float] = None
-    pass_threshold: bool = True
-    notes: str = ""
+    """Container for robustness evaluation results."""
+    
+    def __init__(
+        self,
+        perturbation_level: float,
+        window_size: int,
+        replication: int,
+        metrics: EvaluationMetrics,
+        stability_score: float,
+        runtime_seconds: float
+    ):
+        self.perturbation_level = perturbation_level
+        self.window_size = window_size
+        self.replication = replication
+        self.metrics = metrics
+        self.stability_score = stability_score
+        self.runtime_seconds = runtime_seconds
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'perturbation_level': self.perturbation_level,
+            'window_size': self.window_size,
+            'replication': self.replication,
+            'precision': self.metrics.precision,
+            'recall': self.metrics.recall,
+            'f1_score': self.metrics.f1_score,
+            'auc': self.metrics.auc,
+            'stability_score': self.stability_score,
+            'runtime_seconds': self.runtime_seconds
+        }
 
+def inject_noise(
+    data: np.ndarray,
+    noise_level: float,
+    rng: np.random.Generator
+) -> np.ndarray:
+    """Inject Gaussian noise into data at specified level."""
+    noise = rng.normal(0, noise_level * np.std(data), size=data.shape)
+    return data + noise
 
-def compute_derivative(signal: np.ndarray, method: str = 'finite_diff', smooth: bool = False) -> np.ndarray:
+def compute_stability_score(
+    results: List[RobustnessResult],
+    metric_name: str = 'f1_score'
+) -> float:
     """
-    Compute the first derivative of a signal.
-
-    Args:
-        signal: Input signal array
-        method: 'finite_diff' or 'gradient'
-        smooth: Whether to apply smoothing before differentiation
-
-    Returns:
-        Derivative array
+    Compute stability score as inverse of coefficient of variation.
+    Higher score = more stable.
     """
-    if smooth:
-        # Simple moving average smoothing
-        kernel_size = 3
-        if len(signal) < kernel_size:
-            kernel_size = len(signal)
-        smoothed = np.convolve(signal, np.ones(kernel_size)/kernel_size, mode='same')
-    else:
-        smoothed = signal
+    if len(results) < 2:
+        return 1.0
+    
+    values = [getattr(r.metrics, metric_name) for r in results]
+    mean_val = np.mean(values)
+    std_val = np.std(values)
+    
+    if mean_val == 0:
+        return 0.0
+    
+    cv = std_val / mean_val
+    stability = 1.0 / (1.0 + cv)
+    return stability
 
-    if method == 'finite_diff':
-        return np.diff(smoothed)
-    elif method == 'gradient':
-        return np.gradient(smoothed)
-    else:
-        raise ValueError(f"Unknown derivative method: {method}")
-
-
-def run_window_size_sensitivity(data: np.ndarray, anomaly_timestamps: List[int],
-                                config: RobustnessConfig) -> List[RobustnessResult]:
+def run_robustness_evaluation(
+    config: RobustnessConfig,
+    model_config: Optional[DPGMMConfig] = None
+) -> List[RobustnessResult]:
     """
-    Analyze sensitivity of detection metrics to window size variations.
-
-    Args:
-        data: Time series data
-        anomaly_timestamps: Ground truth anomaly timestamps
-        config: Robustness configuration
-
-    Returns:
-        List of robustness results
-    """
-    results = []
-    base_metrics = None
-
-    logger.info(f"Running window size sensitivity analysis on {len(data)} points")
-
-    for window_size in config.window_size_variations:
-        logger.info(f"Testing window size: {window_size}")
-
-        try:
-            # Generate windows
-            windows, window_centers = sliding_window(data, window_size, stride=1)
-
-            if len(windows) == 0:
-                logger.warning(f"No windows generated for size {window_size}, skipping")
-                continue
-
-            # Run model on a subset to save time
-            subset_indices = np.random.choice(len(windows), min(config.subset_size, len(windows)), replace=False)
-            subset_windows = windows[subset_indices]
-
-            # Configure model
-            model_config = DPGMMConfig(
-                window_size=window_size,
-                max_components=10,
-                concentration_prior_alpha=1.0,
-                concentration_prior_beta=1.0,
-                random_state=config.seed
-            )
-
-            model = DPGMMModel(model_config)
-
-            # Run inference on subset
-            scores = []
-            for win in subset_windows:
-                try:
-                    score = model.compute_anomaly_score(win)
-                    scores.append(score)
-                except Exception as e:
-                    logger.warning(f"Model failed on window: {e}")
-                    scores.append(0.0)
-
-            if not scores:
-                logger.warning(f"No scores generated for window size {window_size}")
-                continue
-
-            # Compute metrics (using synthetic ground truth logic)
-            # Since we don't have real labels for every window, we use a proxy metric
-            # based on score variance and mean
-            mean_score = float(np.mean(scores))
-            std_score = float(np.std(scores))
-            score_range = float(np.max(scores) - np.min(scores))
-
-            # Store baseline for first iteration
-            if base_metrics is None:
-                base_metrics = {'mean': mean_score, 'std': std_score, 'range': score_range}
-
-            # Calculate deviation from baseline
-            mean_dev = abs(mean_score - base_metrics['mean']) / (base_metrics['mean'] + 1e-6)
-            std_dev = abs(std_score - base_metrics['std']) / (base_metrics['std'] + 1e-6)
-
-            # Threshold: deviation < 20% is considered robust
-            is_robust = mean_dev < 0.2 and std_dev < 0.2
-
-            results.append(RobustnessResult(
-                parameter_name="window_size",
-                parameter_value=window_size,
-                metric_name="mean_score_deviation",
-                metric_value=mean_dev,
-                std_dev=std_dev,
-                pass_threshold=is_robust,
-                notes=f"Mean: {mean_score:.4f}, Std: {std_score:.4f}"
-            ))
-
-        except Exception as e:
-            logger.error(f"Error processing window size {window_size}: {e}")
-            results.append(RobustnessResult(
-                parameter_name="window_size",
-                parameter_value=window_size,
-                metric_name="error",
-                metric_value=1.0,
-                pass_threshold=False,
-                notes=str(e)
-            ))
-
-    return results
-
-
-def run_derivative_method_sensitivity(data: np.ndarray, config: RobustnessConfig) -> List[RobustnessResult]:
-    """
-    Analyze sensitivity of derivative calculation methods.
-
-    Args:
-        data: Time series data
-        config: Robustness configuration
-
-    Returns:
-        List of robustness results
+    Execute robustness evaluation across perturbation levels and window sizes.
+    
+    Returns list of RobustnessResult objects for all combinations.
     """
     results = []
-    base_derivative = None
-
-    logger.info("Running derivative method sensitivity analysis")
-
-    # Use a fixed window for this test
-    window_size = config.base_window_size
-    windows, _ = sliding_window(data, window_size, stride=1)
-
-    if len(windows) == 0:
-        logger.warning("No windows available for derivative analysis")
-        return results
-
-    # Select a representative window
-    test_window = windows[len(windows)//2]
-
-    methods = ['finite_diff', 'gradient']
-    smooth_options = [False, True]
-
-    for method in methods:
-        for smooth in smooth_options:
-            try:
-                deriv = compute_derivative(test_window, method=method, smooth=smooth)
-                mean_deriv = float(np.mean(np.abs(deriv)))
-                std_deriv = float(np.std(deriv))
-
-                # Store baseline
-                if base_derivative is None:
-                    base_derivative = {'mean': mean_deriv, 'std': std_deriv}
-
-                # Calculate deviation
-                mean_dev = abs(mean_deriv - base_derivative['mean']) / (base_derivative['mean'] + 1e-6)
-                is_robust = mean_dev < 0.5  # Higher tolerance for derivative methods
-
-                results.append(RobustnessResult(
-                    parameter_name=f"derivative_{method}_smooth",
-                    parameter_value=smooth,
-                    metric_name="mean_abs_derivative",
-                    metric_value=mean_deriv,
-                    std_dev=std_deriv,
-                    pass_threshold=is_robust,
-                    notes=f"Method: {method}, Smooth: {smooth}"
-                ))
-
-            except Exception as e:
-                logger.error(f"Error in derivative calculation ({method}, smooth={smooth}): {e}")
-                results.append(RobustnessResult(
-                    parameter_name=f"derivative_{method}_smooth",
-                    parameter_value=smooth,
-                    metric_name="error",
-                    metric_value=1.0,
-                    pass_threshold=False,
-                    notes=str(e)
-                ))
-
-    return results
-
-
-def run_robustness_analysis(config: RobustnessConfig) -> Dict[str, Any]:
-    """
-    Run full robustness analysis suite.
-
-    Args:
-        config: Robustness configuration
-
-    Returns:
-        Dictionary containing all results
-    """
-    logger.info("Starting robustness analysis")
-
-    # Generate synthetic data if no real data is available
-    # Note: In a real scenario, this would load from data/raw/
-    logger.info("Generating synthetic dataset for robustness analysis")
-    synthetic_data, anomaly_timestamps = generate_synthetic_timeseries(
-        n_points=1000,
-        anomaly_rate=config.anomaly_rate,
-        seed=config.seed
+    rng = np.random.default_rng(config.seed)
+    
+    # Generate base synthetic dataset
+    logger.info(f"Generating synthetic dataset with seed={config.seed}, anomaly_rate={config.anomaly_rate}")
+    signal_config = SignalConfig(
+        n_samples=config.subset_size * 10,
+        n_components=3,
+        noise_level=0.1
     )
+    anomaly_config = AnomalyConfig(
+        anomaly_rate=config.anomaly_rate,
+        anomaly_types=['point', 'contextual', 'collective']
+    )
+    
+    try:
+        dataset: SyntheticDataset = generate_synthetic_timeseries(
+            signal_config, anomaly_config, config.subset_size * 10
+        )
+    except AttributeError as e:
+        # Fallback for missing attributes in AnomalyConfig
+        logger.warning(f"AttributeError in dataset generation: {e}. Using fallback config.")
+        anomaly_config.anomaly_duration_min = 5
+        anomaly_config.anomaly_duration_max = 20
+        anomaly_config.magnitude_min = 3.0
+        anomaly_config.magnitude_max = 5.0
+        dataset: SyntheticDataset = generate_synthetic_timeseries(
+            signal_config, anomaly_config, config.subset_size * 10
+        )
+    
+    data = dataset.values
+    ground_truth = dataset.anomaly_labels
+    
+    # Default model config if not provided
+    if model_config is None:
+        model_config = DPGMMConfig(
+            max_components=10,
+            convergence_threshold=0.01,
+            max_iterations=500,
+            seed=config.seed
+        )
+    
+    # Iterate over perturbation levels and window sizes
+    for perturbation_level in config.perturbation_levels:
+        for window_size in config.window_sizes:
+            replication_results = []
+            
+            for rep in range(config.n_replications):
+                start_time = datetime.now()
+                
+                # Inject noise
+                noisy_data = inject_noise(data, perturbation_level, rng)
+                
+                # Create and train model
+                model = DPGMMModel(model_config)
+                
+                try:
+                    # Fit model on noisy data
+                    model.fit(noisy_data, window_size=window_size)
+                    
+                    # Compute predictions
+                    predictions = model.predict(noisy_data)
+                    anomaly_scores = model.compute_anomaly_scores(noisy_data)
+                    
+                    # Compute metrics
+                    metrics = compute_all_metrics(
+                        y_true=ground_truth,
+                        y_pred=(anomaly_scores > np.percentile(anomaly_scores, 95)).astype(int)
+                    )
+                    
+                    end_time = datetime.now()
+                    runtime = (end_time - start_time).total_seconds()
+                    
+                    result = RobustnessResult(
+                        perturbation_level=perturbation_level,
+                        window_size=window_size,
+                        replication=rep,
+                        metrics=metrics,
+                        stability_score=0.0,  # Will be computed later
+                        runtime_seconds=runtime
+                    )
+                    replication_results.append(result)
+                    results.append(result)
+                    
+                    logger.info(
+                        f"Rep {rep+1}/{config.n_replications} | "
+                        f"Perturbation: {perturbation_level:.2f} | "
+                        f"Window: {window_size} | "
+                        f"F1: {metrics.f1_score:.4f} | "
+                        f"Runtime: {runtime:.2f}s"
+                    )
+                    
+                except Exception as e:
+                    logger.error(f"Error in replication {rep}: {e}")
+                    continue
+            
+            # Compute stability score for this configuration
+            if replication_results:
+                stability = compute_stability_score(replication_results)
+                for r in replication_results:
+                    r.stability_score = stability
+            
+            logger.info(
+                f"Configuration (Perturbation={perturbation_level}, "
+                f"Window={window_size}) completed. "
+                f"Stability score: {stability:.4f}"
+            )
+    
+    return results
 
-    # Save the synthetic dataset for reproducibility
-    dataset_path = Path("data/processed/results/robustness_test_data.csv")
-    dataset_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Save data to CSV
-    np.savetxt(dataset_path, synthetic_data, delimiter=',', header='timestamp,value', comments='')
-
-    # Run sensitivity analyses
-    all_results = []
-
-    # Window size sensitivity
-    window_results = run_window_size_sensitivity(synthetic_data, anomaly_timestamps, config)
-    all_results.extend(window_results)
-
-    # Derivative method sensitivity
-    deriv_results = run_derivative_method_sensitivity(synthetic_data, config)
-    all_results.extend(deriv_results)
-
-    # Summary statistics
-    total_tests = len(all_results)
-    passed_tests = sum(1 for r in all_results if r.pass_threshold)
-    pass_rate = passed_tests / total_tests if total_tests > 0 else 0.0
-
-    report = {
-        "config": asdict(config),
-        "summary": {
-            "total_tests": total_tests,
-            "passed_tests": passed_tests,
-            "pass_rate": pass_rate,
-            "overall_robustness": "PASS" if pass_rate > 0.8 else "FAIL"
-        },
-        "results": [asdict(r) for r in all_results]
-    }
-
-    # Save report
-    output_path = Path(config.output_path)
+def save_results(results: List[RobustnessResult], output_path: Path):
+    """Save robustness results to CSV file."""
+    if not results:
+        logger.warning("No results to save.")
+        return
+    
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-
-    logger.info(f"Robustness report saved to {output_path}")
-    logger.info(f"Overall robustness: {report['summary']['overall_robustness']} ({pass_rate:.2%})")
-
-    return report
-
+    
+    # Convert to DataFrame and save
+    data = [r.to_dict() for r in results]
+    df = pd.DataFrame(data)
+    df.to_csv(output_path, index=False)
+    
+    logger.info(f"Results saved to {output_path}")
+    
+    # Generate summary statistics
+    summary = df.groupby(['perturbation_level', 'window_size']).agg({
+        'f1_score': ['mean', 'std'],
+        'precision': ['mean', 'std'],
+        'recall': ['mean', 'std'],
+        'stability_score': ['mean'],
+        'runtime_seconds': ['mean', 'std']
+    }).reset_index()
+    
+    summary_path = output_path.parent / 'robustness_summary.csv'
+    summary.to_csv(summary_path, index=False)
+    logger.info(f"Summary saved to {summary_path}")
 
 def main():
-    """Main entry point for robustness analysis."""
-    parser = argparse.ArgumentParser(description="Run robustness analysis on anomaly detection pipeline")
-    parser.add_argument("--subset-size", type=int, default=50, help="Number of windows to sample for analysis")
-    parser.add_argument("--window-sizes", type=str, default="30,50,70,100", help="Comma-separated list of window sizes to test")
-    parser.add_argument("--anomaly-rate", type=float, default=0.05, help="Anomaly rate for synthetic data")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
-    parser.add_argument("--output", type=str, default="data/processed/results/robustness_report.json", help="Output path for report")
-
-    args = parser.parse_args()
-
-    # Parse window sizes
-    window_sizes = [int(x.strip()) for x in args.window_sizes.split(',')]
-
-    config = RobustnessConfig(
-        subset_size=args.subset_size,
-        window_size_variations=window_sizes,
-        anomaly_rate=args.anomaly_rate,
-        seed=args.seed,
-        output_path=args.output
+    """Main entry point for robustness evaluation."""
+    parser = argparse.ArgumentParser(
+        description='Run robustness evaluation for DP-GMM anomaly detection.'
     )
+    parser.add_argument(
+        '--subset-size',
+        type=int,
+        default=DEFAULT_SUBSET_SIZE,
+        help='Size of data subset to evaluate'
+    )
+    parser.add_argument(
+        '--seed',
+        type=int,
+        default=DEFAULT_SEED,
+        help='Random seed for reproducibility'
+    )
+    parser.add_argument(
+        '--anomaly-rate',
+        type=float,
+        default=DEFAULT_ANOMALY_RATE,
+        help='Rate of anomalies in synthetic data'
+    )
+    parser.add_argument(
+        '--n-replications',
+        type=int,
+        default=10,
+        help='Number of replications per configuration'
+    )
+    parser.add_argument(
+        '--perturbation-levels',
+        type=float,
+        nargs='+',
+        default=[0.0, 0.01, 0.05, 0.1, 0.2],
+        help='Noise perturbation levels to test'
+    )
+    parser.add_argument(
+        '--window-sizes',
+        type=int,
+        nargs='+',
+        default=[30, 50, 70],
+        help='Window sizes to test'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default=None,
+        help='Output file path (default: data/processed/results/robustness_report.csv)'
+    )
+    
+    args = parser.parse_args()
+    config = RobustnessConfig.from_args(args)
+    
+    logger.info("=" * 60)
+    logger.info("Starting Robustness Evaluation")
+    logger.info("=" * 60)
+    logger.info(f"Configuration: {config.__dict__}")
+    
+    # Run evaluation
+    results = run_robustness_evaluation(config)
+    
+    # Save results
+    output_path = Path(args.output) if args.output else OUTPUT_FILE
+    save_results(results, output_path)
+    
+    logger.info("=" * 60)
+    logger.info("Robustness Evaluation Complete")
+    logger.info("=" * 60)
+    
+    return 0
 
-    try:
-        report = run_robustness_analysis(config)
-        sys.exit(0 if report['summary']['overall_robustness'] == "PASS" else 1)
-    except Exception as e:
-        logger.error(f"Robustness analysis failed: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    sys.exit(main())

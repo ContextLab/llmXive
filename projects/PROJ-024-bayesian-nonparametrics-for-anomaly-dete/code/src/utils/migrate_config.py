@@ -4,7 +4,7 @@ Utility to migrate derived statistics from config.yaml to the state file.
 This script performs the following steps:
 1. Loads code/config.yaml.
 2. Identifies derived statistic keys: 'dataset_stats', 'inference_results', 'simulation_metrics'.
-3. Removes these keys from the config.
+3. Removes these keys from the config (if present).
 4. Loads the target state file (state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml).
 5. Merges the removed keys into the state file under a 'derived_statistics' section.
 6. Saves the updated config and state files.
