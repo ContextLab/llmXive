@@ -2,6 +2,6 @@
   "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
   "stage": "in_progress",
   "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(model-down attempt 1): !DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n<html><head>\n<title>302 Moved Temporarily</title>\n</head><body>\n<h1>Moved </h1>\n<p>The document has moved <a href=\"http://outage.dartmouth.edu\">here</a>.</p>\n</body></html> | google.gemma-3-27b-it(permanent): Error code: 400 - {'detail': \"litellm.ContextWindowExceededError: litellm.BadRequestError: ContextWindowExceededError: OpenAIException - 'max_tokens' or 'max_completion_tokens' is too large: 131072. This model's maximum context length is 98304 tokens and your request has 32 input tokens (131072 > 98304 - 32). None\\nmodel=google.gemma-3-27b-it. context_window_fallbacks=None. fallbacks=None.\\n\\nSet 'context_window_fallback' - https://docs.litellm.a",
-  "last_seen": "2026-07-14T16:19:35.092369+00:00",
-  "count": 1
+  "last_seen": "2026-07-14T19:03:27.516114+00:00",
+  "count": 2
 }
