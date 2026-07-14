@@ -533,6 +533,32 @@ def _write_execution_feedback(
             *(f"- {c}" for c in res.fabrication[:8]),
             "",
         ]
+    if getattr(res, "hollow", None):
+        lines += [
+            "## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING",
+            "",
+            "Every command exited 0 and the files were written — but the numbers in "
+            "them are missing. A result that is `null`, `NaN`, an empty `[]`, a "
+            "header-only CSV, or a column left blank in every row is NOT a "
+            "measurement. Writing an empty result file is not 'done' — it is the "
+            "same failure as fabrication, just quieter. You MUST:",
+            "",
+            "1. Find WHY the value is missing. A `null`/`NaN` correlation almost "
+            "always means the inputs were empty, misaligned, or the wrong column was "
+            "read — fix the computation, do NOT paper over it with a default.",
+            "2. Verify you loaded the REAL dataset the spec names. If the study is "
+            "about behavioural confidence ratings, a stand-in dataset (a bundled "
+            "sklearn toy set, a random frame) is NOT the data — it will produce "
+            "exactly these null/NaN results.",
+            "3. Make sure the key measure is actually POPULATED before you compute "
+            "on it: if the column the study depends on is blank in every row, the "
+            "extraction step is broken and that is the real bug.",
+            "4. NEVER self-certify. A `{\"status\": \"PASS\"}` written by your own "
+            "code proves nothing; the numbers must be there.",
+            "",
+            *(f"- {c}" for c in res.hollow[:8]),
+            "",
+        ]
     if regressions:
         lines += [
             "## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)",
@@ -738,6 +764,25 @@ def _reopen_failing_tasks(
             targets |= reopen_targets(data_contract_issues)
         except Exception:
             pass
+    # FABRICATED or HOLLOW results: every command EXITS 0 — the code runs fine, it
+    # just doesn't MEASURE anything. So there are no failing commands to derive
+    # targets from, `targets` stayed empty, ZERO tasks were re-opened, and the
+    # implementer was NEVER DISPATCHED: the defect could not be fixed and the project
+    # simply burned the whole model ladder and re-planned. Fabrication alone is ~44%
+    # of all execution failures, so this was the single biggest sink of worker time.
+    # Each finding names the offending file ("code/data/synthetic.py: …",
+    # "data/results/primary_analysis.json: …"), so re-open the task that OWNS it —
+    # the implementer then runs with the feedback file and fixes the real defect.
+    unmeasured = [
+        *(getattr(res, "fabrication", None) or ()),
+        *(getattr(res, "hollow", None) or ()),
+    ]
+    for finding in unmeasured:
+        m = re.match(r"\s*([\w./-]+\.(?:py|json|csv|parquet|npy|tsv))\s*:", finding)
+        if m:
+            rel = m.group(1)
+            targets.add(rel)
+            targets.add(Path(rel).name)
     if not targets and not missing_scripts:
         return 0
 

@@ -444,3 +444,53 @@ def test_reopen_does_not_match_a_bare_prose_word(tmp_path: Path) -> None:
     updated = (proj / "specs" / "001-x" / "tasks.md").read_text(encoding="utf-8")
     assert "- [X] T014" in updated, "unrelated task re-opened on a bare prose word"
     assert "Reconcile run-book" in updated  # the real mismatch IS surfaced
+
+
+def test_fabrication_reopens_the_owning_task(tmp_path: Path) -> None:
+    """Fabrication (and hollow results) occur when every command EXITS 0 — so the
+    re-open loop, which builds its targets from FAILING COMMANDS, reopened nothing,
+    the implementer was never dispatched, and the fabrication could never be fixed.
+    The project just burned the whole model ladder and re-planned. ~44% of execution
+    failures are fabrication, so this was the single biggest sink of worker time."""
+    from llmxive.execution.stage import _reopen_failing_tasks
+
+    tasks_md = (
+        "# Tasks\n"
+        "- [X] T010 Generate the input corpus in `code/data/synthetic.py`.\n"
+        "- [X] T011 Write the paper intro.\n"
+    )
+    proj = _bootstrap_project(tmp_path, "PROJ-586-x", tasks_md)
+    res = AnalysisRunResult(
+        ok=False,
+        commands=[RunCommandResult("python code/run.py", True, 0, 1.0, False, "")],
+        fabrication=["code/data/synthetic.py: synthetic/fake INPUT data not authorized"],
+        reason="1 fabricated/simulated-result signal(s)",
+    )
+    n = _reopen_failing_tasks(proj, res)
+    updated = (proj / "specs" / "001-x" / "tasks.md").read_text(encoding="utf-8")
+    assert n >= 1, "fabrication re-opened NO task — the implementer never runs"
+    assert "- [ ] T010" in updated, "the task owning the fabricated file was not re-opened"
+    assert "- [X] T011" in updated, "an unrelated task was re-opened"
+
+
+def test_hollow_results_reopen_the_owning_task(tmp_path: Path) -> None:
+    """Same shape: the analysis ran clean but computed nothing."""
+    from llmxive.execution.stage import _reopen_failing_tasks
+
+    tasks_md = (
+        "# Tasks\n"
+        "- [X] T020 Compute the correlation into `data/results/primary_analysis.json`.\n"
+        "- [X] T021 Write the discussion.\n"
+    )
+    proj = _bootstrap_project(tmp_path, "PROJ-179-x", tasks_md)
+    res = AnalysisRunResult(
+        ok=False,
+        commands=[RunCommandResult("python code/run.py", True, 0, 1.0, False, "")],
+        hollow=["data/results/primary_analysis.json: EVERY metric is null/NaN"],
+        reason="1 hollow-result signal(s)",
+    )
+    n = _reopen_failing_tasks(proj, res)
+    updated = (proj / "specs" / "001-x" / "tasks.md").read_text(encoding="utf-8")
+    assert n >= 1, "hollow results re-opened NO task — the implementer never runs"
+    assert "- [ ] T020" in updated
+    assert "- [X] T021" in updated
