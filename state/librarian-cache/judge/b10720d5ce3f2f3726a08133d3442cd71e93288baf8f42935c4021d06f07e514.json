@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.10464",
+  "judged_at": "2026-07-14T05:12:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"adaplanbench: evaluating adaptive planning in large language model age\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it investigates the core mechanism of \"adaptive planning\" in LLMs using natural language, which is the fundamental subject of the user's question regarding the extension of \"AdaPlanBench.\" Even though it does not use the specific benchmark name, it provides the canonical methodology and empirical evidence for the \"planning\" variable that the user's research question seeks to evaluate and extend.",
+  "relevant": true
+}

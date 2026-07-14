@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.09265",
+  "judged_at": "2026-07-14T05:12:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"adaplanbench: evaluating adaptive planning in large language model age\" linguistics",
+  "rationale": "The paper focuses on Large Vision-Language Models (LVLMs) and multimodal evaluation benchmarks, whereas the user's question specifically targets \"Adaptive Planning\" in text-based Large Language Models (LLMs) within a linguistics context. This constitutes an off-domain rejection because the core mechanism (multimodal vision-language processing vs. text-only adaptive planning) and the specific research gap (planning evaluation vs. hallucination in vision tasks) are distinct, sharing only the broad",
+  "relevant": false
+}

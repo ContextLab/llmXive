@@ -1335,6 +1335,10 @@
     "classified_at": "2026-07-14T02:00:31Z",
     "verdict": false
   },
+  "PROJ-901-llmxive-follow-up-extending-adaplanbench::1.6.0": {
+    "classified_at": "2026-07-14T05:12:45Z",
+    "verdict": false
+  },
   "PROJ-901-llmxive-follow-up-extending-physbrain-1::1.6.0": {
     "classified_at": "2026-07-07T07:24:32Z",
     "verdict": false

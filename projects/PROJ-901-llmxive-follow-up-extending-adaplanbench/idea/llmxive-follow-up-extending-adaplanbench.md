@@ -5,31 +5,76 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "AdaPlanBench: Evaluating Adaptive Planning in Large Language Model Age"
 
-## Summary of the prior work
-AdaPlanBench introduces a dynamic benchmark for evaluating Large Language Model (LLM) agents' ability to adaptively re-plan under progressively revealed world and user constraints within a text-based household domain. The study reveals that current models struggle significantly with accumulating constraints, particularly user preferences, leading to a performance ceiling of 67.75% and highlighting a gap in physical grounding and constraint tracking. By isolating planning from perception noise, the work establishes that the core difficulty lies in maintaining consistent state and revising plans when feedback is sparse and delayed.
+**Field**: linguistics
 
-## Proposed extension
-**Research Question:** Can a lightweight, rule-based "constraint memory module" combined with a CPU-efficient small language model (SLM) outperform large proprietary models in maintaining long-horizon constraint consistency, and does this architecture specifically mitigate the "user constraint degradation" observed in AdaPlanBench?
+## Research question
 
-This direction matters because the original paper identifies that performance degrades as constraints accumulate, suggesting a bottleneck in context window management or attention mechanisms rather than raw reasoning power; proving that a structured, external memory approach solves this with minimal compute would offer a scalable, deployment-ready solution for real-world agents.
+Does an architecture that decouples explicit constraint tracking from natural language generation improve long-horizon adaptive planning performance compared to monolithic language models, specifically when user constraints accumulate progressively?
+
+## Motivation
+
+AdaPlanBench establishes that current LLMs struggle to maintain consistency as constraints accumulate, suggesting a bottleneck in context management rather than raw reasoning. This gap matters because real-world agents must operate under dynamic, evolving rules without infinite context windows; proving that a lightweight, structured memory approach can outperform large models would offer a scalable, deployment-ready solution for constrained environments.
+
+## Related work
+
+- [When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs (2025)](https://arxiv.org/abs/2510.18892) — Provides a broad empirical baseline showing that instruction adherence degrades significantly across models of varying sizes when faced with complex or conflicting directives, supporting the hypothesis that generic scaling alone does not solve constraint tracking.
+- [Learning to Plan with Natural Language (2023)](https://arxiv.org/abs/2304.10464) — Demonstrates that explicit planning steps guide LLMs in complex tasks, establishing the methodological precedent for separating planning logic from generation, though it does not specifically address the degradation caused by accumulating dynamic user constraints.
+
+## Expected results
+
+We expect the dual-track architecture to maintain high constraint adherence (>85%) even as the number of revealed constraints increases, whereas monolithic baselines will show a steep decline in performance. The primary evidence will be a statistically significant interaction effect between constraint count and architecture type on the constraint violation rate, confirming that explicit memory modules mitigate the specific failure mode identified in AdaPlanBench.
 
 ## Methodology sketch
-**Data:** We will use the 307 household tasks from AdaPlanBench, specifically selecting the subset with 5+ progressive constraint reveals to maximize the difficulty of constraint tracking.
-**Procedure:** We will implement a "Dual-Track Agent" where a small, CPU-tractable SLM (e.g., Phi-3-mini or TinyLlama) handles natural language generation, while a deterministic, non-ML constraint memory module (a simple key-value store with conflict resolution logic) explicitly tracks all revealed constraints and flags violations before the SLM generates a response. This agent will be evaluated against the original AdaPlanBench protocol using the same LLM judges, but we will isolate the "constraint violation rate" as the primary metric.
-**Expected Result:** We hypothesize that the Dual-Track Agent will maintain near-constant accuracy (>85%) even as constraints accumulate, whereas the baseline LLMs will show a steep decline, demonstrating that explicit constraint grounding is the missing link in adaptive planning and can be achieved without massive compute resources.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the AdaPlanBench dataset (specifically the 307 household tasks) and filter for the subset containing 5+ progressive constraint reveals using the official repository or the provided arXiv supplementary materials.
+- **Baseline Implementation**: Replicate the evaluation protocol for the top-performing models from the original AdaPlanBench paper (e.g., GPT-4, Llama-3-70b) using their open-source API or weights where available, recording constraint violation rates per task.
+- **Dual-Track Agent Construction**: Implement a Python-based agent where a small, CPU-efficient SLM (e.g., Phi-3-mini via HuggingFace `transformers`) handles natural language generation, while a deterministic key-value store explicitly logs and resolves all revealed constraints before generation.
+- **Conflict Resolution Logic**: Develop a rule-based module that checks the SLM's proposed action against the stored constraint state; if a violation is detected, the module injects a corrective prompt or forces a plan revision before the final output is committed.
+- **Evaluation Protocol**: Run both the baseline and dual-track agents on the filtered dataset using the original AdaPlanBench automated judges to score task success and constraint adherence.
+- **Statistical Analysis**: Perform a repeated-measures ANOVA to test for the interaction between "number of constraints" and "agent architecture" on the primary metric (constraint violation rate), ensuring the data source for the predictor (architecture type) and the outcome (violation rate) are independent.
+- **Resource Monitoring**: Log CPU usage and memory footprint during execution to verify the dual-track approach remains within the GitHub Actions free-tier limits (2 CPU, 7GB RAM).
 
-- **AdaPlanBench: Evaluating Adaptive Planning in Large Language Model Agents under World and User Constraints** — Jiayu Liu, Cheng Qian, Zhenhailong Wang, Bingxuan Li, Jiateng Liu, Heng Wang, Jeonghwan Kim, Yumeng Wang, Xiusi Chen, Yi R. Fung, Heng Ji. https://arxiv.org/abs/2606.05622.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_05622,
-  title = {AdaPlanBench: Evaluating Adaptive Planning in Large Language Model Agents under World and User Constraints},
-  author = {Jiayu Liu and Cheng Qian and Zhenhailong Wang and Bingxuan Li and Jiateng Liu and Heng Wang and Jeonghwan Kim and Yumeng Wang and Xiusi Chen and Yi R. Fung and Heng Ji},
-  year = {2026},
-  eprint = {2606.05622},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.05622},
-  url = {https://arxiv.org/abs/2606.05622}
-}
-```
+- Reviewed existing ideas: llmXive follow-up: extending "AdaPlanBench: Evaluating Adaptive Planning in Large Language Model Age".
+- Closest match: llmXive follow-up: extending "AdaPlanBench: Evaluating Adaptive Planning in Large Language Model Age" (similarity sketch: This is the direct revision of the input seed, refining the research question to focus on the architectural phenomenon rather than the specific method constraint).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-14T05:13:06Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "AdaPlanBench: Evaluating Adaptive Planning in Large Language Model Age" linguistics
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "AdaPlanBench: Evaluating Adaptive Planning in Large Language Model Age" linguistics | 0 |
+| 1 | adaptive planning evaluation in large language models | 4 |
+| 2 | benchmarking LLM reasoning strategies | 0 |
+| 3 | dynamic task planning in generative AI | 0 |
+| 4 | evaluation frameworks for LLM problem solving | 0 |
+| 5 | LLM adaptive reasoning benchmarks | 0 |
+| 6 | hierarchical planning in language models | 0 |
+| 7 | cognitive flexibility in large language models | 0 |
+| 8 | LLM multi-step planning assessment | 0 |
+| 9 | automated planning evaluation for AI agents | 0 |
+| 10 | language model strategic adaptation metrics | 0 |
+| 11 | benchmarking adaptive behavior in LLMs | 0 |
+| 12 | LLM planning capability evaluation | 0 |
+| 13 | dynamic reasoning in artificial intelligence | 0 |
+| 14 | LLM task decomposition and planning | 0 |
+| 15 | evaluation of LLM flexibility in complex tasks | 0 |
+| 16 | adaptive agent planning benchmarks | 0 |
+| 17 | LLM cognitive architecture evaluation | 0 |
+| 18 | planning under uncertainty in language models | 0 |
+| 19 | LLM strategic reasoning assessment | 0 |
+| 20 | comparative analysis of LLM planning algorithms | 0 |
+
+### Verified citations
+
+1. **When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs** (2025). Richard J. Young, Brandon Gillins, Alice M. Matthews. arXiv. [2510.18892](https://arxiv.org/abs/2510.18892). PDF-sampled: No.
+2. **Learning to Plan with Natural Language** (2023). Yiduo Guo, Yaobo Liang, Chenfei Wu, Wenshan Wu, Dongyan Zhao, et al.. arXiv. [2304.10464](https://arxiv.org/abs/2304.10464). PDF-sampled: No.

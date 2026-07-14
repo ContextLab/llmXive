@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.18892",
+  "judged_at": "2026-07-14T05:12:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"adaplanbench: evaluating adaptive planning in large language model age\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides empirical evidence on the core mechanism of \"instruction adherence\" (a proxy for planning and following complex linguistic constraints) across a broad domain of LLMs, which is the fundamental variable under investigation in the user's question about evaluating adaptive planning. Although it does not use the specific \"AdaPlanBench\" framework, it establishes the necessary baseline and diagnostic methodology for the \"instruction-following\" as",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.13394",
+  "judged_at": "2026-07-14T05:13:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"adaplanbench: evaluating adaptive planning in large language model age\" linguistics",
+  "rationale": "The paper focuses on evaluating Multimodal Large Language Models (MLLMs) across perception and cognition tasks, which is a distinct domain from the user's specific question regarding \"adaptive planning\" in standard LLMs and its intersection with \"linguistics.\" While both involve LLM evaluation, the candidate paper does not measure the specific mechanism of adaptive planning, nor does it address the linguistic domain or the specific benchmark extension mentioned in the user's query, failing to me",
+  "relevant": false
+}

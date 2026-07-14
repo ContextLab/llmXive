@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Human Annotation Schema"
+description: "Schema for human validation of execution logs."
+type: object
+properties:
+  annotation_id:
+    type: string
+    description: "Unique identifier for the annotation."
+  log_id:
+    type: string
+    description: "Reference to the execution log entry."
+  human_verdict:
+    type: string
+    enum:
+      - "violation"
+      - "no_violation"
+      - "ambiguous"
+    description: "The human annotator's verdict."
+  notes:
+    type: string
+    nullable: true
+    description: "Optional notes from the annotator."
+required:
+  - annotation_id
+  - log_id
+  - human_verdict
+additionalProperties: false

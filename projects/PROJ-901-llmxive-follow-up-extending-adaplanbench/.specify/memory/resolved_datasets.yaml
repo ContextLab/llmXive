@@ -1,0 +1,230 @@
+resolved_at: '2026-07-14T05:18:28.391019+00:00'
+datasets:
+- intent: AdaPlanBench
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6a20e49613256663a9fef3de/4f8d6908febfc1269992b0e1f1a71ff69195e3b419708ca62a33b6e5109d47ac?Expires=1784009841&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzZhMjBlNDk2MTMyNTY2NjNhOWZlZjNkZS80ZjhkNjkwOGZlYmZjMTI2OTk5MmIwZTFmMWE3MWZmNjkxOTVlM2I0MTk3MDhjYTYyYTMzYjZlNTEwOWQ0N2FjKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDAwOTg0MX19fV19&Signature=MEYCIQCrKRRUsLt0TrmdXUq780niDOQSpdAv-cMivzFFHuDy9AIhAIb4TiAUEmKIE2U7BVcuuvRxC2A1hxwR-n3lP32jbsR0&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27adaplanbench_queries.json%3B+filename%3D%22adaplanbench_queries.json%22%3B&response-content-type=application%2Fjson&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T051721Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0b670f00044c508efbef58ef4d6e94e52c7d0f7f481e3427352a055baecf9081
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Surface_soil_measurements_miss_a_substantial_and_unpredictable_fraction_of_soil_carbon_b_/31921974
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/___V72_/32980868
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/EquiCAD_A_Sex_Bias_Detection_Chatbot_in_Coronary_Artery_Disease/31218016
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/The_Composer_Photograph_Sounding_Scoring_and_Amplifying_Overtones_for_Double_Bass_Performance/32980853
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/The_Composer_Photograph_Sounding_Scoring_and_Amplifying_Overtones_for_Double_Bass_Performance/32980853
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://acs.figshare.com/articles/journal_contribution/Discovery_of_Tivumecirnon_FLX475_a_Potent_and_Selective_CCR4_Antagonist_That_Inhibits_the_Migration_of_Immunosuppressive_Regulatory_T_Cells_into_the_Tumor_Microenvironment_to_Restore_Antitumor_Immunity/32980860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.05622
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SLM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/slmatthew/velikan/resolve/main/config.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1717
+      parsed: true
+  - url: https://huggingface.co/datasets/Lojitha/sl_marraige_law_QA/resolve/main/marriage_divorce_faq.json
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/slmatthew/velikan/resolve/main/config.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Lojitha/sl_marraige_law_QA/resolve/main/marriage_divorce_faq.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/661c8ec73cf3354fcda804f7/79a594e59278f9b37b022c2547c26c2247614a2ef0c7731e3c458d48876581b2?Expires=1784009850&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY2MWM4ZWM3M2NmMzM1NGZjZGE4MDRmNy83OWE1OTRlNTkyNzhmOWIzN2IwMjJjMjU0N2MyNmMyMjQ3NjE0YTJlZjBjNzczMWUzYzQ1OGQ0ODg3NjU4MWIyKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDAwOTg1MH19fV19&Signature=MEYCIQDryYwh8LttyCnUEizmhCXnH2WJh5JNFAnJDECr1mx0eQIhAPVEuqEXae1sHhBDAQofw1-D1IZDa2mAFAAMrHqW7Zr8&Key-Pair-Id=K3EPXBYC3CKDRZ&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27forward_reaction_prediction.json%3B+filename%3D%22forward_reaction_prediction.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T051730Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=2a48c59622b09a539c473f24f4327d2ba97e1e2306724af669beed59ad026d2e
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/uconcreative/slmDataset/d80b735e6bc08ecf2c1844fa09b42219d0b45131/SLMDataset.csv?%2Fdatasets%2Fuconcreative%2FslmDataset%2Fresolve%2Fmain%2FSLMDataset.csv=&etag=%226755809705d6abeb45769cdd75966a0f259c543e%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Surface_soil_measurements_miss_a_substantial_and_unpredictable_fraction_of_soil_carbon_b_/31921974
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/___V72_/32980868
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/EquiCAD_A_Sex_Bias_Detection_Chatbot_in_Coronary_Artery_Disease/31218016
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/The_Composer_Photograph_Sounding_Scoring_and_Amplifying_Overtones_for_Double_Bass_Performance/32980853
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/The_Composer_Photograph_Sounding_Scoring_and_Amplifying_Overtones_for_Double_Bass_Performance/32980853
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://acs.figshare.com/articles/journal_contribution/Discovery_of_Tivumecirnon_FLX475_a_Potent_and_Selective_CCR4_Antagonist_That_Inhibits_the_Migration_of_Immunosuppressive_Regulatory_T_Cells_into_the_Tumor_Microenvironment_to_Restore_Antitumor_Immunity/32980860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zookeys.pensoft.net/article/6096/element/2/11/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/edulearn.v16i3.20383
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPConnectionPool(host=''edulearn.intelektual.org'',
+      port=80): Max retries exceeded with url: /index.php/EduLearn/article/view/20383
+      (Caused by ConnectTimeoutError(<HTTPConnection(host=''edulearn.intelektual.org'',
+      port=80) at 0x7f154c5501d0>, ''Connection to edulearn.intelektual.org timed
+      out. (connect timeout=20.0)''))'
+  - url: https://www.ijtsrd.com/engineering/electronics-and-communication-engineering/18572/zct-precoding-based-slm-technique-for-papr-reduction/a-a-a-wahab
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12563923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15256599
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.06205
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.10092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.09885
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.09713
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21339307
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GLMM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/NewEden-Forge/GLM-Magnum-Rev1-w-e/resolve/main/magnum-glm.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/OctoMed/GLM-Multiturn-CoT/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/NewEden-Forge/GLM-Magnum-Rev1-w-e/resolve/main/magnum-glm.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/OctoMed/GLM-Multiturn-CoT/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://bridges.monash.edu/articles/thesis/A_measure_of_teachers_attitudes_toward_the_implementation_of_differentiated_instruction/14972451
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/A_measure_of_teachers_attitudes_toward_the_implementation_of_differentiated_instruction/14972451
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/software/_b_Surface_soil_measurements_miss_a_substantial_and_unpredictable_fraction_of_soil_carbon_b_/31921974
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/___V72_/32980868
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/EquiCAD_A_Sex_Bias_Detection_Chatbot_in_Coronary_Artery_Disease/31218016
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/The_Composer_Photograph_Sounding_Scoring_and_Amplifying_Overtones_for_Double_Bass_Performance/32980853
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/The_Composer_Photograph_Sounding_Scoring_and_Amplifying_Overtones_for_Double_Bass_Performance/32980853
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/13970371
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7847934
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5566534
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.4qrfj6qb0
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mn159hq6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Dietary_carbohydrate_quality_and_body_weight_a_longitudinal_investigation_with_Brazilian_undergraduates_CUME_STUDY_/32397379
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Dietary_carbohydrate_quality_and_body_weight_a_longitudinal_investigation_with_Brazilian_undergraduates_CUME_STUDY_/32397379/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.70rxwdc8d
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.9cnp5hr1p
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.vmcvdnd54
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

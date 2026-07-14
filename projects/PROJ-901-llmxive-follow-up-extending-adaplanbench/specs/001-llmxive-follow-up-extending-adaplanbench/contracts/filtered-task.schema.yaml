@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Filtered Task Schema"
+description: "Schema for the filtered subset of AdaPlanBench tasks (≥5 constraints)."
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the task."
+  prompt:
+    type: string
+    description: "The initial task prompt."
+  constraints:
+    type: string
+    description: "JSON-encoded list of constraints (time-ordered)."
+  constraint_count:
+    type: integer
+    minimum: 5
+    description: "Number of constraints in the task (must be ≥5)."
+  ground_truth:
+    type: string
+    description: "The reference solution for the task."
+required:
+  - task_id
+  - prompt
+  - constraints
+  - constraint_count
+  - ground_truth
+additionalProperties: false

@@ -1,0 +1,11 @@
+- artifact_hash: e3e1cb5047ccd60f923de0d0fa7d29aa0ee898bf02bcbbeebc2427480dc9f923
+  artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/AdaPlanBench/AdaPlanBench/main/data/household_tasks.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/AdaPlanBench/AdaPlanBench/main/data/household_tasks.csv
+  verified_at: '2026-07-14T06:00:08.572863Z'
