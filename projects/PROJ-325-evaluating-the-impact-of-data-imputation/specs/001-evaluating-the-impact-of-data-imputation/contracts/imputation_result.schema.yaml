@@ -1,0 +1,54 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "ImputationResultSchema"
+description: "Schema for the output of a single imputation method run."
+type: object
+properties:
+  method:
+    type: string
+    enum:
+      - CompleteCase
+      - SingleMean
+      - MICE
+    description: "The imputation method used."
+  n_imputations:
+    type: integer
+    minimum: 1
+    description: "Number of imputations (m). 1 for CC/Single, m for MICE."
+  seed:
+    type: integer
+    description: "Base random seed used for this run."
+  convergence_r_hat:
+    type: number
+    minimum: 1.0
+    description: "R‑hat statistic. 1.0 if not applicable (CC/Single), < 1.05 if converged."
+  status:
+    type: string
+    enum:
+      - success
+      - failed
+      - warning
+    description: "Execution status of the imputation."
+  error_message:
+    type: string
+    description: "Error details if status is not success."
+  estimated_variance:
+    type: number
+    minimum: 0.0
+    description: "Variance estimate after imputation (pooled if MICE)."
+  missingness_mechanism:
+    type: string
+    enum:
+      - MCAR
+      - MAR
+      - MNAR
+      - Unknown
+    description: "The assumed missingness mechanism for this run (Constitution VII)."
+required:
+  - method
+  - n_imputations
+  - seed
+  - convergence_r_hat
+  - status
+  - estimated_variance
+  - missingness_mechanism
+additionalProperties: false

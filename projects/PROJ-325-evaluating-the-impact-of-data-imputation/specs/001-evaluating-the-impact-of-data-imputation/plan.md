@@ -1,0 +1,139 @@
+# Implementation Plan: Evaluating the Impact of Data Imputation on Variance Estimation in Public Surveys
+
+**Branch**: `001-evaluating-imputation-impact` | **Date**: 2024-05-21 | **Spec**: `specs/001-evaluating-the-impact-of-data-imputation/spec.md`
+**Input**: Feature specification from `/specs/001-evaluating-the-impact-of-data-imputation/spec.md`
+
+## Summary
+
+This project implements a statistical pipeline to evaluate how different data imputation strategies (Complete‑Case, Single Mean, MICE) impact variance estimation in complex survey data. The approach involves ingesting verified public survey datasets (GSS/ACS) preserving design variables, generating synthetic data with known ground‑truth parameters, and applying design‑based variance estimators (Taylor Series Linearization, Jackknife) to compare methods. The pipeline runs on CPU‑only CI, strictly adhering to survey design integrity, reproducibility, and the success criteria defined in the specification.
+
+## Technical Context
+
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `pyyaml`, `requests`, `json`, `pytest`, `miceforest` (for true MCMC‑style multiple imputation)  
+**Storage**: Local filesystem (`data/`, `code/`) with checksums; no external DB.  
+**Testing**: `pytest` (unit tests for bias logic, integration tests for pipeline flow).  
+**Target Platform**: GitHub Actions Free Tier (Linux, 2 CPU, 7 GB RAM, no GPU).  
+**Constraints**: No GPU, no deep‑learning models. All MICE work is performed with CPU‑compatible `miceforest`.  
+**Scale/Scope**: Single feature branch; processes a subset (≤ 50 k rows) to stay within RAM limits.  
+**Performance Goals**: Full pipeline < 6 h, memory < 6 GB.
+
+## Constitution Check
+
+| Principle | Status | Action / Mapping |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | PASS | Seed management in **Task T008**; `requirements.txt` pinning; deterministic data fetches. |
+| **II. Verified Accuracy** | PASS | All external URLs in **research.md** are verified; no uncited datasets. |
+| **III. Data Hygiene** | PASS | Checksums for raw and processed files via **Task T006**; intermediate artifact hashing via **Task T006b**. |
+| **IV. Single Source of Truth** | PASS | Schemas in `contracts/` enforce one‑to‑one mapping; **Task T007** validates all outputs. |
+| **V. Versioning Discipline** | PASS | Content hashes for *all* artifacts (raw, processed, intermediate) recorded in `state/manifest.yaml` by **Task T006b**. |
+| **VI. Survey Design Integrity** | PASS | Design‑based variance implemented in **Task T009**; small‑cluster warning in **Task T009b**; abort if design columns missing (see **Task T009**). |
+| **VII. Imputation Mechanism Transparency** | PASS | `missingness_mechanism` field logged in **ImputationResult** (Task T021) and recorded in the output JSON. |
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-evaluating-the-impact-of-data-imputation/
+├── plan.md               # This file
+├── research.md           # Phase 0 output
+├── data-model.md         # Phase 1 output
+├── quickstart.md         # Phase 1 output
+├── contracts/            # Phase 1 output (static schemas)
+│   ├── bias_metric.schema.yaml
+│   ├── dataset.schema.yaml
+│   └── imputation_result.schema.yaml
+└── tasks.md              # Phase 2 output
+```
+
+### Source Code (repository root)
+
+```text
+projects/PROJ-325-evaluating-the-impact-of-data-imputation/
+├── code/
+│   ├── __init__.py
+│   ├── config.py                # Seed management, global constants
+│   ├── data/
+│   │   ├── loader.py            # Dataset ingestion (GSS/ACS)
+│   │   └── synthetic.py         # Synthetic data generator
+│   ├── imputation/
+│   │   ├── __init__.py
+│   │   ├── base.py              # Abstract imputation interface
+│   │   ├── single_mean.py       # Single Mean Imputation
+│   │   └── mice.py              # MICE wrapper using miceforest
+│   ├── variance/
+│   │   ├── __init__.py
+│   │   └── design.py            # Taylor linearization & Jackknife
+│   ├── metrics/
+│   │   ├── __init__.py
+│   │   └── bias.py              # Bias & SC‑002 ratio logic
+│   └── main.py                  # Orchestration, sensitivity sweep, reporting
+├── data/
+│   ├── raw/                     # Downloaded datasets (checksummed)
+│   └── processed/               # Cleaned, imputed, variance‑calculated outputs
+├── tests/
+│   ├── unit/
+│   │   └── test_bias.py
+│   └── integration/
+│       └── test_pipeline.py
+├── contracts/                   # Static JSON‑Schema files (see above)
+├── requirements.txt
+└── README.md
+```
+
+**Structure Decision**: `contracts/` resides at the repository root alongside `code/` and `data/`. They are static schema artifacts used for validation; they are **not** generated by the pipeline.
+
+## Complexity Tracking
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| Custom MICE Wrapper | `miceforest` provides true MCMC‑style multiple imputation with independent chains and burn‑in. | A single deterministic run would violate FR‑002 (4 chains, burn‑in) and provide no multiple‑imputation variance. |
+| Sensitivity Sweep Orchestrator | FR‑005 requires a concrete set `{5, 10, 20}`. | Hard‑coding a single parameter value would not satisfy the required sweep. |
+| Design‑Based Variance Module | Standard variance ignores clustering/stratification. | Using i.i.d. variance would breach Principle VI and invalidate bias comparisons. |
+| Small‑Cluster Fallback | Edge case PSU = 1 requires special handling. | Ignoring the case would leave the pipeline without a defined behavior, breaking the spec. |
+
+## Implementation Phases & Tasks
+
+### Phase 0: Research & Data Strategy
+- **T001**: Verify dataset URLs and confirm presence of `weight`, `psu`, `strata` columns. Abort variable if any are missing.  
+- **T002**: Define synthetic data generation parameters (size, true mean/variance, missingness mechanism).  
+
+### Phase 1: Configuration & Data Model
+- **T005**: **Synthetic Data Generator** – Generates a DataFrame with known `true_mean` and `true_variance`; supports MCAR and MAR mechanisms; outputs a `SyntheticData` object.  
+- **T006**: **Raw Data Checksum** – Compute SHA‑256 for all files downloaded into `data/raw/` and store in `state/manifest.yaml`.  
+- **T006b**: **Intermediate Artifact Hashing** – After each major transformation (imputed datasets, bias metrics, sweep results) compute and record checksums in the same manifest, satisfying Principle V.  
+- **T007**: **Schema Validation** – Load `contracts/*.schema.yaml` and validate all JSON/CSV outputs against them.  
+- **T008**: **Seed Management** – Implement `get_chain_seed(base_seed, chain_id)` returning `base_seed + chain_id`; store `base_seed` in `config.py`. Guarantees distinct seeds for each MICE chain while preserving global reproducibility.  
+
+### Phase 2: Core Data Pipeline
+- **T009**: **Design‑Based Variance Estimator** – Compute Taylor Series Linearization variance; if `psu` or `strata` missing, **abort** analysis for that variable (per Principle VI).  
+- **T009b**: **Small‑Cluster Fallback** – Detect clusters where `psu` size = 1; issue a warning, proceed with Taylor estimator but flag variance as “potentially unstable”.  
+- **T010**: **Complete‑Case Analysis** – Baseline variance calculation using only complete rows.  
+- **T011**: **Single Mean Imputation** – Replace missing values with column mean; compute pooled variance.  
+
+### Phase 3: Advanced Imputation (MICE)
+- **T021**: **MICE Wrapper (miceforest)** – Run `miceforest.ImputedDataSet` **4 independent chains**; each chain uses a distinct seed from **T008** and `RandomForestRegressor` with `predictive_mean_matching=True`. Execute `max_iter=1000`; after convergence discard the first **500** imputations per chain as burn‑in; pool the remaining `m` imputations via Rubin’s Rules. Log `missingness_mechanism`.  
+- **T022**: **Convergence Diagnostics** – Compute R‑hat across the 4 chains; require `< 1.05`.  
+- **T026**: **Binary Outcome Handling** – For binary target variables, configure `miceforest` with `predictive_mean_matching=True` and invoke **T022**; if R‑hat ≥ 1.05, trigger **T027**.  
+- **T027**: **Convergence Retry Logic** – On failure, retry up to **3** times with a new seed (`base_seed + 100*attempt`). If still failing, set `status: warning` and record `error_message`.  
+
+### Phase 4: Metrics & Validation
+- **T023**: **Bias Calculation** – For synthetic data: `(est_variance - true_variance) / true_variance`. For real data: `abs(est_variance - jackknife_variance) / jackknife_variance` (relative efficiency).  
+- **T024**: **SC‑002 Ratio Check** – Compute `ratio_to_single = |bias_MICE| / |bias_Single|`; set `is_pass_sc002 = (ratio_to_single ≤ 0.8)`. Store in `BiasMetric`.  
+- **T013**: **Multiplicity Correction** – Apply Holm‑Bonferroni adjustment to all paired t‑tests comparing methods (e.g., CC vs Single, Single vs MICE). Store raw and adjusted p‑values in `BiasMetric`.  
+- **T020**: **Single‑Mean Imputation Implementation** – Compute variance after mean replacement (already covered in T011).  
+
+### Phase 5: Sensitivity & Reporting
+- **T030**: **Sensitivity Sweep** – Sweep the number of imputations `m` over the concrete set **{5, 10, 20}**; for each `m` run the full pipeline (T021 → T023) and collect bias rates.  
+- **T033**: **Stability Analysis** – Compute `stability_score = std(bias_rates)` across the sweep; store in `SensitivitySweepResult`.  
+- **T032**: **Report Generation** – Assemble a Markdown report; automatically append the mandatory footer: **“All findings are associational; no causal claims are made.”** Verify presence; fail if missing.  
+- **T034**: **Runtime Monitoring** – Measure wall‑clock time for the full pipeline; assert `runtime ≤ 6 hours`; record in `state/manifest.yaml`.  
+
+### Phase 6: Housekeeping
+- **T035**: **Cleanup & Documentation** – Ensure all generated files are listed in the manifest, update `README.md` with usage notes, and tag the commit with the current constitution version.
+
+---
+
+*All tasks are ordered so that data download precedes any consumption, models are fitted before evaluation, and figures/tables are created before report assembly. The plan conforms to the free‑tier CI constraints and respects every FR, SC, and edge‑case requirement.*
+

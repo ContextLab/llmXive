@@ -1,0 +1,892 @@
+resolved_at: '2026-07-14T01:10:31.300601+00:00'
+datasets:
+- intent: ACS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/birkhoffg/folktables-acs-income/resolve/main/data/test-00000-of-00001-724549452f5f5dcb.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/acsq/nva-b/resolve/main/1.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/acsq/nva-c/resolve/main/1.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/acsq/nva-b/resolve/main/1.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/acsq/nva-c/resolve/main/1.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/ds3lab/ac-sgd-arxiv21/resolve/main/test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/birkhoffg/folktables-acs-income/resolve/main/data/test-00000-of-00001-724549452f5f5dcb.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/arun2023acs/acsrepoind2023/resolve/main/train
+      (1).jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Summit_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cours_de_Probabilit_s_et_Statistique_inf_rentielle/32979272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Mechanical_Stimulation_on_Cardiac_Cells_with_Feedback_Control_System/32979280
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mechanical_Stimulation_on_Cardiac_Cells_with_Feedback_Control_System/32979277
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Christopher_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979275
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21110186
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pubs.acs.org/doi/10.1021/acs.nanolett.8b02811
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20053247
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15662353
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3660200
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21347701
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21347701
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/f86c445a-ea1b-465e-8dfe-94e5237bd709
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/8032b735-dfb4-4fc9-b45f-d1645ea9a459
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/7d25a653-bdbd-40ea-a409-98cd8aefd52a
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GSS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RukawaY/gs_scenes/resolve/main/dynamic_nav/dynamic_nav.scene_dataset_config.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 714
+      parsed: true
+  - url: https://huggingface.co/datasets/gsstein/mini-xlsum/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gsstein/0-percent-human-dataset-og/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/RukawaY/gs_scenes/resolve/main/dynamic_nav/dynamic_nav.scene_dataset_config.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/gsstein/mini-xlsum/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gsstein/0-percent-human-dataset-og/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gsstein/100-percent-human-dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Summit_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cours_de_Probabilit_s_et_Statistique_inf_rentielle/32979272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Mechanical_Stimulation_on_Cardiac_Cells_with_Feedback_Control_System/32979280
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mechanical_Stimulation_on_Cardiac_Cells_with_Feedback_Control_System/32979277
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Christopher_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979275
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5781768
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://academic.oup.com/jac/article-lookup/doi/10.1093/jac/dkw455
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1111/1744-7917.70058
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.29pb4
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/s12035-017-0506-6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.icpsr.umich.edu/web/ICPSR/studies/39587
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.icpsr.umich.edu/web/ICPSR/studies/39587/versions/V1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341247
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341247
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=3f2c2c4c52c34b6884aaefa653511e4d
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PSU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/polinaeterna/psuh_no_inner_data_dir/resolve/main/data/train-00000-of-00001-7bcc1d921e9ceb66.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1371
+      parsed: true
+  - url: https://huggingface.co/datasets/polinaeterna/psuh_no_inner_data_dir2/resolve/main/data/train-00000-of-00001-7bcc1d921e9ceb66.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1371
+      parsed: true
+  - url: https://huggingface.co/datasets/cs330/minH_1_maxH_6_maxW_100_holdUniq_1000_regex_None_pSub_0.15_maxHeld_none_balance_True/resolve/main/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 36
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/polinaeterna/psuh_no_inner_data_dir/resolve/main/data/train-00000-of-00001-7bcc1d921e9ceb66.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/polinaeterna/psuh_no_inner_data_dir2/resolve/main/data/train-00000-of-00001-7bcc1d921e9ceb66.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/cs330/minH_1_maxH_6_maxW_100_holdUniq_1000_regex_None_pSub_0.15_maxHeld_none_balance_True/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/cs330/minH_1_maxH_5_maxW_100_holdUniq_1000_regex_None_pSub_0.15_maxHeld_none_balance_True/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/cs330/minH_1_maxH_4_maxW_100_holdUniq_1000_regex_None_pSub_0.15_maxHeld_none_balance_True/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Summit_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cours_de_Probabilit_s_et_Statistique_inf_rentielle/32979272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Mechanical_Stimulation_on_Cardiac_Cells_with_Feedback_Control_System/32979280
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mechanical_Stimulation_on_Cardiac_Cells_with_Feedback_Control_System/32979277
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Christopher_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979275
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.2jj06
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8274506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8210883
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18797004
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://lib.jucs.org/article/147898/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20259632
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20259632
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mcvdnckg3
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.wstqjq32d
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/39fta/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MICE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pankajrajdeo/gp2protein_mice_JAX/resolve/main/gp2protein.mgi.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pankajrajdeo/mgi_mice_JAX/resolve/main/mgi.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sykimhere/mayday_mice_dataset1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 52723
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pankajrajdeo/gp2protein_mice_JAX/resolve/main/gp2protein.mgi.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pankajrajdeo/mgi_mice_JAX/resolve/main/mgi.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sykimhere/mayday_mice_dataset1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Maydaypartners/mayday_mice_dataset1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Maydaypartners/mayday_mice_dataset2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Summit_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cours_de_Probabilit_s_et_Statistique_inf_rentielle/32979272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Mechanical_Stimulation_on_Cardiac_Cells_with_Feedback_Control_System/32979280
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mechanical_Stimulation_on_Cardiac_Cells_with_Feedback_Control_System/32979277
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Christopher_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979275
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6240985
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14833127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14833120
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4813200
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10578501
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26180/24012729
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Exome-informed_Protein_Balancing_ePROB_for_maximising_efficiency_of_essential_amino_acid_bioavailability_in_food/24012729
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://doi.org/10.26180/24012729.v1
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Exome-informed_Protein_Balancing_ePROB_for_maximising_efficiency_of_essential_amino_acid_bioavailability_in_food/24012729/1
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://ruor.uottawa.ca/handle/10393/51837
+    source: datacite
+    status: wrong_format
+    reason: HTTP 404
+  - url: https://ruor.uottawa.ca/handle/10393/51834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13208127
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.openml.org/data/get_csv/22121310/mice.csv
+    source: openml
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://www.openml.org/data/get_csv/22122393/mice.csv
+    source: openml
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+- intent: MAR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/markov-ai/gaming-500-hours/resolve/main/metadata.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/marmal88/skin_cancer/resolve/main/data/test-00000-of-00001-61e7cf54bf274ae2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/markov-ai/gaming-500-hours/resolve/main/metadata.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/marmal88/skin_cancer/resolve/main/data/test-00000-of-00001-61e7cf54bf274ae2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/markush1/LLM-Jailbreak-Classifier/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/Marqo/fashion200k/resolve/main/data/data-00000-of-00009.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Summit_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cours_de_Probabilit_s_et_Statistique_inf_rentielle/32979272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Mechanical_Stimulation_on_Cardiac_Cells_with_Feedback_Control_System/32979280
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mechanical_Stimulation_on_Cardiac_Cells_with_Feedback_Control_System/32979277
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Christopher_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979275
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Solar_Israel_A_practical_and_legislative_model/21443073
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15000750
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4525735
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4432680
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ajsonline.org/article/64372-on-the-so-called-perofskite-from-magnet-cove-arkansas
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19074092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19074092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19073761
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19073761
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19073300
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BRR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/thangvip/brr_training_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ryanhoangt/br-robomimic-square-400-paired-rlds/resolve/main/1.0.0/dataset_info.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1466
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/thangvip/brr_training_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ryanhoangt/br-robomimic-square-400-paired-rlds/resolve/main/1.0.0/dataset_info.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/preprint/_b_Continuity_of_matter_as_the_basis_of_information_resonance_a_hypothesis_on_the_transmission_of_experience_through_atoms_in_the_biological_cycle_b_/32979128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Original_raw_microscopic_images_for_manuscript_JoVE71749R2/32979065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Summit_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cours_de_Probabilit_s_et_Statistique_inf_rentielle/32979272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Mechanical_Stimulation_on_Cardiac_Cells_with_Feedback_Control_System/32979280
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13821255
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17967537
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13920031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13937430
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14800422
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/t8x7u/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/119212-genomic-prediction-of-vitamin-c-content-in-spinach
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20922260
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20922260
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Revisiting_agroecological_zone-based_fertilizer_recommendations_for_maize_in_Nigeria_evidence_from_field-level_nutrient_response_trials/32744356
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MCAR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mcarthuradal/malawi/resolve/main/booklets/bk0-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 80470
+      parsed: true
+  - url: https://huggingface.co/datasets/mcarthuradal/ghana/resolve/main/ghana_images.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mcarbmont89/hr-seed-dataset/resolve/main/seed.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 666
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mcarthuradal/malawi/resolve/main/booklets/bk0-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mcarthuradal/arm-unicef/resolve/main/aug_full_features/train-00000-of-00001.parquet
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: (''Connection aborted.'', ConnectionResetError(104,
+      ''Connection reset by peer''))'
+  - url: https://huggingface.co/datasets/mcarthuradal/ghana/resolve/main/ghana_images.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/api/resolve-cache/datasets/mcarmi/testing_dpr/7eb47fff0ed0bf7704f401c2c37aaf64ea1d6b07/myfile.json?%2Fdatasets%2Fmcarmi%2Ftesting_dpr%2Fresolve%2Fmain%2Fmyfile.json=&etag=%2225fa2727129fd28d4e035b95845343d7b4e0213c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/mcarbmont89/hr-seed-dataset/resolve/main/seed.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://dro.deakin.edu.au/articles/chapter/Food_Consumers_in_a_Cross_Cultural_and_Intra_Cultural_Perspective-From_Settlement_to_Multi_Cultural_Food_Environment_The_Case_of_Australia/32970488
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Continuity_of_matter_as_the_basis_of_information_resonance_a_hypothesis_on_the_transmission_of_experience_through_atoms_in_the_biological_cycle_b_/32979128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Original_raw_microscopic_images_for_manuscript_JoVE71749R2/32979065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Summit_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cours_de_Probabilit_s_et_Statistique_inf_rentielle/32979272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249069
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13126896
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/233046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7828031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21233523
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/401984
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2501.05596
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Handling_Missing_Data_in_Intensive_Longitudinal_Data_with_Mixed_Missing_Mechanisms/32968925
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Handling_Missing_Data_in_Intensive_Longitudinal_Data_with_Mixed_Missing_Mechanisms/32968925/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21317030
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SurveyDataset
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/LZYFirecn/surveydataset/resolve/main/cited_paper_id/.ipynb_checkpoints/example_requests_to_parallel_process_10003728-checkpoint.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2985
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/LZYFirecn/surveydataset/resolve/main/cited_paper_id/.ipynb_checkpoints/example_requests_to_parallel_process_10003728-checkpoint.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://dro.deakin.edu.au/articles/chapter/Food_Consumers_in_a_Cross_Cultural_and_Intra_Cultural_Perspective-From_Settlement_to_Multi_Cultural_Food_Environment_The_Case_of_Australia/32970488
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Continuity_of_matter_as_the_basis_of_information_resonance_a_hypothesis_on_the_transmission_of_experience_through_atoms_in_the_biological_cycle_b_/32979128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Original_raw_microscopic_images_for_manuscript_JoVE71749R2/32979065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Summit_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cours_de_Probabilit_s_et_Statistique_inf_rentielle/32979272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7013164
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7263906
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knb.ecoinformatics.org/view/doi:10.5063/F1Z036N8
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knb.ecoinformatics.org/view/doi:10.5063/F16H4FXG
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knb.ecoinformatics.org/view/doi:10.5063/F1QF8RB2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7013164
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7013164
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SyntheticData
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/coding-Jay/Synthetic-Datasets-Unity-CV/resolve/main/NewDatasetProduced0.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/arcee-ai/synthetic-data-gen/resolve/main/data/test-00000-of-00001-8e35e4421d8ed47e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/coding-Jay/Synthetic-Datasets-Unity-CV/resolve/main/NewDatasetProduced0.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/arcee-ai/synthetic-data-gen/resolve/main/data/test-00000-of-00001-8e35e4421d8ed47e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atlasia/Synthetic-Data-English-Darija/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/api/resolve-cache/datasets/ProGamerGov/synthetic-dataset-1m-dalle3-high-quality-captions/216b8becd8c112e2a87c08f9ce8f2d65247c8c09/source_column_values.txt?%2Fdatasets%2FProGamerGov%2Fsynthetic-dataset-1m-dalle3-high-quality-captions%2Fresolve%2Fmain%2Fsource_column_values.txt=&etag=%2287adfe3c7ae472408d4b8a63db1de1ca0e0865b2%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/tomaszj321/syntheticdataset1/1a2962dd857bd16390b605f890211b657637638f/syntheticdata.csv?%2Fdatasets%2Ftomaszj321%2Fsyntheticdataset1%2Fresolve%2Fmain%2Fsyntheticdata.csv=&etag=%22c5c006b60fd50d0be42cc6c39a862444eb98b449%22
+    source: huggingface
+    status: wrong_format
+    reason: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by
+      peer'))
+  - url: https://dro.deakin.edu.au/articles/chapter/Food_Consumers_in_a_Cross_Cultural_and_Intra_Cultural_Perspective-From_Settlement_to_Multi_Cultural_Food_Environment_The_Case_of_Australia/32970488
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Continuity_of_matter_as_the_basis_of_information_resonance_a_hypothesis_on_the_transmission_of_experience_through_atoms_in_the_biological_cycle_b_/32979128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Original_raw_microscopic_images_for_manuscript_JoVE71749R2/32979065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/O_Call_07036833482_2026_27_Summit_University_Admission_Form_Post_UTME_FORM_JUPEB_form_Direct_Entry_form_IJMB_form_Transfer_form_Application_form_are_Still_on_sale_call_Registrar_office_07036833482_DR_Mrs_Elizabeth_/32979281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cours_de_Probabilit_s_et_Statistique_inf_rentielle/32979272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21038922
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20731201
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15077501
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17462858
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20472288
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21231795
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21231795
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20004097
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20004097
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_Code/31951983
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

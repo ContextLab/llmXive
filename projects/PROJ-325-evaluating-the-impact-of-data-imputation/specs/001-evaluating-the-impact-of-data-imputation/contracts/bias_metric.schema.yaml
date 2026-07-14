@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "BiasMetricSchema"
+description: "Schema for calculated bias metrics comparing imputation to ground truth."
+type: object
+properties:
+  method:
+    type: string
+    description: "The imputation method evaluated."
+  estimated_variance:
+    type: number
+    minimum: 0.0
+    description: "Variance estimated by the method."
+  benchmark_variance:
+    type: number
+    minimum: 0.0
+    description: "True variance (synthetic) or design‑based variance (real)."
+  percentage_bias:
+    type: number
+    description: "Calculated as (estimated - benchmark) / benchmark."
+  ratio_to_single:
+    type: number
+    description: "Ratio of MICE deviation magnitude to Single Mean deviation magnitude."
+  is_pass_sc002:
+    type: boolean
+    description: "True if ratio_to_single ≤ 0.8 (SC‑002)."
+  p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p‑value from paired t‑test."
+  p_value_adjusted:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Holm‑Bonferroni‑adjusted p‑value."
+required:
+  - method
+  - estimated_variance
+  - benchmark_variance
+  - percentage_bias
+  - is_pass_sc002
+additionalProperties: false

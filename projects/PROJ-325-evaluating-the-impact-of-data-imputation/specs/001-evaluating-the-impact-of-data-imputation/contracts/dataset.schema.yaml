@@ -1,0 +1,50 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "SurveyDatasetSchema"
+description: "Schema for ingested survey data with design variables."
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the dataset instance."
+  source_url:
+    type: string
+    format: uri
+    description: "Verified URL from the project's dataset block."
+  weight_col:
+    type: string
+    description: "Name of the column containing sampling weights."
+  psu_col:
+    type: string
+    description: "Name of the column containing Primary Sampling Units."
+  strata_col:
+    type: string
+    description: "Name of the column containing stratification variables."
+  target_col:
+    type: string
+    description: "Name of the variable to be analyzed for variance."
+  row_count:
+    type: integer
+    minimum: 1
+    description: "Total number of rows in the dataset."
+  missingness_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Fraction of missing values in target_col."
+  checksum:
+    type: string
+    description: "SHA‑256 checksum of the raw file."
+  psu_cluster_warning:
+    type: boolean
+    description: "True if any PSU has size = 1 (triggers warning in Task T009b)."
+required:
+  - id
+  - source_url
+  - weight_col
+  - psu_col
+  - strata_col
+  - target_col
+  - row_count
+  - missingness_rate
+  - checksum
+additionalProperties: false
