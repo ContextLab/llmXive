@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T21:12:08.336170Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-828-llmxive-follow-up-extending-learning-to
-last_run_id: 67ae7c4b-cb46-44ed-8db8-f410c7d84bbc
+last_run_id: b187f238-a766-4300-bf91-39d1fc2a3bcb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to
 title: 'llmXive follow-up: extending "Learning to Foresee: Unveiling the Unlocking
   Efficiency of On-Policy D"'
-updated_at: '2026-07-12T01:02:18.982896Z'
+updated_at: '2026-07-14T22:44:02.362481Z'

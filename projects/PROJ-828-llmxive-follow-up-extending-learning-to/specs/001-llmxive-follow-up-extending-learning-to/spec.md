@@ -52,7 +52,7 @@ The researcher must be able to compare the sample efficiency (steps to [deferred
 
 ### Edge Cases
 
-- **What happens when** the SVD of the OPD trajectory yields a flat spectrum (no clear low-rank structure)? The system must default to a fixed $k$ (e.g., top 10 components) or a variance threshold (e.g., 90% explained variance) to prevent the projection matrix from being ill-defined.
+- **What happens when** the SVD of the OPD trajectory yields a flat spectrum (no clear low-rank structure)? The system must default to a fixed $k$ (e.g., a representative number of top components) or a variance threshold (e.g., 90% explained variance) to prevent the projection matrix from being ill-defined.
 - **How does the system handle** memory exhaustion during SVD on a 300M model? The system must perform SVD on a subset of layers (e.g., only attention projections) or use randomized SVD to ensure the operation fits within the available memory constraint.
 - **What happens when** the Low-Rank RL variant fails to converge due to over-constraining the update space? The system must log the stagnation and allow for a sensitivity analysis on the rank $k$ (e.g., testing a range of low to high values) to find a feasible operating point.
 
@@ -63,7 +63,7 @@ The researcher must be able to compare the sample efficiency (steps to [deferred
 - **FR-001**: System MUST execute On-Policy Distillation (OPD) on a GSM8K subset (≥1,000 problems) and record parameter update matrices ($\Delta W$) for the first [deferred] of the training trajectory (capped at [deferred] steps). (See US-1)
 - **FR-002**: System MUST perform Singular Value Decomposition (SVD) on the accumulated OPD update matrices to extract the top-$k$ singular vectors defining the stable subspace. (See US-1)
 - **FR-003**: System MUST implement a PPO-based RL training loop that projects computed gradients onto the pre-computed top-$k$ singular vectors before applying the parameter update. (See US-2)
-- **FR-004**: System MUST track the number of training steps required for each variant (Standard RL, Low-Rank RL, OPD) to reach a fixed accuracy threshold (80%) on the GSM8K subset. (See US-3)
+- **FR-004**: System MUST track the number of training steps required for each variant (Standard RL, Low-Rank RL, OPD) to reach a fixed accuracy threshold on the GSM8K subset. (See US-3)
 - **FR-005**: System MUST compute the cosine similarity between the final accumulated update direction of each variant and the direction of the standard PPO baseline (used as the proxy for the optimal solution). (See US-3)
 - **FR-006**: System MUST perform a statistical significance test (paired t-test or Wilcoxon signed-rank) on the steps-to-convergence metric across three independent runs for each variant. (See US-3)
 - **FR-007**: System MUST ensure all training and analysis operations run on CPU-only hardware with a maximum memory footprint of 7 GB, a total execution time of ≤ 6 hours, and use a 300M parameter model (e.g., TinyLlama-300M) with mixed precision (FP16) and layer-wise SVD (attention projections only). (See US-4)
@@ -84,14 +84,14 @@ The researcher must be able to compare the sample efficiency (steps to [deferred
 - **SC-001**: The steps-to-80%-accuracy for the Low-Rank RL variant is measured against the Standard RL baseline to determine if geometric constraints reduce sample complexity. (See US-3)
 - **SC-002**: The final subspace alignment (cosine similarity) of the Low-Rank RL variant is measured against the standard PPO baseline to determine if the hybrid converges in a similar geometric direction. (See US-3)
 - **SC-003**: The statistical significance of the difference in convergence steps between Low-Rank RL and Standard RL is measured against a p-value threshold of < 0.05 using a Wilcoxon signed-rank test. (See US-3)
-- **SC-004**: The memory usage during SVD and training for all experimental variants (OPD, Standard RL, Low-Rank RL) is measured against the 7 GB RAM limit to ensure the experiment is feasible on free-tier CPU runners. (See US-1, US-2)
-- **SC-005**: The total wall-clock time for the full experimental pipeline (OPD + RL Baseline + Hybrid + Analysis) is measured against the 6-hour limit. (See US-1, US-2, US-3, US-4)
+- **SC-004**: The memory usage during SVD and training for all experimental variants (OPD, Standard RL, Low-Rank RL) is measured against the available RAM limit to ensure the experiment is feasible on free-tier CPU runners. (See US-1, US-2)
+- **SC-005**: The total wall-clock time for the full experimental pipeline (OPD + RL Baseline + Hybrid + Analysis) is measured against a predefined time constraint. (See US-1, US-2, US-3, US-4)
 - **SC-006**: The Early Trajectory Alignment (first [deferred] of steps) of the Low-Rank RL variant is measured against the OPD baseline to validate that the geometric constraint induces foresight early in training. (See US-3)
 
 ## Assumptions
 
 - **Assumption about data**: The GSM8K dataset (first [deferred] problems) contains sufficient reasoning diversity to serve as a proxy for the "foresight" phenomenon; if the dataset lacks complexity, the results may not generalize to harder reasoning tasks.
-- **Assumption about model**: A 300M parameter model (e.g., TinyLlama-300M or similar) is sufficiently small to run in mixed precision (FP16) on CPU within the 7 GB RAM and 6-hour time limit, provided that the dataset is not excessively large and training steps are capped.
+- **Assumption about model**: A M parameter model (e.g., TinyLlama-300M or similar) is sufficiently small to run in mixed precision (FP16) on CPU within the 7 GB RAM and 6-hour time limit, provided that the dataset is not excessively large and training steps are capped.
 - **Assumption about geometry**: The top-$k$ singular vectors (where $k$ is a small integer, e.g., 10-50) capture the majority of the "stable" geometric signal from the OPD trajectory, and projecting onto this subspace does not eliminate essential learning dynamics.
 - **Assumption about inference framing**: Since the study uses observational data (training trajectories) without random assignment of the "geometry" variable (it is derived from OPD), findings will be framed as associational (e.g., "Low-Rank RL is associated with faster convergence") rather than strictly causal, unless the experimental design isolates the geometry as the sole variable.
 - **Assumption about collinearity**: The predictors (OPD subspace vs. RL objective) are not definitionally identical; the projection is an external constraint applied to the RL process, allowing for a descriptive analysis of their joint relationship.

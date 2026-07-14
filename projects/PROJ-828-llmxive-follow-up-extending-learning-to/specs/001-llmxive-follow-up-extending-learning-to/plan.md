@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project investigates whether the "foresight" phenomenon in LLM reasoning stems from the geometric stability of parameter update subspaces or the supervised distillation objective. The plan executes six experimental variants to isolate the geometric signal: (1) On-Policy Distillation (OPD) to define a stable subspace via SVD of early updates; (2) Low-Rank RL (Hybrid), which projects PPO gradients onto this OPD subspace; (3) Random Projection Baseline, which projects PPO gradients onto a random subspace of the same rank; (4) Random Walk Prior Baseline, which projects onto a subspace derived from a random walk (noise) to control for geometry learned from supervision; (5) Standard RL as a baseline; and (6) **OPD-Initialized RL**, which initializes the RL agent with OPD weights but does *not* project gradients, isolating the effect of the constraint from the initialization. The implementation strictly adheres to CPU-only constraints (limited RAM, bounded runtime) by utilizing a compact parameter model (TinyLlama variant, pruned from 1.1B), layer-wise SVD (attention projections only), and mixed-precision (FP16) arithmetic.
+This project investigates whether the "foresight" phenomenon in LLM reasoning stems from the geometric stability of parameter update subspaces or the supervised distillation objective. The plan executes six experimental variants to isolate the geometric signal: (1) On-Policy Distillation (OPD) to define a stable subspace via SVD of early updates; (2) Low-Rank RL (Hybrid), which projects PPO gradients onto this OPD subspace; (3) Random Projection Baseline, which projects PPO gradients onto a random subspace of the same rank; (4) Random Walk Prior Baseline, which projects onto a subspace derived from a random walk (noise) to control for geometry learned from supervision; (5) Standard RL as a baseline; and (6) **OPD-Initialized RL**, which initializes the RL agent with OPD weights but does *not* project gradients, isolating the effect of the constraint from the initialization. The implementation strictly adheres to CPU-only constraints (limited RAM, bounded runtime) by utilizing a compact parameter model (TinyLlama variant, pruned from a large-scale base model), layer-wise SVD (attention projections only), and mixed-precision (FP16) arithmetic.
 
 ## Technical Context
 
@@ -13,13 +13,13 @@ This project investigates whether the "foresight" phenomenon in LLM reasoning st
 **Primary Dependencies**: `torch` (CPU-only build), `transformers`, `datasets`, `peft`, `scikit-learn` (for SVD/stats), `pandas`, `numpy`, `matplotlib`.  
 **Storage**: Local filesystem. `data/` is for raw datasets **only**. `results/` is for **all** derived artifacts including checkpoints, logs, matrices, and plots.  
 **Testing**: `pytest` for unit tests on projection logic; integration tests via GitHub Actions workflow.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, 7GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multiple vCPUs, 7GB RAM).  
 **Project Type**: Computational research / ML Experimentation.  
 **Performance Goals**: Complete full pipeline (OPD + 6 RL variants + analysis) within 6 hours; memory peak < 7GB.  
 **Constraints**: No GPU; no full-model SVD (must be layer-wise or randomized); FP16 precision mandatory; strict seed pinning for reproducibility.  
 **Scale/Scope**: GSM8K subset (representative sample); Multiple independent seeds per variant; ~M parameter model.
 
-> **Dataset Note**: The GSMK dataset is sourced from the verified HuggingFace repository (main split). The TinyLlama model architecture is derived from `TinyLlama/TinyLlama-1.1B-Chat-v1.0` by reducing hidden size to a parameter count in the hundreds of millions (e.g., hidden_size=512) to fit memory constraints. The base weights are verified; the pruning is performed programmatically.
+> **Dataset Note**: The GSMK dataset is sourced from the verified HuggingFace repository (main split). The The TinyLlama model architecture is derived from the TinyLlama Chat series. by reducing hidden size to a parameter count in the hundreds of millions (e.g., hidden_size=512) to fit memory constraints. The base weights are verified; the pruning is performed programmatically.
 
 ## Constitution Check
 
@@ -93,8 +93,8 @@ requirements.txt
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | Layer-wise SVD instead of full-model SVD | Full-model SVD on a large-scale model exceeds available CPU memory resources.. | A full-model SVD would cause OOM errors, making the experiment impossible on the target hardware. |
-| 300M parameter model instead of 1.1B | 1.1B model + FP16 + optimizer states > 7GB RAM. | Larger models would prevent training within the 6-hour/7GB constraint, even with CPU optimization. |
-| 10 independent seeds per variant | Statistical rigor (Principle VII) requires sufficient power (N=10) to detect medium effect sizes with Wilcoxon test. | A single run or N=3 cannot distinguish "foresight" effects from random stochasticity in RL. |
+| M parameter model instead of 1.1B | 1.1B model + FP16 + optimizer states > 7GB RAM. | Larger models would prevent training within the limited time and memory constraint, even with CPU optimization. |
+| Multiple independent seeds per variant | Statistical rigor (Principle VII) requires sufficient power (N=10) to detect medium effect sizes with Wilcoxon test. | A single run or N=3 cannot distinguish "foresight" effects from random stochasticity in RL. |
 | Random Walk Prior Baseline (Variant E) | Needed to isolate the effect of *specific* OPD geometry from general low-rank constraints and geometry learned from supervision. | Without this control, any improvement from Low-Rank RL could be attributed to the constraint itself, not the OPD geometry. |
 | OPD-Initialized RL Baseline (Variant F) | Needed to isolate the effect of the *projection constraint* from the *initialization* with OPD weights. | Without this, we cannot distinguish if success is due to the geometry constraint or simply starting from a better point. |
-| Pruning TinyLlama-1.1B to 300M | No verified 300M TinyLlama artifact exists; must derive from verified 1.1B source. | Using an unverified or generic 300M model would violate Constitution Principle II (Verified Accuracy). |
+| Pruning TinyLlamaB to 300M | No verified M TinyLlama artifact exists; must derive from verified 1.1B source. | Using an unverified or generic 300M model would violate Constitution Principle II (Verified Accuracy). |
