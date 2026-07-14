@@ -1,8 +1,16 @@
-"""Network diagram generator for significant edges and module coloring."""
+"""
+Network Diagram Generator for Brain Connectivity Analysis.
+
+Generates publication-quality network diagrams showing:
+- Module-based node coloring (Schaefer atlas communities)
+- Significant edges (based on correlation results)
+- Node coordinates (from atlas metadata)
+
+Output: PNG files in figures/network_diagrams/
+"""
 from __future__ import annotations
 
 import os
-import sys
 import json
 from pathlib import Path
 from typing import Optional, Dict, List, Tuple, Any, Set
@@ -11,328 +19,300 @@ import numpy as np
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
-from matplotlib.colors import Normalize
-import matplotlib.cm as cm
+import matplotlib.patches as mpatches
+from matplotlib.collections import LineCollection
 
-# Local imports
 from code.logging_config import get_logger
-from code.config import get_config
 
 logger = get_logger(__name__)
 
+# Constants
+FIGURES_DIR = Path("figures/network_diagrams")
+SCHAEFER_MAPPING_PATH = Path("data/analysis/schaefer_mapping.json")
+CORRELATION_RESULTS_PATH = Path("data/analysis/correlations.csv")
 
-def load_schaefer_mapping(atlas_path: Optional[str] = None) -> Dict[int, Dict[str, Any]]:
+def load_schaefer_mapping(mapping_path: Optional[Path] = None) -> Dict[int, Dict[str, Any]]:
     """
-    Load the Schaefer atlas mapping (node index -> module/parcel info).
+    Load Schaefer atlas module mapping.
     
-    If the atlas file doesn't exist locally, this attempts to fetch it or
-    returns a mock mapping for testing purposes. In a real run, the path
-    should point to the downloaded Schaefer 400 parcellation file.
-    
+    Args:
+        mapping_path: Path to JSON file with node-to-module mapping.
+                    If None, uses default path.
+                    
     Returns:
-        Dict mapping node index (int) to a dict with keys:
-            'module': int (community assignment 1-17)
-            'parcel': str (parcel name)
-    """
-    config = get_config()
-    if atlas_path is None:
-        atlas_path = config.get('SCHAEFER_ATLAS_PATH')
-    
-    mapping = {}
-    
-    if atlas_path and os.path.exists(atlas_path):
-        try:
-            # Expected format: CSV with columns: ROI, Yeo7, Yeo17, ParcelName
-            df = pd.read_csv(atlas_path)
-            for idx, row in df.iterrows():
-                mapping[idx] = {
-                    'module': int(row.get('Yeo17', row.get('Yeo7', 1))),
-                    'parcel': str(row.get('ParcelName', f'Parcel_{idx}')),
-                    'x': float(row.get('x', 0)),
-                    'y': float(row.get('y', 0)),
-                    'z': float(row.get('z', 0))
-                }
-        except Exception as e:
-            logger.log("load_schaefer_mapping_error", error=str(e))
-            # Fallback to mock mapping if file is corrupted
-            mapping = _create_mock_mapping()
-    else:
-        # Create mock mapping for testing/demonstration
-        mapping = _create_mock_mapping()
+        Dictionary mapping node_id -> {module, color, name, x, y, z}
         
+    Raises:
+        FileNotFoundError: If mapping file doesn't exist.
+    """
+    if mapping_path is None:
+        mapping_path = SCHAEFER_MAPPING_PATH
+        
+    if not mapping_path.exists():
+        logger.log("schema_missing", path=str(mapping_path))
+        raise FileNotFoundError(f"Schaefer mapping not found at {mapping_path}")
+        
+    with open(mapping_path, 'r') as f:
+        data = json.load(f)
+        
+    # Convert string keys to int
+    mapping = {}
+    for key, value in data.items():
+        mapping[int(key)] = value
+        
+    logger.log("schema_loaded", path=str(mapping_path), nodes=len(mapping))
     return mapping
 
-
-def _create_mock_mapping() -> Dict[int, Dict[str, Any]]:
-    """Create a mock mapping for testing when atlas is unavailable."""
-    mapping = {}
-    # Generate mock data for 400 nodes
-    modules = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
-    for i in range(400):
-        mapping[i] = {
-            'module': modules[i % len(modules)],
-            'parcel': f'Parcel_{i}',
-            'x': np.random.uniform(-100, 100),
-            'y': np.random.uniform(-100, 100),
-            'z': np.random.uniform(-100, 100)
-        }
-    return mapping
-
-
-def load_correlation_results(csv_path: Optional[str] = None) -> pd.DataFrame:
+def load_correlation_results(results_path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load correlation results from CSV.
+    Load correlation results with FDR correction.
     
-    Expected columns:
-        - metric_name: str
-        - node_index: int (optional, for node-level results)
-        - r: float (correlation coefficient)
-        - p: float (p-value)
-        - q: float (FDR-corrected p-value)
-        - significant: bool
-    
+    Args:
+        results_path: Path to CSV with correlation results.
+                    If None, uses default path.
+                    
     Returns:
-        DataFrame with correlation results.
+        DataFrame with columns: metric_name, correlation_target, r, p, q, significant
+        
+    Raises:
+        FileNotFoundError: If results file doesn't exist.
     """
-    if csv_path is None:
-        csv_path = "data/analysis/correlation_results.csv"
+    if results_path is None:
+        results_path = CORRELATION_RESULTS_PATH
         
-    if not os.path.exists(csv_path):
-        # Create a synthetic result for testing if file doesn't exist
-        # This is NOT fabrication - it's a fallback for CI/testing
-        # Real runs should have this file from T024/T025
-        logger.log("correlation_results_not_found", path=csv_path)
-        return _create_mock_correlation_results()
+    if not results_path.exists():
+        logger.log("results_missing", path=str(results_path))
+        raise FileNotFoundError(f"Correlation results not found at {results_path}")
         
-    return pd.read_csv(csv_path)
-
-
-def _create_mock_correlation_results() -> pd.DataFrame:
-    """Create mock correlation results for testing."""
-    # Create a realistic-looking mock dataset
-    n_nodes = 400
-    np.random.seed(42)
-    
-    data = {
-        'metric_name': ['Participation_Coeff', 'Within_Module_Degree'] * 200,
-        'node_index': list(range(400)),
-        'r': np.random.uniform(-0.4, 0.5, 400),
-        'p': np.random.uniform(0.001, 0.1, 400),
-        'q': np.random.uniform(0.001, 0.1, 400),
-        'significant': np.random.choice([True, False], 400, p=[0.2, 0.8])
-    }
-    return pd.DataFrame(data)
-
+    df = pd.read_csv(results_path)
+    logger.log("results_loaded", path=str(results_path), rows=len(df))
+    return df
 
 def get_significant_edges(
-    correlation_df: pd.DataFrame,
-    threshold: float = 0.05,
-    metric_name: Optional[str] = None
-) -> List[Tuple[int, int, Dict[str, Any]]]:
+    correlation_results: pd.DataFrame,
+    metrics: List[str],
+    target: str = "motor_score"
+) -> Dict[str, List[Tuple[int, int, float]]]:
     """
-    Extract significant edges from correlation results.
+    Extract significant edges for each metric.
     
     Args:
-        correlation_df: DataFrame with correlation results
-        threshold: FDR-corrected p-value threshold (q < threshold)
-        metric_name: Filter by specific metric name (optional)
+        correlation_results: DataFrame with correlation results.
+        metrics: List of metric names to extract edges for.
+        target: Target variable name (default: motor_score).
         
     Returns:
-        List of tuples: (node_i, node_j, edge_data)
-        edge_data contains: 'r', 'p', 'q', 'significant'
+        Dictionary mapping metric_name -> list of (node1, node2, r_value)
+        where r_value is the correlation coefficient.
     """
-    edges = []
+    significant_edges = {}
     
-    df = correlation_df.copy()
-    if metric_name:
-        df = df[df['metric_name'] == metric_name]
-        
-    significant_df = df[df['q'] < threshold]
-    
-    for _, row in significant_df.iterrows():
-        node_idx = int(row['node_index'])
-        # For node-level metrics, we connect each node to a "hub" or use a specific pattern
-        # In a real network analysis, this would come from a connectivity matrix
-        # Here we create edges based on the node index for demonstration
-        # In practice, you'd have a separate connectivity matrix file
-        
-        # For this implementation, we'll create edges to neighboring nodes
-        # to simulate a network structure
-        neighbors = [
-            (node_idx - 1) % 400,
-            (node_idx + 1) % 400,
-            (node_idx + 10) % 400,
-            (node_idx - 10) % 400
+    for metric in metrics:
+        # Filter for significant correlations with this metric
+        metric_rows = correlation_results[
+            (correlation_results['metric_name'] == metric) &
+            (correlation_results['significant'] == True)
         ]
         
-        for neighbor in neighbors:
-            if neighbor > node_idx:  # Avoid duplicates
-                edge_data = {
-                    'r': float(row['r']),
-                    'p': float(row['p']),
-                    'q': float(row['q']),
-                    'significant': bool(row['significant']),
-                    'metric': str(row['metric_name'])
-                }
-                edges.append((node_idx, neighbor, edge_data))
-                
-    return edges
+        edges = []
+        for _, row in metric_rows.iterrows():
+            # Extract node indices from metric_name format: "participation_coef_node_X"
+            # or "within_module_degree_node_X"
+            node_str = row['metric_name'].split('_node_')[-1] if '_node_' in row['metric_name'] else None
+            
+            if node_str:
+                try:
+                    node_id = int(node_str)
+                    edges.append((node_id, node_id, row['r']))
+                except ValueError:
+                    continue
+        
+        if edges:
+            significant_edges[metric] = edges
+            logger.log("edges_extracted", metric=metric, count=len(edges))
+    
+    return significant_edges
 
+def load_node_coordinates(mapping: Dict[int, Dict[str, Any]]) -> Dict[int, Tuple[float, float, float]]:
+    """
+    Extract 3D coordinates from Schaefer mapping.
+    
+    Args:
+        mapping: Node-to-module mapping from load_schaefer_mapping.
+                
+    Returns:
+        Dictionary mapping node_id -> (x, y, z) coordinates.
+    """
+    coords = {}
+    for node_id, info in mapping.items():
+        if 'x' in info and 'y' in info and 'z' in info:
+            coords[node_id] = (info['x'], info['y'], info['z'])
+    
+    logger.log("coordinates_loaded", count=len(coords))
+    return coords
 
 def generate_network_diagram(
-    output_path: str = "figures/network_diagram.png",
-    correlation_csv: Optional[str] = None,
-    atlas_path: Optional[str] = None,
-    threshold: float = 0.05,
-    title: str = "Brain Network Dynamics: Significant Edges"
-) -> str:
+    significant_edges: Dict[str, List[Tuple[int, int, float]]],
+    mapping: Dict[int, Dict[str, Any]],
+    output_path: Optional[Path] = None,
+    edge_threshold: float = 0.3
+) -> Path:
     """
-    Generate a network diagram showing significant edges with module coloring.
+    Generate a network diagram with module coloring and significant edges.
     
     Args:
-        output_path: Path to save the output PNG file
-        correlation_csv: Path to correlation results CSV
-        atlas_path: Path to Schaefer atlas mapping
-        threshold: FDR-corrected p-value threshold
-        title: Plot title
+        significant_edges: Dictionary of metric -> list of edges.
+        mapping: Node-to-module mapping with coordinates.
+        output_path: Path to save the figure. If None, uses default.
+        edge_threshold: Minimum |r| value to display edges.
         
     Returns:
-        Path to the generated figure file
+        Path to the saved figure.
     """
-    logger.log("generate_network_diagram_start", output_path=output_path)
-    
-    # Load data
-    mapping = load_schaefer_mapping(atlas_path)
-    correlation_df = load_correlation_results(correlation_csv)
-    significant_edges = get_significant_edges(correlation_df, threshold)
-    
-    logger.log("data_loaded", 
-               nodes=len(mapping), 
-               edges=len(significant_edges))
-    
-    # Create graph
-    G = nx.Graph()
-    
-    # Add nodes with module-based coloring
-    node_modules = {}
-    for node_idx, info in mapping.items():
-        module = info['module']
-        G.add_node(node_idx, 
-                  x=info['x'], 
-                  y=info['y'], 
-                  z=info['z'],
-                  module=module)
-        node_modules[node_idx] = module
-    
-    # Add significant edges
-    edge_weights = []
-    for i, j, data in significant_edges:
-        if G.has_node(i) and G.has_node(j):
-            G.add_edge(i, j, **data)
-            edge_weights.append(abs(data['r']))
-    
-    logger.log("graph_created", 
-               nodes=G.number_of_nodes(), 
-               edges=G.number_of_edges())
-    
-    # Layout: 3D projected to 2D or spring layout
-    # Using spring layout for better visualization of modules
-    pos = nx.spring_layout(G, k=2, iterations=50, seed=42)
-    
-    # Map modules to colors
-    unique_modules = sorted(set(node_modules.values()))
-    colormap = cm.get_cmap('tab20', len(unique_modules))
-    node_colors = [colormap(unique_modules.index(node_modules[n])) for n in G.nodes()]
+    if output_path is None:
+        FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+        output_path = FIGURES_DIR / "network_diagram.png"
+    else:
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
     
     # Create figure
-    fig, ax = plt.subplots(figsize=(14, 10))
+    fig = plt.figure(figsize=(14, 12))
+    ax = fig.add_subplot(111)
     
-    # Draw nodes
-    nx.draw_networkx_nodes(
-        G, pos, 
-        node_color=node_colors, 
-        node_size=50, 
-        alpha=0.8, 
-        ax=ax
-    )
+    # Get all nodes and their modules
+    nodes = list(mapping.keys())
+    modules = set(info.get('module', 0) for info in mapping.values())
     
-    # Draw edges with width proportional to correlation strength
-    if len(edge_weights) > 0:
-        edge_widths = [abs(G[u][v]['r']) * 2 for u, v in G.edges()]
-        edge_colors = ['red' if G[u][v].get('r', 0) > 0 else 'blue' for u, v in G.edges()]
-        nx.draw_networkx_edges(
-            G, pos,
-            width=edge_widths,
-            edge_color=edge_colors,
-            alpha=0.5,
-            ax=ax
+    # Define module colors (distinct colors for each module)
+    module_colors = plt.cm.tab10.colors
+    node_colors = [module_colors[mapping[n].get('module', 0) % 10] for n in nodes]
+    
+    # Extract coordinates
+    coords = [mapping[n].get('x', 0) for n in nodes], \
+             [mapping[n].get('y', 0) for n in nodes], \
+             [mapping[n].get('z', 0) for n in nodes]
+    
+    # Project to 2D for visualization (simple orthographic projection)
+    # Rotate to view from a good angle
+    theta = np.pi / 4
+    x_proj = [coords[0][i] * np.cos(theta) - coords[2][i] * np.sin(theta) for i in range(len(nodes))]
+    y_proj = [coords[1][i] for i in range(len(nodes))]
+    
+    # Plot nodes
+    scatter = ax.scatter(x_proj, y_proj, c=node_colors, s=50, alpha=0.7, edgecolors='black', linewidths=0.5)
+    
+    # Create legend for modules
+    legend_patches = []
+    for mod in sorted(modules):
+        legend_patches.append(
+            mpatches.Patch(color=module_colors[mod % 10], label=f'Module {mod}')
         )
+    ax.legend(handles=legend_patches, loc='upper right', title='Modules')
     
-    # Title and labels
-    ax.set_title(title, fontsize=16, pad=20)
-    ax.axis('off')
+    # Plot edges for each metric
+    for metric, edges in significant_edges.items():
+        # Filter edges by threshold
+        filtered_edges = [(n1, n2, r) for n1, n2, r in edges if abs(r) >= edge_threshold]
+        
+        if not filtered_edges:
+            continue
+        
+        # Create line collection
+        line_segments = []
+        colors = []
+        for n1, n2, r in filtered_edges:
+            if n1 in mapping and n2 in mapping:
+                # Get projected coordinates
+                x1 = mapping[n1].get('x', 0) * np.cos(theta) - mapping[n1].get('z', 0) * np.sin(theta)
+                y1 = mapping[n1].get('y', 0)
+                x2 = mapping[n2].get('x', 0) * np.cos(theta) - mapping[n2].get('z', 0) * np.sin(theta)
+                y2 = mapping[n2].get('y', 0)
+                
+                line_segments.append([[x1, y1], [x2, y2]])
+                
+                # Color based on correlation strength
+                if r > 0:
+                    colors.append((1, 0, 0, min(1.0, abs(r))))  # Red for positive
+                else:
+                    colors.append((0, 0, 1, min(1.0, abs(r))))  # Blue for negative
+        
+        if line_segments:
+          lc = LineCollection(line_segments, colors=colors, linewidths=1.5, alpha=0.6)
+          ax.add_collection(lc)
     
-    # Add legend for modules
-    legend_elements = [
-        plt.Line2D([0], [0], marker='o', color='w', 
-                  markerfacecolor=colormap(i), markersize=8,
-                  label=f'Module {m}')
-        for i, m in enumerate(unique_modules)
-    ]
-    ax.legend(handles=legend_elements, loc='upper right', title='Modules')
+    # Add legend for edges
+    pos_patch = mpatches.Patch(color='red', label='Positive correlation')
+    neg_patch = mpatches.Patch(color='blue', label='Negative correlation')
+    ax.legend(handles=[pos_patch, neg_patch], loc='lower right', title='Edge Sign')
     
-    # Add correlation strength legend
-    if len(edge_weights) > 0:
-        max_width = max(edge_widths)
-        legend_edges = [
-            plt.Line2D([0], [0], color='red', linewidth=i*2, 
-                      label=f'r = {i*0.2:.1f}' if i > 0 else 'Positive')
-            for i in range(1, 4)
-        ]
-        ax.legend(handles=legend_edges, loc='lower right', title='Correlation Strength')
+    ax.set_title('Brain Network Dynamics: Significant Correlations with Motor Performance\n'
+                f'(Threshold |r| >= {edge_threshold})', fontsize=14, fontweight='bold')
+    ax.set_xlabel('X (projected)', fontsize=12)
+    ax.set_ylabel('Y', fontsize=12)
+    ax.grid(True, alpha=0.3)
+    ax.set_aspect('equal')
     
     # Save figure
     plt.tight_layout()
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close(fig)
     
-    logger.log("generate_network_diagram_complete", 
-               output_path=output_path,
-               nodes=G.number_of_nodes(),
-               edges=G.number_of_edges())
-    
+    logger.log("diagram_generated", path=str(output_path), metrics=len(significant_edges))
     return output_path
 
-
-def main():
-    """Main entry point for network diagram generation."""
-    import argparse
+def main() -> None:
+    """
+    Main entry point for network diagram generation.
     
-    parser = argparse.ArgumentParser(description='Generate network diagram from correlation results')
-    parser.add_argument('--output', type=str, default='figures/network_diagram.png',
-                      help='Output file path')
-    parser.add_argument('--correlations', type=str, default='data/analysis/correlation_results.csv',
-                      help='Path to correlation results CSV')
-    parser.add_argument('--atlas', type=str, default=None,
-                      help='Path to Schaefer atlas mapping')
-    parser.add_argument('--threshold', type=float, default=0.05,
-                      help='FDR-corrected p-value threshold')
-    parser.add_argument('--title', type=str, default='Brain Network Dynamics: Significant Edges',
-                      help='Plot title')
-    
-    args = parser.parse_args()
-    
-    output_path = generate_network_diagram(
-        output_path=args.output,
-        correlation_csv=args.correlations,
-        atlas_path=args.atlas,
-        threshold=args.threshold,
-        title=args.title
-    )
-    
-    print(f"Network diagram generated: {output_path}")
-    return output_path
-
-
-if __name__ == "__main__":
-    main()
+    Loads correlation results, extracts significant edges,
+    and generates the network diagram.
+    """
+    try:
+        # Load data
+        logger.log("network_diagram_start")
+        
+        # Load Schaefer mapping
+        mapping = load_schaefer_mapping()
+        
+        # Load correlation results
+        correlation_results = load_correlation_results()
+        
+        # Define metrics to visualize
+        # These should match the metrics extracted in T021/T022
+        metrics = [
+            'participation_coef',
+            'within_module_degree',
+            'modularity',
+            'global_efficiency'
+        ]
+        
+        # Extract significant edges
+        significant_edges = get_significant_edges(correlation_results, metrics)
+        
+        if not significant_edges:
+            logger.log("no_significant_edges", message="No significant edges found to visualize")
+            # Create a placeholder figure
+            fig, ax = plt.subplots(figsize=(10, 8))
+            ax.text(0.5, 0.5, 'No significant edges found\n(r > 0.3, q < 0.05)', 
+                   ha='center', va='center', fontsize=14, transform=ax.transAxes)
+            ax.set_title('Network Diagram - No Significant Edges')
+            FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+            output_path = FIGURES_DIR / "network_diagram.png"
+            plt.savefig(output_path, dpi=300)
+            plt.close(fig)
+            logger.log("placeholder_generated", path=str(output_path))
+            return
+        
+        # Generate diagram
+        output_path = generate_network_diagram(significant_edges, mapping)
+        
+        logger.log("network_diagram_complete", path=str(output_path))
+        print(f"Network diagram saved to: {output_path}")
+        
+    except FileNotFoundError as e:
+        logger.log("network_diagram_failed", error=str(e))
+        raise
+    except Exception as e:
+        logger.log("network_diagram_error", error=str(e))
+        raise

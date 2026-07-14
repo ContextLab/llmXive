@@ -26,6 +26,9 @@ def synthetic_correlation_csv(tmp_path: Path) -> Path:
             "p": [0.012],
             "p_fdr": [0.018],
             "significant": [True],
+            "subject_id": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            "modularity": [0.3, 0.4, 0.35, 0.45, 0.32, 0.38, 0.42, 0.36, 0.41, 0.39],
+            "motor_score": [50, 55, 52, 58, 51, 54, 57, 53, 56, 54],
         }
     )
     out_path = tmp_path / "correlations.csv"
