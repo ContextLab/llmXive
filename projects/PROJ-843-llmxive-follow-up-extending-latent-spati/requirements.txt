@@ -9,6 +9,4 @@ imageio
 pytest
 memory_profiler
 scikit-image
-huggingface_hub
 torchvision
-# Added torchvision for Inception‑v3 feature extraction used in metrics.

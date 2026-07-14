@@ -1,7 +1,5 @@
 """
-Basic sanity test for the flexible ``ensure_directories`` helper added to
-``code/config.py``. The test creates temporary directories, invokes the helper
-with several calling styles and checks that the directories have been created.
+Tests for the flexible ``ensure_directories`` helper in ``config.py``.
 """
 
 import shutil
@@ -9,42 +7,65 @@ from pathlib import Path
 
 import pytest
 
-from config import ensure_directories
+from config import (
+    get_raw_dir,
+    get_processed_dir,
+    get_stratified_dir,
+    get_features_dir,
+    get_results_dir,
+    get_figures_dir,
+    ensure_directories,
+)
 
 
-@pytest.fixture
-def tmp_root(tmp_path):
-    # Create a fresh temporary root that will be removed after the test.
-    return tmp_path
+@pytest.fixture(autouse=True)
+def clean_project_dirs(tmp_path: Path, monkeypatch):
+    """
+    Redirect all standard directories to a temporary location for isolation.
+    """
+    # Monkey‑patch the directory getters to point inside ``tmp_path``.
+    monkeypatch.setattr("config.get_raw_dir", lambda: tmp_path / "data" / "raw")
+    monkeypatch.setattr("config.get_processed_dir", lambda: tmp_path / "data" / "processed")
+    monkeypatch.setattr("config.get_stratified_dir", lambda: tmp_path / "data" / "stratified")
+    monkeypatch.setattr("config.get_features_dir", lambda: tmp_path / "data" / "features")
+    monkeypatch.setattr("config.get_results_dir", lambda: tmp_path / "data" / "results")
+    monkeypatch.setattr("config.get_figures_dir", lambda: tmp_path / "data" / "figures")
+
+    yield
+
+    # Cleanup after the test.
+    if tmp_path.exists():
+        shutil.rmtree(tmp_path)
 
 
-def test_ensure_directories_various_calls(tmp_root):
-    # Call with no arguments – should be a no‑op and not raise.
-    ensure_directories()
+def test_ensure_directories_no_args():
+    """Calling without arguments should create all standard dirs."""
+    created = ensure_directories()
+    expected = {
+        get_raw_dir(),
+        get_processed_dir(),
+        get_stratified_dir(),
+        get_features_dir(),
+        get_results_dir(),
+        get_figures_dir(),
+    }
+    assert set(created) == expected
+    for p in expected:
+        assert p.is_dir()
 
-    # Single Path argument.
-    a = tmp_root / "a"
-    ensure_directories(a)
-    assert a.is_dir()
 
-    # Multiple arguments, mixing Path and string.
-    b = tmp_root / "b"
-    c = tmp_root / "c"
-    ensure_directories(b, str(c))
-    assert b.is_dir() and c.is_dir()
+def test_ensure_directories_single_path():
+    """Calling with a single Path should create that directory only."""
+    custom_dir = Path("some/custom/dir")
+    created = ensure_directories(custom_dir)
+    assert created == [custom_dir]
+    assert custom_dir.is_dir()
 
-    # Iterable argument.
-    d = tmp_root / "d"
-    e = tmp_root / "e"
-    ensure_directories([d, e])
-    assert d.is_dir() and e.is_dir()
 
-    # Mixed var‑args + iterable.
-    f = tmp_root / "f"
-    g = tmp_root / "g"
-    h = tmp_root / "h"
-    ensure_directories(f, [g, h])
-    assert f.is_dir() and g.is_dir() and h.is_dir()
-
-    # Clean up (pytest will also clean the tmp_path automatically).
-    shutil.rmtree(tmp_root)
+def test_ensure_directories_iterable():
+    """Calling with an iterable of Paths should create each of them."""
+    dirs = [Path("a"), Path("b/c"), Path("d/e/f")]
+    created = ensure_directories(dirs)
+    assert set(created) == set(dirs)
+    for p in dirs:
+        assert p.is_dir()

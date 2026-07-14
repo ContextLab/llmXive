@@ -2,34 +2,64 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 command(s) failed: python code/main.py --phase data_prepare (rc=1); python code/main.py --phase extract_features (rc=1); python code/main.py --phase compute_geometry (rc=1); 1 declared deliverable(s) absent: data/raw/dense_baseline_frames.npy
+**Summary**: 4 command(s) failed: python code/main.py --phase data_prepare (rc=1); python code/main.py --phase extract_features (rc=1); python code/main.py --phase compute_geometry (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/main.py --phase data_prepare -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 32, in <module>
-    from config import (
-ImportError: cannot import name 'get_raw_dir' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/config.py)
+    [main] Starting data download …
+Downloading dataset...
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 163, in <module>
+    main(sys.argv[1:])
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 158, in main
+    phase_func()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 100, in phase_data_prepare
+    download_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/data/download.py", line 25, in main
+    path = download_dataset()
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/data/download.py", line 16, in download_dataset
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'mkdir'
 - python code/main.py --phase extract_features -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 32, in <module>
-    from config import (
-ImportError: cannot import name 'get_raw_dir' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/config.py)
+    [main] Extracting sparse features …
+Extracting features...
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 163, in <module>
+    main(sys.argv[1:])
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 158, in main
+    phase_func()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 112, in phase_extract_features
+    extract_features_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/data/extract_features.py", line 42, in main
+    stratum_path = stratified_dir / stratum
+                   ~~~~~~~~~~~~~~~^~~~~~~~~
+TypeError: unsupported operand type(s) for /: 'str' and 'str'
 - python code/main.py --phase compute_geometry -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 32, in <module>
-    from config import (
-ImportError: cannot import name 'get_raw_dir' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/config.py)
+    ome/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 158, in main
+    phase_func()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 122, in phase_compute_geometry
+    geometry_pipeline_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/geometry/run_pipeline.py", line 47, in main
+    raise e
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/geometry/run_pipeline.py", line 42, in main
+    aggregate_main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/geometry/aggregate_warps.py", line 106, in main
+    warped_paths = scan_warped_frames(results_dir)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/geometry/aggregate_warps.py", line 37, in scan_warped_frames
+    for p in results_dir.glob("*.npy")
+             ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'glob'
 - python code/main.py --phase evaluate -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py", line 32, in <module>
-    from config import (
-ImportError: cannot import name 'get_raw_dir' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/config.py)
+    [main] Running evaluation and reporting …
+Loading metrics data...
 
-## Declared deliverables still missing
-
-- data/raw/dense_baseline_frames.npy
+Unexpected error during report generation: unsupported operand type(s) for /: 'str' and 'str'
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -41,22 +71,22 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 ### `ensure_directories` — defined in `code/config.py`; called 16 way(s):
 
-- code/config.py: - ensure_directories()
-- code/config.py: - ensure_directories(Path(...))
-- code/config.py: - ensure_directories([Path(...), Path(...), ...])
-- code/config.py: - ensure_directories(Path(...), Path(...), ...)
+- code/config.py: * ``ensure_directories()`` – creates the *standard* set of project dirs.
+- code/config.py: * ``ensure_directories(Path)`` – creates a single custom directory.
+- code/config.py: * ``ensure_directories([Path, Path, ...])`` – creates each directory in the list.
+- code/main.py: ensure_directories()  # create the standard directory tree
 - code/main.py: ensure_directories()
 - code/validate_quickstart.py: ensure_directories()
 - code/geometry/run_pipeline.py: ensure_directories()
 - code/geometry/aggregate_warps.py: ensure_directories([results_dir])
 - code/data/schemas.py: ensure_directories()
-- code/eval/download_dense_baseline.py: ensure_directories(raw_dir)
+- code/eval/download_dense_baseline.py: ensure_directories()
 - code/eval/quickstart_validator.py: ensure_directories()
 - code/eval/run_dense_baseline.py: ensure_directories()
 - code/eval/anova.py: ensure_directories()
-- code/eval/sensitivity.py: ensure_directories(output_path.parent)
-- code/eval/sensitivity.py: ensure_directories(get_results_dir())
-- code/eval/metrics.py: ensure_directories([raw_dir, results_dir])
+- code/eval/sensitivity.py: ensure_directories(results_dir)
+- code/eval/sensitivity.py: ensure_directories()
+- code/eval/metrics.py: ensure_directories(results_dir)
 
 Make `ensure_directories` in `code/config.py` accept ALL of the above.
 
@@ -76,21 +106,9 @@ Make `ensure_directories` in `code/config.py` accept ALL of the above.
 
 Whichever you choose, every call site of `MemoryMonitor` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`MemoryMonitor.start` call sites (1):
+`MemoryMonitor.start` call sites (2):
+- code/utils/memory_monitor.py: monitor.start()
 - code/utils/memory_monitor.py: self._thread.start()
-
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/raw/dense_baseline_frames.npy` is declared but was NOT written. Scripts referencing it:
-    - `code/main.py` — IS a run-book command
-    - `code/eval/download_dense_baseline.py` — NOT invoked by the run-book
-    - `code/eval/quickstart_validator.py` — NOT invoked by the run-book
-    - `code/eval/run_dense_baseline.py` — NOT invoked by the run-book
-    - `code/eval/sensitivity.py` — NOT invoked by the run-book
-    - `code/eval/metrics.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/dense_baseline_frames.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 
@@ -100,8 +118,8 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `data/raw/dense_baseline_frames.npy`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/main.py`, `code/eval/quickstart_validator.py`, `code/eval/sensitivity.py`, `code/eval/metrics.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/raw/dense_baseline_frames.npy`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/main.py`, `code/eval/download_dense_baseline.py`, `code/eval/quickstart_validator.py`, `code/eval/run_dense_baseline.py`, `code/eval/sensitivity.py`, `code/eval/metrics.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/eval/download_dense_baseline.py`, `code/eval/quickstart_validator.py`, `code/eval/sensitivity.py`, `code/eval/metrics.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/raw/dense_baseline_frames.npy`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/eval/download_dense_baseline.py`, `code/eval/quickstart_validator.py`, `code/eval/run_dense_baseline.py`, `code/eval/sensitivity.py`, `code/eval/metrics.py`.
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/sparse_warped_frames.npy`
 

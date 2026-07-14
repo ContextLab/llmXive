@@ -57,7 +57,7 @@
 
 - [X] T003 [P] Implement `code/utils/seeds.py` to pin all random seeds for reproducibility
 - [ ] T004 [P] Create `code/config.py` defining paths (`data/raw`, `data/stratified`, `data/results`), thresholds, and memory limits
-- [ ] T005 [P] Implement `code/utils/memory_monitor.py` to log peak RAM and wall-clock time via `memory_profiler`
+- [X] T005 [P] Implement `code/utils/memory_monitor.py` to log peak RAM and wall-clock time via `memory_profiler`
 - [X] T006 Create base data schemas and directory structure (`data/raw`, `data/processed`, `data/stratified`, `data/features`, `data/results`) <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
@@ -71,7 +71,7 @@
 
 **Goal**: Ingest RealEstate10K, stratify into 4 subsets (Static/Slow/Fast x High/Low texture), and extract sparse SIFT/ORB descriptors without dense depth.
 
-**Independent Test**: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small subset; verify 4 folders exist with N=50 sequences each [UNRESOLVED-CLAIM: c_3855f0d5 — status=not_enough_info], and `.npy` files contain valid coordinate/descriptor pairs.
+**Independent Test**: Run `code/data/stratify.py` and `code/data/extract_features.py` on a small subset; verify 4 folders exist with N=50 sequences each [UNRESOLVED-CLAIM: c_15d24e19 — status=not_enough_info], and `.npy` files contain valid coordinate/descriptor pairs.
 
 ### Implementation for User Story 1
 

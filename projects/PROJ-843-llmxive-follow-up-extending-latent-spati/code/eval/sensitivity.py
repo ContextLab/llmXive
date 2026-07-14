@@ -106,8 +106,49 @@ def run_ransac_sweep(
     with output_path.open("w", encoding="utf-8") as f:
         json.dump({"sensitivity_sweep": results}, f, indent=2)
 
-    if verbose:
-        print(f"Sensitivity results written to {output_path}")
+
+def calculate_metrics_for_threshold(
+    threshold: float,
+    world_score: float,
+    sparse_score: float,
+) -> Dict[str, float]:
+    """Package metrics for a single threshold into a serialisable dict."""
+    return {
+        "ransac_threshold": threshold,
+        "world_score": world_score,
+        "sparse_consistency_score": sparse_score,
+    }
+
+
+def run_sensitivity_sweep() -> List[Dict[str, float]]:
+    """
+    Orchestrates the full sweep and returns a list of metric dictionaries.
+    """
+    # Define a reasonable range of RANSAC thresholds (inlier pixel distance)
+    thresholds = [0.5, 1.0, 1.5, 2.0, 2.5]
+    raw_results = run_ransac_sweep(thresholds)
+
+    return [
+        calculate_metrics_for_threshold(thr, ws, ss)
+        for (thr, ws, ss) in raw_results
+    ]
+
+
+def save_sensitivity_results(results: List[Dict[str, float]]) -> Path:
+    """
+    Write the sweep results to ``data/results/sensitivity.json``.
+    Returns the path to the written file.
+    """
+    results_dir = get_results_dir()
+    # ``ensure_directories`` tolerates being called without arguments,
+    # but we also explicitly guarantee the results directory exists.
+    ensure_directories(results_dir)
+    out_path = results_dir / "sensitivity.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w") as f:
+        json.dump(results, f, indent=2)
+    print(f"Sensitivity results saved to {out_path}")
+    return out_path
 
 
 # ----------------------------------------------------------------------

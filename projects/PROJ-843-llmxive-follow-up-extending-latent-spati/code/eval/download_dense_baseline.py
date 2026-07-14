@@ -1,28 +1,12 @@
-"""
-Utility to download the dense baseline frames required for evaluation.
-
-The original implementation attempted to import ``HfHubException`` from
-``huggingface_hub`` – a name that no longer exists in recent releases.
-To retain backward compatibility we fall back to ``HfHubError`` (the
-current exception class) and alias it as ``HfHubException`` when necessary.
-"""
-
 import hashlib
 import os
 import shutil
 from pathlib import Path
 from typing import Optional
 
-try:
-    # Newer versions expose ``HfHubError``; older code expected ``HfHubException``.
-    from huggingface_hub import hf_hub_download, HfHubError as HfHubException
-except ImportError:
-    # Very old versions may still provide ``HfHubException``.
-    from huggingface_hub import hf_hub_download, HfHubException  # type: ignore
+import numpy as np
+from datasets import load_dataset
 
-from config import get_raw_dir, ensure_directories
-
-__all__ = ["calculate_sha256", "download_dense_baseline", "main"]
 
 def calculate_sha256(file_path: Path) -> str:
     """Calculate the SHA‑256 checksum of a file."""
@@ -32,65 +16,47 @@ def calculate_sha256(file_path: Path) -> str:
             sha256.update(chunk)
     return sha256.hexdigest()
 
-def download_dense_baseline(
-    repo_id: str = "realestate10k/dense_baseline_v1",
-    filename: str = "dense_baseline_frames.npy",
-    revision: Optional[str] = None,
-    force_download: bool = False,
-) -> Path:
+
+def download_dense_baseline(dest_path: Path) -> None:
     """
-    Download the dense baseline ``.npy`` file from the HuggingFace hub.
-
-    Parameters
-    ----------
-    repo_id: str
-        Repository identifier on the hub.
-    filename: str
-        Name of the file inside the repository.
-    revision: Optional[str]
-        Specific git revision / tag to fetch.
-    force_download: bool
-        If True, re‑download even if the file already exists locally.
-
-    Returns
-    -------
-    Path
-        Path to the downloaded file on the local filesystem.
+    Download the RealEstate10K dense baseline frames using the HuggingFace
+    ``datasets`` library (which handles authentication automatically when a
+    token is available). The function saves a NumPy ``.npy`` array to
+    ``dest_path``.
     """
-    raw_dir = get_raw_dir()
-    ensure_directories(raw_dir)
+    # Ensure the destination directory exists
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
 
-    target_path = raw_dir / filename
+    # Load the dataset; this works for public datasets without requiring a token.
+    # The dataset is expected to contain a column ``frames`` with PIL images.
+    dataset = load_dataset("realestate10k/dense_baseline_v1", split="train")
 
-    if target_path.is_file() and not force_download:
-        # Verify checksum if possible – for brevity we skip it here.
-        return target_path
+    # Convert each frame to a NumPy array and stack them.
+    frames = [np.array(img) for img in dataset["frames"]]
+    if not frames:
+        raise RuntimeError("Downloaded dataset contains no frames.")
+    stacked = np.stack(frames)  # Shape: (N, H, W, 3)
 
-    try:
-        downloaded_path = hf_hub_download(
-            repo_id=repo_id,
-            filename=filename,
-            revision=revision,
-            cache_dir=str(raw_dir),
-            force_download=force_download,
-        )
-    except HfHubException as exc:
-        raise RuntimeError(
-            f"Failed to download dense baseline from {repo_id}: {exc}"
-        ) from exc
+    # Save to .npy
+    np.save(dest_path, stacked)
 
-    # Move the cached file to the expected location
-    shutil.move(downloaded_path, target_path)
+    # Optional: write a checksum file for verification
+    checksum = calculate_sha256(dest_path)
+    checksum_path = dest_path.with_name(dest_path.name + ".sha256")
+    with open(checksum_path, "w") as f:
+        f.write(f"{checksum}  {dest_path.name}\n")
 
-    return target_path
 
 def main() -> None:
-    """
-    CLI entry point used by the project's ``main.py`` orchestrator.
-    """
-    print("Downloading dense baseline frames...")
-    path = download_dense_baseline()
-    print(f"Dense baseline saved to {path}")
+    """Entry‑point used by the run‑book."""
+    from config import get_raw_dir, ensure_directories
 
-if __name__ == "__main__":
-    main()
+    raw_dir = get_raw_dir()
+    ensure_directories()
+    dest = raw_dir / "dense_baseline_frames.npy"
+    if dest.is_file():
+        print(f"Dense baseline already present at {dest}")
+        return
+    print("Downloading dense baseline frames...")
+    download_dense_baseline(dest)
+    print(f"Saved dense baseline to {dest}")

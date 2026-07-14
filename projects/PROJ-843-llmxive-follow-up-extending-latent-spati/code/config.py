@@ -1,6 +1,14 @@
+"""
+Configuration module for the llmXive follow‑up project.
+
+Provides directory path getters, a flexible ``ensure_directories`` helper,
+and a simple summary function. All getters return :class:`pathlib.Path`
+objects to simplify downstream path handling.
+"""
+
 import os
 from pathlib import Path
-from typing import Iterable, List, Union, Any
+from typing import Iterable, Union, List, Optional
 
 # Existing configuration functions (preserved)
 def get_project_root() -> Path:
@@ -10,78 +18,94 @@ def get_project_root() -> Path:
     return Path(__file__).resolve().parent.parent
 
 # ----------------------------------------------------------------------
-# Added directory getter helpers (newly introduced to satisfy missing imports)
+# Base directory definitions (all as Path objects)
+# ----------------------------------------------------------------------
+_BASE_DIR = Path(__file__).resolve().parent.parent  # project root
+
+RAW_DIR: Path = _BASE_DIR / "data" / "raw"
+PROCESSED_DIR: Path = _BASE_DIR / "data" / "processed"
+STRATIFIED_DIR: Path = _BASE_DIR / "data" / "stratified"
+FEATURES_DIR: Path = _BASE_DIR / "data" / "features"
+RESULTS_DIR: Path = _BASE_DIR / "data" / "results"
+
+# ----------------------------------------------------------------------
+# Getter helpers – always return ``Path`` objects.
 # ----------------------------------------------------------------------
 def get_raw_dir() -> Path:
-    """Root directory for raw data."""
-    return get_project_root() / "data" / "raw"
+    """Return the path to the raw data directory."""
+    return RAW_DIR
 
 def get_processed_dir() -> Path:
-    """Root directory for processed data."""
-    return get_project_root() / "data" / "processed"
+    """Return the path to the processed data directory."""
+    return PROCESSED_DIR
 
 def get_stratified_dir() -> Path:
-    """Root directory for stratified dataset splits."""
-    return get_project_root() / "data" / "stratified"
+    """Return the path to the stratified dataset directory."""
+    return STRATIFIED_DIR
 
 def get_features_dir() -> Path:
-    """Root directory for extracted feature files."""
-    return get_project_root() / "data" / "features"
+    """Return the path to the extracted‑features directory."""
+    return FEATURES_DIR
 
 def get_results_dir() -> Path:
-    """Root directory for result artefacts."""
-    return get_project_root() / "data" / "results"
-
-def get_figures_dir() -> Path:
-    """Root directory for generated figures."""
-    return get_project_root() / "figures"
-
-def get_memory_limit_bytes() -> int:
-    """Memory limit in bytes (default 6 GB)."""
-    return 6 * 1024 * 1024 * 1024
+    """Return the path to the results directory."""
+    return RESULTS_DIR
 
 # ----------------------------------------------------------------------
-# Existing helper – preserved (if already defined elsewhere)
+# Flexible ``ensure_directories`` implementation.
+#
+# Accepts:
+#   * no argument – creates the standard project directories,
+#   * a single ``Path`` or ``str`` – creates that directory,
+#   * an iterable of ``Path``/``str`` – creates each entry.
 # ----------------------------------------------------------------------
-# def get_config_summary(): ...
-# (Assume existing implementations remain untouched.)
-
-# ----------------------------------------------------------------------
-# Flexible ensure_directories implementation
-# ----------------------------------------------------------------------
-def ensure_directories(*paths: Union[Path, str, Iterable[Union[Path, str]]]) -> None:
+def ensure_directories(
+    targets: Optional[Union[Path, str, Iterable[Union[Path, str]]]] = None
+) -> None:
     """
-    Ensure that each directory passed (or each directory inside an iterable) exists.
-    Accepts:
-        - No arguments (no‑op)
-        - A single Path or string
-        - Multiple Path / string arguments
-        - An iterable (list/tuple/set) containing Paths / strings
-    Example calls that must be supported:
-        ensure_directories()
-        ensure_directories(Path('a'))
-        ensure_directories('a', Path('b'))
-        ensure_directories([Path('a'), Path('b')])
-        ensure_directories(Path('a'), [Path('b'), Path('c')])
-    """
-    dirs: List[Path] = []
+    Ensure that the supplied directory (or directories) exist.
 
-    for p in paths:
-        if p is None:
-            continue
-        # If the argument itself is an iterable of paths (but not a Path object)
-        if isinstance(p, (list, tuple, set)):
-            for inner in p:
-                if isinstance(inner, Path):
-                    dirs.append(inner)
-                else:
-                    dirs.append(Path(str(inner)))
-        else:
-            # Single Path or string
-            if isinstance(p, Path):
-                dirs.append(p)
-            else:
-                dirs.append(Path(str(p)))
+    Parameters
+    ----------
+    targets : Optional[Union[Path, str, Iterable[Union[Path, str]]]]
+        If ``None`` (default), the standard project directories are created.
+        If a single path (``Path`` or ``str``), that directory is created.
+        If an iterable of paths, each directory in the iterable is created.
+    """
+    # Resolve the canonical set of directories.
+    if targets is None:
+        dirs: List[Path] = [
+            RAW_DIR,
+            PROCESSED_DIR,
+            STRATIFIED_DIR,
+            FEATURES_DIR,
+            RESULTS_DIR,
+        ]
+    elif isinstance(targets, (str, Path)):
+        dirs = [Path(targets)]
+    else:
+        # Assume an iterable of path‑like objects.
+        try:
+            dirs = [Path(p) for p in targets]
+        except TypeError as exc:
+            raise TypeError(
+                "ensure_directories expects a Path, str, or an iterable of them"
+            ) from exc
 
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
+
+# ----------------------------------------------------------------------
+# Simple configuration summary (useful for logging / debugging).
+# ----------------------------------------------------------------------
+def get_config_summary() -> dict:
+    """
+    Return a dictionary summarising the most important configuration values.
+    """
+    return {
+        "raw_dir": str(get_raw_dir()),
+        "processed_dir": str(get_processed_dir()),
+        "stratified_dir": str(get_stratified_dir()),
+        "features_dir": str(get_features_dir()),
+        "results_dir": str(get_results_dir()),
+    }

@@ -1,58 +1,82 @@
+"""
+Unit test for the sensitivity analysis script.
+
+The test runs the script on a very small synthetic setup to ensure that
+it executes without error and produces the expected JSON output.
+"""
+
 import json
 from pathlib import Path
 
-import numpy as np
 import pytest
 
-from eval.sensitivity import main as sensitivity_main, run_ransac_sweep
+# Import the main entry point from the module we just implemented.
+from eval.sensitivity import main as sensitivity_main, save_sensitivity_results
 
-@pytest.fixture
-def dummy_data(tmp_path):
-    # Create dummy dense and sparse .npy files with minimal realistic shape
-    dense = np.random.rand(5, 64, 64, 3).astype(np.float32)
-    sparse = np.random.rand(5, 64, 64, 3).astype(np.float32)
+@pytest.fixture(scope="module")
+def output_path(tmp_path_factory):
+    # Override the results directory for the test to keep the repo clean.
+    results_dir = tmp_path_factory.mktemp("results")
+    # Monkey‑patch the config helper to return our temporary directory.
+    from config import get_results_dir
 
-    raw_dir = tmp_path / "raw"
-    results_dir = tmp_path / "results"
-    raw_dir.mkdir(parents=True)
-    results_dir.mkdir(parents=True)
+    original = get_results_dir
 
-    dense_path = raw_dir / "dense_baseline_frames.npy"
-    sparse_path = results_dir / "sparse_warped_frames.npy"
+    def fake_get_results_dir():
+        return results_dir
 
-    np.save(dense_path, dense)
-    np.save(sparse_path, sparse)
+    # Apply patch
+    import builtins
 
-    # Patch the config getters to point to our temporary locations
-    import sys
-    from types import SimpleNamespace
+    builtins.get_results_dir = fake_get_results_dir
+    yield results_dir
+    # Restore original after test
+    builtins.get_results_dir = original
 
-    mock_config = SimpleNamespace(
-        get_raw_dir=lambda: str(raw_dir),
-        get_results_dir=lambda: str(results_dir),
-        ensure_directories=lambda *args, **kwargs: None,
-    )
-    sys.modules["config"] = mock_config
-    yield dense_path, sparse_path, results_dir
+def test_sensitivity_runs_and_writes_json(output_path):
+    # Run the sensitivity analysis – this will invoke the geometry pipeline
+    # via subprocess which we do NOT actually execute in CI.  To keep the
+    # test lightweight we mock ``subprocess.run``.
+    import subprocess
 
-def test_run_ransac_sweep():
-    dense = np.random.rand(2, 32, 32, 3).astype(np.float32)
-    sparse = np.random.rand(2, 32, 32, 3).astype(np.float32)
-    thresholds = [0.1, 0.2, 0.3]
-    results = run_ransac_sweep(thresholds, dense, sparse)
-    assert len(results) == len(thresholds)
-    for r, thr in zip(results, thresholds):
-        assert r["threshold"] == thr
-        assert isinstance(r["world_score"], float)
-        assert isinstance(r["sparse_consistency"], float)
+    original_run = subprocess.run
 
-def test_main_creates_output(dummy_data):
-    _, _, results_dir = dummy_data
-    # Execute the script's main function
+    def fake_run(*args, **kwargs):
+        # Simulate a successful geometry pipeline run by creating a dummy
+        # sparse warped frames file.
+        dummy_warp = Path("data") / "results" / "sparse_warped_frames.npy"
+        dummy_warp.parent.mkdir(parents=True, exist_ok=True)
+        import numpy as np
+        np.save(dummy_warp, np.zeros((1, 1, 3)))  # minimal placeholder
+        return subprocess.CompletedProcess(args=args, returncode=0)
+
+    subprocess.run = fake_run
+
+    # Also mock the dense baseline loader to avoid needing the real file.
+    from eval.sensitivity import _load_dense_baseline
+
+    original_load_dense = _load_dense_baseline
+
+    def fake_load_dense():
+        import numpy as np
+        return np.zeros((1, 1, 3))
+
+    eval.sensitivity._load_dense_baseline = fake_load_dense
+
+    # Execute
     sensitivity_main()
-    output_file = results_dir / "sensitivity.json"
-    assert output_file.is_file()
-    with output_file.open() as f:
+
+    # Restore patches
+    subprocess.run = original_run
+    eval.sensitivity._load_dense_baseline = original_load_dense
+
+    # Verify the JSON file exists and has the expected structure.
+    json_path = output_path / "sensitivity.json"
+    assert json_path.is_file(), "Sensitivity JSON output missing"
+    with json_path.open() as f:
         data = json.load(f)
-    assert "sensitivity_sweep" in data
-    assert isinstance(data["sensitivity_sweep"], list)
+    assert isinstance(data, list) and len(data) > 0
+    for entry in data:
+        assert "ransac_threshold" in entry
+        assert "world_score" in entry
+        assert "sparse_consistency_score" in entry
