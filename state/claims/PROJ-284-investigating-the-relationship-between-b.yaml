@@ -37,3 +37,125 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T18:09:46Z'
+- artifact_path: projects/PROJ-284-investigating-the-relationship-between-b/docs/report.md
+  attempts: 1
+  canonical: 1 of 4 analyzed metrics showed statistically significant correlations
+    after FDR correction
+  claim_id: c_b5c16153
+  context: The analysis provides correlational evidence for an associational relationship
+    between brain network dynamics (specifically Participation Coefficient and Within-Module
+    Degree) and individual differences in sensorimotor performance. Out of 4 analyzed
+    metrics, 1 showed statistically significant correlations after FDR correction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Out of 4 analyzed metrics, 1 showed statistically significant correlations
+    after FDR correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:58:28Z'
+- artifact_path: projects/PROJ-284-investigating-the-relationship-between-b/docs/report.md
+  attempts: 1
+  canonical: Minimum detectable correlation coefficient is 0.432 with N=28 at 80%
+    power
+  claim_id: c_f77bb578
+  context: "With N=28, the minimum detectable correlation coefficient (r) at 80% power\
+    \ is approximately 0.432 (two-tailed, \u03B1=0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The minimum detectable correlation coefficient (r) at 80% power is approximately\
+    \ 0.432 (two-tailed, \u03B1=0.05) with N=28."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:58:58Z'
+- artifact_path: projects/PROJ-284-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Python dependencies with specific version numbers
+  claim_id: c_18ca28fa
+  context: 'Phase 1: Setup - Initialize Python 3.11 project with requirements.txt
+    containing specific library versions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'requirements.txt containing: nibabel==5.2.0, numpy==1.26.0, pandas==2.2.0,
+    scikit-learn==1.4.0, networkx==3.2.1, matplotlib==3.8.0, seaborn==0.13.0, nilearn==0.10.2,
+    requests==2.31.0, pytest==7.4.0, statsmodels==0.14.1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:59:30Z'
+- artifact_path: projects/PROJ-284-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 7GB memory limit for project configuration
+  claim_id: c_ab952a40
+  context: 'Phase 2: Foundational - Setup configuration management with keys including
+    MEMORY_LIMIT set to 7GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7GB_memory_limit_for_project_configuration
+  kind: entity_fact
+  raw_text: MEMORY_LIMIT (7GB)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T14:59:57Z'
+- artifact_path: projects/PROJ-284-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Preprocessing quality thresholds of tSNR 50 and motion 0.5mm
+  claim_id: c_335a63d0
+  context: Tests for User Story 1 - Integration test verifies tSNR >= 50 and motion
+    < 0.5mm on a subset of data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: tSNR >= 50 and motion < 0.5mm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:00:25Z'
+- artifact_path: projects/PROJ-284-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Motion parameter validation threshold of 0.5mm
+  claim_id: c_9fae2ca3
+  context: 'Phase 3: User Story 1 - Implement motion parameter validator with threshold
+    < 0.5mm.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold < 0.5mm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:00:25Z'
+- artifact_path: projects/PROJ-284-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Power analysis calculation at 80% power with alpha 0.05 and FDR correction
+  claim_id: c_a7908e66
+  context: 'Phase 4: User Story 2 - Implement Confidence Interval calculation to calculate
+    detectable effect size for achieved N at 80% power.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "80% power (\u03B1=0.05, FDR corrected)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:00:48Z'

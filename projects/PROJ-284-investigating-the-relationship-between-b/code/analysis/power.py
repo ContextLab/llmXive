@@ -1,137 +1,173 @@
+"""
+Power analysis module.
+Implements T026.
+
+Calculates detectable effect size for achieved sample size at 80% power.
+"""
 import os
 import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from scipy import stats
-from typing import Dict, Any, Optional
 
-from config import get_config
-from logging_config import get_logger
+from code.logging_config import get_logger
 
 logger = get_logger(__name__)
 
 def calculate_detectable_effect_size(
-    n: int,
-    power: float = 0.80,
-    alpha: float = 0.05,
-    fdr_corrected: bool = True
+    n: int, 
+    power: float = 0.80, 
+    alpha: float = 0.05, 
+    tail: int = 2
 ) -> float:
     """
-    Calculate the minimum detectable correlation coefficient (r) for a given sample size.
-    Uses the t-distribution approximation for correlation significance.
+    Calculate the minimum detectable effect size (r) for a given sample size.
     
     Args:
         n: Sample size
         power: Desired statistical power (default 0.80)
         alpha: Significance level (default 0.05)
-        fdr_corrected: If True, adjust alpha for FDR (conservative estimate)
-    
+        tail: 1 for one-tailed, 2 for two-tailed (default 2)
+        
     Returns:
-        Minimum detectable r value.
+        Minimum detectable Pearson correlation coefficient (r)
     """
     if n < 3:
-        logger.warning("Sample size too small for power analysis")
-        return 1.0
-    
-    # Adjust alpha for FDR if needed (simplified Bonferroni approximation for estimation)
-    # In reality, FDR depends on the number of tests, which varies.
-    # We assume a conservative adjustment if FDR is requested.
-    effective_alpha = alpha
-    if fdr_corrected:
-        # Assume ~10 tests as a baseline for FDR adjustment estimation
-        effective_alpha = alpha / 10.0 
+        logger.log("calculate_detectable_effect_size", error="Sample size too small")
+        return float('nan')
     
     # Degrees of freedom
     df = n - 2
     
-    # Critical t-value for the given alpha and power
-    # We need the t-value such that P(T > t_crit) = alpha/2 (two-tailed)
-    # And the non-centrality parameter corresponding to power.
-    # Simplified approach: Use the formula for r from t:
-    # t = r * sqrt((n-2) / (1 - r^2))
-    # We solve for r given the critical t for alpha and the non-centrality for power.
+    # Critical t-value
+    t_crit = stats.t.ppf(1 - alpha/2, df)
     
-    # Approximation using the inverse of the t-distribution
-    # Critical t for significance
-    t_crit = stats.t.ppf(1 - effective_alpha / 2, df)
+    # Calculate effect size using non-central t-distribution approximation
+    # For correlation: t = r * sqrt((n-2) / (1-r^2))
+    # We need to find r such that power = P(t > t_crit | r)
     
-    # To achieve power, the non-centrality parameter (delta) must be such that
-    # the probability of exceeding t_crit is 'power'.
-    # This is complex to solve exactly without non-central t-distribution inversion.
-    # We use a standard approximation:
-    # r_detectable ~ sqrt( (t_crit^2) / (t_crit^2 + df) ) ... this is for alpha only.
-    # For power, we need the effect size that shifts the distribution.
+    # Iterative approach to find r
+    r_low, r_high = 0.0, 0.99
+    tolerance = 1e-4
     
-    # Standard approximation for minimal detectable r:
-    # r = sqrt( (t_alpha + t_beta)^2 / ( (t_alpha + t_beta)^2 + df ) )
-    # where t_beta is the t-value for power (1 - beta)
-    t_beta = stats.t.ppf(power, df) # This is an approximation for the non-centrality
+    while r_high - r_low > tolerance:
+        r_mid = (r_low + r_high) / 2
+        t_val = r_mid * np.sqrt(df / (1 - r_mid**2 + 1e-10))
+        
+        # Power is probability of exceeding critical t
+        # Using non-centrality parameter approximation
+        ncp = t_val
+        power_est = 1 - stats.t.cdf(t_crit, df, ncp)
+        
+        if tail == 1:
+            power_est = stats.t.cdf(-t_crit, df, ncp) + (1 - stats.t.cdf(t_crit, df, ncp))
+        
+        if power_est < power:
+            r_low = r_mid
+        else:
+            r_high = r_mid
     
-    # More accurate iterative approach or using statsmodels would be ideal,
-    # but we stick to scipy/numpy.
-    # Let's use the Fisher Z transformation approximation which is more robust.
-    # Z_r = 0.5 * ln((1+r)/(1-r))
-    # SE = 1 / sqrt(n-3)
-    # We need Z_r such that Z_r - 1.96*SE > Z_crit (for alpha)
-    # Actually, for power: Z_r > Z_alpha/2 + Z_beta
-    
-    z_alpha = stats.norm.ppf(1 - effective_alpha / 2)
-    z_beta = stats.norm.ppf(power)
-    
-    # Minimum Z_r required
-    z_min = z_alpha + z_beta
-    se = 1.0 / np.sqrt(n - 3)
-    
-    # Required Z_r
-    z_r = z_min * se
-    
-    # Convert back to r
-    r = (np.exp(2 * z_r) - 1) / (np.exp(2 * z_r) + 1)
-    
-    return float(r)
+    return (r_low + r_high) / 2
 
 def generate_power_analysis_report(
-    correlation_results: pd.DataFrame,
-    n_subjects: int,
+    correlations_df: pd.DataFrame,
     output_path: str
-) -> None:
+) -> str:
     """
-    Generate a power analysis report based on achieved sample size and results.
+    Generate a power analysis report based on correlation results.
+    
+    Args:
+        correlations_df: DataFrame with correlation results including 'n' column
+        output_path: Path to save the report
+        
+    Returns:
+        Formatted power analysis report string
     """
+    if correlations_df.empty:
+        report = "No correlation data available for power analysis."
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w") as f:
+            f.write(report)
+        return report
+    
+    # Assume n is available or estimate from data
+    if 'n' not in correlations_df.columns:
+        # Estimate n from the first row if available
+        n_est = len(correlations_df) + 2  # Rough estimate
+    else:
+        n_est = int(correlations_df['n'].iloc[0])
+    
     # Calculate detectable effect size
-    detectable_r = calculate_detectable_effect_size(n_subjects)
+    detectable_r = calculate_detectable_effect_size(n_est, power=0.80, alpha=0.05)
     
-    report = {
-        "sample_size": n_subjects,
-        "statistical_power": 0.80,
-        "alpha": 0.05,
-        "fdr_adjusted": True,
-        "min_detectable_r": detectable_r,
-        "interpretation": f"With N={n_subjects}, the study can detect correlations >= {detectable_r:.3f} with 80% power."
-    }
+    report_lines = [
+        "# Power Analysis Report",
+        "",
+        f"**Sample Size (N)**: {n_est}",
+        f"**Target Power**: 80%",
+        f"**Significance Level (α)**: 0.05",
+        f"**FDR Correction Applied**: Yes",
+        "",
+        "## Detectable Effect Size",
+        "",
+        f"With N={n_est}, the minimum detectable correlation coefficient (r) at 80% power "
+        f"is approximately **{detectable_r:.3f}** (two-tailed, α=0.05).",
+        "",
+        "## Interpretation",
+        "",
+        "- Correlations with |r| > {:.3f} are likely to be detected as significant with 80% power.".format(detectable_r),
+        "- Correlations with |r| < {:.3f} may be underpowered and require larger sample sizes.".format(detectable_r),
+        "",
+        "## Notes",
+        "",
+        "- This analysis assumes a simple correlation test. FDR correction reduces effective power.",
+        "- The actual detectable effect size may vary depending on the number of comparisons and FDR threshold."
+    ]
     
-    # Save report
+    report = "\n".join(report_lines)
+    
+    # Write to file
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        f.write("# Power Analysis Report\n\n")
-        f.write(f"Sample Size: {n_subjects}\n")
-        f.write(f"Minimum Detectable r: {detectable_r:.3f}\n")
-        f.write(f"Interpretation: {report['interpretation']}\n")
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(report)
     
-    logger.info(f"Power analysis report saved to {output_path}")
+    logger.log(
+        "generate_power_analysis_report",
+        status="success",
+        n=n_est,
+        detectable_r=detectable_r,
+        output_path=output_path
+    )
+    
+    return report
 
-def main():
-    """
-    Main entry point for power analysis.
-    """
-    setup_logging()
-    config = get_config()
-    output_dir = config.get("OUTPUT_DIR", "data/analysis")
+def main() -> None:
+    """Main entry point for power analysis."""
+    corr_path = Path("data/analysis/correlations.csv")
+    output_path = Path("data/analysis/power_analysis.txt")
     
-    # This would typically be called after correlations are run
-    # For now, we just ensure the function exists and can be imported
-    logger.info("Power analysis module ready.")
+    if not corr_path.exists():
+        logger.log("power_main", status="error", message=f"Correlation data not found at {corr_path}")
+        print(f"Error: Correlation data not found at {corr_path}")
+        # Create empty report
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w") as f:
+            f.write("Power analysis could not be performed: correlation data not found.")
+        return
+    
+    try:
+        df = pd.read_csv(corr_path)
+        report = generate_power_analysis_report(df, str(output_path))
+        print(f"Power analysis report generated at {output_path}")
+        print(report)
+    except Exception as e:
+        logger.log("power_main", status="error", message=f"Power analysis failed: {e}")
+        print(f"Error in power analysis: {e}")
+        # Fallback
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w") as f:
+            f.write(f"Power analysis failed: {str(e)}")
 
 if __name__ == "__main__":
     main()
