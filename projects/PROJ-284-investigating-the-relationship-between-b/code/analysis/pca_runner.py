@@ -1,6 +1,3 @@
-"""
-Runner script for PCA analysis (T023a).
-"""
 import os
 import sys
 import logging
@@ -11,14 +8,13 @@ from code.logging_config import get_logger
 logger = get_logger(__name__)
 
 def main():
-    """Entry point for PCA runner."""
-    logger.info("Starting PCA analysis runner...")
+    """Runner for PCA analysis."""
+    logger.info("Running PCA analysis via correlations module...")
     try:
         correlations_main()
     except Exception as e:
-        logger.error(f"PCA runner failed: {e}")
+        logger.error(f"PCA analysis failed: {e}")
         sys.exit(1)
-    logger.info("PCA runner finished successfully.")
 
 if __name__ == "__main__":
     main()

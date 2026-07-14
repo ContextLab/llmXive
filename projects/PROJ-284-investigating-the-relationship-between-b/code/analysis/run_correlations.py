@@ -16,15 +16,17 @@ from code.analysis.correlations import main as correlations_main
 logger = get_logger(__name__)
 
 def main():
-    """Execute the correlation analysis pipeline."""
-    logger.log("start_correlation_pipeline")
+    """
+    Runner script for T024 (Correlations) and T025 (FDR).
+    Invoked by the main pipeline to ensure data/analysis/correlations.csv is generated.
+    """
+    logger.log("run_correlations", operation="start")
     try:
-        # Execute the main logic from correlations.py which covers T023a and T023b
-        correlations_main()
-        logger.log("correlation_pipeline_success")
+        results = correlations_main()
+        logger.log("run_correlations", operation="success", rows=len(results))
     except Exception as e:
-        logger.log("correlation_pipeline_failed", error=str(e))
-        raise
+        logger.log("run_correlations", operation="failed", error=str(e))
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -1,71 +1,51 @@
-"""
-Verification script for memory batching logic.
-"""
 import logging
 import os
 from pathlib import Path
 from code.logging_config import get_logger
 from code.analysis.correlations import (
     load_metrics_data,
-    compute_and_save_pca,
-    merge_metrics_and_pca_scores,
-    save_full_metrics
+    calculate_correlation_batch_size,
+    process_metrics_batch
 )
 
 logger = get_logger(__name__)
 
 def verify_batch_size_logic():
-    """Verify that batch size logic respects memory constraints."""
-    logger.log("Verifying batch size logic")
-    # Placeholder for actual logic
-    return True
+    """Verify that batch size calculation logic is sound."""
+    batch_size = calculate_correlation_batch_size()
+    assert batch_size > 0, "Batch size must be positive"
+    logger.info(f"Verified batch size: {batch_size}")
 
 def verify_preprocessing_batching():
-    """Verify preprocessing batching."""
-    logger.log("Verifying preprocessing batching")
-    # Placeholder for actual logic
-    return True
+    """Verify preprocessing batching logic."""
+    # Placeholder for preprocessing verification
+    logger.info("Preprocessing batching logic verified (placeholder).")
 
 def verify_correlation_batching():
-    """Verify correlation analysis batching."""
-    logger.log("Verifying correlation batching")
-    # Check if we can load and process the metrics file
+    """Verify correlation analysis batching logic."""
     try:
-        metrics_path = Path("data/processed/aggregated_metrics.csv")
-        if not metrics_path.exists():
-            logger.log("Metrics file not found, skipping verification", path=str(metrics_path))
-            return False
-            
-        df = load_metrics_data(metrics_path)
-        logger.log("Metrics loaded successfully", rows=len(df))
+        df = load_metrics_data()
+        batch_size = calculate_correlation_batch_size()
         
-        # Run PCA
-        loadings_df, scores_df = compute_and_save_pca(df)
-        logger.log("PCA completed", loadings_shape=loadings_df.shape)
+        # Simulate batching
+        for i in range(0, len(df), batch_size):
+            batch = df.iloc[i:i+batch_size]
+            processed = process_metrics_batch(batch)
+            assert processed is not None
         
-        return True
+        logger.info("Correlation batching logic verified.")
+    except FileNotFoundError:
+        logger.warning("Metrics data not found. Skipping correlation batching verification.")
     except Exception as e:
-        logger.log("Verification failed", error=str(e))
-        return False
+        logger.error(f"Correlation batching verification failed: {e}")
+        raise
 
 def main():
-    """Main entry point."""
-    logger.log("Batching verification started")
-    
-    results = {
-        'batch_logic': verify_batch_size_logic(),
-        'preprocessing': verify_preprocessing_batching(),
-        'correlation': verify_correlation_batching()
-    }
-    
-    logger.log("Batching verification completed", results=results)
-    
-    if all(results.values()):
-        logger.log("All verifications passed")
-        return 0
-    else:
-        logger.log("Some verifications failed")
-        return 1
+    logger.info("Starting batch size verification...")
+    verify_batch_size_logic()
+    verify_preprocessing_batching()
+    verify_correlation_batching()
+    logger.info("Batch size verification complete.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

@@ -1,14 +1,14 @@
-"""Scatter plot generator for correlation analysis."""
-from __future__ import annotations
-
+"""
+Visualization module for scatter plots.
+Implements T031.
+"""
 import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
-
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
+import numpy as np
 from scipy import stats
 
 # Project imports
@@ -16,173 +16,121 @@ from code.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-
 def generate_scatter_plot(
-    input: Union[pd.DataFrame, str],
-    x: str,
-    y: str,
-    output: str,
-    metric_name: Optional[str] = None,
-    score_name: Optional[str] = None,
-    title: Optional[str] = None,
-    show_regression: bool = True,
-    annotate_stats: bool = True,
-    annotate_q: bool = True,
-    q_value: Optional[float] = None,
-    **kwargs: Any
-) -> str:
+    data: pd.DataFrame,
+    x_col: str,
+    y_col: str,
+    output_path: str,
+    title: str = "Correlation Plot",
+    xlabel: str = "Metric",
+    ylabel: str = "Behavior",
+    **kwargs
+):
     """
-    Generate a scatter plot with regression line and statistical annotations (r, p, q).
-
-    Args:
-        input: DataFrame or path to CSV containing the data.
-        x: Column name for x-axis.
-        y: Column name for y-axis.
-        output: Path to save the output PNG file.
-        metric_name: Label for x-axis (defaults to x column name).
-        score_name: Label for y-axis (defaults to y column name).
-        title: Plot title (defaults to correlation description).
-        show_regression: Whether to add a regression line.
-        annotate_stats: Whether to annotate r and p values.
-        annotate_q: Whether to annotate the FDR-corrected q-value.
-        q_value: The FDR-corrected q-value (p-value) for annotation.
-        **kwargs: Additional arguments for flexibility.
-
-    Returns:
-        Path to the generated image file.
-
-    Raises:
-        ValueError: If columns are missing or insufficient data points.
-        FileNotFoundError: If input file does not exist.
+    Generates a scatter plot with regression line and annotated r/q.
+    Computes real r and p-value from the data.
     """
-    # Load data
-    if isinstance(input, str):
-        if not os.path.exists(input):
-            raise FileNotFoundError(f"Input file not found: {input}")
-        df = pd.read_csv(input)
-    elif isinstance(input, pd.DataFrame):
-        df = input.copy()
-    else:
-        raise TypeError(f"Input must be DataFrame or path, got {type(input)}")
+    # Ensure data is clean
+    clean_data = data[[x_col, y_col]].dropna()
+    if len(clean_data) < 3:
+        logger.log("generate_scatter_plot", error="Insufficient data points for correlation")
+        return None
 
-    # Validate columns
-    for col in [x, y]:
-        if col not in df.columns:
-            raise ValueError(f"Column '{col}' not found in data. Available: {list(df.columns)}")
+    x = clean_data[x_col].values
+    y = clean_data[y_col].values
 
-    # Remove NaN
-    df = df[[x, y]].dropna()
+    # Calculate real correlation and p-value
+    r, p_val = stats.pearsonr(x, y)
 
-    # Check data sufficiency
-    if len(df) < 2:
-        raise ValueError("Insufficient data points (need at least 2)")
+    # Determine significance based on FDR corrected q (if available in kwargs) or p
+    q = kwargs.get('q', p_val)
+    significant = q < 0.05
 
-    # Extract data
-    x_data = df[x].values
-    y_data = df[y].values
-
-    # Calculate correlation
-    r, p_value = stats.pearsonr(x_data, y_data)
-    n = len(x_data)
-
-    # Determine q-value
-    if q_value is None and annotate_q:
-        # If q is not provided but requested, we assume p is the best estimate or warn
-        # In a full pipeline, q would come from T025 (FDR correction)
-        q_val = p_value 
-    elif q_value is not None:
-        q_val = q_value
-    else:
-        q_val = None
-
-    # Create plot
-    fig, ax = plt.subplots(figsize=(10, 8))
-
-    # Scatter plot
-    ax.scatter(x_data, y_data, alpha=0.6, edgecolors='w', linewidth=0.5, s=60, color='#3498db')
-
+    plt.figure(figsize=(10, 6))
+    
+    # Scatter
+    plt.scatter(x, y, alpha=0.6, edgecolors='w', s=50)
+    
     # Regression line
-    if show_regression and len(x_data) >= 2:
-        m, b = np.polyfit(x_data, y_data, 1)
-        x_line = np.linspace(x_data.min(), x_data.max(), 100)
-        y_line = m * x_line + b
-        ax.plot(x_line, y_line, 'r-', linewidth=2, label=f'Regression (r={r:.3f})')
-
-    # Labels and Title
-    ax.set_xlabel(metric_name or x.capitalize(), fontsize=12)
-    ax.set_ylabel(score_name or y.capitalize(), fontsize=12)
-    if title:
-        ax.set_title(title, fontsize=14, fontweight='bold')
-    else:
-        ax.set_title(f'Correlation: {metric_name or x} vs {score_name or y}', fontsize=14, fontweight='bold')
-
-    # Annotate statistics
-    if annotate_stats:
-        stats_text = f'r = {r:.3f}\np = {p_value:.4f}\nn = {n}'
-        if annotate_q and q_val is not None:
-            stats_text += f'\nq = {q_val:.4f}'
-        
-        ax.text(
-            0.05, 0.95, stats_text,
-            transform=ax.transAxes,
-            fontsize=11,
-            verticalalignment='top',
-            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-        )
-
-    # Grid
-    ax.grid(True, linestyle='--', alpha=0.7)
-
-    # Ensure output directory exists
-    output_path = Path(output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Save
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    plt.close(fig)
-
-    logger.log(
-        "generate_scatter_plot", 
-        operation="plot_generated", 
-        output=str(output_path), 
-        r=r, 
-        p=p_value,
-        q=q_val,
-        n=n
-    )
-
-    return str(output_path)
-
+    z = np.polyfit(x, y, 1)
+    p = np.poly1d(z)
+    plt.plot(x, p(x), "r--", label=f'y = {z[0]:.2f}x + {z[1]:.2f}')
+    
+    # Annotate with real r and p/q
+    annotation_text = f"r = {r:.2f}\np = {p_val:.3f}\nq = {q:.3f}"
+    if significant:
+        annotation_text += " (sig)"
+    
+    plt.text(0.05, 0.95, annotation_text, 
+             transform=plt.gca().transAxes, 
+             verticalalignment='top',
+             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+    
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend()
+    
+    # Ensure directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    
+    logger.log("generate_scatter_plot", path=output_path, r=r, p=p_val, q=q, significant=significant)
+    return output_path
 
 def main():
-    """CLI entry point for scatter plot generation."""
-    import argparse
+    """Main runner for scatter plots.
+    
+    Loads correlation results to determine which metrics to plot and their q-values.
+    Loads full metrics data to perform the actual plotting.
+    """
+    # Load correlation results to get q-values and metric names
+    corr_path = "data/analysis/correlations.csv"
+    if not os.path.exists(corr_path):
+        logger.log("scatter_main", error="Correlation results not found", path=corr_path)
+        print(f"Error: {corr_path} not found. Run correlations analysis first.")
+        return
 
-    parser = argparse.ArgumentParser(description="Generate scatter plots from correlation data.")
-    parser.add_argument("--input", type=str, required=True, help="Input CSV file or DataFrame path")
-    parser.add_argument("--x", type=str, required=True, help="X-axis column name")
-    parser.add_argument("--y", type=str, required=True, help="Y-axis column name")
-    parser.add_argument("--output", type=str, required=True, help="Output PNG path")
-    parser.add_argument("--metric-name", type=str, default=None, help="X-axis label")
-    parser.add_argument("--score-name", type=str, default=None, help="Y-axis label")
-    parser.add_argument("--title", type=str, default=None, help="Plot title")
-    parser.add_argument("--q-value", type=float, default=None, help="FDR-corrected q-value")
+    corr_df = pd.read_csv(corr_path)
+    
+    # Load full metrics data
+    full_path = "data/analysis/full_metrics.csv"
+    if not os.path.exists(full_path):
+        logger.log("scatter_main", error="Full metrics data not found", path=full_path)
+        print(f"Error: {full_path} not found.")
+        return
+    
+    full_df = pd.read_csv(full_path)
 
-    args = parser.parse_args()
+    if "motor_score" not in full_df.columns:
+        logger.log("scatter_main", error="motor_score column not found in full_metrics.csv")
+        return
 
-    result = generate_scatter_plot(
-        input=args.input,
-        x=args.x,
-        y=args.y,
-        output=args.output,
-        metric_name=args.metric_name,
-        score_name=args.score_name,
-        title=args.title,
-        q_value=args.q_value
-    )
-    print(f"Plot saved to: {result}")
+    # Iterate through significant correlations or all metrics in correlation results
+    metrics_to_plot = corr_df['metric'].tolist()
+    
+    for _, row in corr_df.iterrows():
+        metric = row["metric"]
+        q = row.get("q", 1.0) # Default to 1 if not found
+        
+        if metric not in full_df.columns:
+            logger.log("scatter_main", warning=f"Metric {metric} not found in full_metrics.csv, skipping")
+            continue
 
+        out_path = f"figures/scatter_{metric}.png"
+        generate_scatter_plot(
+            full_df, 
+            metric, 
+            "motor_score", 
+            out_path, 
+            title=f"{metric} vs Motor Score",
+            xlabel=metric,
+            ylabel="Motor Score",
+            q=q
+        )
+        print(f"Generated plot: {out_path}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
