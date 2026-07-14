@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-14T01:37:52.849480Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1045-kronq-llm-quantization-via-kronecker-fac
-last_run_id: null
+last_run_id: 91708d80-e069-4006-9cff-c4d9c5f03913
 last_run_status: null
 points_paper: {}
 points_research: {}
