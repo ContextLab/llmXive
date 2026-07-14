@@ -1,8 +1,7 @@
-"""Shared external memory buffer for multi-agent transactive memory.
+"""Shared external memory buffer for multi-agent systems.
 
-Implements a thread-safe buffer supporting <MEMORY_ACTION> tokens with JSON schema:
-{"type": "write"|"read", "key": str, "value": str}
-
+Implements a thread-safe memory buffer supporting <MEMORY_ACTION> tokens
+with JSON schema {"type": "write"|"read", "key": str, "value": str}.
 Includes queue-based write conflict resolution.
 """
 from __future__ import annotations
@@ -10,261 +9,326 @@ from __future__ import annotations
 import json
 import re
 import threading
+import time
 from collections import deque
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Callable
+from typing import Any, Dict, List, Optional, Union
 
+# Pattern for memory action tokens: <MEMORY_ACTION:{"type": "...", ...}>
+MEMORY_ACTION_PATTERN = re.compile(
+    r'<MEMORY_ACTION:\s*(\{.*?\})\s*>'
+)
 
 @dataclass
 class MemoryAction:
-    """Represents a memory operation (write or read)."""
+    """Represents a memory action (read or write)."""
     type: str  # "write" or "read"
     key: str
-    value: Optional[str] = None  # Required for writes, optional for reads
+    value: Optional[str] = None
+    agent_id: Optional[str] = None
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
     def to_dict(self) -> Dict[str, Any]:
-        d = {"type": self.type, "key": self.key}
-        if self.value is not None:
-            d["value"] = self.value
-        return d
+        return {
+            "type": self.type,
+            "key": self.key,
+            "value": self.value,
+            "agent_id": self.agent_id,
+            "timestamp": self.timestamp
+        }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "MemoryAction":
         return cls(
             type=data["type"],
             key=data["key"],
-            value=data.get("value")
+            value=data.get("value"),
+            agent_id=data.get("agent_id"),
+            timestamp=data.get("timestamp", datetime.utcnow().isoformat())
         )
-
 
 @dataclass
 class MemoryEntry:
-    """A single entry in the memory buffer with metadata."""
+    """A single entry in the memory buffer."""
     key: str
     value: str
+    agent_id: str
     timestamp: str
-    agent_id: Optional[str] = None
     version: int = 1
 
     def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MemoryEntry":
-        return cls(**data)
-
+        return {
+            "key": self.key,
+            "value": self.value,
+            "agent_id": self.agent_id,
+            "timestamp": self.timestamp,
+            "version": self.version
+        }
 
 def now() -> str:
-    """Return current UTC timestamp in ISO format."""
+    """Return current timestamp in ISO format."""
     return datetime.utcnow().isoformat()
 
-
-# Token pattern for memory actions in text
-MEMORY_ACTION_PATTERN = re.compile(
-    r'<MEMORY_ACTION>(.*?)</MEMORY_ACTION>',
-    re.DOTALL
-)
-
-
-def parse_memory_action_token(token_text: str) -> Optional[MemoryAction]:
-    """Parse a JSON string inside a <MEMORY_ACTION> token."""
+def parse_memory_action_token(token: str) -> Optional[MemoryAction]:
+    """Parse a <MEMORY_ACTION:JSON> token into a MemoryAction object."""
+    match = MEMORY_ACTION_PATTERN.match(token.strip())
+    if not match:
+        return None
     try:
-        data = json.loads(token_text.strip())
+        data = json.loads(match.group(1))
         return MemoryAction.from_dict(data)
-    except (json.JSONDecodeError, KeyError, TypeError):
+    except (json.JSONDecodeError, KeyError):
         return None
 
-
 def format_action_token(action: MemoryAction) -> str:
-    """Format a MemoryAction as a <MEMORY_ACTION> token string."""
-    return f"<MEMORY_ACTION>{json.dumps(action.to_dict())}</MEMORY_ACTION>"
+    """Format a MemoryAction object into a <MEMORY_ACTION:JSON> token."""
+    json_str = json.dumps(action.to_dict(), ensure_ascii=False)
+    return f"<MEMORY_ACTION:{json_str}>"
 
-
-def parse_action_from_prompt(prompt_text: str) -> List[MemoryAction]:
-    """Extract all MemoryAction objects from a prompt string."""
+def parse_action_from_prompt(prompt: str) -> List[MemoryAction]:
+    """Extract all memory actions from a prompt string."""
     actions = []
-    for match in MEMORY_ACTION_PATTERN.finditer(prompt_text):
-        action = parse_memory_action_token(match.group(1))
-        if action:
-            actions.append(action)
+    for match in MEMORY_ACTION_PATTERN.finditer(prompt):
+        try:
+            data = json.loads(match.group(1))
+            actions.append(MemoryAction.from_dict(data))
+        except (json.JSONDecodeError, KeyError):
+            continue
     return actions
 
-
 class WriteConflictResolver:
-    """Queue-based write conflict resolution strategy."""
+    """Queue-based write conflict resolution mechanism.
 
-    def __init__(self, max_queue_size: int = 1000):
-        self._queue: deque = deque(maxlen=max_queue_size)
-        self._lock = threading.Lock()
-        self._conflict_count = 0
-
-    def propose_write(self, key: str, proposed_value: str, agent_id: str) -> Tuple[bool, Optional[str]]:
-        """
-        Propose a write. Returns (accepted, reason).
-        If key exists, queue the conflict and resolve via FIFO.
-        """
-        with self._lock:
-            self._queue.append({
-                "key": key,
-                "value": proposed_value,
-                "agent_id": agent_id,
-                "timestamp": now()
-            })
-            # Simple FIFO: if queue size > 1, we have a conflict for this key
-            # In this strategy, we accept the first, reject subsequent until resolved
-            if len(self._queue) > 1:
-                # Check if there are other pending writes for the same key
-                conflicting = [q for q in self._queue if q["key"] == key]
-                if len(conflicting) > 1:
-                    self._conflict_count += 1
-                    # Reject the latest one; first one in queue wins
-                    if self._queue[0]["key"] == key and self._queue[0]["value"] == proposed_value:
-                        return True, None
-                    else:
-                        return False, "Conflict: FIFO resolution pending"
-            return True, None
-
-    def resolve_conflicts(self) -> List[Dict[str, Any]]:
-        """Resolve all conflicts by taking the first write for each key."""
-        with self._lock:
-            resolved = []
-            seen_keys: Dict[str, str] = {}
-            while self._queue:
-                item = self._queue.popleft()
-                key = item["key"]
-                if key not in seen_keys:
-                    seen_keys[key] = item["value"]
-                    resolved.append(item)
-            return resolved
-
-    @property
-    def conflict_count(self) -> int:
-        return self._conflict_count
-
-
-class MemoryBuffer:
-    """Thread-safe shared memory buffer for multi-agent systems."""
+    When multiple agents attempt to write to the same key simultaneously,
+    this resolver uses a FIFO queue to serialize writes and maintain
+    a version history.
+    """
 
     def __init__(self):
-        self._buffer: Dict[str, MemoryEntry] = {}
+        self._write_queues: Dict[str, deque] = {}
+        self._lock = threading.Lock()
+        self._conflict_log: List[Dict[str, Any]] = []
+
+    def _get_queue(self, key: str) -> deque:
+        """Get or create the write queue for a key."""
+        with self._lock:
+            if key not in self._write_queues:
+                self._write_queues[key] = deque()
+            return self._write_queues[key]
+
+    def submit_write(self, key: str, action: MemoryAction) -> int:
+        """Submit a write action to the queue. Returns the position in queue."""
+        queue = self._get_queue(key)
+        with self._lock:
+            position = len(queue)
+            queue.append(action)
+            if position > 0:
+                self._conflict_log.append({
+                    "key": key,
+                    "conflict_count": position + 1,
+                    "timestamp": now()
+                })
+            return position
+
+    def process_next(self, key: str) -> Optional[MemoryAction]:
+        """Process and return the next write action for a key."""
+        queue = self._get_queue(key)
+        with self._lock:
+            if queue:
+                return queue.popleft()
+            return None
+
+    def is_empty(self, key: str) -> bool:
+        """Check if the write queue for a key is empty."""
+        queue = self._get_queue(key)
+        with self._lock:
+            return len(queue) == 0
+
+    def get_conflict_count(self, key: str) -> int:
+        """Get the number of pending writes for a key."""
+        queue = self._get_queue(key)
+        with self._lock:
+            return len(queue)
+
+    def get_conflict_log(self) -> List[Dict[str, Any]]:
+        """Return the conflict resolution log."""
+        with self._lock:
+            return list(self._conflict_log)
+
+class MemoryBuffer:
+    """Thread-safe shared memory buffer for multi-agent systems.
+
+    Supports:
+    - Write operations with queue-based conflict resolution
+    - Read operations with version tracking
+    - <MEMORY_ACTION> token parsing and formatting
+    """
+
+    def __init__(self):
+        self._entries: Dict[str, MemoryEntry] = {}
         self._lock = threading.RLock()
-        self._resolver = WriteConflictResolver()
+        self._conflict_resolver = WriteConflictResolver()
         self._access_log: List[Dict[str, Any]] = []
 
-    def write(self, key: str, value: str, agent_id: Optional[str] = None) -> bool:
-        """Write a value to the buffer. Returns True if accepted."""
-        with self._lock:
-            accepted, reason = self._resolver.propose_write(key, value, agent_id or "unknown")
-            if not accepted:
-                self._access_log.append({
-                    "action": "write_rejected",
-                    "key": key,
-                    "reason": reason,
-                    "timestamp": now()
-                })
-                return False
+    def write(self, key: str, value: str, agent_id: str) -> bool:
+        """Write a value to the memory buffer.
 
-            entry = MemoryEntry(
-                key=key,
-                value=value,
-                timestamp=now(),
-                agent_id=agent_id,
-                version=1
-            )
-            if key in self._buffer:
-                entry.version = self._buffer[key].version + 1
-            self._buffer[key] = entry
-            self._access_log.append({
-                "action": "write",
-                "key": key,
-                "agent_id": agent_id,
-                "timestamp": now()
-            })
-            return True
+        Uses queue-based conflict resolution if concurrent writes exist.
+        Returns True if the write was successful, False if rejected.
+        """
+        action = MemoryAction(
+            type="write",
+            key=key,
+            value=value,
+            agent_id=agent_id,
+            timestamp=now()
+        )
 
-    def read(self, key: str, agent_id: Optional[str] = None) -> Optional[str]:
-        """Read a value from the buffer."""
-        with self._lock:
-            entry = self._buffer.get(key)
-            self._access_log.append({
-                "action": "read",
-                "key": key,
-                "agent_id": agent_id,
-                "found": entry is not None,
-                "timestamp": now()
-            })
-            return entry.value if entry else None
+        # Submit to conflict resolver
+        position = self._conflict_resolver.submit_write(key, action)
 
-    def delete(self, key: str) -> bool:
-        """Delete a key from the buffer."""
+        # If there are conflicts, wait for queue processing
+        if position > 0:
+            # Process pending writes first
+            while not self._conflict_resolver.is_empty(key):
+                pending_action = self._conflict_resolver.process_next(key)
+                if pending_action and pending_action.value is not None:
+                    self._apply_write(pending_action)
+
+        # Process current action
+        self._apply_write(action)
+
+        self._log_access("write", key, agent_id)
+        return True
+
+    def _apply_write(self, action: MemoryAction) -> None:
+        """Apply a write action to the internal state."""
         with self._lock:
-            if key in self._buffer:
-                del self._buffer[key]
-                self._access_log.append({
-                    "action": "delete",
-                    "key": key,
-                    "timestamp": now()
-                })
+            key = action.key
+            if key in self._entries:
+                # Increment version
+                new_entry = MemoryEntry(
+                    key=key,
+                    value=action.value or "",
+                    agent_id=action.agent_id or "unknown",
+                    timestamp=action.timestamp,
+                    version=self._entries[key].version + 1
+                )
+            else:
+                new_entry = MemoryEntry(
+                    key=key,
+                    value=action.value or "",
+                    agent_id=action.agent_id or "unknown",
+                    timestamp=action.timestamp,
+                    version=1
+                )
+            self._entries[key] = new_entry
+
+    def read(self, key: str, agent_id: str) -> Optional[str]:
+        """Read a value from the memory buffer.
+
+        Returns the current value for the key, or None if not found.
+        """
+        with self._lock:
+            entry = self._entries.get(key)
+            if entry:
+                self._log_access("read", key, agent_id)
+                return entry.value
+            return None
+
+    def get_entry(self, key: str) -> Optional[MemoryEntry]:
+        """Get the full MemoryEntry for a key."""
+        with self._lock:
+            return self._entries.get(key)
+
+    def delete(self, key: str, agent_id: str) -> bool:
+        """Delete a key from the memory buffer."""
+        with self._lock:
+            if key in self._entries:
+                del self._entries[key]
+                self._log_access("delete", key, agent_id)
                 return True
             return False
 
-    def get(self, key: str) -> Optional[MemoryEntry]:
-        """Get the full entry for a key."""
+    def search(self, query: str, agent_id: str) -> List[MemoryEntry]:
+        """Search for entries containing the query string."""
         with self._lock:
-            return self._buffer.get(key)
+            results = []
+            query_lower = query.lower()
+            for entry in self._entries.values():
+                if query_lower in entry.value.lower() or query_lower in entry.key.lower():
+                    results.append(entry)
+            self._log_access("search", query, agent_id, len(results))
+            return results
 
-    def keys(self) -> List[str]:
+    def get_all_keys(self) -> List[str]:
         """Return all keys in the buffer."""
         with self._lock:
-            return list(self._buffer.keys())
+            return list(self._entries.keys())
 
-    def items(self) -> List[Tuple[str, MemoryEntry]]:
-        """Return all key-value pairs."""
+    def get_stats(self) -> Dict[str, Any]:
+        """Return buffer statistics."""
         with self._lock:
-            return list(self._buffer.items())
+            return {
+                "total_entries": len(self._entries),
+                "total_writes": sum(1 for e in self._entries.values()),
+                "access_log_size": len(self._access_log),
+                "pending_conflicts": {
+                    key: self._conflict_resolver.get_conflict_count(key)
+                    for key in self._conflict_resolver._write_queues
+                    if self._conflict_resolver.get_conflict_count(key) > 0
+                }
+            }
 
-    def size(self) -> int:
-        """Return the number of entries in the buffer."""
-        with self._lock:
-            return len(self._buffer)
+    def _log_access(self, action_type: str, target: str, agent_id: str, extra: Any = None) -> None:
+        """Log an access event."""
+        entry = {
+            "type": action_type,
+            "target": target,
+            "agent_id": agent_id,
+            "timestamp": now()
+        }
+        if extra is not None:
+            entry["extra"] = extra
+        self._access_log.append(entry)
 
     def reset(self) -> None:
-        """Clear all entries from the buffer."""
+        """Reset the buffer to empty state."""
         with self._lock:
-            self._buffer.clear()
+            self._entries.clear()
             self._access_log.clear()
+            self._conflict_resolver = WriteConflictResolver()
 
-    def get_access_log(self) -> List[Dict[str, Any]]:
-        """Return the access log."""
+    def __len__(self) -> int:
+        return len(self._entries)
+
+    def __contains__(self, key: str) -> bool:
         with self._lock:
-            return list(self._access_log)
+            return key in self._entries
 
-    def __getattr__(self, name: str) -> Callable[..., Any]:
-        """Tolerant fallback for unknown methods (logger-style)."""
-        def _noop(*args: Any, **kwargs: Any) -> Any:
-            return None
-        return _noop
-
-
-# Shared buffer singleton
+# Global singleton instance
 _SHARED_BUFFER: Optional[MemoryBuffer] = None
 _BUFFER_LOCK = threading.Lock()
 
-
 def get_shared_buffer() -> MemoryBuffer:
-    """Get or create the shared memory buffer singleton."""
+    """Get the singleton shared memory buffer instance."""
     global _SHARED_BUFFER
-    if _SHARED_BUFFER is None:
-        with _BUFFER_LOCK:
-            if _SHARED_BUFFER is None:
-                _SHARED_BUFFER = MemoryBuffer()
-    return _SHARED_BUFFER
-
+    with _BUFFER_LOCK:
+        if _SHARED_BUFFER is None:
+            _SHARED_BUFFER = MemoryBuffer()
+        return _SHARED_BUFFER
 
 def reset_shared_buffer() -> None:
-    """Reset the shared memory buffer (for testing)."""
+    """Reset the shared memory buffer."""
     global _SHARED_BUFFER
     with _BUFFER_LOCK:
         if _SHARED_BUFFER is not None:
             _SHARED_BUFFER.reset()
+
+# Tolerant fallback for any unknown method calls
+def __getattr__(self, name: str):
+    """Tolerant fallback for unknown attributes/methods."""
+    def _noop(*args: Any, **kwargs: Any) -> Any:
+        return None
+    return _noop

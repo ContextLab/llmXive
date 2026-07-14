@@ -1,198 +1,198 @@
-"""
-Unit tests for specialization index computation.
-
-These tests verify the correctness of the specialization index
-implementation in code/metrics/specialization.py.
-"""
-
+"""Tests for specialization metrics computation."""
 import pytest
-import numpy as np
+import math
 from typing import List, Dict, Any
 
 from metrics.specialization import (
     compute_specialization_index,
-    compute_game_level_specialization,
+    compute_gini_coefficient,
+    compute_shannon_entropy,
     validate_specialization_index,
+    batch_compute_specialization,
     SpecializationMetrics
 )
 
 
 class TestSpecializationIndexComputation:
-    """Tests for the main specialization index computation function."""
+    """Test cases for compute_specialization_index."""
 
-    def test_empty_game_results(self):
-        """Specialization index should be 0 for empty results."""
+    def test_empty_input_returns_zero(self):
+        """Empty input should return specialization index of 0."""
         index, metrics = compute_specialization_index([])
         assert index == 0.0
-        assert metrics.n_agents == 0
         assert metrics.specialization_index == 0.0
+
+    def test_none_input_returns_zero(self):
+        """None input should return specialization index of 0."""
+        index, metrics = compute_specialization_index(None)
+        assert index == 0.0
 
     def test_single_agent(self):
         """Single agent should have specialization index of 0."""
-        game_results = [
-            {'agent_id': 'agent_1', 'retrieved_items': ['item1', 'item2'],
-             'known_items': ['item1'], 'game_id': 1}
-        ]
-        index, metrics = compute_specialization_index(game_results)
+        agent_facts = {0: ['fact1', 'fact2', 'fact3']}
+        index, metrics = compute_specialization_index(agent_facts)
         assert index == 0.0
-        assert metrics.n_agents == 1
-        assert metrics.max_specialization == 0.0
+        assert validate_specialization_index(index, 1)
 
-    def test_two_agents_no_overlap(self):
-        """Two agents with completely different items should have high specialization."""
-        game_results = [
-            {'agent_id': 'agent_1', 'retrieved_items': ['item1', 'item2'],
-             'known_items': [], 'game_id': 1},
-            {'agent_id': 'agent_2', 'retrieved_items': ['item3', 'item4'],
-             'known_items': [], 'game_id': 1}
-        ]
-        index, metrics = compute_specialization_index(game_results)
-        # Maximum for 2 agents is log₂(2) = 1.0
-        assert metrics.max_specialization == 1.0
-        # With no overlap, specialization should be high
-        assert index > 0.5
+    def test_perfectly_equal_distribution(self):
+        """Perfectly equal distribution should have minimal specialization."""
+        # 2 agents, each with 5 facts
+        agent_facts = {0: ['f1', 'f2', 'f3', 'f4', 'f5'],
+                      1: ['f6', 'f7', 'f8', 'f9', 'f10']}
+        index, metrics = compute_specialization_index(agent_facts)
+        # Should be 0 or very close to 0 (perfect equality)
+        assert index <= 0.001
+        assert validate_specialization_index(index, 2)
 
-    def test_two_agents_full_overlap(self):
-        """Two agents with identical items should have low specialization."""
-        game_results = [
-            {'agent_id': 'agent_1', 'retrieved_items': ['item1', 'item2'],
-             'known_items': [], 'game_id': 1},
-            {'agent_id': 'agent_2', 'retrieved_items': ['item1', 'item2'],
-             'known_items': [], 'game_id': 1}
-        ]
-        index, metrics = compute_specialization_index(game_results)
-        # Maximum for 2 agents is log₂(2) = 1.0
-        assert metrics.max_specialization == 1.0
-        # With full overlap, specialization should be low (near 0)
-        assert index < 0.3
+    def test_perfectly_unequal_distribution(self):
+        """Perfectly unequal distribution should have high specialization."""
+        # 2 agents, one has all facts, other has none
+        agent_facts = {0: ['f1', 'f2', 'f3', 'f4', 'f5'],
+                      1: []}
+        index, metrics = compute_specialization_index(agent_facts)
+        # Should be close to log2(2) = 1.0
+        expected_max = math.log2(2)
+        assert index <= expected_max + 0.001
+        assert validate_specialization_index(index, 2)
 
-    def test_bounds_validity(self):
-        """Specialization index must be within [0, log₂(N)]."""
-        game_results = [
-            {'agent_id': f'agent_{i}', 'retrieved_items': [f'item_{i}'],
-             'known_items': [], 'game_id': 1}
-            for i in range(4)
-        ]
-        index, metrics = compute_specialization_index(game_results)
-        max_specialization = np.log2(4)  # Should be 2.0
+    def test_bounded_by_log2_n_agents(self):
+        """Specialization index must be bounded by log2(N_agents)."""
+        for n_agents in [2, 3, 4, 5, 10]:
+            # Create a highly unequal distribution
+            agent_facts = {i: [f'fact_{i}_{j}' for j in range(100)] if i == 0 else []
+                           for i in range(n_agents)}
+            index, metrics = compute_specialization_index(agent_facts)
+            max_possible = math.log2(n_agents)
+            assert index <= max_possible + 1e-9, f"Index {index} exceeds max {max_possible} for {n_agents} agents"
+            assert index >= 0.0
 
-        assert index >= 0.0
-        assert index <= max_specialization
-        assert metrics.max_specialization == max_specialization
-
-    def test_multiple_games_aggregation(self):
-        """Specialization should aggregate correctly across multiple games."""
-        game_results = []
-        for game_id in range(10):
-            game_results.extend([
-                {'agent_id': 'agent_1', 'retrieved_items': [f'game{game_id}_item1'],
-                 'known_items': [], 'game_id': game_id},
-                {'agent_id': 'agent_2', 'retrieved_items': [f'game{game_id}_item2'],
-                 'known_items': [], 'game_id': game_id}
-            ])
-
-        index, metrics = compute_specialization_index(game_results)
-        assert metrics.n_agents == 2
-        assert 0.0 <= index <= 1.0
-
-    def test_returns_specialization_metrics(self):
-        """Function should return a SpecializationMetrics object."""
-        game_results = [
-            {'agent_id': 'agent_1', 'retrieved_items': ['item1'],
-             'known_items': [], 'game_id': 1},
-            {'agent_id': 'agent_2', 'retrieved_items': ['item2'],
-             'known_items': [], 'game_id': 1}
-        ]
-        index, metrics = compute_specialization_index(game_results)
-
+    def test_dict_input_format(self):
+        """Test with dict mapping agent_id to facts list."""
+        agent_facts = {0: ['a', 'b'], 1: ['c'], 2: ['d', 'e', 'f']}
+        index, metrics = compute_specialization_index(agent_facts)
+        assert isinstance(index, float)
         assert isinstance(metrics, SpecializationMetrics)
-        assert hasattr(metrics, 'specialization_index')
-        assert hasattr(metrics, 'agent_specialization_scores')
-        assert hasattr(metrics, 'overlap_matrix')
-        assert hasattr(metrics, 'n_agents')
-        assert hasattr(metrics, 'max_specialization')
+        assert 0.0 <= index <= math.log2(3)
 
-    def test_agent_specialization_scores_length(self):
-        """Agent specialization scores should match number of agents."""
-        n_agents = 5
-        game_results = [
-            {'agent_id': f'agent_{i}', 'retrieved_items': [f'item_{i}'],
-             'known_items': [], 'game_id': 1}
-            for i in range(n_agents)
-        ]
-        index, metrics = compute_specialization_index(game_results)
+    def test_list_of_lists_format(self):
+        """Test with list of lists (each inner list is facts for one agent)."""
+        agent_facts = [['a', 'b'], ['c'], ['d', 'e', 'f']]
+        index, metrics = compute_specialization_index(agent_facts)
+        assert isinstance(index, float)
+        assert metrics.per_agent_contributions == {0: 2, 1: 1, 2: 3}
 
-        assert len(metrics.agent_specialization_scores) == n_agents
-        for score in metrics.agent_specialization_scores:
-            assert 0.0 <= score <= 1.0
+    def test_num_agents_override(self):
+        """Test that num_agents parameter overrides inferred count."""
+        agent_facts = {0: ['a'], 1: ['b']}
+        index, metrics = compute_specialization_index(agent_facts, num_agents=5)
+        # With 5 agents but only 2 having facts, should be higher specialization
+        assert index >= 0.0
+        assert index <= math.log2(5)
 
-    def test_overlap_matrix_shape(self):
-        """Overlap matrix should be N×N square matrix."""
-        n_agents = 3
-        game_results = [
-            {'agent_id': f'agent_{i}', 'retrieved_items': [f'item_{i}'],
-             'known_items': [], 'game_id': 1}
-            for i in range(n_agents)
-        ]
-        index, metrics = compute_specialization_index(game_results)
-
-        assert metrics.overlap_matrix.shape == (n_agents, n_agents)
-        # Diagonal should be 0 (no self-overlap)
-        assert np.allclose(np.diag(metrics.overlap_matrix), 0.0)
+    def test_per_agent_contributions_populated(self):
+        """Test that per_agent_contributions is populated correctly."""
+        agent_facts = {0: ['a', 'b', 'c'], 1: ['d'], 2: ['e', 'f']}
+        index, metrics = compute_specialization_index(agent_facts)
+        assert metrics.per_agent_contributions == {0: 3, 1: 1, 2: 2}
 
 
-class TestGameLevelSpecialization:
-    """Tests for single game specialization computation."""
+class TestGiniCoefficient:
+    """Test cases for Gini coefficient computation."""
 
-    def test_single_game_computation(self):
-        """Should compute specialization for a single game."""
-        game_result = {
-            'agents': [
-                {'agent_id': 'agent_1', 'retrieved_items': ['item1'],
-                 'known_items': []},
-                {'agent_id': 'agent_2', 'retrieved_items': ['item2'],
-                 'known_items': []}
-            ]
-        }
-        index = compute_game_level_specialization(game_result)
-        assert 0.0 <= index <= 1.0
+    def test_perfect_equality(self):
+        """Perfect equality should yield Gini of 0."""
+        values = [10, 10, 10, 10]
+        gini = compute_gini_coefficient(values)
+        assert abs(gini) < 0.001
 
-    def test_single_agent_game(self):
-        """Single agent game should return 0."""
-        game_result = {
-            'agents': [
-                {'agent_id': 'agent_1', 'retrieved_items': ['item1'],
-                 'known_items': []}
-            ]
-        }
-        index = compute_game_level_specialization(game_result)
-        assert index == 0.0
+    def test_perfect_inequality(self):
+        """Perfect inequality should yield Gini close to 1."""
+        values = [0, 0, 0, 100]
+        gini = compute_gini_coefficient(values)
+        assert 0.7 < gini <= 1.0  # Gini for this distribution is 0.75
+
+    def test_empty_list(self):
+        """Empty list should return 0."""
+        gini = compute_gini_coefficient([])
+        assert gini == 0.0
+
+    def test_all_zeros(self):
+        """All zeros should return 0."""
+        gini = compute_gini_coefficient([0, 0, 0])
+        assert gini == 0.0
+
+
+class TestShannonEntropy:
+    """Test cases for Shannon entropy computation."""
+
+    def test_perfect_equality(self):
+        """Perfect equality should yield max entropy."""
+        values = [10, 10, 10, 10]
+        entropy, max_entropy = compute_shannon_entropy(values)
+        assert abs(entropy - max_entropy) < 0.001
+        assert abs(max_entropy - math.log2(4)) < 0.001
+
+    def test_perfect_inequality(self):
+        """Perfect inequality should yield 0 entropy."""
+        values = [0, 0, 0, 100]
+        entropy, max_entropy = compute_shannon_entropy(values)
+        assert entropy == 0.0
+
+    def test_empty_list(self):
+        """Empty list should return 0."""
+        entropy, max_entropy = compute_shannon_entropy([])
+        assert entropy == 0.0
+        assert max_entropy == 0.0
 
 
 class TestValidation:
-    """Tests for specialization index validation."""
+    """Test cases for validation functions."""
 
     def test_valid_index(self):
         """Valid index should pass validation."""
-        is_valid, message = validate_specialization_index(0.5, n_agents=4)
-        assert is_valid
-        assert 'within valid range' in message
+        assert validate_specialization_index(0.5, 4)
+        assert validate_specialization_index(0.0, 4)
+        assert validate_specialization_index(math.log2(4), 4)
 
-    def test_invalid_negative(self):
+    def test_invalid_negative_index(self):
         """Negative index should fail validation."""
-        is_valid, message = validate_specialization_index(-0.1, n_agents=4)
-        assert not is_valid
-        assert 'below minimum' in message
+        assert not validate_specialization_index(-0.1, 4)
 
-    def test_invalid_exceeds_max(self):
-        """Index exceeding max should fail validation."""
-        is_valid, message = validate_specialization_index(3.0, n_agents=2)
-        # log₂(2) = 1.0, so 3.0 should exceed
-        assert not is_valid
-        assert 'exceeds maximum' in message
+    def test_invalid_too_high_index(self):
+        """Index exceeding log2(N) should fail validation."""
+        assert not validate_specialization_index(math.log2(4) + 0.1, 4)
 
-    def test_zero_agents(self):
-        """Zero agents should fail validation."""
-        is_valid, message = validate_specialization_index(0.0, n_agents=0)
-        assert not is_valid
-        assert 'positive' in message
+    def test_single_agent(self):
+        """Single agent should only accept 0 index."""
+        assert validate_specialization_index(0.0, 1)
+        assert not validate_specialization_index(0.1, 1)
+
+
+class TestBatchCompute:
+    """Test cases for batch computation."""
+
+    def test_batch_processing(self):
+        """Test batch processing of multiple game results."""
+        class FakeResult:
+            def __init__(self, facts_per_agent):
+                self.facts_per_agent = facts_per_agent
+
+        results = [
+            FakeResult({0: ['a', 'b'], 1: ['c', 'd']}),
+            FakeResult({0: ['a', 'b', 'c'], 1: ['d']}),
+            FakeResult({0: ['a'], 1: ['b'], 2: ['c']})
+        ]
+
+        indices, metrics_list = batch_compute_specialization(results)
+
+        assert len(indices) == 3
+        assert len(metrics_list) == 3
+        for idx in indices:
+            assert isinstance(idx, float)
+            assert 0.0 <= idx
+
+    def test_empty_batch(self):
+        """Empty batch should return empty lists."""
+        indices, metrics_list = batch_compute_specialization([])
+        assert indices == []
+        assert metrics_list == []

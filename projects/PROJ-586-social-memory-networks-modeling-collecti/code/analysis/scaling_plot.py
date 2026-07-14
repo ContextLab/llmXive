@@ -1,8 +1,7 @@
-"""Generate scaling plot for specialization and retrieval metrics.
+"""Scaling plot generation for US-3.
 
-This module generates a PDF plot showing the fitted power-law curves for
-specialization index and retrieval efficiency versus agent count, with
-an explicit note about the limitation of having only 3 data points.
+Generates a PDF plot of specialization index and retrieval efficiency vs. agent count,
+with fitted power-law curves and an explicit note about the limitation of 3 data points.
 """
 from __future__ import annotations
 
@@ -14,181 +13,247 @@ import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend for CI
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 # Import from existing project modules
-from analysis.scaling import load_scaling_data, fit_power_law_with_ci
+# Note: We assume scaling_ci.py or scaling.py provides the fit results
+# If not, we compute them here to ensure the plot is self-contained.
+try:
+    from analysis.scaling_ci import load_scaling_results_for_bootstrap, bootstrap_power_law_ci
+except ImportError:
+    # Fallback if scaling_ci is not available or fails
+    load_scaling_results_for_bootstrap = None
+    bootstrap_power_law_ci = None
+
+from metrics.specialization import compute_specialization_index
+from metrics.retrieval import compute_retrieval_efficiency
+
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+RESULTS_DIR = PROJECT_ROOT / "projects" / "PROJ-586-social-memory-networks-modeling-collecti" / "results"
+OUTPUT_PDF = RESULTS_DIR / "scaling_plot.pdf"
+DATA_JSON = RESULTS_DIR / "scaling_confidence_intervals.json"
+
+# Ensure output directory exists
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def load_scaling_results_for_plot(results_dir: Path) -> Dict[str, Any]:
-    """Load scaling results from JSON file.
+def power_law(x: np.ndarray, a: float, b: float) -> np.ndarray:
+    """Power law function: y = a * x^b"""
+    return a * np.power(x, b)
+
+
+def fit_power_law(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
+    """Fit a power law y = a * x^b to data using log-log linear regression.
 
     Args:
-        results_dir: Directory containing the scaling results JSON file.
+        x: Independent variable (agent count)
+        y: Dependent variable (metric value)
 
     Returns:
-        Dictionary with scaling results data.
-
-    Raises:
-        FileNotFoundError: If the results file does not exist.
-        json.JSONDecodeError: If the file contains invalid JSON.
+        Tuple of (a, b) coefficients.
     """
-    results_file = results_dir / "scaling_confidence_intervals.json"
-    if not results_file.exists():
-        raise FileNotFoundError(f"Results file not found: {results_file}")
+    # Filter out non-positive values for log
+    mask = (x > 0) & (y > 0)
+    x_log = np.log(x[mask])
+    y_log = np.log(y[mask])
 
-    with open(results_file, "r") as f:
-        return json.load(f)
+    if len(x_log) < 2:
+        # Not enough points to fit
+        return 1.0, 0.0
+
+    # Linear regression on log-log
+    coeffs = np.polyfit(x_log, y_log, 1)
+    b = coeffs[0]  # exponent
+    a = math.exp(coeffs[1])  # coefficient
+
+    return a, b
+
+
+def load_scaling_results_for_plot(json_path: Optional[Path] = None) -> pd.DataFrame:
+    """Load scaling results from the confidence intervals JSON file.
+
+    Args:
+        json_path: Path to the JSON file. Defaults to DATA_JSON.
+
+    Returns:
+        DataFrame with columns: agent_count, specialization_index, retrieval_efficiency,
+        spec_ci_low, spec_ci_high, ret_ci_low, ret_ci_high
+    """
+    if json_path is None:
+        json_path = DATA_JSON
+
+    if not json_path.exists():
+        raise FileNotFoundError(f"Scaling results JSON not found: {json_path}. "
+                                "Run the scaling analysis first (T029).")
+
+    with open(json_path, 'r') as f:
+        data = json.load(f)
+
+    # Convert to DataFrame
+    df = pd.DataFrame(data)
+
+    # Ensure numeric types
+    numeric_cols = ['agent_count', 'specialization_index', 'retrieval_efficiency',
+                    'spec_ci_low', 'spec_ci_high', 'ret_ci_low', 'ret_ci_high']
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+
+    return df
 
 
 def generate_scaling_plot_with_notes(
-    results: Dict[str, Any],
-    output_path: Path,
-    note_text: str = "3 data points limit power-law reliability"
+    df: pd.DataFrame,
+    output_path: Optional[Path] = None,
+    title: str = "Scaling of Collective Remembering Metrics"
 ) -> None:
-    """Generate scaling plot with power-law fits and limitation note.
-
-    Creates a PDF plot showing specialization index and retrieval efficiency
-    versus agent count, with fitted power-law curves and a text note about
-    the limited number of data points.
+    """Generate the scaling plot with power-law fits and reliability note.
 
     Args:
-        results: Dictionary containing scaling results with agent counts,
-                 metrics, and confidence intervals.
-        output_path: Path to save the generated PDF plot.
-        note_text: Text note to display on the plot about data limitations.
+        df: DataFrame with scaling results.
+        output_path: Path to save the PDF. Defaults to OUTPUT_PDF.
+        title: Plot title.
     """
-    # Extract data from results
-    agent_counts = results.get("agent_counts", [])
-    specialization_data = results.get("specialization", {})
-    retrieval_data = results.get("retrieval", {})
+    if output_path is None:
+        output_path = OUTPUT_PDF
 
-    # Extract mean values and confidence intervals
-    spec_means = specialization_data.get("means", [])
-    spec_ci_lower = specialization_data.get("ci_lower", [])
-    spec_ci_upper = specialization_data.get("ci_upper", [])
+    # Ensure we have data
+    if df.empty:
+        raise ValueError("Input DataFrame is empty. Cannot generate plot.")
 
-    ret_means = retrieval_data.get("means", [])
-    ret_ci_lower = retrieval_data.get("ci_lower", [])
-    ret_ci_upper = retrieval_data.get("ci_upper", [])
+    # Sort by agent count
+    df = df.sort_values('agent_count')
 
-    # Fit power-law curves
-    spec_fit = fit_power_law_with_ci(np.array(agent_counts), np.array(spec_means))
-    ret_fit = fit_power_law_with_ci(np.array(agent_counts), np.array(ret_means))
+    agent_counts = df['agent_count'].values
+    spec_indices = df['specialization_index'].values
+    ret_effs = df['retrieval_efficiency'].values
 
-    # Create figure with two subplots
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+    # Fit power laws
+    a_spec, b_spec = fit_power_law(agent_counts, spec_indices)
+    a_ret, b_ret = fit_power_law(agent_counts, ret_effs)
 
-    # Plot specialization index
-    ax1.errorbar(
-        agent_counts, spec_means,
-        yerr=[np.array(spec_means) - np.array(spec_ci_lower),
-              np.array(spec_ci_upper) - np.array(spec_means)],
-        fmt='o-', capsize=5, label='Specialization Index (measured)',
-        color='blue', alpha=0.7
-    )
-
-    # Generate smooth curve for power-law fit
+    # Generate smooth curves for plotting
     x_smooth = np.linspace(min(agent_counts), max(agent_counts), 100)
-    y_spec_smooth = spec_fit['a'] * (x_smooth ** spec_fit['b'])
-    ax1.plot(x_smooth, y_spec_smooth, 'r--', label=f'Power-law fit: y={spec_fit["a"]:.3f}x^{spec_fit["b"]:.3f}')
+    y_spec_smooth = power_law(x_smooth, a_spec, b_spec)
+    y_ret_smooth = power_law(x_smooth, a_ret, b_ret)
 
-    ax1.set_xlabel('Number of Agents')
-    ax1.set_ylabel('Specialization Index')
-    ax1.set_title('Specialization Index vs Agent Count')
-    ax1.legend()
-    ax1.grid(True, alpha=0.3)
-    ax1.set_xscale('log')
-    ax1.set_yscale('log')
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Plot retrieval efficiency
-    ax2.errorbar(
-        agent_counts, ret_means,
-        yerr=[np.array(ret_means) - np.array(ret_ci_lower),
-              np.array(ret_ci_upper) - np.array(ret_means)],
-        fmt='o-', capsize=5, label='Retrieval Efficiency (measured)',
-        color='green', alpha=0.7
+    # Plot data points with error bars
+    ax.errorbar(
+        agent_counts,
+        spec_indices,
+        yerr=[spec_indices - df['spec_ci_low'].values, df['spec_ci_high'].values - spec_indices],
+        fmt='o-',
+        label='Specialization Index',
+        color='blue',
+        capsize=5,
+        markersize=8,
+        linewidth=2
     )
 
-    y_ret_smooth = ret_fit['a'] * (x_smooth ** ret_fit['b'])
-    ax2.plot(x_smooth, y_ret_smooth, 'r--', label=f'Power-law fit: y={ret_fit["a"]:.3f}x^{ret_fit["b"]:.3f}')
+    ax.errorbar(
+        agent_counts,
+        ret_effs,
+        yerr=[ret_effs - df['ret_ci_low'].values, df['ret_ci_high'].values - ret_effs],
+        fmt='s-',
+        label='Retrieval Efficiency',
+        color='red',
+        capsize=5,
+        markersize=8,
+        linewidth=2
+    )
 
-    ax2.set_xlabel('Number of Agents')
-    ax2.set_ylabel('Retrieval Efficiency')
-    ax2.set_title('Retrieval Efficiency vs Agent Count')
-    ax2.legend()
-    ax2.grid(True, alpha=0.3)
-    ax2.set_xscale('log')
-    ax2.set_yscale('log')
+    # Plot fitted curves
+    ax.plot(x_smooth, y_spec_smooth, 'b--', label=f'Spec Fit: y={a_spec:.2f}x^{b_spec:.2f}', alpha=0.7)
+    ax.plot(x_smooth, y_ret_smooth, 'r--', label=f'Ret Fit: y={a_ret:.2f}x^{b_ret:.2f}', alpha=0.7)
 
-    # Add limitation note to both subplots
-    fig.suptitle('Scaling Analysis: Collective Remembering in Multi-Agent Systems', fontsize=14, fontweight='bold')
+    # Labels and title
+    ax.set_xlabel('Number of Agents', fontsize=12)
+    ax.set_ylabel('Metric Value', fontsize=12)
+    ax.set_title(title, fontsize=14)
+    ax.legend(loc='best', fontsize=10)
+    ax.grid(True, alpha=0.3)
 
-    # Add text note about data limitation
-    note = f"Note: {note_text}"
-    fig.text(0.5, 0.02, note, ha='center', va='bottom', fontsize=10, style='italic',
-             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+    # Add explicit note about data point limitation
+    note_text = "Note: 3 data points limit power-law reliability"
+    ax.text(
+        0.02, 0.02,
+        note_text,
+        transform=ax.transAxes,
+        fontsize=10,
+        verticalalignment='bottom',
+        bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    )
 
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Save as PDF
-    plt.tight_layout(rect=[0, 0.05, 1, 0.95])
-    plt.savefig(output_path, format='pdf', dpi=150, bbox_inches='tight')
+    # Save the plot
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150, format='pdf')
     plt.close()
 
     print(f"Scaling plot saved to: {output_path}")
 
 
+def run_scaling_analysis(
+    json_path: Optional[Path] = None,
+    output_path: Optional[Path] = None
+) -> None:
+    """Run the full scaling analysis and plot generation.
+
+    Args:
+        json_path: Path to the input JSON file.
+        output_path: Path to save the PDF plot.
+    """
+    if json_path is None:
+        json_path = DATA_JSON
+    if output_path is None:
+        output_path = OUTPUT_PDF
+
+    print(f"Loading scaling results from: {json_path}")
+    df = load_scaling_results_for_plot(json_path)
+
+    print(f"Generating scaling plot to: {output_path}")
+    generate_scaling_plot_with_notes(df, output_path)
+
+
 def build_parser() -> argparse.ArgumentParser:
-    """Build argument parser for scaling plot generation."""
+    """Build the argument parser for the script."""
     parser = argparse.ArgumentParser(
-        description='Generate scaling plot with power-law fits and limitation notes.'
+        description='Generate scaling plot for collective remembering metrics.'
     )
     parser.add_argument(
-        '--results-dir',
-        type=str,
-        default='projects/PROJ-586-social-memory-networks-modeling-collecti/results',
-        help='Directory containing scaling results JSON file'
+        '--input',
+        type=Path,
+        default=DATA_JSON,
+        help='Path to the input JSON file with scaling results.'
     )
     parser.add_argument(
         '--output',
-        type=str,
-        default='projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf',
-        help='Output path for the generated PDF plot'
-    )
-    parser.add_argument(
-        '--note',
-        type=str,
-        default='3 data points limit power-law reliability',
-        help='Text note to display about data limitations'
+        type=Path,
+        default=OUTPUT_PDF,
+        help='Path to save the output PDF plot.'
     )
     return parser
 
 
-def main(args: Optional[argparse.Namespace] = None) -> None:
-    """Main entry point for scaling plot generation."""
+def main() -> int:
+    """Main entry point for the script."""
     parser = build_parser()
-    parsed_args = parser.parse_args() if args is None else args
-
-    results_dir = Path(parsed_args.results_dir)
-    output_path = Path(parsed_args.output)
+    args = parser.parse_args()
 
     try:
-        results = load_scaling_results_for_plot(results_dir)
-        generate_scaling_plot_with_notes(results, output_path, parsed_args.note)
-        print("Scaling plot generation completed successfully.")
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except json.JSONDecodeError as e:
-        print(f"Error parsing JSON results: {e}", file=sys.stderr)
-        sys.exit(1)
+        run_scaling_analysis(args.input, args.output)
+        return 0
     except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
-        sys.exit(1)
+        print(f"Error generating scaling plot: {e}", file=sys.stderr)
+        return 1
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
