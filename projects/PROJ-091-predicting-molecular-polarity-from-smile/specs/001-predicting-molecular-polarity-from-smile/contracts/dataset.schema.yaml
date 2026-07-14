@@ -1,27 +1,61 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "QM9 Dataset Schema"
-description: "Schema for the raw QM9 dataset downloaded from HuggingFace"
+description: "Schema for the raw and processed QM9 dataset used in molecular polarity prediction."
 type: "object"
 properties:
-  smiles:
-    type: "string"
-    description: "Canonical SMILES string of the molecule"
-  dipole_moment:
-    type: "number"
-    description: "Dipole moment in Debye (scalar magnitude)"
-  mu_x:
-    type: "number"
-    description: "X component of the dipole moment vector"
-  mu_y:
-    type: "number"
-    description: "Y component of the dipole moment vector"
-  mu_z:
-    type: "number"
-    description: "Z component of the dipole moment vector"
-  id:
-    type: "string"
-    description: "Unique identifier for the molecule"
+  metadata:
+    type: "object"
+    properties:
+      source_url:
+        type: "string"
+        description: "Verified URL of the QM9 dataset source."
+        pattern: "^https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet$"
+      checksum:
+        type: "string"
+        description: "SHA256 checksum of the raw file."
+      timestamp:
+        type: "string"
+        format: "date-time"
+        description: "Timestamp of download."
+  data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        mol_id:
+          type: "string"
+          description: "Unique identifier for the molecule."
+        smiles:
+          type: "string"
+          description: "Canonical SMILES string."
+          pattern: "^[A-Za-z0-9@#$%&*()\\[\\]{}\\-+=~<>\\^/\\\\]+$"
+        mu:
+          type: "number"
+          description: "Dipole moment in Debye."
+          minimum: 0
+        descriptors:
+          type: "array"
+          description: "List of 2D topological descriptors (excludes TPSA, 3D). All features retained."
+          items:
+            type: "number"
+          minItems: 200
+          maxItems: 300
+        cluster_id:
+          type: "string"
+          description: "ID of the correlation cluster this molecule's descriptors belong to."
+        status:
+          type: "string"
+          enum:
+            - "valid"
+            - "nan_imputed"
+            - "skipped_malformed"
+      required:
+        - mol_id
+        - smiles
+        - mu
+        - descriptors
+        - cluster_id
+        - status
 required:
-  - "smiles"
-  - "dipole_moment"
-additionalProperties: true
+  - metadata
+  - data

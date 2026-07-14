@@ -18,9 +18,13 @@ properties:
     additionalProperties:
       type: "number"
       description: "Value of the 2D topological descriptor"
+  cluster_id:
+    type: "string"
+    description: "ID of the correlation cluster assigned to this feature set"
 required:
   - "smiles"
   - "dipole_moment"
   - "is_valid"
   - "descriptors"
+  - "cluster_id"
 additionalProperties: false

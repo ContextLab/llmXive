@@ -2,112 +2,95 @@
 
 ## Prerequisites
 
-- Python 3.10+
-- A minimal number of CPU cores, 6GB+ RAM (GitHub Actions Free Tier compatible)
-- Git
+-   Python 3.10+
+-   Git
+-   6GB+ RAM available
+-   Internet connection (for dataset download)
 
 ## Installation
 
-1. **Clone the Repository**
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-091-predicting-molecular-polarity-from-smile
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repository-url>
+    cd projects/PROJ-091-predicting-molecular-polarity-from-smile
+    ```
 
-2. **Create Virtual Environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` pins versions for `rdkit`, `lightgbm`, `pandas`, `numpy`, `scikit-learn`, `shap`, `statsmodels`.*
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
 
-## Data Preparation
+## Data Download
 
-The pipeline automatically downloads the QM9 dataset from the verified HuggingFace source.
+Download the QM9 dataset to `data/raw/`:
 
-1. **Download Data**
-   ```bash
-   python code/data/download.py
-   ```
-   - This script fetches the Parquet file to `data/raw/qm9_full.parquet`.
-   - It calculates and stores the SHA256 checksum in `state/` for verification.
+```bash
+python code/data/download_qm9.py
+```
 
-2. **Generate Features**
-   ```bash
-   python code/data/preprocess.py
-   ```
-   - Reads `data/raw/qm9_full.parquet`.
-   - Computes numerous 2D descriptors using RDKit.
-   - Saves the feature matrix to `data/processed/raw_descriptors.parquet`.
-   - **Time Estimate**: ~30-45 minutes for full dataset on 2 vCPU.
+This script:
+-   Fetches the dataset from the verified HuggingFace URL.
+-   Computes a checksum.
+-   Validates the file format.
 
-3. **Feature Selection (VIF & Target Check)**
-   ```bash
-   python code/data/feature_selection.py
-   ```
-   - Filters descriptors based on Target Correlation ($|r|>0.90$) and VIF (>5.0).
-   - Saves the final feature matrix to `data/processed/final_features.parquet`.
+## Running the Pipeline
 
-## Model Training
+Execute the full pipeline (Preprocessing -> Training -> Evaluation -> Interpretation):
 
-1. **Run Training Pipeline**
-   ```bash
-   python code/models/train.py
-   ```
-   - Performs k-fold cross-validation (Random Split, no stratification).
-   - Trains the final LightGBM model.
-   - Saves the model to `artifacts/model.pkl`.
-   - Outputs metrics to `artifacts/metrics.json`.
+```bash
+python code/main.py
+```
 
-2. **Evaluate & Explain**
-   ```bash
-   python code/models/evaluate.py
-   python code/models/explain.py
-   ```
-   - Generates test set predictions.
-   - Runs SHAP analysis.
-   - Performs **Bootstrap Stability Analysis** (multiple iterations) to validate feature robustness.
-   - Saves results to `artifacts/predictions.csv`, `artifacts/stability_report.json`.
+### Step-by-Step Execution
+
+1.  **Preprocessing**:
+    ```bash
+    python code/data/preprocess_2d.py
+    ```
+    Generates the 2D descriptor matrix, excluding TPSA and 3D features.
+
+2.  **Feature Clustering**:
+    ```bash
+    python code/data/feature_clustering.py
+    ```
+    Computes correlation matrix, groups features into clusters, and calculates VIF for diagnostic reporting (no pruning).
+
+3.  **Training**:
+    ```bash
+    python code/models/train_lightgbm.py
+    ```
+    Trains the LightGBM model with 5-fold CV.
+
+4.  **Evaluation & SHAP**:
+    ```bash
+    python code/models/evaluate.py
+    python code/models/interpret.py
+    ```
+    Generates metrics and Cluster-Aware SHAP stability reports (Two-Stage Bootstrap).
 
 ## Verification
 
-To ensure the pipeline meets the **Constitution Check** requirements:
+Run the test suite to ensure compliance with the spec:
 
-1. **Check Memory Usage**: The scripts include a `memory_monitor` that logs peak usage. Ensure it stays within a manageable memory footprint.
-   ```bash
-   grep "Peak Memory" logs/memory.log
-   ```
-2. **Verify Reproducibility**: Re-run the entire pipeline. The `metrics.json` values should match (within floating point tolerance) if seeds are pinned.
-3. **Validate Contracts**:
-   ```bash
-   # Ensure contracts are linked for the test runner
-   # The contracts live in specs/.../contracts and are symlinked to tests/contract
-   ln -s ../../specs/001-predict-molecular-polarity-from-smile/contracts tests/contract
-   
-   pytest tests/contract/
-   ```
-   - Validates that outputs match the schemas defined in `specs/001-predict-molecular-polarity/contracts/`.
-4. **Verify 2D-Only Constraint**:
-   ```bash
-   pytest tests/unit/test_no_3d_conformers.py
-   ```
-   - Ensures no 3D conformer generation logic is executed.
+```bash
+pytest tests/ -v
+```
+
+**Key Tests**:
+-   `test_3d_exclusion`: Asserts no 3D conformer generation functions are called.
+-   `test_cluster_stability`: Verifies Jaccard similarity of top feature clusters.
+-   `test_no_pruning`: Asserts that no features are removed based on VIF or correlation thresholds.
 
 ## Expected Outputs
 
-- `artifacts/metrics.json`: Contains R², RMSE, MAE.
-- `artifacts/model.pkl`: The trained LightGBM model.
-- `artifacts/stability_report.json`: Top features and their bootstrap stability frequency.
-- `logs/errors.log`: Any skipped molecules or parsing errors.
-
-## Troubleshooting
-
-- **Memory Error**: If `MemoryError` occurs, reduce the batch size in `code/data/preprocess.py` or use a smaller sample of QM9.
-- **RDKit Import Error**: Ensure `rdkit` is installed correctly. On Linux, `conda install -c conda-forge rdkit` is often more reliable than pip.
-- **Dataset Download Failed**: Verify internet access and the URL in `code/data/download.py`. The URL is hardcoded to the verified HuggingFace source.
-- **VIF Timeout**: If VIF calculation is too slow on the full dataset, the script automatically switches to a sufficiently large sample for VIF estimation, then applies the filter to the full set.
+-   `data/processed/features_*.parquet`: Cleaned feature matrix with cluster IDs.
+-   `models/lightgbm_*.pkl`: Trained model.
+-   `reports/metrics.json`: R², RMSE, MAE.
+-   `reports/shap_summary.png`: SHAP summary plot.
+-   `reports/stability_report.json`: Cluster Jaccard similarity scores.

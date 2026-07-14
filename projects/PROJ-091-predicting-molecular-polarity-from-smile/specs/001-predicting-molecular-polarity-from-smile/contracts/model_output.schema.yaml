@@ -1,67 +1,76 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Output Schema"
-description: "Schema for model predictions and evaluation metrics"
+description: "Schema for the model predictions and SHAP analysis results."
 type: "object"
 properties:
-  metrics:
+  metadata:
     type: "object"
     properties:
-      r_squared:
-        type: "number"
-        description: "Coefficient of determination (R²)"
-      rmse:
-        type: "number"
-        description: "Root Mean Squared Error"
-      mae:
-        type: "number"
-        description: "Mean Absolute Error"
-      baseline_r_squared:
-        type: "number"
-        description: "R² of the null model (predicting mean)"
-    required:
-      - "r_squared"
-      - "rmse"
-      - "mae"
-      - "baseline_r_squared"
+      model_type:
+        type: "string"
+        const: "LightGBM"
+      seed:
+        type: "integer"
+        description: "Random seed used for reproducibility."
+      clustering_method:
+        type: "string"
+        const: "Correlation-Based (|r| > 0.8)"
+      features_count:
+        type: "integer"
+        description: "Number of features (all retained, no pruning)."
   predictions:
     type: "array"
     items:
       type: "object"
       properties:
-        smiles:
+        mol_id:
           type: "string"
-        true_dipole:
+        mu_true:
           type: "number"
-        pred_dipole:
+        mu_pred:
           type: "number"
-        error:
+        residual:
           type: "number"
+        shap_values:
+          type: "array"
+          description: "SHAP values for each feature."
+          items:
+            type: "number"
+        cluster_shap_values:
+          type: "array"
+          description: "Aggregated SHAP values for each cluster."
+          items:
+            type: "number"
       required:
-        - "smiles"
-        - "true_dipole"
-        - "pred_dipole"
-        - "error"
-  shap_summary:
+        - mol_id
+        - mu_true
+        - mu_pred
+        - residual
+        - shap_values
+        - cluster_shap_values
+  stability_report:
     type: "object"
     properties:
-      top_features:
+      bootstrap_resamples:
+        type: "integer"
+        description: "Number of bootstrap resamples (SHAP-only)."
+      jaccard_similarity:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Jaccard similarity of top 10 feature clusters."
+      top_10_clusters:
         type: "array"
         items:
-          type: "object"
-          properties:
-            feature_name:
-              type: "string"
-            mean_abs_shap:
-              type: "number"
-            description:
-              type: "string"
-          required:
-            - "feature_name"
-            - "mean_abs_shap"
-    required:
-      - "top_features"
+          type: "string"
+        description: "List of top 10 most stable feature clusters."
+      stability_status:
+        type: "string"
+        enum:
+          - "stable"
+          - "unstable"
+        description: "Status based on Jaccard >= 0.7 threshold."
 required:
-  - "metrics"
-  - "predictions"
-  - "shap_summary"
-additionalProperties: false
+  - metadata
+  - predictions
+  - stability_report

@@ -1,95 +1,79 @@
 # Research: Predicting Molecular Polarity from SMILES Strings with Machine Learning
 
-## Executive Summary
-
-This research investigates whether 2D topological descriptors, derived solely from SMILES strings, can effectively predict quantum-mechanically calculated dipole moments (polarity) of small organic molecules. The study utilizes the QM dataset, a standard benchmark in computational chemistry containing [deferred] stable organic molecules with computed properties. The hypothesis is that topological features (e.g., atom types, connectivity indices) capture a significant portion of the variance in dipole moments, enabling a lightweight, CPU-tractable screening pipeline without the need for expensive 3D conformer generation.
-
-**Critical Methodological Note**: To ensure scientific validity, this study explicitly excludes features definitionally correlated with the target (e.g., TPSA) and employs Variance Inflation Factor (VIF) analysis rather than simple pairwise correlation to mitigate multi-collinearity.
+## Research Question
+To what extent can 2D topological descriptors alone (excluding 3D geometry, TPSA, and functional group proxies) predict quantum-mechanically calculated dipole moments, and which specific **clusters** of 2D features carry the strongest *stable* predictive signal?
 
 ## Dataset Strategy
 
-The project relies exclusively on the **QM9** dataset. The specific source is verified as a Parquet file hosted on HuggingFace.
+The project relies on the **QM9** dataset, which contains 134k small organic molecules with computed quantum mechanical properties, including dipole moments.
 
-| Dataset Name | Source URL | Format | Key Variables | Verification Status |
+| Dataset Name | Source URL | Format | Variables Used | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **QM9 (Full)** | `https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet` | Parquet | `smiles`, `dipole_moment` (Debye), `mu_x`, `mu_y`, `mu_z`, `alpha`, `homo`, `lumo`, `gap` | **Verified** (Reachable, Format Confirmed) |
-| **QM9 (Subset)** | `https://huggingface.co/datasets/hadoan/enthalpy-QM9-1k/resolve/main/data/train-00000-of-00001-ffd5f7908688c934.parquet` | Parquet | `smiles`, `mu` (Debye) | **Verified** (Reachable, Format Confirmed) |
+| **QM9** | https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet | Parquet | `smiles` (SMILES string), `mu` (Dipole moment in Debye) | Primary source. Contains both features (SMILES) and target (`mu`). |
 
-**Dataset Fit Analysis**:
-- **Required Variables**: The study requires `smiles` (input) and `dipole_moment` (target).
-- **Verification**: The primary QM9 source (`lisn519010/QM9`) contains a `smiles` column and a `dipole_moment` column (often stored as a vector or scalar magnitude). The vector components (`mu_x`, `mu_y`, `mu_z`) allow for calculation of the magnitude $\sqrt{\mu_x^2 + \mu_y^2 + \mu_z^2}$ if a scalar is not pre-provided.
-- **Constraint Check**: The dataset contains the necessary predictors (SMILES) and outcome (Dipole). No external data sources are needed.
-- **Missing Data Handling**: The plan explicitly addresses handling of molecules with missing dipole values or malformed SMILES by logging and skipping (FR-001).
+**Data Loading Strategy**:
+1.  The raw Parquet file is downloaded to `data/raw/qm9_full.parquet`.
+2.  A checksum is computed and stored in `state/` to satisfy Constitution Principle III.
+3.  The dataset is loaded into a Pandas DataFrame.
+4.  **Sampling**: To meet the ≤6GB RAM constraint on the free-tier runner, a representative subset of the QM9 dataset will be sampled (e.g., 10k-20k molecules) if the full set exceeds memory limits during feature engineering. The sampling method (stratified by dipole magnitude or random) will be documented in `code/data/download_qm9.py`.
+5.  **Variable Fit Check**: The QM9 dataset explicitly contains `mu` (dipole moment) and `smiles`. No external variables are required. The plan confirms that `mu` is the target and `smiles` is the source for 2D descriptors.
 
-**Dataset Loading Strategy**:
-- The `code/data/download.py` script will use `pandas.read_parquet` with the verified URL.
-- To ensure reproducibility, the file will be saved to `data/raw/qm9_full.parquet` and checksummed.
-- A sample of [deferred] molecules will be used for initial development to verify the 2D descriptor pipeline, with the full dataset used for final training if memory permits (otherwise, a stratified random sample of ~50k will be used to stay within 6GB RAM).
+**Excluded Data Sources**:
+-   **TPSA/SMARTS datasets**: Explicitly excluded by FR-001 to prevent tautological validation.
+-   **3D Geometry datasets**: Explicitly excluded by Constitution Principle VI.
+-   **Unverified URLs**: No other dataset URLs are used. The "Verified datasets" block provided in the prompt lists QM9 sources; no other sources are needed.
 
-## Feature Engineering Strategy
+## Methodological Approach
 
-**Method**: RDKit 2D Descriptor Calculation.
-**Constraint**: Strictly NO 3D conformer generation (`AllChem.EmbedMolecule` is forbidden).
+### 1. Feature Engineering (2D Topology Only)
+-   **Library**: `rdkit.Chem.Descriptors` and `rdkit.Chem.rdMolDescriptors`.
+-   **Exclusions**:
+    -   NO `rdkit.Chem.AllChem.EmbedMolecule` or `Get3DConformer`.
+    -   NO `CalcTPSA`, `CalcTPSA_E`, or any surface-area proxies.
+    -   NO SMARTS pattern matching for specific functional groups (e.g., -OH, -C=O).
+    -   **CRITICAL**: **NO exclusion of features based on correlation with the target (|r| > 0.85)**. All 2D descriptors are retained to measure the true predictive capacity of 2D topology. High-correlation features are valid signals, not leakage.
+-   **Output**: A matrix of ≥200 2D descriptors per molecule.
+-   **Handling**: NaN values imputed with median; malformed SMILES skipped with logging.
 
-**Descriptor Categories**:
-1. **Count Descriptors**: Atom counts (C, N, O, F, etc.), bond counts (single, double, aromatic).
-2. **Topological Indices**: Wiener index, Balaban index, Kier-Hall connectivity indices, Randic indices.
-3. **Fragment Counts**: Presence of specific functional groups based on SMARTS patterns.
-   - **Constraint**: **Direct polar group flags (e.g., "has -OH", "has -C=O") are strictly EXCLUDED** to prevent trivial lookup-table predictions. Instead, connectivity indices that capture the *topological environment* of these groups are used.
-4. **Excluded Features**: 
-   - **Topological Polar Surface Area (TPSA)**: Explicitly excluded as it is a 2D approximation of polar surface area strongly correlated with dipole moment, creating a near-tautological validation.
-   - **3D-Dependent Descriptors**: Any descriptor requiring 3D coordinates (e.g., WHIM, GETAWAY) is excluded.
+### 2. Model Training
+-   **Algorithm**: LightGBM Regressor (`lightgbm.LGBMRegressor`).
+-   **Validation**: 5-fold Cross-Validation (CV) with standard random split.
+-   **Baseline**: Null model predicting the mean `mu` of the training set (R² = 0.0).
+-   **Hyperparameters**: Tuned via CV (grid search or Optuna) for `num_leaves`, `learning_rate`, `max_depth`.
+-   **Constraint**: CPU-only execution; no GPU acceleration.
+-   **Power Analysis**: The study is designed to detect a **Minimum Detectable Effect Size (MDES)** for **Cluster Stability** of 0.2 (Jaccard similarity difference from random baseline 0.5 to stable 0.7) with 80% power at alpha=0.05. The sample size (N) will be verified against this MDES before full training.
 
-**Handling Collinearity & Target Leakage (FR-007)**:
-- **Step 1: Target Correlation Check**: Before model training, calculate Pearson correlation between every descriptor and the target (`dipole_moment`). Any feature with $|r| > 0.90$ is **excluded** to prevent definitional redundancy or target leakage.
-- **Step 2: Multi-Collinearity Mitigation**: Instead of simple pairwise filtering, apply an iterative **Variance Inflation Factor (VIF)** approach.
-  - Calculate VIF for all remaining features.
-  - Iteratively remove the feature with the highest VIF (threshold > 5.0) until all remaining features have VIF < 5.0.
-  - This addresses linear combinations of >2 features, ensuring SHAP value stability.
-- **Note**: If two descriptors are definitionally related (e.g., total atom count vs. sum of specific atom types), their relationship will be reported descriptively, not as independent causal effects (Constitution Principle VI).
+### 3. Interpretability & Stability (Cluster-Aware)
+-   **SHAP Analysis**: `shap.TreeExplainer` on the trained LightGBM model.
+-   **Collinearity Handling (Cluster-Aware)**:
+    -   Calculate correlation matrix for all descriptors.
+    -   **Group** descriptors into clusters where |r| > 0.8 (e.g., using hierarchical clustering).
+    -   **VIF Diagnostic**: Calculate VIF for diagnostic reporting, but **DO NOT remove features** based on VIF > 5.0.
+    -   **Signal Attribution**: Use **SHAP Interaction Values** to attribute importance within clusters. The "strongest signal" is defined as the **cluster** with the highest aggregate SHAP value. Features within a cluster are reported as a group.
+-   **Stability Check (Two-Stage Bootstrap)**:
+    -   **Stage 1**: Train a single robust model on the full dataset.
+    -   **Stage 2**: Perform 100 bootstrap iterations by **resampling data points and recalculating SHAP values only** (no re-training). This ensures runtime feasibility (<6h).
+    -   **Metric**: Calculate Jaccard similarity of the **top 10 feature clusters** across resamples.
+    -   **Threshold**: Jaccard ≥ 0.7 required to claim cluster stability (FR-005).
+    -   **Fallback**: If Stage 2 exceeds time limits, reduce to 20 iterations and log the rationale.
 
-## Model Strategy
+## Statistical Rigor & Limitations
 
-**Algorithm**: LightGBM Regressor.
-**Rationale**:
-- **CPU Efficiency**: LightGBM is highly optimized for CPU execution and significantly faster than XGBoost or Random Forests on large datasets, fitting the 6-hour runtime constraint.
-- **Non-Linearity**: Dipole moments arise from complex electronic distributions; tree-based models capture non-linear interactions between structural features better than linear regression.
-- **Interpretability**: LightGBM supports native SHAP integration.
+-   **Multiple Comparisons**: SHAP feature importance is exploratory; no strict family-wise error correction is applied to the ranking itself, but the stability bootstrap (100 resamples) serves as a robustness check against overfitting to a single split.
+-   **Sample Size/Power**: The effective sample size is the number of molecules in the QM9 subset used. A pre-study power analysis will confirm N is sufficient to detect an MDES of 0.2 for cluster stability.
+-   **Causal Inference**: This is an **observational study**. The model predicts association, not causation. Claims will be framed as "predictive power of 2D topology" rather than "causal mechanism."
+-   **Measurement Validity**: Dipole moments (`mu`) are derived from high-level quantum mechanical calculations (QM9 standard), providing a valid ground truth. 2D descriptors are standard topological indices with established chemical meaning.
+-   **Collinearity**: Addressed via **Cluster-Aware SHAP**. Features in a correlated cluster are reported as a group, with the total cluster importance and the distribution of credit described descriptively.
 
-**Training Protocol**:
-- **Split**: **Random Split** ([deferred] Training / [deferred] Test).
-  - *Rationale*: Stratification by binning a continuous target is statistically invalid and introduces discretization bias. A simple random split with a fixed seed (42) ensures the test set is a representative sample of the population without artificial artifacts.
-- **Validation**: 5-Fold Cross-Validation on the training set to tune hyperparameters (`num_leaves`, `learning_rate`, `max_depth`).
-- **Baseline**: A Null Model predicting the mean dipole moment of the training set. The 2D model must exceed this baseline (SC-001).
-- **Hyperparameter Tuning**: Grid search or Bayesian optimization over a small defined space to avoid excessive runtime.
+## Decision Rationale (Compute Feasibility)
 
-**Statistical Rigor**:
-- **Multiple Comparisons**: Not applicable in the traditional hypothesis testing sense (regression), but model selection is based on cross-validated mean R².
-- **Power Analysis**: Given the large dataset size (>100k), statistical power is high. The limitation is computational, not sample size.
-- **Causal Framing**: The study is observational. Claims will be framed as "predictive associations" rather than causal effects of structural features on polarity.
+-   **LightGBM vs. Deep Learning**: LightGBM is chosen for its speed, CPU efficiency, and ability to handle tabular data (descriptors) effectively. Deep learning (GNNs) would require GPU or excessive CPU time and is not necessary for this specific 2D descriptor task.
+-   **Sampling**: If the full QM dataset causes memory pressure during the 200+ descriptor calculation, a random sample of molecules will be used. This ensures the pipeline runs within the available memory constraints.
+-   **Bootstrap Cost**: 100 full re-trains are computationally prohibitive. The **Two-Stage Bootstrap** (SHAP-only resampling) is selected to meet the 6h runtime constraint while preserving statistical validity for feature stability. This approach is standard for tree-based models where SHAP calculation is significantly faster than training.
 
-## Sensitivity & Robustness Analysis
+## References
 
-**Bootstrap Stability Analysis (Primary)**:
-- To address the stability of the "strongest signal" claim, a **Bootstrap Stability Analysis** will be performed.
-- **Method**: Resample the training set with replacement multiple times (e.g., 50 iterations). Train a LightGBM model on each resample.
-- **Metric**: Track the frequency with which the top 10 SHAP features appear across the models.
-- **Output**: A stability report showing which features consistently carry the strongest signal vs. those that are artifacts of specific data splits.
-
-**Threshold Sweeps (FR-005)**:
-- A secondary sensitivity analysis will be performed on feature selection thresholds (e.g., VIF cutoff) and model hyperparameters.
-- Specific sweeps: VIF cutoffs at $\{3.0, 5.0, 10.0\}$ and learning rates at $\{0.01, 0.05, 0.1\}$.
-- **Metric**: Variation in MAE and RMSE on the held-out test set.
-- **Output**: A report detailing how model stability changes with these parameters.
-
-**Edge Case Handling**:
-- **Undefined Stereochemistry**: SMILES strings with missing stereochemistry will be normalized (e.g., removing `@` symbols) or flagged. If the descriptor calculation fails, the molecule is skipped.
-- **Flexible Molecules**: Molecules with high flexibility (many rotatable bonds) are expected to have higher prediction errors due to the 2D approximation. These will be identified as outliers in the error analysis.
-- **NaN Handling**: If RDKit returns `NaN` for a descriptor, the value will be imputed with the median of the training set.
-
-## Decision Rationale: CPU-Only Feasibility
-
-The plan explicitly avoids GPU-dependent methods (e.g., Graph Neural Networks with PyTorch Geometric requiring CUDA) and 3D conformer generation (e.g., RDKit `AllChem.EmbedMolecule` which can be slow and memory-intensive for large batches).
-- **Library Choice**: `lightgbm` has native CPU support and is significantly lighter than deep learning frameworks.
-- **Memory Management**: Data is processed in chunks. The feature matrix is saved as a compressed Parquet file. The model is trained on a subset if the full matrix exceeds available memory resources (leaving sufficient capacity for OS and overhead).
-- **Runtime**: LightGBM training on 50k samples with 200 features typically completes in <10 minutes on 2 vCPU. The bottleneck is feature generation, which is parallelized but bounded by a fixed time limit.
+-   **QM9 Dataset**: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet
+-   **LightGBM**: https://lightgbm.readthedocs.io/
+-   **SHAP**: https://shap.readthedocs.io/
+-   **RDKit**: https://www.rdkit.org/
