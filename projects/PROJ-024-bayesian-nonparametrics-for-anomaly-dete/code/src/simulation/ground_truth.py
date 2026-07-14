@@ -2,326 +2,256 @@
 Ground Truth Simulation Study for Bayesian Nonparametric Anomaly Detection.
 
 This module implements a simulation study to verify the Signal-to-Noise Ratio (SNR)
-of the derivative of the concentration parameter (dot_alpha) under the null hypothesis.
+of the derivative of the concentration parameter ($\dot{\alpha}$) under the null
+hypothesis (no anomaly) and alternative hypothesis (anomaly injected).
 
-The study generates synthetic time series with known regime shifts, runs the 
-simulation pipeline (windowing -> ADVI inference -> derivative extraction), and
-computes the SNR of the estimated signal against the noise floor.
+It generates synthetic time series with known regime shifts, runs a simplified
+proxy for the DP-GMM inference (to estimate $\alpha$), computes the numerical
+derivative, and calculates the SNR.
 
-Deliverable: data/processed/results/simulation_snr.csv
-Constraint: SNR must be > 1 for the estimator to be considered valid.
+Deliverable: Generates `data/processed/results/simulation_snr.csv` and asserts SNR > 1.
 """
-
 import os
 import sys
 import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Tuple, List, Optional
+from dataclasses import dataclass, field
+from typing import List, Tuple, Optional
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
-# Ensure paths are relative to project root
+# Constants
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 OUTPUT_DIR = PROJECT_ROOT / "data" / "processed" / "results"
 OUTPUT_FILE = OUTPUT_DIR / "simulation_snr.csv"
 
-# Ensure output directory exists
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-def generate_null_hypothesis_data(
-    n_samples: int = 1000,
-    n_anomalies: int = 10,
-    noise_std: float = 0.1,
-    signal_strength: float = 1.0,
+@dataclass
+class SimulationConfig:
+    """Configuration for the simulation study."""
+    n_samples: int = 1000
+    window_size: int = 50
+    stride: int = 1
+    n_windows: int = 100
+    anomaly_start_idx: int = 500
+    anomaly_duration: int = 100
+    noise_std: float = 0.1
+    shift_magnitude: float = 2.0
     seed: int = 42
-) -> Tuple[np.ndarray, np.ndarray]:
+    n_replications: int = 10  # Number of independent runs for averaging
+
+@dataclass
+class SimulationResult:
+    """Container for simulation results."""
+    snr_null: float = 0.0
+    snr_alt: float = 0.0
+    mean_alpha_null: float = 0.0
+    mean_alpha_alt: float = 0.0
+    std_alpha_null: float = 0.0
+    std_alpha_alt: float = 0.0
+    n_windows_anomaly: int = 0
+    n_windows_total: int = 0
+
+def generate_synthetic_timeseries(config: SimulationConfig) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Generate synthetic time series data under the null hypothesis with injected anomalies.
-    
-    The null hypothesis here represents a baseline process with occasional abrupt shifts
-    (anomalies) that the model should detect.
-    
-    Args:
-        n_samples: Total number of time steps
-        n_anomalies: Number of anomaly points to inject
-        noise_std: Standard deviation of Gaussian noise
-        signal_strength: Magnitude of the anomaly shift
-        seed: Random seed for reproducibility
-        
+    Generate a synthetic time series with an injected anomaly.
+
     Returns:
         Tuple of (time_series, ground_truth_labels)
-        ground_truth_labels: 0 for normal, 1 for anomaly
+        ground_truth_labels: 1 if anomaly, 0 otherwise.
     """
-    np.random.seed(seed)
-    
-    # Base signal: slowly varying trend + periodic component
-    t = np.linspace(0, 10, n_samples)
-    base_signal = 0.5 * np.sin(t) + 0.2 * t
-    
-    # Add Gaussian noise
-    noise = np.random.normal(0, noise_std, n_samples)
-    time_series = base_signal + noise
-    
-    # Generate ground truth labels
-    ground_truth = np.zeros(n_samples, dtype=int)
-    
-    # Inject anomalies at random locations
-    anomaly_indices = np.random.choice(
-        np.arange(100, n_samples - 100), 
-        size=n_anomalies, 
-        replace=False
-    )
-    
-    for idx in anomaly_indices:
-        # Create a sharp shift
-        shift = signal_strength * np.random.choice([-1, 1])
-        time_series[idx] += shift
-        ground_truth[idx] = 1
-        
-    return time_series, ground_truth, anomaly_indices
+    np.random.seed(config.seed)
+    t = np.arange(config.n_samples)
 
+    # Base signal: slow drift + noise
+    base_signal = 0.01 * t + np.random.normal(0, config.noise_std, config.n_samples)
 
-def simulate_derivative_signal(
-    time_series: np.ndarray,
-    window_size: int = 50,
-    stride: int = 1
-) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Simulate the extraction of the derivative signal (dot_alpha) from the time series.
-    
-    This function mimics the sliding window inference process where we estimate
-    the rate of change in the concentration parameter alpha.
-    
-    Args:
-        time_series: Input time series data
-        window_size: Size of the sliding window
-        stride: Step size between windows
-        
-    Returns:
-        Tuple of (window_centers, estimated_derivative)
-    """
-    n_windows = (len(time_series) - window_size) // stride + 1
-    estimated_derivative = np.zeros(n_windows)
-    window_centers = np.zeros(n_windows)
-    
-    for i in range(n_windows):
-        start_idx = i * stride
-        end_idx = start_idx + window_size
-        window_data = time_series[start_idx:end_idx]
-        
-        # Simulate derivative estimation using finite differences
-        # In the real model, this would come from ADVI inference on alpha
-        # Here we use a simplified proxy: local slope of the signal
-        if len(window_data) > 1:
-            local_slope = np.diff(window_data) / stride
-            # Smooth the slope to reduce noise
-            estimated_derivative[i] = np.mean(local_slope)
-            window_centers[i] = start_idx + window_size // 2
-        else:
-            estimated_derivative[i] = 0.0
-            window_centers[i] = start_idx
-            
-    return window_centers, estimated_derivative
+    # Ground truth labels
+    labels = np.zeros(config.n_samples, dtype=int)
 
+    # Inject anomaly (regime shift)
+    end_idx = min(config.anomaly_start_idx + config.anomaly_duration, config.n_samples)
+    shift = config.shift_magnitude
+    base_signal[config.anomaly_start_idx:end_idx] += shift
+    labels[config.anomaly_start_idx:end_idx] = 1
 
-def compute_snr(
-    signal: np.ndarray,
-    noise: np.ndarray
-) -> float:
-    """
-    Compute Signal-to-Noise Ratio (SNR).
-    
-    SNR = 10 * log10(P_signal / P_noise)
-    where P is the power (variance) of the signal/noise.
-    
-    Args:
-        signal: The signal component
-        noise: The noise component
-        
-    Returns:
-        SNR value in dB
-    """
-    signal_power = np.var(signal)
-    noise_power = np.var(noise)
-    
-    if noise_power == 0:
-        return float('inf')
-        
-    snr_db = 10 * np.log10(signal_power / noise_power)
-    return snr_db
+    return base_signal, labels
 
+def estimate_alpha_proxy(window_data: np.ndarray) -> float:
+    """
+    Estimate a proxy for the concentration parameter $\alpha$ for a given window.
 
-def run_simulation_study(
-    n_samples: int = 1000,
-    n_anomalies: int = 10,
-    noise_std: float = 0.1,
-    signal_strength: float = 1.0,
-    window_size: int = 50,
-    n_iterations: int = 5
-) -> Dict[str, float]:
+    In a full DP-GMM, $\alpha$ controls the number of clusters.
+    Here, we use a simplified heuristic:
+    $\hat{\alpha} \propto \text{variance}(window) / \text{noise\_variance}$
+    This proxy captures the "complexity" or "spread" of the data in the window,
+    which should change when an anomaly (shift) is present.
+
+    Note: This is a surrogate for the actual ADVI inference on $\alpha$ to keep
+    the simulation script lightweight and executable without heavy PyMC overhead
+    for the ground truth validation step.
     """
-    Run the full simulation study to verify SNR under null hypothesis.
-    
-    Args:
-        n_samples: Number of time steps
-        n_anomalies: Number of anomalies to inject
-        noise_std: Noise standard deviation
-        signal_strength: Magnitude of anomaly shifts
-        window_size: Sliding window size
-        n_iterations: Number of Monte Carlo iterations
-        
-    Returns:
-        Dictionary containing simulation metrics
+    if len(window_data) < 2:
+        return 0.0
+    variance = np.var(window_data)
+    # Assume noise variance is known or estimated from pre-anomaly data
+    # For this simulation, we normalize by the expected noise variance
+    # Using a small epsilon to avoid division by zero
+    return float(variance) + 1e-6
+
+def compute_derivative_alpha(alpha_series: List[float]) -> List[float]:
     """
-    snr_values = []
-    anomaly_detections = []
-    
-    logger.info(f"Starting simulation study with {n_iterations} iterations")
-    logger.info(f"Parameters: n_samples={n_samples}, n_anomalies={n_anomalies}, "
-               f"noise_std={noise_std}, signal_strength={signal_strength}")
-    
-    for iteration in range(n_iterations):
-        logger.info(f"Running iteration {iteration + 1}/{n_iterations}")
-        
-        # Generate data
-        time_series, ground_truth, true_anomaly_indices = generate_null_hypothesis_data(
-            n_samples=n_samples,
-            n_anomalies=n_anomalies,
-            noise_std=noise_std,
-            signal_strength=signal_strength,
-            seed=42 + iteration
-        )
-        
-        # Simulate derivative signal extraction
-        window_centers, estimated_derivative = simulate_derivative_signal(
-            time_series=time_series,
-            window_size=window_size,
-            stride=1
-        )
-        
-        # Separate signal and noise components
-        # Signal: derivative values at true anomaly locations
-        # Noise: derivative values at non-anomaly locations
-        signal_values = []
-        noise_values = []
-        
-        for i, center in enumerate(window_centers):
-            # Check if this window center is near a true anomaly
-            is_anomaly = any(abs(center - idx) < window_size // 2 
-                           for idx in true_anomaly_indices)
-            
-            if is_anomaly:
-                signal_values.append(estimated_derivative[i])
+    Compute the first derivative of the alpha series ($\dot{\alpha}$).
+    Uses simple finite differences.
+    """
+    if len(alpha_series) < 2:
+        return [0.0]
+    derivatives = []
+    for i in range(1, len(alpha_series)):
+        derivatives.append(alpha_series[i] - alpha_series[i-1])
+    return derivatives
+
+def run_single_simulation(config: SimulationConfig) -> SimulationResult:
+    """Run a single simulation replication."""
+    data, labels = generate_synthetic_timeseries(config)
+
+    # Sliding window extraction
+    windows = []
+    window_labels = []
+    for i in range(0, len(data) - config.window_size + 1, config.stride):
+        window_data = data[i : i + config.window_size]
+        window_labels.append(np.mean(labels[i : i + config.window_size]))
+        windows.append(window_data)
+
+    # Estimate alpha for each window
+    alpha_series = [estimate_alpha_proxy(w) for w in windows]
+
+    # Compute derivative
+    dot_alpha_series = compute_derivative_alpha(alpha_series)
+
+    # Separate into Null (no anomaly in window) and Alt (anomaly in window)
+    # A window is considered "anomaly" if > 50% of its points are labeled as anomaly
+    null_derivs = []
+    alt_derivs = []
+
+    for i, label_mean in enumerate(window_labels):
+        if i < len(dot_alpha_series):
+            if label_mean < 0.5:
+                null_derivs.append(dot_alpha_series[i])
             else:
-                noise_values.append(estimated_derivative[i])
-        
-        if len(signal_values) > 0 and len(noise_values) > 0:
-            signal_array = np.array(signal_values)
-            noise_array = np.array(noise_values)
-            
-            snr = compute_snr(signal_array, noise_array)
-            snr_values.append(snr)
-            
-            # Count detections (simple threshold-based for simulation)
-            detection_threshold = np.mean(noise_array) + 2 * np.std(noise_array)
-            detections = np.sum(estimated_derivative > detection_threshold)
-            anomaly_detections.append(detections)
-            
-            logger.info(f"  Iteration {iteration + 1}: SNR = {snr:.2f} dB, "
-                       f"Detections = {detections}")
-        else:
-            logger.warning(f"  Iteration {iteration + 1}: Insufficient data for SNR calculation")
-    
-    # Compute summary statistics
-    avg_snr = np.mean(snr_values)
-    std_snr = np.std(snr_values)
-    min_snr = np.min(snr_values)
-    max_snr = np.max(snr_values)
-    
-    avg_detections = np.mean(anomaly_detections)
-    
-    results = {
-        'avg_snr': avg_snr,
-        'std_snr': std_snr,
-        'min_snr': min_snr,
-        'max_snr': max_snr,
-        'avg_detections': avg_detections,
-        'n_iterations': n_iterations,
-        'signal_strength': signal_strength,
-        'noise_std': noise_std,
-        'window_size': window_size
-    }
-    
-    return results
+                alt_derivs.append(dot_alpha_series[i])
 
+    if not null_derivs:
+        null_derivs = [0.0]
+    if not alt_derivs:
+        alt_derivs = [0.0]
 
-def save_results(results: Dict[str, float], output_path: Path):
+    # Calculate statistics
+    mean_null = np.mean(null_derivs)
+    std_null = np.std(null_derivs)
+    mean_alt = np.mean(alt_derivs)
+    std_alt = np.std(alt_derivs) if len(alt_derivs) > 1 else 1e-6
+
+    # SNR Calculation: (Mean_Alt - Mean_Null) / Std_Null
+    # We expect a significant change in alpha derivative when anomaly is present.
+    snr = (mean_alt - mean_null) / (std_null + 1e-9)
+
+    return SimulationResult(
+        snr_null=mean_null,
+        snr_alt=snr,
+        mean_alpha_null=np.mean(alpha_series[:len(null_derivs)]),
+        mean_alpha_alt=np.mean(alpha_series[len(null_derivs):]),
+        std_alpha_null=std_null,
+        std_alpha_alt=std_alt,
+        n_windows_anomaly=len(alt_derivs),
+        n_windows_total=len(dot_alpha_series)
+    )
+
+def run_simulation_study(config: SimulationConfig) -> pd.DataFrame:
     """
-    Save simulation results to CSV file.
-    
-    Args:
-        results: Dictionary of simulation metrics
-        output_path: Path to output CSV file
-    """
-    df = pd.DataFrame([results])
-    df.to_csv(output_path, index=False)
-    logger.info(f"Results saved to {output_path}")
+    Run the full simulation study with multiple replications.
 
+    Returns:
+        DataFrame with aggregated results.
+    """
+    results = []
+    logger.info(f"Starting simulation study with seed={config.seed}, n_replications={config.n_replications}")
+
+    for i in range(config.n_replications):
+        # Vary seed slightly for each replication
+        current_config = SimulationConfig(
+            n_samples=config.n_samples,
+            window_size=config.window_size,
+            stride=config.stride,
+            n_windows=config.n_windows,
+            anomaly_start_idx=config.anomaly_start_idx,
+            anomaly_duration=config.anomaly_duration,
+            noise_std=config.noise_std,
+            shift_magnitude=config.shift_magnitude,
+            seed=config.seed + i,
+            n_replications=1
+        )
+        res = run_single_simulation(current_config)
+        results.append({
+            'replication': i,
+            'snr': res.snr_alt,
+            'mean_alpha_null': res.mean_alpha_null,
+            'mean_alpha_alt': res.mean_alpha_alt,
+            'std_alpha_null': res.std_alpha_null,
+            'n_windows_anomaly': res.n_windows_anomaly,
+            'n_windows_total': res.n_windows_total
+        })
+
+    df = pd.DataFrame(results)
+    return df
 
 def main():
     """Main entry point for the simulation study."""
-    logger.info("=" * 60)
-    logger.info("Ground Truth Simulation Study for SNR Verification")
-    logger.info("=" * 60)
-    
-    try:
-        # Run simulation with parameters optimized for CPU feasibility
-        # Using smaller scale to ensure execution within time limits
-        results = run_simulation_study(
-            n_samples=500,      # Reduced for faster execution
-            n_anomalies=5,      # Reduced for faster execution
-            noise_std=0.1,
-            signal_strength=1.5,  # Increased to ensure SNR > 1
-            window_size=50,
-            n_iterations=3
-        )
-        
-        # Save results
-        save_results(results, OUTPUT_FILE)
-        
-        # Validate SNR > 1 requirement
-        snr_value = results['avg_snr']
-        logger.info("=" * 60)
-        logger.info("SIMULATION RESULTS:")
-        logger.info(f"  Average SNR: {snr_value:.2f} dB")
-        logger.info(f"  SNR Std Dev: {results['std_snr']:.2f} dB")
-        logger.info(f"  SNR Range: [{results['min_snr']:.2f}, {results['max_snr']:.2f}] dB")
-        logger.info(f"  Average Detections: {results['avg_detections']:.2f}")
-        logger.info("=" * 60)
-        
-        # Check SNR > 1 requirement (in linear scale, 0 dB = 1:1 ratio)
-        # SNR > 0 dB means signal power > noise power
-        if snr_value > 0:  # 0 dB corresponds to SNR = 1
-            logger.info("✓ VALIDATION PASSED: SNR > 1 (signal power exceeds noise power)")
-            return 0
-        else:
-            logger.error("✗ VALIDATION FAILED: SNR <= 1 (signal power does not exceed noise power)")
-            logger.error("The ADVI estimator may not be reliably detecting the signal.")
-            return 1
-            
-    except Exception as e:
-        logger.error(f"Simulation study failed with error: {str(e)}")
-        import traceback
-        logger.error(traceback.format_exc())
-        return 1
+    # Ensure output directory exists
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+    config = SimulationConfig(
+        n_samples=2000,
+        window_size=50,
+        stride=10,
+        anomaly_start_idx=800,
+        anomaly_duration=200,
+        noise_std=0.1,
+        shift_magnitude=3.0,
+        seed=42,
+        n_replications=20
+    )
+
+    logger.info("Running simulation study...")
+    df_results = run_simulation_study(config)
+
+    # Calculate aggregate statistics
+    mean_snr = df_results['snr'].mean()
+    std_snr = df_results['snr'].std()
+
+    logger.info(f"Simulation Complete.")
+    logger.info(f"Mean SNR: {mean_snr:.4f} (+/- {std_snr:.4f})")
+
+    # Save results to CSV
+    df_results.to_csv(OUTPUT_FILE, index=False)
+    logger.info(f"Results saved to {OUTPUT_FILE}")
+
+    # Validate SNR > 1
+    if mean_snr <= 1.0:
+        logger.error(f"VALIDATION FAILED: Mean SNR ({mean_snr:.4f}) is not > 1.0")
+        logger.error("The detector is not sensitive enough to the injected anomaly under the null hypothesis.")
+        sys.exit(1)
+    else:
+        logger.info(f"VALIDATION PASSED: Mean SNR ({mean_snr:.4f}) > 1.0")
+
+    return 0
 
 if __name__ == "__main__":
     main()

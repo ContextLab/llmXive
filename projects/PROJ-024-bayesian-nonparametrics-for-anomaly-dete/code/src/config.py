@@ -61,7 +61,7 @@ def validate_config_structure(config: Dict[str, Any]) -> bool:
 def check_config() -> bool:
     """
     Perform comprehensive configuration check.
-    
+
     Returns:
         bool: True if all checks pass, False otherwise
     """
@@ -118,6 +118,9 @@ def check_config() -> bool:
             else:
                 print(f"  ✓ Path exists: {full_path}")
         print(f"✓ Base paths section present")
+    else:
+        print("❌ FAIL: Missing base_paths section")
+        return False
 
     print("=" * 60)
     print("✅ All configuration checks PASSED")

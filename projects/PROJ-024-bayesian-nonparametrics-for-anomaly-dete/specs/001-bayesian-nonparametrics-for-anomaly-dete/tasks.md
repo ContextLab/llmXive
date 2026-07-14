@@ -56,7 +56,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
+- [X] T002 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_641c91cd — status=not_enough_info] with pinned dependencies in `code/requirements.txt`
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -115,7 +115,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T021 [US1] Implement `code/src/data/windowing.py` for sliding window extraction (length=50, stride=1) with normalization. **Order**: Must be completed before T019 and T020. **Constraint**: Window size MUST be 50 as per Plan Technical Context for stability.
+- [X] T021 [US1] Implement `code/src/data/windowing.py` for sliding window extraction (length=50, stride=1) with normalization. **Order**: Must be completed before T019 and T020. **Constraint**: Window size MUST be 50 [UNRESOLVED-CLAIM: c_9f420046 — status=not_enough_info] as per Plan Technical Context for stability.
 - [X] T019 [P] [US1] Create `code/src/data/synthetic_generator.py` generating datasets with pre-anomaly dynamics, abrupt shifts, and independent ground-truth timestamps (FR-021, FR-022). **Note**: Used for simulation and as fallback if real data search fails.
 - [X] T020 [US1] Create `code/src/models/dpgmm.py` implementing stick-breaking DP-GMM using PyMC 4 and ADVI variational inference. **Constraint**: {{claim:c_fdab4b27}} (Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347) AND a hierarchical time-varying prior ($\alpha_t \sim \text{Normal}(\alpha_{t-1}, \sigma)$) to ensure nonparametric behavior and local signal validity (FR-002).
 - [X] T022 [US1] Implement `code/src/services/anomaly_detector.py` with a modular set of methods including `__init__`, `load_model`, `process_stream`, `update_model`, `compute_score`, `get_uncertainty`, and `save_checkpoint`.
@@ -193,7 +193,7 @@
 - **IF T052b SUCCEEDS**: Run T052. T052c is SKIPPED.
 
 - [X] T052b [P] [Data] Execute mandatory search procedure for real-world datasets with labeled regime shifts (FR-017). **Search Keywords**: "anomaly detection", "regime shift", "time series", "NAB", "PhysioNet", "UCI". **Sources**: NAB, UCI, PhysioNet. **Deliverable**: If no verified source is found, generate `data/processed/results/validation_deferred.md` with exact fields: `search_query`, `result_count`, `status: DEFERRED`, `reason: FR-017b`. **Note**: This task MUST precede T052.
-- [X] T052 [Data] **Conditional on T052b success**: Create `code/src/data/download_datasets.py` fetching verified NAB/PhysioNet subsets or UCI Electricity Load Diagrams and Traffic via `ucimlrepo` or verified URLs. **Do NOT execute if T052b failed.** **Constraint**: Do NOT fetch synthetic datasets (e.g., Synthetic Control Chart) as "real-world".
+- [X] T052 [Data] **Conditional on T052b success**: Create `code/src/data/download_datasets.py` fetching verified NAB/PhysioNet subsets or UCI Electricity Load Diagrams and Traffic via `ucimlrepo` or verified URLs. **Do NOT execute if T052b failed.** **Constraint**: Do NOT fetch synthetic datasets (e.g., Synthetic Control Chart) as "real-world". <!-- FAILED: unspecified -->
 - [X] T053 [Data] {{claim:c_d5db9b53}} (2109.05633, https://arxiv.org/abs/2109.05633); reject dataset if insufficient size (FR-001). **Conditional on T052 execution.**
 - [X] T054 [Data] Delete all PEMS-SF files (`pems_sf.csv`, `pems_sf_synthetic.csv`) from `data/raw/`
 - [X] T054b [Data] **Conditional on T054 failure**: Execute `rm -f data/raw/pems_sf.csv data/raw/pems_sf_synthetic.csv` and verify with `ls -la data/raw/ | grep pems` returning empty. Log output to `data/data_provenance_report.md`.
@@ -203,7 +203,7 @@
 - [X] T056b [Data] **Conditional on T056 failure**: Execute `rm -rf data/results/` and verify with `ls -la data/ | grep results` returning only `processed/results`. Log output to `data/data_provenance_report.md`.
 - [X] T057 [Data] Generate SHA256 checksums for all raw data files and record in `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml`
 - [X] T058 [Data] **Conditional on T052b success**: Update `data/data-dictionary.md` to list only verified UCI datasets (Electricity, Traffic) with explicit license terms and URLs. **If T052b failed, update to note 'Deferred by Design' per FR-017b.**
-- [ ] T059 [Data] Implement `code/src/data/download_datasets.py` verification logic to check dataset integrity against checksums before processing
+- [X] T059 [Data] Implement `code/src/data/download_datasets.py` verification logic to check dataset integrity against checksums before processing
 - [X] T052c [Data] **Conditional on T052b failure**: Generate 'Validation Deferred' report citing search query and result count, mark requirement as 'Deferred by Design' (FR-017b).
 
 **Checkpoint**: Data hygiene established - only compliant UCI datasets present with verified checksums OR Deferred report generated.
