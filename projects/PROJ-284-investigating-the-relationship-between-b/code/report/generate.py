@@ -1,7 +1,6 @@
-"""Report generation module for the Brain Network Dynamics project.
-
-Generates a comprehensive Markdown/PDF report by assembling templates
-with correlation results, power analysis, plots, and limitations.
+"""
+Report generator for the Brain Network Dynamics project.
+Assembles Markdown/PDF reports from analysis results.
 """
 from __future__ import annotations
 
@@ -17,24 +16,25 @@ from code.logging_config import get_logger
 
 logger = get_logger(__name__)
 
+# Constants for required text
+LIMITATION_STATEMENT = "Motor Task Performance is a proxy for proprioceptive accuracy."
+ASSOCIATIONAL_PHRASES = ["associational relationship", "correlational evidence"]
 
-def load_template(template_path: str) -> str:
-    """Load the report template from the specified path.
-
-    Args:
-        template_path: Path to the template file.
-
-    Returns:
-        The template content as a string.
-    """
+def load_template(template_path: str = "templates/report_template.md") -> str:
+    """Load the report template from disk."""
     path = Path(template_path)
     if not path.exists():
-        logger.log("template_not_found", path=str(path))
-        # Fallback template if file doesn't exist
-        return """
+        # Create a default template if missing
+        path.parent.mkdir(parents=True, exist_ok=True)
+        default_template = """
         # Brain Network Dynamics and Sensorimotor Performance Report
 
+        Generated: {{timestamp}}
+
         ## Executive Summary
+        {{summary}}
+
+        ## Correlation Results
         {{correlation_table}}
 
         ## Power Analysis
@@ -43,261 +43,223 @@ def load_template(template_path: str) -> str:
         ## Visualizations
         {{plots}}
 
-        ## Limitations
+        ## Discussion and Limitations
         {{limitations}}
 
         ## Conclusion
         {{conclusion}}
         """
+        path.write_text(default_template)
+        logger.log("template_created", path=str(path))
 
-    with open(path, 'r', encoding='utf-8') as f:
-        return f.read()
+    return path.read_text()
 
+def format_correlation_table(results: List[Dict[str, Any]]) -> str:
+    """Format correlation results into a Markdown table."""
+    if not results:
+        return "No correlation results available."
 
-def format_correlation_table(correlation_file: str) -> str:
-    """Format the correlation results as a Markdown table.
+    headers = ["Metric", "Correlation (r)", "p-value", "q-value (FDR)", "Significant"]
+    rows = []
 
-    Args:
-        correlation_file: Path to the CSV file containing correlation results.
+    for res in results:
+        significant = "Yes" if res.get("significant", False) else "No"
+        rows.append([
+            res.get("metric_name", "Unknown"),
+            f"{res.get('r', 0):.4f}",
+            f"{res.get('p', 0):.4f}",
+            f"{res.get('q', 0):.4f}",
+            significant
+        ])
 
-    Returns:
-        A Markdown-formatted table string.
-    """
-    path = Path(correlation_file)
-    if not path.exists():
-        logger.log("correlation_file_not_found", path=str(correlation_file))
-        return "No correlation data available."
+    # Build Markdown table
+    table = "| " + " | ".join(headers) + " |\n"
+    table += "| " + " | ".join(["---"] * len(headers)) + " |\n"
+    for row in rows:
+        table += "| " + " | ".join(str(cell) for cell in row) + " |\n"
 
-    try:
-        df = pd.read_csv(path)
-        # Ensure required columns exist
-        required_cols = ['metric_name', 'r', 'p', 'q', 'significant']
-        for col in required_cols:
-            if col not in df.columns:
-                df[col] = 'N/A'
+    return table
 
-        # Format the table
-        table_lines = []
-        table_lines.append("| Metric | Correlation (r) | p-value | FDR-corrected (q) | Significant |")
-        table_lines.append("|--------|-----------------|---------|-------------------|-------------|")
+def format_power_analysis(power_report: Dict[str, Any]) -> str:
+    """Format power analysis results."""
+    if not power_report:
+        return "No power analysis available."
 
-        for _, row in df.iterrows():
-            sig = "Yes" if row.get('significant', False) else "No"
-            table_lines.append(
-                f"| {row.get('metric_name', 'N/A')} | {row.get('r', 'N/A'):.4f} | "
-                f"{row.get('p', 'N/A'):.4f} | {row.get('q', 'N/A'):.4f} | {sig} |"
-            )
+    lines = [
+        f"### Detectable Effect Size",
+        f"- **Power**: {power_report.get('power', 0.8):.1%}",
+        f"- **Alpha**: {power_report.get('alpha', 0.05):.2f}",
+        f"- **Sample Size (N)**: {power_report.get('n', 0)}",
+        f"- **Detectable r (2-tailed)**: {power_report.get('detectable_r', 0):.4f}",
+        "",
+        f"### Confidence Intervals",
+    ]
 
-        return "\n".join(table_lines)
-    except Exception as e:
-        logger.log("correlation_table_error", error=str(e))
-        return f"Error loading correlation data: {str(e)}"
+    for metric, ci in power_report.get("confidence_intervals", {}).items():
+        lines.append(f"- **{metric}**: [{ci.get('lower', 0):.4f}, {ci.get('upper', 0):.4f}]")
 
+    return "\n".join(lines)
 
-def format_power_analysis(power_file: str) -> str:
-    """Format the power analysis results.
+def format_plots(plot_paths: List[str]) -> str:
+    """Format plot paths into Markdown image references."""
+    if not plot_paths:
+        return "No plots generated."
 
-    Args:
-        power_file: Path to the file containing power analysis results.
-
-    Returns:
-        A formatted string describing the power analysis.
-    """
-    path = Path(power_file)
-    if not path.exists():
-        logger.log("power_file_not_found", path=str(power_file))
-        return "No power analysis data available."
-
-    try:
-        # Try to load as CSV first
-        df = pd.read_csv(path)
-        if 'effect_size' in df.columns and 'power' in df.columns:
-            lines = []
-            for _, row in df.iterrows():
-                lines.append(
-                    f"- Detectable effect size (r) at 80% power: {row['effect_size']:.4f}"
-                )
-            return "\n".join(lines)
+    lines = ["### Generated Visualizations"]
+    for i, path in enumerate(plot_paths, 1):
+        if Path(path).exists():
+          lines.append(f"![Plot {i}]({path})")
         else:
-            # Fallback to text representation
-            return df.to_markdown(index=False)
-    except Exception as e:
-        logger.log("power_analysis_error", error=str(e))
-        return f"Error loading power analysis data: {str(e)}"
+          lines.append(f"*Plot {i} not found: {path}*")
 
+    return "\n".join(lines)
 
-def format_plots(plots_dir: str) -> str:
-    """Format the available plots as a list of image references.
-
-    Args:
-        plots_dir: Directory containing the generated plot images.
-
-    Returns:
-        A Markdown string with image references.
+def generate_conclusion(correlation_results: List[Dict[str, Any]], power_report: Optional[Dict[str, Any]] = None) -> str:
     """
-    plots_path = Path(plots_dir)
-    if not plots_path.exists():
-        logger.log("plots_dir_not_found", path=str(plots_dir))
-        return "No plots available."
-
-    plot_files = list(plots_path.glob("*.png")) + list(plots_path.glob("*.pdf"))
-    if not plot_files:
-        return "No plot files found in the specified directory."
-
-    plot_lines = []
-    for plot_file in sorted(plot_files):
-        # Create a relative path for the markdown
-        rel_path = f"../{plots_dir}/{plot_file.name}"
-        plot_lines.append(f"![{plot_file.stem}]({rel_path})")
-
-    return "\n\n".join(plot_lines)
-
-
-def generate_conclusion(correlation_results: Optional[pd.DataFrame] = None) -> str:
-    """Generate the conclusion section based on correlation results.
-
-    Args:
-        correlation_results: DataFrame containing correlation results.
-
-    Returns:
-        A conclusion string with appropriate phrasing.
+    Generate the conclusion section.
+    CRITICAL: Must include 'associational relationship' or 'correlational evidence'
+    if correlation results exist.
     """
-    if correlation_results is None or correlation_results.empty:
-        return (
-            "The analysis did not yield significant correlation results. "
-            "Further investigation with larger sample sizes is recommended."
-        )
-
-    significant_count = correlation_results['significant'].sum()
+    significant_count = sum(1 for r in correlation_results if r.get("significant", False))
     total_count = len(correlation_results)
 
+    conclusion_parts = []
+
     if significant_count > 0:
-        return (
-            f"Based on the analysis of {total_count} network metrics, "
-            f"{significant_count} showed significant associations with sensorimotor performance. "
-            "These findings suggest a potential **associational relationship** between brain network dynamics "
-            "and individual differences in sensorimotor performance. The observed correlations provide "
-            "**correlational evidence** that specific network properties may be linked to motor task outcomes. "
-            "However, causality cannot be inferred from these results."
+        conclusion_parts.append(
+            f"We found {significant_count} significant associations out of {total_count} tested metrics. "
+            "This provides **correlational evidence** for a relationship between brain network dynamics "
+            "and individual differences in sensorimotor performance. However, these findings represent an "
+            "**associational relationship** and do not imply causation."
         )
     else:
-        return (
-            f"Analysis of {total_count} network metrics did not reveal significant correlations "
-            "with sensorimotor performance. This may indicate that the specific network properties examined "
-            "are not strongly associated with the measured motor outcomes, or that a larger sample size "
-            "is required to detect subtle effects. Further research with increased statistical power is recommended."
+        conclusion_parts.append(
+            f"No significant associations were found among the {total_count} tested metrics. "
+            "This suggests that, within the power of this study, we did not find **correlational evidence** "
+            "for a strong **associational relationship** between the measured brain network properties "
+            "and sensorimotor performance."
         )
 
+    if power_report:
+        detectable_r = power_report.get("detectable_r", 0)
+        conclusion_parts.append(
+            f"Post-hoc power analysis indicates that with our sample size, we could detect effect sizes "
+            f"of r >= {detectable_r:.3f} with 80% power."
+        )
+
+    return " ".join(conclusion_parts)
 
 def generate_report(
-    correlation_file: str,
-    power_file: str,
-    plots_dir: str,
-    output_path: str,
-    template_path: str = "templates/report_template.md"
+    correlation_results: List[Dict[str, Any]],
+    power_report: Dict[str, Any],
+    plot_paths: List[str],
+    output_path: str = "data/analysis/report.md"
 ) -> str:
-    """Generate the full report by assembling all components.
+    """
+    Assemble the full report.
 
     Args:
-        correlation_file: Path to correlation results CSV.
-        power_file: Path to power analysis results.
-        plots_dir: Directory containing plot images.
-        output_path: Path where the final report will be saved.
-        template_path: Path to the template file.
+        correlation_results: List of dicts from T024/T025 (metric_name, r, p, q, significant)
+        power_report: Dict from T026 (detectable_r, confidence_intervals, etc.)
+        plot_paths: List of paths to generated PNG/PDF files
+        output_path: Where to write the final report
 
     Returns:
-        Path to the generated report file.
+        Path to the generated report
     """
+    logger.log("report_generation_start", output_path=output_path)
+
     # Load template
-    template = load_template(template_path)
+    template = load_template()
 
-    # Format components
-    correlation_table = format_correlation_table(correlation_file)
-    power_analysis = format_power_analysis(power_file)
-    plots = format_plots(plots_dir)
+    # Format sections
+    timestamp = datetime.utcnow().isoformat()
+    correlation_table = format_correlation_table(correlation_results)
+    power_analysis = format_power_analysis(power_report)
+    plots = format_plots(plot_paths)
+    conclusion = generate_conclusion(correlation_results, power_report)
 
-    # Load correlation data for conclusion generation
-    correlation_df = None
-    if Path(correlation_file).exists():
-        try:
-            correlation_df = pd.read_csv(correlation_file)
-        except Exception as e:
-            logger.log("conclusion_data_load_error", error=str(e))
+    # Limitations section with REQUIRED text
+    limitations = f"""
+    ### Study Limitations
 
-    conclusion = generate_conclusion(correlation_df)
+    {LIMITATION_STATEMENT}
 
-    # Define limitations section (REQUIRED)
-    limitations = """
-    ### Limitations
-
-    - **Motor Task Performance is a proxy for proprioceptive accuracy.** The behavioral measures used in this study are indirect indicators of proprioceptive function and may be influenced by other sensorimotor processes.
-    - **Cross-sectional design:** The analysis is based on a single time-point measurement, limiting causal inference.
-    - **Sample size constraints:** The study may be underpowered to detect small effect sizes, as indicated by the power analysis.
-    - **Network metric selection:** The choice of graph metrics may not capture all relevant aspects of brain network dynamics.
-    - **Confounding variables:** While FD was controlled for, other potential confounders (e.g., head motion artifacts, scanner variability) may influence the results.
+    Additional limitations include:
+    - Cross-sectional design prevents causal inference.
+    - Sample size may limit detection of small effect sizes.
+    - Motion artifacts, while controlled, may still influence connectivity estimates.
+    - The Schaefer atlas provides a fixed parcellation that may not capture individual anatomical variability.
     """
 
-    # Assemble the report
-    report_content = template.replace("{{correlation_table}}", correlation_table)
+    # Assemble report
+    report_content = template.replace("{{timestamp}}", timestamp)
+    report_content = report_content.replace("{{correlation_table}}", correlation_table)
     report_content = report_content.replace("{{power_analysis}}", power_analysis)
     report_content = report_content.replace("{{plots}}", plots)
     report_content = report_content.replace("{{limitations}}", limitations)
     report_content = report_content.replace("{{conclusion}}", conclusion)
-
-    # Add timestamp
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    report_header = f"# Brain Network Dynamics and Sensorimotor Performance\n\n*Generated: {timestamp}*\n\n"
-    report_content = report_header + report_content
+    # Summary placeholder (could be auto-generated from stats)
+    summary = f"Analysis of {len(correlation_results)} network metrics against sensorimotor performance."
+    report_content = report_content.replace("{{summary}}", summary)
 
     # Ensure output directory exists
-    output_path_obj = Path(output_path)
-    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Write the report
-    with open(output_path_obj, 'w', encoding='utf-8') as f:
-        f.write(report_content)
+    # Write report
+    Path(output_path).write_text(report_content)
+    logger.log("report_generation_complete", output_path=output_path, length=len(report_content))
 
-    logger.log("report_generated", output_path=str(output_path_obj))
-    return str(output_path_obj)
-
+    return str(output_path)
 
 def main() -> None:
-    """Main entry point for report generation."""
+    """
+    Main entry point for report generation.
+    Loads results from data files and generates the report.
+    """
+    logger.log("report_main_start")
+
     # Define paths
-    base_dir = Path(__file__).parent.parent.parent
-    correlation_file = base_dir / "data" / "analysis" / "correlations.csv"
-    power_file = base_dir / "data" / "analysis" / "power_analysis.csv"
-    plots_dir = base_dir / "figures"
-    output_path = base_dir / "docs" / "report.md"
-    template_path = base_dir / "templates" / "report_template.md"
+    base_path = Path("data/analysis")
+    corr_file = base_path / "correlation_results.csv"
+    power_file = base_path / "power_analysis.json"
+    plots_dir = base_path / "plots"
+    output_file = base_path / "report.md"
 
-    # Check if required files exist
-    if not correlation_file.exists():
-        logger.log("missing_correlation_file", path=str(correlation_file))
-        print(f"Error: Correlation file not found at {correlation_file}")
-        print("Please run the analysis pipeline first to generate correlation results.")
-        sys.exit(1)
+    # Load correlation results
+    if corr_file.exists():
+        df = pd.read_csv(corr_file)
+        # Convert to list of dicts expected by formatter
+        correlation_results = df.to_dict(orient="records")
+    else:
+        logger.log("correlation_file_missing", path=str(corr_file))
+        correlation_results = []
 
-    if not power_file.exists():
-        logger.log("missing_power_file", path=str(power_file))
-        print(f"Warning: Power analysis file not found at {power_file}")
-        print("Continuing without power analysis data.")
+    # Load power analysis
+    power_report = {}
+    if power_file.exists():
+        import json
+        with open(power_file, "r") as f:
+            power_report = json.load(f)
+    else:
+        logger.log("power_file_missing", path=str(power_file))
+
+    # Collect plot paths
+    plot_paths = []
+    if plots_dir.exists():
+        plot_paths = [str(p) for p in plots_dir.glob("*.png")] + [str(p) for p in plots_dir.glob("*.pdf")]
 
     # Generate report
-    try:
-        result_path = generate_report(
-            correlation_file=str(correlation_file),
-            power_file=str(power_file) if power_file.exists() else "",
-            plots_dir=str(plots_dir),
-            output_path=str(output_path),
-            template_path=str(template_path)
-        )
-        print(f"Report successfully generated at: {result_path}")
-    except Exception as e:
-        logger.log("report_generation_failed", error=str(e))
-        print(f"Error generating report: {str(e)}")
-        sys.exit(1)
+    report_path = generate_report(
+        correlation_results=correlation_results,
+        power_report=power_report,
+        plot_paths=plot_paths,
+        output_path=str(output_file)
+    )
 
+    print(f"Report generated successfully: {report_path}")
+    logger.log("report_main_complete", report_path=report_path)
 
 if __name__ == "__main__":
     main()

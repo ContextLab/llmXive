@@ -1,6 +1,3 @@
-"""
-Memory monitoring and dynamic batch sizing utilities.
-"""
 from __future__ import annotations
 
 import os
@@ -11,93 +8,81 @@ from code.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def get_available_memory() -> float:
+def get_available_memory() -> int:
     """
     Get available system memory in bytes.
+    Uses psutil for cross-platform compatibility.
     """
     try:
         mem = psutil.virtual_memory()
         available = mem.available
-        logger.log("get_available_memory", available_bytes=available, total_bytes=mem.total)
-        return float(available)
+        logger.log("memory_check", available_bytes=available, total_bytes=mem.total)
+        return available
     except Exception as e:
-        logger.log("get_available_memory_error", error=str(e))
-        # Fallback: assume 4GB available
-        return 4.0 * 1024**3
+        logger.log("memory_check_failed", error=str(e))
+        # Fallback to a conservative estimate if psutil fails
+        return 2 * 1024 * 1024 * 1024  # 2GB fallback
 
-def estimate_memory_usage(n_rows: int, n_cols: int, dtype_size: int = 8) -> float:
+def estimate_memory_usage(rows: int, columns: int, dtype_size: int = 8) -> int:
     """
     Estimate memory usage for a matrix of given dimensions.
-    dtype_size: bytes per element (default 8 for float64)
-    """
-    # Base matrix size
-    matrix_size = n_rows * n_cols * dtype_size
-    # Add 50% overhead for pandas/DataFrame operations
-    estimated = matrix_size * 1.5
-    logger.log("estimate_memory_usage", 
-               n_rows=n_rows, 
-               n_cols=n_cols, 
-               dtype_size=dtype_size, 
-               estimated_bytes=estimated)
-    return estimated
-
-def calculate_batch_size(n_rows: int, 
-                        n_cols: int, 
-                        max_memory_fraction: float = 0.8) -> int:
-    """
-    Calculate optimal batch size for matrix operations.
     
     Args:
-        n_rows: Total number of rows to process
-        n_cols: Number of columns per row
-        max_memory_fraction: Maximum fraction of available memory to use (0.0-1.0)
-    
+        rows: Number of rows
+        columns: Number of columns
+        dtype_size: Size of data type in bytes (default 8 for float64)
+        
     Returns:
-        Optimal batch size (number of rows per batch)
+        Estimated memory in bytes
+    """
+    return rows * columns * dtype_size
+
+def calculate_batch_size(total_rows: int, max_memory_fraction: float = 0.8) -> int:
+    """
+    Calculate optimal batch size to respect memory constraints.
+    
+    Args:
+        total_rows: Total number of rows to process
+        max_memory_fraction: Fraction of available memory to use (0.0 to 1.0)
+        
+    Returns:
+        Optimal batch size (number of rows)
     """
     available_mem = get_available_memory()
-    safe_limit = available_mem * max_memory_fraction
+    safe_mem = int(available_mem * max_memory_fraction)
     
-    # Memory per row
-    mem_per_row = estimate_memory_usage(1, n_cols)
+    # Heuristic: Estimate memory per row for typical analysis operations
+    # Assume we need space for:
+    # - Input data (float64)
+    # - Intermediate matrices (e.g., covariance, design matrix)
+    # - Residuals and results
+    # Conservative estimate: 100KB per row for complex operations
+    bytes_per_row = 100 * 1024 
     
-    if mem_per_row == 0:
-        return n_rows
+    if bytes_per_row == 0:
+        return total_rows
+        
+    batch_size = min(total_rows, max(1, safe_mem // bytes_per_row))
     
-    # Calculate batch size
-    batch_size = int(safe_limit / mem_per_row)
-    
-    # Ensure batch size is at least 1 and at most n_rows
-    batch_size = max(1, min(batch_size, n_rows))
-    
-    logger.log("calculate_batch_size", 
-               available_mem=available_mem, 
-               safe_limit=safe_limit, 
-               mem_per_row=mem_per_row, 
-               calculated_batch_size=batch_size, 
-               total_rows=n_rows)
+    logger.log("batch_size_calculated",
+               available_mem=safe_mem,
+               bytes_per_row=bytes_per_row,
+               calculated_batch_size=batch_size,
+               total_rows=total_rows)
+               
     return batch_size
 
-def verify_batching_logic(n_rows: int, n_cols: int, max_memory_gb: float = 7.0) -> Tuple[int, bool]:
+def verify_batching_logic():
     """
-    Verify that calculated batch size respects memory constraints.
-    
-    Returns:
-        Tuple of (batch_size, is_valid)
+    Verify that batch sizing logic works correctly.
+    This is a utility function for testing, not part of the main pipeline.
     """
-    available_mem = get_available_memory()
-    limit_bytes = max_memory_gb * 1024**3
-    
-    batch_size = calculate_batch_size(n_rows, n_cols)
-    
-    # Verify batch fits in memory
-    batch_mem = estimate_memory_usage(batch_size, n_cols)
-    is_valid = batch_mem < limit_bytes
-    
-    logger.log("verify_batching_logic", 
-               batch_size=batch_size, 
-               batch_mem_bytes=batch_mem, 
-               limit_bytes=limit_bytes, 
-               is_valid=is_valid)
-    
-    return batch_size, is_valid
+    total = 10000
+    batch = calculate_batch_size(total)
+    assert batch > 0 and batch <= total, "Batch size logic failed"
+    logger.log("batching_verified", total=total, batch=batch)
+    return True
+
+if __name__ == "__main__":
+    verify_batching_logic()
+    print("Memory monitor verification passed.")

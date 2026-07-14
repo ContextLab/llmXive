@@ -1,7 +1,3 @@
-"""
-Standalone runner for T023b: Generate full metrics CSV.
-Ensures data/analysis/full_metrics.csv is written.
-"""
 import os
 import sys
 import logging
@@ -14,41 +10,27 @@ logger = get_logger(__name__)
 
 def main() -> None:
     """
-    Entry point for the full metrics generation script.
+    Runner script specifically for generating full_metrics.csv.
+    Ensures T023b output is written to disk.
     """
-    logger.log("create_full_metrics", step="start")
-    
-    metrics_path = "data/processed/aggregated_metrics.csv"
-    loadings_path = "data/analysis/pca_loadings.csv"
-    scores_path = "data/analysis/factor_scores.csv"
-    full_metrics_path = "data/analysis/full_metrics.csv"
-
-    # Check if input exists
-    if not Path(metrics_path).exists():
-        logger.log("create_full_metrics", error=f"Input file not found: {metrics_path}")
-        print(f"Error: {metrics_path} not found. Please run the preprocessing pipeline first.")
-        sys.exit(1)
-
+    logger.log("create_full_metrics", step="T023b", status="started")
     try:
-        # Load
-        df = load_metrics_data(metrics_path)
+        metrics_df = load_metrics_data()
         
-        # PCA
-        logger.log("create_full_metrics", step="pca")
-        loadings_df, scores_df = run_pca_on_metrics(
-            df,
-            output_loadings_path=loadings_path,
-            output_scores_path=scores_path
-        )
+        # Ensure PCA scores exist (if not, run them)
+        factor_scores_path = Path("data/analysis/factor_scores.csv")
+        if not factor_scores_path.exists():
+            logger.log("create_full_metrics", action="running_pca", reason="scores_missing")
+            _, factor_scores_df = run_pca_on_metrics(metrics_df)
+        else:
+            factor_scores_df = pd.read_csv(factor_scores_path)
         
-        # Merge & Save
-        logger.log("create_full_metrics", step="merge")
-        full_df = generate_full_metrics(df, scores_df, output_path=full_metrics_path)
+        # Generate full metrics
+        full_df = generate_full_metrics(metrics_df, factor_scores_df)
         
-        print(f"Successfully wrote {full_metrics_path} with {len(full_df)} rows.")
-        
+        logger.log("create_full_metrics", step="T023b", status="completed", output="data/analysis/full_metrics.csv")
     except Exception as e:
-        logger.log("create_full_metrics", error=str(e))
+        logger.log("create_full_metrics", step="T023b", status="failed", error=str(e))
         raise
 
 if __name__ == "__main__":
