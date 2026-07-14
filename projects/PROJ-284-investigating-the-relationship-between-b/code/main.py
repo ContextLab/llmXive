@@ -1,4 +1,4 @@
-"""Main pipeline orchestrator."""
+"""Main pipeline entry point."""
 import argparse
 import sys
 from pathlib import Path
@@ -8,67 +8,80 @@ sys.path.insert(0, str(Path(__file__).parent))
 from logging_config import get_logger
 from data.download import download_pipeline
 from data.metrics import main as metrics_main
-from analysis.correlations import main as correlations_main
-from report.generate import main as report_main
-from viz.scatter import main as scatter_main
-from viz.network import main as network_main
 
 logger = get_logger(__name__)
 
+VALID_STEPS = [
+    "download_preprocess",
+    "metrics",
+    "extract_metrics",   # alias for metrics
+    "correlations",
+    "analyze",           # alias for correlations
+    "viz_report",
+]
+
 
 def parse_args():
-    """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(description="Brain network analysis pipeline")
+    parser = argparse.ArgumentParser(description="Brain Network Pipeline")
     parser.add_argument(
         "--step",
-        choices=["download_preprocess", "metrics", "correlations", "viz_report"],
-        default="download_preprocess",
-        help="Pipeline step to run"
+        choices=VALID_STEPS,
+        required=True,
+        help="Pipeline step to run",
     )
     parser.add_argument(
         "--subjects",
         type=int,
-        default=50,
-        help="Number of subjects to process"
+        default=10,
+        help="Number of subjects to process",
     )
     return parser.parse_args()
 
 
-def run_pipeline(step: str, subjects: int = 50) -> None:
-    """Run specified pipeline step."""
-    logger.info(f"Running pipeline step: {step}")
+def run_pipeline(step: str, subjects: int = 10):
+    """Run a pipeline step."""
+    logger.info(f"Running step: {step} (subjects={subjects})")
 
-    try:
-        if step == "download_preprocess":
-            logger.info(f"Downloading and preprocessing {subjects} subjects")
-            download_pipeline(subjects)
-            logger.info("Download and preprocessing complete")
+    if step == "download_preprocess":
+        download_pipeline(subjects)
 
-        elif step == "metrics":
-            logger.info("Extracting network metrics")
+    elif step in ("metrics", "extract_metrics"):
+        metrics_main()
+
+    elif step in ("correlations", "analyze"):
+        import os
+        os.makedirs("data/analysis", exist_ok=True)
+        # Run correlation analysis if full_metrics.csv exists
+        metrics_path = Path("data/analysis/full_metrics.csv")
+        if not metrics_path.exists():
+            # Try to generate it first
+            logger.info("full_metrics.csv not found, running metrics step first")
             metrics_main()
-            logger.info("Metrics extraction complete")
+        if metrics_path.exists():
+            try:
+                from analysis.correlations import main as correlations_main
+                correlations_main()
+            except Exception as e:
+                logger.error(f"Correlation analysis failed: {e}")
+                raise
+        else:
+            raise RuntimeError(
+                "data/analysis/full_metrics.csv not found after metrics step"
+            )
 
-        elif step == "correlations":
-            logger.info("Running correlation analysis")
-            correlations_main()
-            logger.info("Correlation analysis complete")
-
-        elif step == "viz_report":
-            logger.info("Generating visualizations and report")
-            correlations_main()  # Ensure full_metrics exists
-            scatter_main()
-            network_main()
+    elif step == "viz_report":
+        try:
+            from report.generate import main as report_main
             report_main()
-            logger.info("Visualization and report generation complete")
+        except Exception as e:
+            logger.error(f"Report generation failed: {e}")
+            raise
 
-    except Exception as e:
-        logger.error(f"Pipeline step {step} failed: {e}")
-        raise
+    else:
+        raise ValueError(f"Unknown step: {step}")
 
 
 def main():
-    """Main entry point."""
     args = parse_args()
     run_pipeline(args.step, args.subjects)
 

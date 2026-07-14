@@ -73,6 +73,6 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def setup_logging(*args: Any, **kwargs: Any) -> None:
-    """Setup logging — tolerant no-op for compatibility."""
-    return None
+def setup_logging(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    """Alias for get_logger for compatibility with callers expecting setup_logging."""
+    return get_logger(*args, **kwargs)

@@ -1,13 +1,15 @@
 {
   "project_id": "PROJ-284-investigating-the-relationship-between-b",
   "ok": false,
-  "reason": "7 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/create_full_metrics.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026path}\")         # Create synthetic data for testing         logg\u2026\u201d; code/analysis/create_full_metrics.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026logger.warning(\"Creating synthetic data for testing\")         me\u2026\u201d; code/analysis/pca_runner.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026path}\")         # Create synthetic data for testing         logg\u2026\u201d; 2 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step viz_report (rc=2); 1 declared deliverable(s) absent: data/analysis/full_metrics.csv",
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/metrics.py: function `extract_time_series` returns a bare RNG draw (line 48) \u2014 a reported value computed from no real input; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=2); python code/main.py --step analyze (rc=2); 1 declared deliverable(s) absent: data/analysis/full_metrics.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py --step download_preprocess --subjects 50 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py\", line 74, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py\", line 71, in main\n    run_pipeline(args.step, args.subjects)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py\", line 31, in run_pipeline\n    download_main()\n  File ",
+    "python code/main.py --step download_preprocess --subjects 50 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py\", line 77, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py\", line 73, in main\n    run_pipeline(args.step, args.subjects)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py\", line 44, in run_pipeline\n    download_pipeline(subje",
+    "python code/main.py --step extract_metrics -> rc=2\n    usage: main.py [-h]\n               [--step {download_preprocess,metrics,correlations,viz_report}]\n               [--subjects SUBJECTS]\nmain.py: error: argument --step: invalid choice: 'extract_metrics' (choose from 'download_preprocess', 'metrics', 'correlations', 'viz_report')",
+    "python code/main.py --step analyze -> rc=2\n    usage: main.py [-h]\n               [--step {download_preprocess,metrics,correlations,viz_report}]\n               [--subjects SUBJECTS]\nmain.py: error: argument --step: invalid choice: 'analyze' (choose from 'download_preprocess', 'metrics', 'correlations', 'viz_report')",
     "python code/main.py --step viz_report -> rc=2\n    usage: main.py [-h] --input INPUT --x X --y Y [--x-label X_LABEL]\n               [--y-label Y_LABEL] --output OUTPUT [--title TITLE]\nmain.py: error: the following arguments are required: --input, --x, --y, --output"
   ],
-  "fix_rounds": 0,
+  "fix_rounds": 1,
   "model_tier": 3,
-  "updated_at": "2026-07-14T04:22:06Z"
+  "updated_at": "2026-07-14T04:54:33Z"
 }

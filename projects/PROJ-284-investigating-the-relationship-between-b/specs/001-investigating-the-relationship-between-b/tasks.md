@@ -84,21 +84,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Unit test in `tests/unit/test_metrics.py::test_graph_metrics_match_synthetic_ground_truth` (synthetic matrices, verifies modularity/efficiency)
-- [X] T019 [P] [US2] Integration test in `tests/integration/test_correlations.py::test_correlation_with_synthetic_data` (synthetic data, verifies r, p, q values)
+- [ ] T018 [P] [US2] Unit test in `tests/unit/test_metrics.py::test_graph_metrics_match_synthetic_ground_truth` (synthetic matrices, verifies modularity/efficiency)
+- [ ] T019 [P] [US2] Integration test in `tests/integration/test_correlations.py::test_correlation_with_synthetic_data` (synthetic data, verifies r, p, q values)
 
 ### Implementation for User Story 2
 
-- [X] T020 [P] [US2] Implement functional connectivity matrix builder (400x400 Pearson) in `code/data/metrics.py`
-- [X] T021 [US2] Implement graph metric extractor (Modularity, Global Efficiency, Participation Coeff, Within-Module Degree) in `code/data/metrics.py`
-- [X] T022 [US2] Implement aggregation logic for node-level metrics (mean across nodes) in `code/data/metrics.py`
-- [X] T023a [US2] Implement PCA on network metrics in `code/analysis/correlations.py`. **Input**: DataFrame with columns [modularity, global_efficiency, participation_coef, within_module_degree]. **Output**: `data/analysis/pca_loadings.csv` (columns: component_1, component_2) AND `data/analysis/factor_scores.csv` (columns: subject_id, pca_factor_1). **DEPENDS ON**: T021, T022. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T023b [US2] Implement File Output & Metric Preservation in `code/analysis/correlations.py`. **Logic**: Merge individual metric columns (from T021/T022) with PCA factor scores into a single output DataFrame. **Output**: `data/analysis/full_metrics.csv` containing all raw metrics AND PCA factors to ensure FR-005 (FDR on individual metrics) and FR-004 (report generation) have access to all data. **DEPENDS ON**: T023a, T021, T022. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T024 [US2] Implement Spearman/Pearson correlation with Framewise Displacement (FD) covariate in `code/analysis/correlations.py`. **CRITICAL**: Apply to **individual metrics** (from T021/T022) for FDR correction as required by FR-005. PCA factors are for exploratory multivariate analysis only. **DEPENDS ON**: T021, T022, T023b. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T025 [US2] Implement Benjamini-Hochberg FDR correction in `code/analysis/correlations.py`. **DEPENDS ON**: T024. <!-- FAILED: unspecified -->
+- [ ] T020 [P] [US2] Implement functional connectivity matrix builder (400x400 Pearson) in `code/data/metrics.py`
+- [ ] T021 [US2] Implement graph metric extractor (Modularity, Global Efficiency, Participation Coeff, Within-Module Degree) in `code/data/metrics.py`
+- [ ] T022 [US2] Implement aggregation logic for node-level metrics (mean across nodes) in `code/data/metrics.py`
+- [ ] T023a [US2] Implement PCA on network metrics in `code/analysis/correlations.py`. **Input**: DataFrame with columns [modularity, global_efficiency, participation_coef, within_module_degree]. **Output**: `data/analysis/pca_loadings.csv` (columns: component_1, component_2) AND `data/analysis/factor_scores.csv` (columns: subject_id, pca_factor_1). **DEPENDS ON**: T021, T022. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T023b [US2] Implement File Output & Metric Preservation in `code/analysis/correlations.py`. **Logic**: Merge individual metric columns (from T021/T022) with PCA factor scores into a single output DataFrame. **Output**: `data/analysis/full_metrics.csv` containing all raw metrics AND PCA factors to ensure FR-005 (FDR on individual metrics) and FR-004 (report generation) have access to all data. **DEPENDS ON**: T023a, T021, T022. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T024 [US2] Implement Spearman/Pearson correlation with Framewise Displacement (FD) covariate in `code/analysis/correlations.py`. **CRITICAL**: Apply to **individual metrics** (from T021/T022) for FDR correction as required by FR-005. PCA factors are for exploratory multivariate analysis only. **DEPENDS ON**: T021, T022, T023b. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T025 [US2] Implement Benjamini-Hochberg FDR correction in `code/analysis/correlations.py`. **DEPENDS ON**: T024. <!-- FAILED: unspecified -->
 - [X] T026 [US2] Implement % Confidence Interval calculation in `code/analysis/power.py` to calculate detectable effect size (r) for achieved N at 80% power (α=0.05, FDR corrected). **NOTE**: This replaces the Spec's FR-008 "post-hoc power analysis" per the Implementation Plan's approved technical strategy. **DEPENDS ON**: T024.
-- [X] T027 [US2] Implement correlation threshold logging (r > 0.3) in `code/analysis/correlations.py` <!-- FAILED: unspecified -->
-- [X] T028 [US2] Implement dynamic batch sizing for matrix computation to respect memory capacity constraints. in `code/analysis/correlations.py`
+- [ ] T027 [US2] Implement correlation threshold logging (r > 0.3) in `code/analysis/correlations.py` <!-- FAILED: unspecified -->
+- [ ] T028 [US2] Implement dynamic batch sizing for matrix computation to respect memory capacity constraints. in `code/analysis/correlations.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
