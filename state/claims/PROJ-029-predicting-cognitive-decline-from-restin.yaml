@@ -2591,3 +2591,238 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T14:28:18Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: "Use 90\u2011region AAL atlas to create 90\xD790 connectivity matrices\
+    \ per subject"
+  claim_id: c_11b13f3d
+  context: Implemented in code/02_preprocess_and_parcellate.py as part of the preprocessing
+    and parcellation step.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "apply 90\u2011region AAL atlas, generate 90\xD790 connectivity matrices\
+    \ for each subject."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:06:22Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline produces graph_metrics.csv from a single data batch without
+    ML training
+  claim_id: c_df497c7a
+  context: Phase 3 user story goal description stating the independent test for data
+    ingestion and graph construction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_graph_metrics.csv_from_a_single_data_batch
+  kind: entity_fact
+  raw_text: The pipeline can be run on a single batch of data to produce data/processed/graph_metrics.csv
+    containing subject IDs and calculated graph metrics without any machine learning
+    training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:06:46Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline outputs model.pkl and performance_report.json with ROC-AUC and
+    F1-score for nested CV
+  claim_id: c_b4e6f169
+  context: Phase 4 user story goal description stating the independent test for predictive
+    modeling and validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_model.pkl_and_performance_report.json_with
+  kind: entity_fact
+  raw_text: "The pipeline can be executed to output data/processed/model.pkl and data/processed/performance_report.json\
+    \ containing ROC\u2011AUC and F1\u2011score for nested CV, without running the\
+    \ permutation test."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:07:09Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Collinearity filter drops one of a pair of features with Pearson correlation
+    > 0.95
+  claim_id: c_e7602398
+  context: Test T041 ensures the collinearity filter behavior matches the specification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Unit test verifying that the collinearity filter correctly drops one\
+    \ of a pair of features with Pearson\u202F>\u202F0.95."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:07:27Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 includes rs-fMRI and longitudinal MMSE/MOCA scores
+  claim_id: c_48eb8941
+  context: Task T004c implements verification of OpenNeuro ds000246 availability and
+    parses metadata to ensure rs-fMRI and longitudinal MMSE/MOCA scores exist.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_includes_rs-fMRI_and_longitudinal_MMSE/MO
+  kind: entity_fact
+  raw_text: OpenNeuro ds000246 contains rs-fMRI and longitudinal MMSE/MOCA scores
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:08:08Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: AAL atlas has 90 regions
+  claim_id: c_2c1d8b48
+  context: "Load raw BIDS data, perform motion correction using fsl (mcflirt), normalization\
+    \ using nilearn, apply 90\u2011region AAL atlas, generate 90\xD790 connectivity\
+    \ matrices for each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "apply 90\u2011region AAL atlas"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:09:49Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 contains rs-fMRI and longitudinal MMSE/MOCA scores
+  claim_id: c_867e16cd
+  context: The task T004c specifies verification of OpenNeuro ds000246 availability
+    and parsing metadata to ensure rs-fMRI and longitudinal MMSE/MOCA scores exist.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_contains_rs-fMRI_and_longitudinal_MMSE/MO
+  kind: entity_fact
+  raw_text: OpenNeuro dataset ds000246 contains rs-fMRI and longitudinal MMSE/MOCA
+    scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:13:50Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline produces graph_metrics.csv with subject IDs and graph metrics
+    without ML training
+  claim_id: c_87b6ebee
+  context: User Story 1 describes an independent test where the pipeline outputs data/processed/graph_metrics.csv
+    with subject IDs and graph metrics, requiring no machine learning training.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_graph_metrics.csv_with_subject_IDs_and_gra
+  kind: entity_fact
+  raw_text: The pipeline can be run on a single batch of data to produce data/processed/graph_metrics.csv
+    containing subject IDs and calculated graph metrics without any machine learning
+    training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:13:53Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: AAL atlas has 90 regions and produces 90x90 connectivity matrices
+  claim_id: c_1a2fb0aa
+  context: "Implement code/02_preprocess_and_parcellate.py: Load raw BIDS data, perform\
+    \ motion correction ..., apply 90\u2011region AAL atlas, generate 90\xD790 connectivity\
+    \ matrices for each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply 90\u2011region AAL atlas, generate 90\xD790 connectivity matrices\
+    \ for each subject."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:20:41Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline can produce graph_metrics.csv from a single batch without ML
+    training
+  claim_id: c_bf23bbd1
+  context: 'Independent Test: The pipeline can be run on a single batch of data to
+    produce data/processed/graph_metrics.csv containing subject IDs and calculated
+    graph metrics without any machine learning training.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_can_produce_graph_metrics.csv_from_a_single_batch_w
+  kind: entity_fact
+  raw_text: The pipeline can be run on a single batch of data to produce data/processed/graph_metrics.csv
+    containing subject IDs and calculated graph metrics without any machine learning
+    training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:24:50Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: "pipeline can output model.pkl and performance_report.json with ROC\u2011\
+    AUC and F1\u2011score for nested CV"
+  claim_id: c_9710fb3f
+  context: "Independent Test: The pipeline can be executed to output data/processed/model.pkl\
+    \ and data/processed/performance_report.json containing ROC\u2011AUC and F1\u2011\
+    score for nested CV, without running the permutation test."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_can_output_model.pkl_and_performance_report.json_wi
+  kind: entity_fact
+  raw_text: "The pipeline can be executed to output data/processed/model.pkl and data/processed/performance_report.json\
+    \ containing ROC\u2011AUC and F1\u2011score for nested CV, without running the\
+    \ permutation test."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:24:53Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline can run permutation test on existing model and output results
+    and sensitivity report
+  claim_id: c_cc314255
+  context: 'Independent Test: The pipeline can take an existing model and performance
+    metric, run the permutation test, and output data/processed/permutation_results.json
+    and data/processed/sensitivity_report.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_can_run_permutation_test_on_existing_model_and_outp
+  kind: entity_fact
+  raw_text: The pipeline can take an existing model and performance metric, run the
+    permutation test, and output data/processed/permutation_results.json and data/processed/sensitivity_report.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T15:25:08Z'

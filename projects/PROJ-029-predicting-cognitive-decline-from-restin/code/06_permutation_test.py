@@ -10,37 +10,47 @@ import time
 from pathlib import Path
 from typing import List
 
-from pathlib import Path
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import train_test_split
 
-from utils.logger import get_logger, log_operation
+from utils.logger import get_logger
 
+# ----------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------
+
+DEFAULT_NUM_PERMUTATIONS = 500
+RUNTIME_ESTIMATE_PERMUTATION_SEC = 0.5  # empirical estimate per permutation
+RUNTIME_LIMIT_SEC = 2 * 60 * 60  # 2 hours
 
 # ----------------------------------------------------------------------
 # Helper utilities
 # ----------------------------------------------------------------------
 
-@log_operation
-def get_logger_wrapper(name: str = "permutation_test"):
+
+def _get_logger(name: str = "permutation_test"):
     """Return a logger instance for this script."""
     return get_logger(name)
 
 
-@log_operation
 def load_features_and_labels() -> tuple[List[List[float]], List[int]]:
     """
     Load graph‑metric features and binary decline labels.
 
-    Returns:
-        X: List of feature vectors (list of floats)
-        y: List of binary labels (0 = stable, 1 = decline)
+    Returns
+    -------
+    X : list of list of float
+        Feature matrix.
+    y : list of int
+        Binary labels (0 = stable, 1 = decline).
     """
-    # Load CSV files using the project's I/O utilities.
     from utils.io import load_csv
 
-    # Resolve processed data directory (fallback to default)
     data_dir = Path("data/processed")
 
-    # Expected input files
     features_path = data_dir / "graph_metrics.csv"
     labels_path = data_dir / "eligible_subjects.csv"
 
@@ -49,11 +59,10 @@ def load_features_and_labels() -> tuple[List[List[float]], List[int]]:
     if not labels_path.is_file():
         raise FileNotFoundError(f"Labels file not found: {labels_path}")
 
-    # Load CSVs with pandas for robustness
     df_features = pd.read_csv(features_path)
     df_labels = pd.read_csv(labels_path)
 
-    # Verify required columns exist
+    # Basic validation of required columns
     required_feat_cols = {"subject_id"}
     if not required_feat_cols.issubset(df_features.columns):
         raise ValueError(
@@ -65,7 +74,7 @@ def load_features_and_labels() -> tuple[List[List[float]], List[int]]:
             f"Labels CSV must contain columns: {required_label_cols}"
         )
 
-    # Merge on subject_id to align rows
+    # Merge on subject_id to align features with labels
     merged = pd.merge(
         df_features,
         df_labels[["subject_id", "decline"]],
@@ -73,7 +82,6 @@ def load_features_and_labels() -> tuple[List[List[float]], List[int]]:
         how="inner",
     )
 
-    # Feature columns are everything except subject_id and decline
     feature_cols = [
         col for col in merged.columns if col not in ("subject_id", "decline")
     ]
@@ -83,26 +91,41 @@ def load_features_and_labels() -> tuple[List[List[float]], List[int]]:
     return X, y
 
 
-@log_operation
-def estimate_runtime(num_permutations: int = 500) -> float:
+def estimate_runtime(num_permutations: int = DEFAULT_NUM_PERMUTATIONS) -> float:
     """
-    Rough estimate of runtime in seconds.
-    Assumes ~0.5 s per permutation (empirically observed on modest hardware).
+    Rough estimate of total runtime in seconds.
+
+    Parameters
+    ----------
+    num_permutations : int
+        Number of label shuffles to perform.
+
+    Returns
+    -------
+    float
+        Estimated runtime in seconds.
     """
-    return num_permutations * 0.5
+    return num_permutations * RUNTIME_ESTIMATE_PERMUTATION_SEC
 
 
-@log_operation
-def run_permutation_once(X: List[List[float]], y: List[int], seed: int) -> float:
+def run_permutation_once(
+    X: List[List[float]], y: List[int], seed: int
+) -> float:
     """
-    Train a RandomForest on shuffled labels and return ROC‑AUC.
+    Train a RandomForest on a single permutation of the labels and return ROC‑AUC.
 
-    Args:
-        X: Feature matrix.
-        y: Original labels.
-        seed: Random seed for reproducibility.
+    Parameters
+    ----------
+    X : list of list of float
+        Feature matrix.
+    y : list of int
+        Original labels.
+    seed : int
+        Random seed for reproducibility.
 
-    Returns:
+    Returns
+    -------
+    float
         ROC‑AUC score for this permutation.
     """
     rng = np.random.RandomState(seed)
@@ -120,30 +143,54 @@ def run_permutation_once(X: List[List[float]], y: List[int], seed: int) -> float
     return float(roc_auc_score(y_test, probas))
 
 
-@log_operation
-def run_permutation_test(num_permutations: int = 500, seed: int = 42) -> dict:
+def run_permutation_test(
+    num_permutations: int = DEFAULT_NUM_PERMUTATIONS, seed: int = 42
+) -> dict:
     """
     Execute the full permutation test, storing ROC‑AUC for each run.
 
-    Raises:
-        RuntimeError: If the estimated runtime exceeds the 2‑hour limit.
+    Parameters
+    ----------
+    num_permutations : int
+        Number of permutations to perform (default 500).
+    seed : int
+        Base random seed (default 42).
+
+    Returns
+    -------
+    dict
+        Summary dictionary containing the permutation results.
+
+    Raises
+    ------
+    RuntimeError
+        If the estimated runtime exceeds the 2‑hour limit.
     """
+    logger = _get_logger()
+
+    # Load data
     X, y = load_features_and_labels()
 
-    # Estimate runtime and abort early if too long.
-    est = estimate_runtime(num_permutations)
-    if est > 2 * 60 * 60:  # 2 hours
+    # Estimate runtime and enforce limit
+    est_seconds = estimate_runtime(num_permutations)
+    logger.info(
+        f"Estimated runtime for {num_permutations} permutations: {est_seconds:.1f}s"
+    )
+    if est_seconds > RUNTIME_LIMIT_SEC:
         raise RuntimeError(
-            f"Estimated runtime {est/3600:.2f} h exceeds the 2 h limit."
+            f"Estimated runtime {est_seconds/3600:.2f} h exceeds the 2 h limit."
         )
 
     aucs: List[float] = []
-    start = time.time()
-    for i in range(num_permutations):
-        auc = run_permutation_once(X, y, seed + i)
-        aucs.append(auc)
-    elapsed = time.time() - start
+    start_time = time.time()
 
+    for i in range(num_permutations):
+        perm_seed = seed + i
+        auc = run_permutation_once(X, y, perm_seed)
+        aucs.append(auc)
+        logger.info(f"Permutation {i+1}/{num_permutations}: ROC‑AUC = {auc:.4f}")
+
+    elapsed = time.time() - start_time
     results = {
         "num_permutations": num_permutations,
         "seed": seed,
@@ -152,13 +199,11 @@ def run_permutation_test(num_permutations: int = 500, seed: int = 42) -> dict:
         "elapsed_seconds": elapsed,
     }
 
-    # Write results to the declared location
     output_path = Path("data/processed/permutation_results.json")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w") as f:
         json.dump(results, f, indent=2)
 
-    logger = get_logger()
     logger.info(
         f"Permutation test completed in {elapsed:.2f}s; results saved to {output_path}"
     )
@@ -169,14 +214,14 @@ def run_permutation_test(num_permutations: int = 500, seed: int = 42) -> dict:
 # Main entry point
 # ----------------------------------------------------------------------
 
-@log_operation
+
 def main() -> int:
-    """Execute the permutation test script."""
+    """Execute the permutation‑test script."""
+    logger = _get_logger()
     try:
         run_permutation_test()
         return 0
     except Exception as exc:  # pragma: no cover – defensive
-        logger = get_logger()
         logger.error(f"Permutation test failed: {exc}")
         return 1
 

@@ -1,46 +1,60 @@
-"""Reproducibility logging — fully tolerant; raises on nothing."""
+"""Reproducibility logging — fully tolerant; raises on nothing.
+
+This module also implements the external outcome check (Task T025):
+it inspects the downloaded OpenNeuro dataset for any indication of
+MCI conversion data. If such data are missing, a limitation note is
+written to ``data/artifacts/limitations.txt`` so that downstream
+reporting can include the appropriate caveat.
+"""
+
 from __future__ import annotations
 
+import csv
 import functools
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 
 @dataclass
 class LogEntry:
+    """A lightweight log entry that can be serialised to JSON."""
+
     operation: str = ""
     parameters: dict = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
     def to_json(self) -> str:
+        """Return a JSON representation of the entry."""
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 
 class ReproducibilityLogger:
-    """Accepts ANY call shape and never raises.
+    """A tolerant logger that never raises for unexpected call signatures.
 
-    Do NOT subclass or delegate to the stdlib ``logging`` module: its
-    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self‑contained.
+    It stores ``LogEntry`` objects internally and provides no‑op methods
+    for the usual logging levels (info, debug, warning, …) so that any
+    caller can invoke them safely.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # ``name`` is optional; default to a generic identifier.
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list[LogEntry] = []
 
     def log(self, *args: Any, **kwargs: Any) -> LogEntry:
+        """Create a LogEntry from the supplied arguments."""
         op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
         return entry
 
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    # Provide no‑op methods for typical logging levels.
     def __getattr__(self, name: str):
         def _noop(*args: Any, **kwargs: Any) -> None:
             return None
-
         return _noop
 
 
@@ -48,11 +62,10 @@ _GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
 def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
-    """Return a singleton logger instance.
+    """Return a singleton ``ReproducibilityLogger``.
 
-    Accepts any positional or keyword arguments so that all existing call
-    sites (e.g. ``get_logger("graph_metrics")`` or ``get_logger()``) continue
-    to work without modification.
+    Accepts any positional or keyword arguments so that callers can pass
+    a name, a configuration dict, or nothing at all.
     """
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
@@ -61,11 +74,10 @@ def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
 
 
 def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual‑purpose helper: can be used as a decorator or a direct logger call.
+    """Dual‑purpose helper: either a decorator or a direct logging call.
 
-    When used as ``@log_operation`` it returns the wrapped function.
-    When called directly (e.g. ``log_operation("step", foo=1)``) it returns a
-    :class:`LogEntry` instance.
+    - As a decorator: ``@log_operation`` wraps a function unchanged.
+    - As a direct call: returns a ``LogEntry`` instance.
     """
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
@@ -78,3 +90,85 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)
+
+
+# ----------------------------------------------------------------------
+# Task‑specific implementation (T025)
+# ----------------------------------------------------------------------
+
+def _mci_related_column_names(headers: list[str]) -> list[str]:
+    """Return column names that look like they contain MCI conversion info."""
+    lowered = [h.lower() for h in headers]
+    return [h for h, low in zip(headers, lowered) if "mci" in low or "conversion" in low]
+
+
+def check_mci_conversion(dataset_root: Path = Path("data/raw/ds000246")) -> bool:
+    """
+    Inspect ``participants.tsv`` for any column that appears to contain
+    MCI conversion information and verify that at least one non‑empty
+    value is present.
+
+    Returns
+    -------
+    bool
+        ``True`` if plausible MCI conversion data are found, ``False`` otherwise.
+    """
+    participants_file = dataset_root / "participants.tsv"
+    if not participants_file.is_file():
+        return False
+
+    try:
+        with participants_file.open(newline="") as f:
+            reader = csv.DictReader(f, delimiter="\t")
+            if not reader.fieldnames:
+                return False
+            candidate_cols = _mci_related_column_names(reader.fieldnames)
+            if not candidate_cols:
+                return False
+
+            # Look for any non‑empty entry in the candidate columns.
+            for row in reader:
+                for col in candidate_cols:
+                    if row.get(col):
+                        return True
+    except Exception:
+        # Any read error is treated as “no data”.
+        return False
+
+    return False
+
+
+def write_limitation(note: str, out_path: Path = Path("data/artifacts/limitations.txt")) -> None:
+    """Write (or overwrite) the limitation note to the canonical location."""
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    header = "# Limitations report generated by T025 (external outcome check)\\n\\n"
+    with out_path.open("w", encoding="utf-8") as f:
+        f.write(header)
+        f.write(note.rstrip() + "\\n")
+
+
+@log_operation
+def main() -> None:
+    """
+    Entry point for the external outcome check.
+
+    - If MCI conversion data are missing, a limitation note is written.
+    - All actions are logged via the tolerant ``ReproducibilityLogger``.
+    """
+    logger = get_logger("external_outcome_check")
+    has_mci = check_mci_conversion()
+
+    if has_mci:
+        logger.info("MCI conversion data detected in participants.tsv.")
+    else:
+        limitation_msg = (
+            "MCI conversion data not available: participants.tsv missing or "
+            "does not contain columns indicating conversion status."
+        )
+        write_limitation(limitation_msg)
+        logger.info("Limitation note written due to missing MCI conversion data.")
+
+
+if __name__ == "__main__":
+    # When executed directly, run the check.
+    main()

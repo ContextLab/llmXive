@@ -1,81 +1,88 @@
+"""Unit tests for ``code/05_evaluate_model.py``.
+
+The tests create a tiny synthetic dataset, invoke the core functions and
+verify that the JSON report is produced with the expected structure.
 """
-Unit tests for code/05_evaluate_model.py
-"""
-import pytest
+
 import json
-import os
-import sys
 from pathlib import Path
+
 import numpy as np
+import pandas as pd
+import pytest
 
-# Add code directory to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
+# Import the module under test
+import importlib.util
 
-from evaluate_model import calculate_metrics, evaluate_model
-from utils.io import save_json, ensure_dir
+spec = importlib.util.spec_from_file_location(
+    "evaluate_model", Path("code/05_evaluate_model.py")
+)
+evaluate = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(evaluate)  # type: ignore
 
-def test_calculate_metrics_all_classes():
-    """Test metrics calculation with two classes."""
-    y_true = np.array([0, 1, 0, 1, 0, 1])
-    y_pred = np.array([0, 1, 0, 0, 0, 1])
-    y_prob = np.array([0.1, 0.9, 0.2, 0.6, 0.1, 0.8])
+# Helper to create minimal CSV fixtures
+def _create_dummy_data(tmp_path: Path):
+    # Create a tiny eligible subjects CSV with a binary label
+    subjects = pd.DataFrame(
+        {
+            "subject_id": ["sub-01", "sub-02", "sub-03", "sub-04"],
+            "decline_label": [0, 1, 0, 1],
+        }
+    )
+    subjects_path = tmp_path / "eligible_subjects.csv"
+    subjects.to_csv(subjects_path, index=False)
 
-    metrics = calculate_metrics(y_true, y_pred, y_prob)
+    # Create a matching graph metrics CSV with two dummy features
+    metrics = pd.DataFrame(
+        {
+            "subject_id": ["sub-01", "sub-02", "sub-03", "sub-04"],
+            "degree_mean": [0.5, 0.6, 0.55, 0.65],
+            "efficiency": [0.8, 0.75, 0.78, 0.74],
+        }
+    )
+    metrics_path = tmp_path / "graph_metrics.csv"
+    metrics.to_csv(metrics_path, index=False)
 
-    assert metrics['roc_auc'] is not None
-    assert 0 <= metrics['roc_auc'] <= 1
-    assert metrics['accuracy'] is not None
-    assert 0 <= metrics['accuracy'] <= 1
-    assert metrics['f1'] is not None
-    assert 0 <= metrics['f1'] <= 1
+    return subjects_path, metrics_path
 
-def test_calculate_metrics_single_class():
-    """Test metrics calculation with only one class in y_true."""
-    y_true = np.array([0, 0, 0, 0])
-    y_pred = np.array([0, 0, 0, 0])
-    y_prob = np.array([0.1, 0.2, 0.1, 0.3])
+def test_split_features_labels(tmp_path: Path):
+    subjects_path, metrics_path = _create_dummy_data(tmp_path)
 
-    metrics = calculate_metrics(y_true, y_pred, y_prob)
+    X, y = evaluate.split_features_labels(metrics_path, subjects_path)
 
-    assert metrics['roc_auc'] is None
-    assert metrics['accuracy'] == 1.0
-    assert metrics['f1'] == 1.0
+    # Expect four rows and two feature columns
+    assert X.shape == (4, 2)
+    assert np.array_equal(y, np.array([0, 1, 0, 1]))
 
-def test_evaluate_model_missing_file(tmp_path):
-    """Test that evaluate_model raises error when cv_results.json is missing."""
-    # Temporarily change the path logic to use tmp_path
-    # We can't easily mock the global PROJECT_ROOT in the module,
-    # so we test the logic by checking the error message or by mocking.
-    # For now, we assume the function will raise FileNotFoundError.
-    # We will skip the full integration test for now as it requires the full pipeline.
-    pass
+def test_evaluate_model_runs(tmp_path: Path):
+    subjects_path, metrics_path = _create_dummy_data(tmp_path)
 
-def test_calculate_metrics_calculation():
-    """Verify specific metric values."""
-    # Perfect prediction
-    y_true = np.array([0, 1, 0, 1])
-    y_pred = np.array([0, 1, 0, 1])
-    y_prob = np.array([0.1, 0.9, 0.2, 0.8])
+    X, y = evaluate.split_features_labels(metrics_path, subjects_path)
+    fold_metrics, mean_metrics = evaluate.evaluate_model(X, y, n_splits=2, random_state=0)
 
-    metrics = calculate_metrics(y_true, y_pred, y_prob)
+    # Two folds should be produced
+    assert len(fold_metrics) == 2
+    for fm in fold_metrics:
+        assert "roc_auc" in fm and "accuracy" in fm and "f1" in fm
 
-    assert metrics['accuracy'] == 1.0
-    assert metrics['f1'] == 1.0
-    # ROC AUC for perfect prediction should be 1.0
-    assert metrics['roc_auc'] == 1.0
+    # Mean metrics must contain the same keys
+    assert set(mean_metrics.keys()) == {"roc_auc", "accuracy", "f1"}
 
-def test_calculate_metrics_worst_prediction():
-    """Test with worst case (inverse prediction)."""
-    y_true = np.array([0, 1, 0, 1])
-    y_pred = np.array([1, 0, 1, 0])
-    y_prob = np.array([0.9, 0.1, 0.8, 0.2])
+def test_write_performance_report(tmp_path: Path):
+    # Dummy metrics
+    fold_metrics = [
+        {"fold": 1, "roc_auc": 0.75, "accuracy": 0.8, "f1": 0.78},
+        {"fold": 2, "roc_auc": 0.70, "accuracy": 0.75, "f1": 0.73},
+    ]
+    mean_metrics = {"roc_auc": 0.725, "accuracy": 0.775, "f1": 0.755}
 
-    metrics = calculate_metrics(y_true, y_pred, y_prob)
+    report_path = tmp_path / "performance_report.json"
+    evaluate.write_performance_report(fold_metrics, mean_metrics, report_path)
 
-    assert metrics['accuracy'] == 0.0
-    # F1 might be 0 if no true positives
-    assert metrics['f1'] == 0.0
-    # ROC AUC should be 0.0 (or 1.0 if inverted, but sklearn handles this)
-    # Actually, if we predict 1 for 0 and 0 for 1, ROC AUC is 0.0
-    assert metrics['roc_auc'] == 0.0
+    # Verify JSON structure
+    with report_path.open() as f:
+        data = json.load(f)
+
+    assert "folds" in data and "mean" in data
+    assert len(data["folds"]) == 2
+    assert set(data["mean"].keys()) == {"roc_auc", "accuracy", "f1"}
