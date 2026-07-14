@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Metadata Schema"
+description: "Schema for validated dataset metadata and checksums."
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier (hash of filename + checksum)."
+  url:
+    type: string
+    format: uri
+    description: "Verified source URL."
+  rows:
+    type: integer
+    minimum: 1
+    description: "Number of rows in the dataset."
+  columns:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: ["numeric", "categorical", "text"]
+      required:
+        - name
+        - type
+  numeric_columns:
+    type: array
+    items:
+      type: string
+    description: "List of numeric column names."
+  checksum:
+    type: string
+    pattern: "^[a-fA-F0-9]{64}$"
+    description: "SHA-256 checksum of the raw file."
+  is_synthetic:
+    type: boolean
+    description: "True if the dataset is synthetic (used for unit testing only)."
+required:
+  - id
+  - url
+  - rows
+  - columns
+  - numeric_columns
+  - checksum
+  - is_synthetic
+additionalProperties: false

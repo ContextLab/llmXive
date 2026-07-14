@@ -1,0 +1,136 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Integrated Story Schema"
+description: "Schema for the final integrated story output."
+type: object
+properties:
+  story_id:
+    type: string
+    description: "Unique identifier for the story."
+  baseline_narrative:
+    $ref: "#/definitions/BaselineNarrative"
+  counterfactual_insights:
+    type: array
+    items:
+      $ref: "#/definitions/CounterfactualInsight"
+  final_text:
+    type: string
+    description: "Full synthesized narrative."
+  citation_count:
+    type: integer
+    minimum: 0
+    description: "Number of valid query citations."
+  generated_at:
+    type: string
+    format: date-time
+    description: "Timestamp of generation."
+definitions:
+  BaselineNarrative:
+    type: object
+    properties:
+      dataset_id:
+        type: string
+      primary_pair:
+        type: array
+        items:
+          type: string
+        minItems: 2
+        maxItems: 2
+      correlation:
+        type: number
+      p_value:
+        type: number
+      n_samples:
+        type: integer
+      narrative_text:
+        type: string
+      query:
+        type: string
+        description: "Python/Pandas code used to generate the result."
+      baseline_type:
+        type: string
+        enum: ["standard", "random"]
+    required:
+      - dataset_id
+      - primary_pair
+      - correlation
+      - p_value
+      - n_samples
+      - narrative_text
+      - query
+      - baseline_type
+  CounterfactualInsight:
+    type: object
+    properties:
+      baseline_id:
+        type: string
+      counterfactual_pair:
+        type: array
+        items:
+          type: string
+        minItems: 2
+        maxItems: 2
+      partial_correlation:
+        type: number
+        description: "Partial correlation controlling for confounders."
+      p_value:
+        type: number
+      threshold_config:
+        type: object
+        properties:
+          corr_threshold:
+            type: number
+          p_threshold:
+            type: number
+        required:
+          - corr_threshold
+          - p_threshold
+      robustness_score:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Stability score across thresholds."
+      effect_size_valid:
+        type: boolean
+        description: "True if |r| >= 0.2."
+      n_samples:
+        type: integer
+      insight_text:
+        type: string
+      query:
+        type: string
+        description: "Python/Pandas code used to generate the result."
+      is_distinct:
+        type: boolean
+      power_warning:
+        type: boolean
+      confounders_adjusted:
+        type: array
+        items:
+          type: string
+        description: "List of variables controlled for."
+      sign_flip_validated:
+        type: boolean
+        description: "True if sign flip persists after confounder adjustment."
+    required:
+      - baseline_id
+      - counterfactual_pair
+      - partial_correlation
+      - p_value
+      - threshold_config
+      - robustness_score
+      - effect_size_valid
+      - n_samples
+      - insight_text
+      - query
+      - is_distinct
+      - power_warning
+      - confounders_adjusted
+      - sign_flip_validated
+required:
+  - story_id
+  - baseline_narrative
+  - counterfactual_insights
+  - final_text
+  - citation_count
+  - generated_at
+additionalProperties: false
