@@ -24586,25 +24586,6 @@
   updated_at: '2026-07-14T12:45:19Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
-  canonical: minimum 10 synthetic cue-response pairs per game
-  claim_id: c_ad80b0ac
-  context: 'T004b [P] Implement synthetic fallback generator in code/data/synthetic.py:
-    Create a set of synthetic cue-response pairs (minimum 10 per game) from available
-    context spans if explicit cues are missing. (FR-011)'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Implement synthetic fallback generator in code/data/synthetic.py: Create
-    a set of synthetic cue-response pairs (minimum 10 per game) from available context
-    spans if explicit cues are missing.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T13:26:42Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
   canonical: 1000 games for limited-context condition
   claim_id: c_dbcbac0a
   context: T019 [US-2] Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
@@ -24620,23 +24601,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T13:27:05Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
-  canonical: 800 games per configuration for varying agent counts
-  claim_id: c_13614589
-  context: T027 [US-3] Implement game simulation for varying agent counts (800 games
-    per configuration) in code/run_experiment.py. (US-3)
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement game simulation for varying agent counts (800 games per configuration)
-    in code/run_experiment.py.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T13:27:36Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
   canonical: 1000 bootstrapping resamples for confidence intervals
@@ -24735,24 +24699,6 @@
   source_type: external
   status: verified
   updated_at: '2026-07-14T12:58:22Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 2
-  canonical: minimum 10 synthetic cue-response pairs per game
-  claim_id: c_ad80b0ac
-  context: 'T004b [P] Implement synthetic fallback generator in code/data/synthetic.py:
-    Create a set of synthetic cue-response pairs (minimum 10 per game) from available
-    context spans if explicit cues are missing. (FR-011)'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Create a set of synthetic cue-response pairs (minimum 10 per game) from
-    available context spans if explicit cues are missing.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T12:59:00Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
   canonical: 1000 games for limited-context condition
@@ -26428,3 +26374,1639 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T15:45:00Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: Pinned package versions in requirements.txt
+  claim_id: c_af0f2876
+  context: 'Task T002 under Phase 1: Setup lists the specific package versions to
+    be initialized.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize requirements.txt with pinned versions: transformers>=4.35.0,
+    torch>=2.0.0+cpu, scikit-learn>=1.3.0, pandas>=2.0.0, pytest>=7.0.0, numpy>=1.24.0,
+    matplotlib>=3.7.0, statsmodels>=0.14.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:09:19Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: transformers>=4.35.0 requirement
+  claim_id: c_f0fc6d55
+  context: 'Task T002 under Phase 1: Setup lists the specific package versions to
+    be initialized.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize requirements.txt with pinned versions: transformers>=4.35.0,
+    torch>=2.0.0+cpu, scikit-learn>=1.3.0, pandas>=2.0.0, pytest>=7.0.0, numpy>=1.24.0,
+    matplotlib>=3.7.0, statsmodels>=0.14.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:09:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: torch>=2.0.0+cpu requirement
+  claim_id: c_3cce0bef
+  context: 'Task T002 under Phase 1: Setup lists the specific package versions to
+    be initialized.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize requirements.txt with pinned versions: transformers>=4.35.0,
+    torch>=2.0.0+cpu, scikit-learn>=1.3.0, pandas>=2.0.0, pytest>=7.0.0, numpy>=1.24.0,
+    matplotlib>=3.7.0, statsmodels>=0.14.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:09:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: scikit-learn>=1.3.0 requirement
+  claim_id: c_c2a9013b
+  context: 'Task T002 under Phase 1: Setup lists the specific package versions to
+    be initialized.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize requirements.txt with pinned versions: transformers>=4.35.0,
+    torch>=2.0.0+cpu, scikit-learn>=1.3.0, pandas>=2.0.0, pytest>=7.0.0, numpy>=1.24.0,
+    matplotlib>=3.7.0, statsmodels>=0.14.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:09:36Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: pandas>=2.0.0 requirement
+  claim_id: c_52aa2fa0
+  context: 'Task T002 under Phase 1: Setup lists the specific package versions to
+    be initialized.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize requirements.txt with pinned versions: transformers>=4.35.0,
+    torch>=2.0.0+cpu, scikit-learn>=1.3.0, pandas>=2.0.0, pytest>=7.0.0, numpy>=1.24.0,
+    matplotlib>=3.7.0, statsmodels>=0.14.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:09:40Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: pytest>=7.0.0 requirement
+  claim_id: c_2021b3e1
+  context: 'Task T002 under Phase 1: Setup lists the specific package versions to
+    be initialized.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize requirements.txt with pinned versions: transformers>=4.35.0,
+    torch>=2.0.0+cpu, scikit-learn>=1.3.0, pandas>=2.0.0, pytest>=7.0.0, numpy>=1.24.0,
+    matplotlib>=3.7.0, statsmodels>=0.14.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:09:44Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: numpy>=1.24.0 requirement
+  claim_id: c_b3715f35
+  context: 'Task T002 under Phase 1: Setup lists the specific package versions to
+    be initialized.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize requirements.txt with pinned versions: transformers>=4.35.0,
+    torch>=2.0.0+cpu, scikit-learn>=1.3.0, pandas>=2.0.0, pytest>=7.0.0, numpy>=1.24.0,
+    matplotlib>=3.7.0, statsmodels>=0.14.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:09:48Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: matplotlib>=3.7.0 requirement
+  claim_id: c_b775b45f
+  context: 'Task T002 under Phase 1: Setup lists the specific package versions to
+    be initialized.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize requirements.txt with pinned versions: transformers>=4.35.0,
+    torch>=2.0.0+cpu, scikit-learn>=1.3.0, pandas>=2.0.0, pytest>=7.0.0, numpy>=1.24.0,
+    matplotlib>=3.7.0, statsmodels>=0.14.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:09:53Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: statsmodels>=0.14.0 requirement
+  claim_id: c_31c6b9f6
+  context: 'Task T002 under Phase 1: Setup lists the specific package versions to
+    be initialized.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize requirements.txt with pinned versions: transformers>=4.35.0,
+    torch>=2.0.0+cpu, scikit-learn>=1.3.0, pandas>=2.0.0, pytest>=7.0.0, numpy>=1.24.0,
+    matplotlib>=3.7.0, statsmodels>=0.14.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:09:57Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 games for limited-context condition
+  claim_id: c_8a5c2530
+  context: Task T019 under Implementation for User Story 2 specifies the number of
+    games and includes a citation to an arXiv paper.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for 1000 (2202.05773, https://arxiv.org/abs/2202.05773) games.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:10:17Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 800 games per configuration for scaling analysis
+  claim_id: c_71336f64
+  context: Task T027 under Implementation for User Story 3 specifies the number of
+    games per configuration for the scaling analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement game simulation for varying agent counts (800 games per configuration)
+    in code/run_experiment.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:10:37Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 resamples for bootstrapping confidence intervals
+  claim_id: c_1ba745e9
+  context: Task T029 under Implementation for User Story 3 specifies the number of
+    resamples used for bootstrapping.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples) and output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:10:41Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Power analysis parameters N=1000, alpha=0.05, power=0.80
+  claim_id: c_91224eff
+  context: Task T023 under Implementation for User Story 2 specifies the parameters
+    for the power analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate detectable effect size for N=1000, alpha=0.05, power=0.80; flag
+    if power < 0.70.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:11:17Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Token thresholds 128, 256, 512 for sensitivity analysis
+  claim_id: c_94580b59
+  context: Task T022 under Implementation for User Story 2 specifies the token thresholds
+    used in the sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep token thresholds explicitly across the set {128, 256, 512} tokens
+    and record how specialization and retrieval metrics vary for each threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:11:38Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Output results_full.csv for baseline measurements
+  claim_id: c_adfe13b4
+  context: Task T015 under Implementation for User Story 1 describes the output file
+    and its contents for the baseline condition.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output results_full.csv to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    with game_id, specialization_index, retrieval_efficiency, context_condition, agent_count
+    for [deferred] games.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:12:00Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Minimum 10 synthetic cue-response pairs per game
+  claim_id: c_7365645e
+  context: 'Task T004b under Phase 2: Foundational specifies the minimum number of
+    synthetic pairs generated.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a set of synthetic cue-response pairs (minimum 10 per game) from
+    available context spans if explicit cues are missing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:12:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: results_limited.csv generated for 1000 games
+  claim_id: c_bf58fd97
+  context: 'Phase 4: User Story 2 - Context-Window Truncation Impact. Task T019 specifies
+    outputting results for 1000 games, citing a specific arXiv ID.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for 1000 games.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:13:48Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 800 games per configuration for varying agent counts
+  claim_id: c_c3d5e007
+  context: 'Phase 5: User Story 3 - Scaling Analysis. Task T027 specifies running
+    800 games per configuration. The Notes section confirms ''US-3 = 800 games per
+    configuration (spec requirement)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement game simulation for varying agent counts (800 games per configuration)
+    in code/run_experiment.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:13:52Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 95% confidence intervals computed using 1000 bootstrapping resamples
+  claim_id: c_1c5bd7f6
+  context: 'Phase 5: User Story 3 - Scaling Analysis. Task T029 specifies computing
+    95% confidence intervals using 1000 resamples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:13:57Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Power analysis estimates effect size for N=1000, alpha=0.05, power=0.80
+  claim_id: c_98a5ddc6
+  context: 'Phase 4: User Story 2. Task T023 specifies power analysis parameters.
+    The Notes section confirms ''Power Analysis: N=1000 (FR-009 spec requirement)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate detectable effect size for N=1000, alpha=0.05, power=0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:14:22Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: requirements.txt pinned versions transformers 4.35.0 torch 2.0.0 scikit-learn
+    1.3.0 pandas 2.0.0 pytest 7.0.0 numpy 1.24.0 matplotlib 3.7.0 statsmodels 0.14.0
+  claim_id: c_9f731368
+  context: 'T002 [P] Initialize `requirements.txt` with pinned versions: `transformers>=4.35.0`,
+    `torch>=2.0.0+cpu`, `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `pytest>=7.0.0`, `numpy>=1.24.0`,
+    `matplotlib>=3.7.0`, `statsmodels>=0.14.0`.'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize `requirements.txt` with pinned versions: `transformers>=4.35.0`,
+    `torch>=2.0.0+cpu`, `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `pytest>=7.0.0`, `numpy>=1.24.0`,
+    `matplotlib>=3.7.0`, `statsmodels>=0.14.0`.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:19:11Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: validation assertion games_with_metrics divided by total_games greater
+    than or equal to 0.95
+  claim_id: c_e0e74a46
+  context: 'T014 [P] [US-1] Implement validation logic in `code/metrics/validator.py`:
+    Assert `(games_with_metrics / total_games) >= 0.95`; log errors for failed games.
+    (SC-001)'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3879: 0872'
+      source_id: Q131143974
+      url: https://www.wikidata.org/wiki/Q131143974
+      value: 0872
+    filled: true
+  kind: magnitude
+  raw_text: Assert `(games_with_metrics / total_games) >= 0.95`
+  resolved_value: 0872
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:19:20Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: synthetic cue-response pairs minimum 10 per game
+  claim_id: c_c970c382
+  context: 'T004b [P] Implement synthetic fallback generator in `code/data/synthetic.py`:
+    Create a set of synthetic cue-response pairs (minimum 10 per game) from available
+    context spans if explicit cues are missing. (FR-011)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement synthetic fallback generator in `code/data/synthetic.py`: Create
+    a set of synthetic cue-response pairs (minimum 10 per game) from available context
+    spans if explicit cues are missing.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:19:54Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: results_limited.csv generated for 1000 games
+  claim_id: c_5bc44e02
+  context: T019 [US-2] Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
+    for 1000 (2202.05773, https://arxiv.org/abs/2202.05773) games. (US-2)
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
+    for 1000 (2202.05773, https://arxiv.org/abs/2202.05773) games.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:20:00Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 95% confidence intervals computed using 1000 resamples
+  claim_id: c_ce9aa7f0
+  context: T029 [P] [US-3] Compute 95% confidence intervals for fitted exponents using
+    bootstrapping (1000 resamples) and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`.
+    (US-3, SC-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples) and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:20:04Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: power analysis parameters N=1000 alpha=0.05 power=0.80
+  claim_id: c_5a1b8772
+  context: 'T023 [US-2] Implement power analysis in `code/analysis/power.py`: Estimate
+    detectable effect size for N=1000, alpha=0.05, power=0.80; flag if power < 0.70.
+    (FR-009)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate detectable effect size for N=1000, alpha=0.05, power=0.80; flag
+    if power < 0.70.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:20:08Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis token thresholds 128 256 512
+  claim_id: c_66a56e93
+  context: 'T022 [US-2] Implement sensitivity analysis in `code/analysis/sensitivity.py`:
+    Sweep token thresholds explicitly across the set {128, 256, 512} tokens and record
+    how specialization and retrieval metrics vary for each threshold. (FR-008)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep token thresholds explicitly across the set {128, 256, 512} tokens
+    and record how specialization and retrieval metrics vary for each threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:20:13Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 800 games per configuration for varying agent counts
+  claim_id: c_8ab0db0d
+  context: T027 [US-3] Implement game simulation for varying agent counts (800 games
+    per configuration) in `code/run_experiment.py`. (US-3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement game simulation for varying agent counts (800 games per configuration)
+    in `code/run_experiment.py`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:20:17Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: default configuration seed 42 device cpu model facebook/opt-125m
+  claim_id: c_c99d3a7c
+  context: 'T008 [P] Create `code/utils/config.py` with explicit configuration: `seed=42`,
+    `device="cpu"`, `model_name="facebook/opt-125m"`. Ensure these are the default
+    values used by all agents. (FR-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create `code/utils/config.py` with explicit configuration: `seed=42`,
+    `device="cpu"`, `model_name="facebook/opt-125m"`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:20:44Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: minimum 10 synthetic cue-response pairs per game
+  claim_id: c_ad80b0ac
+  context: 'T004b [P] Implement synthetic fallback generator in code/data/synthetic.py:
+    Create a set of synthetic cue-response pairs (minimum 10 per game) from available
+    context spans if explicit cues are missing. (FR-011)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement synthetic fallback generator in code/data/synthetic.py: Create
+    a set of synthetic cue-response pairs (minimum 10 per game) from available context
+    spans if explicit cues are missing.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:21:33Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 games for limited context condition
+  claim_id: c_cddd7938
+  context: T019 [US-2] Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for 1000 (2202.05773, https://arxiv.org/abs/2202.05773) games. (US-2)
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for 1000 (2202.05773, https://arxiv.org/abs/2202.05773) games.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:21:39Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: 800 games per configuration for varying agent counts
+  claim_id: c_13614589
+  context: T027 [US-3] Implement game simulation for varying agent counts (800 games
+    per configuration) in code/run_experiment.py. (US-3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement game simulation for varying agent counts (800 games per configuration)
+    in code/run_experiment.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:21:44Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 resamples for bootstrapping confidence intervals
+  claim_id: c_66f08fd9
+  context: T029 [P] [US-3] Compute 95% confidence intervals for fitted exponents using
+    bootstrapping (1000 resamples) and output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json.
+    (US-3, SC-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples) and output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:21:48Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Wikidata Q131143974 used for validation logic
+  claim_id: c_ad3d9afe
+  context: 'T014 [P] [US-1] Implement validation logic in code/metrics/validator.py:
+    Wikidata Q131143974, https://www.wikidata.org/wiki/Q131143974; log errors for
+    failed games. (SC-001)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q131143974_used_for_validation_logic
+  kind: entity_fact
+  raw_text: 'Implement validation logic in code/metrics/validator.py: Wikidata Q131143974,
+    https://www.wikidata.org/wiki/Q131143974; log errors for failed games.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:22:07Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 games for limited context condition
+  claim_id: c_e71da245
+  context: "Phase 4: User Story 2 - Context\u2011Window Truncation Impact. Task T019\
+    \ specifies outputting results for 1000 games."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for 1000 games.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:24:49Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 800 games per configuration for varying agent counts
+  claim_id: c_92552f4b
+  context: 'Phase 5: User Story 3 - Scaling Analysis Across Agent Populations. Task
+    T027 specifies 800 games per configuration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement game simulation for varying agent counts (800 games per configuration)
+    in code/run_experiment.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:24:54Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 resamples for bootstrapping 95% confidence intervals
+  claim_id: c_164fc324
+  context: 'Phase 5: User Story 3 - Scaling Analysis. Task T029 specifies using 1000
+    resamples for bootstrapping.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples) and output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:24:58Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Power analysis for N=1000, alpha=0.05, power=0.80
+  claim_id: c_f8a4ffff
+  context: 'Phase 4: User Story 2. Task T023 specifies power analysis parameters including
+    N=1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement power analysis in code/analysis/power.py: Estimate detectable
+    effect size for N=1000, alpha=0.05, power=0.80; flag if power < 0.70.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:25:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Token thresholds 128, 256, 512 for sensitivity analysis
+  claim_id: c_0f89199e
+  context: 'Phase 4: User Story 2. Task T022 specifies sweeping token thresholds across
+    128, 256, and 512.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep token thresholds explicitly across the set {128, 256, 512} tokens
+    and record how specialization and retrieval metrics vary for each threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:25:36Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Base agent uses CPU-only facebook/opt models with standard floating-point
+    precision
+  claim_id: c_2f3f32c8
+  context: 'Phase 2: Foundational. Task T005 specifies the model and precision constraints.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Base_agent_uses_CPU-only_facebook/opt_models_with_standard_f
+  kind: entity_fact
+  raw_text: 'Implement base Agent abstraction using CPU-only transformers (model:
+    facebook/opt-*, precision: standard floating-point) in code/agent/base_agent.py.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:26:03Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Default configuration seed=42, device=cpu, model=facebook/opt-125m
+  claim_id: c_3c9284e0
+  context: 'Phase 2: Foundational. Task T008 specifies these explicit default configuration
+    values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create code/utils/config.py with explicit configuration: seed=42, device=cpu,
+    model_name=facebook/opt-125m.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:26:08Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Validation logic references Wikidata Q131143974
+  claim_id: c_6fa19ffa
+  context: 'Phase 3: User Story 1. Task T014 includes a reference to a Wikidata entity.'
+  evidence:
+    entailment_evidence: Validation logic references Wikidata Q131143974 - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Validation_logic_references_Wikidata_Q131143974
+  kind: entity_fact
+  raw_text: Implement validation logic in code/metrics/validator.py (Wikidata Q131143974,
+    https://www.wikidata.org/wiki/Q131143974); log errors for failed games.
+  resolved_value: Validation logic references Wikidata Q131143974
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:26:14Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Synthetic fallback generates minimum 10 cue-response pairs per game
+  claim_id: c_b1446d3f
+  context: 'Phase 2: Foundational. Task T004b specifies the minimum count for synthetic
+    pairs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement synthetic fallback generator in code/data/synthetic.py: Create
+    a set of synthetic cue-response pairs (minimum 10 per game) from available context
+    spans if explicit cues are missing.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:26:18Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 games for limited-context condition
+  claim_id: c_22007c12
+  context: "Phase 4: User Story 2 - Context\u2011Window Truncation Impact"
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for 1000 (2202.05773, https://arxiv.org/abs/2202.05773) games.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:29:41Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 800 games per configuration for varying agent counts
+  claim_id: c_9be9f37b
+  context: 'Phase 5: User Story 3 - Scaling Analysis Across Agent Populations'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement game simulation for varying agent counts (800 games per configuration)
+    in code/run_experiment.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:29:45Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 resamples for bootstrapping confidence intervals
+  claim_id: c_53b16c60
+  context: 'Phase 5: User Story 3 - Scaling Analysis Across Agent Populations'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples) and output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:29:50Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Validation logic references Wikidata Q131143974
+  claim_id: c_2f8084bb
+  context: "Phase 3: User Story 1 - Baseline Transactive\u2011Memory Measurement"
+  evidence:
+    entailment_evidence: Validation logic references Wikidata Q131143974
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Validation_logic_references_Wikidata_Q131143974
+  kind: entity_fact
+  raw_text: 'Implement validation logic in code/metrics/validator.py: Wikidata Q131143974,
+    https://www.wikidata.org/wiki/Q131143974'
+  resolved_value: Validation logic references Wikidata Q131143974
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:29:56Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Power analysis for N=1000, alpha=0.05, power=0.80
+  claim_id: c_db970851
+  context: "Phase 4: User Story 2 - Context\u2011Window Truncation Impact"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate detectable effect size for N=1000, alpha=0.05, power=0.80; flag
+    if power < 0.70.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:30:01Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps token thresholds 128, 256, 512
+  claim_id: c_be91c392
+  context: "Phase 4: User Story 2 - Context\u2011Window Truncation Impact"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep token thresholds explicitly across the set {128, 256, 512} tokens
+    and record how specialization and retrieval metrics vary for each threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:30:05Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Synthetic fallback generator creates minimum 10 cue-response pairs per
+    game
+  claim_id: c_87c1915b
+  context: 'Phase 2: Foundational (Blocking Prerequisites). Task T004b.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T004b [P] Implement synthetic fallback generator in code/data/synthetic.py:
+    Create a set of synthetic cue-response pairs (minimum 10 per game) from available
+    context spans if explicit cues are missing.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:32:09Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: minimum 10 synthetic cue-response pairs per game
+  claim_id: c_70c2dcbc
+  context: 'Implement synthetic fallback generator in code/data/synthetic.py: Create
+    a set of synthetic cue-response pairs (minimum 10 per game) from available context
+    spans if explicit cues are missing. (FR-011)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a set of synthetic cue-response pairs (minimum 10 per game) from
+    available context spans if explicit cues are missing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:35:32Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 95% confidence intervals using 1000 bootstrapping resamples
+  claim_id: c_d7c13aba
+  context: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples) and output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json.
+    (US-3, SC-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples) and output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:35:36Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: output scaling confidence intervals to scaling_confidence_intervals.json
+  claim_id: c_81a4db42
+  context: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples) and output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json.
+    (US-3, SC-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:36:01Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: power analysis for N=1000 alpha=0.05 power=0.80 flag if power < 0.70
+  claim_id: c_b232030e
+  context: 'Implement power analysis in code/analysis/power.py: Estimate detectable
+    effect size for N=1000, alpha=0.05, power=0.80; flag if power < 0.70. (FR-009)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate detectable effect size for N=1000, alpha=0.05, power=0.80; flag
+    if power < 0.70.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:36:05Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: output compute metrics to compute_metrics.json
+  claim_id: c_cab1bf85
+  context: Run full pipeline on CI runner, record runtime (seconds), peak RAM (GB),
+    and disk usage (GB) in projects/PROJ-586-social-memory-networks-modeling-collecti/results/compute_metrics.json.
+    (FR-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/compute_metrics.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:36:23Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: output results_full.csv with game_id specialization_index retrieval_efficiency
+    context_condition agent_count
+  claim_id: c_a26b9005
+  context: Output results_full.csv to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    with game_id, specialization_index, retrieval_efficiency, context_condition, agent_count
+    for [deferred] games. (US-1, FR-004, FR-005, SC-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    with game_id, specialization_index, retrieval_efficiency, context_condition, agent_count
+    for [deferred] games.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:36:46Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: output results_limited.csv for 1000 games
+  claim_id: c_1b22739d
+  context: Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for 1000 (2202.05773, https://arxiv.org/abs/2202.05773) games. (US-2)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output results to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for 1000 games.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:37:08Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sweep token thresholds 128 256 512
+  claim_id: c_219417ab
+  context: 'Implement sensitivity analysis in code/analysis/sensitivity.py: Sweep
+    token thresholds explicitly across the set {128, 256, 512} tokens and record how
+    specialization and retrieval metrics vary for each threshold. (FR-008)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep token thresholds explicitly across the set {128, 256, 512} tokens
+    and record how specialization and retrieval metrics vary for each threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:37:13Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: plot specialization index and retrieval efficiency versus agent count
+    with fitted power-law exponent
+  claim_id: c_acbf2a4b
+  context: "Goal: Investigate how the fidelity of collective remembering scales when\
+    \ the number of agents varies across different group sizes. Independent Test:\
+    \ Run the experiment for each specified agent count and produce a plot of specialization\
+    \ index and retrieval efficiency versus number of agents, along with a fitted\
+    \ power\u2011law exponent."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_specialization_index_and_retrieval_efficiency_versus_ag
+  kind: entity_fact
+  raw_text: "Run the experiment for each specified agent count and produce a plot\
+    \ of specialization index and retrieval efficiency versus number of agents, along\
+    \ with a fitted power\u2011law exponent."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:37:35Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: run full-context condition and verify metrics and reproducible CSV summary
+  claim_id: c_78bb8290
+  context: "Goal: Obtain baseline measurements of specialization and cue\u2011retrieval\
+    \ efficiency when agents have full context Independent Test: Run the experiment\
+    \ with the *Full\u2011context* condition only and verify that the script outputs\
+    \ both metrics and a reproducible CSV summary."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_full-context_condition_and_verify_metrics_and_reproducib
+  kind: entity_fact
+  raw_text: "Run the experiment with the Full\u2011context condition only and verify\
+    \ that the script outputs both metrics and a reproducible CSV summary."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:37:58Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 800 games per configuration for varying agent counts
+  claim_id: c_10863d5c
+  context: Implement game simulation for varying agent counts (800 games per configuration)
+    in code/run_experiment.py. (US-3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement game simulation for varying agent counts (800 games per configuration)
+    in code/run_experiment.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:38:03Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Hanabi CoQA URLs not in verified block synthetic fallback mandatory
+  claim_id: c_efbb7eff
+  context: 'Dataset Constraint: Hanabi/CoQA URLs are not in the verified block; synthetic
+    fallback is mandatory if URLs are missing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hanabi_CoQA_URLs_not_in_verified_block_synthetic_fallback_ma
+  kind: entity_fact
+  raw_text: Hanabi/CoQA URLs are not in the verified block; synthetic fallback is
+    mandatory if URLs are missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:38:26Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 games for limited context condition
+  claim_id: c_9f14a426
+  context: 'Phase 4: User Story 2 - Context-Window Truncation Impact, Implementation
+    for User Story 2, Task T019'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for 1000 (2202.05773, https://arxiv.org/abs/2202.05773) games.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:40:18Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 games for limited-context simulation
+  claim_id: c_e10a98bb
+  context: Phase 4, User Story 2, Task T019
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+    for 1000 games.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:42:32Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Power analysis parameters N=1000, alpha=0.05, power=0.80
+  claim_id: c_55d910ba
+  context: Phase 4, User Story 2, Task T023
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate detectable effect size for N=1000, alpha=0.05, power=0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:42:36Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Bootstrapping with 1000 resamples for confidence intervals
+  claim_id: c_55e16b26
+  context: Phase 5, User Story 3, Task T029
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:42:41Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 800 games per agent configuration for scaling analysis
+  claim_id: c_1ba00da4
+  context: Phase 5, User Story 3, Task T027
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement game simulation for varying agent counts (800 games per configuration).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:42:58Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Minimum 10 synthetic cue-response pairs per game
+  claim_id: c_296bc876
+  context: Phase 2, Foundational, Task T004b
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a set of synthetic cue-response pairs (minimum 10 per game) from
+    available context spans if explicit cues are missing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:43:02Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Token threshold sweep values 128, 256, 512
+  claim_id: c_91bd7166
+  context: Phase 4, User Story 2, Task T022
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep token thresholds explicitly across the set {128, 256, 512} tokens
+    and record how specialization and retrieval metrics vary for each threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:43:07Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Validation against Wikidata entity Q131143974
+  claim_id: c_d668add6
+  context: Phase 3, User Story 1, Task T014
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3879: 0872'
+      source_id: Q131143974
+      url: https://www.wikidata.org/wiki/Q131143974
+      value: 0872
+    filled: true
+  kind: entity_fact
+  raw_text: Validate against Wikidata Q131143974.
+  resolved_value: 0872
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:43:18Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: 1000 games for limited-context simulation
+  claim_id: c_5ddf2989
+  context: Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
+    for 1000 (2202.05773, https://arxiv.org/abs/2202.05773) games.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: enables our approach of measuring the win rate over 1000
+      source_id: '2503.02686'
+      url: https://arxiv.org/abs/2503.02686
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: 1000 (2202.05773, https://arxiv.org/abs/2202.05773) games
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:45:01Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: 800 games per configuration for varying agent counts
+  claim_id: c_c9888c5b
+  context: Implement game simulation for varying agent counts (800 games per configuration)
+    in `code/run_experiment.py`.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Simple MCTS) we run 1000 games and track 16 statistics.
+      source_id: '2202.05773'
+      url: https://arxiv.org/abs/2202.05773
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: 800 games per configuration
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:45:06Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 games per condition for US-1 and US-2
+  claim_id: c_dbc2102b
+  context: US-1/US-2 = 1,000 games per condition (spec requirement)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 games per condition
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:46:05Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 resamples for bootstrapping confidence intervals
+  claim_id: c_4c3112ec
+  context: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples) and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 resamples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:46:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Alpha level 0.05 for power analysis
+  claim_id: c_90199c8a
+  context: Estimate detectable effect size for N=1000, alpha=0.05, power=0.80; flag
+    if power < 0.70.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:46:55Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Power level 0.80 for power analysis
+  claim_id: c_d4139ed9
+  context: Estimate detectable effect size for N=1000, alpha=0.05, power=0.80; flag
+    if power < 0.70.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: power=0.80
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:47:08Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Validation logic uses Wikidata Q131143974
+  claim_id: c_552243bf
+  context: 'Implement validation logic in `code/metrics/validator.py`: {{claim:c_e0e74a46}}
+    (Wikidata Q131143974, https://www.wikidata.org/wiki/Q131143974); log errors for
+    failed games.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_logic_uses_Wikidata_Q131143974
+  kind: entity_fact
+  raw_text: Wikidata Q131143974
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:47:26Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Token thresholds 128, 256, 512 for sensitivity analysis
+  claim_id: c_8073550e
+  context: Sweep token thresholds explicitly across the set {128, 256, 512} tokens
+    and record how specialization and retrieval metrics vary for each threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 128, 256, 512 tokens
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:47:56Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 3 data points limit power-law reliability
+  claim_id: c_62afef3b
+  context: "Generate `scaling_plot.pdf` with fitted power\u2011law curves for specialization\
+    \ index and retrieval efficiency, and an explicit text note stating that '3 data\
+    \ points limit power-law reliability'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3 data points
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:48:28Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Hanabi and CoQA URLs missing from verified block require synthetic fallback
+  claim_id: c_af5a4695
+  context: 'Dataset Constraint: Hanabi/CoQA URLs are not in the verified block; synthetic
+    fallback is mandatory if URLs are missing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hanabi_and_CoQA_URLs_missing_from_verified_block_require_syn
+  kind: entity_fact
+  raw_text: Hanabi/CoQA URLs are not in the verified block; synthetic fallback is
+    mandatory if URLs are missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:50:28Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: US-1 and US-2 require 1000 games per condition
+  claim_id: c_d42fdd46
+  context: 'Game Counts: US-1/US-2 = 1,000 games per condition (spec requirement)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1,000 games per condition
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:50:32Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Bootstrapping uses 1000 resamples for confidence intervals
+  claim_id: c_7fbae0e7
+  context: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples) and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 resamples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:50:37Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Synthetic fallback generates minimum 10 cue-response pairs per game
+  claim_id: c_11f688d9
+  context: 'Implement synthetic fallback generator in `code/data/synthetic.py`: Create
+    a set of synthetic cue-response pairs (minimum 10 per game) from available context
+    spans if explicit cues are missing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: minimum 10 per game
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:51:02Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Power analysis significance level is 0.05
+  claim_id: c_8fa1c4d0
+  context: 'Estimate detectable effect size for N=1000, alpha=0.05, {{claim:c_d4139ed9}}
+    (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics));
+    flag if power < 0.70.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:51:06Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Power analysis flags if power is less than 0.70
+  claim_id: c_48c03e05
+  context: 'Estimate detectable effect size for N=1000, alpha=0.05, {{claim:c_d4139ed9}}
+    (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics));
+    flag if power < 0.70.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: magnitude
+  raw_text: power < 0.70
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T17:51:12Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps token thresholds 128, 256, and 512
+  claim_id: c_84bebea6
+  context: 'Implement sensitivity analysis in `code/analysis/sensitivity.py`: Sweep
+    token thresholds explicitly across the set {128, 256, 512} tokens and record how
+    specialization and retrieval metrics vary for each threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: token thresholds {128, 256, 512}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:51:33Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 95% confidence intervals computed for fitted exponents
+  claim_id: c_ff33dd11
+  context: Compute 95% confidence intervals for fitted exponents using bootstrapping
+    (1000 resamples) and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% confidence intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T17:51:38Z'

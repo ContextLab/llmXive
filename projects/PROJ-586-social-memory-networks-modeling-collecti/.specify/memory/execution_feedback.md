@@ -8,16 +8,18 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/analysis/sensitivity.py: synthetic/fake INPUT data not authorized by the spec — “…ted context         # We generate synthetic context spans to simulat…”
+- code/analysis/sensitivity.py: synthetic/fake INPUT data not authorized by the spec — “…# Fallback: generate synthetic facts for measurement…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…"""Synthetic data generation utilities for…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ublication.  Per FR-011, synthetic data generation is a FALLBACK…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ication for generating a synthetic dataset."""     name: str     nu…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate a synthetic dataset for structural t…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…Specification for the synthetic dataset. If None, uses defaults.…”
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…Any]]         A list of synthetic records, each marked with 'is_sy…”
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…SE FOR RESEARCH. This is synthetic test data."         }         reco…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 17 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/sensitivity.py: synthetic/fake INPUT data not authorized by the spec — “…ted context         # We generate synthetic context spans to simulat…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…"""Synthetic data generation utilities for…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ublication.  Per FR-011, synthetic data generation is a FALLBACK…”; 6 command(s) failed: python code/run_experiment.py --context full --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context limited --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=1)
+**Summary**: 14 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/sensitivity.py: synthetic/fake INPUT data not authorized by the spec — “…# Fallback: generate synthetic facts for measurement…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…"""Synthetic data generation utilities for…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ublication.  Per FR-011, synthetic data generation is a FALLBACK…”; 6 command(s) failed: python code/run_experiment.py --context full --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context limited --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=1)
 
 ## Failing / missing run-book commands
 
@@ -107,11 +109,11 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
-### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 18 way(s):
+### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 17 way(s):
 
 - code/run_experiment.py: ret_eff, _ = compute_retrieval_efficiency(
-- code/t015_generate_full_results.py: ret_eff, _ = compute_retrieval_efficiency(successful_retrievals, total_queries, config.num_agents)
-- code/metrics/retrieval.py: eff, metrics = compute_retrieval_efficiency(successful, total, agents)
+- code/t015_generate_full_results.py: ret_eff, _ = compute_retrieval_efficiency(successful, total_queries, num_agents)
+- code/metrics/retrieval.py: return compute_retrieval_efficiency(total_successful, total_queries, avg_agents)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(10, 10, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(1, 3, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(0, 10, 3)
@@ -122,24 +124,25 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 - code/metrics/tests/test_retrieval.py: compute_retrieval_efficiency(5, -1, 3)
 - code/metrics/tests/test_retrieval.py: compute_retrieval_efficiency(-1, 10, 3)
 - code/metrics/tests/test_retrieval.py: compute_retrieval_efficiency(15, 10, 3)
-- code/analysis/sensitivity.py: ret_eff, _ = compute_retrieval_efficiency(successful_retrievals, total_queries, agent_count)
+- code/analysis/sensitivity.py: ret_eff, _ = compute_retrieval_efficiency(successful, total, config.num_agents)
 - code/tests/unit/test_retrieval.py: metrics, eff = compute_retrieval_efficiency(5, 10, [0, 1, 2])
 - code/tests/unit/test_retrieval.py: metrics, eff = compute_retrieval_efficiency(0, 0, 3)
 - code/data/generate_scaling_data.py: ret_eff, _ = compute_retrieval_efficiency(total_retrieved, total_facts, agent_count)
 
 Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of the above.
 
-### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 14 way(s):
+### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 15 way(s):
 
 - code/run_experiment.py: spec_index, _ = compute_specialization_index(facts_list, num_agents=config.num_agents)
-- code/t015_generate_full_results.py: spec_index, _ = compute_specialization_index(agent_fact_counts, num_agents=config.num_agents)
-- code/metrics/specialization.py: idx, metrics = compute_specialization_index(facts, num_agents=num_agents)
-- code/metrics/specialization.py: return compute_specialization_index(agent_skills, num_agents, agents)
+- code/t015_generate_full_results.py: spec_index, _ = compute_specialization_index(agent_facts, num_agents=num_agents)
+- code/metrics/specialization.py: idx, metrics = compute_specialization_index(
+- code/metrics/specialization.py: return compute_specialization_index(facts_dict, num_agents=num_agents)
+- code/metrics/specialization.py: return compute_specialization_index(agent_skills, num_agents=num_agents)
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index([])
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(None)
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(agent_facts)
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(agent_facts, num_agents=5)
-- code/analysis/sensitivity.py: spec_idx, _ = compute_specialization_index(facts_per_agent, num_agents=agent_count)
+- code/analysis/sensitivity.py: spec_idx, _ = compute_specialization_index(facts_list, num_agents=config.num_agents)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(agent_skills)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index([])
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(agents=agent_skills, num_agents=2)
@@ -148,31 +151,34 @@ Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of
 
 Make `compute_specialization_index` in `code/metrics/specialization.py` accept ALL of the above.
 
-### `get_logger` — defined in `code/utils/logging.py`; called 15 way(s):
+### `get_logger` — defined in `code/utils/logging.py`; called 17 way(s):
 
 - code/run_full_pipeline_ci.py: logger = get_logger(__name__)
 - code/run_experiment.py: logger = get_logger(__name__)
 - code/output_full_results.py: logger = get_logger(__name__)
 - code/t015_generate_full_results.py: logger = get_logger("T015_main")
 - code/run_pipeline_profile.py: logger = get_logger(__name__)
-- code/utils/logging.py: return get_logger().log(op, **kwargs)
+- code/utils/logging.py: logger = get_logger(func.__module__)
+- code/utils/logging.py: return get_logger().log(level, op, **kwargs)
 - code/utils/tests/test_logging.py: logger = get_logger(name=logger_name)
 - code/utils/tests/test_logging.py: logger2 = get_logger(name="existing_logger")
 - code/analysis/scaling_plot_generator.py: logger = get_logger(__name__)
 - code/analysis/power.py: logger = get_logger(__name__)
 - code/analysis/anova.py: logger = get_logger(__name__)
 - code/analysis/sensitivity.py: logger = get_logger(__name__)
+- code/analysis/scaling.py: logger = get_logger(__name__)
 - code/tests/integration/test_ci_pipeline.py: logger = get_logger(__name__)
 - code/tests/unit/test_logging.py: logger1 = get_logger(name="test1")
 - code/tests/unit/test_logging.py: logger2 = get_logger(name="test2")
 
 Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
-### `simulate_one_game` — defined in `code/generate_full_results.py`; called 4 way(s):
+### `simulate_one_game` — defined in `code/generate_full_results.py`; called 5 way(s):
 
-- code/run_experiment.py: result = simulate_one_game(config)
+- code/run_experiment.py: result = simulate_one_game(game_config)
 - code/output_full_results.py: spec_idx, ret_eff = simulate_one_game(
-- code/t015_generate_full_results.py: result = simulate_one_game(config)
+- code/t015_generate_full_results.py: facts_list, retrieval_list = simulate_one_game(config)
+- code/analysis/sensitivity.py: result = simulate_one_game(config)
 - code/tests/unit/test_run_experiment.py: spec_metrics, ret_metrics, result = simulate_one_game(1, config)
 
 Make `simulate_one_game` in `code/generate_full_results.py` accept ALL of the above.
@@ -193,8 +199,9 @@ Make `simulate_one_game` in `code/generate_full_results.py` accept ALL of the ab
 
 Whichever you choose, every call site of `MemoryBuffer` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`MemoryBuffer.reset` call sites (4):
+`MemoryBuffer.reset` call sites (5):
 - code/run_experiment.py: memory_buffer.reset()
+- code/memory/buffer.py: self._conflict_resolver.reset()
 - code/memory/buffer.py: _SHARED_BUFFER.reset()
 - code/memory/tests/test_buffer.py: result = buf.reset()
 - code/tests/unit/test_memory_buffer.py: buf.reset()  # should not raise

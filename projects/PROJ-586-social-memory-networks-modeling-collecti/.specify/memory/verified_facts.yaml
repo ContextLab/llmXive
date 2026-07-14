@@ -1,5 +1,15 @@
-'|context game limited output result simulation':
-  quote: Simple MCTS) we run 1000 games and track 16 statistics.
-  source_id: '2202.05773'
-  url: https://arxiv.org/abs/2202.05773
-  value: '1000'
+'|power':
+  quote: "Indeed, although there are no formal standards for power, many researchers\
+    \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+    \ This convention implies a four-to-one trade off between \u03B2-risk and \u03B1\
+    -risk, as the probability of a type II error \u03B2 is set as 1 - 0.8 = 0.2, while\
+    \ \u03B1, the probability of a type I error, is commonly set at 0.05. Some applications\
+    \ require much higher levels of power. Medical tests may be designed to minimise\
+    \ the number of false negatives (type II errors) produced by loosening the threshold\
+    \ of significance, raising the risk of obtaining a false positive (a type I error).\
+    \ The rationale is that it is better to tell a healthy patient \"we may have found\
+    \ something\u2014let's test further,\" than to tell a diseased patient \"all is\
+    \ well.\""
+  source_id: Power (statistics)
+  url: https://en.wikipedia.org/wiki/Power_(statistics)
+  value: '0.80'
