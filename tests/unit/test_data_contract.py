@@ -211,20 +211,28 @@ def test_json_schema_top_level_keys(tmp_path) -> None:
 # VERIFICATION against the REAL PROJ-262 evidence (READ-ONLY; never modifies it).
 # Proves the implementer would now SEE the trivial fix it thrashed on for 12 rounds.
 # ---------------------------------------------------------------------------
-_REPO = Path(__file__).resolve().parents[2]
-_PROJ_262 = _REPO / "projects" / "PROJ-262-predicting-molecular-dipole-moments-with"
-_STATUS_262 = (
-    _REPO / "state" / "execution_status"
-    / "PROJ-262-predicting-molecular-dipole-moments-with.json"
-)
+#: The REAL PROJ-262 evidence — its failing run's ``failures``, its analysis code, and
+#: the ``results/metrics.csv`` it produced — FROZEN under tests/fixtures/proj262/.
+#:
+#: This used to read the LIVE project tree and ``state/execution_status/PROJ-262…json``.
+#: The pipeline rewrites BOTH on every execution attempt, so the evidence moved
+#: underneath the test: PROJ-262's newer failures stopped mentioning ``metrics.csv``
+#: and its consumers stopped requiring ``mae/rmse/model``, and the test failed while
+#: the detector it guards was perfectly fine. A regression test must not depend on
+#: mutable production state. The evidence is unchanged and still REAL (captured
+#: verbatim from the failing run at 404a05f434) — it is simply no longer a moving
+#: target. Every assertion below is untouched.
+_FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
+_PROJ_262 = _FIXTURES / "proj262"
+_FAILURES_262 = _FIXTURES / "proj262_execution_failures.json"
 
 
 @pytest.mark.skipif(
-    not (_PROJ_262.is_dir() and _STATUS_262.is_file()),
+    not (_PROJ_262.is_dir() and _FAILURES_262.is_file()),
     reason="PROJ-262 evidence not present in this checkout",
 )
 def test_proj262_real_failures_surface_the_metrics_csv_rename() -> None:
-    failures = json.loads(_STATUS_262.read_text(encoding="utf-8"))["failures"]
+    failures = json.loads(_FAILURES_262.read_text(encoding="utf-8"))["failures"]
     issues = find_data_contract_issues(_PROJ_262, failures)
 
     metrics = [i for i in issues if i.data_file == "results/metrics.csv"]

@@ -66,6 +66,7 @@ class AnalysisRunResult:
     deadline_exceeded: bool = False
     reason: str = ""
     fabrication: list[str] = field(default_factory=list)         # deterministic fabricated-result findings
+    hollow: list[str] = field(default_factory=list)              # results that were never COMPUTED (null/NaN/empty)
 
 
 def extract_run_commands(quickstart_text: str) -> list[str]:
@@ -327,14 +328,34 @@ def run_analysis(
     # reaches research_complete and only the LLM panel catches it. A non-empty
     # finding hard-fails the gate → kickback to implementation for a REAL run.
     from llmxive.execution.fabrication_guard import find_fabrication
+    from llmxive.execution.hollow_guard import (
+        find_hollow_results,
+        find_no_durable_evidence,
+    )
 
     fabrication = find_fabrication(project_dir)
+    # DETERMINISTIC hollow-results gate: `bool(produced)` only asks "did a file
+    # appear?" — it never looks INSIDE. fabrication_guard catches numbers that were
+    # FAKED; this catches numbers that were never COMPUTED. PROJ-179 (metacognitive
+    # awareness, run on the IRIS FLOWER dataset) reached research_complete having
+    # written correlation=null, p=null, d_prime=NaN, robustness=[] and its own
+    # {"status": "PASS"}. Every headline number was missing and the gate said ok.
+    hollow = find_hollow_results(project_dir, produced)
+    # ...and a run whose every artifact is gitignored leaves nothing a reviewer can
+    # open or a paper can cite (PROJ-256 advanced on ONE data/processed/*.json).
+    # project_dir is <repo>/projects/<id>, so parents[1] is the repo whose .gitignore
+    # decides durability (the .gitignore is the SSoT — never re-encode its patterns).
+    undurable = find_no_durable_evidence(
+        project_dir, produced, repo_root=project_dir.parents[1]
+    )
     ok = (
         not deadline_exceeded
         and not cmd_failures
         and bool(produced)
         and not declared_missing
         and not fabrication
+        and not hollow
+        and not undurable
     )
     reason_parts: list[str] = []
     if fabrication:
@@ -342,6 +363,13 @@ def run_analysis(
             f"{len(fabrication)} fabricated/simulated-result signal(s) — results are "
             "not real measurements: " + "; ".join(fabrication[:3])
         )
+    if hollow:
+        reason_parts.append(
+            f"{len(hollow)} hollow-result signal(s) — the analysis ran but computed "
+            "nothing: " + "; ".join(hollow[:3])
+        )
+    if undurable:
+        reason_parts.append(undurable[0])
     if deadline_exceeded:
         reason_parts.append(f"overall deadline {overall_deadline_s:.0f}s exceeded")
     if cmd_failures:
@@ -372,6 +400,7 @@ def run_analysis(
         deadline_exceeded=deadline_exceeded,
         reason="; ".join(reason_parts) or "ok",
         fabrication=fabrication,
+        hollow=[*hollow, *undurable],
     )
 
 

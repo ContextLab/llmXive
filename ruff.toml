@@ -11,6 +11,11 @@ src = ["src", "tests"]
 # config and we can't run the project-wide lint gate.
 extend-exclude = [
   "projects/",
+  # Frozen REAL project code captured as regression evidence (e.g.
+  # tests/fixtures/proj262/). It is agent-generated project-side code preserved
+  # VERBATIM — linting or reformatting it would corrupt the very evidence the
+  # test asserts against. Same rationale as `projects/` above.
+  "tests/fixtures/",
   ".venv/",
   "build/",
   "dist/",

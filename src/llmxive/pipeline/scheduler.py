@@ -504,9 +504,32 @@ def _order_within_stage(
     if stage in _IMPLEMENT_STAGES:
         return sorted(
             projects,
-            key=lambda p: (_remaining_tasks(p, repo_root=repo_root), p.updated_at, p.id),
+            key=lambda p: (_effective_remaining(p, repo_root=repo_root), p.updated_at, p.id),
         )
     return sorted(projects, key=lambda p: (p.updated_at, p.id))
+
+
+#: How many tasks' worth of "distance from done" each FAILED execution attempt adds.
+#: A project stuck in the execution fix-loop is NOT nearly done — it has an unresolved
+#: blocker — but a failed run re-opens only a handful of tasks, so on raw open-task
+#: count it looks like the closest thing to finished and got re-picked EVERY tick.
+#: Twelve such churners ate ~4,000 of one day's 5,111 implementer calls (one took 843)
+#: while 400 projects got none. The penalty is deliberately moderate: it moves a
+#: churner behind healthy work without banishing it, because it still needs attempts
+#: to reach the re-plan cap and be honestly rejected.
+EXEC_CHURN_PENALTY: int = 3
+
+
+def _effective_remaining(project: Project, *, repo_root: Path | None) -> int:
+    """Distance-from-done for an implement project: open tasks PLUS a penalty for
+    every execution attempt it has already burned (see :data:`EXEC_CHURN_PENALTY`)."""
+    from llmxive.state import execution_status
+
+    remaining = _remaining_tasks(project, repo_root=repo_root)
+    if remaining >= _NO_TASKS_SENTINEL:
+        return remaining
+    attempts = execution_status.total_attempts(project.id, repo_root=repo_root)
+    return remaining + EXEC_CHURN_PENALTY * attempts
 
 
 def _apportion_workers(

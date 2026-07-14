@@ -292,3 +292,45 @@ def test_non_implement_stages_still_ordered_by_staleness(tmp_path: Path) -> None
     _make(tmp_path, "PROJ-9102-stale", Stage.BRAINSTORMED, age_days=40)
     p0 = scheduler.pick_for_worker(0, 1, repo_root=tmp_path)
     assert p0 is not None and p0.id == "PROJ-9102-stale", p0
+
+
+def test_execution_churners_do_not_monopolise_the_matrix(tmp_path: Path) -> None:
+    """A project stuck in the execution fix-loop is NOT 'nearly done'.
+
+    Shortest-remaining-first sorts on open tasks — but a failed execution RE-OPENS
+    only a handful of tasks, so a project whose analysis can never run sits at ~6
+    remaining forever and is re-picked every single tick. On 2026-07-14 twelve such
+    churners consumed ~4,000 of the day's 5,111 implementer calls (one took 843)
+    while 400 projects got NONE, and only 2 crossed. Its accumulated failures must
+    push it back so healthy work gets the workers — while still letting it come round
+    again (it needs more attempts to reach the re-plan cap and be rejected).
+    """
+    from llmxive.state import execution_status as es
+
+    for sub in ("projects", "run-log", "locks"):
+        (tmp_path / "state" / sub).mkdir(parents=True, exist_ok=True)
+    _impl_project(tmp_path, "PROJ-9201-churner", open_tasks=6, age_days=1)
+    _impl_project(tmp_path, "PROJ-9202-healthy", open_tasks=14, age_days=1)
+    for _ in range(20):  # a full ladder's worth of failed execution attempts
+        es.record(
+            "PROJ-9201-churner", ok=False, reason="cannot run",
+            artifacts=[], failures=["boom"], repo_root=tmp_path,
+        )
+
+    p0 = scheduler.pick_for_worker(0, 1, repo_root=tmp_path)
+    assert p0 is not None and p0.id == "PROJ-9202-healthy", (
+        "the churner (6 open) still outranked healthy work (14 open)"
+    )
+    # ...but it is not banished: with both workers it still gets served.
+    picks = [scheduler.pick_for_worker(i, 2, repo_root=tmp_path) for i in range(2)]
+    assert {p.id for p in picks if p} == {"PROJ-9201-churner", "PROJ-9202-healthy"}
+
+
+def test_a_clean_project_is_not_penalised(tmp_path: Path) -> None:
+    """A project that has never failed execution keeps pure shortest-remaining order."""
+    for sub in ("projects", "run-log", "locks"):
+        (tmp_path / "state" / sub).mkdir(parents=True, exist_ok=True)
+    _impl_project(tmp_path, "PROJ-9301-near", open_tasks=2, age_days=1)
+    _impl_project(tmp_path, "PROJ-9302-far", open_tasks=40, age_days=1)
+    p0 = scheduler.pick_for_worker(0, 1, repo_root=tmp_path)
+    assert p0 is not None and p0.id == "PROJ-9301-near"

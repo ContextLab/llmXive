@@ -105,9 +105,16 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     # deterministic report) instead of escalating to a human (autonomous
     # exhaustion handling). HUMAN_INPUT_NEEDED is retained only for unrelated
     # legacy markers — the execution path never routes there anymore.
+    # VALIDATOR_REJECTED is the terminal for a project whose analysis cannot be
+    # RUN here at all: it has exhausted every model tier AND every re-plan
+    # (MAX_REPLAN_ROUNDS full ladders). Re-planning it again would be an unbounded
+    # loop — which is exactly what it was, burning the worker matrix on a project
+    # that can never produce a real result. Rejecting is the honest outcome, and it
+    # is still autonomous (never HUMAN_INPUT_NEEDED).
     Stage.IN_PROGRESS: {
         Stage.RESEARCH_COMPLETE, Stage.IN_PROGRESS,
         Stage.PLANNED, Stage.HUMAN_INPUT_NEEDED,
+        Stage.VALIDATOR_REJECTED,
     },
     # research_complete is now a brief checkpoint where the
     # specialist reviewers run before research_review, so we allow

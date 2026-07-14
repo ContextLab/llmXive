@@ -35,6 +35,14 @@ logger = logging.getLogger(__name__)
 #: convergence opportunity rather than a wasted spin — hence a generous cap.
 MAX_EXECUTION_FIX_ROUNDS = 12
 
+#: Cap on the OUTER loop: how many times a project may be re-planned out of the
+#: execution fix-loop before we admit its analysis cannot be run here. Each re-plan
+#: already costs a FULL ladder (MAX_EXECUTION_FIX_ROUNDS x every model tier), so this
+#: is a generous bound, not a hair trigger. Beyond it the honest outcome is a terminal
+#: rejection — NOT another lap. Unbounded, this loop let a single unrunnable project
+#: burn 843 implementer calls in one day while 400 projects got none.
+MAX_REPLAN_ROUNDS = 3
+
 #: Ordered model ladder for the execution fix-loop (autonomous exhaustion
 #: handling). When the fix-round cap is hit at one tier, the project bumps to
 #: the next tier and retries the FULL cap with a different/stronger model.
@@ -198,6 +206,7 @@ def record(
     prior_rounds = int(prior_rounds) if isinstance(prior_rounds, int) and prior_rounds >= 0 else 0
     prior_tier = existing.get("model_tier", 0)
     prior_tier = int(prior_tier) if isinstance(prior_tier, int) and prior_tier >= 0 else 0
+    prior_attempts = _nonneg_int(existing.get("total_attempts"))
     rec = {
         "project_id": project_id,
         "ok": bool(ok),
@@ -209,6 +218,16 @@ def record(
         # transitions (bump_model_tier / reset_fix_loop) — record() must NOT
         # clobber it (the project stays on the escalated tier across rounds).
         "model_tier": prior_tier,
+        # MONOTONIC churn counters. ``fix_rounds`` is reset by BOTH escalation and
+        # re-plan, so it cannot answer "how much compute has this project burned?" —
+        # and nothing else could either, which is why the outer re-plan loop ran
+        # unbounded. These two survive those resets (cleared only by SUCCESS):
+        #   total_attempts — every failed execution ever. The scheduler uses it to
+        #     stop a churner from monopolising the matrix (see _order_within_stage).
+        #   replan_rounds  — bumped by reset_fix_loop, the re-plan transition itself,
+        #     so the routing layer can finally cap the outer loop.
+        "total_attempts": 0 if ok else prior_attempts + 1,
+        "replan_rounds": 0 if ok else _nonneg_int(existing.get("replan_rounds")),
         "updated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
     d = _dir(repo_root)
@@ -245,15 +264,39 @@ def bump_model_tier(project_id: str, *, repo_root: Path | None = None) -> int:
     return nxt
 
 
+def _nonneg_int(v: Any) -> int:
+    """Coerce a persisted counter to a non-negative int (0 for junk/missing)."""
+    return v if isinstance(v, int) and not isinstance(v, bool) and v >= 0 else 0
+
+
+def total_attempts(project_id: str, *, repo_root: Path | None = None) -> int:
+    """Every failed execution this project has EVER had (cleared only by success).
+
+    ``fix_rounds`` is reset by both escalation and re-plan, so it cannot say how much
+    compute a project has burned. This can — and the scheduler uses it to stop a
+    hopeless project from monopolising the worker matrix."""
+    return _nonneg_int((load(project_id, repo_root=repo_root) or {}).get("total_attempts"))
+
+
+def replan_rounds(project_id: str, *, repo_root: Path | None = None) -> int:
+    """How many times this project has been RE-PLANNED out of the execution loop."""
+    return _nonneg_int((load(project_id, repo_root=repo_root) or {}).get("replan_rounds"))
+
+
 def reset_fix_loop(project_id: str, *, repo_root: Path | None = None) -> None:
-    """Reset BOTH fix_rounds and model_tier to 0 — called on the RE-PLAN
-    transition so the re-planned project starts the execution fix-loop clean
-    (tier 0 = registered default, round 0)."""
+    """Reset fix_rounds and model_tier to 0 — called on the RE-PLAN transition so the
+    re-planned project starts the execution fix-loop clean (tier 0, round 0).
+
+    BUMPS ``replan_rounds``, which this reset must NOT clear: it is the only memory
+    that the project has already been all the way round the ladder. Without it the
+    outer loop was UNBOUNDED — a project whose analysis simply cannot run climbed
+    every tier, re-planned to a clean slate, and climbed them all again forever."""
     existing = load(project_id, repo_root=repo_root)
     if not existing:
         return
     existing["fix_rounds"] = 0
     existing["model_tier"] = 0
+    existing["replan_rounds"] = _nonneg_int(existing.get("replan_rounds")) + 1
     existing["updated_at"] = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     d = _dir(repo_root)
     d.mkdir(parents=True, exist_ok=True)
@@ -346,6 +389,7 @@ __all__ = [
     "EXECUTION_PAID_TIERS_ENV",
     "FREE_MODEL_TIERS",
     "MAX_EXECUTION_FIX_ROUNDS",
+    "MAX_REPLAN_ROUNDS",
     "bump_model_tier",
     "clear_offload",
     "execution_model_override",
@@ -360,6 +404,8 @@ __all__ = [
     "paid_tier_usable",
     "record",
     "record_offload",
+    "replan_rounds",
     "reset_fix_loop",
     "tier_model",
+    "total_attempts",
 ]

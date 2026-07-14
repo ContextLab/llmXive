@@ -53,7 +53,6 @@ from llmxive.config import (
 )
 from llmxive.config import repo_root as _repo_root
 from llmxive.pipeline._kickback import (
-    CONVERGENCE_KICKBACK_CAP,
     IDEA_RETRY_CAP,
     KickbackDecision,
     bump_count,
@@ -479,7 +478,7 @@ def run_one_step(
             from llmxive.paper_reprocess.preprint_pdf import build_preprint_pdfs
 
             build_preprint_pdfs(reprocessed, repo_root=repo)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.warning("preprint PDF build failed for %s: %s", project.id, exc)
         logger.info(
             "reprocessed ingested paper %s -> %s (reviewed preprint + follow-up)",
@@ -1572,8 +1571,29 @@ def _decide_next_stage(
                 )
                 return Stage.IN_PROGRESS
             except ValueError:
-                # No higher usable tier → re-plan deterministically.
+                # No higher usable tier → re-plan deterministically… but ONLY while
+                # the OUTER loop has budget left. reset_fix_loop wipes fix_rounds AND
+                # model_tier, so without a counter that survives it, a project whose
+                # analysis simply cannot run climbed the whole ladder, re-planned to a
+                # clean slate, and climbed it again — forever. PROJ-029 burned 843
+                # implementer calls in ONE day doing exactly this, and because a
+                # re-opened project still looks nearly-done, the scheduler handed it a
+                # worker every tick. Past the cap the honest answer is that this
+                # analysis is not executable here — a terminal rejection, not another
+                # lap (and NOT human_input_needed: the sole human gate is DOI sign-off).
                 rec = execution_status.load(project.id, repo_root=repo_root) or {}
+                if (execution_status.replan_rounds(project.id, repo_root=repo_root)
+                        >= execution_status.MAX_REPLAN_ROUNDS):
+                    logger.warning(
+                        "execution fix-loop exhausted ALL model tiers AND all %d "
+                        "re-plans for %s (%d total failed attempts) — the analysis is "
+                        "not executable in this environment; terminal "
+                        "VALIDATOR_REJECTED rather than another unbounded lap",
+                        execution_status.MAX_REPLAN_ROUNDS, project.id,
+                        execution_status.total_attempts(project.id, repo_root=repo_root),
+                    )
+                    _write_execution_replan_feedback(project_dir, rec)
+                    return Stage.VALIDATOR_REJECTED
                 _write_execution_replan_feedback(project_dir, rec)
                 execution_status.reset_fix_loop(project.id, repo_root=repo_root)
                 logger.info(
