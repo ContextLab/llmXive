@@ -1371,6 +1371,10 @@
     "classified_at": "2026-07-14T07:03:45Z",
     "verdict": false
   },
+  "PROJ-907-llmxive-follow-up-extending-rethinking-c::1.6.0": {
+    "classified_at": "2026-07-14T07:45:46Z",
+    "verdict": false
+  },
   "PROJ-908-llmxive-follow-up-extending-qwen-agentwo::1.6.0": {
     "classified_at": "2026-07-08T07:16:23Z",
     "verdict": false

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1902.02292",
+  "judged_at": "2026-07-14T07:46:14Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"rethinking cross-layer information routing in diffusion transformers\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for defining and measuring \"information flow\" and \"information paths\" in computational systems, which is the core mechanism investigated in the user's question regarding cross-layer information routing in Diffusion Transformers. Additionally, it meets criterion (a) by providing a theoretical framework for the same biological/algorithmic mechanism (information routing) even though it uses a general graph-theoretic vocabula",
+  "relevant": true
+}

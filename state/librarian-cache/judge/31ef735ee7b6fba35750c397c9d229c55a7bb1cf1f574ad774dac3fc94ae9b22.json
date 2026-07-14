@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.02266",
+  "judged_at": "2026-07-14T07:46:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"rethinking cross-layer information routing in diffusion transformers\" computer science",
+  "rationale": "The paper studies fluid dynamics (turbulent flow around cylinders) and shares the word \"diffusion\" only in the context of scalar transport in fluids, which is a distinct physical construct from the \"Diffusion Transformers\" (a deep learning architecture) in the user's question. This falls under the rejection rule for distinct constructs sharing only homonym keywords and is entirely off-domain (physics vs. computer science).",
+  "relevant": false
+}

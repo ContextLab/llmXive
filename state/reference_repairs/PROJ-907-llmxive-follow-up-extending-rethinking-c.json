@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-07-14T07:54:32.667432+00:00",
+    "project": "PROJ-907-llmxive-follow-up-extending-rethinking-c",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/imagenet-1k",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/evanarlian/imagenet_1k_resized_256/resolve/main/data/test-00000-of-00004-1abbff57b76eb035.parquet",
+        "intent": "imagenet 1k Validation torchvision.datasets.ImageNet via root path or datasets.load_dataset \"huggingface/imagenet 1k\", split=\"validation\" if verified Tracing & Benchmarking The direct URL is not used as"
+      }
+    ]
+  }
+]

@@ -1,0 +1,630 @@
+{
+  "fetched_at": "2026-07-14T07:46:20Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diffusion Transformers\"",
+      "target_n": 5
+    },
+    "duration_seconds": 66.316,
+    "ended_at": "2026-07-14T07:46:20Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "cross-layer attention mechanisms in diffusion transformers"
+        ],
+        [
+          2,
+          "inter-layer information flow in DiT architectures"
+        ],
+        [
+          3,
+          "hierarchical cross-attention routing in generative models"
+        ],
+        [
+          4,
+          "efficient cross-layer communication in transformer-based diffusion"
+        ],
+        [
+          5,
+          "long-range dependency modeling in diffusion transformers"
+        ],
+        [
+          6,
+          "adaptive layer-wise feature routing in generative AI"
+        ],
+        [
+          7,
+          "transformer block interaction strategies for image synthesis"
+        ],
+        [
+          8,
+          "cross-block information propagation in diffusion models"
+        ],
+        [
+          9,
+          "optimizing layer connectivity in diffusion transformers"
+        ],
+        [
+          10,
+          "residual connection variations in diffusion transformer networks"
+        ],
+        [
+          11,
+          "multi-scale feature integration in DiT"
+        ],
+        [
+          12,
+          "attention-based cross-layer fusion for diffusion"
+        ],
+        [
+          13,
+          "scalable cross-layer routing in large diffusion models"
+        ],
+        [
+          14,
+          "transformer architecture redesign for diffusion processes"
+        ],
+        [
+          15,
+          "dynamic information routing in generative transformer layers"
+        ],
+        [
+          16,
+          "cross-attention modules in diffusion-based generative modeling"
+        ],
+        [
+          17,
+          "reducing computational overhead in cross-layer diffusion transformers"
+        ],
+        [
+          18,
+          "hierarchical representation learning in diffusion transformers"
+        ],
+        [
+          19,
+          "layer-wise gating mechanisms for diffusion models"
+        ],
+        [
+          20,
+          "transformer-based diffusion model architecture optimization"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "cross-layer attention mechanisms in diffusion transformers": 4,
+        "inter-layer information flow in DiT architectures": 3,
+        "llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diffusion Transformers\" computer science": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "cross-attention layer fusion diffusion models",
+      "DiT architecture residual connection skip-connection",
+      "transformer block gating mechanism information flow",
+      "diffusion model convergence speed generation quality",
+      "token mixing bottleneck representation capacity"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2111.05299"
+      ]
+    },
+    "per_query_hit_count": {
+      "DiT architecture residual connection skip-connection": 3,
+      "cross-attention layer fusion diffusion models": 3,
+      "diffusion model convergence speed generation quality": 3,
+      "llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diffusion Transformers\" computer science": 3,
+      "token mixing bottleneck representation capacity": 3,
+      "transformer block gating mechanism information flow": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2303.15105",
+          "rationale": "The paper focuses on optimizing spatial attention mechanisms (quadrangle windows) within Vision Transformers for computer vision tasks, which is a distinct architectural problem from the user's specific inquiry into \"Cross-Layer Information Routing\" in Diffusion Transformers. While both involve Transformer variants, the candidate paper does not measure, model, or provide a baseline for the specific cross-layer routing mechanisms or diffusion processes central to the user's question, failing to m",
+          "title": "Vision Transformer with Quadrangle Attention"
+        },
+        {
+          "primary_pointer": "2204.00452",
+          "rationale": "The paper focuses on temporal feature shifting and cross-frame attention mechanisms for video action recognition, which is a distinct application domain and architectural goal from the user's question about \"Cross-Layer Information Routing\" within Diffusion Transformers. While both involve attention mechanisms, the specific construct of routing information across network layers in a diffusion model is not addressed, nor does the paper provide a foundational method or empirical baseline for that ",
+          "title": "Vision Transformer with Cross-attention by Temporal Shift for Efficient Action Recognition"
+        },
+        {
+          "primary_pointer": "2110.02266",
+          "rationale": "The paper studies fluid dynamics (turbulent flow around cylinders) and shares the word \"diffusion\" only in the context of scalar transport in fluids, which is a distinct physical construct from the \"Diffusion Transformers\" (a deep learning architecture) in the user's question. This falls under the rejection rule for distinct constructs sharing only homonym keywords and is entirely off-domain (physics vs. computer science).",
+          "title": "Time-averaged velocity and scalar fields of the flow surrounding a group of cylinders"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-14T07:45:13Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"rethinking cross-layer information routing in diffusion transformers\" computer science",
+      "raw": "llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diffusion Transformers\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Infrared and visible image fusion (IVIF) is essential for integrating thermal saliency with textural details to support downstream perception. However, most existing approaches suffer from \"semantic blindness,\" leading to the erroneous suppression of thermal targets and the introduction of visual artifacts. To address this, we propose SAM-Guided Diffusion Fusion Network (SGDFuse), a novel Semantic-Guided Generation (SGG) framework that reframes IVIF as a semantically-steered generative task rather than simplistic pixel mapping. Our method uniquely couples high-level semantic priors from the Segment Anything Model (SAM) with the high-fidelity generative power of a conditional diffusion model. We employ a deliberate two-stage strategy to decouple multimodal alignment from iterative refinement: Stage I establishes a robust structural foundation via preliminary fusion, while Stage II utilizes dual-modality semantic masks as spatial anchors to guide the diffusion process toward a semantically coherent, high-fidelity reconstruction. Comprehensive experiments demonstrate that SGDFuse not only delivers state-of-the-art image quality but also enhances downstream task performance, confirming its effectiveness as a new Methodological Framework for semantically aware image fusion. The code is available at https://github.com/boshizhang123/SGDFuse.",
+          "claimed_authors": [
+            "Xiaoyang Zhang",
+            "jinjiang Li",
+            "Guodong Fan",
+            "Yakun Ju",
+            "Linwei Fan",
+            "Jun Liu",
+            "Alex C. Kot"
+          ],
+          "claimed_title": "SGDFuse: SAM-Guided Diffusion Model for High-Fidelity Infrared and Visible Image Fusion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.05264"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='SGDFuse: SAM-Guided Diffusion Model for High-Fidelity Infrared and Visible Image Fusion')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Dual Cross-Attention (DCA), a simple yet effective attention module that is able to enhance skip-connections in U-Net-based architectures for medical image segmentation. DCA addresses the semantic gap between encoder and decoder features by sequentially capturing channel and spatial dependencies across multi-scale encoder features. First, the Channel Cross-Attention (CCA) extracts global channel-wise dependencies by utilizing cross-attention across channel tokens of multi-scale encoder features. Then, the Spatial Cross-Attention (SCA) module performs cross-attention to capture spatial dependencies across spatial tokens. Finally, these fine-grained encoder features are up-sampled and connected to their corresponding decoder parts to form the skip-connection scheme. Our proposed DCA module can be integrated into any encoder-decoder architecture with skip-connections such as U-Net and its variants. We test our DCA module by integrating it into six U-Net-based architectures such as U-Net, V-Net, R2Unet, ResUnet++, DoubleUnet and MultiResUnet. Our DCA module shows Dice Score improvements up to 2.05% on GlaS, 2.74% on MoNuSeg, 1.37% on CVC-ClinicDB, 1.12% on Kvasir-Seg and 1.44% on Synapse datasets. Our codes are available at: https://github.com/gorkemcanates/Dual-Cross-Attention",
+          "claimed_authors": [
+            "Gorkem Can Ates",
+            "Prasoon Mohan",
+            "Emrah Celik"
+          ],
+          "claimed_title": "Dual Cross-Attention for Medical Image Segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.17696"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Dual Cross-Attention for Medical Image Segmentation')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, the denoising diffusion model has achieved remarkable success in image segmentation modeling. With its powerful nonlinear modeling capabilities and superior generalization performance, denoising diffusion models have gradually been applied to medical image segmentation tasks, bringing new perspectives and methods to this field. However, existing methods overlook the uncertainty of segmentation boundaries and the fuzziness of regions, resulting in the instability and inaccuracy of the segmentation results. To solve this problem, a denoising diffusion fusion network based on fuzzy learning for 3D medical image segmentation (FDiff-Fusion) is proposed in this paper. By integrating the denoising diffusion model into the classical U-Net network, this model can effectively extract rich semantic information from input medical images, thus providing excellent pixel-level representation for medical image segmentation. ... Finally, to validate the effectiveness of FDiff-Fusion, we compare it with existing advanced segmentation networks on the BRATS 2020 brain tumor dataset and the BTCV abdominal multi-organ dataset. The results show that FDiff-Fusion significantly improves the Dice scores and HD95 distance on these two datasets, demonstrating its superiority in medical image segmentation tasks.",
+          "claimed_authors": [
+            "Weiping Ding",
+            "Sheng Geng",
+            "Haipeng Wang",
+            "Jiashuang Huang",
+            "Tianyi Zhou"
+          ],
+          "claimed_title": "FDiff-Fusion:Denoising diffusion fusion network based on fuzzy learning for 3D medical image segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.02075"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='FDiff-Fusion:Denoising diffusion fusion network based on fuzzy learning for 3D medical image segmentation')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Differentiable neural architecture search (DARTS), as a gradient-guided search method, greatly reduces the cost of computation and speeds up the search. In DARTS, the architecture parameters are introduced to the candidate operations, but the parameters of some weight-equipped operations may not be trained well in the initial stage, which causes unfair competition between candidate operations. The weight-free operations appear in large numbers which results in the phenomenon of performance crash. Besides, a lot of memory will be occupied during training supernet which causes the memory utilization to be low. In this paper, a partial channel connection based on channel attention for differentiable neural architecture search (ADARTS) is proposed. Some channels with higher weights are selected through the attention mechanism and sent into the operation space while the other channels are directly contacted with the processed channels. Selecting a few channels with higher attention weights can better transmit important feature information into the search space and greatly improve search efficiency and memory utilization. The instability of network structure caused by random selection can also be avoided. The experimental results show that ADARTS achieved 2.46% and 17.06% classification error rates on CIFAR-10 and CIFAR-100, respectively. ADARTS can effectively solve the problem that too many skip connections appear in the search process and obtain network structures with better performance.",
+          "claimed_authors": [
+            "Yu Xue",
+            "Jiafeng Qin"
+          ],
+          "claimed_title": "Partial Connection Based on Channel Attention for Differentiable Neural Architecture Search",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.00791"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Partial Connection Based on Channel Attention for Differentiable Neural Architecture Search')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although residual connection enables training very deep neural networks, it is not friendly for online inference due to its multi-branch topology. This encourages many researchers to work on designing DNNs without residual connections at inference. For example, RepVGG re-parameterizes multi-branch topology to a VGG-like (single-branch) model when deploying, showing great performance when the network is relatively shallow. However, RepVGG can not transform ResNet to VGG equivalently because re-parameterizing methods can only be applied to linear blocks and the non-linear layers (ReLU) have to be put outside of the residual connection which results in limited representation ability, especially for deeper networks. In this paper, we aim to remedy this problem and propose to remove the residual connection in a vanilla ResNet equivalently by a reserving and merging (RM) operation on ResBlock. Specifically, the RM operation allows input feature maps to pass through the block while reserving their information and merges all the information at the end of each block, which can remove residual connections without changing the original output. As a plug-in method, RM Operation basically has three advantages: 1) its implementation makes it naturally friendly for high ratio network pruning. 2) it helps break the depth limitation of RepVGG. 3) it leads to better accuracy-speed trade-off network (RMNet) compared to ResNet and RepVGG. We believe the ideology of RM Operation can inspire many insights on model design for the community in the future. Code is available at: https://github.com/fxmeng/RMNet.",
+          "claimed_authors": [
+            "Fanxu Meng",
+            "Hao Cheng",
+            "Jiaxin Zhuang",
+            "Ke Li",
+            "Xing Sun"
+          ],
+          "claimed_title": "RMNet: Equivalently Removing Residual Connection from Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.00687"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='RMNet: Equivalently Removing Residual Connection from Networks')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent Diffusion Transformers (e.g., DiT) have demonstrated their powerful effectiveness in generating high-quality 2D images. However, it is still being determined whether the Transformer architecture performs equally well in 3D shape generation, as previous 3D diffusion methods mostly adopted the U-Net architecture. To bridge this gap, we propose a novel Diffusion Transformer for 3D shape generation, namely DiT-3D, which can directly operate the denoising process on voxelized point clouds using plain Transformers. Compared to existing U-Net approaches, our DiT-3D is more scalable in model size and produces much higher quality generations. Specifically, the DiT-3D adopts the design philosophy of DiT but modifies it by incorporating 3D positional and patch embeddings to adaptively aggregate input from voxelized point clouds. To reduce the computational cost of self-attention in 3D shape generation, we incorporate 3D window attention into Transformer blocks, as the increased 3D token length resulting from the additional dimension of voxels can lead to high computation. Finally, linear and devoxelization layers are used to predict the denoised point clouds. In addition, our transformer architecture supports efficient fine-tuning from 2D to 3D, where the pre-trained DiT-2D checkpoint on ImageNet can significantly improve DiT-3D on ShapeNet. Experimental results on the ShapeNet dataset demonstrate that the proposed DiT-3D achieves state-of-the-art performance in high-fidelity and diverse 3D point cloud generation. In particular, our DiT-3D decreases the 1-Nearest Neighbor Accuracy of the state-of-the-art method by 4.59 and increases the Coverage metric by 3.51 when evaluated on Chamfer Distance.",
+          "claimed_authors": [
+            "Shentong Mo",
+            "Enze Xie",
+            "Ruihang Chu",
+            "Lewei Yao",
+            "Lanqing Hong",
+            "Matthias Nießner",
+            "Zhenguo Li"
+          ],
+          "claimed_title": "DiT-3D: Exploring Plain Diffusion Transformers for 3D Shape Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.01831"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='DiT-3D: Exploring Plain Diffusion Transformers for 3D Shape Generation')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We develop a theoretical framework for defining and identifying flows of information in computational systems. Here, a computational system is assumed to be a directed graph, with \"clocked\" nodes that send transmissions to each other along the edges of the graph at discrete points in time. We are interested in a definition that captures the dynamic flow of information about a specific message, and which guarantees an unbroken \"information path\" between appropriately defined inputs and outputs in the directed graph. Prior measures, including those based on Granger Causality and Directed Information, fail to provide clear assumptions and guarantees about when they correctly reflect information flow about a message. We take a systematic approach---iterating through candidate definitions and counterexamples---to arrive at a definition for information flow that is based on conditional mutual information, and which satisfies desirable properties, including the existence of information paths. Finally, we describe how information flow might be detected in a noiseless setting, and provide an algorithm to identify information paths on the time-unrolled graph of a computational system.",
+          "claimed_authors": [
+            "Praveen Venkatesh",
+            "Sanghamitra Dutta",
+            "Pulkit Grover"
+          ],
+          "claimed_title": "Information Flow in Computational Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.02292"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Information Flow in Computational Systems')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We examine the characteristics of mean flow and scalar concentration characteristics of a turbulent boundary layer flow impinging on a cluster of tall obstacles (which can also be interpreted as a porous obstruction). The cluster is created with a group of cylinders of diameter $d$ and height $h$ arranged in a circular patch of diameter $D$.The solidity of the patch/obstruction is defined by $φ$ (the total planar area covered by cylinders), which is systematically varied ($0.098 \\leq φ\\leq 1$) by increasing the number of cylinders in a patch ($N_c$). A point source is placed at ground level upstream of the patch and its transport around the patch is examined. Time-averaged velocity and scalar fields, obtained from simultaneous planar PIV-PLIF (particle image velocimetry-planar laser-induced fluorescence) measurements, reveal that the characteristics of wake and flow above porous patches are heavily influenced by $φ$. In particular, we observe that the horizontal and vertical extent of the wake and scalar concentration downstream of the patches decreases and increases with $φ$, respectively. Here, the recirculation bubble is shifted closer to the trailing edge of the patches as $φ$ increases, limiting the flow from convecting downstream, decreasing the scalar concentration and virtually `extending' the patch in streamwise direction. As the bubble forms in the trailing edge, vertical bleeding increases and hence the concentration increases above patch where the cylinders appear to be `extend' vertically towards the freestream.",
+          "claimed_authors": [
+            "Dea Daniella Wangsawijaya",
+            "Claudia Nicolai",
+            "Bharathram Ganapathisubramani"
+          ],
+          "claimed_title": "Time-averaged velocity and scalar fields of the flow surrounding a group of cylinders",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.02266"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Time-averaged velocity and scalar fields of the flow surrounding a group of cylinders')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Estimating the number of communities is one of the fundamental problems in community detection. We re-examine the Bayesian paradigm for stochastic block models and propose a \"corrected Bayesian information criterion\",to determine the number of communities and show that the proposed estimator is consistent under mild conditions. The proposed criterion improves those used in Wang and Bickel (2016) and Saldana et al. (2017) which tend to underestimate and overestimate the number of communities, respectively. Along the way, we establish the Wilks theorem for stochastic block models. Moreover, we show that, to obtain the consistency of model selection for stochastic block models, we need a so-called \"consistency condition\". We also provide sufficient conditions for both homogenous networks and non-homogenous networks. The results are further extended to degree corrected stochastic block models. Numerical studies demonstrate our theoretical results.",
+          "claimed_authors": [
+            "Jianwei Hu",
+            "Hong Qin",
+            "Ting Yan",
+            "Yunpeng Zhao"
+          ],
+          "claimed_title": "Corrected Bayesian information criterion for stochastic block models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.01238"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Corrected Bayesian information criterion for stochastic block models')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This survey reviews the progress of diffusion models in generating images from text, ~\\textit{i.e.} text-to-image diffusion models. As a self-contained work, this survey starts with a brief introduction of how diffusion models work for image synthesis, followed by the background for text-conditioned image synthesis. Based on that, we present an organized review of pioneering methods and their improvements on text-to-image generation. We further summarize applications beyond image generation, such as text-guided generation for various modalities like videos, and text-guided image editing. Beyond the progress made so far, we discuss existing challenges and promising future directions.",
+          "claimed_authors": [
+            "Chenshuang Zhang",
+            "Chaoning Zhang",
+            "Mengchun Zhang",
+            "In So Kweon",
+            "Junmo Kim"
+          ],
+          "claimed_title": "Text-to-image Diffusion Models in Generative AI: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.07909"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Text-to-image Diffusion Models in Generative AI: A Survey')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we introduce a novel dIffusion language modEl pre-training framework for text generation, which we call GENIE. GENIE is a large-scale pretrained diffusion language model that consists of an encoder and a diffusion-based decoder, which can generate text by gradually transforming a random noise sequence into a coherent text sequence. To pre-train GENIE on a large-scale language corpus, we design a new continuous paragraph denoise objective, which encourages the diffusion-decoder to reconstruct a clean text paragraph from a corrupted version, while preserving the semantic and syntactic coherence. We evaluate GENIE on four downstream text generation benchmarks, namely XSum, CNN/DailyMail, Gigaword, and CommonGen. Our experimental results show that GENIE achieves comparable performance with the state-of-the-art autoregressive models on these benchmarks, and generates more diverse text samples. The code and models of GENIE are available at https://github.com/microsoft/ProphetNet/tree/master/GENIE.",
+          "claimed_authors": [
+            "Zhenghao Lin",
+            "Yeyun Gong",
+            "Yelong Shen",
+            "Tong Wu",
+            "Zhihao Fan",
+            "Chen Lin",
+            "Nan Duan",
+            "Weizhu Chen"
+          ],
+          "claimed_title": "Text Generation with Diffusion Language Models: A Pre-training Approach with Continuous Paragraph Denoise",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.11685"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Text Generation with Diffusion Language Models: A Pre-training Approach with Continuous Paragraph Denoise')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deriving compact and temporally aware visual representations from dynamic scenes is essential for successful execution of sequential scene understanding tasks such as visual tracking and robotic manipulation. In this paper, we introduce Token Bottleneck (ToBo), a simple yet intuitive self-supervised learning pipeline that squeezes a scene into a bottleneck token and predicts the subsequent scene using minimal patches as hints. The ToBo pipeline facilitates the learning of sequential scene representations by conservatively encoding the reference scene into a compact bottleneck token during the squeeze step. In the reconstruction step, we guide the model to capture temporal dynamics by predicting the target scene using the bottleneck token along with few target patches as hints. This design encourages the vision backbone to embed temporal dependencies, thereby enabling understanding of dynamic transitions across scenes. Extensive experiments in diverse sequential tasks, including video label propagation and robot manipulation in simulated environments demonstrate the superiority of \\ours~over baselines. Moreover, deploying our pre-trained model on physical robots confirms its robustness and effectiveness in real-world environments. We further validate the scalability of ToBo across different model scales. Code is available at https://github.com/naver-ai/tobo.",
+          "claimed_authors": [
+            "Taekyung Kim",
+            "Dongyoon Han",
+            "Byeongho Heo",
+            "Jeongeun Park",
+            "Sangdoo Yun"
+          ],
+          "claimed_title": "Token Bottleneck: One Token to Remember Dynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.06543"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Token Bottleneck: One Token to Remember Dynamics')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rings of symmetric polynomials form an inverse system whose limit, the ring of symmetric functions, is the model for the bosonic Fock space representation of the affine Lie algebra. We categorify this construction by considering an inverse limit of categories of polynomial representation of general linear groups. We show that this limit naturally carries an action of the affine Lie algebra (in the sense of Rouquier), thereby obtaining a famiy of categorifications of the bosonic Fock space representation.",
+          "claimed_authors": [
+            "Jiuzu Hong",
+            "Oded Yacobi"
+          ],
+          "claimed_title": "Polynomial representations and categorifications of Fock Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1101.2456"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Polynomial representations and categorifications of Fock Space')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study finite-dimensional representations of hyper loop algebras over non-algebraically closed fields. The main results concern the classification of the irreducible representations, the construction of the Weyl modules, base change, tensor products of irreducible and Weyl modules, and the block decomposition of the underlying abelian category. Several results are interestingly related to the study of irreducible representations of polynomial algebras and Galois theory.",
+          "claimed_authors": [
+            "Dijana Jakelic",
+            "Adriano Moura"
+          ],
+          "claimed_title": "Finite-Dimensional Representations of Hyper Loop Algebras Over Non-Algebraically Closed Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0711.0795"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Rethinking Cross-Layer Information Routing in Diff', candidate_title='Finite-Dimensional Representations of Hyper Loop Algebras Over Non-Algebraically Closed Fields')",
+        "failed_at": "2026-07-14T07:45:46Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tommaso Cerruti",
+            "Tim Rieder",
+            "George Rowlands",
+            "Lingfeng Jin",
+            "Imanol Schlag"
+          ],
+          "title": "Linear Attention Architectures: Mechanisms, Trade-offs, and Cross-Layer Routing",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.07953",
+        "summary": "Self-attention lets each token retrieve information from the full context, but its quadratic cost in sequence length limits training and inference at long context. This paper presents a comparative study of softmax attention and four recent recurrent linear-attention architectures: DeltaNet, Gated DeltaNet, Kimi Delta Attention, and Gated DeltaNet-2. We express these mechanisms in a common recurrent-memory notation, making explicit how they differ in expressivity, memory decay, erase and write control, training throughput, and implementation complexity. Our experiments center on 350M-parameter models trained for 15B tokens, and include optimizer and learning-rate comparisons, hybrid-versus-pure stack comparisons, sequence-length runtime measurements, larger DeltaNet runs at 1.3B and 3B parameters, and a small set of downstream evaluations. The reported speed results measure training throughput and iteration time; we do not provide an empirical inference-speed benchmark. Within the reported 350M-parameter, 15B-token sweep, Kimi Delta Attention with Muon reaches the lowest final validation loss, a pure Gated DeltaNet stack trained with AdamW has the highest normalized training throughput, hybrid stacks generally improve loss at a throughput cost, and Muon consistently lowers final validation loss relative to AdamW in the matched architecture settings we evaluate. We introduce and evaluate lightweight cross-layer routing mechanisms for DeltaNet-style memories. The most natural DeltaNet-inspired formulation, forwarding a lower layer's delta-rule write error into the next layer's value target, does not improve over matched baselines. Routing into the aligned hidden stream and forwarding the write value instead yields a modest improvement in the matched runs we report: Cross-Layer Value Routing (CLVR) lowers final validation loss for both DeltaNet and Gated DeltaNet.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.07953",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T07:45:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhixin Zheng",
+            "Xinyu Wang",
+            "Chang Zou",
+            "Shaobo Wang",
+            "Linfeng Zhang"
+          ],
+          "title": "Compute Only 16 Tokens in One Timestep: Accelerating Diffusion Transformers with Cluster-Driven Feature Caching",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.10312",
+        "summary": "Diffusion transformers have gained significant attention in recent years for their ability to generate high-quality images and videos, yet still suffer from a huge computational cost due to their iterative denoising process. Recently, feature caching has been introduced to accelerate diffusion transformers by caching the feature computation in previous timesteps and reusing it in the following timesteps, which leverage the temporal similarity of diffusion models while ignoring the similarity in the spatial dimension. In this paper, we introduce Cluster-Driven Feature Caching (ClusCa) as an orthogonal and complementary perspective for previous feature caching. Specifically, ClusCa performs spatial clustering on tokens in each timestep, computes only one token in each cluster and propagates their information to all the other tokens, which is able to reduce the number of tokens by over 90%. Extensive experiments on DiT, FLUX and HunyuanVideo demonstrate its effectiveness in both text-to-image and text-to-video generation. Besides, it can be directly applied to any diffusion transformer without requirements for training. For instance, ClusCa achieves 4.96x acceleration on FLUX with an ImageReward of 99.49%, surpassing the original model by 0.51%. The code is available at https://github.com/Shenyi-Z/Cache4Diffusion.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.10312",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T07:45:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Praveen Venkatesh",
+            "Sanghamitra Dutta",
+            "Pulkit Grover"
+          ],
+          "title": "Information Flow in Computational Systems",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1902.02292",
+        "summary": "We develop a theoretical framework for defining and identifying flows of information in computational systems. Here, a computational system is assumed to be a directed graph, with \"clocked\" nodes that send transmissions to each other along the edges of the graph at discrete points in time. We are interested in a definition that captures the dynamic flow of information about a specific message, and which guarantees an unbroken \"information path\" between appropriately defined inputs and outputs in the directed graph. Prior measures, including those based on Granger Causality and Directed Information, fail to provide clear assumptions and guarantees about when they correctly reflect information flow about a message. We take a systematic approach---iterating through candidate definitions and counterexamples---to arrive at a definition for information flow that is based on conditional mutual information, and which satisfies desirable properties, including the existence of information paths. Finally, we describe how information flow might be detected in a noiseless setting, and provide an algorithm to identify information paths on the time-unrolled graph of a computational system.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1902.02292",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T07:45:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Praveen Venkatesh",
+            "Sanghamitra Dutta",
+            "Neil Mehta",
+            "Pulkit Grover"
+          ],
+          "title": "Can Information Flows Suggest Targets for Interventions in Neural Circuits?",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2111.05299",
+        "summary": "Motivated by neuroscientific and clinical applications, we empirically examine whether observational measures of information flow can suggest interventions. We do so by performing experiments on artificial neural networks in the context of fairness in machine learning, where the goal is to induce fairness in the system through interventions. Using our recently developed $M$-information flow framework, we measure the flow of information about the true label (responsible for accuracy, and hence desirable), and separately, the flow of information about a protected attribute (responsible for bias, and hence undesirable) on the edges of a trained neural network. We then compare the flow magnitudes against the effect of intervening on those edges by pruning. We show that pruning edges that carry larger information flows about the protected attribute reduces bias at the output to a greater extent. This demonstrates that $M$-information flow can meaningfully suggest targets for interventions, answering the title's question in the affirmative. We also evaluate bias-accuracy tradeoffs for different intervention strategies, to analyze how one might use estimates of desirable and undesirable information flows (here, accuracy and bias flows) to inform interventions that preserve the former while reducing the latter.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2111.05299",
+          "http_status": 200,
+          "pdf_sample_score": 0.25,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T07:45:59Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"rethinking cross-layer information routing in diffusion transformers\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
