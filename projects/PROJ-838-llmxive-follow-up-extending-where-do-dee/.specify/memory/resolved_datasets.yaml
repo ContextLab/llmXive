@@ -1,0 +1,250 @@
+resolved_at: '2026-07-14T21:24:28.341136+00:00'
+datasets:
+- intent: TELBench
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/NJU-LINK/TELBench/resolve/main/TELBench.passphrase.txt
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 45
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/NJU-LINK/TELBench/resolve/main/TELBench.passphrase.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Compiled_CO_sub_2_sub_flux_data_-_Ault_et_al_/32987720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_sub_Adachi_Multi-Formula_General_G-Block_Regrouping_Theorem_and_Large-G_Verification_sub_/32968769
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Suppression_of_Auger_Recombination_in_Perovskite_Quantum_Dots_through_Band_Alignment_Engineering/32987798
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/_b_Unifying_Dimensions_Exploring_Burkhard_Heim_s_Syntrometric_Vision_b_/29095352
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_Five-year_timeseries_of_sap-flux-scaled_transpiration_reveals_inter-annual_variation_between_tree_water_use_and_precipitation_in_a_pinyon_and_juniper_woodland/29175224
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.02060
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DAG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/DAGroup-PKU/RBench/resolve/main/checkpoints/BERT/google-bert/bert-base-uncased/config.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 570
+      parsed: true
+  - url: https://huggingface.co/datasets/chcaa/dagw-word-frequencies/resolve/main/data/train-00000-of-00001-04b98bfdb9e41ce3.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/chcaa/dagw-word-frequencies-by-domain/resolve/main/data/train-00000-of-00003-e19b1e2ad46064b8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/DAGroup-PKU/RBench/resolve/main/checkpoints/BERT/google-bert/bert-base-uncased/config.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/chcaa/dagw-word-frequencies/resolve/main/data/train-00000-of-00001-04b98bfdb9e41ce3.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/chcaa/dagw-word-frequencies-by-domain/resolve/main/data/train-00000-of-00003-e19b1e2ad46064b8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/chcaa/dagw-word-frequencies-normalized-by-domain/resolve/main/data/train-00000-of-00002-0c05feefbd53c497.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Compiled_CO_sub_2_sub_flux_data_-_Ault_et_al_/32987720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_sub_Adachi_Multi-Formula_General_G-Block_Regrouping_Theorem_and_Large-G_Verification_sub_/32968769
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Suppression_of_Auger_Recombination_in_Perovskite_Quantum_Dots_through_Band_Alignment_Engineering/32987798
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/_b_Unifying_Dimensions_Exploring_Burkhard_Heim_s_Syntrometric_Vision_b_/29095352
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_Five-year_timeseries_of_sap-flux-scaled_transpiration_reveals_inter-annual_variation_between_tree_water_use_and_precipitation_in_a_pinyon_and_juniper_woodland/29175224
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16097506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11572869
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6360753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12721047
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20058009
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21364197
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21364197
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21361766
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21361766
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/MoOrp-mediated_PtdIns4P_transportation_is_essential_for_autophagy_and_pathogenicity_in_i_magnaporthe_oryzae_i_/29499285/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: F1-score
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 98811
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 82904
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 94356
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Compiled_CO_sub_2_sub_flux_data_-_Ault_et_al_/32987720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_sub_Adachi_Multi-Formula_General_G-Block_Regrouping_Theorem_and_Large-G_Verification_sub_/32968769
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Suppression_of_Auger_Recombination_in_Perovskite_Quantum_Dots_through_Band_Alignment_Engineering/32987798
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/_b_Unifying_Dimensions_Exploring_Burkhard_Heim_s_Syntrometric_Vision_b_/29095352
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_Five-year_timeseries_of_sap-flux-scaled_transpiration_reveals_inter-annual_variation_between_tree_water_use_and_precipitation_in_a_pinyon_and_juniper_woodland/29175224
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1753520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://stp.ust.edu.ua/article/view/325888
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18063014
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/ijai.v14.i5.pp3915-3925
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/6936930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21361766
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21361766
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21361720
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21361720
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.15167/di-marco-anna_phd2019-05-27
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''iris.unige.it'',
+      port=443): Max retries exceeded with url: /handle/11567/945784 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''iris.unige.it'',
+      port=443) at 0x7fc848242d90>, ''Connection to iris.unige.it timed out. (connect
+      timeout=20.0)''))'

@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Trajectory Metrics Schema"
+description: "Schema for the output CSV/JSON containing topological metrics and predictions for each trajectory."
+type: "object"
+properties:
+  trajectory_id:
+    type: "string"
+    description: "Unique identifier for the trajectory."
+  num_nodes:
+    type: "integer"
+    description: "Total number of nodes (claims) in the early-stage graph."
+    minimum: 1
+  num_edges:
+    type: "integer"
+    description: "Total number of edges (dependencies) in the early-stage graph."
+    minimum: 0
+  global_connectivity:
+    type: "number"
+    description: "Ratio of actual edges to possible edges (num_edges / (num_nodes * (num_nodes - 1)))."
+    minimum: 0.0
+    maximum: 1.0
+  predicted_collapse:
+    type: "boolean"
+    description: "True if the metric falls below the defined threshold (predicts failure)."
+  actual_label:
+    type: "string"
+    description: "Ground truth label from TELBench."
+    enum:
+      - "success"
+      - "failure"
+  prediction_correct:
+    type: "boolean"
+    description: "Whether the predicted label matches the actual label."
+  split:
+    type: "string"
+    description: "Data split assignment (train or test)."
+    enum:
+      - "train"
+      - "test"
+required:
+  - trajectory_id
+  - num_nodes
+  - num_edges
+  - global_connectivity
+  - predicted_collapse
+  - actual_label
+  - prediction_correct
+  - split
+additionalProperties: false

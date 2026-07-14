@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 9629445a0fcb87179f0b3321483b4cf4b8c2c484ae6ff4aa4f41cfa825a9582d
+  artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "NJU-LINK/TELBench \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/NJU-LINK/TELBench/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/NJU-LINK/TELBench
+  verified_at: '2026-07-14T21:35:22.807214Z'
+- artifact_hash: b10ebc99722f48944dbc6774ef062e1999db79705ab1919db7922dfd03ad5cde
+  artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: TELBench.passphrase.txt
+  kind: url
+  value: https://huggingface.co/datasets/NJU-LINK/TELBench/resolve/main/TELBench.passphrase.txt`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/NJU-LINK/TELBench/307d870d7424be265653bb7a566793cc217105be/TELBench.passphrase.txt?%2Fdatasets%2FNJU-LINK%2FTELBench%2Fresolve%2Fmain%2FTELBench.passphrase.txt=&etag=%2280de92b967ec743b478041b83ec78c7339aff14c%22
+  verified_at: '2026-07-14T21:35:53.067430Z'
