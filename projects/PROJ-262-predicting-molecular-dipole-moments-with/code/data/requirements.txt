@@ -1,0 +1,20 @@
+# Project‑specific Python dependencies
+pandas
+pyarrow
+
+# Core scientific stack (already present in the base environment)
+numpy
+torch
+scikit-learn
+tqdm
+
+# Optional utilities used elsewhere in the repository
+joblib
+matplotlib
+seaborn
+
+# Testing & linting (managed at the repository root)
+pytest
+black
+isort
+flake8

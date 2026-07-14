@@ -1,34 +1,27 @@
 """
-Proxy module for the real NumPy package.
-
-The project contains a placeholder ``code/numpy`` package that shadows the
-genuine NumPy installation from the environment.  This proxy imports the
-actual NumPy distribution (via ``code/numpy_real.py``) and re‑exports all
-of its public attributes so that downstream libraries such as pandas and
-SciPy can access ``numpy.__version__`` and the full NumPy API.
+Shim module to expose the real NumPy package under the project ``code/numpy`` package.
+Some parts of the codebase import ``numpy`` via ``import numpy as np`` which resolves
+to this package because ``code`` is added to ``PYTHONPATH``.  The original shim tried
+to re‑export symbols from a non‑existent ``numpy_real`` module, causing an import
+error.  The implementation below simply imports the genuine NumPy library and
+re‑exports all of its public symbols.
 """
+
 import importlib
 import sys
 from types import ModuleType
 
-# Import the helper that loads the real NumPy implementation.
-# ``numpy_real.py`` simply does ``import numpy as _real_numpy`` which
-# resolves to the genuine NumPy package installed in the environment.
-_helper = importlib.import_module('numpy_real')
-_real_numpy = getattr(_helper, '_real_numpy', None)
+# Load the real NumPy package (the one installed in the environment)
+_real_numpy: ModuleType = importlib.import_module("numpy")
 
-if _real_numpy is None:
-    # Fallback – try to import NumPy directly (may recurse to this stub,
-    # but in practice the helper always succeeds).
-    import numpy as _real_numpy
-
-# Replace this module's dictionary with the real NumPy's dictionary.
-# This makes ``import numpy as np`` behave exactly like the real package.
+# Re‑export everything from the real NumPy into this shim's namespace.
+# ``globals()`` is the module dict for this ``code.numpy`` package.
 globals().update(_real_numpy.__dict__)
 
-# Ensure the ``__version__`` attribute exists (required by pandas/ SciPy).
-__version__ = getattr(_real_numpy, '__version__', '0.0.0')
+# Ensure that ``sys.modules['numpy']`` points to the real package so that any
+# subsequent ``import numpy`` statements (outside of the ``code`` package) receive
+# the genuine implementation.
+sys.modules["numpy"] = _real_numpy
 
-# Keep a reference to the real module so that ``sys.modules['numpy']``
-# points to this proxy (which now mirrors the real implementation).
-sys.modules[__name__] = sys.modules[__name__]
+# Clean up temporary names.
+del importlib, sys, ModuleType, _real_numpy

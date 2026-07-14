@@ -1,11 +1,18 @@
 # Core dependencies
-pandas
-numpy
-torch
-scikit-learn
-tqdm
-# Project‑specific utilities
-joblib
-# Analysis / statistics
-scipy
-# The shim ``code/numpy`` ensures the real NumPy package is imported correctly.
+pandas>=2.0.0
+numpy>=1.24.0
+torch>=2.0.0
+joblib>=1.3.0
+
+# Machine‑learning libraries
+scikit-learn>=1.3.0
+
+# Scientific utilities
+scipy>=1.11.0
+
+# Optional utilities used by analysis scripts
+matplotlib>=3.8.0
+seaborn>=0.13.0
+rdkit  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv
+tqdm  # auto-added: imported by run-book but missing from venv

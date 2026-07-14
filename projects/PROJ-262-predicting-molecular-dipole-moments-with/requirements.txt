@@ -1,12 +1,9 @@
-# Core scientific stack
-numpy
 pandas
-pyarrow
 torch
 scikit-learn
-scipy
-# Project utilities
 tqdm
-# Optional for analysis/visualisation
-matplotlib
-seaborn
+numpy
+scipy
+pyarrow
+# The project already pins a specific version of numpy via the shim; the real
+# package is required for pandas and scipy to operate correctly.

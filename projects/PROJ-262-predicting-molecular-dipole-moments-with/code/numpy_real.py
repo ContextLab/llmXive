@@ -1,27 +1,33 @@
 """
-Real numpy shim module.
+Compatibility shim for the real NumPy library.
 
-The project contains a top-level package named ``numpy`` which attempts to
-lazily import the real NumPy installation as ``numpy_real``.  The original
-shim expects a module called ``numpy_real`` to exist, but it was missing,
-causing ``ModuleNotFoundError`` for every ``import numpy`` in the code base.
+The project originally included a placeholder module named ``numpy_real`` that was
+mistakenly shadowing the actual ``numpy`` package.  Several third‑party libraries
+(pandas, scipy) import ``numpy`` and expect the ``__version__`` attribute as well as
+the full NumPy public API.  Importing those libraries raised an ``AttributeError``
+because the placeholder module did not provide the required attributes.
 
-This file provides the missing ``numpy_real`` module.  It simply re‑exports
-the real NumPy package so that the existing shim can load it without any
-further changes.
+This shim re‑exports the genuine NumPy module under the name ``numpy_real`` while
+also exposing the ``__version__`` attribute that external packages query.  By
+updating the module in‑place we avoid having to touch every consumer of NumPy in
+the code base.
 """
 
-# Import the actual NumPy library and expose it under the name expected by
-# the shim (``numpy_real``).  All attributes of the real NumPy module are
-# re‑exported, making this module a transparent proxy.
-import numpy as _real_numpy
+import importlib as _importlib
+import sys as _sys
 
-# Populate the module namespace with everything from the real NumPy.
+# Load the real NumPy implementation
+_real_numpy = _importlib.import_module("numpy")
+
+# Export the real NumPy symbols from this shim
 globals().update(_real_numpy.__dict__)
 
-# Ensure ``__all__`` mirrors that of the real NumPy.
-__all__ = getattr(_real_numpy, "__all__", [])
+# Ensure that ``numpy_real`` presents a ``__version__`` attribute identical to the
+# real NumPy package – this satisfies pandas and scipy which read it during import.
+__version__ = _real_numpy.__version__
 
-# Provide a helpful representation.
-def __repr__():
-    return f"<numpy_real proxy for {_real_numpy.__name__}>"
+# Also make sure that ``numpy`` resolves to the real implementation even if the
+# project directory is earlier on ``sys.path``.  This guards against accidental
+# self‑shadowing when ``import numpy`` is executed elsewhere in the repository.
+if "numpy" not in _sys.modules:
+    _sys.modules["numpy"] = _real_numpy

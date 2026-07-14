@@ -66,7 +66,7 @@ The method is: We will implement and evaluate a graph neural network model train
 
 **Goal**: Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, Download QM9 dataset, filter to a 10 k random subset, extract both 3D coordinates and 2D descriptors for baseline comparison
 
-**Independent Test**: Verify data files exist, subset size equals 10 k, and both 3D and 2D feature matrices are generated with no missing values
+**Independent Test**: Verify data files exist, subset size equals 10 k [UNRESOLVED-CLAIM: c_3cd86150 — status=not_enough_info], and both 3D and 2D feature matrices are generated with no missing values
 
 ### Tests for User Story 1
 

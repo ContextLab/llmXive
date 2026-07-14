@@ -10660,23 +10660,6 @@
   status: not_enough_info
   updated_at: '2026-07-14T02:41:21Z'
 - artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  attempts: 2
-  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
-  claim_id: c_7f8d43d3
-  context: "T015 [US1] Implement QM9 download with integrity verification in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/download_qm9.py\
-    \ (FR\u2011001, DOI 10.1038/sdata.2014.22)"
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-  kind: citation
-  raw_text: The QM9 dataset is referenced with DOI 10.1038/sdata.2014.22.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T02:41:27Z'
-- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   attempts: 1
   canonical: Significance CSV columns seed t_statistic p_value significant_at_alpha_0.05
   claim_id: c_875d0b48
@@ -12888,24 +12871,6 @@
   status: not_enough_info
   updated_at: '2026-07-14T05:43:55Z'
 - artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  attempts: 1
-  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
-  claim_id: c_ab5b1199
-  context: "Implementation for User Story 1 \u2013 T015 implements QM9 download with\
-    \ integrity verification (FR\u2011001, DOI\u202F10.1038/sdata.2014.22)"
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-    status: not_found
-  kind: citation
-  raw_text: "Download QM9 dataset (FR\u2011001, DOI\u202F10.1038/sdata.2014.22)"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T05:44:41Z'
-- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   attempts: 0
   canonical: at least three distinct features appear in the top-10 of results/attributions.json
   claim_id: c_6341b867
@@ -13080,22 +13045,6 @@
   updated_at: '2026-07-14T05:50:18Z'
 - artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   attempts: 1
-  canonical: subset size equals 10000 molecules
-  claim_id: c_7a092492
-  context: "Independent Test: Verify data files exist, subset size equals 10\u202F\
-    k, and both 3D and 2D feature matrices are generated with no missing values"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "subset size equals 10\u202Fk"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T07:03:48Z'
-- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  attempts: 1
   canonical: at least three distinct features in top-10 attribution rankings
   claim_id: c_797bca4a
   context: "Implement rank structural contributions and verify at least three distinct\
@@ -13179,22 +13128,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T07:08:04Z'
-- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  attempts: 1
-  canonical: 10k random subset of QM9 dataset
-  claim_id: c_16a0be08
-  context: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
-    \ both 3D coordinates and 2D descriptors for baseline comparison."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "filter to a 10\u202Fk random subset"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T07:09:31Z'
 - artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   attempts: 1
   canonical: QM9 dataset DOI 10.1038/sdata.2014.22
@@ -13534,22 +13467,6 @@
   updated_at: '2026-07-14T07:18:01Z'
 - artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   attempts: 1
-  canonical: subset size equals 10000 random molecules
-  claim_id: c_b09cbdc1
-  context: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
-    \ both 3D coordinates and 2D descriptors for baseline comparison"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "filter to a 10\u202Fk random subset"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T07:18:50Z'
-- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  attempts: 1
   canonical: QM9 dataset DOI 10.1038/sdata.2014.22
   claim_id: c_93a992cb
   context: "T015 [US1] Implement QM9 download with integrity verification in ... (FR\u2011\
@@ -13796,22 +13713,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T07:53:44Z'
-- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  attempts: 7
-  canonical: 10k random subset of QM9 dataset
-  claim_id: c_5295fdcf
-  context: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
-    \ both 3D coordinates and 2D descriptors for baseline comparison"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Download QM9 dataset, filter to a 10\u202Fk random subset"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T07:54:48Z'
 - artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   attempts: 1
   canonical: QM9 dataset DOI 10.1038/sdata.2014.22
@@ -14169,22 +14070,6 @@
   status: not_enough_info
   updated_at: '2026-07-14T08:06:42Z'
 - artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  attempts: 2
-  canonical: subset size equals 10000
-  claim_id: c_0d665e09
-  context: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
-    \ both 3D coordinates and 2D descriptors for baseline comparison"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "filter to a 10\u202Fk random subset"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T08:08:14Z'
-- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   attempts: 1
   canonical: qm9 dataset doi 10.1038/sdata.2014.22
   claim_id: c_b43956ef
@@ -14345,3 +14230,458 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T08:11:24Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 3
+  canonical: subset size equals 10000 random molecules
+  claim_id: c_b09cbdc1
+  context: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
+    \ both 3D coordinates and 2D descriptors for baseline comparison"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "filter to a 10\u202Fk random subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:50:49Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset is documented in DOI 10.1038/sdata.2014.22
+  claim_id: c_7928bb03
+  context: "Implementation for User Story 1 includes T015 implementing QM9 download\
+    \ with integrity verification and cites DOI\u202F10.1038/sdata.2014.22"
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: "QM9 dataset download with integrity verification (FR\u2011001, DOI\u202F\
+    10.1038/sdata.2014.22)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:50:56Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: subset size equals 10000 random molecules
+  claim_id: c_3cce4422
+  context: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
+    \ both 3D coordinates and 2D descriptors for baseline comparison."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "filter to a 10\u202Fk random subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:51:19Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/code/quickstart.md
+  attempts: 1
+  canonical: create reproducible 10000 molecule subset
+  claim_id: c_8bd58b5c
+  context: "# 2\uFE0F\u20E3  Create a reproducible 10\u202Fk subset"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Create a reproducible 10\u202Fk subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:52:59Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: 10k random subset
+  claim_id: c_8b578b30
+  context: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
+    \ both 3D coordinates and 2D descriptors for baseline comparison."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset is filtered to a 10\u202Fk random subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:53:53Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: 10k random subset of QM9 dataset
+  claim_id: c_16a0be08
+  context: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
+    \ both 3D coordinates and 2D descriptors for baseline comparison."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "filter to a 10\u202Fk random subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:54:57Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset download with integrity verification
+  claim_id: c_0c63e9d9
+  context: "Implement QM9 download with integrity verification in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/download_qm9.py`\
+    \ (FR\u2011001, DOI\u202F10.1038/sdata.2014.22)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: "QM9 download with integrity verification (FR\u2011001, DOI\u202F10.1038/sdata.2014.22)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:55:02Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: paired t-tests with significance level 0.05
+  claim_id: c_7ecd4257
+  context: "Implement paired t\u2011tests (\u03B1\u202F=\u202F0.05 (Wikipedia: P-value,\
+    \ https://en.wikipedia.org/wiki/P_value)) comparing RMSE distributions in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py`."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "paired t\u2011tests (\u03B1\u202F=\u202F0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P_value))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:55:39Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_65946d53
+  context: Task T015 implements QM9 download with integrity verification, citing the
+    dataset DOI 10.1038/sdata.2014.22.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: "Implement QM9 download with integrity verification (FR\u2011001, DOI\u202F\
+    10.1038/sdata.2014.22)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:56:23Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: 10000 random subset
+  claim_id: c_16a141d1
+  context: "Goal of Phase 3 is to download QM9 dataset and filter to a 10\u202Fk random\
+    \ subset for baseline feature extraction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "filter to a 10\u202Fk random subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:57:24Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_bbabcb69
+  context: "Implementation task T015 states that QM9 download uses DOI\u202F10.1038/sdata.2014.22."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: "QM9 dataset DOI\u202F10.1038/sdata.2014.22"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:57:26Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: QM9 dataset is identified by DOI 10.1038/sdata.2014.22
+  claim_id: c_a3122709
+  context: "T015 Implement QM9 download with integrity verification in projects/...\
+    \ (FR\u2011001, DOI\u202F10.1038/sdata.2014.22)"
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: "DOI\u202F10.1038/sdata.2014.22"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T08:58:25Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: subset size equals 10000 molecules
+  claim_id: c_7a092492
+  context: "Independent Test: Verify data files exist, subset size equals 10\u202F\
+    k, and both 3D and 2D feature matrices are generated with no missing values"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "subset size equals 10\u202Fk"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:59:33Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 8
+  canonical: 10k random subset of QM9 dataset
+  claim_id: c_5295fdcf
+  context: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
+    \ both 3D coordinates and 2D descriptors for baseline comparison"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Download QM9 dataset, filter to a 10\u202Fk random subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:00:58Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 3
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_7f8d43d3
+  context: "T015 [US1] Implement QM9 download with integrity verification in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/download_qm9.py\
+    \ (FR\u2011001, DOI 10.1038/sdata.2014.22)"
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: The QM9 dataset is referenced with DOI 10.1038/sdata.2014.22.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:01:01Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: subset size 10k
+  claim_id: c_a926bc65
+  context: "Independent Test: Verify data files exist, subset size equals 10\u202F\
+    k, and both 3D and 2D feature matrices are generated with no missing values"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "subset size equals 10\u202Fk"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:01:56Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: 10k random subset of QM9 dataset
+  claim_id: c_92932df3
+  context: "Phase\u202F3 (User Story\u202F1) states the goal includes filtering the\
+    \ QM9 dataset to a 10\u202Fk random subset for baseline comparison."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
+    \ both 3D coordinates and 2D descriptors for baseline comparison"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:03:14Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_79fd83fc
+  context: "Task T015 specifies that the QM9 dataset download is performed with integrity\
+    \ verification and cites DOI\u202F10.1038/sdata.2014.22."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: "Implement QM9 download with integrity verification (FR\u2011001, DOI\u202F\
+    10.1038/sdata.2014.22)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:03:16Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: filter to a 10k random subset of QM9 dataset
+  claim_id: c_2762c3ed
+  context: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
+    \ both 3D coordinates and 2D descriptors for baseline comparison"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
+    \ both 3D coordinates and 2D descriptors for baseline comparison"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:04:08Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: 10,000 random subset of QM9 dataset
+  claim_id: c_fcafefcf
+  context: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
+    \ both 3D coordinates and 2D descriptors for baseline comparison"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "filter to a 10\u202Fk random subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:04:55Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset downloaded with integrity verification from DOI 10.1038/sdata.2014.22
+  claim_id: c_f693e189
+  context: Phase 3 tasks include T015 implementing QM9 download with integrity verification,
+    referencing DOI 10.1038/sdata.2014.22.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Implemented QM9 download with integrity verification (DOI 10.1038/sdata.2014.22)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:05:46Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 3
+  canonical: subset size equals 10000
+  claim_id: c_0d665e09
+  context: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset, extract\
+    \ both 3D coordinates and 2D descriptors for baseline comparison"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "filter to a 10\u202Fk random subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:06:25Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_e8fc04fb
+  context: "Implement QM9 download with integrity verification (FR\u2011001, DOI\u202F\
+    10.1038/sdata.2014.22)"
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: "QM9 dataset is referenced by DOI\u202F10.1038/sdata.2014.22"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:06:27Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: subset size 10000 molecules
+  claim_id: c_ffd89d3d
+  context: "Phase 3: User Story 1 - Dataset Preparation and Baseline Feature Extraction\
+    \ ... filter to a 10\u202Fk random subset, extract both 3D coordinates and 2D\
+    \ descriptors for baseline comparison"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "filter to a 10\u202Fk random subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:07:10Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_ab5b1199
+  context: "Implementation for User Story 1 \u2013 T015 implements QM9 download with\
+    \ integrity verification (FR\u2011001, DOI\u202F10.1038/sdata.2014.22)"
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: "Download QM9 dataset (FR\u2011001, DOI\u202F10.1038/sdata.2014.22)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:07:12Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: subset size equals 10000
+  claim_id: c_3cd86150
+  context: "Goal: Download QM9 dataset, filter to a 10\u202Fk random subset; Independent\
+    \ Test verifies subset size equals 10\u202Fk."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "subset size equals 10\u202Fk"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:07:58Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 2
+  canonical: QM9 dataset DOI 10.1038/sdata.2014.22
+  claim_id: c_bf238228
+  context: "Implement QM9 download with integrity verification (FR\u2011001, DOI\u202F\
+    10.1038/sdata.2014.22)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: QM9 dataset DOI 10.1038/sdata.2014.22
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T09:08:01Z'
