@@ -1,3 +1,6 @@
+"""
+Memory monitoring and dynamic batch sizing utilities.
+"""
 from __future__ import annotations
 
 import os
@@ -8,79 +11,93 @@ from code.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def get_available_memory() -> int:
+def get_available_memory() -> float:
     """
-    Returns the available system memory in bytes.
+    Get available system memory in bytes.
     """
     try:
         mem = psutil.virtual_memory()
-        return mem.available
+        available = mem.available
+        logger.log("get_available_memory", available_bytes=available, total_bytes=mem.total)
+        return float(available)
     except Exception as e:
-        logger.warning(f"Could not read memory info: {e}. Assuming default 4GB.")
-        return 4 * 1024**3
+        logger.log("get_available_memory_error", error=str(e))
+        # Fallback: assume 4GB available
+        return 4.0 * 1024**3
 
-def estimate_memory_usage(df_rows: int, df_cols: int, dtype_size: int = 8) -> int:
+def estimate_memory_usage(n_rows: int, n_cols: int, dtype_size: int = 8) -> float:
     """
-    Estimates memory usage for a DataFrame in bytes.
-    dtype_size defaults to 8 bytes (float64/int64).
+    Estimate memory usage for a matrix of given dimensions.
+    dtype_size: bytes per element (default 8 for float64)
     """
-    # Approximate: rows * cols * bytes_per_value + overhead
-    # Overhead is roughly 10-20% for pandas structures
-    raw_size = df_rows * df_cols * dtype_size
-    return int(raw_size * 1.2)
+    # Base matrix size
+    matrix_size = n_rows * n_cols * dtype_size
+    # Add 50% overhead for pandas/DataFrame operations
+    estimated = matrix_size * 1.5
+    logger.log("estimate_memory_usage", 
+               n_rows=n_rows, 
+               n_cols=n_cols, 
+               dtype_size=dtype_size, 
+               estimated_bytes=estimated)
+    return estimated
 
-def calculate_batch_size(
-    total_size_bytes: int, 
-    memory_limit_gb: float, 
-    chunk_multiplier: float = 0.5
-) -> int:
+def calculate_batch_size(n_rows: int, 
+                        n_cols: int, 
+                        max_memory_fraction: float = 0.8) -> int:
     """
-    Calculates a safe batch size (number of rows) to process given a total data size
-    and a memory limit.
+    Calculate optimal batch size for matrix operations.
     
     Args:
-        total_size_bytes: Total size of the dataset to be processed.
-        memory_limit_gb: Maximum allowed memory usage in GB.
-        chunk_multiplier: Fraction of memory limit to dedicate to the batch (0.5 = 50%).
+        n_rows: Total number of rows to process
+        n_cols: Number of columns per row
+        max_memory_fraction: Maximum fraction of available memory to use (0.0-1.0)
     
     Returns:
-        Estimated number of rows per batch.
+        Optimal batch size (number of rows per batch)
     """
-    limit_bytes = memory_limit_gb * 1024**3
-    safe_memory = limit_bytes * chunk_multiplier
+    available_mem = get_available_memory()
+    safe_limit = available_mem * max_memory_fraction
     
-    if total_size_bytes == 0:
-        return 1000 # Default small batch
+    # Memory per row
+    mem_per_row = estimate_memory_usage(1, n_cols)
     
-    # Ratio of safe memory to total size gives us the fraction of data we can load at once
-    fraction = safe_memory / total_size_bytes
+    if mem_per_row == 0:
+        return n_rows
     
-    # We can't directly convert bytes to rows without knowing the schema,
-    # so we assume a linear relationship and cap the batch size.
-    # If we can load the whole thing, return a large number.
-    if fraction >= 1.0:
-        return 1000000
+    # Calculate batch size
+    batch_size = int(safe_limit / mem_per_row)
     
-    # This is a heuristic. In a real scenario, we'd need to know rows/bytes ratio.
-    # For CSV loading, pandas chunksize is in rows.
-    # We'll estimate a "rows per byte" ratio based on a standard float row ~ 100 bytes (10 cols).
-    estimated_rows_per_byte = 0.01 
-    estimated_total_rows = total_size_bytes * estimated_rows_per_byte
+    # Ensure batch size is at least 1 and at most n_rows
+    batch_size = max(1, min(batch_size, n_rows))
     
-    batch_rows = int(estimated_total_rows * fraction)
-    
-    # Ensure minimum batch size
-    return max(100, batch_rows)
+    logger.log("calculate_batch_size", 
+               available_mem=available_mem, 
+               safe_limit=safe_limit, 
+               mem_per_row=mem_per_row, 
+               calculated_batch_size=batch_size, 
+               total_rows=n_rows)
+    return batch_size
 
-def verify_batching_logic():
+def verify_batching_logic(n_rows: int, n_cols: int, max_memory_gb: float = 7.0) -> Tuple[int, bool]:
     """
-    Simple verification that the batching logic doesn't crash.
-    """
-    mem = get_available_memory()
-    print(f"Available memory: {mem / 1024**3:.2f} GB")
+    Verify that calculated batch size respects memory constraints.
     
-    batch = calculate_batch_size(500 * 1024 * 1024, 7.0) # 500MB dataset
-    print(f"Suggested batch size for 500MB dataset: {batch}")
-
-if __name__ == "__main__":
-    verify_batching_logic()
+    Returns:
+        Tuple of (batch_size, is_valid)
+    """
+    available_mem = get_available_memory()
+    limit_bytes = max_memory_gb * 1024**3
+    
+    batch_size = calculate_batch_size(n_rows, n_cols)
+    
+    # Verify batch fits in memory
+    batch_mem = estimate_memory_usage(batch_size, n_cols)
+    is_valid = batch_mem < limit_bytes
+    
+    logger.log("verify_batching_logic", 
+               batch_size=batch_size, 
+               batch_mem_bytes=batch_mem, 
+               limit_bytes=limit_bytes, 
+               is_valid=is_valid)
+    
+    return batch_size, is_valid

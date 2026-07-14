@@ -1,117 +1,175 @@
+"""Integration test for report generation (US3).
+
+This test verifies that the report generator produces a valid Markdown file
+containing all required sections, template injections, and specific phrasing
+mandated by the specification (FR-004, FR-007).
+"""
 import os
-import sys
 import tempfile
 from pathlib import Path
-
-import pandas as pd
 import pytest
+import pandas as pd
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+# Import the report generator
+from code.report.generate import (
+    load_template,
+    format_correlation_table,
+    format_power_analysis,
+    generate_conclusion,
+    generate_report,
+    main as report_main
+)
+from code.logging_config import get_logger
 
-from code.report.generate import generate_report, generate_conclusion, LIMITATION_TEXT
+logger = get_logger(__name__)
+
 
 class TestReportGeneration:
-    """Integration tests for the report generator."""
+    """Integration tests for the report generation pipeline."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.test_dir = tempfile.mkdtemp()
+        self.output_path = Path(self.test_dir) / "test_report.md"
+        
+        # Create dummy data that mimics real analysis output
+        # to ensure the report generator has real data to process
+        self.correlation_data = pd.DataFrame({
+            'metric_name': ['Modularity', 'Global_Efficiency', 'Participation_Coeff'],
+            'r': [0.45, -0.12, 0.38],
+            'p': [0.002, 0.45, 0.01],
+            'q': [0.006, 0.60, 0.03],
+            'significant': [True, False, True]
+        })
+        
+        self.power_data = {
+            'detectable_r': 0.25,
+            'n': 100,
+            'power': 0.80,
+            'alpha': 0.05
+        }
+
+    def teardown_method(self):
+        """Clean up test files."""
+        if self.output_path.exists():
+            self.output_path.unlink()
+        if Path(self.test_dir).exists():
+            import shutil
+            shutil.rmtree(self.test_dir)
 
     def test_report_generates_markdown_with_all_sections(self):
         """
-        Verify that generate_report creates a markdown file with all required sections
-        and specific text constraints.
+        Integration test: test_report_generates_markdown_with_all_sections.
+        
+        Verifies that:
+        1. The report file is generated at the specified path.
+        2. All required sections are present (Introduction, Methods, Results, Discussion, Limitations).
+        3. Template variables are correctly injected (correlation table, power analysis).
+        4. Mandatory phrasing is present:
+           - "Limitation Statement": "Motor Task Performance is a proxy for proprioceptive accuracy."
+           - Conclusion: Contains "associational relationship" OR "correlational evidence".
         """
-        # Prepare dummy data
-        corr_data = pd.DataFrame({
-            "metric_name": ["Modularity", "Global Efficiency", "Participation Coeff"],
-            "r": [0.35, 0.12, 0.45],
-            "p": [0.02, 0.45, 0.01],
-            "q": [0.04, 0.60, 0.03],
-            "significant": [True, False, True]
-        })
+        # Generate the report using the real generator logic
+        # We pass dummy data directly to the generate_report function
+        # to ensure it runs without needing the full pipeline to have run first.
+        
+        report_content = generate_report(
+            correlation_results=self.correlation_data,
+            power_analysis=self.power_data,
+            output_path=self.output_path
+        )
 
-        power_data = pd.DataFrame({
-            "metric_name": ["Modularity", "Global Efficiency"],
-            "detectable_r": [0.25, 0.30]
-        })
+        # Assert file was written to disk
+        assert self.output_path.exists(), f"Report file not created at {self.output_path}"
 
-        # Create a temporary directory for output
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_report.md"
-            template_path = Path(tmpdir) / "template.md"
+        # Read the content for assertions
+        with open(self.output_path, 'r', encoding='utf-8') as f:
+            content = f.read()
 
-            # Create a simple template
-            template_content = """
-            # Test Report
-            {{correlation_table}}
-            {{power_analysis}}
-            {{plots}}
-            {{limitations}}
-            {{conclusion}}
-            """
-            template_path.write_text(template_content)
+        # 1. Verify file is not empty
+        assert len(content) > 100, "Report content is too short; likely missing sections."
 
-            # Run generator
-            result = generate_report(
-                correlation_results=corr_data,
-                power_results=power_data,
-                plots_dir=str(Path(tmpdir) / "figures"), # Empty dir
-                output_path=str(output_path),
-                template_path=str(template_path)
-            )
+        # 2. Verify required sections exist
+        required_sections = [
+            "# Introduction",
+            "# Methods",
+            "# Results",
+            "# Discussion",
+            "## Limitations"
+        ]
+        for section in required_sections:
+            assert section in content, f"Missing required section: {section}"
 
-            # Verify file exists
-            assert result.exists(), "Report file was not created."
+        # 3. Verify correlation table is formatted and present
+        # The generator should format the dataframe into a markdown table
+        assert "| metric_name | r | p | q | significant |" in content or \
+               "Modularity" in content, "Correlation table not found or malformed."
 
-            # Read content
-            content = result.read_text()
+        # 4. Verify Power Analysis is present
+        assert "0.25" in content, "Detectable effect size (0.25) not found in report."
+        assert "80" in content, "Power value (80%) not found in report."
 
-            # Check for required sections
-            assert "Correlation Results" in content or "## Correlation Results" in content, \
-                "Missing Correlation Results section"
-            assert "Power Analysis" in content or "## Power Analysis" in content, \
-                "Missing Power Analysis section"
-            assert "Limitations" in content or "## Limitations" in content, \
-                "Missing Limitations section"
-            assert "Conclusion" in content or "## Conclusion" in content, \
-                "Missing Conclusion section"
+        # 5. CRITICAL: Verify mandatory "Limitation Statement" text
+        limitation_text = "Motor Task Performance is a proxy for proprioceptive accuracy."
+        assert limitation_text in content, \
+            f"Missing mandatory limitation statement: '{limitation_text}'"
 
-            # Check for required limitation text
-            assert LIMITATION_TEXT in content, \
-                f"Missing required limitation text: '{LIMITATION_TEXT}'"
+        # 6. CRITICAL: Verify "Associational Relationship" phrasing in conclusion
+        conclusion_present = (
+            "associational relationship" in content.lower() or
+            "correlational evidence" in content.lower()
+        )
+        assert conclusion_present, \
+            "Missing mandatory conclusion phrasing ('associational relationship' or 'correlational evidence')."
 
-            # Check for required associational phrase
-            has_assoc = "associational relationship" in content or "correlational evidence" in content
-            assert has_assoc, \
-                "Conclusion must contain 'associational relationship' or 'correlational evidence'"
+        # 7. Verify the file is valid markdown (basic check)
+        # (We already checked for headers and tables, which are key MD elements)
+        assert content.count("#") >= 4, "Report appears to lack proper Markdown structure."
 
-    def test_conclusion_logic_significant_results(self):
+    def test_report_with_empty_correlations(self):
         """
-        Verify that the conclusion uses the correct phrasing when significant results exist.
+        Test that the report handles cases with no significant correlations gracefully.
         """
-        corr_data = pd.DataFrame({
-            "metric_name": ["Metric A"],
-            "r": [0.5],
-            "p": [0.01],
-            "q": [0.02],
-            "significant": [True]
-        })
+        empty_corr = pd.DataFrame(columns=['metric_name', 'r', 'p', 'q', 'significant'])
+        
+        report_content = generate_report(
+            correlation_results=empty_corr,
+            power_analysis=self.power_data,
+            output_path=Path(self.test_dir) / "empty_report.md"
+        )
+        
+        assert (Path(self.test_dir) / "empty_report.md").exists()
+        with open(Path(self.test_dir) / "empty_report.md", 'r') as f:
+            content = f.read()
+        
+        # Should still have sections and limitation
+        assert "Motor Task Performance is a proxy for proprioceptive accuracy." in content
+        assert "# Results" in content
 
-        conclusion = generate_conclusion(corr_data, None)
-        assert "associational relationship" in conclusion.lower(), \
-            "Conclusion should mention 'associational relationship' for significant results."
-
-    def test_conclusion_logic_no_significant_results(self):
+    def test_main_entry_point(self):
         """
-        Verify that the conclusion handles non-significant results correctly.
+        Test that the CLI main entry point works and writes to the default path.
         """
-        corr_data = pd.DataFrame({
-            "metric_name": ["Metric A"],
-            "r": [0.1],
-            "p": [0.5],
-            "q": [0.6],
-            "significant": [False]
-        })
-
-        conclusion = generate_conclusion(corr_data, None)
-        # Should still mention the phrase but in a negative context
-        assert "associational relationship" in conclusion.lower() or "correlational evidence" in conclusion.lower(), \
-            "Conclusion should still reference the relationship type even if not significant."
+        # Create a temporary output path for the main entry point test
+        test_output = Path(self.test_dir) / "cli_report.md"
+        
+        # Mock the sys.argv to simulate CLI call
+        import sys
+        original_argv = sys.argv
+        try:
+            sys.argv = ['report_generate', '--output', str(test_output)]
+            
+            # Run the main function
+            report_main()
+            
+            # Verify output
+            assert test_output.exists(), "CLI main did not create output file."
+            
+            with open(test_output, 'r') as f:
+                content = f.read()
+            
+            # Verify content integrity
+            assert "Motor Task Performance is a proxy for proprioceptive accuracy." in content
+            
+        finally:
+            sys.argv = original_argv
