@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: StatisticalResult
+description: "The output of the statistical analysis phase. Includes Bonferroni‑adjusted p-values and correction method."
+type: object
+properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for the analysis.
+  test_type:
+    type: string
+    enum:
+      - anova
+      - t_test_pairwise
+    description: Type of statistical test performed.
+  statistic:
+    type: number
+    description: F‑value or t‑value.
+  p_value:
+    type: number
+    description: Raw p‑value.
+  p_value_corrected:
+    type: number
+    description: "Bonferroni adjusted p‑value"
+  correction_method:
+    type: string
+    description: "The method used for correction (e.g., 'bonferroni')."
+  conclusion:
+    type: string
+    description: Text conclusion of the test.
+  causal_framing:
+    type: boolean
+    description: Always true for this study.
+required:
+  - analysis_id
+  - test_type
+  - statistic
+  - p_value
+  - p_value_corrected
+  - correction_method
+  - conclusion
+  - causal_framing
+additionalProperties: false

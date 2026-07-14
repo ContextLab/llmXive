@@ -1,0 +1,51 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: DistillationRun
+description: "A record of a single training session for one entropy subset. The `convergence_epoch` records the first epoch where validation loss first falls ≤ 0.1 (threshold‑based convergence)."
+type: object
+properties:
+  run_id:
+    type: string
+    description: Unique identifier for the run.
+  entropy_subset:
+    type: string
+    enum:
+      - high
+      - low
+      - target
+    description: The entropy subset used for training.
+  model_config:
+    type: object
+    description: Configuration of the student model.
+  training_loss_curve:
+    type: array
+    items:
+      type: number
+    description: Loss values per epoch.
+  convergence_epoch:
+    type: integer
+    description: Epoch where validation loss first falls ≤ 0.1.
+  final_accuracy:
+    type: number
+    description: Accuracy on the Generalization Set.
+  total_runtime_seconds:
+    type: number
+    description: Total wall‑clock time for the run.
+  peak_ram_gb:
+    type: number
+    description: Peak RAM usage in GB.
+  status:
+    type: string
+    enum:
+      - completed
+      - failed_timeout
+      - failed_non_converge
+    description: Final status of the run.
+required:
+  - run_id
+  - entropy_subset
+  - convergence_epoch
+  - final_accuracy
+  - total_runtime_seconds
+  - peak_ram_gb
+  - status
+additionalProperties: false

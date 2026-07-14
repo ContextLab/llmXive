@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 016685e3fc9f582c9d3fb5145bca642a91f7d70581498f6d65c9642bd9b88484
+  artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-14T20:43:32.820413Z'

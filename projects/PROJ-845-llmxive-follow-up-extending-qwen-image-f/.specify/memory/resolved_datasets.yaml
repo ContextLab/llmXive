@@ -1,0 +1,123 @@
+resolved_at: '2026-07-14T20:20:47.190182+00:00'
+datasets:
+- intent: CUDA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L2/resolve/main/eval_results/cuda_l2_a100_F16F16F16F16_speedup_offline.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 74288
+      parsed: true
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-SFT-CUDA-v1/resolve/main/data/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/JoshVictor/medcode-FT-CuData/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 5746
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L2/resolve/main/eval_results/cuda_l2_a100_F16F16F16F16_speedup_offline.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-SFT-CUDA-v1/resolve/main/data/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/JoshVictor/medcode-FT-CuData/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_From_Cambrian_subduction_initiation_to_Carboniferous_mantle_plume_related_DUPAL_magmatism_in_the_Paleo-Asian_Ocean/32987750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Key_factors_controlling_late_Mesozoic_uranium_mineralization_potential_in_the_Luzong_basin_South_China/32987747
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_S-_to_I-type_magmatic_transition_captures_continental_arc_evolution_in_Central_and_South_Pamir/32987741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/2-__1979_2026____Chinese/32987738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Tables_S1-S7_from_Howell_E_K_Nolfo-Clements_L_E_Baier_F_Payseur_B_A_Evolution_of_mutational_fitness_effects_on_islands_Manuscript_in_review_/32987735
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1653/024.099.0440
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/16299984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7683127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19228158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5550909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21363527
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21363527
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21363016
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21363016
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21360433
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DistillationRun
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_From_Cambrian_subduction_initiation_to_Carboniferous_mantle_plume_related_DUPAL_magmatism_in_the_Paleo-Asian_Ocean/32987750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Key_factors_controlling_late_Mesozoic_uranium_mineralization_potential_in_the_Luzong_basin_South_China/32987747
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_S-_to_I-type_magmatic_transition_captures_continental_arc_evolution_in_Central_and_South_Pamir/32987741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/2-__1979_2026____Chinese/32987738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Tables_S1-S7_from_Howell_E_K_Nolfo-Clements_L_E_Baier_F_Payseur_B_A_Evolution_of_mutational_fitness_effects_on_islands_Manuscript_in_review_/32987735
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
