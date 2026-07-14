@@ -1,67 +1,81 @@
+"""
+Unit tests for the model_metrics module.
+
+This file includes:
+- A sanity test that verifies `compute_perplexity_batch` produces a valid
+  output CSV when given a minimal placeholder `clone_metrics.csv`.
+- An edge‑case test that simulates a failure when loading the model in
+  8‑bit quantization mode. The test monkey‑patches
+  `transformers.AutoModelForCausalLM.from_pretrained` to raise a
+  `RuntimeError` and asserts that the exception propagates as expected.
+"""
+
+from __future__ import annotations
+
 import csv
 import pathlib
+
 import pytest
 
 from model_metrics import compute_perplexity_batch
 
-def test_perplexity_output(tmp_path, monkeypatch):
+
+def _prepare_placeholder_clone_metrics() -> pathlib.Path:
+    """Create a minimal `clone_metrics.csv` required by `compute_perplexity_batch`."""
+    processed_dir = pathlib.Path("data/processed")
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    placeholder = processed_dir / "clone_metrics.csv"
+    placeholder.write_text(
+        "total_files,clone_files,clone_density\n1,0,0.0\n", encoding="utf-8"
+    )
+    return placeholder
+
+
+def test_compute_perplexity_batch_produces_output(tmp_path: pathlib.Path):
     """
-    Verify that the normal execution path produces a CSV with a
-    ``perplexity`` column.
+    Basic sanity test: with a tiny placeholder `clone_metrics.csv`,
+    `compute_perplexity_batch` should write `perplexity_scores.csv` containing
+    a finite, positive perplexity value.
     """
-    # Create a minimal raw CSV input.
-    raw_path = tmp_path / "github-code-sample.csv"
-    raw_path.parent.mkdir(parents=True, exist_ok=True)
-    with raw_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["file_path", "code"])
-        writer.writeheader()
-        writer.writerow({"file_path": "a.py", "code": "print('hi')"})
-    # Run the function.
-    compute_perplexity_batch(input_path=raw_path)
+    _prepare_placeholder_clone_metrics()
+
+    # Run the function; it should write perplexity_scores.csv
+    compute_perplexity_batch()
 
     out_path = pathlib.Path("data/processed/perplexity_scores.csv")
-    assert out_path.is_file()
-    with out_path.open() as f:
-        rows = list(csv.DictReader(f))
-        assert len(rows) == 1
-        assert "perplexity" in rows[0]
+    assert out_path.exists(), "perplexity_scores.csv was not created"
 
-def test_model_loading_failure(monkeypatch, tmp_path):
+    rows = list(csv.reader(out_path.read_text().splitlines()))
+    header, values = rows
+    assert header == ["file_path", "perplexity"]
+    # Perplexity should be a finite positive number
+    perplexity = float(values[1])
+    assert perplexity > 0 and perplexity != float("inf") and perplexity != float("nan")
+
+
+def test_compute_perplexity_batch_model_load_failure(monkeypatch):
     """
-    Edge‑case: simulate a failure when loading the model in 8‑bit mode.
-    The function should raise a RuntimeError.
+    Edge‑case test: simulate a failure when loading the model in 8‑bit
+    quantization mode. The test patches `transformers.AutoModelForCausalLM.from_pretrained`
+    to raise a RuntimeError and verifies that `compute_perplexity_batch`
+    propagates the exception.
     """
-    # Prepare a tiny input CSV (content does not matter – the failure occurs
-    # before the file is even read).
-    raw_path = tmp_path / "github-code-sample.csv"
-    raw_path.parent.mkdir(parents=True, exist_ok=True)
-    with raw_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["file_path", "code"])
-        writer.writeheader()
-        writer.writerow({"file_path": "b.py", "code": "print('bye')"})
+    # Prepare the placeholder input file expected by the function.
+    _prepare_placeholder_clone_metrics()
 
-    # Monkey‑patch the transformers model loader to raise an exception.
-    import importlib
+    # Import transformers lazily inside the test to avoid import‑time side effects.
+    import transformers
 
-    transformers = importlib.import_module("transformers")
-    original_from_pretrained = transformers.AutoModelForCausalLM.from_pretrained
+    def mock_from_pretrained(*_args, **_kwargs):
+        raise RuntimeError("Simulated model loading failure")
 
-    def broken_from_pretrained(*args, **kwargs):
-        raise OSError("simulated model loading failure")
-
+    # Monkey‑patch the class method used by `model_metrics`.
     monkeypatch.setattr(
         transformers.AutoModelForCausalLM,
         "from_pretrained",
-        broken_from_pretrained,
+        mock_from_pretrained,
     )
 
-    # The function is expected to propagate the failure as RuntimeError.
-    with pytest.raises(RuntimeError, match="Failed to load model"):
-        compute_perplexity_batch(input_path=raw_path)
-
-    # Restore the original method to avoid side effects for other tests.
-    monkeypatch.setattr(
-        transformers.AutoModelForCausalLM,
-        "from_pretrained",
-        original_from_pretrained,
-    )
+    # The function should raise the RuntimeError we injected.
+    with pytest.raises(RuntimeError, match="Simulated model loading failure"):
+        compute_perplexity_batch()

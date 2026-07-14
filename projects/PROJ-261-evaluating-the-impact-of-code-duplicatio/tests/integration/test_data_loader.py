@@ -17,7 +17,9 @@ def test_download_and_save_sample_creates_files(tmp_path: pathlib.Path, monkeypa
             for i in range(5):
                 yield {"content": f"print({i})"}
 
-    monkeypatch.setattr("datasets.load_dataset", lambda *a, **k: MockDataset())
+    monkeypatch.setattr(
+        "datasets.load_dataset", lambda *a, **k: MockDataset()
+    )
 
     # Run with a sample size larger than the mock provides – should stop early
     download_and_save_sample(sample_size=10)

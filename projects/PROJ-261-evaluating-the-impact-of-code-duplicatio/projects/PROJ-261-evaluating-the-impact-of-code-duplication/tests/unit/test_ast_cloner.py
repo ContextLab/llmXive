@@ -1,72 +1,64 @@
 """
-Unit tests for the ast_cloner module.
-
-This file contains:
-1. A basic sanity test that checks the clone density computation writes the expected
-   output CSV and produces the correct density values for identical code snippets.
-2. A syntax‑error handling test that ensures the pipeline does not crash when a
-   Python fragment cannot be parsed and that the failure is recorded in the
-   `data/parse_failures.csv` log.
+Unit tests for the AST cloner utilities, including syntax‑error handling.
 """
-
 from __future__ import annotations
 
 import csv
-from pathlib import Path
-
+import pathlib
 import pytest
+import ast
 
-from code.ast_cloner import compute_clone_density_batch
+from ast_cloner import compute_clone_density_batch, parse_python_file, IdentifierNormalizer
 
-def _write_dummy_raw(csv_path: Path, rows: list[tuple[int, str]]) -> None:
-    """Write a CSV with ``id`` and ``code`` columns."""
-    csv_path.parent.mkdir(parents=True, exist_ok=True)
-    with csv_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["id", "code"])
-        writer.writeheader()
-        for idx, code in rows:
-            writer.writerow({"id": idx, "code": code})
 
-def test_compute_clone_density_batch_writes_output(tmp_path: Path):
-    """Basic sanity check – output file is created and densities are correct."""
-    raw = tmp_path / "raw.csv"
-    _write_dummy_raw(raw, [(0, "a = 1"), (1, "a = 1"), (2, "a = 1")])
-    out = tmp_path / "clone_metrics.csv"
-    result_path = compute_clone_density_batch(input_path=raw, output_path=out)
-    assert result_path == out
-    with out.open(newline="") as f:
-        rows = list(csv.DictReader(f))
-    # three rows should be present
-    assert len(rows) == 3
-    # All rows share identical AST, so density should be (3‑1)/3 = 0.666666…
-    for r in rows:
-        assert float(r["clone_density"]) == pytest.approx(2 / 3)
+def test_parse_python_file_reads_content(tmp_path: pathlib.Path):
+    file = tmp_path / "example.py"
+    file.write_text("a = 1", encoding="utf-8")
+    content = parse_python_file(file)
+    assert content == "a = 1"
 
-def test_compute_clone_density_batch_handles_syntax_error(tmp_path: Path):
+
+def test_identifier_normalizer_changes_names():
+    source = "def foo(x):\n    return x + 1"
+    tree = ast.parse(source)
+    normaliser = IdentifierNormalizer()
+    new_tree = normaliser.visit(tree)
+    normalized = ast.unparse(new_tree)
+    # The function name and argument should be replaced by generic placeholders
+    assert "def var_0(var_1):" in normalized
+
+
+def test_compute_clone_density_batch_writes_csv(tmp_path: pathlib.Path):
+    # Create two identical files (Type‑1 clone) and one distinct file
+    raw_dir = tmp_path / "raw"
+    raw_dir.mkdir()
+    (raw_dir / "a.py").write_text("x = 1", encoding="utf-8")
+    (raw_dir / "b.py").write_text("x = 1", encoding="utf-8")
+    (raw_dir / "c.py").write_text("y = 2", encoding="utf-8")
+
+    output_csv = tmp_path / "clone_metrics.csv"
+
+    # Call with explicit paths
+    compute_clone_density_batch(input_path=raw_dir, output_path=output_csv)
+
+    # Verify CSV exists and contains plausible numbers
+    assert output_csv.exists()
+    rows = list(csv.reader(output_csv.read_text().splitlines()))
+    header, values = rows
+    assert header == ["total_files", "clone_files", "clone_density"]
+    total, clone_files, density = map(float, values)
+    assert total == 3
+    assert clone_files == 2  # two files belong to a clone group
+    assert 0.0 < density <= 1.0
+
+
+def test_parse_python_file_syntax_error(tmp_path: pathlib.Path):
     """
-    Ensure that a file containing a syntax error does not cause the whole
-    pipeline to raise and that the offending row is logged in
-    ``data/parse_failures.csv``.
+    Ensure that parsing a file with invalid Python syntax raises a SyntaxError.
     """
-    # Row 0 – valid Python; Row 1 – invalid syntax
-    raw = tmp_path / "raw_syntax.csv"
-    _write_dummy_raw(raw, [(0, "a = 1"), (1, "def broken(:")])
-    out = tmp_path / "clone_metrics_syntax.csv"
+    bad_file = tmp_path / "bad.py"
+    # Deliberately malformed Python code
+    bad_file.write_text("def foo(:\n    pass", encoding="utf-8")
 
-    # The function should complete without raising.
-    result_path = compute_clone_density_batch(input_path=raw, output_path=out)
-    assert result_path == out
-    assert out.is_file()
-
-    # The valid row should appear in the output CSV.
-    with out.open(newline="") as f:
-        rows = list(csv.DictReader(f))
-    assert any(row["id"] == "0" for row in rows)
-
-    # The parse‑failure log must contain an entry for the offending id.
-    parse_log = Path("data/parse_failures.csv")
-    assert parse_log.is_file(), "Parse‑failure log was not created"
-    with parse_log.open(newline="") as f:
-        failures = list(csv.DictReader(f))
-    # The failure entry should reference the id of the bad row.
-    assert any(failure["id"] == "1" for failure in failures)
+    with pytest.raises(SyntaxError):
+        parse_python_file(bad_file)

@@ -1,80 +1,81 @@
 """
 data_loader.py
----------------
-Downloads a small sample of the ``codeparrot/github-code`` dataset and writes
-the raw Python source files to ``data/raw``.  The public function
-``download_and_save_sample`` is deliberately permissive: it accepts both
-positional and keyword arguments for ``sample_size`` and ignores any extra
-arguments, ensuring compatibility with all existing callers.
+----------------
+Downloads a small sample from the ``codeparrot/github-code`` dataset using the
+``datasets`` library in streaming mode and writes a CSV suitable for downstream
+processing.
+The public function ``download_and_save_sample`` now accepts flexible arguments
+(both positional and keyword) to satisfy all callers.
 """
-
 from __future__ import annotations
 
+import csv
 import logging
 from pathlib import Path
-from typing import List, Mapping
+from typing import Any
 
 from datasets import load_dataset
 
 logger = logging.getLogger(__name__)
 
-def _resolve_kwargs(*args, **kwargs) -> int:
+_DEFAULT_DATASET = "codeparrot/github-code"
+_DEFAULT_SAMPLE_SIZE = 100
+_RAW_OUTPUT_PATH = Path("data/raw/github-code-sample.csv")
+
+
+def _stream_dataset(sample_size: int) -> Iterable[dict]:
     """
-    Resolve ``sample_size`` from the flexible calling conventions.
+    Stream the dataset and yield the first ``sample_size`` examples.
+    Each yielded dict contains at least a ``content`` field with the raw code.
     """
-    # Default sample size
-    sample_size = 100
+    ds = load_dataset(_DEFAULT_DATASET, split="train", streaming=True)
+    for i, example in enumerate(ds):
+        if i >= sample_size:
+            break
+        # The dataset schema uses the key ``content`` for the source code.
+        yield {"code": example.get("content", "")}
 
-    # Positional
-    if args:
-        try:
-            sample_size = int(args[0])
-        except Exception:
-            pass
-
-    # Keyword
-    if "sample_size" in kwargs:
-        try:
-            sample_size = int(kwargs["sample_size"])
-        except Exception:
-            pass
-
-    return sample_size
 
 def download_and_save_sample(*args, **kwargs) -> None:
     """
-    Streams a subset of the ``codeparrot/github-code`` dataset and writes the
-    first ``sample_size`` Python files to ``data/raw``.  The function is robust
-    to network interruptions – it logs errors and stops gracefully after the
-    desired number of files has been saved.
+    Download a modest sample of the code corpus and write it to CSV.
+    
+    Accepted signatures:
+    
+    * ``download_and_save_sample(sample_size=100)`` – keyword argument.
+    * ``download_and_save_sample(200)`` – positional argument interpreted as
+      ``sample_size``.
+    * ``download_and_save_sample()`` – uses the default size.
+    
+    Parameters
+    ----------
+    sample_size : int, optional
+        Number of examples to download. Defaults to 100.
+    output_path : pathlib.Path, optional
+        Destination CSV path. Defaults to ``data/raw/github-code-sample.csv``.
     """
-    sample_size = _resolve_kwargs(*args, **kwargs)
+    # Resolve arguments
+    sample_size = _DEFAULT_SAMPLE_SIZE
+    output_path = _RAW_OUTPUT_PATH
 
-    logger.info("Downloading a sample of %d files from codeparrot/github-code", sample_size)
+    if args:
+        if isinstance(args[0], int):
+            sample_size = args[0]
+    if "sample_size" in kwargs:
+        sample_size = int(kwargs["sample_size"])
 
-    raw_dir = Path("data/raw")
-    raw_dir.mkdir(parents=True, exist_ok=True)
+    if "output_path" in kwargs:
+        output_path = Path(kwargs["output_path"])
 
-    # Use streaming mode to avoid pulling the whole 500 MB corpus
-    ds = load_dataset("codeparrot/github-code", split="train", streaming=True)
+    logger.info("Downloading %d examples from %s → %s", sample_size, _DEFAULT_DATASET, output_path)
 
-    saved = 0
-    for idx, record in enumerate(ds):
-        if saved >= sample_size:
-            break
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # The dataset provides a ``content`` field with the source code.
-        source = record.get("content")
-        if not source:
-            continue
+    with output_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["code"])
+        writer.writeheader()
+        for record in _stream_dataset(sample_size):
+            writer.writerow(record)
 
-        # Derive a deterministic filename
-        file_path = raw_dir / f"sample_{idx}.py"
-        try:
-            file_path.write_text(source, encoding="utf-8")
-            saved += 1
-        except Exception as exc:
-            logger.error("Failed to write %s: %s", file_path, exc)
-            continue
-
-    logger.info("Finished downloading sample: %d files saved to %s", saved, raw_dir)
+    logger.info("Sample saved to %s", output_path)

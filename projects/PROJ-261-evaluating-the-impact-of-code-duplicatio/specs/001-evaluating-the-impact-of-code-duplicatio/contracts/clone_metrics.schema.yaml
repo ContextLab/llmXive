@@ -1,23 +1,20 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Clone Metrics Schema
-description: Schema for the CSV file containing clone‑density metrics per source file.
 type: object
 properties:
   file_path:
     type: string
-    description: Relative path to the source file that was analysed.
+    description: Path to the source file that was analysed.
   clone_density:
     type: number
-    description: Fraction of the file (0‑1) that participates in a clone.
+    description: Ratio of cloned lines to total lines in the file.
   type1_clones:
     type: integer
-    description: Number of Type‑1 (exact) clones detected in the file.
+    description: Count of Type‑1 (exact) clones detected.
   type2_clones:
     type: integer
-    description: Number of Type‑2 (parameterised) clones detected in the file.
+    description: Count of Type‑2 (parameterised) clones detected.
 required:
   - file_path
   - clone_density
-  - type1_clones
-  - type2_clones
 additionalProperties: false

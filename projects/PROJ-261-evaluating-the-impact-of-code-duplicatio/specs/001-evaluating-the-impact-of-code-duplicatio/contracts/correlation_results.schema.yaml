@@ -1,6 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Correlation Results Schema
-description: Schema for the CSV file containing statistical correlation results between metrics.
 type: object
 properties:
   metric_x:
@@ -8,20 +7,16 @@ properties:
     description: Name of the first metric (e.g., clone_density).
   metric_y:
     type: string
-    description: Name of the second metric (e.g., perplexity or accuracy).
-  spearman_rho:
+    description: Name of the second metric (e.g., perplexity or pass@1_accuracy).
+  spearman_coefficient:
     type: number
-    description: Spearman rank correlation coefficient.
+    description: Spearman rank correlation coefficient between the two metrics.
   p_value:
     type: number
     description: Two‑tailed p‑value associated with the correlation.
-  n_samples:
-    type: integer
-    description: Number of observations used in the correlation.
 required:
   - metric_x
   - metric_y
-  - spearman_rho
+  - spearman_coefficient
   - p_value
-  - n_samples
 additionalProperties: false

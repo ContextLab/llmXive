@@ -1,14 +1,13 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Model Metrics Schema
-description: Schema for the CSV file containing language‑model perplexity scores per source file.
 type: object
 properties:
   file_path:
     type: string
-    description: Relative path to the source file that was evaluated.
+    description: Path to the source file for which perplexity was computed.
   perplexity:
     type: number
-    description: Token‑level perplexity computed by the model for the file.
+    description: Token‑level perplexity score produced by the language model.
 required:
   - file_path
   - perplexity

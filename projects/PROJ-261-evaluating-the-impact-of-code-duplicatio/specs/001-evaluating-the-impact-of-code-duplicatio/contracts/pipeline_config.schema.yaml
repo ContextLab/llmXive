@@ -1,13 +1,12 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Pipeline Configuration Schema
-description: Schema for the YAML configuration file that drives the entire analysis pipeline.
 type: object
 properties:
   clone_thresholds:
     type: array
     items:
       type: number
-    description: List of clone‑density thresholds used in sensitivity analysis (e.g., [0.7, 0.8, 0.9]).
+    description: List of clone‑density thresholds used in sensitivity analysis.
   random_seed:
     type: integer
     description: Global random seed for reproducibility.
@@ -16,42 +15,40 @@ properties:
     description: Maximum memory (in MB) allowed for the pipeline.
   max_runtime_seconds:
     type: integer
-    description: Global timeout for the pipeline execution.
+    description: Upper bound on total runtime in seconds.
   min_valid_segments:
     type: integer
     description: Minimum number of code segments required for a valid analysis.
   correlation_method:
     type: string
-    enum: [spearman, pearson]
-    description: Statistical method used for correlation analysis.
+    description: Method used for correlation (e.g., "spearman").
   significance_threshold:
     type: number
-    description: P‑value threshold for statistical significance.
+    description: p‑value threshold for statistical significance.
   figure_format:
     type: string
-    enum: [png, pdf]
-    description: Output format for generated figures.
+    description: File format for generated figures (e.g., "png", "pdf").
   figure_dpi:
     type: integer
-    description: DPI resolution for raster figures.
+    description: DPI resolution for saved figures.
   checksum_algorithm:
     type: string
-    description: Hash algorithm used for artifact checksum (e.g., sha256).
+    description: Algorithm used for artifact checksum computation (e.g., "sha256").
   dataset_name:
     type: string
     description: Identifier of the source code dataset (e.g., "codeparrot/github-code").
   model_name:
     type: string
-    description: Identifier of the language‑model used for perplexity (e.g., "Salesforce/codegen-350M-mono").
+    description: HuggingFace model identifier used for perplexity computation.
   quantization_bits:
     type: integer
     description: Number of bits for model quantization (e.g., 8).
   streaming_enabled:
     type: boolean
-    description: Whether dataset streaming mode is used.
+    description: Whether dataset streaming mode is enabled.
   pii_scan_enabled:
     type: boolean
-    description: Whether PII scanning is performed on the dataset.
+    description: Flag to enable/disable PII scanning of raw data.
 required:
   - clone_thresholds
   - random_seed
