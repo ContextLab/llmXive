@@ -66,6 +66,11 @@ def ensure_venv(project_dir: Path) -> Path:
     py = venv / "bin" / "python"
     needs_create = not py.exists()
     if needs_create:
+        # Bound runner disk BEFORE building another 1.2 GB venv: one advance worker
+        # runs up to 10 projects per job and the venvs used to accumulate until the
+        # disk died ([Errno 28] No space left on device). Only OTHER projects' venvs
+        # are evicted — this project's is preserved and reused across ticks.
+        evict_other_project_venvs(project_dir)
         venv.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(
             [sys.executable, "-m", "venv", str(venv)],
@@ -294,10 +299,43 @@ def cleanup_venv(project_dir: Path) -> None:
         shutil.rmtree(venv, ignore_errors=True)
 
 
+def evict_other_project_venvs(project_dir: Path) -> int:
+    """Delete every OTHER project's ``code/.venv``, keeping this project's.
+
+    A project venv is up to 1.2 GB (torch et al.) and ONE advance worker runs up to
+    ``--max-tasks 10`` projects in a single job, so they piled up until the runner
+    ran out of disk — `Submission Intake` died with ``[Errno 28] No space left on
+    device``. (``cleanup_venv`` existed but was never called from anywhere.)
+
+    Bounding disk to a single venv costs nothing real: a CI job starts on a fresh
+    runner, and the CURRENT project's venv is deliberately preserved so it is still
+    reused across ticks within the job. Returns the number of venvs removed.
+    """
+    project_dir = Path(project_dir)
+    projects_root = project_dir.parent
+    if not projects_root.is_dir():
+        return 0
+    removed = 0
+    for sibling in projects_root.iterdir():
+        if not sibling.is_dir() or sibling.resolve() == project_dir.resolve():
+            continue
+        venv = sibling / "code" / ".venv"
+        if venv.is_dir():
+            shutil.rmtree(venv, ignore_errors=True)
+            removed += 1
+    if removed:
+        logger.info(
+            "evicted %d other project venv(s) to bound runner disk (keeping %s)",
+            removed, project_dir.name,
+        )
+    return removed
+
+
 __all__ = [
     "ExecutionResult",
     "cleanup_venv",
     "ensure_venv",
+    "evict_other_project_venvs",
     "run_pytest",
     "run_python_script",
 ]
