@@ -1,41 +1,8 @@
-# Project State File
-# Contains derived statistics, checksums, and execution history.
-# Managed by T010, T011, T057, T060, T094
-
-project_id: PROJ-024-bayesian-nonparametrics-for-anomaly-dete
-created_at: "2026-01-01T00:00:00"
-last_updated: "2026-01-01T00:00:00"
-
-# Artifact checksums (managed by T010, T057)
-artifact_checksums:
-  synthetic_generator: "sha256_placeholder"
-  windowing_logic: "sha256_placeholder"
-
-# Dataset checksums (managed by T057)
-dataset_checksums: {}
-
-# Migration data (managed by T060)
-migrated_data:
-  migration_timestamp: "2026-01-01T00:00:00"
-  migration_task: "T060"
-  dataset_stats:
-    electricity:
-      n_samples: 0
-      mean: 0.0
-      std: 0.0
-    traffic:
-      n_samples: 0
-      mean: 0.0
-      std: 0.0
-  inference_results:
-    dp_gmm:
-      windows_processed: 0
-      anomalies_detected: 0
-      avg_elbo: 0.0
-  simulation_metrics:
-    snr_null: 0.0
-    snr_alt: 0.0
-    convergence_rate: 0.0
-
-# Execution history
-execution_history: []
+projects:
+  PROJ-024-bayesian-nonparametrics-for-anomaly-dete:
+    derived_statistics:
+      dataset_stats: {}
+      inference_results: {}
+      simulation_metrics: {}
+    artifact_hashes: {}
+    checksums: {}

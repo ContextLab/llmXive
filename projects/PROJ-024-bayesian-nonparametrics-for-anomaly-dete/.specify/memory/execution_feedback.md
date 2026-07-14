@@ -13,13 +13,19 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”
 - code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…())                  # Return placeholder result         return EvaluationResu…”
 - code/scripts/verify_confusion_matrix.py: metric `y_scores` assigned from an RNG draw (line 50)
-- code/src/data/synthetic_generator.py: metric `duration` assigned from an RNG draw (line 140)
 - code/src/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363)
 - code/src/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348)
+- code/src/services/threshold_calibrator.py: metric `normal_scores` assigned from an RNG draw (line 418)
+
+## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
+
+These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
+
+- `python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 92 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 5 command(s) failed: python code/src/config.py --check (rc=1); python code/src/data/download_datasets.py (rc=1); python code/src/services/anomaly_detector.py (rc=1); 1 declared deliverable(s) absent: data/processed/results/simulation_snr.csv
+**Summary**: 88 fabricated/simulated-result signal(s) — results are not real measurements: code/evaluation/metrics.py: metric `y_scores` assigned from an RNG draw (line 363); code/evaluation/plots.py: metric `y_scores` assigned from an RNG draw (line 348); code/scripts/execute_evaluation_pipeline.py: self-declared fabricated metric — “…# No ground truth - use placeholder values             f1 = 0.0…”; 6 command(s) failed: python code/src/config.py --check (rc=1); python code/src/data/download_datasets.py (rc=1); python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 (rc=2); 1 declared deliverable(s) absent: data/processed/results/simulation_snr.csv
 
 ## Failing / missing run-book commands
 
@@ -28,23 +34,34 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Configuration Check
 ============================================================
 ✓ Configuration file exists: /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/config.yaml
-  Current size: 653 bytes (limit: 2048 bytes)
+  Current size: 652 bytes (limit: 2048 bytes)
 ✓ Configuration file size is within limits
 ERROR: Missing required key: base_paths
 ❌ FAIL: Configuration structure validation failed
 - python code/src/data/download_datasets.py -> rc=1
-    -07-13 20:42:51,458 - WARNING - synthetic_control_chart: No expected checksum available. Download skipped for verification.
-2026-07-13 20:42:51,458 - WARNING - pems_sf: PEMS-SF dataset is deprecated and will be skipped
-2026-07-13 20:42:51,459 - INFO - Saved checksum cache to /home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/state/checksums.json
-2026-07-13 20:42:51,459 - INFO - ======================================================================
-2026-07-13 20:42:51,459 - INFO - Download Summary:
-2026-07-13 20:42:51,459 - INFO - ======================================================================
-2026-07-13 20:42:51,459 - INFO -   electricity: SKIPPED - No verified checksum available
-2026-07-13 20:42:51,459 - INFO -   traffic: SKIPPED - No verified checksum available
-2026-07-13 20:42:51,459 - INFO -   synthetic_control_chart: SKIPPED - No verified checksum available
-2026-07-13 20:42:51,459 - INFO -   pems_sf: SKIPPED - PEMS-SF dataset is deprecated
-2026-07-13 20:42:51,459 - INFO - ======================================================================
-2026-07-13 20:42:51,459 - ERROR - ✗ Some downloads failed. Check error messages above.
+    xpected checksum available for traffic. Verification skipped.
+2026-07-14 02:16:26,438 - WARNING - No expected checksum available for synthetic_control_chart. Verification skipped.
+2026-07-14 02:16:26,438 - INFO - ======================================================================
+2026-07-14 02:16:26,438 - INFO - Download Summary:
+2026-07-14 02:16:26,438 - INFO - ======================================================================
+2026-07-14 02:16:26,438 - INFO -   electricity: ✗ FAILED
+2026-07-14 02:16:26,438 - INFO -   traffic: ✗ FAILED
+2026-07-14 02:16:26,438 - INFO -   synthetic_control_chart: ✗ FAILED
+2026-07-14 02:16:26,438 - INFO -   pems_sf: ✗ FAILED
+2026-07-14 02:16:26,438 - INFO - ======================================================================
+2026-07-14 02:16:26,438 - INFO - Verification Summary:
+2026-07-14 02:16:26,438 - INFO - ======================================================================
+2026-07-14 02:16:26,438 - INFO -   electricity: ✗ FAILED
+2026-07-14 02:16:26,438 - INFO -   traffic: ✗ FAILED
+2026-07-14 02:16:26,438 - INFO -   synthetic_control_chart: ✗ FAILED
+2026-07-14 02:16:26,438 - ERROR - ✗ Some downloads failed. Check error messages above.
+- python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 -> rc=2
+    usage: synthetic_generator.py [-h] [--output OUTPUT] [--n-samples N_SAMPLES]
+                              [--anomaly-type {point,contextual,collective}]
+                              [--anomaly-start ANOMALY_START]
+                              [--anomaly-end ANOMALY_END]
+                              [--magnitude MAGNITUDE] [--seed SEED]
+synthetic_generator.py: error: unrecognized arguments: --anomaly-rate 0.05
 - python code/src/services/anomaly_detector.py -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/services/anomaly_detector.py", line 22, in <module>
@@ -58,7 +75,7 @@ ERROR: Missing required key: base_paths
                                     ^^^^
 NameError: name 'List' is not defined. Did you mean: 'list'?
 - python code/src/evaluation/simulation.py -> rc=1
-    2026-07-13 20:42:52,336 - INFO - Starting simulation study with seed=42, n_samples=1000
+    2026-07-14 02:16:27,236 - INFO - Starting simulation study with seed=42, n_samples=1000
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/src/evaluation/simulation.py", line 210, in <module>
     sys.exit(main())
@@ -120,4 +137,5 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/processed/results/simulation_snr.csv` is declared but was NOT written. Scripts referencing it:
     - `code/src/evaluation/simulation.py` — IS a run-book command
+    - `code/src/simulation/ground_truth.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/results/simulation_snr.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

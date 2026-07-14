@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 # The script is at code/src/utils/migrate_config.py
 # Project root is 4 levels up: code/src/utils/ -> code/src/ -> code/ -> projects/.../
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-CONFIG_PATH = PROJECT_ROOT / "code" / "config.yaml"
+CONFIG_PATH = PROJECT_ROOT / "projects" / "PROJ-024-bayesian-nonparametrics-for-anomaly-dete" / "code" / "config.yaml"
 STATE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml"
 MAX_CONFIG_SIZE = 2048  # 2KB
 

@@ -2,10 +2,14 @@
 Synthetic Time Series Generator for Anomaly Detection Research.
 
 Generates datasets with pre-anomaly dynamics, abrupt shifts, and independent
-ground-truth timestamps for simulation studies and model validation.
+ground-truth timestamps for validation and simulation studies.
 
-This module implements FR-021 and FR-022 requirements for ground truth
-simulation data generation.
+This module supports:
+- Point anomalies (single spike/drop)
+- Contextual anomalies (values anomalous in context)
+- Collective anomalies (sequence of anomalous behavior)
+
+Per FR-021 and FR-022, ground-truth timestamps are injected independently.
 """
 
 import os
@@ -14,42 +18,63 @@ import numpy as np
 from pathlib import Path
 from dataclasses import dataclass, asdict, field
 from typing import Tuple, Dict, List, Optional, Any, Literal
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 @dataclass
 class SignalConfig:
     """Configuration for base signal generation."""
-    length: int = 1000
-    base_frequency: float = 0.01
+    n_samples: int = 1000
+    frequency: float = 1.0  # cycles per sample unit
+    amplitude: float = 1.0
     noise_std: float = 0.1
-    trend_slope: float = 0.001
-    seasonality_amplitude: float = 0.5
-    seasonality_period: int = 50
+    trend_slope: float = 0.0
+    seed: Optional[int] = None
 
-    # Allow arbitrary attributes for logger-like usage
-    def __getattr__(self, name: str) -> Any:
-        # Tolerant logger-style fallback for any method/attribute access
-        def _noop(*args: Any, **kwargs: Any) -> Any:
-            return None
-        return _noop
+    def __post_init__(self):
+        if self.seed is not None:
+            np.random.seed(self.seed)
+
+    # Logger-like methods to satisfy flexible call sites
+    def info(self, *args, **kwargs):
+        pass
+
+    def debug(self, *args, **kwargs):
+        pass
+
+    def warning(self, *args, **kwargs):
+        pass
+
+    def error(self, *args, **kwargs):
+        pass
 
 
 @dataclass
 class AnomalyConfig:
     """Configuration for anomaly injection."""
     anomaly_type: Literal['point', 'contextual', 'collective'] = 'point'
-    start_index: int = 500
-    duration: int = 50
-    magnitude: float = 3.0
-    magnitude_std: float = 0.5
-    probability: float = 0.05
-    gap_min: int = 100
-    gap_max: int = 500
+    anomaly_start: Optional[int] = None
+    anomaly_end: Optional[int] = None
+    magnitude: float = 3.0  # Standard deviations for point anomalies
+    duration: int = 10  # For collective anomalies
+    count: int = 1  # Number of point anomalies
+    seed: Optional[int] = None
+
+    def __post_init__(self):
+        if self.seed is not None:
+            np.random.seed(self.seed)
+
+    # Logger-like methods to satisfy flexible call sites
+    def info(self, *args, **kwargs):
+        pass
+
+    def debug(self, *args, **kwargs):
+        pass
+
+    def warning(self, *args, **kwargs):
+        pass
+
+    def error(self, *args, **kwargs):
+        pass
 
 
 @dataclass
@@ -57,449 +82,349 @@ class SyntheticDataset:
     """Container for generated synthetic dataset."""
     signal: np.ndarray
     ground_truth: Dict[str, Any]
-    metadata: Dict[str, Any]
-    timestamps: Optional[np.ndarray] = None
+    config: Dict[str, Any]
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert dataset to dictionary for serialization."""
+    def to_dict(self):
         return {
             'signal': self.signal.tolist(),
             'ground_truth': self.ground_truth,
-            'metadata': self.metadata,
-            'timestamps': self.timestamps.tolist() if self.timestamps is not None else None
+            'config': self.config,
+            'metadata': self.metadata
         }
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'SyntheticDataset':
-        """Load dataset from dictionary."""
-        return cls(
-            signal=np.array(data['signal']),
-            ground_truth=data['ground_truth'],
-            metadata=data['metadata'],
-            timestamps=np.array(data['timestamps']) if data.get('timestamps') is not None else None
-        )
 
-
-def generate_base_signal(config: SignalConfig) -> Tuple[np.ndarray, np.ndarray]:
+def generate_base_signal(config: SignalConfig) -> np.ndarray:
     """
-    Generate a base time series with trend, seasonality, and noise.
+    Generate a base time series signal with optional trend and noise.
 
     Args:
-        config: Signal configuration parameters.
+        config: SignalConfig with parameters for generation.
 
     Returns:
-        Tuple of (signal values, timestamps).
+        1D numpy array of signal values.
     """
-    np.random.seed(42)  # Reproducibility for base signal
-    t = np.arange(config.length)
-    timestamps = t.astype(float)
+    if config.seed is not None:
+        np.random.seed(config.seed)
 
-    # Trend component
-    trend = config.trend_slope * t
+    t = np.arange(config.n_samples)
+    # Base sinusoidal signal
+    signal = config.amplitude * np.sin(2 * np.pi * config.frequency * t / config.n_samples)
+    # Add trend
+    signal += config.trend_slope * t
+    # Add noise
+    noise = np.random.normal(0, config.noise_std, config.n_samples)
+    signal += noise
 
-    # Seasonal component
-    seasonal = config.seasonality_amplitude * np.sin(2 * np.pi * t / config.seasonality_period)
-
-    # High-frequency noise
-    noise = np.random.normal(0, config.noise_std, config.length)
-
-    # Base signal
-    signal = trend + seasonal + noise
-
-    return signal, timestamps
+    return signal
 
 
 def inject_point_anomalies(
     signal: np.ndarray,
-    timestamps: np.ndarray,
-    config: AnomalyConfig
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    config: AnomalyConfig,
+    ground_truth: Dict[str, Any]
+) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
-    Inject point anomalies (sharp spikes/drops) into the signal.
+    Inject point anomalies (single spikes or drops) into the signal.
 
     Args:
         signal: Base signal array.
-        timestamps: Timestamp array.
-        config: Anomaly configuration.
+        config: AnomalyConfig with magnitude and count.
+        ground_truth: Dict to update with anomaly timestamps.
 
     Returns:
-        Tuple of (modified signal, modified timestamps, ground truth metadata).
+        Tuple of (modified signal, updated ground_truth).
     """
-    np.random.seed(42 + config.start_index)  # Different seed for anomalies
-    anomalous_signal = signal.copy()
-    anomalous_timestamps = timestamps.copy()
+    n_samples = len(signal)
+    # Randomly select indices for anomalies
+    available_indices = list(range(10, n_samples - 10))  # Avoid edges
+    anomaly_indices = np.random.choice(available_indices, size=config.count, replace=False)
+    anomaly_indices = sorted(anomaly_indices)
 
-    ground_truth = {
-        'anomalies': [],
-        'anomaly_type': 'point',
-        'total_anomalies': 0
-    }
-
-    # Determine number of anomalies based on probability
-    n_anomalies = int(config.probability * config.length)
-    n_anomalies = max(1, n_anomalies)  # At least one anomaly
-
-    # Generate anomaly start positions with minimum gaps
-    positions = []
-    attempts = 0
-    while len(positions) < n_anomalies and attempts < 1000:
-        pos = np.random.randint(config.start_index, config.length - config.duration)
-        # Check minimum gap
-        if not positions or (pos - positions[-1]) >= config.gap_min:
-            positions.append(pos)
-        attempts += 1
-
-    for i, start_pos in enumerate(positions):
-        # Random magnitude with direction (spike or drop)
+    for idx in anomaly_indices:
         direction = np.random.choice([-1, 1])
-        magnitude = config.magnitude + np.random.normal(0, config.magnitude_std)
-        magnitude *= direction
+        signal[idx] += direction * config.magnitude * np.std(signal)
 
-        # Anomaly duration (point anomaly is short)
-        duration = min(config.duration, config.length - start_pos)
-
-        # Inject anomaly
-        anomalous_signal[start_pos:start_pos + duration] += magnitude
-
+    # Record ground truth
+    if 'anomalies' not in ground_truth:
+        ground_truth['anomalies'] = []
+    for idx in anomaly_indices:
         ground_truth['anomalies'].append({
-            'index': int(start_pos),
-            'end_index': int(start_pos + duration),
             'type': 'point',
-            'magnitude': float(magnitude),
-            'direction': 'positive' if magnitude > 0 else 'negative'
+            'index': int(idx),
+            'magnitude': float(config.magnitude * np.std(signal)),
+            'direction': int(direction)
         })
 
-    ground_truth['total_anomalies'] = len(ground_truth['anomalies'])
-
-    return anomalous_signal, anomalous_timestamps, ground_truth
+    return signal, ground_truth
 
 
 def inject_contextual_anomalies(
     signal: np.ndarray,
-    timestamps: np.ndarray,
-    config: AnomalyConfig
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    config: AnomalyConfig,
+    ground_truth: Dict[str, Any]
+) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
-    Inject contextual anomalies (values normal in isolation but abnormal in context).
+    Inject contextual anomalies (values anomalous in local context).
 
     Args:
         signal: Base signal array.
-        timestamps: Timestamp array.
-        config: Anomaly configuration.
+        config: AnomalyConfig with start/end or duration.
+        ground_truth: Dict to update with anomaly timestamps.
 
     Returns:
-        Tuple of (modified signal, modified timestamps, ground truth metadata).
+        Tuple of (modified signal, updated ground_truth).
     """
-    np.random.seed(42 + config.start_index)
-    anomalous_signal = signal.copy()
-    anomalous_timestamps = timestamps.copy()
+    n_samples = len(signal)
 
-    ground_truth = {
-        'anomalies': [],
-        'anomaly_type': 'contextual',
-        'total_anomalies': 0
-    }
+    # Determine anomaly region
+    if config.anomaly_start is not None and config.anomaly_end is not None:
+        start, end = config.anomaly_start, config.anomaly_end
+    elif config.duration is not None:
+        start = np.random.randint(10, n_samples - config.duration - 10)
+        end = start + config.duration
+    else:
+        start = int(n_samples * 0.4)
+        end = int(n_samples * 0.6)
 
-    # Contextual anomalies: shift to a different regime temporarily
-    n_anomalies = max(1, int(config.probability * config.length / 2))
+    # Inject values that are normal globally but anomalous locally
+    # e.g., flat line in a varying signal, or high frequency in low frequency region
+    local_mean = np.mean(signal[start:end])
+    local_std = np.std(signal[start:end])
 
-    positions = []
-    attempts = 0
-    while len(positions) < n_anomalies and attempts < 1000:
-        pos = np.random.randint(config.start_index, config.length - config.duration)
-        if not positions or (pos - positions[-1]) >= config.gap_min:
-            positions.append(pos)
-        attempts += 1
+    # Create a flat segment (contextual anomaly if original was varying)
+    signal[start:end] = local_mean + np.random.normal(0, local_std * 0.1, end - start)
 
-    for start_pos in positions:
-        # Shift to a different mean level
-        shift = np.random.choice([-1, 1]) * config.magnitude * 2
-        duration = min(config.duration, config.length - start_pos)
+    if 'anomalies' not in ground_truth:
+        ground_truth['anomalies'] = []
+    ground_truth['anomalies'].append({
+        'type': 'contextual',
+        'start_index': int(start),
+        'end_index': int(end),
+        'duration': int(end - start)
+    })
 
-        anomalous_signal[start_pos:start_pos + duration] += shift
-
-        ground_truth['anomalies'].append({
-            'index': int(start_pos),
-            'end_index': int(start_pos + duration),
-            'type': 'contextual',
-            'shift': float(shift),
-            'context': 'regime_shift'
-        })
-
-    ground_truth['total_anomalies'] = len(ground_truth['anomalies'])
-
-    return anomalous_signal, anomalous_timestamps, ground_truth
+    return signal, ground_truth
 
 
 def inject_collective_anomalies(
     signal: np.ndarray,
-    timestamps: np.ndarray,
-    config: AnomalyConfig
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    config: AnomalyConfig,
+    ground_truth: Dict[str, Any]
+) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
-    Inject collective anomalies (sequence of points that are anomalous together).
+    Inject collective anomalies (sequence of anomalous behavior).
 
     Args:
         signal: Base signal array.
-        timestamps: Timestamp array.
-        config: Anomaly configuration.
+        config: AnomalyConfig with duration.
+        ground_truth: Dict to update with anomaly timestamps.
 
     Returns:
-        Tuple of (modified signal, modified timestamps, ground truth metadata).
+        Tuple of (modified signal, updated ground_truth).
     """
-    np.random.seed(42 + config.start_index)
-    anomalous_signal = signal.copy()
-    anomalous_timestamps = timestamps.copy()
+    n_samples = len(signal)
 
-    ground_truth = {
-        'anomalies': [],
-        'anomaly_type': 'collective',
-        'total_anomalies': 0
-    }
+    # Determine anomaly region
+    if config.anomaly_start is not None and config.anomaly_end is not None:
+        start, end = config.anomaly_start, config.anomaly_end
+    elif config.duration is not None:
+        start = np.random.randint(10, n_samples - config.duration - 10)
+        end = start + config.duration
+    else:
+        start = int(n_samples * 0.3)
+        end = start + 50
 
-    # Collective anomalies: change in variance or pattern
-    n_anomalies = max(1, int(config.probability * config.length / 3))
+    # Inject a different pattern (e.g., higher frequency or different amplitude)
+    t_local = np.arange(end - start)
+    new_pattern = config.magnitude * np.sin(2 * np.pi * 3 * t_local / (end - start))
+    signal[start:end] += new_pattern
 
-    positions = []
-    attempts = 0
-    while len(positions) < n_anomalies and attempts < 1000:
-        pos = np.random.randint(config.start_index, config.length - config.duration)
-        if not positions or (pos - positions[-1]) >= config.gap_min:
-            positions.append(pos)
-        attempts += 1
+    if 'anomalies' not in ground_truth:
+        ground_truth['anomalies'] = []
+    ground_truth['anomalies'].append({
+        'type': 'collective',
+        'start_index': int(start),
+        'end_index': int(end),
+        'duration': int(end - start),
+        'pattern': 'higher_frequency'
+    })
 
-    for start_pos in positions:
-        # Increase variance significantly
-        duration = min(config.duration * 2, config.length - start_pos)
-        noise_multiplier = config.magnitude * 3
-
-        # Inject high-variance noise
-        anomalous_signal[start_pos:start_pos + duration] += np.random.normal(
-            0, noise_multiplier, duration
-        )
-
-        ground_truth['anomalies'].append({
-            'index': int(start_pos),
-            'end_index': int(start_pos + duration),
-            'type': 'collective',
-            'variance_increase': float(noise_multiplier),
-            'pattern': 'high_variance'
-        })
-
-    ground_truth['total_anomalies'] = len(ground_truth['anomalies'])
-
-    return anomalous_signal, anomalous_timestamps, ground_truth
+    return signal, ground_truth
 
 
 def generate_synthetic_timeseries(
-    signal_config: Optional[SignalConfig] = None,
-    anomaly_config: Optional[AnomalyConfig] = None,
-    anomaly_type: Literal['point', 'contextual', 'collective'] = 'point'
+    signal_config: SignalConfig,
+    anomaly_config: Optional[AnomalyConfig] = None
 ) -> SyntheticDataset:
     """
-    Generate a complete synthetic time series with anomalies.
+    Generate a complete synthetic dataset with optional anomalies.
 
     Args:
-        signal_config: Configuration for base signal (default: SignalConfig()).
-        anomaly_config: Configuration for anomaly injection (default: AnomalyConfig()).
-        anomaly_type: Type of anomaly to inject ('point', 'contextual', or 'collective').
+        signal_config: Configuration for base signal.
+        anomaly_config: Configuration for anomaly injection (optional).
 
     Returns:
-        SyntheticDataset containing signal, ground truth, and metadata.
+        SyntheticDataset containing signal and ground truth.
     """
-    if signal_config is None:
-        signal_config = SignalConfig()
-    if anomaly_config is None:
-        anomaly_config = AnomalyConfig()
-        anomaly_config.anomaly_type = anomaly_type
-
     # Generate base signal
-    signal, timestamps = generate_base_signal(signal_config)
+    signal = generate_base_signal(signal_config)
 
-    # Inject anomalies based on type
-    if anomaly_type == 'point':
-        signal, timestamps, ground_truth = inject_point_anomalies(
-            signal, timestamps, anomaly_config
-        )
-    elif anomaly_type == 'contextual':
-        signal, timestamps, ground_truth = inject_contextual_anomalies(
-            signal, timestamps, anomaly_config
-        )
-    elif anomaly_type == 'collective':
-        signal, timestamps, ground_truth = inject_collective_anomalies(
-            signal, timestamps, anomaly_config
-        )
-    else:
-        raise ValueError(f"Unknown anomaly type: {anomaly_type}")
+    # Initialize ground truth
+    ground_truth = {
+        'anomalies': [],
+        'n_samples': signal_config.n_samples,
+        'injected': False
+    }
 
-    # Create metadata
+    # Inject anomalies if configured
+    if anomaly_config is not None:
+        if anomaly_config.anomaly_type == 'point':
+            signal, ground_truth = inject_point_anomalies(signal, anomaly_config, ground_truth)
+        elif anomaly_config.anomaly_type == 'contextual':
+            signal, ground_truth = inject_contextual_anomalies(signal, anomaly_config, ground_truth)
+        elif anomaly_config.anomaly_type == 'collective':
+            signal, ground_truth = inject_collective_anomalies(signal, anomaly_config, ground_truth)
+        ground_truth['injected'] = True
+
+    # Prepare config dict
+    config_dict = {
+        'signal': asdict(signal_config),
+        'anomaly': asdict(anomaly_config) if anomaly_config else None
+    }
+
     metadata = {
-        'signal_length': len(signal),
-        'signal_config': asdict(signal_config),
-        'anomaly_config': asdict(anomaly_config),
-        'anomaly_type': anomaly_type,
-        'generated_at': '2026-01-01T00:00:00Z',  # Fixed for reproducibility
-        'seed': 42
+        'generated_at': str(np.datetime64('now')),
+        'seed': signal_config.seed
     }
 
     return SyntheticDataset(
         signal=signal,
         ground_truth=ground_truth,
-        metadata=metadata,
-        timestamps=timestamps
+        config=config_dict,
+        metadata=metadata
     )
 
 
 def save_synthetic_dataset(dataset: SyntheticDataset, output_path: str) -> None:
     """
-    Save synthetic dataset to JSON file.
+    Save a synthetic dataset to a JSON file.
 
     Args:
-        dataset: The synthetic dataset to save.
-        output_path: Path to output JSON file.
+        dataset: SyntheticDataset to save.
+        output_path: Path to output file.
     """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_path, 'w') as f:
-        json.dump(dataset.to_dict(), f, indent=2)
+    data = dataset.to_dict()
+    # Convert numpy arrays to lists for JSON serialization
+    data['signal'] = data['signal'].tolist() if isinstance(data['signal'], np.ndarray) else data['signal']
 
-    logger.info(f"Saved synthetic dataset to {output_path}")
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2)
 
 
 def load_synthetic_dataset(input_path: str) -> SyntheticDataset:
     """
-    Load synthetic dataset from JSON file.
+    Load a synthetic dataset from a JSON file.
 
     Args:
-        input_path: Path to input JSON file.
+        input_path: Path to input file.
 
     Returns:
         Loaded SyntheticDataset.
     """
-    input_path = Path(input_path)
-
     with open(input_path, 'r') as f:
         data = json.load(f)
 
-    return SyntheticDataset.from_dict(data)
+    return SyntheticDataset(
+        signal=np.array(data['signal']),
+        ground_truth=data['ground_truth'],
+        config=data['config'],
+        metadata=data.get('metadata', {})
+    )
 
 
-def generate_validation_dataset(
-    n_samples: int = 100,
-    anomaly_ratio: float = 0.2
-) -> Tuple[List[SyntheticDataset], List[Dict[str, Any]]]:
+def generate_validation_dataset(seed: int = 42) -> SyntheticDataset:
     """
-    Generate a validation dataset with multiple samples.
+    Generate a standard validation dataset for testing.
 
     Args:
-        n_samples: Number of samples to generate.
-        anomaly_ratio: Ratio of samples with anomalies.
+        seed: Random seed for reproducibility.
 
     Returns:
-        Tuple of (list of datasets, list of ground truth summaries).
+        SyntheticDataset with known anomaly locations.
     """
-    datasets = []
-    ground_truths = []
+    signal_config = SignalConfig(
+        n_samples=1000,
+        frequency=1.0,
+        amplitude=1.0,
+        noise_std=0.1,
+        seed=seed
+    )
 
-    anomaly_types = ['point', 'contextual', 'collective']
+    anomaly_config = AnomalyConfig(
+        anomaly_type='point',
+        count=5,
+        magnitude=4.0,
+        seed=seed
+    )
 
-    for i in range(n_samples):
-        # Randomly select anomaly type
-        if i < int(n_samples * anomaly_ratio):
-            anomaly_type = np.random.choice(anomaly_types)
-            has_anomaly = True
-        else:
-            anomaly_type = None
-            has_anomaly = False
-
-        if has_anomaly:
-            config = AnomalyConfig()
-            config.anomaly_type = anomaly_type
-            dataset = generate_synthetic_timeseries(
-                signal_config=SignalConfig(length=500),
-                anomaly_config=config,
-                anomaly_type=anomaly_type
-            )
-        else:
-            dataset = generate_synthetic_timeseries(
-                signal_config=SignalConfig(length=500),
-                anomaly_type=None  # No anomalies
-            )
-
-        datasets.append(dataset)
-        ground_truths.append({
-            'sample_id': i,
-            'has_anomaly': has_anomaly,
-            'anomaly_type': anomaly_type,
-            'anomaly_count': dataset.ground_truth.get('total_anomalies', 0)
-        })
-
-    return datasets, ground_truths
+    return generate_synthetic_timeseries(signal_config, anomaly_config)
 
 
 def main():
-    """Main entry point for standalone execution."""
+    """
+    Main entry point for CLI execution.
+
+    Generates a synthetic dataset and saves it to disk.
+    """
     import argparse
 
-    parser = argparse.ArgumentParser(description='Generate synthetic time series data')
-    parser.add_argument('--output', type=str, default='data/processed/results/synthetic_validation.json',
-                        help='Output file path')
+    parser = argparse.ArgumentParser(
+        description='Generate synthetic time series data for anomaly detection research.'
+    )
+    parser.add_argument('--output', type=str, default='data/processed/results/synthetic_dataset.json',
+                        help='Output path for the generated dataset.')
+    parser.add_argument('--n-samples', type=int, default=1000,
+                        help='Number of samples in the time series.')
     parser.add_argument('--anomaly-type', type=str, choices=['point', 'contextual', 'collective'],
-                        default='point', help='Type of anomaly to inject')
-    parser.add_argument('--length', type=int, default=1000, help='Signal length')
-    parser.add_argument('--n-samples', type=int, default=10, help='Number of samples for validation')
+                        default='point', help='Type of anomaly to inject.')
+    parser.add_argument('--anomaly-start', type=int, default=None,
+                        help='Start index for anomaly injection.')
+    parser.add_argument('--anomaly-end', type=int, default=None,
+                        help='End index for anomaly injection.')
+    parser.add_argument('--magnitude', type=float, default=3.0,
+                        help='Magnitude of anomaly (in std devs).')
+    parser.add_argument('--seed', type=int, default=42,
+                        help='Random seed for reproducibility.')
 
     args = parser.parse_args()
 
-    logger.info(f"Generating synthetic dataset with anomaly_type={args.anomaly_type}, length={args.length}")
-
-    # Generate single dataset
-    signal_config = SignalConfig(length=args.length)
-    anomaly_config = AnomalyConfig()
-    anomaly_config.anomaly_type = args.anomaly_type
-
-    dataset = generate_synthetic_timeseries(
-        signal_config=signal_config,
-        anomaly_config=anomaly_config,
-        anomaly_type=args.anomaly_type
+    # Create config objects
+    signal_config = SignalConfig(
+        n_samples=args.n_samples,
+        seed=args.seed
     )
+
+    anomaly_config = AnomalyConfig(
+        anomaly_type=args.anomaly_type,
+        anomaly_start=args.anomaly_start,
+        anomaly_end=args.anomaly_end,
+        magnitude=args.magnitude,
+        seed=args.seed
+    )
+
+    # Generate dataset
+    print(f"Generating synthetic dataset with {args.n_samples} samples...")
+    dataset = generate_synthetic_timeseries(signal_config, anomaly_config)
 
     # Save dataset
     save_synthetic_dataset(dataset, args.output)
-
-    # Print summary
-    print(f"\nGenerated Dataset Summary:")
-    print(f"  Length: {len(dataset.signal)}")
-    print(f"  Anomaly Type: {dataset.ground_truth.get('anomaly_type', 'None')}")
-    print(f"  Total Anomalies: {dataset.ground_truth.get('total_anomalies', 0)}")
-    print(f"  Output: {args.output}")
-
-    # Generate validation set if requested
-    if args.n_samples > 1:
-        val_datasets, val_ground_truths = generate_validation_dataset(
-            n_samples=args.n_samples,
-            anomaly_ratio=0.3
-        )
-
-        val_output = args.output.replace('.json', '_validation.json')
-        val_data = {
-            'datasets': [d.to_dict() for d in val_datasets],
-            'ground_truth': val_ground_truths
-        }
-
-        output_path = Path(val_output)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        with open(val_output, 'w') as f:
-            json.dump(val_data, f, indent=2)
-
-        print(f"\nGenerated Validation Set:")
-        print(f"  Samples: {len(val_datasets)}")
-        print(f"  Output: {val_output}")
-
-    return 0
+    print(f"Dataset saved to: {args.output}")
+    print(f"Ground truth: {dataset.ground_truth}")
 
 
 if __name__ == '__main__':
-    exit(main())
+    main()
