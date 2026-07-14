@@ -9,104 +9,234 @@ Tests cover:
 import os
 import sys
 import json
-import tempfile
 import numpy as np
 import pandas as pd
 import pytest
+from pathlib import Path
 from scipy import stats
 
-# Add project root to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+# Add code to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from eval.anova import load_metrics_for_anova, run_anova
+from eval.anova import (
+    load_metrics_for_anova,
+    run_anova,
+    main
+)
+from utils.seeds import set_global_seed
+from config import get_results_dir
 
-@pytest.fixture
-def sample_metrics_data(tmp_path):
-    """Create sample metrics data for ANOVA testing."""
-    data_dir = tmp_path / "results"
-    data_dir.mkdir()
-    
-    # Create synthetic metrics data
-    metrics = [
-        {"sequence_id": "seq1", "dynamics": "Static", "texture": "High", "world_score": 0.85, "sparse_consistency": 0.90},
-        {"sequence_id": "seq2", "dynamics": "Static", "texture": "High", "world_score": 0.82, "sparse_consistency": 0.88},
-        {"sequence_id": "seq3", "dynamics": "Static", "texture": "Low", "world_score": 0.70, "sparse_consistency": 0.75},
-        {"sequence_id": "seq4", "dynamics": "Static", "texture": "Low", "world_score": 0.68, "sparse_consistency": 0.72},
-        {"sequence_id": "seq5", "dynamics": "Fast", "texture": "High", "world_score": 0.75, "sparse_consistency": 0.80},
-        {"sequence_id": "seq6", "dynamics": "Fast", "texture": "High", "world_score": 0.72, "sparse_consistency": 0.78},
-        {"sequence_id": "seq7", "dynamics": "Fast", "texture": "Low", "world_score": 0.60, "sparse_consistency": 0.65},
-        {"sequence_id": "seq8", "dynamics": "Fast", "texture": "Low", "world_score": 0.58, "sparse_consistency": 0.62},
-    ]
-    
-    metrics_file = data_dir / "metrics.json"
-    with open(metrics_file, 'w') as f:
-        json.dump(metrics, f)
-    
-    return data_dir
+@pytest.fixture(autouse=True)
+def setup_seed():
+    set_global_seed(42)
 
-def test_load_metrics_for_anova(sample_metrics_data):
-    """Test loading metrics data for ANOVA."""
-    df = load_metrics_for_anova(sample_metrics_data)
-    
-    assert isinstance(df, pd.DataFrame), "Should return a DataFrame"
-    assert len(df) == 8, "Should load all 8 records"
-    assert "dynamics" in df.columns, "Should have dynamics column"
-    assert "texture" in df.columns, "Should have texture column"
-    assert "world_score" in df.columns, "Should have world_score column"
-    assert "sparse_consistency" in df.columns, "Should have sparse_consistency column"
+class TestLoadMetricsForAnova:
+    def test_load_metrics_from_json(self, tmp_path):
+        """Test loading metrics from a JSON file."""
+        metrics_file = tmp_path / "metrics.json"
+        
+        # Create test metrics
+        metrics_data = {
+            "sequences": [
+                {
+                    "id": "seq1",
+                    "dynamics": "static",
+                    "texture": "high",
+                    "world_score": 0.85,
+                    "sparse_consistency": 0.92
+                },
+                {
+                    "id": "seq2",
+                    "dynamics": "fast",
+                    "texture": "low",
+                    "world_score": 0.72,
+                    "sparse_consistency": 0.78
+                }
+            ]
+        }
+        
+        with open(metrics_file, 'w') as f:
+            json.dump(metrics_data, f)
+        
+        df = load_metrics_for_anova(str(metrics_file))
+        
+        assert isinstance(df, pd.DataFrame)
+        assert len(df) == 2
+        assert "dynamics" in df.columns
+        assert "texture" in df.columns
+        assert "world_score" in df.columns
+        assert "sparse_consistency" in df.columns
 
-def test_run_anova_interaction_effect(sample_metrics_data):
-    """Test that ANOVA correctly identifies interaction effects."""
-    df = load_metrics_for_anova(sample_metrics_data)
-    result = run_anova(df, metric="world_score")
-    
-    # Result should be a dictionary
-    assert isinstance(result, dict), "ANOVA result should be a dictionary"
-    assert "f_statistic" in result, "Result should contain F-statistic"
-    assert "p_value" in result, "Result should contain p-value"
-    assert "interaction_p_value" in result, "Result should contain interaction p-value"
-    
-    # Values should be numeric
-    assert isinstance(result["f_statistic"], (int, float)), "F-statistic must be numeric"
-    assert isinstance(result["p_value"], (int, float)), "P-value must be numeric"
-    assert result["p_value"] >= 0 and result["p_value"] <= 1, "P-value must be between 0 and 1"
+    def test_load_metrics_missing_fields(self, tmp_path):
+        """Test loading metrics with missing fields."""
+        metrics_file = tmp_path / "metrics_partial.json"
+        
+        metrics_data = {
+            "sequences": [
+                {
+                    "id": "seq1",
+                    "dynamics": "static",
+                    "texture": "high"
+                    # Missing world_score and sparse_consistency
+                }
+            ]
+        }
+        
+        with open(metrics_file, 'w') as f:
+            json.dump(metrics_data, f)
+        
+        # Should handle missing fields gracefully
+        df = load_metrics_for_anova(str(metrics_file))
+        
+        assert isinstance(df, pd.DataFrame)
+        assert len(df) == 1
 
-def test_run_anova_different_metrics(sample_metrics_data):
-    """Test ANOVA on different metric columns."""
-    df = load_metrics_for_anova(sample_metrics_data)
-    
-    result_ws = run_anova(df, metric="world_score")
-    result_sc = run_anova(df, metric="sparse_consistency")
-    
-    # Both should produce valid results
-    assert result_ws["p_value"] >= 0, "WorldScore p-value must be valid"
-    assert result_sc["p_value"] >= 0, "SparseConsistency p-value must be valid"
-
-def test_anova_with_insufficient_data():
-    """Test ANOVA handling of insufficient data."""
-    # Create a DataFrame with only one group
-    df = pd.DataFrame({
-        "dynamics": ["Static", "Static"],
-        "texture": ["High", "High"],
-        "world_score": [0.8, 0.8]
-    })
-    
-    # Should not crash, but might return NaN or specific error handling
-    # depending on scipy implementation
-    try:
+class TestRunAnova:
+    def test_run_anova_two_way(self, tmp_path):
+        """Test two-way ANOVA with valid data."""
+        # Create synthetic data
+        np.random.seed(42)
+        
+        data = {
+            "dynamics": ["static"] * 20 + ["fast"] * 20,
+            "texture": ["high"] * 10 + ["low"] * 10 + ["high"] * 10 + ["low"] * 10,
+            "world_score": np.concatenate([
+                np.random.normal(0.85, 0.05, 20),
+                np.random.normal(0.70, 0.08, 20)
+            ]),
+            "sparse_consistency": np.concatenate([
+                np.random.normal(0.90, 0.04, 20),
+                np.random.normal(0.75, 0.07, 20)
+            ])
+        }
+        
+        df = pd.DataFrame(data)
+        
+        # Run ANOVA
         result = run_anova(df, metric="world_score")
-        # If it runs, result should be valid structure
+        
+        assert result is not None
+        assert "f_statistic" in result
         assert "p_value" in result
-    except ValueError:
-        # scipy.stats might raise ValueError for insufficient degrees of freedom
-        # This is acceptable behavior
-        pass
+        assert "interaction_p_value" in result
+        assert result["p_value"] > 0  # Should be a valid probability
 
-def test_anova_p_value_threshold(sample_metrics_data):
-    """Test that ANOVA correctly reports significance threshold."""
-    df = load_metrics_for_anova(sample_metrics_data)
-    result = run_anova(df, metric="world_score")
-    
-    # Check that we can determine significance
-    is_significant = result["interaction_p_value"] < 0.05
-    assert isinstance(is_significant, bool), "Significance check should return boolean"
+    def test_run_anova_with_interaction(self, tmp_path):
+        """Test ANOVA that detects interaction effects."""
+        np.random.seed(42)
+        
+        # Create data with clear interaction
+        data = []
+        for dynamics in ["static", "fast"]:
+            for texture in ["high", "low"]:
+                # Create interaction: effect depends on both factors
+                if dynamics == "static" and texture == "high":
+                    mean = 0.95
+                elif dynamics == "static" and texture == "low":
+                    mean = 0.85
+                elif dynamics == "fast" and texture == "high":
+                    mean = 0.80
+                else:  # fast, low
+                    mean = 0.60
+                
+                values = np.random.normal(mean, 0.05, 15)
+                for v in values:
+                    data.append({
+                        "dynamics": dynamics,
+                        "texture": texture,
+                        "world_score": v
+                    })
+        
+        df = pd.DataFrame(data)
+        
+        result = run_anova(df, metric="world_score")
+        
+        assert result is not None
+        assert "interaction_p_value" in result
+        # With this strong interaction, p-value should be small
+        assert result["interaction_p_value"] < 0.05
+
+    def test_run_anova_small_sample(self, tmp_path):
+        """Test ANOVA with small sample size."""
+        np.random.seed(42)
+        
+        data = {
+            "dynamics": ["static"] * 3 + ["fast"] * 3,
+            "texture": ["high"] * 2 + ["low"] * 1 + ["high"] * 2 + ["low"] * 1,
+            "world_score": [0.8, 0.85, 0.75, 0.7, 0.65, 0.6]
+        }
+        
+        df = pd.DataFrame(data)
+        
+        # Should handle small samples without crashing
+        result = run_anova(df, metric="world_score")
+        
+        assert result is not None
+        assert "f_statistic" in result
+        assert "p_value" in result
+
+class TestAnovaIntegration:
+    def test_anova_workflow(self, tmp_path):
+        """Test the complete ANOVA workflow."""
+        set_global_seed(42)
+        
+        # Create metrics file
+        metrics_file = tmp_path / "metrics.json"
+        
+        sequences = []
+        for dynamics in ["static", "fast"]:
+            for texture in ["high", "low"]:
+                for i in range(10):
+                    sequences.append({
+                        "id": f"{dynamics}_{texture}_{i}",
+                        "dynamics": dynamics,
+                        "texture": texture,
+                        "world_score": np.random.normal(
+                            0.8 if dynamics == "static" else 0.65,
+                            0.05
+                        ),
+                        "sparse_consistency": np.random.normal(
+                            0.85 if texture == "high" else 0.7,
+                            0.06
+                        )
+                    })
+        
+        metrics_data = {"sequences": sequences}
+        
+        with open(metrics_file, 'w') as f:
+            json.dump(metrics_data, f)
+        
+        # Load and run ANOVA
+        df = load_metrics_for_anova(str(metrics_file))
+        world_result = run_anova(df, metric="world_score")
+        sc_result = run_anova(df, metric="sparse_consistency")
+        
+        assert world_result is not None
+        assert sc_result is not None
+        assert "f_statistic" in world_result
+        assert "f_statistic" in sc_result
+        assert "p_value" in world_result
+        assert "p_value" in sc_result
+
+    def test_anova_significance_threshold(self, tmp_path):
+        """Test ANOVA results against significance threshold."""
+        np.random.seed(42)
+        
+        # Create data with significant effect
+        data = {
+            "dynamics": ["static"] * 30 + ["fast"] * 30,
+            "texture": ["high"] * 15 + ["low"] * 15 + ["high"] * 15 + ["low"] * 15,
+            "world_score": np.concatenate([
+                np.random.normal(0.9, 0.03, 30),
+                np.random.normal(0.6, 0.05, 30)
+            ])
+        }
+        
+        df = pd.DataFrame(data)
+        
+        result = run_anova(df, metric="world_score")
+        
+        # Main effect should be significant
+        assert result["p_value"] < 0.05
+        # Interaction might or might not be significant depending on data
+        assert result["interaction_p_value"] >= 0  # Valid probability

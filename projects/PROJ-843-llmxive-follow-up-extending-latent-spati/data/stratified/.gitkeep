@@ -1,2 +1,6 @@
-# Placeholder to ensure directory creation in version control
-# This directory will store stratified subsets (Static/Slow/Fast x High/Low texture)
+# Stratified subsets of the dataset
+# Expected subdirectories:
+# - Static-High
+# - Static-Low
+# - Fast-High
+# - Fast-Low

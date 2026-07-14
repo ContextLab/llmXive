@@ -1,2 +1,1 @@
-# Placeholder to ensure directory creation in version control
-# This directory will store intermediate processed data
+# Intermediate processed data (e.g., optical flow maps)

@@ -1,10 +1,15 @@
 {
   "project_id": "PROJ-843-llmxive-follow-up-extending-latent-spati",
   "ok": false,
-  "reason": "run-book completed but produced no data/figure artifacts; 2 declared deliverable(s) absent: data/raw/dense_baseline_frames.npy; data/results/sparse_warped_frames.npy",
+  "reason": "4 command(s) failed: python code/main.py --phase data_prepare (rc=1); python code/main.py --phase extract_features (rc=1); python code/main.py --phase compute_geometry (rc=1); 3 declared deliverable(s) absent: data/raw/dense_baseline_frames.npy; data/results/metrics.json; data/results/sparse_warped_frames.npy",
   "artifacts": [],
-  "failures": [],
-  "fix_rounds": 11,
+  "failures": [
+    "python code/main.py --phase data_prepare -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 20, in <module>\n    from data.download import download_dataset\nModuleNotFoundError: No module named 'data.download'",
+    "python code/main.py --phase extract_features -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 20, in <module>\n    from data.download import download_dataset\nModuleNotFoundError: No module named 'data.download'",
+    "python code/main.py --phase compute_geometry -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 20, in <module>\n    from data.download import download_dataset\nModuleNotFoundError: No module named 'data.download'",
+    "python code/main.py --phase evaluate -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-843-llmxive-follow-up-extending-latent-spati/code/main.py\", line 20, in <module>\n    from data.download import download_dataset\nModuleNotFoundError: No module named 'data.download'"
+  ],
+  "fix_rounds": 1,
   "model_tier": 0,
-  "updated_at": "2026-07-14T07:53:58Z"
+  "updated_at": "2026-07-14T08:16:23Z"
 }

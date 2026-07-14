@@ -1,2 +1,8 @@
-# Placeholder to ensure directory creation in version control
-# This directory will store final metrics, warps, and reports
+# Final evaluation results and reports
+# Expected files:
+# - metrics.json
+# - anova_results.json
+# - sensitivity_results.json
+# - unsolvable_sequences.json
+# - sparse_warped_frames.npy
+# - hypothesis_verification.md

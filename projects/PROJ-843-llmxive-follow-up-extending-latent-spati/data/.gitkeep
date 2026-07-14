@@ -1,0 +1,2 @@
+# This file ensures the data directory exists in version control
+# The actual directory structure will be created by code/data/setup_data.py

@@ -1,2 +1,2 @@
-# Placeholder to ensure directory creation in version control
-# This directory will store extracted sparse features (SIFT/ORB)
+# Extracted sparse features (SIFT/ORB)
+# Files will be saved as .npy

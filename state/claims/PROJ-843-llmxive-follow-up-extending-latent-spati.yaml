@@ -1,127 +1,107 @@
-- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/README.md
   attempts: 1
-  canonical: 16GB of RAM required for batch processing
-  claim_id: c_056f7701
-  context: 'Step 1: Environment Setup - Check Memory Availability'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/16GB_of_RAM_required_for_batch_processing
-  kind: magnitude
-  raw_text: Ensure at least 16GB of RAM is available for batch processing.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T07:24:25Z'
-- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
-  attempts: 1
-  canonical: Dataset stratified into 4 subsets
-  claim_id: c_3aa1262c
-  context: 'Step 3: Stratify Dataset'
+  canonical: RealEstate10K sequences stratified into 4 subsets based on motion magnitude
+    and texture entropy
+  claim_id: c_5c32c845
+  context: 'Key Features - Stratified Data Processing: Ingests RealEstate10K and stratifies
+    sequences into 4 subsets based on motion magnitude and texture entropy.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 'This will: Stratify into 4 subsets (Static-High, Static-Low, Fast-High,
-    Fast-Low)'
+  raw_text: Ingests RealEstate10K and stratifies sequences into 4 subsets based on
+    motion magnitude and texture entropy.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T07:24:48Z'
+  updated_at: '2026-07-14T08:03:53Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/README.md
+  attempts: 1
+  canonical: 40% inference time reduction hypothesis verified
+  claim_id: c_666d6a79
+  context: 'Output Artifacts - data/results/hypothesis_verification.md: Final report
+    verifying the 40% inference time reduction hypothesis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Final report verifying the 40% inference time reduction hypothesis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:03:53Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
   attempts: 1
-  canonical: Each stratum has at least 50 sequences
-  claim_id: c_434b957b
-  context: 'Step 3: Stratify Dataset'
+  canonical: RealEstate10K dataset full size is approximately 50GB
+  claim_id: c_e4dab2f9
+  context: 'Download the RealEstate10K dataset (subset for testing recommended): ...
+    Note: Ensure you have sufficient disk space (~50GB for full dataset).'
+  evidence:
+    entailment_evidence: RealEstate10K dataset full size is approximately 50GB
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/RealEstate10K_dataset_full_size_is_approximately_50GB
+  kind: entity_fact
+  raw_text: Ensure you have sufficient disk space (~50GB for full dataset).
+  resolved_value: RealEstate10K dataset full size is approximately 50GB
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T08:04:13Z'
+- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
+  attempts: 1
+  canonical: Stratification selects at least 50 sequences per stratum
+  claim_id: c_b1a6fcb2
+  context: 'This will: ... Select sequences ensuring at least 50 per stratum. ...
+    Save stratified sequences to data/stratified/.'
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Each_stratum_has_at_least_50_sequences
+    source_url: https://en.wikipedia.org/wiki/Stratification_selects_at_least_50_sequences_per_stratum
   kind: magnitude
-  raw_text: Ensure each stratum has at least 50 sequences
+  raw_text: Select sequences ensuring at least 50 per stratum.
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T07:25:11Z'
+  updated_at: '2026-07-14T08:04:42Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
   attempts: 1
-  canonical: Batch processing triggered if RAM usage exceeds 6GB
-  claim_id: c_16959743
-  context: 'Step 4: Extract Sparse Features'
+  canonical: Pipeline switches to batch processing when RAM usage exceeds 6GB
+  claim_id: c_8c8578c9
+  context: 'Out of Memory: The pipeline automatically switches to batch processing
+    if RAM usage exceeds 6GB. Ensure your system has at least 16GB RAM for full execution.'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Batch_processing_triggered_if_RAM_usage_exceeds_6GB
+    source_url: https://en.wikipedia.org/wiki/Pipeline_switches_to_batch_processing_when_RAM_usage_exceeds
   kind: entity_fact
-  raw_text: Handle batch processing if RAM usage exceeds 6GB
+  raw_text: The pipeline automatically switches to batch processing if RAM usage exceeds
+    6GB.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T07:25:44Z'
+  updated_at: '2026-07-14T08:05:26Z'
 - artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/quickstart.md
   attempts: 1
-  canonical: Inference time reduction compared against 40% threshold
-  claim_id: c_d60b5adf
-  context: 'Step 8: Generate Final Report'
+  canonical: Full execution requires at least 16GB RAM
+  claim_id: c_63092a67
+  context: 'Out of Memory: The pipeline automatically switches to batch processing
+    if RAM usage exceeds 6GB. Ensure your system has at least 16GB RAM for full execution.'
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Compare against the 40% threshold
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_execution_requires_at_least_16GB_RAM
+  kind: magnitude
+  raw_text: Ensure your system has at least 16GB RAM for full execution.
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T07:25:44Z'
-- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/hypothesis_verification.md
-  attempts: 1
-  canonical: WorldScore 0.85 for sparse vs 0.88 for dense
-  claim_id: c_83f2a884
-  context: Key Findings section comparing sparse and dense methods.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'WorldScore: 0.85 (Sparse) vs 0.88 (Dense)'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T07:37:49Z'
-- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/hypothesis_verification.md
-  attempts: 1
-  canonical: Sparse-Consistency Score 0.92
-  claim_id: c_b1ff8e7d
-  context: Key Findings section reporting consistency metric.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Sparse-Consistency Score: 0.92'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T07:38:21Z'
-- artifact_path: projects/PROJ-843-llmxive-follow-up-extending-latent-spati/data/results/hypothesis_verification.md
-  attempts: 1
-  canonical: Inference time reduction 42.4%
-  claim_id: c_9e75b639
-  context: Key Findings section reporting efficiency gain.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Inference Time Reduction: 42.4%'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T07:38:21Z'
+  updated_at: '2026-07-14T08:05:49Z'

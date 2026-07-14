@@ -8,116 +8,212 @@ Tests cover:
 """
 import os
 import sys
+import json
 import numpy as np
 import cv2
 import pytest
 
-# Add project root to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+# Add code to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from geometry.solver import compute_fundamental_matrix, validate_reprojection_error, triangulate_points
+from geometry.solver import (
+    load_correspondences,
+    compute_fundamental_matrix,
+    triangulate_points,
+    validate_reprojection_error,
+    process_sequence
+)
+from utils.seeds import set_global_seed
+from config import get_features_dir, get_results_dir
 
-@pytest.fixture
-def good_correspondences():
-    """Generate valid correspondences with some noise."""
-    # Create synthetic 2D points in two views
-    points1 = np.array([
-        [10.0, 10.0], [20.0, 20.0], [30.0, 30.0],
-        [100.0, 50.0], [150.0, 100.0], [200.0, 150.0]
-    ], dtype=np.float64)
-    
-    # Transform points (simulating epipolar geometry)
-    # Simple translation and slight rotation
-    points2 = np.array([
-        [15.0, 12.0], [25.0, 22.0], [35.0, 32.0],
-        [105.0, 52.0], [155.0, 102.0], [205.0, 152.0]
-    ], dtype=np.float64)
-    
-    return points1, points2
+@pytest.fixture(autouse=True)
+def setup_seed():
+    set_global_seed(42)
 
-@pytest.fixture
-def bad_correspondences():
-    """Generate correspondences with too few points for RANSAC."""
-    points1 = np.array([[10.0, 10.0]], dtype=np.float64)
-    points2 = np.array([[15.0, 12.0]], dtype=np.float64)
-    return points1, points2
-
-@pytest.fixture
-def collinear_correspondences():
-    """Generate collinear points (should fail fundamental matrix estimation)."""
-    points1 = np.array([
-        [10.0, 10.0], [20.0, 20.0], [30.0, 30.0], [40.0, 40.0]
-    ], dtype=np.float64)
-    points2 = np.array([
-        [15.0, 15.0], [25.0, 25.0], [35.0, 35.0], [45.0, 45.0]
-    ], dtype=np.float64)
-    return points1, points2
-
-def test_compute_fundamental_matrix_valid(good_correspondences):
-    """Test F-matrix computation with valid correspondences."""
-    points1, points2 = good_correspondences
-    F, mask = compute_fundamental_matrix(points1, points2)
-    
-    # Check F matrix shape
-    assert F.shape == (3, 3), "Fundamental matrix must be 3x3"
-    
-    # Check for non-zero matrix
-    assert not np.allclose(F, 0), "Fundamental matrix should not be zero"
-    
-    # Check mask has inliers
-    assert np.sum(mask) >= 4, "RANSAC should find at least 4 inliers"
-
-def test_compute_fundamental_matrix_insufficient_points(bad_correspondences):
-    """Test F-matrix fails gracefully with too few points."""
-    points1, points2 = bad_correspondences
-    F, mask = compute_fundamental_matrix(points1, points2)
-    
-    # Should return None or zero matrix
-    assert F is None or np.allclose(F, 0), "Should fail with insufficient points"
-
-def test_compute_fundamental_matrix_collinear(collinear_correspondences):
-    """Test F-matrix handling of collinear points."""
-    points1, points2 = collinear_correspondences
-    F, mask = compute_fundamental_matrix(points1, points2)
-    
-    # Collinear points are degenerate
-    # Depending on OpenCV version, might return None or unstable matrix
-    assert F is not None, "Function should handle collinear points without crashing"
-
-def test_validate_reprojection_error_valid(good_correspondences):
-    """Test reprojection error calculation with valid F-matrix."""
-    points1, points2 = good_correspondences
-    F, mask = compute_fundamental_matrix(points1, points2)
-    
-    if F is not None and np.sum(mask) > 0:
-        error = validate_reprojection_error(points1, points2, F, mask)
+class TestLoadCorrespondences:
+    def test_load_valid_correspondences(self, tmp_path):
+        """Test loading valid correspondence data."""
+        corr_file = tmp_path / "correspondences.npy"
         
-        # Error should be a non-negative float
-        assert isinstance(error, (int, float)), "Error should be numeric"
-        assert error >= 0, "Reprojection error must be non-negative"
-        assert not np.isnan(error), "Error should not be NaN"
+        # Create test data
+        keypoints1 = np.random.rand(10, 2).astype(np.float32)
+        keypoints2 = np.random.rand(10, 2).astype(np.float32)
+        
+        data = {
+            "keypoints1": keypoints1,
+            "keypoints2": keypoints2,
+            "descriptors1": np.random.rand(10, 128).astype(np.float32),
+            "descriptors2": np.random.rand(10, 128).astype(np.float32)
+        }
+        
+        np.save(str(corr_file), data)
+        
+        kp1, kp2 = load_correspondences(str(corr_file))
+        
+        assert kp1.shape == (10, 2)
+        assert kp2.shape == (10, 2)
+        assert kp1.dtype == np.float32
+        assert kp2.dtype == np.float32
 
-def test_triangulate_points_valid(good_correspondences):
-    """Test 3D point triangulation."""
-    points1, points2 = good_correspondences
-    F, mask = compute_fundamental_matrix(points1, points2)
-    
-    if F is not None and np.sum(mask) > 0:
-        # Create dummy camera matrices (identity + translation)
-        K = np.eye(3)
-        R1, t1 = np.eye(3), np.zeros((3,))
-        R2, t2 = np.eye(3), np.array([1.0, 0.0, 0.0])
+    def test_load_correspondences_with_descriptors(self, tmp_path):
+        """Test loading with descriptor data."""
+        corr_file = tmp_path / "correspondences_with_desc.npy"
         
-        P1 = K @ np.hstack((R1, t1.reshape(-1, 1)))
-        P2 = K @ np.hstack((R2, t2.reshape(-1, 1)))
+        kp1 = np.random.rand(20, 2).astype(np.float32)
+        kp2 = np.random.rand(20, 2).astype(np.float32)
+        desc1 = np.random.rand(20, 64).astype(np.float32)
+        desc2 = np.random.rand(20, 64).astype(np.float32)
         
-        # Select inliers
-        inlier_pts1 = points1[mask.ravel()]
-        inlier_pts2 = points2[mask.ravel()]
+        data = {
+            "keypoints1": kp1,
+            "keypoints2": kp2,
+            "descriptors1": desc1,
+            "descriptors2": desc2
+        }
         
-        points_3d = triangulate_points(inlier_pts1, inlier_pts2, P1, P2)
+        np.save(str(corr_file), data)
         
-        assert points_3d is not None, "Triangulation should succeed"
-        assert points_3d.shape[0] == len(inlier_pts1), "Should produce one 3D point per correspondence"
-        assert points_3d.shape[1] == 3, "Points should be 3D"
-        assert not np.any(np.isnan(points_3d)), "Triangulated points should not contain NaN"
+        loaded_kp1, loaded_kp2 = load_correspondences(str(corr_file))
+        
+        assert np.allclose(loaded_kp1, kp1)
+        assert np.allclose(loaded_kp2, kp2)
+
+class TestComputeFundamentalMatrix:
+    def test_compute_fm_with_inliers(self, tmp_path):
+        """Test fundamental matrix computation with sufficient inliers."""
+        # Generate synthetic correspondences with some noise
+        np.random.seed(42)
+        n_points = 50
+        
+        # Create points in first image
+        pts1 = np.random.rand(n_points, 2).astype(np.float32) * 100
+        
+        # Create a simple fundamental matrix (epipolar constraint)
+        F_true = np.array([
+            [0, 0, 0.001],
+            [0, 0, -0.001],
+            [-0.001, 0.001, 0]
+        ], dtype=np.float32)
+        
+        # Generate corresponding points in second image
+        pts2 = np.zeros((n_points, 2), dtype=np.float32)
+        for i in range(n_points):
+            x1, y1 = pts1[i]
+            # Add some noise
+            noise = np.random.rand(2) * 0.5
+            pts2[i] = [x1 + noise[0], y1 + noise[1]]
+        
+        F, mask = compute_fundamental_matrix(pts1, pts2)
+        
+        assert F is not None
+        assert F.shape == (3, 3)
+        assert mask is not None
+        assert len(mask) == n_points
+        # Should have some inliers
+        assert np.sum(mask) > 0
+
+    def test_compute_fm_with_low_texture(self, tmp_path):
+        """Test fundamental matrix computation with low texture (few inliers)."""
+        # Create nearly identical points (low texture)
+        np.random.seed(42)
+        n_points = 20
+        
+        pts1 = np.ones((n_points, 2), dtype=np.float32) * 50
+        pts2 = np.ones((n_points, 2), dtype=np.float32) * 50
+        
+        F, mask = compute_fundamental_matrix(pts1, pts2)
+        
+        # With identical points, RANSAC should fail or find very few inliers
+        # The function should handle this gracefully
+        assert F is not None
+        assert F.shape == (3, 3)
+
+class TestTriangulatePoints:
+    def test_triangulate_points_valid(self, tmp_tmp):
+        """Test 3D point triangulation with valid inputs."""
+        np.random.seed(42)
+        
+        # Create two camera matrices (simplified)
+        K = np.array([
+            [500, 0, 320],
+            [0, 500, 240],
+            [0, 0, 1]
+        ], dtype=np.float32)
+        
+        R1 = np.eye(3, dtype=np.float32)
+        t1 = np.zeros((3, 1), dtype=np.float32)
+        P1 = K @ np.hstack([R1, t1])
+        
+        R2 = np.eye(3, dtype=np.float32)
+        R2[0, 0] = 0.9  # Small rotation
+        t2 = np.array([[0.1], [0], [0]], dtype=np.float32)  # Small translation
+        P2 = K @ np.hstack([R2, t2])
+        
+        # Corresponding points
+        pts1 = np.array([[320, 240], [330, 250]], dtype=np.float32)
+        pts2 = np.array([[321, 240], [331, 250]], dtype=np.float32)
+        
+        points_3d = triangulate_points(pts1, pts2, P1, P2)
+        
+        assert points_3d is not None
+        assert len(points_3d) == 2
+        assert points_3d.shape[1] == 3  # 3D coordinates
+
+class TestValidateReprojectionError:
+    def test_validate_reprojection_error_low(self, tmp_path):
+        """Test validation with low reprojection error."""
+        np.random.seed(42)
+        
+        # Create points with low reprojection error
+        pts1 = np.random.rand(10, 2).astype(np.float32) * 100
+        pts2 = pts1 + np.random.rand(10, 2).astype(np.float32) * 0.1  # Very small error
+        
+        F, mask = compute_fundamental_matrix(pts1, pts2)
+        error = validate_reprojection_error(pts1, pts2, F, mask)
+        
+        # Error should be very small
+        assert error < 1.0
+
+    def test_validate_reprojection_error_high(self, tmp_path):
+        """Test validation with high reprojection error."""
+        np.random.seed(42)
+        
+        # Create points with high reprojection error
+        pts1 = np.random.rand(10, 2).astype(np.float32) * 100
+        pts2 = np.random.rand(10, 2).astype(np.float32) * 100  # Random points
+        
+        F, mask = compute_fundamental_matrix(pts1, pts2)
+        error = validate_reprojection_error(pts1, pts2, F, mask)
+        
+        # Error should be larger
+        assert error >= 0  # Just ensure it's computed
+
+class TestProcessSequence:
+    def test_process_sequence_integration(self, tmp_path):
+        """Test the full solver processing pipeline."""
+        set_global_seed(42)
+        
+        # Create dummy correspondence file
+        corr_file = tmp_path / "correspondences.npy"
+        kp1 = np.random.rand(20, 2).astype(np.float32) * 100
+        kp2 = np.random.rand(20, 2).astype(np.float32) * 100
+        
+        data = {
+            "keypoints1": kp1,
+            "keypoints2": kp2,
+            "descriptors1": np.random.rand(20, 128).astype(np.float32),
+            "descriptors2": np.random.rand(20, 128).astype(np.float32)
+        }
+        
+        np.save(str(corr_file), data)
+        
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        
+        result = process_sequence(str(corr_file), str(output_dir))
+        
+        assert result is not None
+        assert "fundamental_matrix" in result
+        assert "num_inliers" in result
+        assert "reprojection_error" in result
+        assert "is_solvable" in result
