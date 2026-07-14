@@ -1,29 +1,39 @@
 """
-Runner script for T023a: PCA on network metrics.
-Invoked by the main pipeline to generate PCA outputs.
+Runner script for PCA analysis step.
+Ensures PCA results are written to disk.
 """
 import os
 import sys
 import logging
 from pathlib import Path
-
-# Add project root to path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
 from code.logging_config import get_logger
-from code.analysis.correlations import main as pca_main
+from code.analysis.correlations import (
+    load_metrics_data, 
+    perform_pca_on_metrics, 
+    save_pca_results
+)
 
 logger = get_logger(__name__)
 
 def main():
-    logger.log("pca_runner_start")
-    try:
-        pca_main()
-        logger.log("pca_runner_complete")
-    except Exception as e:
-        logger.log("pca_runner_failed", error=str(e))
-        raise
+    base_dir = Path(os.getenv("PROJECT_ROOT", "."))
+    metrics_path = base_dir / "data" / "processed" / "aggregated_metrics.csv"
+    output_dir = base_dir / "data" / "analysis"
+    
+    if not metrics_path.exists():
+        logger.error(f"Input file missing: {metrics_path}")
+        sys.exit(1)
+        
+    logger.info(f"Loading metrics from {metrics_path}")
+    df = load_metrics_data(str(metrics_path))
+    
+    logger.info("Running PCA...")
+    loadings, scores, model = perform_pca_on_metrics(df)
+    
+    logger.info(f"Saving PCA results to {output_dir}")
+    save_pca_results(loadings, scores, model, df, str(output_dir))
+    
+    logger.info("PCA step complete.")
 
 if __name__ == "__main__":
     main()

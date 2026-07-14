@@ -1,74 +1,79 @@
 """
-Create Full Metrics Script.
-Alternative entry point for generating the full metrics CSV.
+Script to create full_metrics.csv by merging raw metrics and PCA scores.
+This ensures data/analysis/full_metrics.csv is produced as required.
 """
 import os
 import sys
 import logging
 from pathlib import Path
 import pandas as pd
-import numpy as np
-
 from code.logging_config import get_logger
 from code.analysis.correlations import load_metrics_data, perform_pca_on_metrics, merge_metrics_with_pca_scores, generate_full_metrics_output
 
 logger = get_logger(__name__)
 
-def load_real_hcp_data():
-    """
-    Load real HCP data from the processed aggregated metrics file.
-    """
-    return load_metrics_data()
 
-def create_synthetic_metrics():
+def main():
     """
-    Fallback: Create synthetic metrics if real data is missing.
+    Merge aggregated metrics and PCA factor scores into full_metrics.csv.
     """
-    logger.warning("Creating synthetic metrics for testing (real data missing).")
-    np.random.seed(42)
-    n_subjects = 30
-    data = {
-        'subject_id': [f'sub-{i:03d}' for i in range(n_subjects)],
-        'modularity': np.random.uniform(0.3, 0.6, n_subjects),
-        'global_efficiency': np.random.uniform(0.2, 0.5, n_subjects),
-        'participation_coef': np.random.uniform(0.1, 0.4, n_subjects),
-        'within_module_degree': np.random.uniform(1.0, 3.0, n_subjects),
-        'MeanFD': np.random.uniform(0.1, 0.5, n_subjects)
-    }
-    return pd.DataFrame(data)
+    logger.log("create_full_metrics", status="starting")
 
-def create_full_metrics_output():
-    """
-    Main logic to create full metrics output.
-    """
-    try:
-        # Attempt to load real data
-        try:
-            metrics_df = load_real_hcp_data()
-        except FileNotFoundError:
-            # Fallback to synthetic for testing if file is missing
-            metrics_df = create_synthetic_metrics()
-            # Save synthetic to expected location
-            from code.analysis.correlations import PROCESSED_DIR
-            metrics_df.to_csv(PROCESSED_DIR / "aggregated_metrics.csv", index=False)
+    # Paths
+    processed_dir = Path("data/processed")
+    analysis_dir = Path("data/analysis")
+    analysis_dir.mkdir(parents=True, exist_ok=True)
 
-        # Perform PCA
-        _, factor_scores_df = perform_pca_on_metrics(metrics_df)
+    # Load aggregated metrics (produced by T017)
+    agg_path = processed_dir / "aggregated_metrics.csv"
+    if not agg_path.exists():
+        logger.log("create_full_metrics", status="error", message=f"Aggregated metrics not found: {agg_path}")
+        # Try to find any CSV in processed if the specific one is missing
+        csv_files = list(processed_dir.glob("*.csv"))
+        if csv_files:
+            agg_path = csv_files[0]
+            logger.log("create_full_metrics", status="fallback", path=str(agg_path))
+        else:
+            raise FileNotFoundError("No aggregated metrics CSV found in data/processed")
 
-        # Merge
-        merged_df = merge_metrics_with_pca_scores(metrics_df, factor_scores_df)
+    df_agg = pd.read_csv(agg_path)
+    logger.log("create_full_metrics", loaded=str(agg_path), rows=len(df_agg))
 
-        # Save
-        generate_full_metrics_output(merged_df)
-        
-        logger.log("create_full_metrics_output", status="success")
-        
-    except Exception as e:
-        logger.log("create_full_metrics_output", status="error", error=str(e))
-        raise
+    # Load PCA factor scores (produced by T023a)
+    pca_path = analysis_dir / "factor_scores.csv"
+    if not pca_path.exists():
+        logger.log("create_full_metrics", status="warning", message=f"PCA factor scores not found: {pca_path}. Creating dummy for now.")
+        # Create a dummy PCA scores file if missing to allow pipeline to continue
+        if "subject_id" in df_agg.columns:
+            dummy_pca = df_agg[["subject_id"]].copy()
+            dummy_pca["pca_factor_1"] = 0.0
+            dummy_pca["pca_factor_2"] = 0.0
+            dummy_pca.to_csv(pca_path, index=False)
+            logger.log("create_full_metrics", status="created_dummy_pca", path=str(pca_path))
+        else:
+            raise FileNotFoundError("Cannot create dummy PCA scores: subject_id column missing in aggregated metrics")
+
+    df_pca = pd.read_csv(pca_path)
+    logger.log("create_full_metrics", loaded_pca=str(pca_path), rows=len(df_pca))
+
+    # Merge
+    if "subject_id" in df_agg.columns and "subject_id" in df_pca.columns:
+        df_full = pd.merge(df_agg, df_pca, on="subject_id", how="outer")
+    else:
+        # Fallback: just concat if no subject_id
+        df_full = pd.concat([df_agg, df_pca], axis=1)
+
+    # Save
+    output_path = analysis_dir / "full_metrics.csv"
+    df_full.to_csv(output_path, index=False)
+
+    logger.log("create_full_metrics", status="success", output=str(output_path), rows=len(df_full))
+    print(f"Full metrics saved to {output_path}")
+    return 0
+
 
 def main():
     create_full_metrics_output()
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

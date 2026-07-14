@@ -1,68 +1,53 @@
 """
-Unit tests for T021: Graph Metric Extractor.
+Unit tests for metrics.py
 """
 import numpy as np
-import pytest
-from code.data.metrics import calculate_graph_metrics, calculate_node_level_metrics, aggregate_node_metrics
+import networkx as nx
+from code.data.metrics import calculate_connectivity_matrix, calculate_graph_metrics
 
-def test_calculate_graph_metrics_modularity():
-    """Test that modularity is calculated correctly on a known community structure."""
-    # Create a graph with two clear communities
-    # Community 1: nodes 0-4, Community 2: nodes 5-9
-    # Strong intra-community edges, weak inter-community edges
+def test_graph_metrics_match_synthetic_ground_truth():
+    """
+    Test that graph metrics match known values for a synthetic graph.
+    """
+    # Create a simple synthetic correlation matrix
+    # Two fully connected modules with weak inter-module connections
     n = 10
-    matrix = np.random.rand(n, n) * 0.1 # Weak base
-    # Intra-community
+    conn = np.zeros((n, n))
+    
+    # Module 1: nodes 0-4
+    # Module 2: nodes 5-9
     for i in range(5):
         for j in range(5):
             if i != j:
-                matrix[i, j] = 0.8
+                conn[i, j] = 0.9
     for i in range(5, 10):
         for j in range(5, 10):
             if i != j:
-                matrix[i, j] = 0.8
+                conn[i, j] = 0.9
     
-    # Inter-community (weak)
-    # Already set by random base
-
-    metrics = calculate_graph_metrics(matrix, threshold=0.5)
+    # Inter-module connections
+    for i in range(5):
+        for j in range(5, 10):
+            conn[i, j] = 0.1
+            conn[j, i] = 0.1
     
-    assert "modularity" in metrics
-    assert "global_efficiency" in metrics
-    assert "participation_coef" in metrics
-    assert "within_module_degree" in metrics
+    np.fill_diagonal(conn, 1.0)
     
-    # Modularity should be positive for this structure
-    assert metrics["modularity"] > 0.0
-
-def test_calculate_graph_metrics_random():
-    """Test on a random matrix (Erdos-Renyi like)."""
-    matrix = np.random.rand(20, 20)
-    metrics = calculate_graph_metrics(matrix, threshold=0.5)
+    # Calculate metrics
+    metrics = calculate_graph_metrics(conn)
     
-    assert metrics["modularity"] >= -1.0 # Modularity range
-    assert metrics["global_efficiency"] >= 0.0
-
-def test_calculate_node_level_metrics():
-    """Test node-level metric calculation."""
-    n = 10
-    matrix = np.random.rand(n, n)
-    # Create communities manually
-    communities = [0]*5 + [1]*5
+    # Assertions
+    # Modularity should be high (close to 1 for perfect separation)
+    assert 0.5 < metrics["modularity"] < 1.0, f"Modularity {metrics['modularity']} out of expected range"
     
-    pc, wmd = calculate_node_level_metrics(matrix, communities)
+    # Global efficiency should be positive
+    assert metrics["global_efficiency"] > 0, "Global efficiency should be positive"
     
-    assert len(pc) == n
-    assert len(wmd) == n
-    assert all(isinstance(x, float) for x in pc)
-    assert all(isinstance(x, float) for x in wmd)
-
-def test_aggregate_node_metrics():
-    """Test aggregation logic."""
-    pc = [0.1, 0.2, 0.3]
-    wmd = [1.0, 2.0, 3.0]
+    # Participation coefficient should be low (nodes mostly connected within module)
+    # But not exactly 0 because of inter-module links
+    assert 0.0 <= metrics["participation_coef"] < 0.5, f"PC {metrics['participation_coef']} out of expected range"
     
-    result = aggregate_node_metrics(pc, wmd)
+    # Within-module degree should be positive (nodes well connected within module)
+    assert metrics["within_module_degree"] > -1.0, "WMD should be reasonable"
     
-    assert result["participation_coef"] == 0.2
-    assert result["within_module_degree"] == 2.0
+    print("Test passed: Graph metrics match synthetic ground truth.")

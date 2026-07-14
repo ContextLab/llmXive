@@ -1,44 +1,55 @@
+"""
+Generate full metrics file combining individual metrics and PCA scores.
+This script is invoked by the quickstart run-book to generate full_metrics.csv.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
+
 import pandas as pd
-import numpy as np
+
 from code.logging_config import get_logger
-from code.analysis.correlations import load_metrics_data, perform_pca_on_metrics, save_pca_results, merge_metrics_with_pca_scores, generate_full_metrics_output
+from code.analysis.correlations import (
+    load_metrics_data,
+    generate_full_metrics,
+    FACTOR_SCORES_FILE,
+    FULL_METRICS_FILE
+)
 
 logger = get_logger(__name__)
 
-def main():
+def main() -> None:
     """
-    Standalone runner for T023b: Generate full metrics output.
-    Merges raw metrics with PCA scores and saves to data/analysis/full_metrics.csv.
+    Main entry point for generating full metrics.
     """
-    logger.log("generate_full_metrics", status="starting")
-    
     try:
-        # Load raw metrics
-        metrics_df = load_metrics_data()
+        logger.log("generate_full_metrics", step="start")
         
-        # Perform PCA if not already done (or reload scores if they exist)
-        scores_path = Path("data/analysis/factor_scores.csv")
-        if scores_path.exists():
-            scores_df = pd.read_csv(scores_path)
-        else:
-            _, _, scores_df = perform_pca_on_metrics(metrics_df)
-            save_pca_results(pd.DataFrame(), scores_df) # Save only scores if loadings not needed separately here
+        # Load metrics
+        df_metrics = load_metrics_data()
         
-        # Merge
-        merged_df = merge_metrics_with_pca_scores(metrics_df, scores_df)
+        # Load PCA scores
+        if not Path(FACTOR_SCORES_FILE).exists():
+            raise FileNotFoundError(f"PCA factor scores not found at {FACTOR_SCORES_FILE}. "
+                                  "Run pca_runner.py first.")
+        df_pca = pd.read_csv(FACTOR_SCORES_FILE)
         
-        # Output
-        generate_full_metrics_output(merged_df)
+        # Generate full metrics
+        full_metrics = generate_full_metrics(df_metrics, df_pca)
         
-        logger.log("generate_full_metrics", status="completed")
-        return 0
+        # Save output
+        Path(FULL_METRICS_FILE).parent.mkdir(parents=True, exist_ok=True)
+        full_metrics.to_csv(FULL_METRICS_FILE, index=False)
+        
+        logger.log("generate_full_metrics", 
+                 step="completed", 
+                 file=FULL_METRICS_FILE, 
+                 rows=len(full_metrics))
+        
     except Exception as e:
-        logger.error(f"Generate full metrics failed: {str(e)}")
-        return 1
+        logger.log("generate_full_metrics", step="failed", error=str(e))
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

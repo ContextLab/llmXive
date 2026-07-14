@@ -1,123 +1,97 @@
 """
-Unit tests for correlation analysis functions.
+Unit tests for correlation analysis module.
 """
 import pytest
 import pandas as pd
 import numpy as np
-from code.analysis.correlations import (
-    compute_correlations,
-    apply_fdr_correction,
-    log_significant_correlations,
-    CORRELATION_THRESHOLD
-)
-from code.logging_config import get_logger
+from pathlib import Path
+import tempfile
+import shutil
 
-logger = get_logger(__name__)
+from code.analysis.correlations import (
+    load_metrics_data,
+    perform_pca_on_metrics,
+    apply_fdr_correction,
+    perform_partial_correlation,
+    run_correlations_with_fd_covariate
+)
 
 @pytest.fixture
 def sample_metrics_df():
-    """Create a sample DataFrame for testing."""
+    """Create a sample DataFrame with metrics."""
     np.random.seed(42)
-    n_subjects = 100
-    
-    df = pd.DataFrame({
-        'subject_id': [f'sub_{i}' for i in range(n_subjects)],
-        'modularity': np.random.randn(n_subjects) * 0.1 + 0.5,
-        'global_efficiency': np.random.randn(n_subjects) * 0.05 + 0.3,
-        'participation_coef': np.random.randn(n_subjects) * 0.02 + 0.1,
-        'within_module_degree': np.random.randn(n_subjects) * 0.03 + 0.2,
-        'motor_score': np.random.randn(n_subjects) * 5 + 50,
-        'fd': np.random.randn(n_subjects) * 0.1 + 0.2
+    n = 50
+    return pd.DataFrame({
+        'subject_id': [f'sub-{i:03d}' for i in range(n)],
+        'modularity': np.random.uniform(0.3, 0.7, n),
+        'global_efficiency': np.random.uniform(0.4, 0.8, n),
+        'participation_coef': np.random.uniform(0.1, 0.5, n),
+        'within_module_degree': np.random.uniform(1.0, 3.0, n),
+        'mean_fd': np.random.uniform(0.05, 0.3, n),
+        'motor_score': np.random.uniform(50, 100, n)
     })
-    
-    return df
 
-def test_compute_correlations_basic(sample_metrics_df):
-    """Test basic correlation computation."""
-    metric_cols = ['modularity', 'global_efficiency']
-    results = compute_correlations(sample_metrics_df, metric_cols)
+@pytest.fixture
+def temp_metrics_file(sample_metrics_df, tmp_path):
+    """Create a temporary metrics file."""
+    file_path = tmp_path / "aggregated_metrics.csv"
+    sample_metrics_df.to_csv(file_path, index=False)
+    return file_path
+
+def test_perform_pca_on_metrics(sample_metrics_df):
+    """Test PCA execution and output shapes."""
+    pca_model, loadings, factor_scores = perform_pca_on_metrics(sample_metrics_df, n_components=2)
     
-    assert isinstance(results, pd.DataFrame)
-    assert 'metric_name' in results.columns
+    # Check loadings shape
+    assert loadings.shape == (4, 2), f"Expected (4, 2), got {loadings.shape}"
+    assert list(loadings.index) == ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
+    
+    # Check factor scores shape
+    assert factor_scores.shape == (50, 3), f"Expected (50, 3), got {factor_scores.shape}"
+    assert list(factor_scores.columns) == ['subject_id', 'pca_factor_1', 'pca_factor_2']
+    
+    # Check explained variance
+    assert len(pca_model.explained_variance_ratio_) == 2
+    assert sum(pca_model.explained_variance_ratio_) > 0
+
+def test_apply_fdr_correction():
+    """Test FDR correction logic."""
+    p_values = [0.001, 0.01, 0.02, 0.05, 0.1, 0.2]
+    q_values = apply_fdr_correction(p_values)
+    
+    assert len(q_values) == len(p_values)
+    # q-values should be monotonically increasing with p-values
+    assert all(q_values[i] <= q_values[j] for i, j in zip(range(len(q_values)-1), range(1, len(q_values))))
+    # All q-values should be <= 1.0
+    assert all(q <= 1.0 for q in q_values)
+
+def test_perform_partial_correlation():
+    """Test partial correlation calculation."""
+    np.random.seed(42)
+    n = 100
+    x = np.random.randn(n)
+    y = np.random.randn(n)
+    z = np.random.randn(n)
+    
+    r, p = perform_partial_correlation(x, y, z)
+    
+    assert isinstance(r, float)
+    assert -1 <= r <= 1
+    assert 0 <= p <= 1
+
+def test_run_correlations_with_fd_covariate(sample_metrics_df):
+    """Test correlation with FD covariate."""
+    results = run_correlations_with_fd_covariate(sample_metrics_df)
+    
+    assert len(results) > 0
+    assert 'metric' in results.columns
     assert 'r' in results.columns
     assert 'p' in results.columns
-    assert len(results) == len(metric_cols)
-    
-    logger.log("test_compute_correlations_basic", n_results=len(results))
-
-def test_compute_correlations_with_covariate(sample_metrics_df):
-    """Test correlation computation with FD covariate."""
-    metric_cols = ['participation_coef']
-    results = compute_correlations(sample_metrics_df, metric_cols, covariate_col='fd')
-    
+    assert 'n' in results.columns
     assert 'covariate_controlled' in results.columns
-    assert all(results['covariate_controlled'])
     
-    logger.log("test_compute_correlations_with_covariate")
-
-def test_apply_fdr_correction(sample_metrics_df):
-    """Test FDR correction application."""
-    # First compute correlations
-    metric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
-    results = compute_correlations(sample_metrics_df, metric_cols)
+    # Check that r values are in valid range
+    assert all(-1 <= r <= 1 for r in results['r'])
     
-    # Apply FDR
-    corrected_results = apply_fdr_correction(results)
-    
-    assert 'q' in corrected_results.columns
-    assert 'significant' in corrected_results.columns
-    assert all(corrected_results['q'] >= 0)
-    assert all(corrected_results['q'] <= 1)
-    
-    logger.log("test_apply_fdr_correction", n_significant=corrected_results['significant'].sum())
-
-def test_log_significant_correlations(sample_metrics_df):
-    """Test logging of significant correlations."""
-    # Create data with a known strong correlation
-    np.random.seed(123)
-    n = 50
-    df = pd.DataFrame({
-        'subject_id': [f'sub_{i}' for i in range(n)],
-        'modularity': np.random.randn(n),
-        'motor_score': np.random.randn(n),
-        'fd': np.random.randn(n)
-    })
-    
-    # Force a strong correlation
-    df['motor_score'] = df['modularity'] * 2 + np.random.randn(n) * 0.1
-    
-    results = compute_correlations(df, ['modularity'])
-    results = apply_fdr_correction(results)
-    
-    # This should log if r > threshold
-    log_significant_correlations(results, threshold=CORRELATION_THRESHOLD)
-    
-    logger.log("test_log_significant_correlations")
-
-def test_correlation_threshold_logging(sample_metrics_df):
-    """Test that correlations above threshold are logged."""
-    # Create data with a strong correlation
-    np.random.seed(456)
-    n = 50
-    df = pd.DataFrame({
-        'subject_id': [f'sub_{i}' for i in range(n)],
-        'modularity': np.random.randn(n),
-        'motor_score': np.random.randn(n),
-        'fd': np.random.randn(n)
-    })
-    
-    # Create a correlation > 0.3
-    df['motor_score'] = df['modularity'] * 0.5 + np.random.randn(n) * 0.2
-    
-    results = compute_correlations(df, ['modularity'])
-    results = apply_fdr_correction(results)
-    
-    # Check that the correlation exceeds threshold
-    if not results.empty:
-        r_value = results.iloc[0]['r']
-        if abs(r_value) > CORRELATION_THRESHOLD:
-            # Should have logged the threshold exceedance
-            logger.log("test_correlation_threshold_logging", r=r_value, threshold=CORRELATION_THRESHOLD)
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    # Check that p values are in valid range
+    assert all(0 <= p <= 1 for p in results['p'])
