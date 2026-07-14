@@ -1105,22 +1105,6 @@
   updated_at: '2026-07-14T08:03:31Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Vary decline definition threshold by plus or minus 1 point
-  claim_id: c_eeda3278
-  context: "Vary the decline\u2011definition threshold by \xB1 1 point on raw MMSE/MOCA\
-    \ scores."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Vary decline\u2011definition threshold by \xB1 1 point"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T08:04:03Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
   canonical: Ensure nested cross-validation training completes within 30 minutes on
     CPU-only runner
   claim_id: c_055fc579
@@ -5070,48 +5054,61 @@
   updated_at: '2026-07-14T18:57:44Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: generate graph metrics from rs-fMRI data with longitudinal score filtering
-  claim_id: c_59f012d8
-  context: "Phase 3: User Story 1 - Data Ingestion and Graph Construction (Priority:\
-    \ P1) Goal: Download raw BIDS rs\u2011fMRI data, filter for longitudinal scores,\
-    \ and generate graph metrics."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Generate_graph_metrics_from_rs-fMRI_data_with_longitudinal_s
-  kind: entity_fact
-  raw_text: "Download raw BIDS rs\u2011fMRI data, filter for longitudinal scores,\
-    \ and generate graph metrics."
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:11:08Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: graph metric calculation constrained to 7 GB RAM
-  claim_id: c_4477b1f9
-  context: "T019 [US1] Implement code/03_compute_graph_metrics.py: Calculate node\
-    \ degree, global efficiency, clustering coefficient, and path length for every\
-    \ subject; output to data/processed/graph_metrics.csv. Process subject\u2011by\u2011\
-    subject to stay within 7GB RAM."
+  canonical: Sample size limit set to minimum of 100 and available eligible subjects
+  claim_id: c_7ed93062
+  context: "Implement code/01_download_and_filter.py: ...filter for subjects with\
+    \ non\u2011null MMSE/MOCA at both timepoints, limit to N = min(100, available_eligible)..."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Process subject\u2011by\u2011subject to stay within 7GB RAM"
+  raw_text: limit to N = min(100, available_eligible)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:11:26Z'
+  updated_at: '2026-07-14T19:44:25Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: verify 7 GB RAM limit on 2-core runner for graph metrics
-  claim_id: c_5c8eee4a
-  context: "T020 [US1] Add validation: Verify memory usage during graph metric calculation\
-    \ stays within the 7 GB RAM limit on a 2\u2011core runner (use psutil)."
+  canonical: Motion correction uses FSL mcflirt with 6 degrees of freedom
+  claim_id: c_96e6860a
+  context: 'Implement code/02_preprocess_and_parcellate.py: ...perform motion correction
+    using fsl (mcflirt with default reference volume and 6 degrees of freedom)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform motion correction using fsl (mcflirt with default reference volume
+    and 6 degrees of freedom)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:44:39Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Graph metric calculation constrained to 7GB RAM usage
+  claim_id: c_abf093dd
+  context: "Implement code/03_compute_graph_metrics.py: ...Process subject\u2011by\u2011\
+    subject to stay within 7GB RAM."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_metric_calculation_constrained_to_7GB_RAM_usage
+  kind: entity_fact
+  raw_text: "Process subject\u2011by\u2011subject to stay within 7GB RAM"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:45:18Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Memory usage verification on 2-core runner with 7GB limit
+  claim_id: c_47049bc4
+  context: "Add validation: Verify memory usage during graph metric calculation stays\
+    \ within the 7 GB RAM limit on a 2\u2011core runner (use psutil)."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -5122,11 +5119,337 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:11:45Z'
+  updated_at: '2026-07-14T19:46:26Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: cognitive decline defined as MMSE/MOCA drop of 3 or more points
-  claim_id: c_97ba3f8a
+  canonical: Cognitive decline defined as a drop of 3 or more points
+  claim_id: c_46b7ec9a
+  context: "Implement code/04_train_model.py: Define decline label (drop \u2265 3\
+    \ points)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define decline label (drop \u2265 3 points)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:46:27Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Random Forest n_estimators grid search over 50, 100, and 200
+  claim_id: c_ea5f84d8
+  context: 'Grid Search Parameters: n_estimators over {50, 100, 200}...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_estimators over {50, 100, 200}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:46:47Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Random Forest max_depth grid search over 5, 10, and None
+  claim_id: c_ae13c72c
+  context: 'Grid Search Parameters: ...and max_depth over {5, 10, None}...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max_depth over {5, 10, None}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:47:04Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Collinearity filter excludes features with Pearson correlation greater
+    than 0.95
+  claim_id: c_60f42be4
+  context: "Inside the inner CV loop: perform collinearity check (exclude features\
+    \ with correlation > 0.95, keep higher\u2011variance feature)..."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_filter_excludes_features_with_Pearson_correlati
+  kind: magnitude
+  raw_text: exclude features with correlation > 0.95
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:47:30Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Variance thresholding applied with threshold greater than 0.01
+  claim_id: c_85892601
+  context: "...apply Variance Thresholding (variance > 0.01) and RFE to select \u2264\
+    \ 20 features..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_thresholding_applied_with_threshold_greater_than_0.
+  kind: magnitude
+  raw_text: apply Variance Thresholding (variance > 0.01)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:47:51Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Feature selection limits number of features to 20 or fewer
+  claim_id: c_d2e70a29
+  context: "...and RFE to select \u2264 20 features, then fit Random Forest."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "select \u2264 20 features"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:47:52Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Nested CV training runtime limit of 30 minutes
+  claim_id: c_b04271f5
+  context: "Verify runtime: Ensure nested\u2011CV training completes within 30 minutes\
+    \ on the CPU\u2011only runner (use joblib with n_jobs=2 and monitor elapsed time)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure nested\u2011CV training completes within 30 minutes on the CPU\u2011\
+    only runner"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:48:18Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Permutation test performs 100 shuffles with seed 42
+  claim_id: c_43630532
+  context: "Execution: Shuffle labels 100 times (seed = 42), re\u2011train/re\u2011\
+    evaluate the model for each permutation, and record ROC\u2011AUC."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Shuffle labels 100 times (seed = 42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:48:50Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps decision thresholds at 0.45, 0.50, and 0.55
+  claim_id: c_fd77e167
+  context: 'Implement code/07_sensitivity_analysis.py (Part 1): Perform decision threshold
+    sweep over {0.45, 0.50, 0.55} on the trained model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform decision threshold sweep over {0.45, 0.50, 0.55}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:49:10Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Decline definition threshold varied by plus or minus 1 point
+  claim_id: c_9dfe8872
+  context: "Implement code/07_sensitivity_analysis.py (Part 2): Vary the decline\u2011\
+    definition threshold by \xB1 1 point on raw MMSE/MOCA scores."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Vary the decline\u2011definition threshold by \xB1 1 point on raw MMSE/MOCA\
+    \ scores"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:49:32Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Refactored graph metrics script target runtime under 30 minutes for 100
+    subjects
+  claim_id: c_ac306176
+  context: Refactor code/03_compute_graph_metrics.py to use joblib.Parallel(n_jobs=2)
+    and verify runtime reduction (target < 30 min for 100 subjects)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: target < 30 min for 100 subjects
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:49:33Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Random seeds pinned to fixed values for reproducibility
+  claim_id: c_784f75ad
+  context: 'Code cleanup: Remove debug prints, ensure all random seeds are pinned
+    to a fixed value to guarantee reproducibility...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_seeds_pinned_to_fixed_values_for_reproducibility
+  kind: entity_fact
+  raw_text: ensure all random seeds are pinned to a fixed value to guarantee reproducibility
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:49:57Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: PII scanning in raw data using pybids and bids-validator
+  claim_id: c_ceb6f2e7
+  context: "Security hardening: Scan data/raw/ for PII using pybids/bids-validator;\
+    \ automatically redact any personal identifiers found in JSON side\u2011cars or\
+    \ filenames"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PII_scanning_in_raw_data_using_pybids_and_bids-validator
+  kind: entity_fact
+  raw_text: Scan data/raw/ for PII using pybids/bids-validator
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:50:33Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Permutation test runtime estimation aborts if exceeding 2 hours
+  claim_id: c_fd1116f3
+  context: 'Pre-flight Check: Estimate runtime for 100 permutations; if > 2 hours,
+    abort with error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate runtime for 100 permutations; if > 2 hours, abort with error
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:50:47Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline downloads BIDS rs-fMRI data and generates graph metrics
+  claim_id: c_9d5bff1d
+  context: "Phase 3: User Story 1 - Data Ingestion and Graph Construction (Priority:\
+    \ P1) Goal: Download raw BIDS rs\u2011fMRI data, filter for longitudinal scores,\
+    \ and generate graph metrics."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_downloads_BIDS_rs-fMRI_data_and_generates_graph_met
+  kind: entity_fact
+  raw_text: "Download raw BIDS rs\u2011fMRI data, filter for longitudinal scores,\
+    \ and generate graph metrics."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:58:02Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: limit eligible subjects to 100
+  claim_id: c_d2d49971
+  context: "T017 [P] [US1] Implement code/01_download_and_filter.py: ... filter for\
+    \ subjects with non\u2011null MMSE/MOCA at both timepoints, limit to N = min(100,\
+    \ available_eligible), fail if zero eligible subjects."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: limit to N = min(100, available_eligible)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:58:03Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: graph metric calculation limited to 7 GB RAM
+  claim_id: c_fdf7ce21
+  context: "T019 [US1] Implement code/03_compute_graph_metrics.py: Calculate node\
+    \ degree, global efficiency, clustering coefficient, and path length for every\
+    \ subject; output to data/processed/graph_metrics.csv. Process subject\u2011by\u2011\
+    subject to stay within 7GB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "process subject\u2011by\u2011subject to stay within 7GB RAM"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:58:05Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: verify 7 GB RAM limit on 2-core runner
+  claim_id: c_30cfa536
+  context: "T020 [US1] Add validation: Verify memory usage during graph metric calculation\
+    \ stays within the 7 GB RAM limit on a 2\u2011core runner (use psutil)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify memory usage during graph metric calculation stays within the\
+    \ 7 GB RAM limit on a 2\u2011core runner"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:58:06Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: train Random Forest with nested cross-validation
+  claim_id: c_38c99916
+  context: "Phase 4: User Story 2 - Predictive Modeling and Validation (Priority:\
+    \ P2) Goal: Train a Random Forest classifier with nested cross\u2011validation\
+    \ to predict cognitive decline."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_Random_Forest_with_nested_cross-validation
+  kind: entity_fact
+  raw_text: "train a Random Forest classifier with nested cross\u2011validation to\
+    \ predict cognitive decline"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:58:41Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: cognitive decline defined as drop of 3 points
+  claim_id: c_36db2724
   context: "T023 [US2] Implement code/04_train_model.py: Define decline label (drop\
     \ \u2265 3 points). Implement Nested CV (K-fold outer cross-validation, grid\u2011\
     search inner)."
@@ -5139,38 +5462,49 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:11:45Z'
+  updated_at: '2026-07-14T19:58:42Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Random Forest grid search n_estimators in {50, 100, 200} and max_depth
-    in {5, 10, None}
-  claim_id: c_f81cf2ae
-  context: 'T023 [US2] Implement code/04_train_model.py: **Grid Search Parameters**:
-    n_estimators over {50, 100, 200} and max_depth over {5, 10, None} (specific values
-    chosen to satisfy FR-010 optimization requirements within CPU constraints).'
+  canonical: n_estimators grid search values 50, 100, 200
+  claim_id: c_deccf882
+  context: 'T023 [US2] ... Grid Search Parameters: n_estimators over {50, 100, 200}
+    and max_depth over {5, 10, None}'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 'Grid Search Parameters: n_estimators over {50, 100, 200} and max_depth
-    over {5, 10, None}'
+  raw_text: n_estimators over {50, 100, 200}
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:12:05Z'
+  updated_at: '2026-07-14T19:58:43Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: collinearity filter excludes features with Pearson correlation greater
-    than 0.95
-  claim_id: c_71ad9719
-  context: "T023 [US2] Implement code/04_train_model.py: **Inside the inner CV loop**:\
-    \ perform collinearity check (exclude features with correlation > 0.95, keep higher\u2011\
-    variance feature)"
+  canonical: max_depth grid search values 5, 10, None
+  claim_id: c_c8ba6828
+  context: 'T023 [US2] ... Grid Search Parameters: n_estimators over {50, 100, 200}
+    and max_depth over {5, 10, None}'
   evidence:
-    candidates_found: 0
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max_depth over {5, 10, None}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:58:44Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: exclude features with Pearson correlation greater than 0.95
+  claim_id: c_5d7946e1
+  context: "T023 [US2] ... Inside the inner CV loop: perform collinearity check (exclude\
+    \ features with correlation > 0.95, keep higher\u2011variance feature)"
+  evidence:
+    candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Collinearity_filter_excludes_features_with_Pearson_correlati
+    source_url: https://en.wikipedia.org/wiki/Exclude_features_with_Pearson_correlation_greater_than_0.95
   kind: magnitude
   raw_text: exclude features with correlation > 0.95
   resolved_value: null
@@ -5178,96 +5512,115 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:12:28Z'
+  updated_at: '2026-07-14T19:58:49Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: variance threshold filter set to greater than 0.01
-  claim_id: c_46588904
-  context: "T023 [US2] Implement code/04_train_model.py: apply Variance Thresholding\
-    \ (variance > 0.01) and RFE to select \u2264 20 features"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Variance_threshold_filter_set_to_greater_than_0.01
-  kind: magnitude
-  raw_text: apply Variance Thresholding (variance > 0.01)
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:12:51Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: feature selection limited to 20 or fewer features
-  claim_id: c_4c06b41f
-  context: "T023 [US2] Implement code/04_train_model.py: apply Variance Thresholding\
-    \ (variance > 0.01) and RFE to select \u2264 20 features, then fit Random Forest."
+  canonical: variance thresholding applied with threshold 0.01
+  claim_id: c_2a491a51
+  context: "T023 [US2] ... apply Variance Thresholding (variance > 0.01) and RFE to\
+    \ select \u2264 20 features"
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "select \u2264 20 features"
+  raw_text: apply Variance Thresholding (variance > 0.01)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:12:52Z'
+  updated_at: '2026-07-14T19:58:50Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: nested cross-validation training runtime under 30 minutes
-  claim_id: c_2690a81b
+  canonical: select at most 20 features
+  claim_id: c_d89b6a8c
+  context: "T023 [US2] ... apply Variance Thresholding (variance > 0.01) and RFE to\
+    \ select \u2264 20 features"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_at_most_20_features
+  kind: magnitude
+  raw_text: "select \u2264 20 features"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:59:11Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: performance report contains ROC-AUC and F1-score
+  claim_id: c_db999081
+  context: "Independent Test: The pipeline can be executed to output data/processed/model.pkl\
+    \ and data/processed/performance_report.json containing ROC\u2011AUC and F1\u2011\
+    score for nested CV"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Performance_report_contains_ROC-AUC_and_F1-score
+  kind: entity_fact
+  raw_text: "output data/processed/performance_report.json containing ROC\u2011AUC\
+    \ and F1\u2011score"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:59:29Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: nested CV training completes within 30 minutes
+  claim_id: c_a3239429
   context: "T026 [US2] Verify runtime: Ensure nested\u2011CV training completes within\
     \ 30 minutes on the CPU\u2011only runner (use joblib with n_jobs=2 and monitor\
     \ elapsed time)"
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Ensure nested\u2011CV training completes within 30 minutes on the CPU\u2011\
+  raw_text: "ensure nested\u2011CV training completes within 30 minutes on the CPU\u2011\
     only runner"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:13:16Z'
+  updated_at: '2026-07-14T19:59:30Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: permutation test performs 100 label shuffles with seed 42
-  claim_id: c_dff2b4c2
-  context: "T029 [US3] Implement code/06_permutation_test.py: **Execution**: Shuffle\
-    \ labels 100 times (seed = 42), re\u2011train/re\u2011evaluate the model for each\
-    \ permutation, and record ROC\u2011AUC."
+  canonical: permutation test runs 100 shuffles
+  claim_id: c_e8d2063f
+  context: "T029 [US3] ... Execution: Shuffle labels 100 times (seed = 42), re\u2011\
+    train/re\u2011evaluate the model for each permutation, and record ROC\u2011AUC."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Shuffle labels 100 times (seed = 42)
+  raw_text: Shuffle labels 100 times
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:13:48Z'
+  updated_at: '2026-07-14T20:00:01Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: sensitivity analysis tests thresholds 0.45, 0.50, and 0.55
-  claim_id: c_57f2781c
+  canonical: decision threshold sweep values 0.45, 0.50, 0.55
+  claim_id: c_6791bc8c
   context: 'T030a [US3] Implement code/07_sensitivity_analysis.py (Part 1): Perform
     decision threshold sweep over {0.45, 0.50, 0.55} on the trained model.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Perform decision threshold sweep over {0.45, 0.50, 0.55}
+  raw_text: perform decision threshold sweep over {0.45, 0.50, 0.55}
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:14:08Z'
+  updated_at: '2026-07-14T20:00:02Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: sensitivity analysis varies decline threshold by plus or minus 1 point
-  claim_id: c_e527ed06
+  canonical: decline definition threshold varied by 1 point
+  claim_id: c_613e4afb
   context: "T030b [US3] Implement code/07_sensitivity_analysis.py (Part 2): Vary the\
     \ decline\u2011definition threshold by \xB1 1 point on raw MMSE/MOCA scores."
   evidence:
@@ -5280,300 +5633,289 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:14:38Z'
+  updated_at: '2026-07-14T20:00:03Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: graph metric computation target under 30 minutes for 100 subjects
-  claim_id: c_a3a9fea5
+  canonical: graph metrics runtime target 30 minutes for 100 subjects
+  claim_id: c_f826ca48
   context: 'T035 Performance optimization: Refactor code/03_compute_graph_metrics.py
     to use joblib.Parallel(n_jobs=2) and verify runtime reduction (target < 30 min
     for 100 subjects)'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: verify runtime reduction (target < 30 min for 100 subjects)
+  raw_text: refactor code/03_compute_graph_metrics.py to use joblib.Parallel(n_jobs=2)
+    and verify runtime reduction (target < 30 min for 100 subjects)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:14:39Z'
+  updated_at: '2026-07-14T20:00:23Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: grid search must use n_estimators in {50, 100, 200} and max_depth in
-    {5, 10, None}
-  claim_id: c_53da5e53
-  context: 'Critical: Ensure code/04_train_model.py implements the grid search range
-    {50, 100, 200} for n_estimators and {5, 10, None} for max_depth, noting the spec''s
-    likely typo.'
+  canonical: Limit dataset to 100 eligible subjects
+  claim_id: c_81952f07
+  context: "Implement code/01_download_and_filter.py: ...filter for subjects with\
+    \ non\u2011null MMSE/MOCA at both timepoints, limit to N = min(100, available_eligible)..."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: ensure code/04_train_model.py implements the grid search range {50, 100,
-    200} for n_estimators and {5, 10, None} for max_depth
+  raw_text: Limit to N = min(100, available_eligible)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:14:58Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Limit eligible subjects to minimum of 100 or available count
-  claim_id: c_198eb95f
-  context: "Implement code/01_download_and_filter.py: Download ds000246 (Constitution\
-    \ VI, FR-001), parse BIDS metadata, filter for subjects with non\u2011null MMSE/MOCA\
-    \ at both timepoints, limit to N = min(100, available_eligible), fail if zero\
-    \ eligible subjects."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Limit to N = min(100, available_eligible).
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:22:25Z'
+  updated_at: '2026-07-14T20:07:13Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
   canonical: Graph metric calculation memory limit 7GB
-  claim_id: c_954630d3
-  context: "Implement code/03_compute_graph_metrics.py: Calculate node degree, global\
-    \ efficiency, clustering coefficient, and path length for every subject; output\
-    \ to data/processed/graph_metrics.csv. Process subject\u2011by\u2011subject to\
-    \ stay within 7GB RAM."
+  claim_id: c_76d374e6
+  context: "Implement code/03_compute_graph_metrics.py: ...Process subject\u2011by\u2011\
+    subject to stay within 7GB RAM."
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
     source_url: https://en.wikipedia.org/wiki/Graph_metric_calculation_memory_limit_7GB
   kind: entity_fact
-  raw_text: "Process subject\u2011by\u2011subject to stay within 7GB RAM."
+  raw_text: "Process subject\u2011by\u2011subject to stay within 7GB RAM"
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:22:28Z'
+  updated_at: '2026-07-14T20:07:16Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Memory verification 7GB on 2-core runner
-  claim_id: c_7b3450c3
+  canonical: Verify 7GB RAM limit on 2-core runner
+  claim_id: c_76a1ff00
   context: "Add validation: Verify memory usage during graph metric calculation stays\
     \ within the 7 GB RAM limit on a 2\u2011core runner (use psutil)."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
   raw_text: "Verify memory usage during graph metric calculation stays within the\
-    \ 7 GB RAM limit on a 2\u2011core runner."
+    \ 7 GB RAM limit on a 2\u2011core runner"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:22:29Z'
+  updated_at: '2026-07-14T20:07:17Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Collinearity filter threshold 0.95
-  claim_id: c_bd9fa8ce
-  context: "Inside the inner CV loop: perform collinearity check (exclude features\
-    \ with correlation > 0.95, keep higher\u2011variance feature), apply Variance\
-    \ Thresholding (variance > 0.01) and RFE to select \u2264 20 features, then fit\
-    \ Random Forest."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Exclude features with correlation > 0.95.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:22:30Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Variance thresholding minimum 0.01
-  claim_id: c_0159ab8a
-  context: "Inside the inner CV loop: perform collinearity check (exclude features\
-    \ with correlation > 0.95, keep higher\u2011variance feature), apply Variance\
-    \ Thresholding (variance > 0.01) and RFE to select \u2264 20 features, then fit\
-    \ Random Forest."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Apply Variance Thresholding with variance > 0.01.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:22:31Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: RFE feature selection limit 20
-  claim_id: c_d741f554
-  context: "Inside the inner CV loop: perform collinearity check (exclude features\
-    \ with correlation > 0.95, keep higher\u2011variance feature), apply Variance\
-    \ Thresholding (variance > 0.01) and RFE to select \u2264 20 features, then fit\
-    \ Random Forest."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Select \u2264 20 features using RFE."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:22:32Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Random Forest n_estimators grid values 50 100 200
-  claim_id: c_73acb86d
-  context: 'Grid Search Parameters: n_estimators over {50, 100, 200} and max_depth
-    over {5, 10, None} (specific values chosen to satisfy FR-010 optimization requirements
-    within CPU constraints).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Grid search n_estimators over {50, 100, 200}.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:22:50Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Random Forest max_depth grid values 5 10 None
-  claim_id: c_fb900bb5
-  context: 'Grid Search Parameters: n_estimators over {50, 100, 200} and max_depth
-    over {5, 10, None} (specific values chosen to satisfy FR-010 optimization requirements
-    within CPU constraints).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Grid search max_depth over {5, 10, None}.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:23:04Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Cognitive decline definition 3 point drop
-  claim_id: c_3f196a8b
+  canonical: Define cognitive decline as drop of 3 points or more
+  claim_id: c_733a89c3
   context: "Implement code/04_train_model.py: Define decline label (drop \u2265 3\
-    \ points). Implement Nested CV (K-fold outer cross-validation, grid\u2011search\
-    \ inner)."
+    \ points)."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Define decline label as drop \u2265 3 points."
+  raw_text: "Drop \u2265 3 points to define decline label"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:23:05Z'
+  updated_at: '2026-07-14T20:07:19Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Model training runtime limit 30 minutes
-  claim_id: c_146fe003
+  canonical: Random Forest grid search parameters n_estimators 50-200 max_depth 5-10
+  claim_id: c_4d0b8ba6
+  context: 'Grid Search Parameters: n_estimators over {50, 100, 200} and max_depth
+    over {5, 10, None} (specific values chosen to satisfy FR-010 optimization requirements
+    within CPU constraints).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Grid Search Parameters: n_estimators over {50, 100, 200} and max_depth
+    over {5, 10, None}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:07:39Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Exclude features with Pearson correlation greater than 0.95
+  claim_id: c_63b301ba
+  context: "Inside the inner CV loop: perform collinearity check (exclude features\
+    \ with correlation > 0.95, keep higher\u2011variance feature)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_features_with_Pearson_correlation_greater_than_0.95
+  kind: magnitude
+  raw_text: Exclude features with correlation > 0.95
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:07:42Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Apply variance threshold greater than 0.01
+  claim_id: c_c1e93199
+  context: "...apply Variance Thresholding (variance > 0.01) and RFE to select \u2264\
+    \ 20 features..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_variance_threshold_greater_than_0.01
+  kind: magnitude
+  raw_text: Apply Variance Thresholding (variance > 0.01)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:07:45Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Select 20 or fewer features
+  claim_id: c_435c2292
+  context: "...apply Variance Thresholding (variance > 0.01) and RFE to select \u2264\
+    \ 20 features..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Select \u2264 20 features"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:07:46Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Nested CV training runtime limit 30 minutes
+  claim_id: c_257a2f67
   context: "Verify runtime: Ensure nested\u2011CV training completes within 30 minutes\
     \ on the CPU\u2011only runner (use joblib with n_jobs=2 and monitor elapsed time)"
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Verify nested\u2011CV training completes within 30 minutes on the CPU\u2011\
-    only runner."
+  raw_text: "Ensure nested\u2011CV training completes within 30 minutes on the CPU\u2011\
+    only runner"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:23:34Z'
+  updated_at: '2026-07-14T20:07:47Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Permutation test 100 iterations seed 42
-  claim_id: c_f78c34cd
+  canonical: Permutation test shuffle labels 100 times
+  claim_id: c_754663d3
   context: "Execution: Shuffle labels 100 times (seed = 42), re\u2011train/re\u2011\
     evaluate the model for each permutation, and record ROC\u2011AUC."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Shuffle labels 100 times with seed = 42.
+  raw_text: Shuffle labels 100 times
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:24:02Z'
+  updated_at: '2026-07-14T20:07:48Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Sensitivity analysis threshold sweep 0.45 0.50 0.55
-  claim_id: c_506afe23
-  context: "Implement code/07_sensitivity_analysis.py (Part 1): Perform decision threshold\
-    \ sweep over {0.45, 0.50, 0.55} on the trained model. Report false\u2011positive/false\u2011\
-    negative rates."
+  canonical: Abort if 100 permutation runtime exceeds 2 hours
+  claim_id: c_81c95b52
+  context: 'Pre-flight Check: Estimate runtime for 100 permutations; if > 2 hours,
+    abort with error.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Perform decision threshold sweep over {0.45, 0.50, 0.55}.
+  raw_text: Estimate runtime for 100 permutations; if > 2 hours, abort with error
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:24:03Z'
+  updated_at: '2026-07-14T20:07:49Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Decline threshold sensitivity +/- 1 point
-  claim_id: c_e615d941
-  context: "Implement code/07_sensitivity_analysis.py (Part 2): Vary the decline\u2011\
-    definition threshold by \xB1 1 point on raw MMSE/MOCA scores. MUST re\u2011train\
-    \ the model for each variation to assess robustness of the label definition (FR-012)."
+  canonical: Decision threshold sweep values 0.45 0.50 0.55
+  claim_id: c_b614f178
+  context: Perform decision threshold sweep over {0.45, 0.50, 0.55} on the trained
+    model.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "Vary the decline\u2011definition threshold by \xB1 1 point on raw MMSE/MOCA\
+  raw_text: Perform decision threshold sweep over {0.45, 0.50, 0.55}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:07:50Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 2
+  canonical: Vary decline definition threshold by plus or minus 1 point
+  claim_id: c_eeda3278
+  context: "Vary the decline\u2011definition threshold by \xB1 1 point on raw MMSE/MOCA\
     \ scores."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Vary decline\u2011definition threshold by \xB1 1 point"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:24:04Z'
+  updated_at: '2026-07-14T20:08:19Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Graph metrics optimization target 30 min for 100 subjects
-  claim_id: c_95c162ba
-  context: 'Performance optimization: Refactor code/03_compute_graph_metrics.py to
-    use joblib.Parallel(n_jobs=2) and verify runtime reduction (target < 30 min for
-    100 subjects)'
+  canonical: Refactor graph metrics to use 2 jobs with runtime target under 30 minutes
+    for 100 subjects
+  claim_id: c_e79c3c87
+  context: Refactor code/03_compute_graph_metrics.py to use joblib.Parallel(n_jobs=2)
+    and verify runtime reduction (target < 30 min for 100 subjects)
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
   raw_text: Refactor code/03_compute_graph_metrics.py to use joblib.Parallel(n_jobs=2)
-    and verify runtime reduction (target < 30 min for 100 subjects).
+    and verify runtime reduction (target < 30 min for 100 subjects)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:24:18Z'
+  updated_at: '2026-07-14T20:08:20Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Download rs-fMRI data and generate graph metrics for longitudinal scores
-  claim_id: c_4b558d9f
-  context: "Phase 3: User Story 1 - Data Ingestion and Graph Construction (Priority:\
-    \ P1) Goal: Download raw BIDS rs\u2011fMRI data, filter for longitudinal scores,\
-    \ and generate graph metrics."
+  canonical: Implement grid search range n_estimators 50-200 and max_depth 5-10-None
+  claim_id: c_6b85127f
+  context: Ensure code/04_train_model.py implements the grid search range {50, 100,
+    200} for n_estimators and {5, 10, None} for max_depth, noting the spec's likely
+    typo.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure code/04_train_model.py implements the grid search range {50, 100,
+    200} for n_estimators and {5, 10, None} for max_depth
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:08:38Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Download raw BIDS rs-fMRI data and generate graph metrics
+  claim_id: c_6919bfaa
+  context: 'Goal for User Story 1: Data Ingestion and Graph Construction (Priority:
+    P1) MVP'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Download_rs-fMRI_data_and_generate_graph_metrics_for_longitu
+    source_url: https://en.wikipedia.org/wiki/Download_raw_BIDS_rs-fMRI_data_and_generate_graph_metrics
   kind: entity_fact
   raw_text: "Download raw BIDS rs\u2011fMRI data, filter for longitudinal scores,\
     \ and generate graph metrics."
@@ -5582,15 +5924,13 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:26:27Z'
+  updated_at: '2026-07-14T20:14:36Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
   canonical: Pipeline produces graph_metrics.csv with subject IDs and metrics without
     ML training
-  claim_id: c_55afee04
-  context: 'Independent Test: The pipeline can be run on a single batch of data to
-    produce data/processed/graph_metrics.csv containing subject IDs and calculated
-    graph metrics without any machine learning training.'
+  claim_id: c_1617ae21
+  context: Independent Test for User Story 1
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
@@ -5604,37 +5944,228 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:26:53Z'
+  updated_at: '2026-07-14T20:15:00Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Limit eligible subjects to minimum of 100 or available count
+  claim_id: c_8504e97b
+  context: 'Task T017: Implement code/01_download_and_filter.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Limit to N = min(100, available_eligible) subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:15:51Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Process graph metrics subject-by-subject to stay within 7GB RAM
+  claim_id: c_51eb47d9
+  context: 'Task T019: Implement code/03_compute_graph_metrics.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Process_graph_metrics_subject-by-subject_to_stay_within_7GB
+  kind: entity_fact
+  raw_text: "Process subject\u2011by\u2011subject to stay within 7GB RAM."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:15:54Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Verify 7GB RAM limit on 2-core runner for graph metric calculation
+  claim_id: c_95228218
+  context: 'Task T020: Add validation for memory usage'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify memory usage during graph metric calculation stays within the\
+    \ 7 GB RAM limit on a 2\u2011core runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:15:55Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Train Random Forest with nested cross-validation for cognitive decline
+    prediction
+  claim_id: c_fb75a0d5
+  context: 'Goal for User Story 2: Predictive Modeling and Validation'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_Random_Forest_with_nested_cross-validation_for_cogniti
+  kind: entity_fact
+  raw_text: "Train a Random Forest classifier with nested cross\u2011validation to\
+    \ predict cognitive decline."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:15:58Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
   canonical: Pipeline outputs model.pkl and performance_report.json with ROC-AUC and
-    F1-score for nested CV
-  claim_id: c_62820ec3
-  context: "Independent Test: The pipeline can be executed to output data/processed/model.pkl\
-    \ and data/processed/performance_report.json containing ROC\u2011AUC and F1\u2011\
-    score for nested CV, without running the permutation test."
+    F1-score
+  claim_id: c_c3b7f570
+  context: Independent Test for User Story 2
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
     source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_model.pkl_and_performance_report.json_with
   kind: entity_fact
   raw_text: "The pipeline can be executed to output data/processed/model.pkl and data/processed/performance_report.json\
-    \ containing ROC\u2011AUC and F1\u2011score for nested CV, without running the\
-    \ permutation test."
+    \ containing ROC\u2011AUC and F1\u2011score for nested CV."
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:27:15Z'
+  updated_at: '2026-07-14T20:16:34Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Define cognitive decline label as a drop of 3 or more points
+  claim_id: c_1f630c65
+  context: 'Task T023: Implement code/04_train_model.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define decline label as a drop of \u2265 3 points."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:16:35Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Grid search n_estimators over 50, 100, 200 and max_depth over 5, 10,
+    None
+  claim_id: c_660ea690
+  context: 'Task T023: Grid Search Parameters for Random Forest'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Grid Search Parameters: n_estimators over {50, 100, 200} and max_depth
+    over {5, 10, None}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:16:37Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Exclude features with Pearson correlation greater than 0.95
+  claim_id: c_c87d3410
+  context: 'Task T023: Inside the inner CV loop collinearity check'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_features_with_Pearson_correlation_greater_than_0.95
+  kind: magnitude
+  raw_text: Exclude features with correlation > 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:16:39Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Apply variance thresholding with variance greater than 0.01
+  claim_id: c_6a129435
+  context: 'Task T023: Variance Thresholding step'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_variance_thresholding_with_variance_greater_than_0.01
+  kind: magnitude
+  raw_text: Apply Variance Thresholding with variance > 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:16:43Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Select 20 or fewer features using Recursive Feature Elimination
+  claim_id: c_afdfb32f
+  context: 'Task T023: Feature selection step'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Select \u2264 20 features using RFE."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:16:44Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Ensure nested-CV training completes within 30 minutes
+  claim_id: c_e764e7aa
+  context: 'Task T026: Verify runtime for nested-CV training'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure nested\u2011CV training completes within 30 minutes on the CPU\u2011\
+    only runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:16:45Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Use joblib with 2 jobs for parallelisation
+  claim_id: c_b93145c5
+  context: 'Task T026: Runtime verification using joblib'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use joblib with n_jobs=2 for parallelisation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:17:01Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Validate model significance via permutation test and threshold sensitivity
+  claim_id: c_b9945b49
+  context: 'Goal for User Story 3: Statistical Significance and Sensitivity Analysis'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_model_significance_via_permutation_test_and_thresho
+  kind: entity_fact
+  raw_text: Validate model significance via permutation test and assess robustness
+    via threshold sensitivity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:17:21Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
   canonical: Pipeline outputs permutation_results.json and sensitivity_report.json
-    after running permutation test
-  claim_id: c_ec61b2a9
-  context: 'Independent Test: The pipeline can take an existing model and performance
-    metric, run the permutation test, and output data/processed/permutation_results.json
-    and data/processed/sensitivity_report.json.'
+  claim_id: c_b18c67b5
+  context: Independent Test for User Story 3
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
@@ -5647,346 +6178,116 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:27:32Z'
+  updated_at: '2026-07-14T20:17:35Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Download raw BIDS rs-fMRI data from OpenNeuro ds000246
-  claim_id: c_74ca60e6
-  context: "Implement code/01_download_and_filter.py: Download ds000246 (Constitution\
-    \ VI, FR-001), parse BIDS metadata, filter for subjects with non\u2011null MMSE/MOCA\
-    \ at both timepoints."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Download_raw_BIDS_rs-fMRI_data_from_OpenNeuro_ds000246
-  kind: entity_fact
-  raw_text: "Download raw BIDS rs\u2011fMRI data from OpenNeuro ds000246 (Constitution\
-    \ VI)."
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:43:16Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Limit dataset to 100 subjects
-  claim_id: c_9f85f9da
-  context: "filter for subjects with non\u2011null MMSE/MOCA at both timepoints, limit\
-    \ to N = min(100, available_eligible), fail if zero eligible subjects."
+  canonical: Shuffle labels 100 times with seed 42
+  claim_id: c_d6f1ffd8
+  context: 'Task T029: Execution of permutation test'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Limit the dataset to N = min(100, available_eligible) subjects.
+  raw_text: Shuffle labels 100 times with seed = 42.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:44:02Z'
+  updated_at: '2026-07-14T20:18:05Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Use AAL atlas for parcellation
-  claim_id: c_932381dc
-  context: apply the fixed AAL atlas with a standard number of regions, and (Constitution
-    Principle VII, FR-002).
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Use_AAL_atlas_for_parcellation
-  kind: entity_fact
-  raw_text: Use the AAL atlas with a standard number of regions for parcellation.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:45:17Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Calculate node degree global efficiency clustering coefficient and path
-    length
-  claim_id: c_39085c32
-  context: 'Implement code/03_compute_graph_metrics.py: Calculate node degree, global
-    efficiency, clustering coefficient, and path length for every subject; output
-    to data/processed/graph_metrics.csv.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Calculate_node_degree_global_efficiency_clustering_coefficie
-  kind: entity_fact
-  raw_text: Calculate node degree, global efficiency, clustering coefficient, and
-    path length for every subject.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:45:43Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Stay within 7GB RAM for graph metric calculation
-  claim_id: c_d7954ada
-  context: "Process subject\u2011by\u2011subject to stay within 7GB RAM."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Stay_within_7GB_RAM_for_graph_metric_calculation
-  kind: entity_fact
-  raw_text: Process subject-by-subject to stay within 7GB RAM during graph metric
-    calculation.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:46:06Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Define cognitive decline as a drop of 3 points
-  claim_id: c_2738c21f
-  context: "Define decline label (drop \u2265 3 points)."
+  canonical: Perform decision threshold sweep over 0.45, 0.50, 0.55
+  claim_id: c_3e73104f
+  context: 'Task T030a: Implement sensitivity analysis Part 1'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Define cognitive decline as a drop of 3 or more points.
+  raw_text: Perform decision threshold sweep over {0.45, 0.50, 0.55}.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:46:34Z'
+  updated_at: '2026-07-14T20:18:06Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Perform nested cross-validation with K-fold outer and grid-search inner
-  claim_id: c_5dfaf5fa
-  context: "Implement Nested CV (K-fold outer cross-validation, grid\u2011search inner)."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Perform_nested_cross-validation_with_K-fold_outer_and_grid-s
-  kind: entity_fact
-  raw_text: Perform nested cross-validation with K-fold outer cross-validation and
-    grid-search inner loop.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:48:23Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Search n_estimators over 50 100 200
-  claim_id: c_2fa73ae3
-  context: 'Grid Search Parameters: n_estimators over {50, 100, 200} and max_depth
-    over {5, 10, None}.'
+  canonical: Vary decline-definition threshold by plus or minus 1 point
+  claim_id: c_a8ea6b82
+  context: 'Task T030b: Implement sensitivity analysis Part 2'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Search n_estimators over values 50, 100, and 200.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:48:49Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Search max_depth over 5 10 None
-  claim_id: c_631a7fb4
-  context: 'Grid Search Parameters: n_estimators over {50, 100, 200} and max_depth
-    over {5, 10, None}.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Search max_depth over values 5, 10, and None.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:49:05Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Exclude features with Pearson correlation greater than 0.95
-  claim_id: c_37c5d38b
-  context: "perform collinearity check (exclude features with correlation > 0.95,\
-    \ keep higher\u2011variance feature)."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Exclude_features_with_Pearson_correlation_greater_than_0.95
-  kind: magnitude
-  raw_text: Exclude features with Pearson correlation greater than 0.95.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:49:43Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Apply Variance Thresholding greater than 0.01
-  claim_id: c_bb1f9ed4
-  context: "apply Variance Thresholding (variance > 0.01) and RFE to select \u2264\
-    \ 20 features."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Apply_Variance_Thresholding_greater_than_0.01
-  kind: magnitude
-  raw_text: Apply Variance Thresholding with a threshold greater than 0.01.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:50:33Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Select 20 or fewer features using RFE
-  claim_id: c_0ef9526b
-  context: "apply Variance Thresholding (variance > 0.01) and RFE to select \u2264\
-    \ 20 features."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Select 20 or fewer features using RFE.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:50:48Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Run 100 permutations for the permutation test
-  claim_id: c_2a90fb3f
-  context: "Shuffle labels 100 times (seed = 42), re\u2011train/re\u2011evaluate the\
-    \ model for each permutation, and record ROC\u2011AUC."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run 100 permutations for the permutation test.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:51:05Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Perform decision threshold sweep over 0.45 0.50 0.55
-  claim_id: c_afb545f5
-  context: Perform decision threshold sweep over {0.45, 0.50, 0.55} on the trained
-    model.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Perform decision threshold sweep over values 0.45, 0.50, and 0.55.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:51:21Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Vary decline definition threshold by 1 point
-  claim_id: c_9acad4a6
-  context: "Vary the decline\u2011definition threshold by \xB1 1 point on raw MMSE/MOCA\
+  raw_text: "Vary the decline\u2011definition threshold by \xB1 1 point on raw MMSE/MOCA\
     \ scores."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Vary the decline-definition threshold by plus or minus 1 point.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:51:45Z'
+  updated_at: '2026-07-14T20:18:07Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Verify ROC-AUC greater than 0.50
-  claim_id: c_ee64e6fc
-  context: "Check that ROC\u2011AUC > 0.50, p < 0.05, and total runtime < 6 h."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Verify_ROC-AUC_greater_than_0.50
-  kind: magnitude
-  raw_text: Verify that ROC-AUC is greater than 0.50.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:52:05Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Verify p-value less than 0.05
-  claim_id: c_f78dd63a
-  context: "Check that ROC\u2011AUC > 0.50, p < 0.05, and total runtime < 6 h."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Verify_p-value_less_than_0.05
-  kind: magnitude
-  raw_text: Verify that p-value is less than 0.05.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:52:31Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Ensure total runtime less than 6 hours
-  claim_id: c_ccc9c40f
-  context: "Check that ROC\u2011AUC > 0.50, p < 0.05, and total runtime < 6 h."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Ensure_total_runtime_less_than_6_hours
-  kind: magnitude
-  raw_text: Ensure total runtime is less than 6 hours.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:52:51Z'
-- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
-  attempts: 1
-  canonical: Ensure nested-CV training completes within 30 minutes
-  claim_id: c_21d47e70
-  context: "Ensure nested\u2011CV training completes within 30 minutes on the CPU\u2011\
-    only runner (use joblib with n_jobs=2 and monitor elapsed time)"
+  canonical: Refactor graph metrics script to use 2 jobs with target runtime under
+    30 minutes for 100 subjects
+  claim_id: c_17ce27da
+  context: 'Task T035: Performance optimization'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Ensure nested-CV training completes within 30 minutes on a CPU-only runner.
+  raw_text: Refactor code/03_compute_graph_metrics.py to use joblib.Parallel(n_jobs=2)
+    and verify runtime reduction (target < 30 min for 100 subjects).
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:52:52Z'
+  updated_at: '2026-07-14T20:18:08Z'
 - artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
   attempts: 1
-  canonical: Target runtime reduction to less than 30 minutes for 100 subjects
-  claim_id: c_84b562b9
-  context: verify runtime reduction (target < 30 min for 100 subjects)
+  canonical: Scan raw data for PII using pybids and bids-validator
+  claim_id: c_7f88eaac
+  context: 'Task T037: Security hardening'
   evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Target_runtime_reduction_to_less_than_30_minutes_for_100_sub
-  kind: magnitude
-  raw_text: Target runtime reduction to less than 30 minutes for 100 subjects.
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scan_raw_data_for_PII_using_pybids_and_bids-validator
+  kind: entity_fact
+  raw_text: Scan data/raw/ for PII using pybids/bids-validator.
   resolved_value: null
-  resolver: resolve_superlative
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:53:17Z'
+  updated_at: '2026-07-14T20:18:11Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Implement n_estimators grid search range 50, 100, 200
+  claim_id: c_cb38a9f7
+  context: Critical Note regarding T023 grid search implementation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure code/04_train_model.py implements the grid search range {50, 100,
+    200} for n_estimators.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:18:26Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Implement max_depth grid search range 5, 10, None
+  claim_id: c_4540efee
+  context: Critical Note regarding T023 grid search implementation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure code/04_train_model.py implements the grid search range {5, 10,
+    None} for max_depth.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T20:18:44Z'

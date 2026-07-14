@@ -1,8 +1,8 @@
-"""External outcome check: verify MCI conversion data availability.
+"""External outcome check: Verify MCI conversion data availability (FR-011).
 
-This module implements Task T025. It checks the dataset for MCI conversion
-labels (external outcome). If unavailable, it writes a limitation note to
-`data/artifacts/limitations.txt` for consumption by the report generator.
+This module checks if the dataset contains longitudinal MCI conversion labels.
+If unavailable, it writes a limitation note to `data/artifacts/limitations.txt`
+to be consumed by the final report generator (T031).
 """
 from __future__ import annotations
 
@@ -15,44 +15,54 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+import pandas as pd
 
-# Paths
-PARTICIPANTS_FILE = PROJECT_ROOT / "data" / "raw" / "ds000246" / "participants.tsv"
-LIMITATIONS_FILE = PROJECT_ROOT / "data" / "artifacts" / "limitations.txt"
+# Constants
+LIMITATIONS_PATH = Path("data/artifacts/limitations.txt")
+PARTICIPANTS_PATH = Path("data/raw/ds000246/participants.tsv")
+DATASET_DESCRIPTION_PATH = Path("data/raw/ds000246/dataset_description.json")
+MCI_COLUMNS = ["mci_conversion", "mci_status", "diagnosis_followup", "dx_change"]
 
 
 @dataclass
 class LogEntry:
+    """Reproducibility log entry."""
     operation: str = ""
     parameters: dict = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    status: str = "success"
+    message: str = ""
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 
 class ReproducibilityLogger:
-    """Accepts ANY call shape and never raises."""
+    """Fully tolerant logger that accepts any call shape and never raises."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.entries: list = []
+        self.entries: list[LogEntry] = []
 
-    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
-        op = args[0] if args else kwargs.get("operation", "")
-        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+    def log(self, *args: Any, **kwargs: Any) -> LogEntry:
+        op = args[0] if args else kwargs.get("operation", "operation")
+        entry = LogEntry(
+            operation=str(op),
+            parameters=dict(kwargs),
+            status=kwargs.get("status", "success"),
+            message=kwargs.get("message", "")
+        )
         self.entries.append(entry)
         return entry
 
-    def __getattr__(self, name: str):
+    # Tolerant no-op for standard logging methods
+    def __getattr__(self, name: str) -> Any:
         def _noop(*args: Any, **kwargs: Any) -> None:
             return None
         return _noop
 
 
-_GLOBAL_LOGGER: "Optional[ReproducibilityLogger]" = None
+_GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
 def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
@@ -63,7 +73,10 @@ def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
 
 
 def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual-purpose: decorator or direct logging call."""
+    """Dual-purpose: decorator (@log_operation) or direct logging call.
+
+    Returns a LogEntry for direct calls, wrapped function for decorators.
+    """
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
 
@@ -77,105 +90,99 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-@dataclass
-class OutcomeCheckResult:
-    mci_available: bool
-    source_file: str
-    reason: str
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+@log_operation
+def check_mci_conversion() -> bool:
+    """Check if MCI conversion data is available in the dataset.
 
-    def to_json(self) -> str:
-        return json.dumps(asdict(self), ensure_ascii=False, default=str)
-
-
-def check_mci_conversion(participants_path: Path) -> OutcomeCheckResult:
-    """Check if the participants file contains MCI conversion labels.
-
-    Args:
-        participants_path: Path to the BIDS participants.tsv file.
+    Checks:
+    1. If participants.tsv exists and contains MCI-related columns.
+    2. If dataset_description.json mentions longitudinal follow-up or MCI.
 
     Returns:
-        OutcomeCheckResult detailing availability and reason.
+        True if MCI conversion data is found, False otherwise.
     """
-    if not participants_path.exists():
-        return OutcomeCheckResult(
-            mci_available=False,
-            source_file=str(participants_path),
-            reason=f"File not found: {participants_path}"
-        )
+    logger = get_logger("external_outcome_check")
+    logger.log("check_mci_conversion", status="started", message="Checking for MCI conversion data")
 
-    # Parse TSV to check for MCI-related columns
-    # Expected columns might include: diagnosis, mci_conversion, followup_mci, etc.
-    mci_columns = {"mci_conversion", "diagnosis_change", "followup_diagnosis", "mci_status"}
-    found_columns = set()
+    # Check 1: participants.tsv
+    if PARTICIPANTS_PATH.exists():
+        try:
+            df = pd.read_csv(PARTICIPANTS_PATH, sep='\t')
+            cols_lower = [str(c).lower() for c in df.columns]
+            
+            found_cols = [c for c in MCI_COLUMNS if c.lower() in cols_lower]
+            if found_cols:
+                logger.log("check_mci_conversion", status="success", message=f"Found MCI columns: {found_cols}")
+                return True
+        except Exception as e:
+            logger.log("check_mci_conversion", status="error", message=f"Error reading participants.tsv: {e}")
+            # Fall through to other checks
 
-    try:
-        with open(participants_path, "r", encoding="utf-8") as f:
-            header_line = f.readline().strip()
-            columns = header_line.split("\t")
-            found_columns = set(col.lower() for col in columns)
-    except Exception as e:
-        return OutcomeCheckResult(
-            mci_available=False,
-            source_file=str(participants_path),
-            reason=f"Error reading file: {e}"
-        )
+    # Check 2: dataset_description.json for keywords
+    if DATASET_DESCRIPTION_PATH.exists():
+        try:
+            with open(DATASET_DESCRIPTION_PATH, 'r') as f:
+                desc = json.load(f)
+            desc_text = json.dumps(desc).lower()
+            if any(kw in desc_text for kw in ["mci", "conversion", "longitudinal", "follow-up"]):
+                logger.log("check_mci_conversion", status="success", message="Found MCI references in dataset_description.json")
+                return True
+        except Exception as e:
+            logger.log("check_mci_conversion", status="error", message=f"Error reading dataset_description.json: {e}")
 
-    if not mci_columns.intersection(found_columns):
-        return OutcomeCheckResult(
-            mci_available=False,
-            source_file=str(participants_path),
-            reason=f"No MCI conversion columns found. Available: {sorted(found_columns)}"
-        )
-
-    return OutcomeCheckResult(
-        mci_available=True,
-        source_file=str(participants_path),
-        reason=f"Found MCI columns: {mci_columns.intersection(found_columns)}"
-    )
-
-
-def write_limitation(result: OutcomeCheckResult) -> None:
-    """Write the limitation note to the artifacts directory.
-
-    Args:
-        result: The outcome check result to document.
-    """
-    LIMITATIONS_FILE.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(LIMITATIONS_FILE, "w", encoding="utf-8") as f:
-        f.write("# Limitations report generated by T025 (external outcome check)\n\n")
-        if result.mci_available:
-            f.write("MCI conversion data IS available.\n")
-            f.write(f"Source: {result.source_file}\n")
-            f.write(f"Reason: {result.reason}\n")
-        else:
-            f.write("MCI conversion data not available.\n")
-            f.write(f"Source: {result.source_file}\n")
-            f.write(f"Reason: {result.reason}\n")
-        f.write("\nThis limitation is noted for the final report (T031).\n")
+    logger.log("check_mci_conversion", status="warning", message="MCI conversion data not found")
+    return False
 
 
 @log_operation
-def main() -> int:
-    """Main entry point for T025."""
+def write_limitation(missing: bool = True) -> None:
+    """Write a limitation note to the artifacts file.
+
+    Args:
+        missing: If True, write that MCI data is missing.
+    """
     logger = get_logger("external_outcome_check")
-    logger.log("start", operation="check_mci_conversion")
+    logger.log("write_limitation", status="started", message=f"Writing limitation (missing={missing})")
 
-    if not PARTICIPANTS_FILE.parent.exists():
-        logger.log("fail", reason="Raw data directory not found")
-        # Create empty limitations file to prevent downstream errors
-        LIMITATIONS_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(LIMITATIONS_FILE, "w", encoding="utf-8") as f:
-            f.write("# Limitations report\n")
-            f.write("Raw data directory not found. Cannot check MCI conversion.\n")
-        return 0
+    # Ensure directory exists
+    LIMITATIONS_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    result = check_mci_conversion(PARTICIPANTS_FILE)
-    write_limitation(result)
+    # Append to existing file or create new
+    with open(LIMITATIONS_PATH, 'a') as f:
+        f.write("\n")
+        if missing:
+            f.write(f"[{datetime.utcnow().isoformat()}] MCI conversion data not available in dataset.\n")
+            f.write("  - Checked 'participants.tsv' for MCI-related columns: None found.\n")
+            f.write("  - Checked 'dataset_description.json' for MCI/longitudinal keywords: None found.\n")
+            f.write("  - Impact: Cannot validate model predictions against actual MCI conversion outcomes.\n")
+            f.write("  - Scope: Analysis is limited to predicting cognitive score decline (MMSE/MOCA) only.\n")
+        else:
+            f.write(f"[{datetime.utcnow().isoformat()}] MCI conversion data IS available.\n")
+            f.write("  - Model validation can include external clinical outcomes.\n")
 
-    logger.log("finish", mci_available=result.mci_available)
-    return 0
+    logger.log("write_limitation", status="success", message=f"Written to {LIMITATIONS_PATH}")
+
+
+def main() -> int:
+    """Main entry point for the external outcome check."""
+    logger = get_logger("external_outcome_check")
+    logger.log("main", status="started", message="Starting external outcome check")
+
+    try:
+        mci_available = check_mci_conversion()
+        
+        if not mci_available:
+            write_limitation(missing=True)
+            logger.log("main", status="completed", message="MCI data missing; limitation note written")
+            return 0
+        else:
+            write_limitation(missing=False)
+            logger.log("main", status="completed", message="MCI data available")
+            return 0
+
+    except Exception as e:
+        logger.log("main", status="error", message=f"Unexpected error: {e}")
+        return 1
 
 
 if __name__ == "__main__":

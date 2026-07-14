@@ -1,14 +1,17 @@
 {
   "project_id": "PROJ-029-predicting-cognitive-decline-from-restin",
   "ok": false,
-  "reason": "7 command(s) failed: python code/01_download_and_filter.py (rc=1); python code/02_preprocess_and_parcellate.py (rc=1); python code/03_compute_graph_metrics.py (rc=1); 2 declared deliverable(s) absent: data/processed/graph_metrics.csv; data/processed/permutation_results.json",
-  "artifacts": [],
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/01_download_and_filter.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# Create a realistic mock dataset based on ds000246 struct\u2026\u201d; code/01_download_and_filter.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# Write the mock data to the participants file\u2026\u201d; 6 command(s) failed: python code/01_download_and_filter.py (rc=1); python code/03_compute_graph_metrics.py (rc=1); python code/04_train_model.py (rc=1); 3 declared deliverable(s) absent: data/processed/graph_metrics.csv; data/processed/performance_report.json; data/processed/permutation_results.json",
+  "artifacts": [
+    "data/artifacts/graph_metrics_status.json",
+    "data/processed/eligible_subjects.csv",
+    "data/raw/ds000246/participants.tsv"
+  ],
   "failures": [
-    "python code/01_download_and_filter.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py\", line 310, in <module>\n    @log_operation(\"download_and_filter\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
-    "python code/02_preprocess_and_parcellate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/02_preprocess_and_parcellate.py\", line 23, in <module>\n    from nilearn.input_data import NiftiLabelsMasker\nModuleNotFoundError: No module named 'nilearn.input_data'",
-    "python code/03_compute_graph_metrics.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/03_compute_graph_metrics.py\", line 226, in <module>\n    @log_operation(\"compute_graph_metrics\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
-    "python code/04_train_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py\", line 343, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py\", line 309, in main\n    subjects = load_eligible_subjects()\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py\", line 108, in l",
-    "python code/05_evaluate_model.py -> rc=1\n    ",
+    "python code/01_download_and_filter.py -> rc=1\n    line-from-restin/code/01_download_and_filter.py\", line 331, in main\n    write_status(status, status_path)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py\", line 235, in write_status\n    save_json(status, path)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/io.py\", line 40, in save_json\n    ensure_dir(path)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from",
+    "python code/03_compute_graph_metrics.py -> rc=1\n    ",
+    "python code/04_train_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py\", line 351, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py\", line 323, in main\n    X, y, feature_names = load_features()\n                          ^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/",
+    "python code/05_evaluate_model.py -> rc=1\n    Error: Required graph metrics data not found: data/processed/graph_metrics.csv",
     "python code/06_permutation_test.py -> rc=1\n    ",
     "python code/08_collinearity_check.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/08_collinearity_check.py\", line 81, in <module>\n    @log_operation(\"collinearity_check\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable"
   ],
@@ -16,5 +19,5 @@
   "model_tier": 0,
   "total_attempts": 1,
   "replan_rounds": 0,
-  "updated_at": "2026-07-14T19:36:12Z"
+  "updated_at": "2026-07-14T20:09:22Z"
 }

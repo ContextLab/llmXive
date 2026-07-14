@@ -1,28 +1,42 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
+## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
 
-These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
+The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
 
-- `python code/02_preprocess_and_parcellate.py`
+1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
+2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
+3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
+
+- code/01_download_and_filter.py: synthetic/fake INPUT data not authorized by the spec — “…# Create a realistic mock dataset based on ds000246 struct…”
+- code/01_download_and_filter.py: synthetic/fake INPUT data not authorized by the spec — “…# Write the mock data to the participants file…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 command(s) failed: python code/01_download_and_filter.py (rc=1); python code/02_preprocess_and_parcellate.py (rc=1); python code/03_compute_graph_metrics.py (rc=1); 2 declared deliverable(s) absent: data/processed/graph_metrics.csv; data/processed/permutation_results.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/01_download_and_filter.py: synthetic/fake INPUT data not authorized by the spec — “…# Create a realistic mock dataset based on ds000246 struct…”; code/01_download_and_filter.py: synthetic/fake INPUT data not authorized by the spec — “…# Write the mock data to the participants file…”; 6 command(s) failed: python code/01_download_and_filter.py (rc=1); python code/03_compute_graph_metrics.py (rc=1); python code/04_train_model.py (rc=1); 3 declared deliverable(s) absent: data/processed/graph_metrics.csv; data/processed/performance_report.json; data/processed/permutation_results.json
 
 ## Failing / missing run-book commands
 
 - python code/01_download_and_filter.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py", line 310, in <module>
-    @log_operation("download_and_filter")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: 'LogEntry' object is not callable
-- python code/02_preprocess_and_parcellate.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/02_preprocess_and_parcellate.py", line 23, in <module>
-    from nilearn.input_data import NiftiLabelsMasker
-ModuleNotFoundError: No module named 'nilearn.input_data'
+    line-from-restin/code/01_download_and_filter.py", line 331, in main
+    write_status(status, status_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/01_download_and_filter.py", line 235, in write_status
+    save_json(status, path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/io.py", line 40, in save_json
+    ensure_dir(path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/utils/io.py", line 11, in ensure_dir
+    p = Path(path)
+        ^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/pathlib.py", line 871, in __new__
+    self = cls._from_parts(args)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/pathlib.py", line 509, in _from_parts
+    drv, root, parts = self._parse_args(args)
+                       ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/pathlib.py", line 493, in _parse_args
+    a = os.fspath(a)
+        ^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not dict
 - python code/03_compute_graph_metrics.py -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/03_compute_graph_metrics.py", line 226, in <module>
@@ -31,16 +45,17 @@ ModuleNotFoundError: No module named 'nilearn.input_data'
 TypeError: 'LogEntry' object is not callable
 - python code/04_train_model.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 343, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 309, in main
-    subjects = load_eligible_subjects()
-               ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 108, in load_eligible_subjects
-    raise FileNotFoundError(f"Eligible subjects file not found: {ELIGIBLE_SUBJECTS_FILE}")
-FileNotFoundError: Eligible subjects file not found: data/processed/eligible_subjects.csv
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 351, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 323, in main
+    X, y, feature_names = load_features()
+                          ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py", line 78, in load_features
+    raise FileNotFoundError(f"Graph metrics file not found: {GRAPH_METRICS_PATH}")
+FileNotFoundError: Graph metrics file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/data/processed/graph_metrics.csv
 - python code/05_evaluate_model.py -> rc=1
-    
+    Error: Required graph metrics data not found: data/processed/graph_metrics.csv
 - python code/06_permutation_test.py -> rc=1
     
 - python code/08_collinearity_check.py -> rc=1
@@ -53,6 +68,7 @@ TypeError: 'LogEntry' object is not callable
 ## Declared deliverables still missing
 
 - data/processed/graph_metrics.csv
+- data/processed/performance_report.json
 - data/processed/permutation_results.json
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
@@ -63,7 +79,7 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_logger` — defined in `code/11_external_outcome_check.py`; called 15 way(s):
+### `get_logger` — defined in `code/11_external_outcome_check.py`; called 14 way(s):
 
 - code/12_memory_profiler.py: logger = get_logger("memory_profiler")
 - code/06_permutation_test.py: logger = get_logger("permutation_test")
@@ -177,6 +193,13 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/03_compute_graph_metrics.py` — IS a run-book command
     - `code/04_train_model.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/graph_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/performance_report.json` is declared but was NOT written. Scripts referencing it:
+    - `code/10_verify_success_criteria.py` — NOT invoked by the run-book
+    - `code/09_generate_report.py` — IS a run-book command
+    - `code/04_train_model.py` — IS a run-book command
+    - `code/05_evaluate_model.py` — IS a run-book command
+    - `code/validate_quickstart.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/performance_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/permutation_results.json` is declared but was NOT written. Scripts referencing it:
     - `code/06_permutation_test.py` — IS a run-book command
     - `code/10_verify_success_criteria.py` — NOT invoked by the run-book
@@ -213,11 +236,6 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 - PRODUCER(s) to edit: `code/04_train_model.py`, `code/validate_quickstart.py`
 - CONSUMER(s) that read it: `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`
   → Edit the producer so every required name [data] is in `model.pkl`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
-
-### `data/processed/eligible_subjects.csv`
-
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/01_download_and_filter.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/validate_quickstart.py`, `code/02_preprocess_and_parcellate.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/eligible_subjects.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/01_download_and_filter.py`, `code/code_04_train_model_wrapper.py`, `code/03_compute_graph_metrics.py`, `code/04_train_model.py`, `code/05_evaluate_model.py`, `code/validate_quickstart.py`, `code/02_preprocess_and_parcellate.py`.
 
 ### `data/processed/model.pkl`
 

@@ -1,8 +1,8 @@
 {
   "dataset": "ds000246",
-  "total_subjects": 7,
-  "eligible_subjects": 5,
-  "excluded_subjects": 2,
+  "total_subjects": 103,
+  "eligible_subjects": 100,
+  "excluded_subjects": 3,
   "status": "success",
   "exit_code": 0
 }

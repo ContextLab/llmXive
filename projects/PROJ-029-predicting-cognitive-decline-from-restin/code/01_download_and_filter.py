@@ -1,9 +1,13 @@
 """
-T017: Download ds000246, parse BIDS metadata, filter for longitudinal scores.
-Outputs:
-  - data/processed/eligible_subjects.csv
-  - data/processed/excluded_subjects.log
-  - data/artifacts/data_gate_status.json
+T017: Download and Filter ds000246 (Constitution VI, FR-001)
+
+This script downloads the OpenNeuro dataset ds000246, parses BIDS metadata
+(specifically participants.tsv), filters for subjects with non-null MMSE/MOCA
+scores at both timepoints, limits the cohort to N=100, and outputs the
+eligible subject list, exclusion log, and status JSON.
+
+It relies on the real data downloaded by T004c (code/00_data_gate.py) or
+attempts to download it if not present.
 """
 from __future__ import annotations
 
@@ -12,290 +16,285 @@ import json
 import os
 import sys
 import time
-import shutil
+import requests
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-import requests
-import pandas as pd
-from tqdm import tqdm
+# Import shared utilities from the project structure
+# Note: We assume the project root is the parent of 'code'
+# We add the code directory to path to allow relative imports if needed,
+# but standard imports from utils should work if run as python code/01_...
+sys.path.insert(0, str(Path(__file__).parent))
 
-# Import from local utils (defined in T005/T006)
-# Note: Using the tolerant logger defined in 11_external_outcome_check as per contract
-# but importing the interface from utils.logger to match the API surface provided.
-# Since utils.logger is the canonical definition in the API surface list, we import from there.
-# The implementation in 11_external_outcome_check was a reference for fixing, but utils.logger
-# is the source of truth for imports in this project.
-try:
-    from utils.logger import get_logger, log_operation, LogEntry, ReproducibilityLogger
-except ImportError:
-    # Fallback if utils.logger is not yet fully synced with the fix in 11_external_outcome_check
-    # We define a minimal compatible logger here to ensure this script runs.
-    # In a real scenario, we would fix utils.logger to match the reference.
-    # However, the prompt says "Extend, don't re-author" and "Use the provided existing API surface".
-    # The API surface lists utils.logger. The error log says 11_external_outcome_check broke.
-    # We assume utils.logger has been fixed to match the reference in 11_external_outcome_check.
-    # If not, we define a local fallback to avoid crashing this specific task.
-    class LogEntry:
-        def __init__(self, operation="", parameters=None, timestamp=None):
-            self.operation = operation
-            self.parameters = parameters or {}
-            self.timestamp = timestamp or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        def to_json(self):
-            return json.dumps(self.__dict__, default=str)
+from utils.logger import get_logger, log_operation
+from utils.io import save_json, ensure_dir
 
-    class ReproducibilityLogger:
-        def __init__(self, *args, **kwargs):
-            self.name = args[0] if args else kwargs.get("name", "default")
-            self.entries = []
-        def log(self, *args, **kwargs):
-            op = args[0] if args else kwargs.get("operation", "")
-            entry = LogEntry(operation=str(op), parameters=dict(kwargs))
-            self.entries.append(entry)
-            return entry
-        def __getattr__(self, name):
-            return lambda *a, **k: None
-
-    _GLOBAL_LOGGER: Optional[ReproducibilityLogger] = None
-    def get_logger(*args, **kwargs):
-        global _GLOBAL_LOGGER
-        if _GLOBAL_LOGGER is None:
-            _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
-        return _GLOBAL_LOGGER
-
-    def log_operation(*args, **kwargs):
-        if len(args) == 1 and callable(args[0]) and not kwargs:
-            func = args[0]
-            def _wrapper(*a, **k): return func(*a, **k)
-            return _wrapper
-        op = args[0] if args else kwargs.pop("operation", "operation")
-        return get_logger().log(op, **kwargs)
-
-# Constants
+# Configuration
 DATASET_ID = "ds000246"
 OPENNEURO_BASE = "https://openneuro.org/datasets"
-BIDS_API = "https://bids-specification.readthedocs.io"
+# We will attempt to fetch the participants.tsv directly or from a local copy
+# If local copy exists (from T004c), use it. Otherwise, try to download.
+RAW_DATA_DIR = Path("data/raw") / DATASET_ID
+PARTICIPANTS_FILE = RAW_DATA_DIR / "participants.tsv"
+
+OUTPUT_ELIGIBLE = Path("data/processed/eligible_subjects.csv")
+OUTPUT_EXCLUDED = Path("data/processed/excluded_subjects.log")
+OUTPUT_STATUS = Path("data/artifacts/data_gate_status.json")
+
 MAX_SUBJECTS = 100
-RANDOM_SEED = 42
-
-# Paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DATA_ARTIFACTS_DIR = PROJECT_ROOT / "data" / "artifacts"
-
-ELIGIBLE_SUBJECTS_FILE = DATA_PROCESSED_DIR / "eligible_subjects.csv"
-EXCLUDED_SUBJECTS_LOG = DATA_PROCESSED_DIR / "excluded_subjects.log"
-STATUS_FILE = DATA_ARTIFACTS_DIR / "data_gate_status.json"
+EXIT_CODE_SUCCESS = 0
+EXIT_CODE_NO_ELIGIBLE = 2
+EXIT_CODE_IO_ERROR = 3
 
 logger = get_logger("download_and_filter")
 
 def ensure_directory(path: Path) -> None:
-    """Create directory if it doesn't exist."""
+    """Ensure directory exists."""
     path.mkdir(parents=True, exist_ok=True)
 
-def download_file(url: str, dest: Path, desc: str = "") -> bool:
-    """Download a file with progress bar. Returns True on success."""
-    try:
-        response = requests.get(url, stream=True, timeout=60)
-        response.raise_for_status()
-        total = int(response.headers.get('content-length', 0))
-        with open(dest, 'wb') as f, tqdm(
-            desc=desc, total=total, unit='B', unit_scale=True, unit_divisor=1024
-        ) as pbar:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-                    pbar.update(len(chunk))
-        return True
-    except Exception as e:
-        logger.log("download_error", error=str(e))
-        return False
-
-def download_dataset_metadata() -> Optional[Dict]:
-    """Download dataset_description.json from OpenNeuro."""
-    # OpenNeuro API for dataset description
-    # Using the raw github content or openneuro API.
-    # OpenNeuro datasets are often hosted on S3 or GitHub.
-    # We try the public JSON endpoint first.
-    url = f"https://openneuro.org/datasets/{DATASET_ID}/versions/latest/dataset_description.json"
-    # Fallback to a known structure if API is flaky, but we try to fetch real data.
-    # Actually, OpenNeuro doesn't have a direct JSON API for description easily without auth sometimes.
-    # We will try to fetch the dataset_description.json from the dataset's S3 bucket structure
-    # which is standard BIDS.
-    # https://openneuro.s3.amazonaws.com/ds000246/dataset_description.json
-    s3_url = f"https://openneuro.s3.amazonaws.com/{DATASET_ID}/dataset_description.json"
-    
-    dest = DATA_RAW_DIR / DATASET_ID / "dataset_description.json"
+def download_file(url: str, dest: Path, retries: int = 3) -> bool:
+    """Download a file with retries."""
     ensure_directory(dest.parent)
-    
-    if download_file(s3_url, dest, "Dataset Description"):
-        with open(dest, 'r') as f:
-            return json.load(f)
-    return None
-
-def download_participants_tsv() -> Optional[pd.DataFrame]:
-    """Download participants.tsv from the dataset."""
-    s3_url = f"https://openneuro.s3.amazonaws.com/{DATASET_ID}/participants.tsv"
-    dest = DATA_RAW_DIR / DATASET_ID / "participants.tsv"
-    ensure_directory(dest.parent)
-    
-    if download_file(s3_url, dest, "Participants TSV"):
-        # Read the TSV
+    for attempt in range(retries):
         try:
-            df = pd.read_csv(dest, sep='\t')
-            return df
+            logger.log("download_file", url=str(url), attempt=attempt)
+            response = requests.get(url, timeout=60)
+            response.raise_for_status()
+            with open(dest, 'wb') as f:
+                f.write(response.content)
+            logger.log("download_file_success", path=str(dest))
+            return True
         except Exception as e:
-            logger.log("read_participants_error", error=str(e))
-            return None
-    return None
+            logger.log("download_file_error", error=str(e), attempt=attempt)
+            if attempt < retries - 1:
+                time.sleep(2 ** attempt)
+            else:
+                return False
+    return False
 
-def read_participants_tsv(df: pd.DataFrame) -> List[Dict[str, Any]]:
-    """Convert DataFrame to list of dicts."""
-    return df.to_dict('records')
+def download_dataset_metadata(dataset_id: str) -> bool:
+    """
+    Attempt to download the participants.tsv for the dataset.
+    OpenNeuro provides a direct download link structure.
+    """
+    # Construct the likely URL for participants.tsv in the latest version
+    # OpenNeuro usually serves files via git-annex or direct links.
+    # A common pattern for direct download of a specific file is:
+    # https://openneuro.org/datasets/{id}/versions/{version}/file-display/{path}
+    # However, for robustness, we check if the file exists locally first (T004c).
+    # If not, we try a known public mirror or the OpenNeuro API.
+    # For this implementation, we assume T004c should have handled the initial fetch.
+    # If not present, we try to fetch it from the OpenNeuro CDN.
+    
+    # Fallback URL pattern for OpenNeuro files (often requires the version)
+    # Since we don't know the version, we try the generic "latest" or list files.
+    # Given the constraints, we will assume the file must be present from T004c
+    # or we try to fetch a known stable URL if available.
+    
+    # Let's try to fetch the dataset description to get version, then the file.
+    api_url = f"https://api.openneuro.org/datasets/{dataset_id}"
+    try:
+        resp = requests.get(api_url, timeout=10)
+        if resp.status_code == 200:
+            data = resp.json()
+            # Try to find the latest version
+            versions = data.get('versions', [])
+            if versions:
+                latest_version = versions[0].get('id')
+                # Construct file URL
+                # OpenNeuro file download URL pattern:
+                # https://openneuro.org/datasets/{id}/versions/{version}/file-display/participants.tsv
+                file_url = f"https://openneuro.org/datasets/{dataset_id}/versions/{latest_version}/file-display/participants.tsv"
+                return download_file(file_url, PARTICIPANTS_FILE)
+    except Exception as e:
+        logger.log("api_lookup_failed", error=str(e))
+    
+    # If API fails, return False to indicate we rely on local file
+    return False
 
-def has_valid_score(row: Dict, score_col: str = "MMSE") -> bool:
-    """Check if the score column exists and is not null."""
+def read_participants_tsv(path: Path) -> List[Dict[str, Any]]:
+    """Read the BIDS participants.tsv file."""
+    if not path.exists():
+        logger.log("participants_file_missing", path=str(path))
+        return []
+    
+    rows = []
+    with open(path, 'r', encoding='utf-8') as f:
+        # BIDS participants.tsv is tab-separated
+        reader = csv.DictReader(f, delimiter='\t')
+        for row in reader:
+            rows.append(row)
+    return rows
+
+def has_valid_score(row: Dict[str, Any], score_col: str) -> bool:
+    """Check if a score column exists and is not null/empty."""
     if score_col not in row:
         return False
     val = row[score_col]
-    if pd.isna(val) or val == "" or val == "null":
+    if val is None or val == '' or val == 'n/a' or val == 'NA' or val == 'NaN':
         return False
     try:
         float(val)
         return True
-    except (ValueError, TypeError):
+    except ValueError:
         return False
 
 def is_eligible(row: Dict) -> Tuple[bool, str]:
     """
-    Check if subject has non-null MMSE/MOCA at both timepoints.
-    The dataset ds000246 (Constitution VI) has longitudinal data.
-    Columns might be named like 'MMSE_time1', 'MMSE_time2' or similar.
-    We need to inspect the actual columns.
-    Based on typical BIDS longitudinal structure in this dataset:
-    We look for any column containing 'MMSE' or 'MOCA' and ensure at least two valid scores exist per subject.
+    Check eligibility:
+    - Must have non-null MMSE or MOCA at timepoint 1 (baseline)
+    - Must have non-null MMSE or MOCA at timepoint 2 (follow-up)
+    - We look for columns like 'MMSE', 'MMSE_2', 'MOCA', 'MOCA_2' or similar.
+    - Based on ds000246 (Constitution VI), columns might be 'MMSE', 'MMSE_followup' or similar.
+    - We will assume standard naming: 'MMSE', 'MMSE_2' OR 'MOCA', 'MOCA_2'.
+    - If neither pair is fully available, subject is excluded.
     """
-    score_cols = [c for c in row.keys() if 'MMSE' in c or 'MOCA' in c]
-    valid_scores = []
-    for col in score_cols:
-        if has_valid_score(row, col):
-            valid_scores.append(row[col])
+    # Heuristic: Look for any MMSE or MOCA columns
+    # We need at least one pair (baseline, followup)
+    mmse_cols = [k for k in row.keys() if 'MMSE' in k.upper()]
+    moca_cols = [k for k in row.keys() if 'MOCA' in k.upper()]
     
-    if len(valid_scores) >= 2:
-        return True, "eligible"
-    return False, "insufficient_scores"
+    # We need to find a baseline and a followup.
+    # Assumption: Columns are named consistently, e.g., MMSE, MMSE_2
+    # or MMSE_baseline, MMSE_followup.
+    # We'll try to match pairs.
+    
+    def has_pair(cols):
+        if len(cols) < 2:
+            return False
+        # Simple heuristic: first is baseline, second is followup
+        # Check if both are valid
+        if has_valid_score(row, cols[0]) and has_valid_score(row, cols[1]):
+            return True
+        # Try all permutations? No, assume order.
+        return False
 
-def filter_eligible_subjects(participants: List[Dict]) -> Tuple[List[Dict], List[Dict]]:
+    # Check MMSE
+    if has_pair(mmse_cols):
+        return True
+    # Check MOCA
+    if has_pair(moca_cols):
+        return True
+    
+    return False
+
+def filter_eligible_subjects(rows: List[Dict[str, Any]]) -> tuple[List[Dict], List[Dict]]:
     """Separate eligible and excluded subjects."""
     eligible = []
     excluded = []
-    for row in participants:
-        # Subject ID is usually 'participant_id'
-        sub_id = row.get('participant_id', row.get('subject_id', 'unknown'))
-        is_elig, reason = is_eligible(row)
-        if is_elig:
+    for row in rows:
+        if is_eligible(row):
             eligible.append(row)
         else:
-            excluded.append({'participant_id': sub_id, 'reason': reason, 'row': row})
+            excluded.append(row)
     return eligible, excluded
 
-def limit_subjects(subjects: List[Dict], limit: int) -> List[Dict]:
-    """Randomly sample or truncate to limit."""
-    if len(subjects) <= limit:
-        return subjects
-    # Deterministic shuffle with seed
-    import random
-    random.seed(RANDOM_SEED)
-    shuffled = subjects.copy()
-    random.shuffle(shuffled)
-    return shuffled[:limit]
+def limit_subjects(eligible: List[Dict], n: int) -> List[Dict]:
+    """Limit the number of subjects to n."""
+    if len(eligible) <= n:
+        return eligible
+    # Sort by participant_id to ensure reproducibility
+    eligible_sorted = sorted(eligible, key=lambda x: x.get('participant_id', ''))
+    return eligible_sorted[:n]
 
 def write_eligible_csv(subjects: List[Dict], path: Path) -> None:
     """Write eligible subjects to CSV."""
-    ensure_directory(path.parent)
+    ensure_dir(path)
     if not subjects:
-        # Write empty CSV with headers if we know them, or just empty
-        with open(path, 'w', newline='') as f:
-            f.write("participant_id\n")
+        # Write empty file with headers? Or just empty.
+        # BIDS style: write headers if possible, else empty.
+        with open(path, 'w', newline='', encoding='utf-8') as f:
+            f.write("")
         return
 
-    # Determine columns from first row
     fieldnames = list(subjects[0].keys())
-    if 'row' in fieldnames:
-        fieldnames.remove('row') # Don't write the full row dict
-    
-    with open(path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+    with open(path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for sub in subjects:
-            writer.writerow(sub)
+        writer.writerows(subjects)
 
-def write_excluded_log(excluded: List[Dict], path: Path) -> None:
+def write_excluded_log(subjects: List[Dict], path: Path) -> None:
     """Write excluded subjects to log."""
-    ensure_directory(path.parent)
-    with open(path, 'w') as f:
-        for item in excluded:
-            f.write(f"Subject: {item['participant_id']} | Reason: {item['reason']}\n")
+    ensure_dir(path)
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write("Excluded Subjects (Missing longitudinal MMSE/MOCA)\n")
+        f.write("=" * 50 + "\n")
+        for sub in subjects:
+            pid = sub.get('participant_id', 'unknown')
+            f.write(f"Subject: {pid}\n")
+            # Log reason
+            f.write(f"  Reason: Missing valid MMSE/MOCA pair\n")
+            f.write(f"  Data: {sub}\n")
+            f.write("-" * 20 + "\n")
 
-def write_status(total: int, eligible: int, excluded: int, status: str, exit_code: int) -> None:
+def write_status(status: Dict, path: Path) -> None:
     """Write status JSON."""
-    ensure_directory(STATUS_FILE.parent)
-    status_data = {
+    ensure_dir(path)
+    save_json(status, path)
+
+def main() -> int:
+    """Main entry point."""
+    logger.log("main_start", dataset=DATASET_ID)
+    
+    # 1. Ensure raw data directory exists
+    ensure_directory(RAW_DATA_DIR)
+    
+    # 2. Download metadata if not present
+    if not PARTICIPANTS_FILE.exists():
+        logger.log("downloading_metadata", source="OpenNeuro")
+        success = download_dataset_metadata(DATASET_ID)
+        if not success:
+            logger.log("error", message="Failed to download metadata and local file missing.")
+            # Fail loudly
+            return EXIT_CODE_IO_ERROR
+    
+    # 3. Read participants
+    rows = read_participants_tsv(PARTICIPANTS_FILE)
+    if not rows:
+        logger.log("error", message="No participants found in TSV.")
+        return EXIT_CODE_IO_ERROR
+    
+    logger.log("participants_loaded", count=len(rows))
+    
+    # 4. Filter
+    eligible, excluded = filter_eligible_subjects(rows)
+    logger.log("filtering_complete", eligible=len(eligible), excluded=len(excluded))
+    
+    # 5. Limit
+    limited = limit_subjects(eligible, MAX_SUBJECTS)
+    logger.log("limiting_complete", count=len(limited))
+    
+    if len(limited) == 0:
+        logger.log("error", message="No eligible subjects found.")
+        # Write empty outputs
+        write_eligible_csv([], OUTPUT_ELIGIBLE)
+        write_excluded_log(excluded, OUTPUT_EXCLUDED)
+        write_status({
+            "dataset": DATASET_ID,
+            "total_subjects": len(rows),
+            "eligible_subjects": 0,
+            "excluded_subjects": len(excluded),
+            "status": "failed_no_eligible",
+            "exit_code": EXIT_CODE_NO_ELIGIBLE
+        }, OUTPUT_STATUS)
+        return EXIT_CODE_NO_ELIGIBLE
+    
+    # 6. Write outputs
+    write_eligible_csv(limited, OUTPUT_ELIGIBLE)
+    write_excluded_log(excluded, OUTPUT_EXCLUDED)
+    
+    status = {
         "dataset": DATASET_ID,
-        "total_subjects": total,
-        "eligible_subjects": eligible,
-        "excluded_subjects": excluded,
-        "status": status,
-        "exit_code": exit_code,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        "total_subjects": len(rows),
+        "eligible_subjects": len(limited),
+        "excluded_subjects": len(excluded),
+        "status": "success",
+        "exit_code": EXIT_CODE_SUCCESS
     }
-    with open(STATUS_FILE, 'w') as f:
-        json.dump(status_data, f, indent=2)
-
-@log_operation
-def main():
-    logger.log("start", message="Starting download and filter for ds000246")
+    write_status(status, OUTPUT_STATUS)
     
-    # 1. Download Metadata
-    meta = download_dataset_metadata()
-    if not meta:
-        logger.log("error", message="Failed to download dataset metadata")
-        write_status(0, 0, 0, "metadata_failed", 1)
-        return 1
-
-    # 2. Download Participants
-    df = download_participants_tsv()
-    if df is None:
-        logger.log("error", message="Failed to download participants.tsv")
-        write_status(0, 0, 0, "participants_failed", 1)
-        return 1
-
-    participants = read_participants_tsv(df)
-    total = len(participants)
-    logger.log("data_loaded", total=total, columns=list(df.columns))
-
-    # 3. Filter
-    eligible, excluded = filter_eligible_subjects(participants)
-    logger.log("filtering_complete", eligible_count=len(eligible), excluded_count=len(excluded))
-
-    # 4. Limit
-    limited_eligible = limit_subjects(eligible, MAX_SUBJECTS)
-    logger.log("limiting_complete", count=len(limited_eligible))
-
-    # 5. Write Outputs
-    write_eligible_csv(limited_eligible, ELIGIBLE_SUBJECTS_FILE)
-    write_excluded_log(excluded, EXCLUDED_SUBJECTS_LOG)
-
-    # 6. Status
-    if len(limited_eligible) == 0:
-        write_status(total, 0, total, "no_eligible_subjects", 2)
-        logger.log("fail", message="No eligible subjects found")
-        return 2
-    
-    write_status(total, len(limited_eligible), len(excluded), "success", 0)
-    logger.log("success", message=f"Processed {len(limited_eligible)} eligible subjects")
-    return 0
+    logger.log("main_success", output_file=str(OUTPUT_ELIGIBLE))
+    return EXIT_CODE_SUCCESS
 
 if __name__ == "__main__":
     sys.exit(main())
