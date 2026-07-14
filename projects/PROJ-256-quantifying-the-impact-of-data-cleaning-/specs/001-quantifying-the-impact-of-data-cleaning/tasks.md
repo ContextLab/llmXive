@@ -102,7 +102,7 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 - [X] T014 [P] [US2] Unit test in `tests/unit/test_cleaning.py`: Verify `apply_iqr_outlier_removal` removes rows where |z-score| > k and logs count.
 - [X] T015 [P] [US2] Unit test in `tests/unit/test_cleaning.py`: Verify `apply_mean_imputation` results in zero missing values in target columns.
-- [X] T016 [P] [US2] Integration test in `tests/integration/test_cleaning.py`: Verify full cleaning pipeline produces valid CSVs with correct row counts and zero missing values.
+- [X] T016 [P] [US2] Integration test in `tests/integration/test_cleaning.py`: Verify {{claim:c_8d828dcf}} (Wikidata Q28914856, https://www.wikidata.org/wiki/Q28914856)
 
 ### Implementation for User Story 2
 
@@ -132,8 +132,8 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 ### Implementation for User Story 3
 
-- [~] T027 [US3] Implement metrics comparison in `code/reporting.py`. **Dependency**: Depends on existence of `cleaned_metrics.json` and `baseline_metrics.json` artifacts. **Requirement**: Compute |p_cleaned - p_baseline| (≥3 decimal precision), CI width change (≥2 decimal precision), effect-size delta, AND inconsistency rate (proportion of datasets where significance status changes) per FR-006. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T028 [US3] Implement Bonferroni correction for Family-Wise Error Rate (FWER) in `code/reporting.py`. **Requirement**: Log a warning: "Warning: FR-007 requests FWER control. Benjamini-Hochberg controls FDR. Implemented Bonferroni (FWER) to satisfy FR-007."
+- [~] T027 [US3] Implement metrics comparison in `code/reporting.py`. **Dependency**: Depends on existence of `cleaned_metrics.json` and `baseline_metrics.json` artifacts. **Requirement**: Compute |p_cleaned - p_baseline| (≥3 decimal precision), CI width change (≥2 decimal precision), effect-size delta, AND inconsistency rate (proportion of datasets where significance status changes) per FR-006. <!-- FAILED: unspecified --><!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T028 [US3] Implement Bonferroni correction (Wikipedia: False discovery rate, https://en.wikipedia.org/wiki/False_discovery_rate) for Family-Wise Error Rate (FWER) in `code/reporting.py`. **Requirement**: Log a warning: "Warning: FR-007 requests FWER control. Benjamini-Hochberg controls FDR. Implemented Bonferroni (FWER) to satisfy FR-007."
 - [X] T029 [US3] Implement missingness rate binning with explicit thresholds: non-missing, low, moderate, and high. **Requirement**: Log warning: "Warning: Missingness bin thresholds [0, 5, 10, 20] used. If bins are empty, log CONSTRAINT_VIOLATION but do not skip logic." **Control Flow**: If bins are empty, log warning and proceed.
 - [~] T030 [US3] Implement dataset size binning sensitivity analysis (n<50, 50-200, >200). **Requirement**: Log warning if <1 dataset per bin. **Control Flow**: If bins are empty, log CONSTRAINT_VIOLATION warning and proceed. **Dependency**: Depends on baseline metrics.
 - [X] T031 [US3] Implement bootstrap variance estimation (≥1000 resamples per dataset, default 1000, fallback to 500 if dataset size > 5000 rows) for metric shifts with 95% CI. **Dependency**: Depends on existence of metric artifacts (T012, T023).
@@ -145,7 +145,7 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 - [X] T037 [US3] Implement per-dataset CI width change reporting. **Requirement**: Calculate Median and IQR of CI width changes. If n=2, log "STATISTICAL_LIMITATION: Median/IQR calculated on n=2, results are unstable." Do not skip calculation.
 - [X] T038 [US3] Implement per-dataset effect-size change reporting. **Requirement**: Calculate Median and IQR of effect-size changes. If n=2, log "STATISTICAL_LIMITATION: Median/IQR calculated on n=2, results are unstable." Do not skip calculation.
 - [X] T039 [US3] Log excluded datasets (>80% missing outcome) with warning and record exclusion reason.
-- [~] T040 [US3] Create comparison report (ComparisonReport entity) with baseline_metrics, cleaned_metrics, absolute_diff, relative_diff, sensitivity_analysis. <!-- FAILED: unspecified -->
+- [ ] T040 [US3] Create comparison report (ComparisonReport entity) with baseline_metrics, cleaned_metrics, absolute_diff, relative_diff, sensitivity_analysis. <!-- FAILED: unspecified -->
 - [X] T041 [US3] Generate final report with all metrics aggregated and visualizations referenced.
 
 **Checkpoint**: All user stories should now be independently functional

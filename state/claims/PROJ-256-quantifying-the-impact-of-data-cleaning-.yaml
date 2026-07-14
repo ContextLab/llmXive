@@ -183,9 +183,46 @@
   updated_at: '2026-07-14T10:23:32Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
-  canonical: download_dataset returns 200 status and non-empty content for UCI HAR
-    URL
-  claim_id: c_9492eff8
+  canonical: Bootstrap variance estimation defaults to 1000 resamples per dataset
+  claim_id: c_22027843
+  context: "Bootstrap variance estimation (\u22651000 resamples per dataset, default\
+    \ 1000, fallback to 500 if dataset size > 5000 rows) for metric shifts with 95%\
+    \ CI."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bootstrap variance estimation uses \u22651000 resamples per dataset,\
+    \ default 1000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:35:31Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Bootstrap variance estimation falls back to 500 resamples when dataset
+    size exceeds 5000 rows
+  claim_id: c_8c7e0249
+  context: "Bootstrap variance estimation (\u22651000 resamples per dataset, default\
+    \ 1000, fallback to 500 if dataset size > 5000 rows) for metric shifts with 95%\
+    \ CI."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap variance estimation falls back to 500 resamples if dataset size
+    > 5000 rows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:35:53Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: download_dataset returns HTTP 200 status and non-empty content for UCI
+    HAR URL
+  claim_id: c_a9593dd4
   context: Contract test in tests/unit/test_acquisition.py verifies download_dataset
     returns 200 status and non-empty content for UCI HAR URL.
   evidence:
@@ -198,7 +235,7 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:14:43Z'
+  updated_at: '2026-07-14T19:52:08Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
   canonical: baseline analysis script produces baseline_metrics.json with valid p-values
@@ -211,58 +248,290 @@
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
   raw_text: baseline analysis script produces baseline_metrics.json with valid p-values
-    (0 < p < 1) and finite confidence intervals.
+    (0 < p < 1) and finite CIs.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:14:58Z'
+  updated_at: '2026-07-14T19:52:22Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
-  canonical: only two datasets are currently available
-  claim_id: c_ed9b1994
-  context: The document notes that while SC-006 requires at least ten datasets, only
-    two are presently available.
+  canonical: apply_iqr_outlier_removal removes rows where absolute z-score exceeds
+    k
+  claim_id: c_715c960a
+  context: Unit test verifies apply_iqr_outlier_removal removes rows where |z-score|
+    > k and logs count.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_iqr_outlier_removal_removes_rows_where_absolute_z-scor
+  kind: entity_fact
+  raw_text: apply_iqr_outlier_removal removes rows where |z-score| > k.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:52:47Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_mean_imputation results in zero missing values in target columns
+  claim_id: c_c4be845a
+  context: Unit test verifies apply_mean_imputation results in zero missing values
+    in target columns.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_mean_imputation_results_in_zero_missing_values_in_targ
+  kind: causal
+  raw_text: apply_mean_imputation results in zero missing values in target columns.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:52:48Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_median_imputation results in zero missing values in target columns
+  claim_id: c_cf85d0fb
+  context: Unit test verifies apply_median_imputation results in zero missing values
+    in target columns.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_median_imputation_results_in_zero_missing_values_in_ta
+  kind: causal
+  raw_text: apply_median_imputation results in zero missing values in target columns.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:52:50Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_knn_imputation results in zero missing values in target columns
+  claim_id: c_91d030fa
+  context: Unit test verifies apply_knn_imputation results in zero missing values
+    in target columns.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_knn_imputation_results_in_zero_missing_values_in_targe
+  kind: causal
+  raw_text: apply_knn_imputation results in zero missing values in target columns.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:52:53Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: full cleaning pipeline produces valid CSVs with correct row counts and
+    zero missing values
+  claim_id: c_8d828dcf
+  context: Integration test verifies full cleaning pipeline produces valid CSVs with
+    correct row counts and zero missing values.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1813: CSV'
+      source_id: Q28914856
+      url: https://www.wikidata.org/wiki/Q28914856
+      value: CSV
+    filled: true
+  kind: entity_fact
+  raw_text: full cleaning pipeline produces valid CSVs with correct row counts and
+    zero missing values.
+  resolved_value: CSV
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T19:53:07Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_bonferroni_correction correctly adjusts p-values for family-wise
+    error rate control
+  claim_id: c_b4ce860e
+  context: Implementation of Bonferroni correction logs a warning and correctly adjusts
+    p-values for FWER control.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In statistics, the false discovery rate (FDR) is a method of conceptualizing
+        the rate of type I errors in null hypothesis testing when conducting multiple
+        comparisons. FDR-controlling procedures are designed to control the FDR, which
+        is the expected proportion of "discoveries" (rejected null hypotheses) that
+        are false (incorrect rejections of the null). Equivalently, the FDR is the
+        expected ratio of the number of false positive classifications (false discoveries)
+        to the total number of positive classifications (rejections of the null).
+        The total number of rejections of the null include both the number of false
+        positives (FP) and true positives (TP). Simply put, FDR = FP / (FP + TP).
+        FDR-controlling procedures provide less stringent control of Type I errors
+        compared to family-wise error rate (FWER) controlling procedures (such as
+        the Bonferroni correction), which control the probability of at least one
+        Type I error. Thus, FDR-controlling procedures have greater power, at the
+        cost of increased numbers of Type I errors.
+      source_id: False discovery rate
+      url: https://en.wikipedia.org/wiki/False_discovery_rate
+      value: Bonferroni correction
+    filled: true
+  kind: entity_fact
+  raw_text: apply_bonferroni_correction correctly adjusts p-values for FWER control.
+  resolved_value: Bonferroni correction
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T19:53:26Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: calculate_p_value_shift returns absolute difference with at least three
+    decimal precision
+  claim_id: c_0418db35
+  context: "Unit test verifies calculate_p_value_shift returns absolute difference\
+    \ with \u22653 decimal precision."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calculate_p_value_shift_returns_absolute_difference_with_at
+  kind: magnitude
+  raw_text: "calculate_p_value_shift returns absolute difference with \u22653 decimal\
+    \ precision."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:53:49Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction controls the family-wise error rate
+  claim_id: c_14742d85
+  context: 'Implement Bonferroni correction (Wikipedia: False discovery rate, https://en.wikipedia.org/wiki/false_discovery_rate)
+    for Family-Wise Error Rate (FWER) in `code/reporting.py`.'
+  evidence:
+    entailment_evidence: Bonferroni correction controls the family-wise error rate
+      - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_controls_the_family-wise_error_rate
+  kind: entity_fact
+  raw_text: Bonferroni correction controls Family-Wise Error Rate (FWER)
+  resolved_value: Bonferroni correction controls the family-wise error rate
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T19:55:57Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 0
+  canonical: Bonferroni correction controls family-wise error rate
+  claim_id: c_a40745c6
+  context: 'Implement Bonferroni correction (Wikipedia: False discovery rate, https://en.wikipedia.org/wiki/False_discovery_rate)
+    for Family-Wise Error Rate (FWER).'
+  evidence:
+    entailment_evidence: Bonferroni correction controls the family-wise error rate
+      - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_controls_the_family-wise_error_rate
+  kind: entity_fact
+  raw_text: Bonferroni correction controls family-wise error rate (FWER)
+  resolved_value: Bonferroni correction controls the family-wise error rate
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T19:57:16Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: missingness rate bin thresholds are 0, 5, 10, and 20 percent
+  claim_id: c_115a2fcf
+  context: 'Implement missingness rate binning with explicit thresholds: non-missing,
+    low, moderate, and high.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: only 2 available
+  raw_text: Missingness rate bin thresholds [0, 5, 10, 20]
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:16:12Z'
+  updated_at: '2026-07-14T19:57:43Z'
 - artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   attempts: 1
-  canonical: Only two datasets are currently available
-  claim_id: c_3df993f7
-  context: "SC-006 (\u226510 datasets) flagged for spec kickback - median/IQR tasks\
-    \ (T036-T038) now active ... only 2 available"
+  canonical: dataset size bins are less than 50, 50 to 200, and greater than 200
+  claim_id: c_a00ce8a4
+  context: Implement dataset size binning sensitivity analysis (n<50, 50-200, >200).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_bins_are_less_than_50,_50_to_200,_and_greater_t
+  kind: magnitude
+  raw_text: dataset size binning thresholds are n<50, 50-200, >200
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:58:02Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: bootstrap variance estimation uses at least 1000 resamples, fallback
+    to 500 for datasets larger than 5000 rows
+  claim_id: c_ffe3c4c6
+  context: "Implement bootstrap variance estimation (\u22651000 resamples per dataset,\
+    \ default 1000, fallback to 500 if dataset size > 5000 rows) for metric shifts\
+    \ with 95% CI."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_variance_estimation_uses_at_least_1000_resamples,
+  kind: magnitude
+  raw_text: "Bootstrap variance estimation (\u22651000 resamples per dataset, default\
+    \ 1000, fallback to 500 if dataset size > 5000 rows)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:58:27Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: variance reduction of at least 20 percent triggers a flag
+  claim_id: c_828de0ba
+  context: "Validate zero missing values post-op. Flag if variance reduction \u2265\
+    20%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_reduction_of_at_least_20_percent_triggers_a_flag
+  kind: magnitude
+  raw_text: "variance reduction \u226520% triggers a flag"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T19:59:12Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: if 50 percent or more rows are removed, a bias note is flagged
+  claim_id: c_6294206d
+  context: "Log rows removed. Flag if \u226550% rows removed with bias note."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Only 2 datasets are currently available
+  raw_text: "\u226550% rows removed triggers a bias note"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T19:19:40Z'
-- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
-  attempts: 1
-  canonical: Only two datasets are available
-  claim_id: c_83bc0b12
-  context: "BLOCKING GAP: SC-006 requires \u226510 datasets but only 2 available -\
-    \ median/IQR tasks (T036-T038) now implemented as per-dataset reporting."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Only 2 datasets are available
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T19:31:39Z'
+  updated_at: '2026-07-14T19:59:12Z'

@@ -1,156 +1,74 @@
 """
-Task T035: Generate heatmap of CI-width changes across strategies and dataset bins.
+CI‑width heatmap generation (Task T035).
 
-This script loads cleaned metrics, aggregates CI width changes by cleaning strategy
-and dataset size bin, and generates a heatmap visualization saved to output/heatmap_ci_widths.png.
+Reads the cleaned metrics for each threshold and visualises the change in
+confidence‑interval width relative to the baseline.
 """
-import os
+
 import json
 import logging
+from pathlib import Path
+from typing import List, Dict, Any
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-import numpy as np
-from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime
 
-from utils import setup_logging, pin_random_seed
-from config import get_config
-from t030_dataset_size_sensitivity import bin_dataset_size, load_baseline_metrics, load_cleaned_metrics
+from utils import setup_logging
 
-# Configure logging
-logger = setup_logging("INFO")
+logger = setup_logging(log_level="INFO")
 
-def load_ci_width_changes() -> List[Dict[str, Any]]:
+def load_ci_width_changes(baseline: List[Dict[str, Any]], cleaned: List[Dict[str, Any]]) -> List[float]:
+    changes = []
+    for b, c in zip(baseline, cleaned):
+        b_ci = b.get("t_test", {}).get("ci", [0, 0])
+        c_ci = c.get("t_test", {}).get("ci", [0, 0])
+        b_width = b_ci[1] - b_ci[0]
+        c_width = c_ci[1] - c_ci[0]
+        changes.append(c_width - b_width)
+    return changes
+
+def aggregate_for_heatmap(sweep_path: Path) -> pd.DataFrame:
     """
-    Load cleaned metrics and compute CI width changes per dataset/strategy.
-    Returns a list of records with dataset_id, strategy, bin, and ci_width_change.
+    Produce a DataFrame with rows = thresholds, columns = dataset indices,
+    values = CI‑width change.
     """
-    baseline_metrics = load_baseline_metrics()
-    cleaned_metrics = load_cleaned_metrics()
-    
-    if not baseline_metrics or not cleaned_metrics:
-        logger.error("Baseline or cleaned metrics not found. Cannot compute CI width changes.")
-        return []
+    sweep = json.load(open(sweep_path, "r", encoding="utf-8"))
+    baseline_path = Path("data/processed/baseline_metrics.json")
+    baseline = json.load(open(baseline_path, "r", encoding="utf-8"))
 
-    records = []
-    
-    # Iterate over cleaned metrics (which contain strategy info)
-    for dataset_id, strategy_data in cleaned_metrics.items():
-        if dataset_id not in baseline_metrics:
-            logger.warning(f"Dataset {dataset_id} in cleaned metrics but missing in baseline. Skipping.")
+    data = {}
+    for k, info in sweep.items():
+        cleaned_path = Path(info.get("cleaned_metrics_path", ""))
+        if not cleaned_path.is_file():
             continue
-        
-        baseline_entry = baseline_metrics[dataset_id]
-        baseline_ci_width = baseline_entry.get("ci_width", 0.0)
-        
-        # Determine dataset size bin
-        # We need to know the size; usually stored in baseline or we can infer from the dataset if we had it.
-        # Assuming baseline_metrics might have 'n' or we derive it. 
-        # If not present, we assume a default bin or skip. 
-        # Let's check if 'n' is available in baseline.
-        n = baseline_entry.get("n", 0)
-        bin_label = bin_dataset_size(n)
-        
-        for strategy, metrics in strategy_data.items():
-            cleaned_ci_width = metrics.get("ci_width", 0.0)
-            if cleaned_ci_width is None or baseline_ci_width is None:
-                continue
-            
-            # Compute change (could be absolute or relative, task implies change)
-            # Using absolute change: |cleaned - baseline|
-            ci_change = abs(cleaned_ci_width - baseline_ci_width)
-            
-            records.append({
-                "dataset_id": dataset_id,
-                "strategy": strategy,
-                "bin": bin_label,
-                "ci_width_change": ci_change
-            })
-    
-    return records
+        cleaned = json.load(open(cleaned_path, "r", encoding="utf-8"))
+        changes = load_ci_width_changes(baseline, cleaned)
+        data[f"k={k}"] = changes
 
-def aggregate_for_heatmap(records: List[Dict[str, Any]]) -> pd.DataFrame:
-    """
-    Aggregate CI width changes by strategy and bin.
-    Returns a pivot table suitable for seaborn heatmap.
-    """
-    if not records:
-        logger.warning("No records found to aggregate for heatmap.")
-        return pd.DataFrame()
-    
-    df = pd.DataFrame(records)
-    
-    # Group by strategy and bin, calculate mean change
-    pivot_data = df.groupby(["strategy", "bin"])["ci_width_change"].mean().reset_index()
-    
-    # Pivot to get matrix: strategies as rows, bins as columns
-    heatmap_df = pivot_data.pivot(index="strategy", columns="bin", values="ci_width_change")
-    
-    return heatmap_df
+    df = pd.DataFrame(data)
+    return df
 
-def generate_heatmap(heatmap_df: pd.DataFrame, output_path: str):
-    """
-    Generate and save the heatmap visualization.
-    """
-    if heatmap_df.empty:
-        logger.error("Cannot generate heatmap: DataFrame is empty.")
-        return False
-
-    plt.figure(figsize=(10, 8))
-    
-    # Use a diverging colormap if values can be negative, but here we used absolute change so sequential is fine.
-    # However, if we change to signed change, diverging is better. Let's stick to absolute as per logic above.
-    # Using 'viridis' or 'rocket' for positive values.
-    sns.heatmap(heatmap_df, annot=True, fmt=".4f", cmap="YlOrRd", linewidths=0.5, cbar_kws={'label': 'Mean CI Width Change'})
-    
-    plt.title("Mean CI Width Changes Across Strategies and Dataset Bins")
-    plt.xlabel("Dataset Size Bin")
-    plt.ylabel("Cleaning Strategy")
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+def generate_heatmap(sweep_path: Path, output_path: Path) -> None:
+    df = aggregate_for_heatmap(sweep_path)
+    if df.empty:
+        logger.warning("No CI‑width change data available for heatmap.")
+        return
+    plt.figure(figsize=(10, 6))
+    sns.heatmap(df.T, annot=True, fmt=".3f", cmap="viridis")
+    plt.title("CI‑width changes across outlier thresholds")
+    plt.xlabel("Dataset index")
+    plt.ylabel("Threshold")
+    plt.tight_layout()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path)
     plt.close()
-    
-    logger.info(f"Heatmap saved to {output_path}")
-    return True
+    logger.info(f"CI heatmap saved to {output_path}")
 
-def main():
-    """
-    Main entry point for Task T035.
-    """
-    pin_random_seed(get_config().RANDOM_SEED)
-    
-    logger.info("Starting T035: Generate CI Width Heatmap")
-    
-    # Load and process data
-    records = load_ci_width_changes()
-    
-    if not records:
-        logger.error("No data available to generate heatmap. Aborting.")
-        return 1
-    
-    heatmap_df = aggregate_for_heatmap(records)
-    
-    if heatmap_df.empty:
-        logger.error("Aggregated data is empty. Aborting.")
-        return 1
-    
-    # Define output path
-    config = get_config()
-    output_dir = config.OUTPUT_PATH
-    output_file = os.path.join(output_dir, "heatmap_ci_widths.png")
-    
-    success = generate_heatmap(heatmap_df, output_file)
-    
-    if not success:
-        logger.error("Failed to generate heatmap.")
-        return 1
-    
-    logger.info("T035 completed successfully.")
-    return 0
+def main() -> None:
+    sweep_path = Path("data/processed/outlier_threshold_sweep.json")
+    output_path = Path("output/ci_heatmap.png")
+    generate_heatmap(sweep_path, output_path)
 
 if __name__ == "__main__":
-    exit(main())
+    main()

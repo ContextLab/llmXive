@@ -1,21 +1,13 @@
 """
-Permutation Null FPR Generation (Task T032)
+T032 – Permutation Null Dataset Generation
 
-This script generates null datasets by shuffling the outcome variable while
-keeping predictor variables fixed. For each dataset found in the processed
-data directory, it runs the baseline analysis on the permuted data and
-records the resulting metrics. The final JSON file is written to
-``data/processed/null_fpr_metrics.json`` as required by the project
-specifications.
+This script creates null datasets by shuffling the outcome variable while keeping
+predictor variables fixed. For each dataset it estimates the false‑positive rate
+(FPR) as the proportion of statistical tests that return a p‑value ≤ 0.05 on the
+permuted data.
 
-The implementation is deliberately tolerant:
-* If a CSV file cannot be read or does not contain at least two columns,
-  it is skipped with a warning.
-* The outcome column is inferred as the last column in the DataFrame.
-* The script uses the flexible ``run_baseline_analysis`` function from
-  ``code.analysis`` which accepts a variety of call signatures.
-* Logging is set up via the project's ``setup_logging`` utility, which
-  tolerates any argument pattern.
+Output:
+    data/processed/null_fpr_metrics.json
 """
 
 import json
@@ -26,56 +18,135 @@ from typing import Dict, Any, List
 
 import numpy as np
 import pandas as pd
+import scipy.stats
 
-# Project imports – these exist in the repository according to the API surface.
-from analysis import run_baseline_analysis
 from utils import setup_logging, pin_random_seed
 
-# ----------------------------------------------------------------------
-# Configuration
-# ----------------------------------------------------------------------
-PROCESSED_DATA_DIR = Path("data/processed")
-NULL_FPR_OUTPUT = PROCESSED_DATA_DIR / "null_fpr_metrics.json"
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+LOGGER = setup_logging(log_level="INFO")
 
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
-def _load_csv_files(directory: Path) -> List[Path]:
-    """Return a list of CSV files in ``directory``."""
-    if not directory.is_dir():
-        logging.warning("Processed data directory %s does not exist.", directory)
-        return []
-    return sorted([p for p in directory.iterdir() if p.suffix.lower() == ".csv"])
 
-def _shuffle_outcome(df: pd.DataFrame, outcome_col: str) -> pd.DataFrame:
-    """Return a copy of ``df`` with the outcome column shuffled."""
-    df_null = df.copy()
-    shuffled = np.random.permutation(df_null[outcome_col].values)
-    df_null[outcome_col] = shuffled
-    return df_null
-
-def _run_analysis_on_null(df: pd.DataFrame, outcome: str, predictors: List[str]) -> Dict[str, Any]:
+def _detect_outcome_column(df: pd.DataFrame) -> str:
     """
-    Run the project's baseline analysis on a null (shuffled) dataset.
-
-    The ``run_baseline_analysis`` function has a flexible signature; we
-    provide the most explicit keyword arguments that are known to work.
+    Heuristically pick an outcome column. Preference order:
+    1. Column named exactly 'outcome' (case‑insensitive)
+    2. Column named exactly 'target'
+    3. The first column in the DataFrame
     """
-    try:
-        metrics = run_baseline_analysis(
-            dataframe=df,
-            outcome=outcome,
-            predictors=predictors,
+    for candidate in ["outcome", "target"]:
+        matches = [c for c in df.columns if c.lower() == candidate]
+        if matches:
+            return matches[0]
+    return df.columns[0]
+
+
+def _compute_fpr_for_dataframe(
+    df: pd.DataFrame,
+    outcome_col: str,
+    n_permutations: int = 1000,
+    alpha: float = 0.05,
+) -> float:
+    """
+    Estimate the false‑positive rate for a single DataFrame.
+
+    For each permutation the outcome column is shuffled, then a Pearson correlation
+    test is performed between the shuffled outcome and each numeric predictor.
+    The proportion of resulting p‑values ≤ ``alpha`` across all permutations and
+    predictors is returned as the FPR.
+    """
+    predictors = [c for c in df.columns if c != outcome_col]
+    numeric_predictors = [
+        c
+        for c in predictors
+        if pd.api.types.is_numeric_dtype(df[c]) and pd.api.types.is_numeric_dtype(df[outcome_col])
+    ]
+
+    if not numeric_predictors:
+        LOGGER.warning(
+            f"No numeric predictors found in dataset with outcome column '{outcome_col}'. "
+            "Returning FPR = 0.0."
         )
-        return metrics
-    except Exception as exc:
-        logging.error(
-            "Baseline analysis failed on null dataset (outcome=%s). Error: %s",
-            outcome,
-            exc,
+        return 0.0
+
+    pvals: List[float] = []
+
+    for _ in range(n_permutations):
+        shuffled_outcome = df[outcome_col].sample(frac=1, replace=False).reset_index(drop=True)
+        df_shuffled = df.copy()
+        df_shuffled[outcome_col] = shuffled_outcome
+
+        for pred in numeric_predictors:
+            # Pearson correlation returns a correlation coefficient and a two‑tailed p‑value
+            _, p = scipy.stats.pearsonr(df_shuffled[pred], df_shuffled[outcome_col])
+            pvals.append(p)
+
+    pvals_arr = np.array(pvals)
+    fpr = float(np.mean(pvals_arr <= alpha))
+    return fpr
+
+
+def generate_null_fpr_metrics(
+    raw_dir: Path = Path("data/raw"),
+    output_file: Path = Path("data/processed/null_fpr_metrics.json"),
+    n_permutations: int = 1000,
+) -> Dict[str, Any]:
+    """
+    Generate null‑dataset FPR metrics for every CSV file found in ``raw_dir``.
+
+    Parameters
+    ----------
+    raw_dir: Path
+        Directory containing raw CSV datasets.
+    output_file: Path
+        Destination JSON file for the aggregated metrics.
+    n_permutations: int
+        Number of outcome shuffles per dataset.
+
+    Returns
+    -------
+    dict
+        Mapping from dataset filename to its estimated FPR.
+    """
+    LOGGER.info(f"Scanning raw data directory: {raw_dir}")
+    if not raw_dir.exists():
+        LOGGER.error(f"Raw data directory does not exist: {raw_dir}")
+        raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
+
+    metrics: Dict[str, Any] = {}
+
+    csv_files = list(raw_dir.glob("*.csv"))
+    if not csv_files:
+        LOGGER.warning(f"No CSV files found in {raw_dir}. Empty metrics will be written.")
+
+    for csv_path in csv_files:
+        LOGGER.info(f"Processing raw dataset: {csv_path.name}")
+        try:
+            df = pd.read_csv(csv_path)
+        except Exception as e:
+            LOGGER.error(f"Failed to read {csv_path}: {e}")
+            continue
+
+        outcome_col = _detect_outcome_column(df)
+        LOGGER.debug(f"Detected outcome column '{outcome_col}' for {csv_path.name}")
+
+        fpr = _compute_fpr_for_dataframe(
+            df, outcome_col, n_permutations=n_permutations, alpha=0.05
         )
-        return {}
+        metrics[csv_path.name] = {
+            "outcome_column": outcome_col,
+            "false_positive_rate": round(fpr, 5),
+            "permutations": n_permutations,
+        }
+        LOGGER.info(
+            f"Finished {csv_path.name}: FPR = {metrics[csv_path.name]['false_positive_rate']}"
+        )
+
+    # Ensure the output directory exists
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(metrics, f, indent=2)
+
+    LOGGER.info(f"Null‑FPR metrics written to {output_file}")
+    return metrics
 
 # ----------------------------------------------------------------------
 # Core generation logic
@@ -85,64 +156,24 @@ def generate_null_fpr_metrics(
     output_path: Path = NULL_FPR_OUTPUT,
 ) -> None:
     """
-    Generate null‑dataset FPR metrics for every CSV file in ``processed_dir``
-    and write the aggregated results to ``output_path``.
+    Entry point for the script. Seeds RNG for reproducibility and runs the
+    null‑FPR generation with defaults (or values overridden via environment
+    variables).
     """
-    logger = logging.getLogger(__name__)
-    logger.info("Starting permutation null FPR generation.")
-    pin_random_seed(42)  # deterministic shuffling for reproducibility
+    # Allow optional overrides via environment variables
+    raw_dir = Path(os.getenv("RAW_DATA_PATH", "data/raw"))
+    output_path = Path(os.getenv("NULL_FPR_OUTPUT_PATH", "data/processed/null_fpr_metrics.json"))
+    n_perm = int(os.getenv("NULL_FPR_PERMUTATIONS", "1000"))
 
-    csv_files = _load_csv_files(processed_dir)
-    if not csv_files:
-        logger.warning("No CSV files found in %s; null FPR metrics will be empty.", processed_dir)
+    # Seed for reproducibility
+    seed = int(os.getenv("RANDOM_SEED", "42"))
+    pin_random_seed(seed)
 
-    all_metrics: Dict[str, Any] = {}
-
-    for csv_path in csv_files:
-        logger.info("Processing file %s", csv_path.name)
-        try:
-            df = pd.read_csv(csv_path)
-        except Exception as exc:
-            logger.error("Failed to read %s: %s", csv_path, exc)
-            continue
-
-        if df.shape[1] < 2:
-            logger.warning(
-                "File %s has fewer than 2 columns; cannot determine outcome/predictors. Skipping.",
-                csv_path.name,
-            )
-            continue
-
-        # Infer outcome as the last column, predictors as all others.
-        outcome_col = df.columns[-1]
-        predictor_cols = list(df.columns[:-1])
-
-        logger.debug(
-            "Inferred outcome column '%s' and %d predictor columns.",
-            outcome_col,
-            len(predictor_cols),
-        )
-
-        # Create null dataset by shuffling the outcome.
-        df_null = _shuffle_outcome(df, outcome_col)
-
-        # Run analysis on the null dataset.
-        metrics = _run_analysis_on_null(df_null, outcome_col, predictor_cols)
-
-        # Store under a key derived from the original filename (without extension).
-        dataset_key = csv_path.stem
-        all_metrics[dataset_key] = metrics
-
-    # Ensure the output directory exists.
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write JSON with pretty formatting for readability.
-    try:
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(all_metrics, f, indent=2, sort_keys=True)
-        logger.info("Null FPR metrics written to %s", output_path)
-    except Exception as exc:
-        logger.error("Failed to write null FPR metrics to %s: %s", output_path, exc)
+    generate_null_fpr_metrics(
+        raw_dir=raw_dir,
+        output_file=output_path,
+        n_permutations=n_perm,
+    )
 
 # ----------------------------------------------------------------------
 # Script entry point

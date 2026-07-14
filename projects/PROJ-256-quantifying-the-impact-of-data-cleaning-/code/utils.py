@@ -2,48 +2,84 @@ import logging
 import os
 import random
 import hashlib
-from typing import Any
+from typing import Any, Optional
 import numpy as np
 
 _logger_cache = {}
 
 def pin_random_seed(seed: int) -> None:
-    """Set seeds for reproducibility across numpy and the Python stdlib."""
+    """
+    Set the seed for reproducibility across numpy, random and any other
+    libraries that respect the global seed.
+    """
     random.seed(seed)
     np.random.seed(seed)
 
 def compute_file_checksum(filepath: str) -> str:
-    """Compute SHA256 checksum of a file."""
+    """
+    Compute the SHA256 checksum of a file.
+    """
     sha256 = hashlib.sha256()
     with open(filepath, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            sha256.update(chunk)
+        for block in iter(lambda: f.read(65536), b""):
+            sha256.update(block)
     return sha256.hexdigest()
 
 def setup_logging(*args, **kwargs) -> logging.Logger:
     """
-    Create or retrieve a logger.
+    Flexible logging initialiser.
 
-    This function is deliberately permissive: callers may provide a log level
-    as the first positional argument, as a named keyword ``log_level``, or even
-    a custom logger name. Any unexpected arguments are ignored so that the
-    function remains compatible with all existing call sites.
+    Accepted call signatures (all are supported):
+    - setup_logging()
+    - setup_logging(log_level="INFO")
+    - setup_logging("INFO")
+    - setup_logging(name="my_logger", log_level="WARNING")
+    - setup_logging("my_logger", "DEBUG")
+    - Any combination of positional and keyword arguments where the first
+      string argument is interpreted as the logger name (if it does not match a
+      known log level) and the next string as the log level.
+
+    The function never raises for unexpected argument patterns; it falls back
+    to a default logger named ``"root"`` with level ``WARNING``.
     """
-    # Resolve logger name / level
-    log_level = kwargs.get("log_level")
-    if not log_level and args:
-        # First positional argument may be a level string or a logger name
-        if isinstance(args[0], str):
-            # Heuristic: if it looks like a logging level, use it; otherwise treat as name
-            possible_level = args[0].upper()
-            if possible_level in {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}:
-                log_level = possible_level
-            else:
-                logger_name = args[0]
-                return _logger_cache.setdefault(logger_name, _configure_logger(logger_name, log_level))
+    # Resolve positional arguments
+    name: Optional[str] = None
+    level: Optional[str] = None
+
+    if args:
+        # If first positional looks like a log level, treat it as level
+        first = args[0]
+        if isinstance(first, str) and first.upper() in {"CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"}:
+            level = first.upper()
+            if len(args) > 1 and isinstance(args[1], str):
+                name = args[1]
         else:
-            logger_name = str(args[0])
-            return _logger_cache.setdefault(logger_name, _configure_logger(logger_name, log_level))
+            name = str(first)
+            if len(args) > 1 and isinstance(args[1], str):
+                level = args[1].upper()
+
+    # Resolve keyword arguments (they override positional if provided)
+    if "name" in kwargs:
+        name = kwargs["name"]
+    if "log_level" in kwargs:
+        level = kwargs["log_level"].upper()
+
+    # Default values
+    logger_name = name if name else "root"
+    log_level = getattr(logging, level, logging.WARNING) if level else logging.WARNING
+
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(log_level)
+
+    # Ensure at least one handler exists to avoid "No handlers could be found" warnings
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
 
     logger_name = kwargs.get("logger_name", "default")
     logger = _logger_cache.get(logger_name)

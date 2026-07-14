@@ -22,48 +22,51 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `run_baseline_analysis` — defined in `code/analysis.py`; called 10 way(s):
+### `run_baseline_analysis` — defined in `code/analysis.py`; called 13 way(s):
 
-- code/t023_reanalyze_cleaned_variants.py: metrics = run_baseline_analysis(
-- code/t012_run_baseline_analysis.py: metrics = run_baseline_analysis()
-- code/t013_record_baseline_metrics.py: success = run_baseline_analysis(raw_dir, output_file)
-- code/analysis.py: 1. ``run_baseline_analysis(dataframe=df, outcome='y', predictors=[...])``
-- code/analysis.py: 2. ``run_baseline_analysis(raw_dir, output_file, config)`` (positional)
-- code/analysis.py: 3. ``run_baseline_analysis(raw_dir, output_file)`` (positional, config optional)
-- code/t033_outlier_threshold_sweep.py: baseline_metrics[name] = run_baseline_analysis(dataframe=df)
-- code/t033_outlier_threshold_sweep.py: cleaned_metrics[name] = run_baseline_analysis(dataframe=df_clean)
-- code/t033_outlier_threshold_sweep.py: null_res = run_baseline_analysis(dataframe=df_null)
-- code/t032_permutation_null_fpr.py: metrics = run_baseline_analysis(
+- code/t023_reanalyze_cleaned_variants.py: metrics = run_baseline_analysis(dataframe=df_clean)
+- code/t012_run_baseline_analysis.py: run_baseline_analysis(raw_dir, output_file, {})
+- code/t013_record_baseline_metrics.py: success = run_baseline_analysis(
+- code/t040_create_comparison_report.py: run_baseline_analysis(raw_dir=raw_dir, output_file=str(baseline_path))
+- code/t040_create_comparison_report.py: run_baseline_analysis(str(raw_dir), str(baseline_path))
+- code/analysis.py: 1. ``run_baseline_analysis(dataframe=my_df)`` – analyse an in‑memory DataFrame.
+- code/analysis.py: 2. ``run_baseline_analysis(dataframe=my_df, outcome='y', predictors=['x1','x2'])``
+- code/analysis.py: 3. ``run_baseline_analysis(raw_dir='data/raw', output_file='data/processed/baseline_metrics.json',
+- code/analysis.py: run_baseline_analysis(
+- code/t033_outlier_threshold_sweep.py: result = run_baseline_analysis(dataframe=df)
+- code/t033_outlier_threshold_sweep.py: cleaned_result = run_baseline_analysis(dataframe=df_clean)
+- code/t033_outlier_threshold_sweep.py: null_result = run_baseline_analysis(dataframe=df_null)
+- code/t032_permutation_null_fpr.py: result = run_baseline_analysis(dataframe=df_null)
 
 Make `run_baseline_analysis` in `code/analysis.py` accept ALL of the above.
 
 ### `setup_logging` — defined in `code/utils.py`; called 25 way(s):
 
-- code/t036_pvalue_shift_reporting.py: setup_logging(log_level)
+- code/t036_pvalue_shift_reporting.py: logger = setup_logging(log_level="INFO")
 - code/run_quickstart_validation.py: logger = setup_logging("INFO")
-- code/t037_ci_width_reporting.py: setup_logging(log_level='INFO')
+- code/t037_ci_width_reporting.py: logger = setup_logging(log_level="INFO")
 - code/t022_save_cleaned_datasets.py: setup_logging("INFO")
-- code/t034_generate_forest_plot.py: logger = setup_logging(log_level)
+- code/t034_generate_forest_plot.py: logger = setup_logging(log_level="INFO")
 - code/t045_conditional_bootstrap_reduction.py: setup_logging("INFO")
-- code/t023_reanalyze_cleaned_variants.py: logger = setup_logging("INFO")
-- code/t012_run_baseline_analysis.py: logger = setup_logging("INFO")
+- code/t023_reanalyze_cleaned_variants.py: logger = setup_logging(log_level="INFO")
+- code/t012_run_baseline_analysis.py: logger = setup_logging(log_level="INFO")
+- code/utils.py: - setup_logging()
+- code/utils.py: - setup_logging("INFO")
+- code/utils.py: - setup_logging(log_level="DEBUG")
+- code/utils.py: - setup_logging(name="my_logger", log_level="WARNING")
+- code/utils.py: - setup_logging("my_logger", "DEBUG")
 - code/t044_runtime_profiling.py: setup_logging()
 - code/cleanup_utils.py: setup_logging(log_level)
-- code/t035_generate_ci_heatmap.py: logger = setup_logging("INFO")
+- code/t035_generate_ci_heatmap.py: logger = setup_logging(log_level="INFO")
 - code/profiler.py: setup_logging()
 - code/t048_verify_checksums_and_state.py: logger = setup_logging("INFO")
-- code/t041_generate_final_report.py: logger = setup_logging("INFO")
-- code/main.py: logger = setup_logging("INFO")
+- code/t041_generate_final_report.py: logger = setup_logging(log_level="INFO")
+- code/main.py: logger = setup_logging(log_level="INFO")
 - code/data_loader.py: logger = setup_logging("INFO")
-- code/t013_record_baseline_metrics.py: logger = setup_logging("INFO")
-- code/t040_create_comparison_report.py: logger = setup_logging()
+- code/t013_record_baseline_metrics.py: logger = setup_logging()
+- code/t040_create_comparison_report.py: logger = setup_logging(log_level="INFO")
 - code/t030_dataset_size_sensitivity.py: logger = setup_logging("INFO")
-- code/t039_log_excluded_datasets.py: setup_logging(config.LOG_LEVEL)
-- code/t033_outlier_threshold_sweep.py: logger = setup_logging("INFO")
-- code/t027_run_comparison.py: logger = setup_logging("INFO")
-- code/t038_effect_size_reporting.py: logger = setup_logging("T038_EffectSizeReporting")
-- code/t032_permutation_null_fpr.py: logger = setup_logging("INFO")
-- code/scripts/quickstart_fix.py: logger = setup_logging("INFO")
+- code/t039_log_excluded_datasets.py: logger = setup_logging(log_level="INFO")
 
 Make `setup_logging` in `code/utils.py` accept ALL of the above.
 
@@ -84,31 +87,31 @@ Make `setup_logging` in `code/utils.py` accept ALL of the above.
 Whichever you choose, every call site of `Config` across the codebase must stop raising `AttributeError`/`TypeError`.
 
 `Config.get` call sites (25):
-- code/t036_pvalue_shift_reporting.py: base_p = base_entry.get('p_value')
-- code/t036_pvalue_shift_reporting.py: clean_p = clean_entry.get('p_value')
-- code/t036_pvalue_shift_reporting.py: base_p = base_tests[test_name].get('p_value')
-- code/t036_pvalue_shift_reporting.py: clean_p = clean_tests[test_name].get('p_value')
-- code/t037_ci_width_reporting.py: if not metrics.get('baseline') or not metrics.get('cleaned'):
-- code/t037_ci_width_reporting.py: baseline_data = metrics['baseline'].get('datasets', [])
-- code/t037_ci_width_reporting.py: cleaned_data = metrics['cleaned'].get('datasets', [])
-- code/t037_ci_width_reporting.py: dataset_name = b_entry.get('dataset_name')
-- code/t037_ci_width_reporting.py: ci = entry['t_test'].get('ci')
-- code/t037_ci_width_reporting.py: coefs = entry['regression'].get('coefficients', [])
-- code/t037_ci_width_reporting.py: baseline_cis = get_all_ci_widths(b_entry.get('analysis', {}))
-- code/t037_ci_width_reporting.py: cleaned_cis = get_all_ci_widths(c_entry.get('analysis', {}))
+- code/t036_pvalue_shift_reporting.py: b_p = b.get("t_test", {}).get("p_value", 1)
+- code/t036_pvalue_shift_reporting.py: c_p = c.get("t_test", {}).get("p_value", 1)
+- code/t036_pvalue_shift_reporting.py: cleaned_path = Path(info.get("cleaned_metrics_path", ""))
+- code/t037_ci_width_reporting.py: b_ci = b.get("t_test", {}).get("ci", [0, 0])
+- code/t037_ci_width_reporting.py: c_ci = c.get("t_test", {}).get("ci", [0, 0])
+- code/t037_ci_width_reporting.py: cleaned_path = Path(info.get("cleaned_metrics_path", ""))
 - code/t022_save_cleaned_datasets.py: raw_dir = config.get("RAW_DATA_PATH", "data/raw")
 - code/t022_save_cleaned_datasets.py: processed_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
 - code/t022_save_cleaned_datasets.py: df_clean = strat["func"](df, k=strat.get("k", 1.5))
-- code/t034_generate_forest_plot.py: ds_id = item.get('dataset_id') or item.get('dataset_name') or item.get('name')
-- code/t034_generate_forest_plot.py: ds_id = baseline_item.get('dataset_id') or baseline_item.get('dataset_name') or baseline_item.get('name')
-- code/t034_generate_forest_plot.py: cleaned_item = cleaned_map.get(ds_id)
-- code/t034_generate_forest_plot.py: strategy = cleaned_item.get('strategy', cleaned_item.get('cleaning_strategy', 'Unknown'))
-- code/t034_generate_forest_plot.py: output_dir = config.get('OUTPUT_PATH', 'data/processed')
+- code/t034_generate_forest_plot.py: b_p = b.get("t_test", {}).get("p_value", 1)
+- code/t034_generate_forest_plot.py: c_p = c.get("t_test", {}).get("p_value", 1)
+- code/t034_generate_forest_plot.py: cleaned_path = Path(info.get("cleaned_metrics_path", ""))
 - code/t045_conditional_bootstrap_reduction.py: size = data.get('dataset_size') or data.get('n_rows')
-- code/t023_reanalyze_cleaned_variants.py: pin_random_seed(int(cfg.get("RANDOM_SEED", 42)))
-- code/t023_reanalyze_cleaned_variants.py: processed_dir = Path(cfg.get("PROCESSED_DATA_PATH", "data/processed"))
-- code/t023_reanalyze_cleaned_variants.py: cfg.get(
-- code/config.py: return self._data.get(key, default)
+- code/config.py: return self._config.get(key, default)
+- code/utils.py: name: Optional[str] = kwargs.get("name")
+- code/utils.py: level: Optional[str] = kwargs.get("log_level")
+- code/t044_runtime_profiling.py: total_duration = sum(item.get("duration_seconds", 0) for item in profiling_data)
+- code/t044_runtime_profiling.py: "name": item.get("function") or item.get("block"),
+- code/t044_runtime_profiling.py: "duration_seconds": item.get("duration_seconds"),
+- code/t044_runtime_profiling.py: "status": item.get("status")
+- code/t035_generate_ci_heatmap.py: b_ci = b.get("t_test", {}).get("ci", [0, 0])
+- code/t035_generate_ci_heatmap.py: c_ci = c.get("t_test", {}).get("ci", [0, 0])
+- code/t035_generate_ci_heatmap.py: cleaned_path = Path(info.get("cleaned_metrics_path", ""))
+- code/profiler.py: item.get("duration_seconds", 0) for item in _profile_data
+- code/profiler.py: "successful": sum(1 for item in _profile_data if item.get("status") == "success"),
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -119,10 +122,10 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/run_quickstart_validation.py` — NOT invoked by the run-book
     - `code/t037_ci_width_reporting.py` — NOT invoked by the run-book
     - `code/t034_generate_forest_plot.py` — NOT invoked by the run-book
+    - `code/t012_run_baseline_analysis.py` — NOT invoked by the run-book
     - `code/models.py` — NOT invoked by the run-book
     - `code/t035_generate_ci_heatmap.py` — NOT invoked by the run-book
     - `code/reporting.py` — NOT invoked by the run-book
-    - `code/t013_record_baseline_metrics.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/baseline_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/cleaned_metrics.json` is declared but was NOT written. Scripts referencing it:
     - `code/t036_pvalue_shift_reporting.py` — NOT invoked by the run-book
@@ -136,6 +139,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/processed/cleaned_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/null_fpr_metrics.json` is declared but was NOT written. Scripts referencing it:
     - `code/run_quickstart_validation.py` — NOT invoked by the run-book
+    - `code/main.py` — IS a run-book command
     - `code/t033_outlier_threshold_sweep.py` — NOT invoked by the run-book
     - `code/t032_permutation_null_fpr.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/null_fpr_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

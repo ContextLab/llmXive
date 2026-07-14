@@ -5,6 +5,5 @@ statsmodels
 scikit-learn
 matplotlib
 seaborn
-pytest
-# Added for analysis
-# No additional external packages required beyond those already listed.
+python-dotenv
+# existing dependencies from earlier phases are already present

@@ -1,7 +1,13 @@
 """
-Re‑run statistical analyses (t‑tests + linear regressions) on every cleaned
-dataset variant produced by the cleaning pipeline and store the results in
-``data/processed/cleaned_metrics.json``.
+t023_reanalyze_cleaned_variants.py
+----------------------------------
+
+Re‑runs statistical analyses (t‑tests and linear regressions) on each cleaned
+dataset that resides in ``data/processed/``.  The script aggregates the results
+and writes them to ``data/processed/cleaned_metrics.json``.
+
+This script is invoked by the quick‑start run‑book; it relies on the flexible
+``run_baseline_analysis`` implementation in ``code.analysis``.
 """
 
 import json
@@ -13,83 +19,73 @@ import pandas as pd
 
 from utils import setup_logging, pin_random_seed
 from analysis import run_baseline_analysis
-from config import get_config
 
-logger = setup_logging("INFO")
+logger = setup_logging(log_level="INFO")
+pin_random_seed(42)
 
 
-def _discover_cleaned_csvs(processed_dir: Path) -> List[Path]:
+def _find_cleaned_csv_files(processed_dir: Path) -> List[Path]:
     """
     Return a list of CSV files that represent cleaned variants.
-    The naming convention used elsewhere is ``<dataset>_cleaned_<strategy>.csv``.
+    Heuristic: filenames containing the word ``cleaned`` or any
+    ``*_outlier_removed.csv`` style naming used by the cleaning step.
     """
-    return sorted(processed_dir.glob("*_cleaned_*.csv"))
-
-
-def _extract_strategy_from_name(filename: str) -> str:
-    """
-    Very simple heuristic – the strategy name is the part after the last
-    ``_cleaned_`` and before the file extension.
-    """
-    parts = filename.split("_cleaned_")
-    if len(parts) < 2:
-        return "unknown"
-    return parts[1].rsplit(".", 1)[0]
+    patterns = ["*cleaned*.csv", "*outlier_removed*.csv", "*imputed*.csv", "*recoded*.csv"]
+    files: List[Path] = []
+    for pat in patterns:
+        files.extend(processed_dir.glob(pat))
+    # De‑duplicate while preserving order
+    seen = set()
+    uniq = []
+    for f in files:
+        if f not in seen:
+            seen.add(f)
+            uniq.append(f)
+    return uniq
 
 
 def main() -> None:
-    # Initialise reproducibility and logging
-    cfg = get_config()
-    pin_random_seed(int(cfg.get("RANDOM_SEED", 42)))
-    logger.info("Starting re‑analysis of cleaned dataset variants.")
+    """
+    Entry point for the quick‑start pipeline.
 
-    processed_dir = Path(cfg.get("PROCESSED_DATA_PATH", "data/processed"))
-    cleaned_files = _discover_cleaned_csvs(processed_dir)
-
-    if not cleaned_files:
-        logger.warning(f"No cleaned CSV files found in {processed_dir}")
+    Steps:
+    1. Locate cleaned CSV files under ``data/processed/``.
+    2. For each file, load it into a DataFrame and invoke
+       ``run_baseline_analysis`` (DataFrame‑mode) to obtain metrics.
+    3. Aggregate the per‑file metrics into a single dictionary.
+    4. Write the aggregated dictionary to
+       ``data/processed/cleaned_metrics.json``.
+    """
+    processed_dir = Path("data/processed")
+    if not processed_dir.is_dir():
+        logger.error(f"Processed directory {processed_dir} does not exist.")
         return
 
-    aggregated_metrics: Dict[str, Dict] = {}
+    cleaned_files = _find_cleaned_csv_files(processed_dir)
+    if not cleaned_files:
+        logger.warning("No cleaned CSV files found – cleaned_metrics.json will be empty.")
+    else:
+        logger.info(f"Found {len(cleaned_files)} cleaned dataset(s) to analyse.")
 
+    all_metrics: Dict[str, Dict] = {}
     for csv_path in cleaned_files:
         try:
             df = pd.read_csv(csv_path)
+            logger.info(f"Analyzing cleaned dataset: {csv_path.name}")
+            metrics = run_baseline_analysis(dataframe=df)
+            if metrics:  # could be empty if analysis failed
+                all_metrics[csv_path.name] = metrics
         except Exception as e:
-            logger.error(f"Failed to read cleaned dataset {csv_path}: {e}")
-            continue
+            logger.exception(f"Failed to process {csv_path.name}: {e}")
 
-        # Assume the first column is the outcome variable
-        outcome_col = df.columns[0]
-        predictor_cols = [c for c in df.columns if c != outcome_col]
-
-        logger.debug(f"Analyzing {csv_path.name}: outcome={outcome_col}")
-
-        metrics = run_baseline_analysis(
-            dataframe=df, outcome=outcome_col, predictors=predictor_cols
-        )
-
-        strategy = _extract_strategy_from_name(csv_path.name)
-        aggregated_metrics[csv_path.stem] = {
-            "strategy": strategy,
-            "analysis": metrics,
-            "dataset_name": csv_path.stem,
-        }
-
-    # Write the consolidated cleaned metrics JSON
-    cleaned_metrics_path = Path(
-        cfg.get(
-            "CLEANED_METRICS_PATH",
-            "data/processed/cleaned_metrics.json",
-        )
-    )
-    cleaned_metrics_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(cleaned_metrics_path, "w", encoding="utf-8") as f:
-        json.dump(aggregated_metrics, f, indent=2)
-
-    logger.info(
-        f"Cleaned‑variant analysis complete – results written to {cleaned_metrics_path}"
-    )
+    output_path = processed_dir / "cleaned_metrics.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(all_metrics, f, indent=2)
+        logger.info(f"Wrote cleaned metrics to {output_path}")
+    except Exception as e:
+        logger.exception(f"Failed to write cleaned metrics JSON: {e}")
 
 
 if __name__ == "__main__":
