@@ -39,7 +39,7 @@ Whichever you choose, every call site of `MemoryMonitor` across the codebase mus
 `MemoryMonitor.start` call sites (3):
 - code/utils/memory_monitor.py: monitor.start()
 - code/utils/memory_monitor.py: self._thread.start()
-- code/eval/metrics.py: monitor.start()
+- code/utils/memory_monitor.py: self.monitor.start()
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

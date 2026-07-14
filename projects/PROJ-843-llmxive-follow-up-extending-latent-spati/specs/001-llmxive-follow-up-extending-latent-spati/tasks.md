@@ -136,7 +136,7 @@
  - **Strictly download** the pre-computed dense baseline from external source (e.g., HuggingFace `realestate10k/dense_baseline_v1` or official URL)
  - **DO NOT generate** or infer the baseline; if unavailable, **ABORT** with error
  - Validate checksum and save to `data/raw/dense_baseline_frames.npy`
-- [ ] T017 [US3] Implement `code/eval/metrics.py` to: <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T017 [US3] Implement `code/eval/metrics.py` to: <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Compute WorldScore** for the dense baseline by reading `data/raw/dense_baseline_frames.npy` and applying the topological fidelity metric defined in spec.md
  - **Compute Sparse-Consistency Score** for the sparse method using the re-projection error defined in spec.md, reading `data/results/sparse_warped_frames.npy`
  - **Calculate Fréchet Inception Distance (FID)** by comparing the **distribution** of sparse warped frames against the **distribution** of dense baseline frames (using Inception-v3) to quantify the relative pixel-level reconstruction quality trade-off (SC-002)

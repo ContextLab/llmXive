@@ -1,134 +1,77 @@
-import os
-import sys
+"""
+Utilities to aggregate per‑sequence warped frames produced by the
+geometry pipeline.
+
+The original implementation only returned the aggregated array in memory.
+This version ensures that the aggregated result is persisted to
+``data/results/sparse_warped_frames.npy`` – the canonical artifact
+required by downstream evaluation scripts.
+"""
+
 import json
-import numpy as np
+import os
 from pathlib import Path
-from config import get_results_dir, get_features_dir, ensure_directories
+from typing import List
 
-def scan_warped_frames(features_dir: Optional[Path] = None) -> list:
-    """Scan for existing warped frame files in the features directory."""
-    if features_dir is None:
-        features_dir = get_features_dir()
-    
-    warped_files = []
-    if not features_dir.exists():
-        return warped_files
-        
-    for root, dirs, files in os.walk(features_dir):
-        for file in files:
-            if file.endswith('_warped.npy') or file.endswith('warped_frames.npy'):
-                warped_files.append(Path(root) / file)
-                
-    return warped_files
+import numpy as np
 
-def load_warped_frame(filepath: Path) -> np.ndarray:
-    """Load a single warped frame file."""
-    if not filepath.exists():
-        raise FileNotFoundError(f"Warped frame file not found: {filepath}")
-    
-    try:
-        data = np.load(filepath)
-        return data
-    except Exception as e:
-        print(f"Error loading {filepath}: {e}")
-        return None
+from config import (
+    get_features_dir,
+    get_results_dir,
+    ensure_directories,
+)
 
-def validate_aggregated_data(data: np.ndarray) -> bool:
-    """Validate the aggregated warped frames data."""
-    if data is None:
-        return False
-    if not isinstance(data, np.ndarray):
-        return False
-    if data.size == 0:
-        return False
-    if np.any(np.isnan(data)) or np.any(np.isinf(data)):
-        print("Warning: Aggregated data contains NaN or Inf values")
-        return False
-    return True
-
-def aggregate_warped_frames() -> Path:
+# ----------------------------------------------------------------------
+def scan_warped_frames() -> List[Path]:
     """
-    Aggregate all warped frames from the features directory into a single artifact.
-    
-    This function scans the features directory for all warped frame files,
-    loads them, and saves them as a single numpy array in the results directory.
+    Return a list of all ``.npy`` files inside the features directory that
+    represent warped frames.
+    """
+    features_dir = get_features_dir()
+    return sorted([p for p in features_dir.rglob("*.npy") if p.is_file()])
+
+# ----------------------------------------------------------------------
+def load_warped_frame(path: Path) -> np.ndarray:
+    """Load a single warped frame from ``path``."""
+    return np.load(path, allow_pickle=False)
+
+# ----------------------------------------------------------------------
+def validate_aggregated_data(arr: np.ndarray) -> None:
+    """
+    Basic sanity check: ensure the aggregated array has at least one frame
+    and that the dtype is ``uint8`` (standard image representation).
+    """
+    if arr.size == 0:
+        raise ValueError("Aggregated warped frames array is empty.")
+    if arr.dtype != np.uint8:
+        raise ValueError(f"Unexpected dtype {arr.dtype}; expected uint8.")
+
+# ----------------------------------------------------------------------
+def aggregate_warped_frames() -> np.ndarray:
+    """
+    Load all warped frame ``.npy`` files, concatenate them along the first
+    dimension, validate the result and return it.
+    """
+    paths = scan_warped_frames()
+    if not paths:
+        raise FileNotFoundError("No warped frame files found in features directory.")
+    frames = [load_warped_frame(p) for p in paths]
+    aggregated = np.concatenate(frames, axis=0)
+    validate_aggregated_data(aggregated)
+    return aggregated
+
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    Entry‑point used by the quick‑start run‑book.  It aggregates the warped
+    frames and writes the result to ``data/results/sparse_warped_frames.npy``.
     """
     ensure_directories()
-    features_dir = get_features_dir()
-    results_dir = get_results_dir()
-    
-    output_path = results_dir / "sparse_warped_frames.npy"
-    
-    # Scan for warped frames
-    warped_files = scan_warped_frames(features_dir)
-    
-    if not warped_files:
-        print("No warped frame files found. Creating placeholder for pipeline continuity.")
-        # Create a minimal placeholder to prevent pipeline failure
-        # In a real run, this would aggregate actual warped frames
-        dummy_data = np.random.rand(5, 64, 64, 3).astype(np.float32)
-        np.save(output_path, dummy_data)
-        print(f"Created placeholder aggregated warped frames at {output_path}")
-        return output_path
-    
-    # Load and aggregate all warped frames
-    all_frames = []
-    for filepath in warped_files:
-        print(f"Loading warped frame: {filepath}")
-        frame_data = load_warped_frame(filepath)
-        if frame_data is not None:
-            if frame_data.ndim == 3:
-                # Single frame: (H, W, C)
-                all_frames.append(frame_data)
-            elif frame_data.ndim == 4:
-                # Batch of frames: (N, H, W, C)
-                all_frames.append(frame_data)
-    
-    if not all_frames:
-        print("No valid warped frames to aggregate. Creating placeholder.")
-        dummy_data = np.random.rand(5, 64, 64, 3).astype(np.float32)
-        np.save(output_path, dummy_data)
-        return output_path
-    
-    # Stack all frames
-    try:
-        aggregated = np.concatenate(all_frames, axis=0)
-    except Exception as e:
-        print(f"Error concatenating frames: {e}")
-        # Fallback to first valid frame repeated
-        aggregated = np.stack([all_frames[0]] * 5, axis=0)
-    
-    # Validate
-    if not validate_aggregated_data(aggregated):
-        print("Warning: Aggregated data validation failed. Saving anyway for pipeline continuity.")
-    
-    # Save
+    aggregated = aggregate_warped_frames()
+    output_path = get_results_dir() / "sparse_warped_frames.npy"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     np.save(output_path, aggregated)
-    print(f"Aggregated {len(all_frames)} warped frames to {output_path}")
-    print(f"Final shape: {aggregated.shape}")
-    
-    # Save metadata
-    metadata = {
-        "source_files": len(warped_files),
-        "total_frames": aggregated.shape[0],
-        "shape": list(aggregated.shape),
-        "dtype": str(aggregated.dtype)
-    }
-    
-    meta_path = results_dir / "sparse_warped_frames_metadata.json"
-    with open(meta_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
-        
-    return output_path
+    print(f"Aggregated warped frames saved to {output_path}")
 
-def main():
-    """Main entry point for aggregating warped frames."""
-    output_path = aggregate_warped_frames()
-    if output_path.exists():
-        print(f"Aggregation complete: {output_path}")
-    else:
-        print("Error: Aggregation failed to produce output file")
-        sys.exit(1)
-
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

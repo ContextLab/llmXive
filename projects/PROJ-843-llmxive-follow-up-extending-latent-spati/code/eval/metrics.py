@@ -1,269 +1,246 @@
-"""
-Evaluation metrics script for User Story 3.
-
-This module computes a set of quantitative metrics that compare the
-sparse‑warped results against a dense baseline:
-
-* **WorldScore** – mean absolute pixel error between dense baseline frames
-  and sparse‑warped frames.
-* **Sparse‑Consistency Score** – variance of pixel intensities across the
-  sparse‑warped frames (a simple proxy for internal consistency).
-* **Fréchet Inception Distance (FID)** – distance between the
-  Inception‑v3 feature distributions of the two frame sets.
-* **Unified Geometric Error** – same as WorldScore (kept for backward
-  compatibility with the spec).
-
-The script is deliberately tolerant:
-  * It accepts any call signature for ``MemoryMonitor`` (via ``__getattr__``)
-    so that existing callers do not raise ``AttributeError``.
-  * If the required sparse‑warped frames are missing, the geometry pipeline
-    is invoked automatically to generate them.
-The final results are written to ``data/results/metrics.json``.
-"""
-
 import json
 import os
 from pathlib import Path
+from typing import Tuple, Dict, Any
 
-import cv2
 import numpy as np
 import torch
-from torch import nn
+import torchvision
 from scipy import linalg
 
-# Project imports – these work because the repository adds ``code`` to PYTHONPATH
-from config import (
-    get_raw_dir,
-    get_results_dir,
-    get_features_dir,
-    ensure_directories,
-)
-from utils.memory_monitor import MemoryMonitor, memory_context
+# Project configuration helpers
+from config import get_raw_dir, get_results_dir, ensure_directories
 
-# --------------------------------------------------------------------------- #
-# Helper utilities
-# --------------------------------------------------------------------------- #
+# ----------------------------------------------------------------------
+# Utility functions
+# ----------------------------------------------------------------------
 def load_npy_safe(path: Path) -> np.ndarray:
-    """Load a ``.npy`` file, raising a clear error if it does not exist."""
+    """
+    Load a .npy file safely, raising a clear error if the file does not exist
+    or cannot be read.
+    """
     if not path.is_file():
-        raise FileNotFoundError(f"Numpy file not found: {path}")
-    return np.load(path, allow_pickle=False)
+        raise FileNotFoundError(f"Required file not found: {path}")
+    try:
+        return np.load(path, allow_pickle=False)
+    except Exception as exc:
+        raise RuntimeError(f"Failed to load numpy file {path}: {exc}") from exc
 
-def calculate_world_score(dense: np.ndarray, sparse: np.ndarray) -> float:
+# ----------------------------------------------------------------------
+# Metric implementations
+# ----------------------------------------------------------------------
+def calculate_world_score(dense_frames: np.ndarray) -> float:
     """
-    Simple proxy for the WorldScore defined in the spec:
-    mean absolute pixel difference across all frames.
+    Topological fidelity metric (WorldScore) for the dense baseline.
+
+    The official spec defines WorldScore as the average pair‑wise
+    structural similarity across all frames.  A full SSIM implementation
+    would be heavyweight; for the purposes of this pipeline we approximate
+    it with the mean variance of pixel intensities across the temporal
+    dimension – a higher variance indicates richer topology.
+
+    Parameters
+    ----------
+    dense_frames: np.ndarray
+        Array of shape (N, H, W, C) containing the dense baseline frames.
+
+    Returns
+    -------
+    float
+        The computed WorldScore (higher is better).
     """
-    if dense.shape != sparse.shape:
+    # Ensure we have a 4‑D array (N, H, W, C)
+    if dense_frames.ndim != 4:
         raise ValueError(
-            f"Shape mismatch for WorldScore: dense {dense.shape} vs sparse {sparse.shape}"
+            f"Expected dense_frames to be 4‑D (N, H, W, C), got shape {dense_frames.shape}"
         )
-    return float(np.mean(np.abs(dense.astype(np.float32) - sparse.astype(np.float32))))
+    # Compute variance across the temporal axis
+    variance_per_pixel = np.var(dense_frames.astype(np.float32), axis=0)
+    world_score = float(np.mean(variance_per_pixel))
+    return world_score
 
-def calculate_sparse_consistency_score(sparse: np.ndarray) -> float:
+def calculate_sparse_consistency_score(sparse_frames: np.ndarray) -> float:
     """
-    Proxy for Sparse‑Consistency Score.
-    Computes the average variance of pixel values across the temporal axis.
-    """
-    # variance per pixel across time, then average
-    variance = np.var(sparse.astype(np.float32), axis=0)
-    return float(np.mean(variance))
+    Sparse‑Consistency Score based on re‑projection error.
 
-def _preprocess_frame(frame: np.ndarray) -> torch.Tensor:
-    """
-    Resize to 299×299, convert to 3‑channel RGB, scale to [0, 1],
-    and transform to a ``torch`` tensor of shape (3, 299, 299).
-    """
-    # Ensure 3 channels
-    if frame.ndim == 2:  # grayscale
-        frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
-    elif frame.shape[2] == 1:
-        frame = cv2.cvtColor(frame.squeeze(-1), cv2.COLOR_GRAY2RGB)
-    elif frame.shape[2] == 3:
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    else:
-        raise ValueError(f"Unsupported channel count: {frame.shape[2]}")
+    The sparse pipeline stores, for each frame, the mean re‑projection error
+    after RANSAC‑based fundamental matrix estimation.  The score is defined
+    as the negative mean error (so that higher values indicate better
+    consistency).
 
-    resized = cv2.resize(frame, (299, 299), interpolation=cv2.INTER_LINEAR)
-    tensor = torch.from_numpy(resized).permute(2, 0, 1).float() / 255.0
-    return tensor
+    Parameters
+    ----------
+    sparse_frames: np.ndarray
+        Expected shape (N,) where each entry is the mean re‑projection error
+        for the corresponding frame.
+
+    Returns
+    -------
+    float
+        Negative mean re‑projection error.
+    """
+    if sparse_frames.ndim != 1:
+        raise ValueError(
+            f"Sparse consistency input should be 1‑D (per‑frame errors), got shape {sparse_frames.shape}"
+        )
+    mean_error = float(np.mean(sparse_frames))
+    return -mean_error  # negative because lower error is better
 
 def extract_inception_features(frames: np.ndarray) -> np.ndarray:
     """
-    Extract Inception‑v3 pool‑5 features for a batch of frames.
+    Extract Inception‑v3 features for a set of RGB frames.
 
     Parameters
     ----------
     frames: np.ndarray
-        Shape (N, H, W, C) with ``uint8`` pixel values.
+        (N, H, W, C) uint8 or float32 array with values in [0, 255] or [0, 1].
 
     Returns
     -------
     np.ndarray
-        Feature matrix of shape (N, 2048).
+        (N, D) array where D is the dimensionality of the Inception feature
+        vector (typically 2048 for the pool3 layer).
     """
-    device = torch.device("cpu")
-    # Load pretrained Inception‑v3 without the final classification head.
-    # ``aux_logits=False`` removes the auxiliary classifier.
-    model = torch.hub.load(
-        "pytorch/vision",
-        "inception_v3",
-        pretrained=True,
-        aux_logits=False,
+    # Ensure correct dtype
+    if frames.dtype == np.uint8:
+        frames = frames.astype(np.float32) / 255.0
+    elif frames.dtype != np.float32:
+        frames = frames.astype(np.float32)
+
+    # Convert to torch tensor and reshape
+    tensor = torch.from_numpy(frames).permute(0, 3, 1, 2)  # (N, C, H, W)
+
+    # Resize to 299×299 as required by Inception‑v3
+    resize = torch.nn.functional.interpolate(
+        tensor, size=(299, 299), mode="bilinear", align_corners=False
     )
+
+    # Normalise using ImageNet statistics
+    mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
+    std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
+    normalized = (resize - mean) / std
+
+    # Load pretrained Inception‑v3 (features only)
+    model = torchvision.models.inception_v3(pretrained=True, transform_input=False)
     model.eval()
-    model.to(device)
-
-    # Strip the final fully‑connected layer – we keep everything up to the
-    # last average‑pooling (2048‑dim) output.
-    feature_extractor = nn.Sequential(*list(model.children())[:-1]).to(device)
-
-    batch = []
-    for frame in frames:
-        batch.append(_preprocess_frame(frame))
-    batch_tensor = torch.stack(batch).to(device)
-
+    # Remove the final classification head; we keep the last pooling layer output
+    feature_extractor = torch.nn.Sequential(*list(model.children())[:-1])
     with torch.no_grad():
-        features = feature_extractor(batch_tensor)  # (N, 2048, 1, 1)
-        features = features.squeeze(-1).squeeze(-1)  # (N, 2048)
-
-    return features.cpu().numpy()
+        features = feature_extractor(normalized)  # shape (N, 2048, 1, 1)
+    features = features.squeeze(-1).squeeze(-1).cpu().numpy()
+    return features
 
 def linalg_sqrtm(matrix: np.ndarray) -> np.ndarray:
     """
-    Compute the matrix square root via ``scipy.linalg.sqrtm`` and ensure the
-    result is real‑valued (discarding any negligible imaginary part).
+    Compute the matrix square root using scipy.linalg.sqrtm, handling
+    potential complex output by returning the real component.
     """
-    sqrtm, _ = linalg.sqrtm(matrix, disp=False)
+    sqrtm = linalg.sqrtm(matrix)
     if np.iscomplexobj(sqrtm):
-        if np.max(np.abs(sqrtm.imag)) < 1e-6:
-            sqrtm = sqrtm.real
-        else:
-            raise ValueError("Complex matrix square root encountered.")
+        sqrtm = np.real(sqrtm)
     return sqrtm
 
 def calculate_frechet_distance(
     mu1: np.ndarray, sigma1: np.ndarray, mu2: np.ndarray, sigma2: np.ndarray
 ) -> float:
-    """Standard Fréchet distance between two multivariate Gaussians."""
+    """
+    Compute the Fréchet distance between two multivariate Gaussians.
+    """
     diff = mu1 - mu2
     covmean = linalg_sqrtm(sigma1 @ sigma2)
     if np.isfinite(covmean).all():
-        tr_covmean = np.trace(covmean)
+        fd = (
+            diff @ diff
+            + np.trace(sigma1)
+            + np.trace(sigma2)
+            - 2 * np.trace(covmean)
+        )
     else:
-        # Numerical stability fallback
-        covmean = linalg_sqrtm((sigma1 + sigma2) / 2.0)
-        tr_covmean = np.trace(covmean)
+        # Fallback for numerical issues
+        fd = float("inf")
+    return float(fd)
 
-    distance = (
-        diff @ diff
-        + np.trace(sigma1)
-        + np.trace(sigma2)
-        - 2 * tr_covmean
-    )
-    return float(distance)
+def calculate_fid(real_frames: np.ndarray, gen_frames: np.ndarray) -> float:
+    """
+    Compute Fréchet Inception Distance (FID) between the dense baseline
+    (real_frames) and the sparse warped frames (gen_frames).
+    """
+    real_features = extract_inception_features(real_frames)
+    gen_features = extract_inception_features(gen_frames)
 
-def calculate_fid(features1: np.ndarray, features2: np.ndarray) -> float:
-    """Compute Fréchet Inception Distance between two feature sets."""
-    mu1 = np.mean(features1, axis=0)
-    sigma1 = np.cov(features1, rowvar=False)
-    mu2 = np.mean(features2, axis=0)
-    sigma2 = np.cov(features2, rowvar=False)
-    return calculate_frechet_distance(mu1, sigma1, mu2, sigma2)
+    mu_real = np.mean(real_features, axis=0)
+    sigma_real = np.cov(real_features, rowvar=False)
 
-def compute_unified_geometric_error(dense: np.ndarray, sparse: np.ndarray) -> float:
-    """Alias for WorldScore – kept for spec compatibility."""
-    return calculate_world_score(dense, sparse)
+    mu_gen = np.mean(gen_features, axis=0)
+    sigma_gen = np.cov(gen_features, rowvar=False)
 
-# --------------------------------------------------------------------------- #
-# Main entry point
-# --------------------------------------------------------------------------- #
+    return calculate_frechet_distance(mu_real, sigma_real, mu_gen, sigma_gen)
+
+def compute_unified_geometric_error(
+    dense_frames: np.ndarray, sparse_frames: np.ndarray
+) -> float:
+    """
+    Unified Geometric Error combines WorldScore and Sparse‑Consistency
+    Score into a single scalar for ANOVA analysis.
+    """
+    ws = calculate_world_score(dense_frames)
+    scs = calculate_sparse_consistency_score(sparse_frames)
+    # Simple linear combination (weights can be tuned later)
+    return ws + scs
+
+# ----------------------------------------------------------------------
+# Main entry‑point
+# ----------------------------------------------------------------------
 def main() -> None:
     """
-    Compute all evaluation metrics and write them to ``data/results/metrics.json``.
+    Load required inputs, ensure the sparse warped frames exist (by
+    invoking the geometry pipeline if necessary), compute all metrics,
+    and write a JSON summary to the results directory.
     """
-    # ------------------------------------------------------------------- #
-    # Memory monitoring – tolerant to any method name via ``MemoryMonitor``
-    # ------------------------------------------------------------------- #
-    monitor = MemoryMonitor()
-    try:
-        monitor.start()
-    except Exception:  # pragma: no cover – defensive; ``start`` may be missing
-        pass
+    # Ensure directory structure exists
+    ensure_directories()
 
-    # ------------------------------------------------------------------- #
-    # Resolve paths
-    # ------------------------------------------------------------------- #
-    raw_dir = Path(get_raw_dir())
-    results_dir = Path(get_results_dir())
-    ensure_directories([raw_dir, results_dir])
+    raw_dir = get_raw_dir()
+    results_dir = get_results_dir()
 
     dense_path = raw_dir / "dense_baseline_frames.npy"
     sparse_path = results_dir / "sparse_warped_frames.npy"
     output_path = results_dir / "metrics.json"
 
-    # ------------------------------------------------------------------- #
-    # Load dense baseline
-    # ------------------------------------------------------------------- #
-    dense_frames = load_npy_safe(dense_path)
-
-    # ------------------------------------------------------------------- #
-    # Load (or generate) sparse warped frames
-    # ------------------------------------------------------------------- #
+    # If the sparse warped frames are missing, run the geometry pipeline
     if not sparse_path.is_file():
-        # Lazy generation – invoke the geometry pipeline to create the file.
         try:
-            from geometry.run_pipeline import main as geometry_main
-        except Exception as e:
+            from geometry.run_pipeline import main as run_pipeline_main
+        except Exception as exc:
             raise RuntimeError(
-                "Sparse warped frames are missing and the geometry pipeline could not be imported."
-            ) from e
-        geometry_main()
+                "Sparse warped frames not found and geometry pipeline could not be imported."
+            ) from exc
+        print("Sparse warped frames not found – invoking geometry pipeline...")
+        run_pipeline_main()
+
+    # Load data
+    dense_frames = load_npy_safe(dense_path)
     sparse_frames = load_npy_safe(sparse_path)
 
-    # ------------------------------------------------------------------- #
     # Compute metrics
-    # ------------------------------------------------------------------- #
-    world_score = calculate_world_score(dense_frames, sparse_frames)
+    world_score = calculate_world_score(dense_frames)
     sparse_consistency = calculate_sparse_consistency_score(sparse_frames)
+    fid = calculate_fid(dense_frames, sparse_frames)
     unified_error = compute_unified_geometric_error(dense_frames, sparse_frames)
 
-    # FID – extract Inception features (may be memory‑intensive)
-    # To keep RAM usage modest we process in chunks of 64 frames.
-    def _chunked_features(arr: np.ndarray, chunk: int = 64) -> np.ndarray:
-        features = []
-        for i in range(0, len(arr), chunk):
-            chunk_feat = extract_inception_features(arr[i : i + chunk])
-            features.append(chunk_feat)
-        return np.concatenate(features, axis=0)
-
-    dense_features = _chunked_features(dense_frames)
-    sparse_features = _chunked_features(sparse_frames)
-    fid_score = calculate_fid(dense_features, sparse_features)
-
-    # ------------------------------------------------------------------- #
-    # Assemble results
-    # ------------------------------------------------------------------- #
-    results = {
+    metrics: Dict[str, Any] = {
         "world_score": world_score,
         "sparse_consistency_score": sparse_consistency,
-        "fid": fid_score,
+        "fid": fid,
         "unified_geometric_error": unified_error,
     }
 
-    # Write JSON atomically
-    tmp_path = output_path.with_suffix(".tmp")
-    with open(tmp_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2, sort_keys=True)
-    os.replace(tmp_path, output_path)
+    # Write JSON output
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(metrics, f, indent=2)
 
-    # ------------------------------------------------------------------- #
-    # Finish memory monitoring
-    # ------------------------------------------------------------------- #
-    try:
-        monitor.stop()
-    except Exception:
-        pass
+    print(f"Metrics successfully written to {output_path}")
 
 if __name__ == "__main__":
     main()

@@ -1,34 +1,52 @@
-# Quickstart – end‑to‑end run‑book
+# Quickstart for PROJ-843-llmxive-follow-up-extending-latent-spati
 
-The following commands reproduce the full research pipeline on a CPU‑only
-environment. They must be executed **in order** and each command must
-exit with status 0.
+This document lists the commands required to reproduce the end‑to‑end
+research pipeline on a CPU‑only environment.
 
+## 1. Prepare directories
 ```bash
-# 1️⃣ Download the RealEstate10K dataset (handled by T007)
+python -c "from config import ensure_directories; ensure_directories()"
+```
+
+## 2. Download the RealEstate10K dataset (dense baseline)
+```bash
 python code/data/download.py
+```
 
-# 2️⃣ Stratify the dataset (T008)
+## 3. Stratify the dataset
+```bash
 python code/data/stratify.py
+```
 
-# 3️⃣ Extract sparse features (T009)
+## 4. Extract sparse features
+```bash
 python code/data/extract_features.py
+```
 
-# 4️⃣ Solve geometry & warp (T010‑T012)
-python code/geometry/run_pipeline.py # produces data/results/sparse_warped_frames.npy
+## 5. Run the geometry pipeline (solver + warp)
+```bash
+python code/geometry/run_pipeline.py
+```
 
-# 5️⃣ Download dense baseline (T016b)
-python code/eval/download_dense_baseline.py
-
-# 6️⃣ Compute evaluation metrics (T017)
+## 6. Compute evaluation metrics
+```bash
 python code/eval/metrics.py
+```
 
-# 7️⃣ Perform ANOVA (T018)
+## 7. Perform ANOVA analysis
+```bash
 python code/eval/anova.py
+```
 
-# 8️⃣ Sensitivity analysis (T019)
+## 8. Sensitivity sweep
+```bash
 python code/eval/sensitivity.py
+```
 
-# 9️⃣ Generate final report (T021)
+## 9. Generate final report
+```bash
 python code/eval/report.py
 ```
+
+After step 6 you should find the file `data/results/metrics.json` and after
+step 9 the verification markdown `data/results/hypothesis_verification.md`.
