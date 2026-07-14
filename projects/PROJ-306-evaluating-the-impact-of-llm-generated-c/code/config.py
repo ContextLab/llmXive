@@ -1,87 +1,140 @@
+"""Configuration utilities for the LLM code generation pipeline.
+
+This module provides:
+- Seed management utilities (`get_seed`, `set_seed`).
+- API key loading (`get_api_key`).
+- Model configuration handling (`ModelConfig`, `get_model_config`,
+  `get_model_chain`, `resolve_model`, `resolve_fallback_model`,
+  `get_fallback_chain`).
+"""
 from __future__ import annotations
 
 import os
 import random
 from dataclasses import dataclass, field
-from typing import List, Any
+from typing import Any, List, Optional
 
-# Existing seed and API‑key utilities (presumed to be present)
-# ----------------------------------------------------------------------
-# NOTE: The original file already defined ``get_seed``, ``set_seed``,
-# ``get_api_key`` and possibly other helpers.  Those definitions are
-# retained unchanged; only the model‑configuration helpers are added
-# below to satisfy all call‑sites.
+# ---------------------------------------------------------------------------
+# Seed management
+# ---------------------------------------------------------------------------
+
+_SEED: Optional[int] = None
+
+
+def get_seed() -> Optional[int]:
+    """Return the current random seed (if set)."""
+    return _SEED
+
+
+def set_seed(seed: int) -> None:
+    """Set the random seed for `random` and `numpy` (if installed)."""
+    global _SEED
+    _SEED = seed
+    random.seed(seed)
+    try:
+        import numpy as np
+
+        np.random.seed(seed)
+    except Exception:
+        pass
+
+# ---------------------------------------------------------------------------
+# API key handling
+# ---------------------------------------------------------------------------
+
+def get_api_key() -> str:
+    """Retrieve the LLM API key from the environment variable `LLM_API_KEY`."""
+    api_key = os.getenv("LLM_API_KEY")
+    if not api_key:
+        raise EnvironmentError("Environment variable LLM_API_KEY not set.")
+    return api_key
+
+# ---------------------------------------------------------------------------
+# Model configuration
+# ---------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------
 # Model configuration utilities
 # ----------------------------------------------------------------------
 @dataclass
 class ModelConfig:
-    """
-    Simple configuration holder for a language model.
+    """Simple configuration container for a model."""
 
-    Attributes
-    ----------
-    model_name: str
-        The name of the model that will be used for generation.
-    fallback_chain: List[str]
-        Ordered list of fallback model identifiers.  The first element is
-        the primary model; subsequent entries are used when the primary is
-        unavailable.
-    """
-    model_name: str
-    fallback_chain: List[str] = field(
-        default_factory=lambda: ["gpt-4", "code-llama-7b", "bigcode/starcoderbase-3b"]
-    )
-
-def get_model_config(model_name: str | None = None) -> ModelConfig:
-    """
-    Return a ``ModelConfig`` instance compatible with all callers.
+    name: str
+    temperature: float = 0.0
+    max_tokens: int = 256
+    # Additional fields can be added as needed by downstream code
+    extra: dict = field(default_factory=dict)
 
     The function is tolerant of being called with:
     * a concrete model name (e.g. ``\"gpt-4\"``),
     * ``None`` (meaning “use the default primary model”),
     * an arbitrary string that is not part of the built‑in fallback list.
 
-    In every case a ``ModelConfig`` object is returned, ensuring a stable
-    contract for downstream code.
+_FALLBACK_CHAIN = ["code-llama-7b", "bigcode/starcoderbase-3b"]
+
+
+def get_fallback_chain() -> List[str]:
+    """Return the ordered list of fallback model identifiers."""
+    return _FALLBACK_CHAIN.copy()
+
+
+def resolve_fallback_model(model_name: str) -> str:
+    """Resolve the next fallback model after ``model_name``."""
+    chain = get_fallback_chain()
+    try:
+        idx = chain.index(model_name)
+    except ValueError:
+        # If the model is not in the chain, start from the beginning
+        return chain[0]
+    # Return the next model if available, otherwise the last one
+    return chain[min(idx + 1, len(chain) - 1)]
+
+# ---------------------------------------------------------------------------
+# Model chain utilities
+# ---------------------------------------------------------------------------
+
+def get_model_chain(primary_model: str) -> List[str]:
+    """Return the full model chain starting with ``primary_model`` followed by fallbacks."""
+    chain = [primary_model]
+    # Append the fallback chain in order, skipping duplicates
+    for fb in get_fallback_chain():
+        if fb != primary_model:
+            chain.append(fb)
+    return chain
+
+# ---------------------------------------------------------------------------
+# Flexible model config getter
+# ---------------------------------------------------------------------------
+
+def get_model_config(*args: Any, **kwargs: Any) -> ModelConfig:
+    """Return a :class:`ModelConfig` for the requested model.
+
+    Accepts a variety of call signatures:
+    - ``get_model_config('gpt-4')``
+    - ``get_model_config(model_name='gpt-4')``
+    - ``get_model_config(candidate_model='gpt-4')``
+    - ``get_model_config(model_name='gpt-4', temperature=0.2, max_tokens=512)``
+
+    Raises:
+        ValueError: If no model name can be inferred.
     """
-    fallback = ["gpt-4", "code-llama-7b", "bigcode/starcoderbase-3b"]
-
-    if model_name is None:
-        # No model supplied – use the primary fallback entry.
-        selected = fallback[0]
-    elif model_name in fallback:
-        # Explicitly requested one of the known models.
-        selected = model_name
+    # Resolve model name from positional or keyword arguments
+    model_name: Optional[str] = None
+    if args:
+        model_name = args[0]
     else:
-        # Caller supplied a custom model identifier; honour it.
-        selected = model_name
+        model_name = (
+            kwargs.get("model_name")
+            or kwargs.get("candidate_model")
+            or kwargs.get("model")
+        )
+    if not model_name:
+        raise ValueError("Model name must be provided to get_model_config()")
 
-    return ModelConfig(model_name=selected, fallback_chain=fallback)
+    # Extract optional hyper‑parameters
+    temperature = kwargs.get("temperature", 0.0)
+    max_tokens = kwargs.get("max_tokens", 256)
+    extra = {k: v for k, v in kwargs.items() if k not in {"model_name", "candidate_model", "model", "temperature", "max_tokens"}}
 
-# ----------------------------------------------------------------------
-# Existing helper placeholders (kept for compatibility)
-# ----------------------------------------------------------------------
-def get_seed() -> int:
-    """Return a deterministic seed (placeholder implementation)."""
-    return 42
-
-def set_seed(seed: int) -> None:
-    """Set the random seed for reproducibility."""
-    random.seed(seed)
-
-def get_api_key() -> str | None:
-    """Retrieve the LLM API key from the environment."""
-    return os.getenv("LLM_API_KEY")
-
-def resolve_model(candidate: str) -> str:
-    """Resolve a model name, applying fallback logic if needed."""
-    # Simple resolution: if the candidate is in the fallback list, return it;
-    # otherwise fall back to the primary model.
-    fallback = ["gpt-4", "code-llama-7b", "bigcode/starcoderbase-3b"]
-    return candidate if candidate in fallback else fallback[0]
-
-def get_model_chain() -> List[str]:
-    """Return the ordered fallback chain."""
-    return ["gpt-4", "code-llama-7b", "bigcode/starcoderbase-3b"]
+    return ModelConfig(name=model_name, temperature=temperature, max_tokens=max_tokens, extra=extra)

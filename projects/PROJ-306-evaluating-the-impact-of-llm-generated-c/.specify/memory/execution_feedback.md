@@ -16,10 +16,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 ## Failing / missing run-book commands
 
-- python code/main.py --num-tasks 100 --output-dir data/processed -> rc=2
-    usage: main.py [-h] --dataset DATASET [--model MODEL]
-               [--batch-size BATCH_SIZE]
-main.py: error: the following arguments are required: --dataset
+- python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py", line 20, in <module>
+    from llm_generator import generate_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/llm_generator.py", line 15, in <module>
+    from config import get_api_key, get_model_chain, get_model_config, resolve_model, ModelConfig
+ImportError: cannot import name 'get_model_chain' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/config.py)
 
 ## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
 
@@ -50,9 +53,12 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_model_config` — defined in `code/config.py`; called 3 way(s):
+### `get_model_config` — defined in `code/config.py`; called 6 way(s):
 
-- code/config.py: cfg = get_model_config(model_name)
+- code/config.py: - ``get_model_config('gpt-4')``
+- code/config.py: - ``get_model_config(model_name='gpt-4')``
+- code/config.py: - ``get_model_config(candidate_model='gpt-4')`` (legacy)
+- code/config.py: raise ValueError("Model name must be provided to get_model_config()")
 - code/llm_generator.py: config = get_model_config(candidate_model)
 - code/main.py: model_cfg = get_model_config(args.model)
 

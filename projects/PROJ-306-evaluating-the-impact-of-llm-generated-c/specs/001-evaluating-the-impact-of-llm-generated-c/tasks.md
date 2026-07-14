@@ -54,7 +54,7 @@
 - [X] T011 [P] [US1] Integration test for end-to-end generation and coverage on multiple tasks in `tests/integration/test_pipeline_us1.py`
 - [X] T012 [P] [US1] Implement `code/coverage_runner.py` to execute `pytest --cov` on generated files and parse output for `line_coverage` and `branch_coverage`. **Validation**: For HumanEval tasks (identified by `task_id` prefix 'HumanEval/' or `dataset_source`='humaneval' in catalog), explicitly validate and log `branch_coverage` as `N/A` before writing to `coverage_reports/{task_id}.json` to ensure artifact compliance at generation.
 - [X] T013 [US1] Implement logic in `code/main.py` to orchestrate generation and coverage execution for a batch of tasks. **Deliverables**:
- 1. Add `argparse` arguments: `--dataset` (MUST be `required=True`), `--model`, `--batch-size`.
+ 1. Add `argparse` arguments: `--dataset`, `--model`, `--batch-size`.
  2. Implement `try/except` blocks for `SyntaxError` and generic `Exception` during execution.
  3. On failure, write a JSON record to `coverage_reports/{task_id}.json` with schema: `{ "task_id": "...", "status": "failed", "error_message": "...", "timestamp": "..." }`.
  4. Continue processing subsequent tasks without aborting.
@@ -117,7 +117,7 @@
 
 - [X] T046 [P] Documentation updates: Update `quickstart.md` with execution instructions and `data-model.md` with schema details.
 - [X] T047 Code cleanup: Ensure all error handling (API limits, syntax errors) is robust and logs are informative.
-- [X] T048 [P] Performance optimization: Verify pipeline can process ≥100 tasks within 6 hours on CPU-only runner (SC-005).
+- [X] T048 [P] Performance optimization: pipeline can process ≥100 tasks within 6 hours on CPU-only runner [UNRESOLVED-CLAIM: c_70f2b183 — status=not_enough_info] (SC-005).
 - [X] T049 [P] Add unit tests for edge cases (missing test suite, generation failure) in `tests/unit/`.
 - [X] T050 [P] Run `quickstart.md` validation to ensure reproducibility.
 

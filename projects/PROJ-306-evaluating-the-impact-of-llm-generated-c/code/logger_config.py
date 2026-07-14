@@ -13,8 +13,7 @@ import functools
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Callable
-
+from typing import Any
 
 @dataclass
 class LogEntry:
@@ -32,9 +31,9 @@ class LogEntry:
 class ReproducibilityLogger:
     """Accepts ANY call shape and never raises.
 
-    This logger does **not** delegate to the stdlib ``logging`` module because
-    that API is incompatible with the tolerant behaviour required by the
-    repository.
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -42,17 +41,12 @@ class ReproducibilityLogger:
         self.entries: list[LogEntry] = []
 
     def log(self, *args: Any, **kwargs: Any) -> LogEntry:
-        """Record a log entry.
-
-        The first positional argument (if present) is interpreted as the
-        operation name; otherwise the ``operation`` keyword argument is used.
-        """
-        op = args[0] if args else kwargs.pop("operation", "")
+        op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
         return entry
 
-    # ``.info/.debug/.warning/.error/.critical`` etc. become no‑ops.
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
     def __getattr__(self, name: str):
         def _noop(*_args: Any, **_kwargs: Any) -> None:
             return None
@@ -64,7 +58,6 @@ _GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
 def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
-    """Retrieve a singleton logger instance."""
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
@@ -72,12 +65,11 @@ def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
 
 
 def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual‑purpose helper.
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
 
-    - As a decorator: ``@log_operation`` wraps a function without altering its
-      signature.
-    - As a direct call: ``log_operation('my_op', key=value)`` records a
-      ``LogEntry`` and returns it.
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
     """
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
@@ -92,27 +84,15 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-# --------------------------------------------------------------------------- #
-# Additional helper required by ``code/main.py``.
-# --------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------
+# Helper for pipeline‑level summary logging
+# ---------------------------------------------------------------------------
+
 def log_pipeline_summary(*args: Any, **kwargs: Any) -> LogEntry:
-    """
-    Log a high‑level pipeline summary.
+    """Log a high‑level pipeline summary.
 
-    The function is deliberately permissive: it accepts any positional or
-    keyword arguments and forwards them to the underlying logger under the
-    operation name ``pipeline_summary``.  Call‑sites may pass a mixture of
-    positional arguments (interpreted as the operation name) and keyword
-    arguments (treated as parameters).  This flexibility satisfies all
-    existing usages without raising ``TypeError``.
+    Accepts any positional or keyword arguments; they are forwarded as the
+    ``parameters`` field of a :class:`LogEntry`. The operation name is fixed
+    to ``pipeline_summary`` for easy downstream filtering.
     """
-    if args:
-        # If the caller supplied a positional string, treat it as the
-        # operation name; otherwise fall back to the default.
-        operation_name = str(args[0])
-        extra_kwargs = dict(kwargs)
-    else:
-        operation_name = "pipeline_summary"
-        extra_kwargs = dict(kwargs)
-
-    return get_logger().log(operation_name, **extra_kwargs)
+    return log_operation("pipeline_summary", *args, **kwargs)

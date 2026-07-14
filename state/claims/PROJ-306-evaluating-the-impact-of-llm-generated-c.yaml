@@ -206,7 +206,7 @@
   status: not_enough_info
   updated_at: '2026-07-13T23:51:56Z'
 - artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
-  attempts: 1
+  attempts: 2
   canonical: pipeline processes at least 100 tasks within 6 hours on CPU-only runner
   claim_id: c_a02a92c3
   context: "T048 [P] Performance optimization: Verify pipeline can process \u2265\
@@ -222,21 +222,78 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T23:55:39Z'
+  updated_at: '2026-07-14T00:58:35Z'
 - artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
   attempts: 1
-  canonical: fallback model uses 4-bit quantization to stay within 7GB RAM limit
-  claim_id: c_35d396fb
-  context: 'CPU Constraint: All LLM inference tasks MUST use 4-bit quantization for
-    fallback models (e.g., bigcode/starcoderbase-3b) to satisfy SC-005 (7GB RAM limit).'
+  canonical: HumanEval tasks have branch_coverage recorded as N/A
+  claim_id: c_2417aeb5
+  context: Implementation of code/coverage_runner.py validates and logs branch_coverage
+    as N/A for HumanEval tasks before writing to coverage_reports/{task_id}.json.
+  evidence:
+    entailment_evidence: HumanEval tasks have branch coverage recorded as N/A
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/HumanEval_tasks_have_branch_coverage_recorded_as_N/A
+  kind: entity_fact
+  raw_text: For HumanEval tasks, branch_coverage is logged as N/A in coverage_reports.
+  resolved_value: HumanEval tasks have branch_coverage recorded as N/A
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T01:07:09Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 2
+  canonical: pipeline processes at least 100 tasks within 6 hours on CPU-only runner
+  claim_id: c_70f2b183
+  context: "Performance optimization: pipeline can process \u2265100 tasks within\
+    \ 6 hours on CPU-only runner (SC-005)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_processes_at_least_100_tasks_within_6_hours_on_CPU-
+  kind: magnitude
+  raw_text: "pipeline can process \u2265100 tasks within 6 hours on CPU-only runner"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T01:14:15Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: HumanEval tasks have branch coverage marked as N/A
+  claim_id: c_7c3377e2
+  context: For HumanEval tasks (identified by task_id prefix 'HumanEval/' or dataset_source='humaneval'
+    in catalog), explicitly validate and log branch_coverage as N/A before writing
+    to coverage_reports.
+  evidence:
+    entailment_evidence: HumanEval tasks have branch coverage marked as N/A
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/HumanEval_tasks_have_branch_coverage_marked_as_N/A
+  kind: entity_fact
+  raw_text: HumanEval tasks have branch_coverage set to N/A
+  resolved_value: HumanEval tasks have branch coverage marked as N/A
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T01:14:21Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: bigcode/starcoderbase-3b with 4-bit quantization fits within 7GB RAM
+    limit
+  claim_id: c_d9433131
+  context: 'Constraint: For the fallback model (bigcode/starcoderbase-3b), MUST use
+    4-bit quantization via bitsandbytes with device_map=''cpu''. This is mandatory
+    per SC-005 (7GB RAM limit).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: All LLM inference tasks must use 4-bit quantization for fallback models
-    (e.g., bigcode/starcoderbase-3b) to satisfy a 7GB RAM limit.
+  raw_text: bigcode/starcoderbase-3b using 4-bit quantization fits within the 7GB
+    RAM limit
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T00:48:04Z'
+  updated_at: '2026-07-14T01:14:52Z'
