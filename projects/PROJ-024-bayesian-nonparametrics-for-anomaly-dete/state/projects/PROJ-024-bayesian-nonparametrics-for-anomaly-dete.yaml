@@ -1,8 +1,7 @@
-projects:
-  PROJ-024-bayesian-nonparametrics-for-anomaly-dete:
-    derived_statistics:
-      dataset_stats: {}
-      inference_results: {}
-      simulation_metrics: {}
-    artifact_hashes: {}
-    checksums: {}
+project_id: PROJ-024-bayesian-nonparametrics-for-anomaly-dete
+created_at: '2026-07-14T10:00:00.000000'
+derived_statistics:
+  dataset_stats: {}
+  inference_results: {}
+  simulation_metrics: {}
+last_updated: '2026-07-14T10:00:00.000000'

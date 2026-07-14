@@ -117,11 +117,11 @@
 
 - [X] T021 [US1] Implement `code/src/data/windowing.py` for sliding window extraction (length=50, stride=1) with normalization. **Order**: Must be completed before T019 and T020. **Constraint**: Window size MUST be 50 as per Plan Technical Context for stability. [UNRESOLVED-CLAIM: c_08986e44 — status=not_enough_info]
 - [X] T019 [P] [US1] Create `code/src/data/synthetic_generator.py` generating datasets with pre-anomaly dynamics, abrupt shifts, and independent ground-truth timestamps (FR-021, FR-022). **Note**: Used for simulation and as fallback if real data search fails.
-- [X] T020 [US1] Create `code/src/models/dpgmm.py` implementing stick-breaking DP-GMM using PyMC 4 and ADVI variational inference. **Constraint**: {{claim:c_fdab4b27}} (Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347) AND a hierarchical time-varying prior ($\alpha_t \sim \text{Normal}(\alpha_{t-1}, \sigma)$) to ensure nonparametric behavior and local signal validity (FR-002).
+- [X] T020 [US1] Create `code/src/models/dpgmm.py` implementing stick-breaking DP-GMM using PyMC 4 and ADVI variational inference. **Constraint**: {{claim:c_fdab4b27}} (Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347 [UNRESOLVED-CLAIM: c_c1ce6457 — status=verified]) AND a hierarchical time-varying prior ($\alpha_t \sim \text{Normal}(\alpha_{t-1}, \sigma)$) to ensure nonparametric behavior and local signal validity (FR-002).
 - [X] T022 [US1] Implement `code/src/services/anomaly_detector.py` with a modular set of methods including `__init__`, `load_model`, `process_stream`, `update_model`, `compute_score`, `get_uncertainty`, and `save_checkpoint`.
 - [X] T023 [US1] Implement logic to track posterior mean $\alpha$ and $\pi$ at each window step and compute first derivative $\dot{\alpha}$
-- [X] T024 [US1] Implement exclusion logic for non-convergent ADVI runs (Exclude non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations within 500 iterations. [UNRESOLVED-CLAIM: c_be472bfd — status=not_enough_info]) per FR-009
-- [X] T025 [US1] anomaly count <10 (FR-011, FR-012)
+- [X] T024 [US1] Implement exclusion logic for non-convergent ADVI runs (Exclude non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations within 500 iterations.) per FR-009
+- [X] T025 [US1] Implement bootstrap resampling procedure for p-values and confidence intervals when anomaly count <10 [UNRESOLVED-CLAIM: c_8128542a — status=not_enough_info] (FR-011, FR-012)
 - [X] T026 [US1] Implement MCMC (NUTS) robustness check on a specific set of windows selected by ground-truth injection timestamps (Equal numbers of pre-anomaly and anomaly samples, plus a larger set of transition samples) to validate $\dot{\alpha}$ is not an ADVI artifact (FR-018). **Deliverable**: Generate `data/processed/results/mcmc_validation.csv`. **Constraint**: FAIL if deviation in posterior mean $\alpha$ between ADVI and MCMC exceeds 10%.
 - [X] T027 [US1] Create `code/src/evaluation/metrics.py` implementing Kolmogorov-Smirnov test for distributional differences (FR-010, FR-014, FR-015)
 
@@ -137,7 +137,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T031 [P] [US2] Create `code/src/baselines/gmm_fixed.py` implementing fixed-component GMMs (fixed-component GMMs (k=3, 5, 10)) for reconstruction error
+- [X] T031 [P] [US2] Create `code/src/baselines/gmm_fixed.py` implementing fixed-component GMMs (k=3, 5, 10) [UNRESOLVED-CLAIM: c_121627b2 — status=not_enough_info] for reconstruction error
 - [X] T032 [P] [US2] Create `code/src/baselines/arima.py` implementing ARIMA model for reconstruction error
 - [X] T033 [US2] Implement `code/src/evaluation/metrics.py` functions for time-to-detection calculation against independent ground-truth timestamps (FR-013)
 - [X] T034 [US2] Implement Wilcoxon signed-rank test on time-to-detection values; add paired t-test as secondary check only if normality assumptions met (FR-006)
@@ -157,7 +157,7 @@
 ### Implementation for User Story 3
 
 - [X] T040 [P] [US3] Create `code/src/services/threshold_calibrator.py` with a set of methods including `__init__`, `calibrate`, `validate_threshold`, `get_decision_boundary`, `update_decision_boundary`, and `compute_expected_bounds`.
-- [X] T041 [US3] Implement `code/src/evaluation/threshold_sweep.py` to Implement `code/src/evaluation/threshold_sweep.py` to sweep cutoffs over a representative set of significance thresholds including 0.05 (1501.05788, https://arxiv.org/abs/1501.05788) on normalized reconstruction error [UNRESOLVED-CLAIM: c_75a5c791 — status=not_enough_info] on normalized reconstruction error (FR-007). **Deliverable**: Generate `data/processed/results/sensitivity_report.csv` with columns: `threshold`, `fp_rate`, `fn_rate`, `instability_flag`.
+- [X] T041 [US3] Implement `code/src/evaluation/threshold_sweep.py` to Implement `code/src/evaluation/threshold_sweep.py` to sweep cutoffs over a representative set of significance thresholds including 0.05 (1501.05788, https://arxiv.org/abs/1501.05788 [UNRESOLVED-CLAIM: c_b33322da — status=verified]) on normalized reconstruction error on normalized reconstruction error (FR-007). **Deliverable**: Generate `data/processed/results/sensitivity_report.csv` with columns: `threshold`, `fp_rate`, `fn_rate`, `instability_flag`.
 - [X] T042 [US3] Implement `code/src/evaluation/data_splitter.py` to split data into train/validation/test sets using a time-series aware split with a majority allocation to the training set. **Constraint**: Select threshold on validation set, apply to held-out test set (FR-019). **Deliverable**: Generate `data/processed/results/splits_manifest.json` containing keys: `train_indices`, `val_indices`, `test_indices`, `split_ratios`, `seed`.
 - [X] T043 [US3] Implement Bonferroni correction for multiple comparisons specifically when using threshold-swept outcomes in statistical tests (FR-007b). **Constraint**: Do NOT apply generically; only when threshold-swept outcomes are used.
 - [X] T044 [US3] Implement sensitivity analysis on window size and derivative calculation method (including smoothing and lag variations) to validate robustness (FR-016)
@@ -171,12 +171,12 @@
 
 **Goal**: validate pipeline runs within GitHub Actions free-tier constraints (≤2 CPU, 7 GB RAM, 6 hours) [UNRESOLVED-CLAIM: c_fffd65d7 — status=not_enough_info]
 
-**Independent Test**: Execute full pipeline on standard GitHub Actions runner, {{claim:c_05f949e7}}
+**Independent Test**: Execute full pipeline on standard GitHub Actions runner, {{claim:c_a30bd95d}}
 
 ### Implementation for User Story 4
 
 - [X] T048 [P] [US4] Create `code/src/utils/memory_profiler.py` using `psutil.Process().memory_info().rss` to track peak RAM
-- [X] T049 [US4] Implement `code/src/services/anomaly_detector.py` resource validation logic: measure peak RAM and total runtime, fail run if limits exceeded (FR-008) <!-- FAILED: unspecified -->
+- [ ] T049 [US4] Implement `code/src/services/anomaly_detector.py` resource validation logic: measure peak RAM and total runtime, fail run if limits exceeded (FR-008) <!-- FAILED: unspecified -->
 - [X] T050 [P] [US4] Create `code/scripts/verify_resource_compliance.py` to enforce CPU-only execution and validate no CUDA library loading
 - [X] T051 [US4] Implement logic to generate resource validation report outputting peak RAM and runtime metrics
 
@@ -194,7 +194,7 @@
 
 - [X] T052b [P] [Data] Execute mandatory search procedure for real-world datasets with labeled regime shifts (FR-017). **Search Keywords**: "anomaly detection", "regime shift", "time series", "NAB", "PhysioNet", "UCI". **Sources**: NAB, UCI, PhysioNet. **Deliverable**: If no verified source is found, generate `data/processed/results/validation_deferred.md` with exact fields: `search_query`, `result_count`, `status: DEFERRED`, `reason: FR-017b`. **Note**: This task MUST precede T052.
 - [ ] T052 [Data] **Conditional on T052b success**: Create `code/src/data/download_datasets.py` fetching verified NAB/PhysioNet subsets or UCI Electricity Load Diagrams and Traffic via `ucimlrepo` or verified URLs. **Do NOT execute if T052b failed.** **Constraint**: Do NOT fetch synthetic datasets (e.g., Synthetic Control Chart) as "real-world". <!-- FAILED: unspecified -->
-- [X] T053 [Data] 2109.05633, https://arxiv.org/abs/2109.05633; reject dataset if insufficient size (FR-001). **Conditional on T052 execution.**
+- [X] T053 [Data] 2109.05633, https://arxiv.org/abs/2109.05633 [UNRESOLVED-CLAIM: c_c1541f63 — status=verified]; reject dataset if insufficient size (FR-001). **Conditional on T052 execution.**
 - [X] T054 [Data] Delete all PEMS-SF files (`pems_sf.csv`, `pems_sf_synthetic.csv`) from `data/raw/`
 - [X] T054b [Data] **Conditional on T054 failure**: Execute `rm -f data/raw/pems_sf.csv data/raw/pems_sf_synthetic.csv` and verify with `ls -la data/raw/ | grep pems` returning empty. Log output to `data/data_provenance_report.md`.
 - [X] T055 [Data] Flatten `data/raw/raw/` directory: move all files to `data/raw/` and remove nested directory

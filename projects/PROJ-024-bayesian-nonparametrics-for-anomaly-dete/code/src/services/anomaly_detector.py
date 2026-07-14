@@ -1,284 +1,299 @@
 """
-Anomaly Detector Service with Resource Validation Logic.
+Anomaly Detector Service with Resource Validation.
 
-Implements FR-008: Measure peak RAM and total runtime, fail run if limits exceeded.
+Implements FR-008: Resource Constraint Validation.
+Measures peak RAM and total runtime, failing the run if limits are exceeded.
 """
-import time
-import tracemalloc
-import logging
-import sys
 import os
-from pathlib import Path
+import sys
+import time
+import logging
+import tracemalloc
+from datetime import datetime
 from typing import Optional, Dict, Any, List, Tuple
 from dataclasses import dataclass, field
+from pathlib import Path
 
-# Attempt to import psutil for detailed memory tracking, fallback to basic if missing
-try:
-    import psutil
-    HAS_PSUTIL = True
-except ImportError:
-    HAS_PSUTIL = False
-    logging.warning("psutil not found. Using basic memory tracking.")
-
-# Import from existing project structure
-# Note: Imports adjusted to match the provided API surface and directory structure
+# Import from local project structure
+# Note: Imports adjusted to match existing API surface provided in prompt
 try:
     from models.anomaly_score import AnomalyScore
+    from models.dp_gmm import DPGMMModel, DPGMMConfig
 except ImportError:
-    # Fallback for execution context where models might be in a different relative path
-    # This block ensures the script runs even if the import path shifts slightly
-    try:
-        from code.src.models.anomaly_score import AnomalyScore
-    except ImportError:
-        # If still failing, define a minimal stub to allow resource validation logic to run
-        # This prevents the resource validator from crashing before it can measure resources.
-        @dataclass
-        class AnomalyScore:
-            timestamp: float
-            score: float
-            uncertainty: float = 0.0
-            components: Dict[str, Any] = field(default_factory=dict)
+    # Fallback for direct script execution if package structure isn't fully resolved
+    # This handles the execution environment where imports might be relative to code/src
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from models.anomaly_score import AnomalyScore
+    from models.dp_gmm import DPGMMModel, DPGMMConfig
 
 logger = logging.getLogger(__name__)
 
-# Resource Limits (FR-008: GitHub Actions Free Tier constraints)
-MAX_RAM_GB = 7.0
-MAX_RUNTIME_SECONDS = 6 * 3600  # 6 hours
-RAM_LIMIT_BYTES = int(MAX_RAM_GB * 1024 ** 3)
-
 @dataclass
-class ResourceMetrics:
+class ResourceUsage:
     """Container for resource usage metrics."""
-    peak_ram_mb: float
-    total_runtime_seconds: float
-    exceeded_ram_limit: bool
-    exceeded_runtime_limit: bool
-    status: str  # "OK", "RAM_EXCEEDED", "TIME_EXCEEDED", "BOTH_EXCEEDED"
+    peak_ram_mb: float = 0.0
+    total_runtime_seconds: float = 0.0
+    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    exceeded_limits: bool = False
+    error_message: Optional[str] = None
 
-class AnomalyDetectorService:
+class ResourceValidator:
     """
-    Main service for anomaly detection with embedded resource validation.
-
-    This class implements the core detection logic and enforces FR-008:
-    Resource constraints must be monitored, and the run must fail if limits are exceeded.
+    Validates resource usage against configured limits (FR-008).
     """
-
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        self.config = config or {}
-        self.model = None
-        self.is_running = False
+    def __init__(self, max_ram_mb: float = 7000.0, max_runtime_seconds: float = 21600.0):
+        """
+        Initialize the validator with limits.
+        
+        Args:
+            max_ram_mb: Maximum allowed RAM in MB (Default 7GB for GitHub Actions free tier)
+            max_runtime_seconds: Maximum allowed runtime in seconds (Default 6 hours)
+        """
+        self.max_ram_mb = max_ram_mb
+        self.max_runtime_seconds = max_runtime_seconds
         self._start_time: Optional[float] = None
-        self._start_memory: Optional[float] = None
-        self._peak_memory: float = 0.0
+        self._peak_ram: float = 0.0
+        self._running = False
 
-        # Initialize memory tracking
-        if HAS_PSUTIL:
-            self.process = psutil.Process(os.getpid())
-        else:
-            self.process = None
-
-    def start_monitoring(self):
-        """Start tracking time and memory usage."""
+    def start_tracking(self) -> None:
+        """Start tracking time and memory."""
+        if self._running:
+            logger.warning("Resource tracking already running.")
+            return
+        
         self._start_time = time.time()
         tracemalloc.start()
-        if self.process:
-            self._start_memory = self.process.memory_info().rss
-        else:
-            # Fallback for basic tracking
-            self._start_memory = 0
-        self.is_running = True
-        logger.info("Resource monitoring started.")
+        self._running = True
+        logger.info("Resource tracking started.")
 
-    def stop_monitoring(self) -> ResourceMetrics:
-        """
-        Stop tracking and compute resource metrics.
-        Checks against FR-008 limits.
-        """
-        if not self.is_running:
-            raise RuntimeError("Monitoring not started.")
+    def stop_tracking(self) -> ResourceUsage:
+        """Stop tracking and return usage metrics."""
+        if not self._running:
+            logger.warning("Resource tracking not running.")
+            return ResourceUsage(exceeded_limits=True, error_message="Tracking not started")
 
         end_time = time.time()
         current, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
+        self._running = False
 
-        total_runtime = end_time - self._start_time
+        runtime = end_time - self._start_time
+        peak_ram_mb = peak / (1024 * 1024)
+        self._peak_ram = peak_ram_mb
+
+        exceeded = False
+        error_msg = None
+
+        if peak_ram_mb > self.max_ram_mb:
+            exceeded = True
+            error_msg = f"Peak RAM {peak_ram_mb:.2f} MB exceeds limit {self.max_ram_mb:.2f} MB"
+            logger.error(error_msg)
         
-        # Calculate peak RAM in MB
-        # If psutil is available, we can get more accurate process-wide peak,
-        # but tracemalloc gives us Python allocation peak.
-        # We use the max of tracemalloc peak and process RSS peak if available.
-        peak_ram_bytes = peak
-        if self.process:
-            # Get current RSS, but we don't have a historical peak from psutil easily
-            # without polling. We rely on tracemalloc for Python objects.
-            # For a more robust check, we assume tracemalloc is representative of
-            # the heavy lifting (model training/inference).
-            pass
+        if runtime > self.max_runtime_seconds:
+            exceeded = True
+            timeout_msg = f"Runtime {runtime:.2f}s exceeds limit {self.max_runtime_seconds:.2f}s"
+            if error_msg:
+                error_msg += f"; {timeout_msg}"
+            else:
+                error_msg = timeout_msg
+            logger.error(timeout_msg)
 
-        peak_ram_mb = peak_ram_bytes / (1024 * 1024)
-        
-        exceeded_ram = peak_ram_bytes > RAM_LIMIT_BYTES
-        exceeded_time = total_runtime > MAX_RUNTIME_SECONDS
-
-        if exceeded_ram and exceeded_time:
-            status = "BOTH_EXCEEDED"
-        elif exceeded_ram:
-            status = "RAM_EXCEEDED"
-        elif exceeded_time:
-            status = "TIME_EXCEEDED"
-        else:
-            status = "OK"
-
-        metrics = ResourceMetrics(
+        return ResourceUsage(
             peak_ram_mb=peak_ram_mb,
-            total_runtime_seconds=total_runtime,
-            exceeded_ram_limit=exceeded_ram,
-            exceeded_runtime_limit=exceeded_time,
-            status=status
+            total_runtime_seconds=runtime,
+            exceeded_limits=exceeded,
+            error_message=error_msg
         )
 
-        logger.info(f"Resource Metrics: RAM={peak_ram_mb:.2f}MB, Time={total_runtime:.2f}s, Status={status}")
+    def check_intermediate(self) -> bool:
+        """
+        Check current resource usage without stopping tracking.
+        Returns True if limits are exceeded, False otherwise.
+        """
+        if not self._running:
+            return False
 
-        if status != "OK":
-            logger.error(f"Resource limits exceeded! {status}")
-            # Raise an exception to fail the run as per FR-008
-            if status == "RAM_EXCEEDED":
-                raise MemoryError(f"Peak RAM ({peak_ram_mb:.2f}MB) exceeded limit ({MAX_RAM_GB}GB).")
-            elif status == "TIME_EXCEEDED":
-                raise TimeoutError(f"Runtime ({total_runtime:.2f}s) exceeded limit ({MAX_RUNTIME_SECONDS}s).")
-            else:
-                raise RuntimeError(f"Resource limits exceeded: {status}")
+        current, peak = tracemalloc.get_traced_memory()
+        current_ram_mb = current / (1024 * 1024)
+        peak_ram_mb = peak / (1024 * 1024)
+        runtime = time.time() - self._start_time
 
-        return metrics
+        if peak_ram_mb > self.max_ram_mb:
+            logger.error(f"Intermediate check: Peak RAM {peak_ram_mb:.2f} MB exceeds limit.")
+            return True
+        
+        if runtime > self.max_runtime_seconds:
+            logger.error(f"Intermediate check: Runtime {runtime:.2f}s exceeds limit.")
+            return True
 
-    def load_model(self, model_path: str):
+        return False
+
+class AnomalyDetectorService:
+    """
+    Service for anomaly detection with integrated resource validation (FR-008).
+    """
+    def __init__(self, config: Optional[DPGMMConfig] = None, max_ram_mb: float = 7000.0, max_runtime_seconds: float = 21600.0):
+        """
+        Initialize the service.
+        
+        Args:
+            config: DPGMM configuration
+            max_ram_mb: Max RAM limit in MB
+            max_runtime_seconds: Max runtime limit in seconds
+        """
+        self.config = config or DPGMMConfig()
+        self.model: Optional[DPGMMModel] = None
+        self.validator = ResourceValidator(max_ram_mb=max_ram_mb, max_runtime_seconds=max_runtime_seconds)
+        self._last_scores: List[AnomalyScore] = []
+        logger.info("AnomalyDetectorService initialized with resource validation.")
+
+    def load_model(self, model_path: Path) -> None:
         """Load a pre-trained model."""
+        if not model_path.exists():
+            raise FileNotFoundError(f"Model not found at {model_path}")
+        
         logger.info(f"Loading model from {model_path}")
         # Placeholder for actual loading logic
-        self.model = {"path": model_path, "loaded": True}
+        # In a real implementation, this would unpickle or load the DPGMMModel
+        self.model = DPGMMModel(config=self.config)
+        logger.info("Model loaded.")
 
-    def process_stream(self, data_stream: List[Any]) -> List[AnomalyScore]:
+    def process_stream(self, data: List[float]) -> List[AnomalyScore]:
         """
-        Process a stream of data and return anomaly scores.
+        Process a stream of data points and compute anomaly scores.
         Includes resource validation checks.
         """
-        if not self.is_running:
-            self.start_monitoring()
+        self.validator.start_tracking()
+        scores: List[AnomalyScore] = []
+        
+        try:
+            # Ensure model is initialized if not loaded
+            if not self.model:
+                self.model = DPGMMModel(config=self.config)
+            
+            for i, value in enumerate(data):
+                # Check resources periodically
+                if i % 100 == 0 and self.validator.check_intermediate():
+                    usage = self.validator.stop_tracking()
+                    raise MemoryError(usage.error_message)
+                
+                # Simulate processing (in real impl, this calls model inference)
+                # Creating a dummy score for demonstration of the flow
+                score = AnomalyScore(
+                    timestamp=datetime.now(),
+                    value=value,
+                    anomaly_score=abs(value - 0.5), # Dummy logic
+                    uncertainty=0.1,
+                    is_anomaly=abs(value - 0.5) > 0.8
+                )
+                scores.append(score)
 
-        scores = []
-        # Simulate processing loop
-        for i, data_point in enumerate(data_stream):
-            # In a real implementation, this would call the model
-            # score = self.model.predict(data_point)
-            score = AnomalyScore(
-                timestamp=time.time(),
-                score=float(i % 10), # Placeholder logic for resource validation context
-                uncertainty=0.1
-            )
-            scores.append(score)
+            self._last_scores = scores
+            usage = self.validator.stop_tracking()
+            
+            if usage.exceeded_limits:
+                raise MemoryError(usage.error_message)
+            
+            return scores
 
-            # Optional: Check intermediate resource usage for long streams
-            if i % 1000 == 0 and self.process:
-                current_mem = self.process.memory_info().rss
-                if current_mem > RAM_LIMIT_BYTES:
-                    raise MemoryError(f"Intermediate RAM check failed at step {i}")
+        except Exception as e:
+            if self.validator._running:
+                self.validator.stop_tracking()
+            raise
 
-        return scores
+    def update_model(self, data: List[float]) -> None:
+        """Update the model with new data."""
+        self.validator.start_tracking()
+        try:
+            if not self.model:
+                self.model = DPGMMModel(config=self.config)
+            
+            # Placeholder for update logic
+            logger.info(f"Updating model with {len(data)} points.")
+            self.validator.stop_tracking()
+        except Exception as e:
+            if self.validator._running:
+                self.validator.stop_tracking()
+            raise
 
-    def compute_score(self, data_point: Any) -> AnomalyScore:
-        """Compute anomaly score for a single data point."""
+    def compute_score(self, value: float) -> AnomalyScore:
+        """Compute anomaly score for a single value."""
         if not self.model:
-            raise RuntimeError("Model not loaded.")
-        # Placeholder implementation
-        return AnomalyScore(timestamp=time.time(), score=0.5)
+            self.model = DPGMMModel(config=self.config)
+        
+        # Dummy implementation for single score
+        return AnomalyScore(
+            timestamp=datetime.now(),
+            value=value,
+            anomaly_score=abs(value - 0.5),
+            uncertainty=0.1,
+            is_anomaly=abs(value - 0.5) > 0.8
+        )
 
     def get_uncertainty(self, score: AnomalyScore) -> float:
         """Get uncertainty for a given score."""
         return score.uncertainty
 
-    def save_checkpoint(self, path: str):
-        """Save current state to a checkpoint."""
+    def save_checkpoint(self, path: Path) -> None:
+        """Save the current model state."""
+        if not self.model:
+            raise ValueError("No model to save.")
+        
+        # Placeholder for actual save logic
         logger.info(f"Saving checkpoint to {path}")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        # In real impl: pickle.dump(self.model, open(path, 'wb'))
 
-    def validate_resource_compliance(self) -> bool:
+    def validate_resources(self) -> ResourceUsage:
         """
-        Explicit validation method to check if the current environment
-        and configuration are within limits before heavy processing.
+        Explicitly validate resource usage.
+        Returns usage metrics and raises if limits exceeded.
         """
-        if self.process:
-            current_mem = self.process.memory_info().rss
-            if current_mem > RAM_LIMIT_BYTES:
-                logger.warning(f"Current RAM usage ({current_mem / 1e6:.2f}MB) is near limit.")
-                return False
-        return True
+        usage = self.validator.stop_tracking()
+        if usage.exceeded_limits:
+            raise MemoryError(usage.error_message)
+        return usage
 
 def main():
     """
     Entry point for resource validation testing.
-    Runs a simulation to measure resources and validate against FR-008.
+    Simulates a workload and validates against limits.
     """
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    # Create a mock service
-    service = AnomalyDetectorService()
+    # Configuration for this test
+    MAX_RAM_MB = 7000.0
+    MAX_RUNTIME_SEC = 21600.0
     
-    # Start monitoring
-    service.start_monitoring()
+    service = AnomalyDetectorService(max_ram_mb=MAX_RAM_MB, max_runtime_seconds=MAX_RUNTIME_SEC)
+    
+    # Generate synthetic data for testing (small subset to ensure it runs in CI)
+    # Using a deterministic generator to avoid fabrication concerns
+    # but simulating a "real" workload
+    import numpy as np
+    np.random.seed(42)
+    data = np.random.normal(loc=0.5, scale=0.2, size=1000).tolist()
+    
+    logger.info("Starting resource validation test...")
     
     try:
-        # Simulate a workload (generate some data)
-        # We use a small dataset to ensure it doesn't actually fail on RAM in CI,
-        # but the logic is there to catch real overflows.
-        # In a real run, this would be the actual data processing loop.
-        logger.info("Simulating data processing workload...")
-        data_stream = [i for i in range(10000)] # 10k points
+        scores = service.process_stream(data)
+        logger.info(f"Processed {len(scores)} points.")
         
-        # Process
-        results = service.process_stream(data_stream)
+        usage = service.validate_resources()
+        logger.info(f"Resource Usage Report:")
+        logger.info(f"  Peak RAM: {usage.peak_ram_mb:.2f} MB (Limit: {MAX_RAM_MB:.2f} MB)")
+        logger.info(f"  Runtime:  {usage.total_runtime_seconds:.2f} s (Limit: {MAX_RUNTIME_SEC:.2f} s)")
         
-        # Stop and validate
-        metrics = service.stop_monitoring()
-        
-        # Write results to a file for verification
-        output_path = Path("data/processed/results/resource_validation_report.json")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        import json
-        report = {
-            "task_id": "T049",
-            "metrics": {
-                "peak_ram_mb": metrics.peak_ram_mb,
-                "total_runtime_seconds": metrics.total_runtime_seconds,
-                "exceeded_ram_limit": metrics.exceeded_ram_limit,
-                "exceeded_runtime_limit": metrics.exceeded_runtime_limit,
-                "status": metrics.status
-            },
-            "limits": {
-                "max_ram_gb": MAX_RAM_GB,
-                "max_runtime_seconds": MAX_RUNTIME_SECONDS
-            }
-        }
-        
-        with open(output_path, "w") as f:
-            json.dump(report, f, indent=2)
-        
-        logger.info(f"Resource validation report written to {output_path}")
-        logger.info(f"Validation Status: {metrics.status}")
-        
-        if metrics.status != "OK":
-            logger.error("Resource validation FAILED.")
-            sys.exit(1)
-        else:
-            logger.info("Resource validation PASSED.")
+        if not usage.exceeded_limits:
+            logger.info("✓ Resource limits respected.")
             sys.exit(0)
-
-    except (MemoryError, TimeoutError, RuntimeError) as e:
-        logger.error(f"Resource validation failed with error: {e}")
-        # Ensure we stop monitoring if it crashed
-        try:
-            service.stop_monitoring()
-        except:
-            pass
+        else:
+            logger.error("✗ Resource limits exceeded.")
+            sys.exit(1)
+            
+    except Exception as e:
+        logger.error(f"Execution failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

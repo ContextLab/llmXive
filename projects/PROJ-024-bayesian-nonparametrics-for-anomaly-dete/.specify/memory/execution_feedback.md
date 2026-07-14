@@ -33,14 +33,14 @@ Configuration Check
 ERROR: Missing required key: base_paths
 ❌ FAIL: Configuration structure validation failed
 - python code/src/data/download_datasets.py -> rc=1
-    2026-07-14 12:03:54,630 - INFO - Downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt to data/raw/electricity_load.csv
-2026-07-14 12:03:55,435 - ERROR - Download failed: HTTP Error 404: Not Found
-2026-07-14 12:03:55,452 - INFO - Downloading https://pems.dot.ca.gov/data/traffic_data.csv to data/raw/traffic_data.csv
-2026-07-14 12:03:55,719 - ERROR - Download failed: HTTP Error 404: Not Found
-2026-07-14 12:03:55,736 - INFO - Downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00258/synthetic_control.data to data/raw/synthetic_control.csv
-2026-07-14 12:03:56,022 - ERROR - Download failed: HTTP Error 404: Not Found
-2026-07-14 12:03:56,022 - INFO - Download Summary: 0/3 datasets successful
-2026-07-14 12:03:56,022 - ERROR - 
+    2026-07-14 12:28:35,962 - INFO - Downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt to data/raw/electricity_load.csv
+2026-07-14 12:28:36,330 - ERROR - Download failed: HTTP Error 404: Not Found
+2026-07-14 12:28:36,348 - INFO - Downloading https://pems.dot.ca.gov/data/traffic_data.csv to data/raw/traffic_data.csv
+2026-07-14 12:28:36,577 - ERROR - Download failed: HTTP Error 404: Not Found
+2026-07-14 12:28:36,595 - INFO - Downloading https://archive.ics.uci.edu/ml/machine-learning-databases/00258/synthetic_control.data to data/raw/synthetic_control.csv
+2026-07-14 12:28:36,820 - ERROR - Download failed: HTTP Error 404: Not Found
+2026-07-14 12:28:36,821 - INFO - Download Summary: 0/3 datasets successful
+2026-07-14 12:28:36,821 - ERROR - 
 ✗ Some datasets failed download or verification.
 - python code/src/data/synthetic_generator.py --seed 42 --anomaly-rate 0.05 -> rc=1
     /code/src/data/synthetic_generator.py", line 490, in <module>
