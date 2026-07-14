@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T011** — No `.env` file, loading script, or documentation for environment configuration management was provided. The required artifact for handling API keys via a `.env` setup is missing, so the task is not satisfied.
+- **T012** — The claim provides no evidence that the files `code/contracts/ceramic_entry.schema.yaml` and `code/contracts/model_result.schema.yaml` actually exist, are non‑empty, or contain the required schema definitions. Without these concrete artifacts, the task requirement is not satisfied. The next implementer must create the two YAML schema files in the specified directory and ensure they contain valid contract schemas.
+- **T013** — No evidence of a new or updated `tests/test_descriptors.py` containing a unit test for the `chemparse` composition parsing functionality is provided; the claim lacks any artifact to inspect. The required test file must exist and include appropriate assertions to be considered complete.
+- **T014** — No `tests/test_ingestion.py` file or unit test code for the imputation logic is present in the provided evidence; thus the required artifact does not exist or is empty. The task’s requirement for a concrete test covering group‑specific versus global median imputation cannot be verified.

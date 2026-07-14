@@ -1,0 +1,57 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: CeramicEntry
+description: Schema for a single ceramic material entry used in ingestion and modeling.
+type: object
+required:
+  - composition
+  - weibull_modulus
+properties:
+  composition:
+    type: string
+    description: Chemical formula string (e.g., "Al2O3").
+  weibull_modulus:
+    type: number
+    description: The Weibull modulus (m) value.
+  sample_count:
+    type: integer
+    minimum: 30
+    description: Number of samples used to derive the Weibull modulus.
+  is_range_flag:
+    type: boolean
+    description: True if the original Weibull modulus was a range.
+  range_original:
+    type: string
+    nullable: true
+    description: Original range string if applicable (e.g., "5-10").
+  range_uncertainty:
+    type: number
+    nullable: true
+    description: Calculated uncertainty derived from the range.
+  primary_anion_cation_group:
+    type: string
+    description: Categorical group derived from primary anion/cation (e.g., "O-Al").
+  mean_atomic_radius:
+    type: number
+    description: Mean atomic radius of the composition.
+  electronegativity_std:
+    type: number
+    description: Standard deviation of electronegativity values.
+  valence_electron_concentration:
+    type: number
+    description: Valence Electron Concentration (VEC).
+  cation_size_variance:
+    type: number
+    description: Variance in cation sizes.
+  sintering_temp:
+    type: number
+    description: Sintering temperature in Celsius.
+  is_imputed:
+    type: boolean
+    description: True if any primary fields were imputed.
+  source_id:
+    type: string
+    description: Unique identifier from the source (e.g., Materials Project ID).
+  source_url:
+    type: string
+    format: uri
+    description: URL to the source data.

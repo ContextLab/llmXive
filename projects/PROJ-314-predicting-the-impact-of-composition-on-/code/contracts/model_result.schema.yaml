@@ -1,0 +1,82 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelResult
+description: Schema for the output of the predictive modeling pipeline.
+type: object
+required:
+  - model_type
+  - metrics
+  - timestamp
+properties:
+  model_type:
+    type: string
+    description: Type of model (e.g., "RandomForest", "GradientBoosting").
+  metrics:
+    type: object
+    required:
+      - mae
+      - r2
+    properties:
+      mae:
+        type: number
+        description: Mean Absolute Error.
+      r2:
+        type: number
+        description: R-squared score.
+      baseline_mae:
+        type: number
+        description: MAE of the global mean baseline.
+      improvement_percent:
+        type: number
+        description: Percentage improvement over baseline.
+  hyperparameters:
+    type: object
+    description: Dictionary of hyperparameters used.
+  feature_importance:
+    type: array
+    items:
+      type: object
+      required:
+        - feature
+        - importance
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number
+  shap_summary:
+    type: object
+    nullable: true
+    description: Summary statistics for SHAP values if available.
+  permutation_p_value:
+    type: number
+    nullable: true
+    description: P-value from the permutation test.
+  is_significant:
+    type: boolean
+    description: True if p-value < 0.05.
+  leakage_check:
+    type: object
+    nullable: true
+    properties:
+      drop_percent:
+        type: number
+      warning:
+        type: string
+        nullable: true
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the run.
+  data_version:
+    type: string
+    description: Hash or version of the input data used.
+  split_info:
+    type: object
+    nullable: true
+    properties:
+      train_size:
+        type: integer
+      test_size:
+        type: integer
+      stratification_field:
+        type: string
