@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Statistical Summary Schema",
+  "description": "Schema for data/results/statistical_summary.json.",
+  "type": "object",
+  "properties": {
+    "p_value": {
+      "type": "number",
+      "description": "P-value from the statistical test."
+    },
+    "effect_size": {
+      "type": "object",
+      "properties": {
+        "cohen_d": {
+          "type": "number",
+          "description": "Cohen's d effect size."
+        }
+      },
+      "required": ["cohen_d"]
+    },
+    "degradation_percent": {
+      "type": "number",
+      "description": "Percentage performance degradation for the irregular set."
+    },
+    "boundary_threshold": {
+      "type": "number",
+      "description": "Identified threshold for performance boundary."
+    },
+    "regression_slope": {
+      "type": "number",
+      "description": "Slope of the regression line correlating regularity score with performance delta."
+    },
+    "r_squared": {
+      "type": "number",
+      "description": "R-squared value of the regression analysis."
+    }
+  },
+  "required": ["p_value", "effect_size", "degradation_percent", "boundary_threshold", "regression_slope", "r_squared"]
+}

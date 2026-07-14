@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Ground Truth Annotations Schema",
+  "description": "Schema for data/raw/ground_truth_annotations.csv (JSON representation)",
+  "type": "object",
+  "properties": {
+    "repo_id": {
+      "type": "string",
+      "description": "Unique identifier for the repository (e.g., 'princeton-nlp/SWE-bench_Lite:repo_id')"
+    },
+    "issue_id": {
+      "type": "string",
+      "description": "Unique identifier for the issue within the repository"
+    },
+    "ground_truth_file_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of file paths identified as ground-truth relevant for this issue"
+    }
+  },
+  "required": ["repo_id", "issue_id", "ground_truth_file_paths"]
+}

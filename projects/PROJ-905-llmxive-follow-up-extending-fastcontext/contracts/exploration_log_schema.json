@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Exploration Log Schema",
+  "description": "Schema for data/results/exploration_logs.jsonl entries.",
+  "type": "object",
+  "properties": {
+    "repo_id": {
+      "type": "string",
+      "description": "Unique identifier for the repository."
+    },
+    "issue_id": {
+      "type": "string",
+      "description": "Unique identifier for the issue."
+    },
+    "model_name": {
+      "type": "string",
+      "description": "Name of the model used (e.g., 'fastcontext-lite', 'fastcontext-4b')."
+    },
+    "context_precision": {
+      "type": "number",
+      "description": "Precision metric of the retrieved context."
+    },
+    "total_tokens": {
+      "type": "integer",
+      "description": "Total number of tokens processed."
+    },
+    "wall_clock_latency_ms": {
+      "type": "number",
+      "description": "Total wall-clock time in milliseconds."
+    },
+    "exploration_latency_ms": {
+      "type": "number",
+      "description": "Time spent specifically on exploration/search in milliseconds."
+    },
+    "error": {
+      "type": ["string", "null"],
+      "description": "Error message if the run failed, otherwise null."
+    }
+  },
+  "required": ["repo_id", "issue_id", "model_name", "context_precision", "total_tokens", "wall_clock_latency_ms"]
+}

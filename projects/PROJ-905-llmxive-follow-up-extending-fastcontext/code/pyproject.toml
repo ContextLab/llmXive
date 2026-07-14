@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-fastcontext-follow-up"
+version = "0.1.0"
+description = "Extending FastContext: Training Efficient Repository Explorer for Coding Agents"
+requires-python = ">=3.11"
+dependencies = [
+    "scikit-learn==1.4.0",
+    "pandas==2.1.0",
+    "networkx==3.2.1",
+    "transformers==4.40.0",
+    "datasets==2.18.0",
+    "pytest==8.1.0",
+    "torch==2.2.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "F", "I", "W"]

@@ -1,0 +1,694 @@
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: fetch princeton-nlp/SWE-bench_Lite version v.0 split test
+  claim_id: c_3b60da49
+  context: 'T007 Implement data download utility in `code/data_loader.py` to fetch
+    `princeton-nlp/SWE-bench_Lite` via `datasets` library, specifically version tag:
+    v.0, split: test, and verify checksums (FR-001)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/data_loader.py` to fetch `princeton-nlp/SWE-bench_Lite`
+    via `datasets` library, specifically version tag: v.0, split: test'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:04:13Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: load princeton-nlp/fastcontextb model
+  claim_id: c_2ff805ba
+  context: T021a [US2] Implement `code/baseline_runner.py` to load `princeton-nlp/fastcontextb`
+    (original FastContext model) in default precision on CPU (no bitsandbytes/quantization)
+    as the PRIMARY baseline for FR-004 and Constitution Principle VII.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_princeton-nlp/fastcontextb_model
+  kind: entity_fact
+  raw_text: Implement `code/baseline_runner.py` to load `princeton-nlp/fastcontextb`
+    (original FastContext model)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:04:48Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0 specified in requirements
+  claim_id: c_8b062c02
+  context: Initialize Python project with requirements.txt at projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:07:53Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: pandas version 2.1.0 specified in requirements
+  claim_id: c_24900d54
+  context: Initialize Python project with requirements.txt at projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:08:10Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: networkx version 3.2.1 specified in requirements
+  claim_id: c_b0ae0852
+  context: Initialize Python project with requirements.txt at projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: networkx==3.2.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:08:26Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: transformers version 4.40.0 specified in requirements
+  claim_id: c_1a864439
+  context: Initialize Python project with requirements.txt at projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.40.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:08:53Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: datasets version 2.18.0 specified in requirements
+  claim_id: c_f5d6809e
+  context: Initialize Python project with requirements.txt at projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.18.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:09:10Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: pytest version 8.1.0 specified in requirements
+  claim_id: c_d638fd84
+  context: Initialize Python project with requirements.txt at projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==8.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:09:24Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: torch version 2.2.0 specified in requirements
+  claim_id: c_b972ede7
+  context: Initialize Python project with requirements.txt at projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:09:41Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: target version py311 configured for ruff
+  claim_id: c_ccf7ec45
+  context: Create .ruff.toml at projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/
+    with rules
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Target_version_py311_configured_for_ruff
+  kind: entity_fact
+  raw_text: target-version = py311
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:10:05Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: black line length set to 88
+  claim_id: c_4eb0b20d
+  context: Create pyproject.toml at projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/
+    with black configuration
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: line-length = 88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:10:27Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: black target version set to py311
+  claim_id: c_132944cd
+  context: Create pyproject.toml at projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/
+    with black configuration
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Black_target_version_set_to_py311
+  kind: entity_fact
+  raw_text: target-version = py311
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:10:29Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: fetch princeton-nlp/SWE-bench_Lite dataset version v.0 split test
+  claim_id: c_e1cac7a8
+  context: Implement data download utility in code/data_loader.py to fetch princeton-nlp/SWE-bench_Lite
+    via datasets library
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fetch princeton-nlp/SWE-bench_Lite version tag v.0 split test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:10:42Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: TF-IDF max_features parameter set to 10000
+  claim_id: c_0904b81b
+  context: Implement code/fastcontext_lite.py with deterministic parser ensuring CPU-only
+    execution with TF-IDF index params
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max_features=10000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:10:59Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: TF-IDF analyzer parameter set to word
+  claim_id: c_8d4736d4
+  context: Implement code/fastcontext_lite.py with deterministic parser ensuring CPU-only
+    execution with TF-IDF index params
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TF-IDF_analyzer_parameter_set_to_word
+  kind: entity_fact
+  raw_text: analyzer=word
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:11:20Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: power analysis threshold set to 0.8
+  claim_id: c_111e36b6
+  context: Implement code/analysis.py to perform power analysis (threshold=0.8, alpha=0.05)
+    and select between paired t-test and Wilcoxon signed-rank test
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold=0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:11:40Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: power analysis alpha set to 0.05
+  claim_id: c_6ac13cd6
+  context: Implement code/analysis.py to perform power analysis (threshold=0.8, alpha=0.05)
+    and select between paired t-test and Wilcoxon signed-rank test
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T16:11:53Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: baseline model princeton-nlp/fastcontextb
+  claim_id: c_e210af60
+  context: Implement code/baseline_runner.py to load princeton-nlp/fastcontextb (original
+    FastContext model) in default precision on CPU
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_princeton-nlp/fastcontextb
+  kind: entity_fact
+  raw_text: princeton-nlp/fastcontextb
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:12:07Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: model revision set to main
+  claim_id: c_7634a909
+  context: 'Use revision: main, prompt_template: fastcontext-v, and device_map: cpu
+    with max_memory'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_revision_set_to_main
+  kind: entity_fact
+  raw_text: 'revision: main'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:13:14Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: prompt template set to fastcontext-v
+  claim_id: c_a6d6bd75
+  context: 'Use revision: main, prompt_template: fastcontext-v, and device_map: cpu
+    with max_memory'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prompt_template_set_to_fastcontext-v
+  kind: entity_fact
+  raw_text: 'prompt_template: fastcontext-v'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:13:29Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: device map set to cpu
+  claim_id: c_b89cf98e
+  context: 'Use revision: main, prompt_template: fastcontext-v, and device_map: cpu
+    with max_memory'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Device_map_set_to_cpu
+  kind: entity_fact
+  raw_text: 'device_map: cpu'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:13:46Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: original FastContext model is 4B
+  claim_id: c_dd5b5b11
+  context: Execute the FastContext-Lite pipeline and the original FastContext (4B)
+    baseline to collect metrics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Original_FastContext_model_is_4B
+  kind: entity_fact
+  raw_text: The original FastContext model is a 4B model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:18:10Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: CPU-only execution with 7GB RAM limits
+  claim_id: c_eeee990a
+  context: Implement chunking logic in code/fastcontext_lite.py to handle large repositories
+    within RAM limits... to prevent OOM on 7GB runners.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU-only_execution_with_7GB_RAM_limits
+  kind: entity_fact
+  raw_text: The implementation targets CPU-only execution with 7GB RAM limits.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:18:45Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: TF-IDF index max_features 10000
+  claim_id: c_8df5ddd8
+  context: 'and TF-IDF index (params: ngram_range=(variable lower bound,), max_features=10000
+    , analyzer=''word'')'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The TF-IDF index configuration uses a maximum of 10,000 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:19:03Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: dataset princeton-nlp/SWE-bench_Lite
+  claim_id: c_e7089242
+  context: Implement data download utility in code/data_loader.py to fetch princeton-nlp/SWE-bench_Lite
+    via datasets library
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_princeton-nlp/SWE-bench_Lite
+  kind: entity_fact
+  raw_text: The dataset used is princeton-nlp/SWE-bench_Lite.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:19:20Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: baseline model revision main prompt template fastcontext-v
+  claim_id: c_83b9ff61
+  context: 'Use revision: main , prompt_template: fastcontext-v , and device_map:
+    cpu'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_revision_main_prompt_template_fastcontext-v
+  kind: entity_fact
+  raw_text: The baseline model revision is 'main' and prompt template is 'fastcontext-v'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:20:27Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: statistical analysis power threshold 0.8
+  claim_id: c_153373d7
+  context: Implement code/analysis.py to perform power analysis (threshold=0.8
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The statistical analysis uses a power threshold of 0.8.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T16:20:41Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: static analysis dir_score binary check for src tests docs
+  claim_id: c_4162fddc
+  context: 'dir_score: Binary check for presence of src/, tests/, docs/ (A binary
+    indicator where 1 if all present, 0 if none, linear interpolation for partial).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Static_analysis_dir_score_binary_check_for_src_tests_docs
+  kind: entity_fact
+  raw_text: The static analysis dir_score is a binary check for the presence of 'src/',
+    'tests/', and 'docs/' directories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:21:18Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: static analysis import_score ratio of absolute to total imports
+  claim_id: c_e139652b
+  context: 'import_score: Ratio of absolute imports (import pkg) to total imports
+    (Maximum if all absolute, 0.0 if all relative).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Static_analysis_import_score_ratio_of_absolute_to_total_impo
+  kind: entity_fact
+  raw_text: The static analysis import_score is the ratio of absolute imports to total
+    imports.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:25:11Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: fetch princeton-nlp/SWE-bench_Lite version v.0 split test
+  claim_id: c_f4fe52d5
+  context: 'T007 [P] Implement data download utility in code/data_loader.py to fetch
+    princeton-nlp/SWE-bench_Lite via datasets library, specifically version tag: v.0,
+    split: test, and verify checksums (FR-001)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement data download utility in code/data_loader.py to fetch princeton-nlp/SWE-bench_Lite
+    via datasets library, specifically version tag: v.0, split: test'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:28:22Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: 'requirements.txt dependencies: scikit-learn 1.4.0, pandas 2.1.0, networkx
+    3.2.1, transformers 4.40.0, datasets 2.18.0, pytest 8.1.0, torch 2.2.0'
+  claim_id: c_be8e44cd
+  context: 'T002 Initialize Python project with requirements.txt at projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt
+    by executing: cat > requirements.txt << ''EOF ...'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: requirements.txt includes scikit-learn==1.4.0, pandas==2.1.0, networkx==3.2.1,
+    transformers==4.40.0, datasets==2.18.0, pytest==8.1.0, torch==2.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:29:16Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: import_score defined as ratio of absolute imports to total imports
+  claim_id: c_75c5fd49
+  context: 'T011 [US1] Implement code/static_analysis.py to calculate regularity_score...
+    import_score: Ratio of absolute imports (import pkg) to total imports (Maximum
+    if all absolute, 0.0 if all relative).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Import_score_defined_as_ratio_of_absolute_imports_to_total_i
+  kind: entity_fact
+  raw_text: import_score is defined as the ratio of absolute imports to total imports
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:30:04Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: 'TF-IDF index parameters: max_features 10000, analyzer word'
+  claim_id: c_8371c5ad
+  context: 'T019 [US2] Implement code/fastcontext_lite.py with deterministic parser...
+    and TF-IDF index (params: ngram_range=(variable lower bound,), max_features=10000
+    , analyzer=''word'') ensuring CPU-only execution (FR-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TF-IDF index parameters include ngram_range, max_features=10000, and analyzer='word'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:30:15Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: statistical summary output schema includes p_value cohen_d degradation_percent
+    boundary_threshold regression_slope r_squared
+  claim_id: c_fcc60c57
+  context: 'T031 [US3] Implement output generation to write data/results/statistical_summary.json
+    with exact schema: { p_value: float, effect_size: { cohen_d: float }, degradation_percent:
+    float, boundary_threshold: float, regression_slope: float, r_squared: float }
+    (FR-005, FR-006)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_summary_output_schema_includes_p_value_cohen_d_d
+  kind: entity_fact
+  raw_text: Statistical summary output includes p_value, cohen_d, degradation_percent,
+    boundary_threshold, regression_slope, and r_squared
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:31:10Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: primary baseline is original FastContext 4B model
+  claim_id: c_1cce9466
+  context: 'Constraint Reminder: All models must run on CPU-only (no CUDA/8-bit quantization).
+    Data must be real (SWE-bench Lite). CRITICAL: The primary baseline for comparison
+    MUST be the original FastContext (4B model) as per FR-004 and Constitution Principle
+    VII.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_baseline_is_original_FastContext_4B_model
+  kind: entity_fact
+  raw_text: The primary baseline for comparison is the original FastContext (4B model)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:31:29Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: fetch princeton-nlp/SWE-bench_Lite version v.0 split test via datasets
+    library
+  claim_id: c_a7389a07
+  context: 'T007 Implement data download utility in `code/data_loader.py` to fetch
+    `princeton-nlp/SWE-bench_Lite` via `datasets` library, specifically version tag:
+    v.0, split: test, and verify checksums (FR-001)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/data_loader.py` to fetch `princeton-nlp/SWE-bench_Lite`
+    via `datasets` library, specifically version tag: v.0, split: test.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:33:14Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: power analysis threshold 0.8 Wikipedia P-value
+  claim_id: c_e065d37b
+  context: 'T027 [US3] Implement code/analysis.py to perform power analysis (threshold=0.8,
+    {{claim:c_6ac13cd6}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value))
+    and select between paired t-test and Wilcoxon signed-rank test based on sample
+    size.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Implement code/analysis.py to perform power analysis (threshold=0.8,
+    {{claim:c_6ac13cd6}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value))'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:35:20Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: calculate performance degradation percentage comparing Lite metrics against
+    Baseline
+  claim_id: c_43273aa6
+  context: T029 [US3] Implement code/analysis.py to calculate performance degradation
+    percentage for the "Irregular" set by comparing Lite metrics against the **Baseline**
+    (T021a) (FR-006, SC-004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_performance_degradation_percentage_comparing_Lite
+  kind: entity_fact
+  raw_text: Implement code/analysis.py to calculate performance degradation percentage
+    for the "Irregular" set by comparing Lite metrics against the Baseline (T021a)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:35:39Z'

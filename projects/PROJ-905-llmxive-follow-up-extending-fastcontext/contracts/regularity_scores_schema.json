@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Regularity Scores Schema",
+  "description": "Schema for data/processed/regularity_scores.csv exported as JSON objects.",
+  "type": "object",
+  "properties": {
+    "repo_id": {
+      "type": "string",
+      "description": "Unique identifier for the repository."
+    },
+    "regularity_score": {
+      "type": "number",
+      "description": "Calculated structural regularity score (0.0 to 1.0)."
+    },
+    "split": {
+      "type": "string",
+      "enum": ["regular", "irregular"],
+      "description": "Classification based on the regularity score."
+    }
+  },
+  "required": ["repo_id", "regularity_score", "split"]
+}

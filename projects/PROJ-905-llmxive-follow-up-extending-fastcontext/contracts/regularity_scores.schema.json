@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Regularity Scores Schema",
+  "description": "Schema for data/processed/regularity_scores.csv (JSON representation)",
+  "type": "object",
+  "properties": {
+    "repo_id": {
+      "type": "string",
+      "description": "Unique identifier for the repository"
+    },
+    "regularity_score": {
+      "type": "number",
+      "description": "Calculated structural regularity score (0.0 to 1.0)",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "split": {
+      "type": "string",
+      "description": "Dataset split assignment",
+      "enum": ["regular", "irregular"]
+    }
+  },
+  "required": ["repo_id", "regularity_score", "split"]
+}

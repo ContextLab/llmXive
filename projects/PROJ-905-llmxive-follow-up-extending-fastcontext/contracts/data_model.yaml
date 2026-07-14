@@ -1,0 +1,91 @@
+# Contract: Data Model and Schema Definitions for llmXive
+# This file defines the canonical structure for all data artifacts produced by the pipeline.
+
+version: "1.0.0"
+description: >
+  Defines the schema for ground truth annotations, regularity scores,
+  exploration logs, and statistical summaries.
+
+artifacts:
+  ground_truth_annotations:
+    path: data/raw/ground_truth_annotations.csv
+    format: CSV
+    schema:
+      - name: repo_id
+        type: string
+        description: Unique identifier for the repository (e.g., 'princeton-nlp/SWE-bench_Lite:repo_id')
+      - name: issue_id
+        type: string
+        description: Unique identifier for the issue within the repository
+      - name: ground_truth_file_paths
+        type: json_array_string
+        description: JSON-encoded list of file paths considered ground truth for the issue
+    
+  regularity_scores:
+    path: data/processed/regularity_scores.csv
+    format: CSV
+    schema:
+      - name: repo_id
+        type: string
+        description: Repository identifier matching ground truth
+      - name: regularity_score
+        type: float
+        description: Normalized score [0.0, 1.0] indicating structural regularity
+      - name: split
+        type: string
+        description: Classification label: 'regular' or 'irregular'
+    
+  exploration_logs:
+    path: data/results/exploration_logs.jsonl
+    format: JSON Lines
+    schema:
+      - name: repo_id
+        type: string
+      - name: issue_id
+        type: string
+      - name: model_name
+        type: string
+        description: Name of the model used (e.g., 'fastcontext-lite', 'fastcontext-4b')
+      - name: context_precision
+        type: float
+        description: Precision of retrieved context (0.0 to 1.0)
+      - name: total_tokens
+        type: integer
+        description: Total tokens processed in the run
+      - name: wall_clock_latency_ms
+        type: float
+        description: Total execution time in milliseconds
+      - name: exploration_latency_ms
+        type: float
+        nullable: true
+        description: Time spent specifically on context exploration
+      - name: error
+        type: string
+        nullable: true
+        description: Error message if the run failed
+    
+  statistical_summary:
+    path: data/results/statistical_summary.json
+    format: JSON
+    schema:
+      - name: p_value
+        type: float
+        description: P-value from the statistical significance test
+      - name: effect_size
+        type: object
+        properties:
+          cohen_d:
+            type: float
+            description: Cohen's d effect size
+      - name: degradation_percent
+        type: float
+        description: Percentage performance drop in irregular set vs regular set
+      - name: boundary_threshold
+        type: float
+        description: The regularity score threshold identified as the performance boundary
+      - name: regression_slope
+        type: float
+        description: Slope of regression line correlating regularity score with performance delta
+      - name: r_squared
+        type: float
+        description: R-squared value of the regression analysis
