@@ -1,80 +1,141 @@
 """
 data_loader.py
 ----------------
-Downloads a small, reproducible sample from the HuggingFace ``codeparrot/github-code``
-dataset (or whatever dataset name is configured) and stores it as a CSV
-``data/raw/github-code-sample.csv``.  The function ``download_and_save_sample``
-is deliberately tolerant to a variety of call signatures required by the
-contract tests.
+Implements robust streaming download of a sample from a HuggingFace dataset,
+handling transient network failures such as rate‑limiting. The function writes
+a CSV file with columns ``file_path`` and ``code`` and returns the absolute
+path to the created file.
+
+This module is exercised by the integration test
+``tests/integration/test_data_loader.py`` which monkey‑patches
+``datasets.load_dataset`` to raise ``ConnectionError`` after a few rows.
+The implementation therefore retries the streaming operation until the
+requested number of rows is collected (or the dataset is exhausted).
 """
+
 from __future__ import annotations
 
 import csv
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import List, Mapping
 
 from datasets import load_dataset
 
-from config import get_all_config
-
 logger = logging.getLogger(__name__)
+
+DEFAULT_DATASET = "codeparrot/github-code"
+DEFAULT_SPLIT = "train"
+DEFAULT_OUTPUT = Path("data/raw/github-code-sample.csv")
+MAX_RETRIES = 3  # reasonable default for transient errors
+
+
+def _write_csv(rows: List[Mapping[str, str]], output_path: Path) -> None:
+    """Write a list of dictionaries to ``output_path`` as CSV.
+
+    The CSV will contain the columns ``file_path`` and ``code`` in that order.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = ["file_path", "code"]
+    with output_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
 
 
 def download_and_save_sample(
-    sample_size: int = 100,
-    output_path: Optional[Path] = None,
+    sample_size: int,
+    output_path: Path | str | None = None,
     *,
-    dataset_name: Optional[str] = None,
+    dataset_name: str = DEFAULT_DATASET,
+    split: str = DEFAULT_SPLIT,
+    max_retries: int = MAX_RETRIES,
 ) -> Path:
     """
-    Download a streaming subset of the configured dataset and write it to CSV.
+    Download a streaming sample from a HuggingFace dataset and persist it as CSV.
 
     Parameters
     ----------
-    sample_size: int, optional
-        Number of files to sample.  Defaults to 100.
-    output_path: Path or None, optional
-        Destination CSV file.  If omitted the default
-        ``data/raw/github-code-sample.csv`` is used.
-    dataset_name: str or None, optional (keyword‑only)
-        Override the dataset name from the config.  Primarily useful for tests.
+    sample_size: int
+        Desired maximum number of rows in the output CSV.
+    output_path: Path | str | None, optional
+        Destination for the CSV file.  If omitted, defaults to
+        ``data/raw/github-code-sample.csv``.
+    dataset_name: str, optional
+        Full HuggingFace identifier (e.g. ``codeparrot/github-code``).
+    split: str, optional
+        Dataset split to stream (default ``"train"``).
+    max_retries: int, optional
+        Number of times to retry the streaming operation after a transient
+        ``ConnectionError``.  The default is three attempts.
 
     Returns
     -------
     Path
-        Path to the generated CSV file.
+        The absolute path to the written CSV file.
+
+    Notes
+    -----
+    The function is tolerant to transient network failures.  If a
+    ``ConnectionError`` occurs while iterating over the streaming dataset,
+    the iterator is discarded and the download is restarted (up to
+    ``max_retries`` times).  The function never raises on a ``ConnectionError``;
+    instead it logs the incident and proceeds with the next retry.
     """
-    cfg = get_all_config()
-    dataset_name = dataset_name or cfg.get("dataset_name", "codeparrot/github-code")
-    output_path = Path(output_path) if output_path else Path(
-        "data/raw/github-code-sample.csv"
-    )
+    # Resolve the output path early so callers can rely on the return value.
+    out_path = Path(output_path) if output_path is not None else DEFAULT_OUTPUT
+    out_path = out_path.resolve()
 
-    logger.info(
-        "Downloading %d samples from %s → %s",
-        sample_size,
-        dataset_name,
-        output_path,
-    )
+    collected: List[Mapping[str, str]] = []
+    attempts = 0
 
-    # ``load_dataset`` with ``streaming=True`` avoids pulling the whole 500 MB.
-    ds = load_dataset(dataset_name, split="train", streaming=True)
+    while len(collected) < sample_size and attempts < max_retries:
+        attempts += 1
+        try:
+            logger.debug(
+                "Attempt %d to stream %s (split=%s) for up to %d rows",
+                attempts,
+                dataset_name,
+                split,
+                sample_size - len(collected),
+            )
+            ds = load_dataset(dataset_name, split=split, streaming=True)
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["file_path", "content"])
+            # ``datasets`` streaming objects expose a ``take`` method; we use it
+            # when available to limit the number of rows we iterate over.
+            iterator = ds.take(sample_size - len(collected)) if hasattr(ds, "take") else ds
 
-        for idx, item in enumerate(ds):
-            if idx >= sample_size:
-                break
-            # The dataset provides a ``content`` field (the raw source) and a
-            # ``path`` or ``filename`` field.  We fall back to an autogenerated
-            # name if none is present.
-            file_path = item.get("path") or item.get("filename") or f"sample_{idx}.py"
-            content = item.get("content") or ""
-            writer.writerow([file_path, content])
+            for item in iterator:
+                # Expected fields based on the real ``codeparrot/github-code`` dataset.
+                # The test mock provides ``path`` and ``content`` keys.
+                file_path = item.get("path") or item.get("file_path") or ""
+                code = item.get("content") or item.get("code") or ""
+                collected.append({"file_path": str(file_path), "code": str(code)})
 
-    logger.info("Sample saved to %s", output_path)
-    return output_path
+                if len(collected) >= sample_size:
+                    break
+
+            # If we exit the loop without exception, the download succeeded.
+            break
+
+        except ConnectionError as exc:
+            # Transient network problem – log and retry.
+            logger.warning(
+                "Transient ConnectionError while streaming dataset (attempt %d): %s",
+                attempts,
+                exc,
+            )
+            if attempts >= max_retries:
+                logger.error(
+                    "Maximum retry attempts (%d) reached; proceeding with %d rows collected.",
+                    max_retries,
+                    len(collected),
+                )
+            # Continue to the next iteration which will re‑invoke ``load_dataset``.
+
+    # Write whatever rows we managed to collect (could be fewer than sample_size).
+    _write_csv(collected, out_path)
+
+    logger.info("Wrote %d rows to %s", len(collected), out_path)
+    return out_path

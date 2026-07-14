@@ -1,93 +1,97 @@
 """
 model_metrics.py
-----------------
-Computes token‑level perplexity for a corpus of Python files using a
-causal language model.  The implementation follows the same flexible‑call
-signature pattern required by the contract:
-
-* ``compute_perplexity_batch()`` – defaults.
-* ``compute_perplexity_batch(input_path=…, output_path=…)`` – keyword args.
-* ``compute_perplexity_batch(Path(...), Path(...))`` – positional args.
-
-Results are written to ``data/processed/perplexity_scores.csv``.
+-----------------
+Computes token‑level perplexity for each source file using the
+``Salesforce/codegen-350M-mono`` model. The function writes a CSV with the
+per‑file perplexity values.
 """
+
 from __future__ import annotations
 
 import csv
 import logging
 from pathlib import Path
+from typing import Iterable, Tuple
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from config import get_all_config
-
 logger = logging.getLogger(__name__)
 
 
-def _load_model_and_tokenizer():
-    """
-    Load the model specified in the configuration with 8‑bit quantisation
-    when possible.  The function deliberately avoids any GPU‑only assumptions;
-    if a GPU is present it will be used, otherwise CPU is used.
-    """
-    cfg = get_all_config()
-    model_name = cfg.get("model_name", "Salesforce/codegen-350M-mono")
-    quant_bits = cfg.get("quantization_bits", 8)
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    # ``torch_dtype`` is left as default; bitsandbytes handles the quantisation.
-    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
-    # ``load_in_8bit`` requires bitsandbytes; if unavailable we fall back.
-    try:
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            device_map="auto",
-            load_in_8bit=True,
-            torch_dtype=torch.float16,
-        )
-    except Exception as exc:  # pragma: no cover – fallback path
-        logger.warning(
-            "8‑bit loading failed (%s); loading full‑precision model instead.", exc
-        )
-        model = AutoModelForCausalLM.from_pretrained(model_name)
-    model.to(device)
-    model.eval()
-    return model, tokenizer, device
+def _default_input_path() -> Path:
+    """Default path for the raw sample CSV."""
+    return Path("data/raw/github-code-sample.csv")
 
 
-def _read_raw_dataset(csv_path: Path) -> list[tuple[str, str]]:
+def _default_output_path() -> Path:
+    """Default path for the perplexity CSV."""
+    return Path("data/processed/perplexity_scores.csv")
+
+
+def _read_samples(csv_path: Path) -> Iterable[Tuple[str, str]]:
     """
-    Read ``data/raw/github-code-sample.csv`` and return a list of
-    (file_path, source_code) tuples.
+    Yield ``(file_path, content)`` rows from the raw CSV.
     """
-    records = []
     with csv_path.open(newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            records.append((row["file_path"], row["content"]))
-    return records
+            file_path = row.get("path") or row.get("repo") or "unknown"
+            content = row.get("content", "")
+            yield file_path, content
 
 
-def _write_perplexity_csv(
-    rows: list[tuple[str, float]], output_path: Path
-) -> None:
+def _load_model() -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
     """
-    Write perplexity scores to CSV.
+    Load the CodeGen model in the most resource‑efficient way.
 
-    Parameters
-    ----------
-    rows: List[Tuple[str, float]]
-        (file_path, perplexity) pairs.
-    output_path: Path
-        Destination CSV file.
+    The function first attempts an 8‑bit quantised load via bitsandbytes.
+    If that fails (e.g. no GPU), it falls back to a regular FP16 CPU load.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["file_path", "perplexity"])
-        writer.writerows(rows)
+    model_name = "Salesforce/codegen-350M-mono"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    try:
+        # 8‑bit quantisation requires bitsandbytes and (preferably) a GPU.
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            load_in_8bit=True,
+            device_map="auto",
+        )
+        logger.info("Loaded model with 8‑bit quantisation.")
+    except Exception as e:  # pragma: no cover – fallback path
+        logger.warning(
+            "8‑bit load failed (%s). Falling back to FP16 CPU load.", e
+        )
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype=torch.float16,
+        )
+        model.to("cpu")
+    model.eval()
+    return model, tokenizer
+
+
+def _perplexity_of_text(
+    model: AutoModelForCausalLM,
+    tokenizer: AutoTokenizer,
+    text: str,
+) -> float:
+    """
+    Compute the (negative‑log‑likelihood) perplexity of a single string.
+
+    The implementation tokenises the text, shifts the inputs to obtain
+    ``labels`` and computes the mean loss over the sequence.  Perplexity is
+    ``exp(loss)``.
+    """
+    if not text.strip():
+        return float("nan")
+
+    inputs = tokenizer(text, return_tensors="pt")
+    with torch.no_grad():
+        outputs = model(**inputs, labels=inputs["input_ids"])
+        # ``loss`` is the mean negative log‑likelihood.
+        loss = outputs.loss.item()
+    return float(torch.exp(torch.tensor(loss)).item())
 
 
 def compute_perplexity_batch(
@@ -95,62 +99,46 @@ def compute_perplexity_batch(
     output_path: Path | None = None,
 ) -> Path:
     """
-    Compute perplexity for each file in the supplied CSV.
+    Compute perplexity for each file in the sample and write a CSV.
 
-    The function accepts a flexible call signature to satisfy all callers.
-    If *input_path* is omitted, ``data/raw/github-code-sample.csv`` is used.
-    If *output_path* is omitted, results are written to
-    ``data/processed/perplexity_scores.csv``.
+    Parameters
+    ----------
+    input_path: Path | None
+        Path to the raw CSV (default ``data/raw/github-code-sample.csv``).
+    output_path: Path | None
+        Destination CSV (default ``data/processed/perplexity_scores.csv``).
 
     Returns
     -------
     Path
-        Path to the generated CSV.
+        Path to the written CSV.
     """
-    cfg = get_all_config()
-    default_input = Path("data/raw/github-code-sample.csv")
-    default_output = Path("data/processed/perplexity_scores.csv")
+    if input_path is None:
+        input_path = _default_input_path()
+    else:
+        input_path = Path(input_path)
 
-    input_path = Path(input_path) if input_path else default_input
-    output_path = Path(output_path) if output_path else default_output
+    if output_path is None:
+        output_path = _default_output_path()
+    else:
+        output_path = Path(output_path)
 
-    logger.info("Computing perplexity from %s → %s", input_path, output_path)
+    logger.info("Computing perplexity from %s", input_path)
 
-    records = _read_raw_dataset(input_path)
-    model, tokenizer, device = _load_model_and_tokenizer()
+    model, tokenizer = _load_model()
 
-    results: list[tuple[str, float]] = []
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["file_path", "perplexity"])
 
-    for file_path, source in records:
-        # Tokenise the source; we ignore empty inputs.
-        if not source.strip():
-            logger.debug("Empty source for %s – skipping", file_path)
-            continue
+        for file_path, content in _read_samples(input_path):
+            try:
+                ppl = _perplexity_of_text(model, tokenizer, content)
+            except Exception as exc:  # pragma: no cover – unexpected model error
+                logger.error("Failed to compute perplexity for %s: %s", file_path, exc)
+                ppl = float("nan")
+            writer.writerow([file_path, f"{ppl:.6f}"])
 
-        inputs = tokenizer(
-            source,
-            return_tensors="pt",
-            truncation=True,
-            max_length=tokenizer.model_max_length,
-        )
-        input_ids = inputs["input_ids"].to(device)
-
-        with torch.no_grad():
-            outputs = model(input_ids, labels=input_ids)
-            # ``loss`` is the mean negative log‑likelihood over tokens.
-            loss = outputs.loss.item()
-            # Perplexity is exp(loss).
-            perplexity = float(torch.exp(torch.tensor(loss)).item())
-
-        # Guard against pathological values.
-        if perplexity != perplexity or perplexity == float("inf"):
-            logger.warning(
-                "Invalid perplexity (%s) for %s – setting to NaN", perplexity, file_path
-            )
-            perplexity = float("nan")
-
-        results.append((file_path, perplexity))
-
-    _write_perplexity_csv(results, output_path)
     logger.info("Perplexity CSV written to %s", output_path)
     return output_path

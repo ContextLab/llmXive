@@ -1,21 +1,5 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
-
-The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
-
-1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
-2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
-3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
-
-- code/bug_detection.py: synthetic/fake INPUT data not authorized by the spec — “…mplementation avoids any synthetic data generation; it relies on…”
-
-## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
-
-These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
-
-- `python code/bug_detection.py`
-
 ## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
 
 These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
@@ -29,7 +13,7 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/bug_detection.py: synthetic/fake INPUT data not authorized by the spec — “…mplementation avoids any synthetic data generation; it relies on…”; 2 command(s) failed: python code/bug_detection.py (rc=1); python code/quickstart_validation.py (rc=1); 1 declared deliverable(s) absent: data/processed/clone_metrics.csv
+**Summary**: 2 command(s) failed: python code/bug_detection.py (rc=1); python code/quickstart_validation.py (rc=1); 1 declared deliverable(s) absent: data/processed/clone_metrics.csv
 
 ## Failing / missing run-book commands
 
@@ -60,26 +44,23 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `compute_clone_density_batch` — defined in `code/ast_cloner.py`; called 2 way(s):
+### `compute_clone_density_batch` — defined in `code/ast_cloner.py`; called 1 way(s):
 
-- code/ast_cloner.py: - compute_clone_density_batch(input_path: Path, output_path: Path | None = None) -> Path:
 - code/main.py: compute_clone_density_batch()
 
 Make `compute_clone_density_batch` in `code/ast_cloner.py` accept ALL of the above.
 
-### `download_and_save_sample` — defined in `code/data_loader.py`; called 6 way(s):
+### `download_and_save_sample` — defined in `code/data_loader.py`; called 1 way(s):
 
 - code/main.py: download_and_save_sample(sample_size=100)
-- code/data_loader.py: - ``download_and_save_sample()``                     -> defaults
-- code/data_loader.py: - ``download_and_save_sample(200)``                 -> positional sample size
-- code/data_loader.py: - ``download_and_save_sample(sample_size=200)``     -> keyword sample size
-- code/data_loader.py: - ``download_and_save_sample(output_path=Path(...))``
-- code/data_loader.py: - ``download_and_save_sample(200, Path(...))``      -> positional both
 
 Make `download_and_save_sample` in `code/data_loader.py` accept ALL of the above.
 
-### `setup_memory_monitoring` — defined in `code/memory_monitor.py`; called 1 way(s):
+### `setup_memory_monitoring` — defined in `code/memory_monitor.py`; called 4 way(s):
 
+- code/memory_monitor.py: * ``setup_memory_monitoring()`` – uses config defaults.
+- code/memory_monitor.py: * ``setup_memory_monitoring(2048)`` – positional memory limit.
+- code/memory_monitor.py: * ``setup_memory_monitoring(limit_mb=2048, interval=2.0)`` – keyword args.
 - code/main.py: _ = setup_memory_monitoring()
 
 Make `setup_memory_monitoring` in `code/memory_monitor.py` accept ALL of the above.
@@ -93,6 +74,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/bug_detection.py` — IS a run-book command
     - `code/ast_cloner.py` — IS a run-book command
     - `code/correlation_analysis.py` — IS a run-book command
+    - `code/main.py` — NOT invoked by the run-book
     - `code/quickstart_validation.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/clone_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
@@ -104,5 +86,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `data/raw/github-code-sample.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/data_loader.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/raw/github-code-sample.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/data_loader.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/model_metrics.py`, `code/ast_cloner.py`, `code/data_loader.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/raw/github-code-sample.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/model_metrics.py`, `code/ast_cloner.py`, `code/data_loader.py`.

@@ -1,21 +1,14 @@
-# Schema for model metrics CSV files
 $schema: "http://json-schema.org/draft-07/schema#"
-title: ModelMetrics
-description: |
-  Schema describing the per‑file model‑level metrics produced after running
-  the language model on the code corpus.
+title: Model Metrics Schema
+description: Schema for the CSV file containing language‑model perplexity scores per source file.
 type: object
-description: Schema for model‑level metrics such as perplexity and semantic distance.
 properties:
   file_path:
     type: string
-    description: Relative path of the source file evaluated.
+    description: Relative path to the source file that was evaluated.
   perplexity:
     type: number
-    description: Token‑level perplexity score produced by the model.
-  semantic_distance:
-    type: number
-    description: Cosine distance between code embeddings (optional, may be null).
+    description: Token‑level perplexity computed by the model for the file.
 required:
   - file_path
   - perplexity

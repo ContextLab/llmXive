@@ -13,6 +13,7 @@ resources.
 """
 
 from __future__ import annotations
+
 import logging
 import sys
 from pathlib import Path
@@ -39,10 +40,12 @@ def run_pipeline() -> int:
         # 1. Download a modest sample (default 100 files – fast on CI)
         download_and_save_sample(sample_size=100)
 
-        # 2. Compute clone density
+        # 2. Compute clone density – defaults read the raw CSV and write to
+        #    ``data/processed/clone_metrics.csv``.
         compute_clone_density_batch()
 
-        # 3. Compute perplexity
+        # 3. Compute perplexity – defaults read the raw CSV and write to
+        #    ``data/processed/perplexity_scores.csv``.
         compute_perplexity_batch()
 
         # 4. Start a background memory monitor (non‑blocking)
