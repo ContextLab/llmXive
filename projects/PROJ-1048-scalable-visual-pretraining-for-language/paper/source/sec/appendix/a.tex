@@ -1,0 +1,28 @@
+\section{PPL-Based Image-to-Text Retrieval}\label{sec:appendix_retrieval}
+
+We provide an alternative, generative evaluation of cross-modal alignment by casting it as image-to-text retrieval scored by conditional perplexity.
+
+\paragraph{Evaluation setting.}
+We sample 100 random document image--text pairs and, for each (image $v_i$, text $t_j$) combination, compute a matching score defined following \citet{lin2023revisiting} as the pointwise mutual information estimated via conditional perplexity, $\text{Score}(i,j) = \mathcal{L}(t_j \mid v_i) - \mathcal{L}(t_j)$, where $\mathcal{L}(t_j \mid v_i)$ is the cross-entropy loss of generating text~$t_j$ conditioned on visual representation~$v_i$ and $\mathcal{L}(t_j)$ is the unconditional text prior; a lower score indicates stronger alignment. We report Recall@$K$ and Mean Reciprocal Rank (MRR).
+
+\paragraph{Findings.}
+As shown in \Cref{tab:i2t-retrieval}, visual pretraining yields a substantial improvement: R@1 increases from 64.0\% to 99.0\% and MRR rises from 78.2 to 99.5. Analysis of the $100 \times 100$ score matrix reveals that in the original model, off-diagonal scores exhibit high variance ($\sigma = 0.168$), causing certain texts to act as ``hub'' attractors that receive spuriously low scores regardless of the input image. After visual pretraining, the off-diagonal variance drops to $\sigma = 0.043$, effectively eliminating the hub phenomenon and enabling near-perfect discrimination.
+
+
+\begin{table}[h]
+  \centering
+  \caption{\textbf{Generative image-to-text retrieval with conditional perplexity.}
+  Each image is matched against 100 candidate texts using the PMI-style score defined in~\Cref{sec:appendix_retrieval}; higher Recall@$K$ and MRR indicate better cross-modal compatibility.}
+  \label{tab:i2t-retrieval}
+  \setlength{\tabcolsep}{4.3pt}
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{lccc}
+    \toprule
+    Metric & Text Pretraining & VP (Ours) & $\Delta$ \\
+    \midrule
+    R@1  & \heatb{64.0}{64.0}{99.0}  & \heatb{99.0}{64.0}{99.0}  & \gooddelta{+35.0} \\
+    R@5  & \heatb{92.0}{92.0}{100.0} & \heatb{100.0}{92.0}{100.0} & \gooddelta{+8.0}  \\
+    MRR  & \heatb{78.2}{78.2}{99.5}  & \heatb{99.5}{78.2}{99.5}  & \gooddelta{+21.3} \\
+    \bottomrule
+  \end{tabular}
+\end{table}

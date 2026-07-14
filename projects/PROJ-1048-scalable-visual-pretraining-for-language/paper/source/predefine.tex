@@ -1,0 +1,69 @@
+% Centralized preamble definitions.
+% Put reusable macros, variables, switches, and formatting helpers here.
+
+% ===== Paper metadata =====
+\usepackage{xspace}
+% template.cls already loads xcolor and colortbl; reloading xcolor with
+% options causes an option clash.
+
+\usepackage{pgf}
+\usepackage{colortbl}
+% \heatg{value}{min}{max}
+\definecolor{softblue}{RGB}{90, 140, 200}
+% Higher-is-better heatmap.
+
+
+% Higher is better.
+\providecommand{\heatb}[3]{}
+\renewcommand{\heatb}[3]{%
+  \pgfmathsetmacro{\hmdenom}{#3-#2}%
+  \pgfmathparse{abs(\hmdenom)<0.00001}%
+  \ifnum\pgfmathresult=1\relax
+    \def\hmratio{0}%
+  \else
+    \pgfmathsetmacro{\hmratio}{min(1,max(0,(#1-#2)/\hmdenom))}%
+  \fi
+  \pgfmathtruncatemacro{\hmshade}{round(10 + 35*\hmratio)}%
+  \edef\hmcolor{softblue!\hmshade!white}%
+  \expandafter\cellcolor\expandafter{\hmcolor}#1%
+}
+
+% Lower is better. Same color scale, reversed direction.
+\providecommand{\heatbd}[3]{}
+\renewcommand{\heatbd}[3]{%
+  \pgfmathsetmacro{\hmdenom}{#3-#2}%
+  \pgfmathparse{abs(\hmdenom)<0.00001}%
+  \ifnum\pgfmathresult=1\relax
+    \def\hmratio{0}%
+  \else
+    \pgfmathsetmacro{\hmratio}{min(1,max(0,(#3-#1)/\hmdenom))}%
+  \fi
+  \pgfmathtruncatemacro{\hmshade}{round(10 + 35*\hmratio)}%
+  \edef\hmcolor{softblue!\hmshade!white}%
+  \expandafter\cellcolor\expandafter{\hmcolor}#1%
+}
+
+\providecommand{\gooddelta}[1]{\textcolor{green!45!black}{$#1$}}
+
+
+\newcommand{\methodname}{\textsc{VP}\xspace}
+% \newcommand{\papertitle}{Visual Pretraining for Scalable Language Intelligence}
+\newcommand{\papertitle}{Scalable Visual Pretraining for Language Intelligence}
+
+% ===== Method names =====
+\newcommand{\npp}{\textsc{NPP}\xspace}
+\newcommand{\NPP}{Next Patch Prediction}
+
+% ===== Common writing helpers =====
+\newcommand{\ie}{\textit{i.e.}}
+\newcommand{\eg}{\textit{e.g.}}
+\newcommand{\etal}{\textit{et al.}\ }
+\newcommand{\etc}{\textit{etc.}\ }
+% ===== Draft highlight =====
+\newcommand{\todo}[1]{{\color{blue}#1}}
+\newcommand{\buddy}[1]{{\color{blue}#1}}
+\newcommand{\ym}[1]{{\color{red}#1}}
+\newcommand\vpt{\textit{visual pretraining}\xspace}
+\newcommand\tpt{\textit{text pretraining}\xspace}
+\definecolor{Gray}{gray}{0.9}
+\newcommand{\highlight}[1]{\cellcolor{Gray}{#1}}

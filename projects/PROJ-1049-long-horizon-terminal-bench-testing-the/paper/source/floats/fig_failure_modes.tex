@@ -1,0 +1,9 @@
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{fig_failure_modes.pdf}
+  \caption{\textbf{Composition of unresolved runs per model.}
+  Each bar decomposes a model's unresolved tasks ($R < 0.95$, out of 46) into timeouts (the agent is still working when the 90-minute budget expires), early exits (the agent terminates on its own with no harness error), and harness errors (non-timeout exceptions such as API- or verifier-side failures).
+  The label inside each timeout segment shows the number of timed-out runs and their mean reward; the label inside each early-exit segment shows the number of early exits and their mean reward.
+  Timeouts dominate for every model ($79\%$ of all unresolved runs), showing that many failures reflect incomplete progress rather than immediate breakdowns, while the smaller early-exit segments highlight cases where agents stop too soon despite not having fully solved the task.}
+  \label{fig:lhtb-failure-modes}
+\end{figure}

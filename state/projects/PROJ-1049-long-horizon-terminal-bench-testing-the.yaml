@@ -1,0 +1,19 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-07-14T01:38:00.855164Z'
+current_stage: paper_ingested
+failed_stage: null
+field: computer science
+human_escalation_reason: null
+id: PROJ-1049-long-horizon-terminal-bench-testing-the
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: 'Long-Horizon-Terminal-Bench: Testing the Limits of Agents on Long-Horizon
+  Terminal Tasks with Dense Reward-Based Grading'
+updated_at: '2026-07-14T01:38:01.175164Z'

@@ -1,0 +1,142 @@
+% Main file for the Long-Horizon-Terminal-Bench paper.
+% Each section lives in its own file under sections/. Edit those files; this
+% file only sets up the preamble, title, and the order sections are included.
+
+\documentclass[]{ailab}
+
+% Common packages; add more as needed.
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\graphicspath{{figures/}{.}}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{natbib}
+\usepackage{xspace}
+\usepackage{float} % for [H] placement of key figures
+\setcitestyle{square,comma,numbers,sort&compress}
+
+% ---------- Title / author metadata ----------
+
+\providecommand{\ours}{\textsc{Long-Horizon-Terminal-Bench}\xspace}
+
+\title{\centering \ours{}: Testing the Limits of Agents on Long-Horizon Terminal Tasks with Dense Reward-Based Grading}
+
+% \author[1,2]{Zongxia Li}
+% \author[1,3]{Zhongzhi Li}
+% \author[1]{Yucheng Shi}
+% \author[1,6]{Ruhan Wang}
+% \author[1,8]{Junyao Yang}
+% \author[2]{Zhichao Liu}
+% \author[2]{Xiyang Wu}
+% \author[5]{Anhao Li}
+% \author[4]{Yue Yu}
+% \author[9]{Ninghao Liu}
+% \author[7]{Lichao Sun}
+% \author[1]{Haotao Mi}
+% \author[1]{LeoweiLiang}
+
+\author[1,2]{Zongxia Li\textsuperscript{$\dagger$}}
+\author[1,3]{Zhongzhi Li\textsuperscript{$\dagger$}}
+\author[1]{Yucheng Shi\textsuperscript{$\dagger$}}
+\author[1,5]{Ruhan Wang}
+\author[1,7]{Junyao Yang}
+\author[2]{Zhichao Liu}
+\author[2]{Xiyang Wu}
+\author[4]{Anhao Li}
+\author[5]{Yue Yu}
+\author[8]{Ninghao Liu}
+\author[6]{Lichao Sun}
+\author[1]{Haotao Mi}
+\author[1]{LeoweiLiang}
+
+
+
+
+% \affiliation[1]{Tencent Hunyuan}
+% \affiliation[2]{University of Maryland, College Park}
+% \affiliation[3]{University of Georgia}
+% \affiliation[4]{University of Illinois}
+% \affiliation[5]{University of Minnesota, Twin Cities}
+% \affiliation[6]{University of Inidiana}
+% \affiliation[7]{Lehigh University}
+% \affiliation[8]{National University of Singapore}
+% \affiliation[9]{The Hong Kong Polytechnic University}
+
+
+\affiliation[1]{Tencent HY LLM Frontier}
+\affiliation[2]{University of Maryland, College Park}
+\affiliation[3]{University of Georgia}
+\affiliation[4]{University of Minnesota, Twin Cities}
+\affiliation[5]{Indiana University}
+\affiliation[6]{Lehigh University}
+\affiliation[7]{National University of Singapore}
+\affiliation[8]{The Hong Kong Polytechnic University}
+
+
+\email{zli12321@umd.edu, zongxiali@global.tencent.com,zhongzhili@global.tencent.com}
+
+\contribution{$^\dagger$ Core contribution.}
+
+\abstract{
+AI agents are capable of autonomously completing short, well-specified tasks with high efforts to keep high success rates. 
+%
+Existing terminal benchmarks focus on trivial problems that finish within a few minutes (e.g., making two chess moves or reconstructing a corrupted image) and comes with over-simplified graders only for the final outcome. 
+%
+This over-simplifies agent evaluation and ignores intermediate progress and partial solutions, leading to sparse reward signals and biased measurements of agent capability.
+
+We introduce \ours{}, a difficult terminal benchmark of 46 long-horizon tasks spanning nine categories, including e.g, interactive games, experiment reproduction, software engineering, multimodal analysis, and scientific computing. 
+%
+Each task follows the terminal-bench style setup with a reference solution or simulation engine and is decomposed into more fine-grained graded subtasks. The grader is designed to give dense intermediate rewards and partial credit on even uncompleted tasks, so agents are evaluated not only on whether they reach the final goal, but also on how far they progress.
+
+
+Tasks typically require hundreds of episodes and more than 30 minutes to hours of execution time, stressing planning, long-context management, and iterative bug refinement rather than one-shot solutions. 
+%
+We evaluate 15 frontier models under a shared terminal agent, and find that agents consume on average 9.9M tokens per task, with around 231 episodes and 85.3 minutes of execution time, an order of magnitude more demanding than prior terminal-based benchmarks such as terminal-bench 2, with an average execution time of 20 to 30 minutes and 20 to 30 episodes per task. 
+%
+The strongest frontier model we evaluated achieves only $15.2\%$ pass rate at 0.95 partial reward threshold and $10.9\%$ at 1.0 reward threshold, and the mean pass rate across models is $4.3\%$ at partial reward threshold 0.95 and $1.7\%$ at 1.0 reward threshold, showing substantial headroom for improvement. 
+%
+We qualitatively analyze common failure modes and error patterns, and release \ours{} to evaluate progress on robust, long-horizon terminal agents.
+}
+
+\abstract{
+AI agents have become increasingly capable of autonomously completing short, well-specified tasks. However, existing terminal benchmarks largely focus on relatively simple problems that finish within a few minutes and are typically evaluated only by their final outcome. This setup overlooks intermediate progress and partial solutions, leading to sparse reward signals and an incomplete picture of agent capability.
+
+We introduce \ours{}, a challenging terminal benchmark of 46 long-horizon tasks spanning nine categories, including experiment reproduction, software engineering, multimodal analysis, interactive games, and scientific computing. Each task follows a Terminal-Bench-style setup with a reference solution or simulation engine, but is further decomposed into fine-grained graded subtasks. 
+%
+This design enables dense intermediate rewards and partial credit, allowing evaluation to capture not only whether an agent reaches the final goal, but also how far it progresses on difficult, open-ended workflows.
+
+Tasks in \ours{} typically require hundreds of episodes and tens of minutes to hours of execution, stressing long-horizon planning, long-context management, and iterative debugging rather than one-shot problem solving. 
+%
+We evaluate 15 frontier models and find that agents consume on average 9.9M tokens per task, with roughly 231 episodes and 85.3 minutes of execution time per run, making \ours{} substantially more demanding than prior terminal-based benchmarks. 
+%
+Even the strongest tested model achieves $15.2\%$ pass@1 at a partial-reward threshold of 0.95 and $10.9\%$ at a perfect-reward threshold of 1.0, while the mean pass rate across models is just $4.3\%$ and $1.7\%$ under the two thresholds, respectively. These results reveal substantial headroom for improvement. We further analyze common failure modes and error patterns, and release \ours{} to support future progress on robust long-horizon terminal agents.
+}
+
+\headercontent{{\sffamily\bfseries Project page:} \url{https://zli12321.github.io/LHTB/}}
+
+\date{\today}
+
+% ---------- Document body ----------
+
+\begin{document}
+\thispagestyle{firstheader}
+\maketitle
+
+\input{sections/introduction}
+\input{sections/background}
+\input{sections/method}
+\input{sections/experiments}
+\input{sections/analysis}
+\input{sections/related_work}
+% \input{sections/discussion}
+\input{sections/conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\newpage
+\appendix
+\input{sections/appendix}
+
+\end{document}
+

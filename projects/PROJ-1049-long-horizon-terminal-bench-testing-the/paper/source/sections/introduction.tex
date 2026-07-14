@@ -1,0 +1,53 @@
+\section{Introduction}
+
+AI agents built on large language models (LLMs) are rapidly improving at autonomous decision making and tool use~\cite{du2026survey, chowa2026language}.
+%
+Recent work has demonstrated impressive performance on short, well-scoped tasks such as fixing a code repository issue, completing a coding ticket, or issuing a handful of shell commands~\cite{merrill2026terminalbenchbenchmarkingagentshard}.
+%
+However, they still cover only a narrow slice of the long-horizon, domain-specific, and practically important workflows that human experts care about in practice~\citep{zhou2023webarena,xie2024osworld,merrill2026terminalbenchbenchmarkingagentshard}.
+
+Nowadays, many real workflows are \emph{long-horizon}: they require agents to execute hundreds of steps, maintain and update plans over tens of minutes to hours, and manage evolving long-context state~\cite{wang2026long}.
+%
+Examples include reproducing results from published research papers~\cite{song2026drclaw}, installing environments from a github repo, auditing complex multimodal datasets, debugging compiler toolchains, or shepherding a multi-stage ML training pipeline.
+%
+In these settings, agents must repeatedly use terminal command lines to read and write files, run scripts, inspect partial outputs, revise their plans, and recover from mistakes.
+%
+The outcome is determined not by a single action, but by sustained, coherent progress over a long sequence of decisions~\cite{liu2026klong}.
+
+Existing benchmarks lack fine-grained verifiers to evaluate agents on long-horizon terminal tasks~\cite{jimenez2024swebench}.
+%
+Dominant terminal and software-engineering benchmarks typically evaluate within a few minutes to at most an hour, and grade agents solely on whether the final state satisfies a test suite~\cite{desai2026swemarathon,frontierswe2026}.
+%
+This leaves two gaps.
+%
+First, short tasks or narrow horizons understate the difficulty of real workflows that require long-horizon navigation, errored step revision, and multi-stage debugging, not just local patching~\cite{merrill2026terminalbenchbenchmarkingagentshard, feng2026longcli}.
+%
+Second, outcome-only grading yields extremely sparse reward signals: an agent that completes most intermediate steps but fails at the final step can receive the same score as one that fails from the beginning~\cite{lin2025cuarewardbench}.
+%
+Both issues make it difficult to understand how well current agents can sustain progress on long workflows, or where they fail.
+
+In this paper we introduce \emph{\ours{}}, a benchmark designed explicitly for long-horizon terminal tasks.
+%
+\ours{} consists of 46 tasks spanning nine categories, including experiment reproduction, interactive games, software engineering, multimodal analysis, and scientific computing.
+%
+Each task is hosted in a containerized terminal environment and is decomposed into graded subtasks with intermediate checks.
+%
+Rather than asking agents to \texttt{solve everything or fail}, the grader assigns credit for partial progress toward a final goal, providing dense feedback along long trajectories while preserving the realism of everyday tasks.
+
+\ours{} targets domains where the completion of the final big goal depends on the optimal and completion of the sub goals, and agents must execute \emph{many} steps over \emph{long} time horizons,.
+%
+Across 15 frontier agents evaluated, rollouts on \ours{} average 231 episodes, 9.9M tokens, and 85.3 minutes of wall-clock time before exit under a 90-minute timeout.
+%
+These numbers are substantially larger than prior terminal and code-editing benchmarks such as Terminal-Bench 2 tasks and SWE-Bench.
+%
+Yet even in this relaxed grading, current agents struggle: our strongest reported configuration, GPT-5.5, achieves only 15.2\% success rate at a 0.95 reward threshold, and the average pass rate across models is 4.3\%.
+%
+This suggests that long-horizon execution remains a central bottleneck for current systems.
+
+We also conduct qualitative and quantitative analyses of agent failures on \ours{}.
+%
+Our analysis shows that current agents often fail not because every local step is wrong, but because they cannot reliably sustain progress, verify completion, and finish long-horizon tasks within budget.
+%
+Dense rewards make these differences visible by separating timeout-driven incomplete progress from premature stopping and weak self-verification.
+%
+We release \ours{} and the accompanying evaluation harness to support future work on agents that can plan, verify, and execute reliably over long horizons.

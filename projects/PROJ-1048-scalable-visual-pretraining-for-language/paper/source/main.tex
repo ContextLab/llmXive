@@ -1,0 +1,78 @@
+\documentclass[]{template}
+
+\usepackage{mathtools}
+\usepackage{nicefrac}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{mathrsfs}
+\usepackage{manyfoot}
+\usepackage{framed}
+\usepackage{adjustbox}
+\usepackage{subcaption}
+\usepackage{cuted}
+\usepackage{xspace}
+\usepackage{makecell}
+\usepackage{array}
+\usepackage{ragged2e}
+\newcolumntype{L}{>{\RaggedRight\hangafter=1\hangindent=0em}X}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\input{predefine}
+
+\makeatletter
+\newcommand{\vpabstracttext}{}
+\let\vp@templateabstract\abstract
+\long\def\abstract#1{\gdef\vpabstracttext{\ignorespaces#1}}
+\makeatother
+\input{sec/0_abs}
+\makeatletter
+\let\abstract\vp@templateabstract
+\makeatother
+
+\title{\papertitle}
+
+\author{{\normalfont\normalsize\bfseries Yiming Zhang$^{1,2,*}$, Zhonghan Zhao$^{1,3,*}$, Wenwei Zhang$^{1,*}$, Haiteng Zhao$^{1}$, Tianyang Lin$^{1}$,}\\
+% {\normalfont\normalsize\bfseries Haiteng Zhao$^{1}$, Tianyang Lin$^{1}$, Yunhua Zhou$^{1}$, Demin Song$^{1}$}\\
+{\normalfont\normalsize\bfseries  Yunhua Zhou$^{1}$, Demin Song$^{1}$, Kuikun Liu$^{1}$, Haochen Ye$^{1}$, Haian Huang$^{1}$, Yuzhe Gu$^{1,4}$, }\\
+% {\normalfont\normalsize\bfseries Qipeng Guo$^{1}$ Bin Liu$^{2}$}\\
+{\normalfont\normalsize\bfseries Haijun Lv$^{1}$, Qipeng Guo$^{1}$, Bin Liu$^{2}$, Gaoang Wang$^{3,\dag}$, Kai Chen$^{1,\dag}$}\\
+{\normalfont\normalsize $^1$Shanghai Artificial Intelligence Laboratory \quad
+$^2$University of Science and Technology of China}\\
+{\normalfont\normalsize $^3$Zhejiang University \quad
+$^4$Shanghai Jiao Tong University}\\
+{\normalfont\normalsize $^*$These authors contributed equally to this work. \quad
+$^\dag$ Corresponding authors.}\\
+{\normalfont\normalsize \texttt{gaoangwang@zju.edu.cn, chenkai@pjlab.org.cn}}
+}
+
+\begin{abstract}
+\vpabstracttext
+\end{abstract}
+
+\begin{document}
+\maketitle
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig/teaserv5.pdf} 
+  \caption{\textbf{Matched text and visual pretraining from the same scientific-document corpus.}
+  In the TP pathway, PDF pages are parsed into text, tokenized, and trained with text-token prediction, which can discard or distort page-level structure such as diagrams, equations, tables, and layout.
+  In the VP pathway, the same pages are rendered as images, filtered into foreground visual patches, and trained with next visual latent prediction in a frozen visual-feature space.
+  The t-SNE \citep{vandermaaten08a} projections on the right illustrate the representation change quantified in~\Cref{tab:alignment_multimodal}: VP brings matched visual and textual document embeddings closer in the shared representation space.}
+  \label{fig:main}
+\end{figure*}
+
+\input{sec/1_intro}
+\input{sec/2_result}
+\input{sec/3_discussion}
+\input{sec/4_method}
+
+\clearpage
+\bibliographystyle{iclr2025_conference}%
+\bibliography{main}
+
+\clearpage
+\newpage
+\input{sec/appendix/main}
+
+\end{document}

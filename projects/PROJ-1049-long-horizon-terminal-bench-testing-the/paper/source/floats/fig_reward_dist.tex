@@ -1,0 +1,10 @@
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\linewidth]{fig_reward_dist.pdf}
+\caption{\textbf{Distribution of final rewards over all $15 \times 46$ model--task runs.}
+Only $30$ runs ($4.3\%$, green) pass the $R \geq 0.95$ threshold, while $227$ runs ($32.9\%$, gray) make no meaningful progress ($R < 0.05$).
+The remaining $433$ runs ($62.8\%$, blue) achieve partial reward but would all be counted as failures under binary pass/fail evaluation.
+This partial progress is often substantial rather than trivial: $180$ runs ($26.1\%$) reach $R \geq 0.5$, and the mass in $[0.85, 0.95)$ (near-complete solutions that fail only the final checks) is still nearly twice the number of full passes.
+\textbf{Binary grading collapses a wide range of partially successful runs into a single failure bucket, whereas dense subtask-level rewards preserve the signal needed to distinguish model progress at this difficulty level.}}
+  \label{fig:lhtb-reward-dist}
+\end{figure}

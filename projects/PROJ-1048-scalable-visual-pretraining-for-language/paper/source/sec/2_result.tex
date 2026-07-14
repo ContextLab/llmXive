@@ -1,0 +1,231 @@
+\section{Results}
+\label{sec:results}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig/Scalingv2.pdf}
+  \caption{
+  \textbf{Visual pretraining scales with retained PDF visual tokens and benefits most from structure-heavy pages.}
+  \textbf{(a)}, VP reaches a more favorable SFT trajectory after comparable CPT loss.
+  \textbf{(b)}, Increasing the retained visual-token budget consistently raises downstream gains, normalized by the TP-over-base improvement.
+  \textbf{(c)}, VP's advantage is largest on examples with high visual-structure density, where figures, equations, tables, and layout carry more of the evidence.
+  \textbf{(d)}, Better next-token visual-feature prediction is associated with larger multimodal gains over TP, linking visual-space modeling quality to downstream transfer.
+  }
+  \label{fig:scaling}
+\end{figure*}
+Our experiments establish three findings. 
+First, visual pretraining (VP) outperforms text pretraining (TP) on scientific reasoning under matched corpora.
+% Second, this gain scales efficiently with training data. 
+% Second, on the same underlying corpus, VP outperforms TP with only 25\% of the token budget.
+Second, this gain scales efficiently with training data. 
+On the same underlying document corpus, VP surpasses TP while consuming only 25\% of the token budget.
+Third, without any image–text pair supervision, VP improves visual perception as well as reasoning across modalities.
+Throughout the experiments, 
+VP and TP use the same text corpus and a matched additional scientific-PDF corpus in the continued pretraining (CPT) stage.
+VP trains on raw document pages represented as visual tokens, 
+whereas TP trains on parsed text from the same documents. 
+This setup isolates the effect of preserving the native visual form of scientific documents.
+Then we apply identical supervised fine-tuning (SFT) to all VP and TP checkpoints before evaluation 
+to elicit the structured reasoning traces and answer formats expected by the benchmarks.
+
+
+\paragraph{Effectiveness: \methodname improves scientific language reasoning}
+\label{sec:results_main}
+
+We first establish that continued pretraining on raw document pages yields stronger performance on scientific
+reasoning benchmarks than continued pretraining on textualized documents from the same corpus. 
+We compare the base model, the matched TP baseline, and \methodname under identical document sources and SFT data. 
+The two pretraining settings differ only in how documents are represented.
+Experiments are conducted across state-of-the-art foundation models, including Qwen3.5 \citep{qwen3.5}, Qwen3 \citep{yang2025qwen3}, Llama3.2 Vision \citep{meta2024llama32vision} and Llama3.1 \citep{grattafiori2024llama}.
+% TP is trained on the text extracted from each page, whereas \methodname is trained on the native page, 
+% including its layout, equations, tables, figures and other visually organized structures. 
+Unless otherwise specified, we report average pass@8 for GPQA \citep{rein2023gpqa}, 
+the average score over 32 runs for AIME-25 \citep{AIME2025}, 
+and pass@1 for MMLU-Pro \citep{wang2024mmlu} and HLE \citep{phan2025humanity}. 
+Results are reported in~\Cref{tab:main_result_text}.
+
+% We first show that continued pretraining on raw document pages yields stronger performance on scientific
+% reasoning benchmarks than continued pretraining on textualized documents from the same corpus.
+% As shown in~\Cref{tab:main_result_text}, 
+% \methodname consistently improves over matched text pretraining baseline. 
+% Unless otherwise specified, we report average pass@8 for GPQA, the average score over 32 runs for AIME-25, and pass@1 for MMLU-Pro and HLE. 
+% The gains appear across model families, including Qwen and Llama variants, indicating that the benefit is not tied to a single architecture.
+
+\methodname consistently improves over the matched TP baseline, and the gains appear across
+both native multimodal models and language-only models, indicating that the benefit is not tied to a single architecture. 
+Because the two settings differ only in document representation, the improvement on reasoning benchmarks
+suggests that VP is an effective way to acquire language intelligence directly from visual corpora, which
+preserve higher-fidelity reasoning-relevant information that text extraction weakens or discards.
+Specifically, the consistent improvements on multi-disciplinary benchmarks indicate that \methodname
+successfully internalizes knowledge from the visual content of scientific documents. 
+GPQA Diamond improves by up to 3.22 points across the four backbones (e.g., 76.24 to 79.29 on Qwen 3.5) and MMLU-Pro by up to 2.1 points, 
+consistent with the view that source-document knowledge in these scientific domains is partly carried by geometric
+figures, physics schematics and other visual content that text extraction cannot faithfully preserve.
+HLE, by contrast, shows only marginal improvements (up to 0.97 points), 
+since its difficulty derives primarily from hard multi-step reasoning
+rather than the knowledge gained from visual information. 
+% suggesting that the underlying knowledge is conveyed in geometric figures, physics schematics and 
+% other visual scientific content that text extraction cannot faithfully preserve.
+%  raw scientific documents carry reasoning-relevant information that is weakened or lost during text extraction. 
+% These results support the central claim of this work: visual document pretraining is not only a tool for multimodal perception, but also an effective route to improving language reasoning.
+
+% \paragraph{Effectiveness: visual pretraining improves scientific language reasoning}
+% \label{sec:results_main}
+
+% We first test whether the native page representation provides a stronger pretraining signal for scientific reasoning than a textualized version of the same pages.
+% \Cref{tab:main_result_text} compares the base model, the matched TP baseline, and \methodname after the same SFT stage.
+% Unless otherwise specified, we report average pass@8 for GPQA Diamond, the average score over 32 runs for AIME 2025, and pass@1 for MMLU-Pro and HLE.
+
+% \methodname consistently improves over the matched TP baseline across both native multimodal models and language-only models, suggesting that the benefit is not tied to a single architecture.
+% Because VP and TP use the same scientific-PDF source, these gains indicate that the native page form contains reasoning-relevant information that is weakened by text extraction, such as equation layout, diagrams, tables, and figure-text organization.
+% GPQA Diamond improves in all four settings, ranging from +3.05 points on Qwen 3.5 (76.24 to 79.29) to +3.22 points on Llama 3.1 (43.88 to 47.10).
+% MMLU-Pro improves by up to 2.13 points.
+% HLE shows smaller gains, up to 0.97 points, which is consistent with its emphasis on difficult multi-step reasoning beyond the document-knowledge signal introduced during CPT.
+
+
+% \input{tab/merge_alignment_mm}
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig/ablation_ratio_res_v13.pdf}
+  \caption{
+  \textbf{The main VP setting balances visual-token budget and rendering resolution.}
+  % \textbf{Left}, within a fixed training context, varying the visual-token budget shows that a 1$\times$ setting (8,192 foreground tokens) achieves the best trade-off. 
+  \textbf{Left}, with the training context fixed for each forward pass, varying the visual token budget shows that the 1$\times$ setting (8,192 foreground visual tokens per batch) offers the best trade-off.
+  % Beyond this point, longer visual sequences within each batch inflate the proportion of spatially adjacent negatives in the optimization objective, producing suboptimal returns.
+  % Beyond this point, longer visual sequences within each batch inflate hard-negative saturation in the optimization objective, raising gradient variance and producing suboptimal returns.
+  % \textbf{Left}, within a fixed training context, varying the visual--text token allocation shows that a 1$\times$ visual budget (8,192 foreground tokens) achieves the best trade-off.
+  % Larger visual budgets displace text tokens and become suboptimal.
+  \textbf{Right}, with the visual budget fixed at 8,192 tokens, 
+  lowering the maximum resolution preserves strong performance, 
+  indicating the efficiency of VP under compressed visual input.
+  % \textbf{Left}, at 1120 resolution, the visual--text token ratio is varied under a fixed context budget. The 1$\times$ visual setting (8,192 tokens) is optimal. Beyond this point, gains vanish as text tokens are displaced.
+  % \textbf{Right}, With the visual context fixed at 8,192 tokens, lowering the rendering resolution preserves strong performance, indicating that VP does not rely solely on exhaustive high-resolution rendering.
+  }
+  \label{fig:ablation_ratio}
+\end{figure*}
+\paragraph{Scalability: gains scale with \methodname }
+\label{sec:results_scaling}
+
+We further demonstrate that the benefit of \methodname is efficient and scalable. 
+\Cref{fig:scaling}(a) compares the training loss dynamics of \methodname and TP across CPT and SFT stages.
+% During CPT, the two curves are close, with \methodname reaching a slightly lower final loss. 
+% After both checkpoints are trained with the same SFT data, 
+% the \methodname-initialized model converges faster and reaches a lower SFT loss. 
+During CPT, the two curves are close, with \methodname reaching a slightly lower final loss. 
+After both checkpoints are fine-tuned with the same SFT data, 
+the \methodname checkpoint converges faster and reaches a lower final SFT loss.
+% We attribute this phenomenon to that measure different aspects of the model.
+% We attribute this phenomenon to the fact that loss in pretraining stage does not adequately capture downstream capabilities~\citep{wei2022emergent}. 
+% SFT loss, by contrast, is contingent upon the geometric organization established during pretraining~\citep{li2025tracing}, 
+% and therefore more directly reflects the quality of the learned representation and its readiness for downstream reasoning.
+We attribute this discrepancy to the limited sensitivity of pretraining loss to downstream capabilities~\citep{wei2022emergent}. 
+SFT loss, by contrast, is grounded in the geometric structure established during pretraining~\citep{li2026tracing}, 
+and thus more directly reflects representation quality and its capacity for reasoning.
+
+We then examine how downstream performance scales with training dynamics. 
+% \Cref{fig:scaling}(b) shows that \methodname achieves steadily increasing normalized gains as training progresses, outperforming text pretraining in scaling efficiency. 
+In \Cref{fig:scaling}(b), we normalize the downstream gain of VP against that of TP, both measured relative to the starting checkpoint. 
+For the same PDF corpus, VP trains on only approximately 20B visual tokens, while TP processes roughly 80B text tokens.
+Moreover, VP achieves steadily increasing normalized gains as training progresses, 
+reaching 1.27× on MMLU-Pro, 2.02× on GPQA and 2.88× on AIME-25, indicating superior scaling efficiency.
+\Cref{fig:scaling}(d) further reveals that visual feature cosine similarity, 
+a proxy for visual prediction quality, correlates strongly with downstream improvements, 
+suggesting that better visual space modeling supports stronger reasoning, by enabling richer knowledge extraction from visual content.
+To verify that these gains are visually grounded, 
+we categorize the evaluation sets by visual-structure density following \citet{masry2025chartqapro} (\Cref{fig:scaling}(c)). 
+The advantage of VP over TP grows with density. 
+On low-density, text-dominant pages, VP and TP perform on par, whereas high-density pages rich in figures,
+equations, and tables produce substantially larger improvements. 
+This confirms that VP's scaling benefits are genuinely driven by its modeling of visual content.
+
+
+
+
+\paragraph{Efficiency: compact visual representations preserve VP gains}
+
+We next demonstrate the efficiency of VP.
+First, visual representations compress the same scientific documents far more effectively than OCR-extracted text.
+Specifically, VP trains on approximately 20B visual tokens, whereas TP consumes roughly 80B parsed text tokens.
+Second, under a fixed optimization token budget, VP achieves strong gains with only a modest share of visual tokens.
+% We vary the visual-token budget while fixing the overall training mixture (\Cref{fig:ablation_ratio}, left) and adopt a text-to-visual ratio of 4:1 (1$\times$) as our main setting.
+% At this ratio, visual tokens account for only a modest fraction of the training context, yet this small share suffices to deliver gains.
+% When the visual-token ratio exceeds 4:1, performance becomes suboptimal. 
+% We attribute this saturation to the model shifting capacity toward visually dense regions and away from text, consistent with the density-stratified results in \Cref{fig:scaling} (c).
+% The 8,192-token setting (1$\times$) achieves the best trade-off, yet extending the visual sequence beyond this length produces diminishing and eventually suboptimal performance. 
+% We attribute the suboptimal performance at larger budgets to the changed optimization dynamics of the visual InfoNCE objective, 
+% as increasing the number of visual tokens also changes the number of contrastive terms and effective negatives. 
+We vary the visual token budget within a fixed training context (\Cref{fig:ablation_ratio}, left). 
+The 8,192-token setting (1$\times$) achieves the best trade-off.
+We hypothesize that the suboptimal performance at larger visual-token budgets stems from optimization effects in the visual InfoNCE training. 
+When more visual tokens are retained, the loss is computed over more prediction targets and in-batch contrastive terms, which can change the effective gradient scale and optimization behavior.
+Moreover, because we keep the learning rate and other optimization hyperparameters fixed in this sweep, larger token budgets may not be fully tuned under this training recipe.
+% We attribute this to negative-sample saturation in the visual InfoNCE objective. 
+% Longer visual sequences inflate the proportion of hard, intra-page negatives, amplifying gradient variance and degrading optimization stability.
+Finally, the visual input itself admits further compression. 
+We train VP at varying resolutions and evaluate downstream performance.
+With the visual budget fixed at 8,192 tokens, 
+lowering the maximum resolution preserves strong performance (\Cref{fig:ablation_ratio}, right), and VP still outperforms TP.
+This further amplifies the efficiency of VP.
+
+
+
+\paragraph{Cross-modality: multimodal capabilities emerge without paired supervision}
+\label{sec:results_alignment}
+We finally demonstrate that the gains from \methodname generalize beyond text-only reasoning. 
+Although \methodname is performed on unlabeled raw document pages, without task-specific multimodal annotations,
+it also improves multimodal representation and downstream visual reasoning.
+
+\input{tab/merge_alignment_mm}
+
+We extract hidden states from the foundation model (\ie, Qwen3.5) on 100 image–text pairs sourced from scientific documents, 
+and compare the pooled visual and text embeddings before and after \methodname. 
+\Cref{tab:alignment_multimodal} (a) shows consistent gains across three complementary levels of alignment. 
+Globally, the centroid separation \citep{liang2022mind} drops from 1.665 to 0.661 and the paired cosine similarity rises from 0.631 to 0.907, 
+indicating that the two modalities now share a common subspace and that paired samples are systematically co-located. 
+Structurally, Linear CKA \citep{kornblith2019similarity} improves from 0.657 to 0.745, 
+evidencing agreement on the larger geometric structure of the two representation spaces. 
+Locally, Mutual k-NN overlap \citep{huh2024platonic} improves at all evaluated k, confirming neighbourhood alignment at the instance level. 
+We also provide a qualitative view in \Cref{fig:main}, 
+where the originally disjoint visual and text embedding clusters collapse into a single overlapping region after \methodname pretraining.
+For visual comparability and fairness, both panels share anchor features and t-SNE settings.
+
+
+
+
+% ============TODO============
+\Cref{tab:alignment_multimodal} (b) reports multimodal benchmark (\ie, MMMU-Pro \citep{yue2025mmmu}, SFE \citep{zhou2026scientists}, ChartQAPro \citep{masry2025chartqapro} and MathVista \citep{lu2024mathvista}) performance with Qwen 3.5 and Llama 3.2 Vision. 
+% \methodname consistently outperforms both the pretrained base and the baseline after text pretraining on every benchmark and backbone.
+\methodname consistently outperforms both the pretrained base and the text-pretrained model on every benchmark and backbone.
+TP yields negligible gains and occasionally regresses (\eg, $57.99 \to 56.42$ on ChartQAPro for Qwen 3.5), indicating that   
+further TP cannot harvest information from visually rich documents. The VP advantage over TP is largest on
+visually heavy benchmarks, reaching $+5.4$ on ChartQAPro for both backbones and $+4.8$ on MathVista for Llama 3.2 Vision.
+Together with the density-stratified results in \Cref{fig:scaling} (c), this indicates that \methodname{}'s main benefit lies in
+visual content (figures, equations, tables, and complex layouts) that text parsing cannot faithfully recover.
+
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{fig/attn_map_v3.pdf}
+  \caption{\textbf{Visual-token reasoning attends to the same semantic evidence as text reasoning.}
+  We compare foundation models with TP or VP on the same math problem under text and image inputs.
+  \textbf{Top}, textual reasoning: the problem and chain-of-thought solution are given as plain text, and attention is measured from the final answer sentence to previous tokens.
+  \textbf{Bottom}, visual reasoning: the same problem is rendered as an image and fed through the visual pathway, and attention is measured from visual tokens in the answer region to retained page patches.
+  Both views concentrate on the semantic regions highlighted in red, including the question constraint and intermediate computation steps.
+  }
+  \label{fig:attn_map}
+\end{figure*}
+\paragraph{Reasoning cues in visual pretraining}
+
+To understand the mechanism behind VP's scientific reasoning gains, we conduct a qualitative study of attention patterns.
+We compare attention maps elicited by the same math problem under text and visual inputs, using Qwen3.5 as the native multimodal backbone.
+% As a qualitative probe, we compare attention maps elicited by the same math problem under text and visual inputs, using Qwen3.5 as the native multimodal backbone.
+In the textual setting, the problem and its chain-of-thought solution are provided as plain text; we extract attention from the last Transformer layer, average over heads, and use the final answer sentence as the query.
+% In the visual setting, the same problem is rendered as a image and fed through the visual pathway; we use visual tokens in the answer region as queries and average their attention across retained patches.
+In the visual setting, the same problem is rendered as an image and fed through the visual pathway. We use visual tokens in the answer region as queries and average their attention across retained patches.
+% We show a representative example in which both attention maps concentrate on corresponding semantic regions, 
+We show a representative example where both attention maps highlight corresponding semantic regions,
+including the question constraint and intermediate computation steps, while de-emphasizing filler content (\Cref{fig:attn_map}).
+This probe does not imply that the two modalities use identical internal mechanisms, 
+but it shows that VP exposes reasoning-relevant visual evidence to the shared LLM in a way that parallels the evidence used in text-based reasoning.
+
+% \paragraph{Ablation study}

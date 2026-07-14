@@ -1,0 +1,469 @@
+% \section{Methods}
+% \label{sec:methods}
+
+% % \paragraph{Overview}
+% \label{sec:overview}
+
+% \methodname augments standard text pretraining with a visual next visual latent prediction objective on raw scientific document pages. Each page is rendered as an image and encoded by a frozen Vision Transformer (ViT). We spatially merge the ViT patch features, discard blank background regions, and order the remaining foreground features in raster scan. The sparse visual sequence is then projected into the LLM hidden space and processed by the same autoregressive backbone used for text. Under a causal image-only mask, the LLM predicts the feature of the next foreground patch.
+
+% The visual objective is trained entirely in the frozen ViT feature space. Therefore, \methodname does not require OCR, image--text annotations, or a pixel-level decoder such as a VAE or diffusion model. In parallel, the same LLM continues standard text pretraining with next-token prediction. This enables raw document pages to serve as unlabeled visual supervision while preserving the standard text-training pathway.
+
+% \paragraph{Sparse visual representation of document pages}
+% \label{sec:sparse_visual_tokens}
+
+% Given a rendered document page $\mathcal{I}$, a frozen ViT encoder followed by a frozen spatial merger produces a grid of visual features:
+% \begin{equation}
+% \mathcal{Z}
+% =
+% \{z_i\}_{i=1}^{N}
+% =
+% M\!\left(\phi_{\mathrm{ViT}}(\mathcal{I})\right),
+% \qquad
+% z_i \in \mathbb{R}^{d_v},
+% \label{eq:vit_features}
+% \end{equation}
+% where $\phi_{\mathrm{ViT}}$ is the frozen ViT encoder, $M$ is the spatial merger, $N$ is the number of merged visual tokens, and $d_v$ is the visual-feature dimension.
+
+% Document pages are highly sparse: margins and blank regions contain little useful information. We therefore compute a foreground mask from simple patch statistics. Let $\sigma_i^2$ and $\ell_i$ denote the pixel variance and average luminance of patch $i$. A patch is marked as background if it has low variance and near-blank luminance:
+% \begin{equation}
+% b_i=\mathbf{1}\left[\sigma_i^2 < \tau_{\sigma}\;\land\;
+% \left(\ell_i > \tau_{\ell}^{+}\;\lor\;\ell_i < \tau_{\ell}^{-}\right)\right],
+% \label{eq:foreground_mask}
+% \end{equation}
+% where $m_i = 1-b_i$, $b_i$ and $m_i$ are the background and foreground indicators, respectively. The mask is max-pooled over spatial merger blocks, so a merged token is retained if any of its constituent patches is foreground.
+
+% After filtering, we obtain a sparse foreground sequence:
+% \begin{equation}
+% \mathcal{U}=\operatorname{Raster}\{z_i:m_i=1\}=(u_1,\ldots,u_L),
+% \label{eq:foreground_sequence}
+% \end{equation}
+% where $L=\sum_{i=1}^{N}m_i \ll N$ is the number of retained foreground tokens. The raster order preserves the original page layout. Each foreground feature is then projected into the LLM hidden space:
+% \begin{equation}
+% x_i
+% =
+% W_{\mathrm{in}}u_i,
+% \qquad
+% x_i \in \mathbb{R}^{d},
+% \label{eq:visual_projection}
+% \end{equation}
+% where $W_{\mathrm{in}}$ is a learned linear projection and $d$ is the LLM hidden dimension. Position IDs are re-indexed after foreground filtering according to the raster order.
+
+% \paragraph{next visual latent prediction}
+% \label{sec:VP}
+
+% The projected visual sequence $(x_1,\ldots,x_L)$ is fed into the LLM with a causal attention mask over image positions. The hidden state at position $i$ is used to predict the next foreground visual feature:
+% \begin{equation}
+% h_i=\Phi_{\mathrm{LLM}}(x_{\leq i}),
+% \qquad\hat{u}_{i+1}=\psi(h_i),
+% \label{eq:VP_forward}
+% \end{equation}
+% where $\Phi_{\mathrm{LLM}}$ is the shared autoregressive backbone and $\psi$ is a lightweight MLP prediction head. The target for $\hat{u}_{i+1}$ is the frozen ViT feature $u_{i+1}$. This makes the visual task analogous to language-model next-token prediction, but performed over continuous document features rather than discrete text tokens.
+
+% We optimize next visual latent prediction with an InfoNCE loss~\citep{oord2018representation}. For a batch of predicted--target pairs $\mathcal{B}$, other visual features in the batch serve as negatives:
+% \begin{equation}
+% p_{ij}
+% =
+% \operatorname{softmax}_{j\in\mathcal{B}}
+% \left(
+% \frac{\cos(\hat{u}_{i+1},u_{j+1})}{\tau}
+% \right),
+% \label{eq:VP_softmax}
+% \end{equation}
+
+% \begin{equation}
+% \mathcal{L}_{\mathrm{VP}}
+% =
+% -\frac{1}{|\mathcal{B}|}
+% \sum_{i\in\mathcal{B}}
+% \log p_{ii}.
+% \label{eq:VP_loss}
+% \end{equation}
+% where $p_{ij}$ denotes the probability of matching the prediction at position $i$ to the target feature at position $j$ within the batch.
+
+% \paragraph{Joint text and visual pretraining}
+% \label{sec:joint_training}
+
+% The overall objective combines standard text next-token prediction with visual next visual latent prediction:
+% \begin{equation}
+% \mathcal{L}
+% =
+% \lambda_{\mathrm{text}}\mathcal{L}_{\mathrm{CE}}
+% +
+% \lambda_{\mathrm{vis}}\mathcal{L}_{\mathrm{VP}},
+% \label{eq:joint_objective}
+% \end{equation}
+% where $\mathcal{L}_{\mathrm{CE}}$ is the autoregressive cross-entropy loss on text tokens, $\mathcal{L}_{\mathrm{VP}}$ is defined in~\Cref{eq:VP_loss}, and $\lambda_{\mathrm{text}}$ and $\lambda_{\mathrm{vis}}$ control the relative weights of the two objectives.
+
+% Text and visual examples are interleaved during training according to a fixed mixing ratio. Only the LLM parameters, the input projection $W_{\mathrm{in}}$, and the prediction head $\psi$ are updated. The ViT encoder and spatial merger remain frozen, providing a stable target feature space throughout training. Multiple foreground sequences are packed into fixed-length contexts, with sequence boundaries tracked to prevent cross-sample attention.
+
+% \paragraph{Evaluation protocol}
+% \label{sec:Eval_proto}
+
+% As shown in~\Cref{tab:main_result_text,tab:alignment_multimodal}, we evaluate \methodname and the baselines in a zero-shot setting after SFT initialized from CPT. The evaluations in~\Cref{tab:main_result_text} use CoT prompting with the instruction ``think step by step'', whereas those in~\Cref{tab:alignment_multimodal} use a direct-answer template without explicit reasoning guidance. Unless otherwise specified, \Cref{tab:main_result_text} reports average pass@8 for GPQA, the average score over 32 runs for AIME-25, and pass@1 for MMLU-Pro and HLE. All benchmarks in~\Cref{tab:alignment_multimodal} are reported with pass@1.
+
+% \noindent\textbf{Cross-modal alignment metrics.}
+% We quantify alignment using paired visual and textual embeddings $\{(v_i,t_i)\}_{i=1}^{N}$ extracted from the last hidden layer of the shared LLM backbone. We use three groups of metrics.
+
+% First, global alignment is measured by centroid separation: $D_{\mathrm{centroid}}
+% =\left\|\bar{v}-\bar{t}\right\|_2$, where $\bar{v}$ and $\bar{t}$ are the modality-wise mean embeddings. We also compute pairwise cosine similarity:
+% \begin{equation}
+% S_{\mathrm{pair}}
+% =
+% \frac{1}{N}
+% \sum_{i=1}^{N}
+% \cos(v_i,t_i).
+% \label{eq:pairwise_cosine}
+% \end{equation}
+
+% Second, structural alignment is measured by linear CKA. Let $V$ and $T$ denote the centered embedding matrices for the two modalities. We compute:
+% \begin{equation}
+% \operatorname{CKA}(V,T)
+% =
+% \frac{
+% \left\|V^{\top}T\right\|_{F}^{2}
+% }{
+% \left\|V^{\top}V\right\|_{F}
+% \left\|T^{\top}T\right\|_{F}
+% }.
+% \label{eq:cka}
+% \end{equation}
+
+% Third, local alignment is measured by mutual $k$-nearest-neighbor overlap:
+% \begin{equation}
+% A_k=\frac{1}{N}\sum_{i=1}^{N}\frac{\left|\mathcal{N}^{V}_{k}(i)\cap\mathcal{N}^{T}_{k}(i)\right|}{k},
+% \label{eq:knn_overlap}
+% \end{equation}
+% where $\mathcal{N}^{V}_{k}(i)$ and $\mathcal{N}^{T}_{k}(i)$ are the $k$ nearest neighbors of example $i$ in the visual and textual embedding spaces, respectively. We report $k\in\{1,5,10\}$.
+
+
+
+
+
+\section{Methods}
+\label{sec:methods}
+
+% \paragraph{Overview}
+% % \methodname extends standard text continued pretraining with a next visual latent prediction objective on raw scientific document pages. 
+% % Each page is rendered as an image and encoded by a frozen vision tower; retained foreground features are then mapped into the LLM hidden space by a visual projection module. We remove blank background regions, keep foreground document patches, and order the remaining visual features in raster scan. The resulting sparse sequence is processed by the same autoregressive backbone used for text. The LLM is then trained to predict the feature of the next foreground patch under a causal image-only mask.
+
+% \methodname extends text continued pretraining by introducing next visual latent prediction on raw scientific document pages.
+% Each page is encoded by a frozen vision tower. 
+% Retained foreground features are then projected into the LLM's hidden space via a visual projection module.
+% We remove blank background regions, keep foreground patches, and order the remaining features in raster-scan order. 
+% Positional encodings are preserved to maintain spatial layout. 
+% The resulting sparse visual sequence is fed into the same autoregressive backbone that processes text tokens.
+% The model is trained to predict the next foreground patch feature under causal image-only masking.
+% % We remove blank background regions, keep foreground patches, and order the remaining features in raster-scan order.
+% % The resulting sparse visual sequence is fed into the same autoregressive backbone that processes text tokens.
+
+% The visual objective is defined entirely in the frozen visual-feature target space. 
+% Therefore, \methodname does not require OCR, 
+% image-text annotations, or a pixel-level image decoder. 
+% In parallel, the same LLM continues standard text pretraining with next-token prediction. 
+% The matched TP baseline uses text parsed from the same PDF pages with MinerU2.5~\citep{niu2025mineru25}, 
+% while \methodname uses the rendered page images. 
+% This allows raw scientific pages to serve as unlabeled visual supervision while preserving the standard text-training pathway. 
+% A full mathematical description of the visual-pretraining pipeline is provided in Appendix~\Cref{sec:appendix_pipeline}, and implementation details are summarized in Appendix~\Cref{sec:appendix_details}.
+
+
+% \section{Methods}
+% \label{sec:methods}
+
+% % \paragraph{Overview}
+% \label{sec:overview}
+
+% \methodname augments standard text pretraining with a visual next-patch prediction objective on raw scientific document pages. Each page is rendered as an image and encoded by a frozen Vision Transformer (ViT). We spatially merge the ViT patch features, discard blank background regions, and order the remaining foreground features in raster scan. The sparse visual sequence is then projected into the LLM hidden space and processed by the same autoregressive backbone used for text. Under a causal image-only mask, the LLM predicts the feature of the next foreground patch.
+
+% The visual objective is trained entirely in the frozen ViT feature space. Therefore, \methodname does not require OCR, image--text annotations, or a pixel-level decoder such as a VAE or diffusion model. In parallel, the same LLM continues standard text pretraining with next-token prediction. This enables raw document pages to serve as unlabeled visual supervision while preserving the standard text-training pathway.
+
+% \paragraph{Sparse visual representation of document pages}
+% \label{sec:sparse_visual_tokens}
+
+% Given a rendered document page $\mathcal{I}$, a frozen ViT encoder followed by a frozen spatial merger produces a grid of visual features:
+% \begin{equation}
+% \mathcal{Z}
+% =
+% \{z_i\}_{i=1}^{N}
+% =
+% M\!\left(\phi_{\mathrm{ViT}}(\mathcal{I})\right),
+% \qquad
+% z_i \in \mathbb{R}^{d_v},
+% \label{eq:vit_features}
+% \end{equation}
+% where $\phi_{\mathrm{ViT}}$ is the frozen ViT encoder, $M$ is the spatial merger, $N$ is the number of merged visual tokens, and $d_v$ is the visual-feature dimension.
+
+% Document pages are highly sparse: margins and blank regions contain little useful information. We therefore compute a foreground mask from simple patch statistics. Let $\sigma_i^2$ and $\ell_i$ denote the pixel variance and average luminance of patch $i$. A patch is marked as background if it has low variance and near-blank luminance:
+% \begin{equation}
+% b_i=\mathbf{1}\left[\sigma_i^2 < \tau_{\sigma}\;\land\;
+% \left(\ell_i > \tau_{\ell}^{+}\;\lor\;\ell_i < \tau_{\ell}^{-}\right)\right],
+% \label{eq:foreground_mask}
+% \end{equation}
+% where $m_i = 1-b_i$, $b_i$ and $m_i$ are the background and foreground indicators, respectively. The mask is max-pooled over spatial merger blocks, so a merged token is retained if any of its constituent patches is foreground.
+
+% After filtering, we obtain a sparse foreground sequence:
+% \begin{equation}
+% \mathcal{U}=\operatorname{Raster}\{z_i:m_i=1\}=(u_1,\ldots,u_L),
+% \label{eq:foreground_sequence}
+% \end{equation}
+% where $L=\sum_{i=1}^{N}m_i \ll N$ is the number of retained foreground tokens. The raster order preserves the original page layout. Each foreground feature is then projected into the LLM hidden space:
+% \begin{equation}
+% x_i
+% =
+% W_{\mathrm{in}}u_i,
+% \qquad
+% x_i \in \mathbb{R}^{d},
+% \label{eq:visual_projection}
+% \end{equation}
+% where $W_{\mathrm{in}}$ is a learned linear projection and $d$ is the LLM hidden dimension. Position IDs are re-indexed after foreground filtering according to the raster order.
+
+% \paragraph{Next-patch prediction}
+% \label{sec:VP}
+
+% The projected visual sequence $(x_1,\ldots,x_L)$ is fed into the LLM with a causal attention mask over image positions. The hidden state at position $i$ is used to predict the next foreground visual feature:
+% \begin{equation}
+% h_i=\Phi_{\mathrm{LLM}}(x_{\leq i}),
+% \qquad\hat{u}_{i+1}=\psi(h_i),
+% \label{eq:VP_forward}
+% \end{equation}
+% where $\Phi_{\mathrm{LLM}}$ is the shared autoregressive backbone and $\psi$ is a lightweight MLP prediction head. The target for $\hat{u}_{i+1}$ is the frozen ViT feature $u_{i+1}$. This makes the visual task analogous to language-model next-token prediction, but performed over continuous document features rather than discrete text tokens.
+
+% We optimize next-patch prediction with an InfoNCE loss~\citep{oord2018representation}. For a batch of predicted--target pairs $\mathcal{B}$, other visual features in the batch serve as negatives:
+% \begin{equation}
+% p_{ij}
+% =
+% \operatorname{softmax}_{j\in\mathcal{B}}
+% \left(
+% \frac{\cos(\hat{u}_{i+1},u_{j+1})}{\tau}
+% \right),
+% \label{eq:VP_softmax}
+% \end{equation}
+
+% \begin{equation}
+% \mathcal{L}_{\mathrm{VP}}
+% =
+% -\frac{1}{|\mathcal{B}|}
+% \sum_{i\in\mathcal{B}}
+% \log p_{ii}.
+% \label{eq:VP_loss}
+% \end{equation}
+% where $p_{ij}$ denotes the probability of matching the prediction at position $i$ to the target feature at position $j$ within the batch.
+
+% \paragraph{Joint text and visual pretraining}
+% \label{sec:joint_training}
+
+% The overall objective combines standard text next-token prediction with visual next-patch prediction:
+% \begin{equation}
+% \mathcal{L}
+% =
+% \lambda_{\mathrm{text}}\mathcal{L}_{\mathrm{CE}}
+% +
+% \lambda_{\mathrm{vis}}\mathcal{L}_{\mathrm{VP}},
+% \label{eq:joint_objective}
+% \end{equation}
+% where $\mathcal{L}_{\mathrm{CE}}$ is the autoregressive cross-entropy loss on text tokens, $\mathcal{L}_{\mathrm{VP}}$ is defined in~\Cref{eq:VP_loss}, and $\lambda_{\mathrm{text}}$ and $\lambda_{\mathrm{vis}}$ control the relative weights of the two objectives.
+
+% Text and visual examples are interleaved during training according to a fixed mixing ratio. Only the LLM parameters, the input projection $W_{\mathrm{in}}$, and the prediction head $\psi$ are updated. The ViT encoder and spatial merger remain frozen, providing a stable target feature space throughout training. Multiple foreground sequences are packed into fixed-length contexts, with sequence boundaries tracked to prevent cross-sample attention.
+
+% \paragraph{Evaluation protocol}
+% \label{sec:Eval_proto}
+
+% As shown in~\Cref{tab:main_result_text,tab:alignment_multimodal}, we evaluate \methodname and the baselines in a zero-shot setting after SFT initialized from CPT. The evaluations in~\Cref{tab:main_result_text} use CoT prompting with the instruction ``think step by step'', whereas those in~\Cref{tab:alignment_multimodal} use a direct-answer template without explicit reasoning guidance. Unless otherwise specified, \Cref{tab:main_result_text} reports average pass@8 for GPQA, the average score over 32 runs for AIME-25, and pass@1 for MMLU-Pro and HLE. All benchmarks in~\Cref{tab:alignment_multimodal} are reported with pass@1.
+
+% \noindent\textbf{Cross-modal alignment metrics.}
+% We quantify alignment using paired visual and textual embeddings $\{(v_i,t_i)\}_{i=1}^{N}$ extracted from the last hidden layer of the shared LLM backbone. We use three groups of metrics.
+
+% First, global alignment is measured by centroid separation: $D_{\mathrm{centroid}}
+% =\left\|\bar{v}-\bar{t}\right\|_2$, where $\bar{v}$ and $\bar{t}$ are the modality-wise mean embeddings. We also compute pairwise cosine similarity:
+% \begin{equation}
+% S_{\mathrm{pair}}
+% =
+% \frac{1}{N}
+% \sum_{i=1}^{N}
+% \cos(v_i,t_i).
+% \label{eq:pairwise_cosine}
+% \end{equation}
+
+% Second, structural alignment is measured by linear CKA. Let $V$ and $T$ denote the centered embedding matrices for the two modalities. We compute:
+% \begin{equation}
+% \operatorname{CKA}(V,T)
+% =
+% \frac{
+% \left\|V^{\top}T\right\|_{F}^{2}
+% }{
+% \left\|V^{\top}V\right\|_{F}
+% \left\|T^{\top}T\right\|_{F}
+% }.
+% \label{eq:cka}
+% \end{equation}
+
+% Third, local alignment is measured by mutual $k$-nearest-neighbor overlap:
+% \begin{equation}
+% A_k=\frac{1}{N}\sum_{i=1}^{N}\frac{\left|\mathcal{N}^{V}_{k}(i)\cap\mathcal{N}^{T}_{k}(i)\right|}{k},
+% \label{eq:knn_overlap}
+% \end{equation}
+% where $\mathcal{N}^{V}_{k}(i)$ and $\mathcal{N}^{T}_{k}(i)$ are the $k$ nearest neighbors of example $i$ in the visual and textual embedding spaces, respectively. We report $k\in\{1,5,10\}$.
+
+\paragraph{Overview.}
+% \methodname extends text continued pretraining with next visual latent prediction on raw scientific document pages. 
+% Each page is encoded by a frozen vision tower; foreground features are filtered, kept in raster-scan order with spatial information preserved, projected into the LLM hidden space, and processed by the same autoregressive backbone used for text. 
+% Under a causal image-only mask, the model predicts the next foreground feature in the frozen visual-feature space while continuing standard next-token text pretraining. 
+% Because supervision is defined over frozen visual latents, \methodname requires neither OCR, image-text annotations, nor a pixel-level decoder; the matched TP baseline instead trains on MinerU2.5-parsed text from the same PDF pages~\citep{niu2025mineru25}. A full mathematical description of the pipeline and implementation details are provided in supplementary section~\Cref{sec:appendix_pipeline,sec:appendix_details}.
+\methodname extends text continued pretraining by introducing next visual latent prediction on raw scientific document pages.
+Each page is encoded by a frozen vision tower. 
+Retained foreground features are then projected into the LLM's hidden space via a visual projection module.
+We remove blank background regions, keep foreground patches, and order the remaining features in raster-scan order. 
+Positional encodings are preserved to maintain spatial layout. 
+The resulting sparse visual sequence is fed into the same autoregressive backbone that processes text tokens.
+The model is trained to predict the next foreground patch feature under causal image-only masking.
+
+
+\paragraph{Sparse document representation}
+Given a rendered document page $\mathcal{I}$, the frozen vision tower $E_{\mathrm{v}}$ produces a sequence of visual features
+\begin{equation}
+\mathcal{Z}=E_{\mathrm{v}}(\mathcal{I})=(z_1,\ldots,z_N).
+\label{eq:visual_features}
+\end{equation}
+Document pages contain large blank regions, such as margins and whitespace. We therefore compute a foreground mask using simple patch-level statistics, including pixel variance and average luminance, and retain only non-blank patches. The retained features are ordered in raster scan to form a sparse foreground sequence
+\begin{equation}
+\mathcal{U}
+=
+\operatorname{Raster}\{z_i:m_i=1\}
+=
+(u_1,\ldots,u_L), L\ll N .
+\label{eq:foreground_sequence}
+\end{equation}
+This sparse representation keeps foreground document content in page order while substantially shortening the visual context. Each foreground feature is projected into the LLM hidden space through a learned linear projection. Position indices are re-assigned according to the raster order. The exact foreground filtering rule and sequence-packing mask are described in Supplementary~\Cref{sec:appendix_pipeline}.
+
+\paragraph{Next visual latent prediction}
+For each document image, we first extract a sequence of frozen visual latents and retain the foreground tokens.
+These visual latents are mapped into the LLM embedding space by an input projection module and then fed to the LLM under a causal attention mask over visual positions.
+Given the LLM hidden state at position $t$, an output projection head maps it back to the frozen visual-latent space to produce a prediction $\hat{\mathbf{z}}_{t+1}$.
+The prediction is trained to match the next foreground visual latent $\mathbf{z}_{t+1}$ using a contrastive loss with in-batch negatives.
+This forms an autoregressive visual-latent prediction objective. 
+It follows the next-token prediction structure of language modeling, 
+but the targets are continuous visual latents rather than discrete text tokens.
+% The projected sequence is fed into the LLM with causal attention over image positions. 
+% For each position, the hidden state is mapped by a lightweight prediction head to the frozen visual-feature target space. The predicted feature is trained to match the next foreground feature, making the visual task analogous to next-token prediction in language modelling, but over continuous document features.
+
+We train the visual stream using a next-visual-latent prediction objective. For a batch of predicted--target pairs, let $p_{ij}$ be the softmax probability of matching the prediction at position $i$ to target feature $j$, computed from cosine similarities with temperature $\tau$. The visual pretraining loss is
+\begin{equation}
+\mathcal{L}_{\mathrm{VP}}
+=
+-\frac{1}{|\mathcal{B}|}
+\sum_{i\in\mathcal{B}}
+\log p_{ii}.
+\label{eq:VP_loss}
+\end{equation}
+Other visual features in the batch serve as negatives. This objective encourages the model to predict the correct next document feature while distinguishing it from other patches. The expanded InfoNCE~\citep{oord2018representation} formulation and the definition of the in-batch matching probabilities are provided in Supplementary~\Cref{sec:appendix_pipeline}.
+
+% We train the visual stream using a next-visual-latent prediction objective.
+% For a set of valid predicted--target pairs $\mathcal{B}$, let
+% $p_{ij}$ denote the probability of matching the prediction for pair $i$
+% to the target visual latent of pair $j$:
+% \begin{equation}
+% p_{ij}
+% =
+% \frac{
+% \exp(\mathrm{cos}(\hat{\mathbf{z}}_i, \mathbf{z}_j) / \tau)
+% }{
+% \sum_{k \in \mathcal{B}}
+% \exp(\mathrm{cos}(\hat{\mathbf{z}}_i, \mathbf{z}_k) / \tau)
+% }.
+% \end{equation}
+% The visual pretraining loss is
+% \begin{equation}
+% \mathcal{L}_{\mathrm{VP}}
+% =
+% -\frac{1}{|\mathcal{B}|}
+% \sum_{i\in\mathcal{B}}
+% \log p_{ii}.
+% \label{eq:VP_loss}
+% \end{equation}
+% Here, $\hat{\mathbf{z}}_i$ is produced from the LLM hidden state at a visual position, 
+% while $\mathbf{z}_i$ is the corresponding next visual latent. 
+% Other target latents in $\mathcal{B}$ serve as in-batch negatives. 
+% This objective encourages the model to predict the correct next visual latent while distinguishing it from other visual latents. 
+% The expanded InfoNCE~\citep{oord2018representation} formulation and the construction of valid predicted--target pairs are provided in Appendix~\Cref{sec:appendix_pipeline}.
+
+\paragraph{Joint text and visual pretraining}
+The final training objective combines standard text next-token prediction with next visual latent prediction:
+\begin{equation}
+\mathcal{L}
+=
+\lambda_{\mathrm{text}}\mathcal{L}_{\mathrm{CE}}
++
+\lambda_{\mathrm{vis}}\mathcal{L}_{\mathrm{VP}},
+\label{eq:joint_objective}
+\end{equation}
+where $\mathcal{L}_{\mathrm{CE}}$ is the autoregressive cross-entropy loss on text tokens and $\mathcal{L}_{\mathrm{VP}}$ is defined in equation~\eqref{eq:VP_loss}. Text and visual examples are interleaved during training according to a fixed mixing ratio. We update the LLM, the visual input projection and the prediction head, while keeping the visual encoder frozen. Multiple foreground sequences are packed into fixed-length contexts, with sequence boundaries tracked to prevent cross-sample attention. Additional details on the training corpus, architecture, optimization setup and evaluation protocol are provided in Supplementary~\Cref{sec:appendix_details}.
+
+\paragraph{Training setup}
+% Continued pretraining is implemented based on XTuner framework~\citep{2023xtuner}.
+% We conduct continued pretraining with XTuner~\citep{2023xtuner} under a distributed data-parallel setup.
+We implement continued pretraining using the XTuner framework~\citep{2023xtuner}.
+During visual pretraining, we optimize the LLM and the lightweight prediction projector that maps LLM hidden states to the frozen vision-representation space, while keeping the vision tower frozen.
+% For the text-pretraining (TP) setting, we train on open-source text corpora with a total budget of 180B tokens.
+% For the visual-pretraining (VP) setting, we train on 120B tokens constructed from sparse visual representations of document pages.
+For both TP and VP, we keep the non-PDF text corpus, starting checkpoint, optimization recipe, and SFT stage fixed. 
+The only controlled difference is the representation of the additional scientific-PDF corpus. 
+In TP, the PDF pages are converted into MinerU2.5-parsed text, yielding approximately 80B text tokens. 
+In VP, the same PDF pages are rendered as images and filtered into sparse foreground visual sequences, yielding approximately 20B visual tokens at the main resolution. 
+Thus, the total CPT token budgets differ (180B for TP and 120B for VP) 
+because the same matched PDF corpus is represented more compactly in the visual stream, 
+not because VP uses a different document source. 
+All comparisons therefore match the underlying PDF documents while allowing the token count to reflect the chosen representation.
+The resulting checkpoints are then trained with the same SFT recipe and evaluated using the same benchmark protocols.
+
+\paragraph{Evaluation protocol}
+As shown in~\Cref{tab:main_result_text,tab:alignment_multimodal}, we evaluate \methodname and the baselines in a zero-shot setting after SFT initialized from CPT. 
+The evaluations in~\Cref{tab:main_result_text} use CoT prompting with the instruction ``think step by step'', whereas those in~\Cref{tab:alignment_multimodal} use a direct-answer template without explicit reasoning guidance. 
+Unless otherwise specified, \Cref{tab:main_result_text} reports average pass@8 for GPQA, the average score over 32 runs for AIME-25, and pass@1 for MMLU-Pro and HLE. 
+All benchmarks in~\Cref{tab:alignment_multimodal} are reported with pass@1.
+By default, we extract answers via rule-based matching and grade them automatically. When extraction fails, we use GPT-4o~\citep{hurst2024gpt} for judgment.
+
+% \paragraph{Cross-modal alignment}
+% We measure the alignment between paired visual and textual representations extracted from the last hidden layer of the shared LLM backbone. We consider three complementary views: 1) global alignment, measured by centroid distance and paired cosine similarity, 2) structural alignment, measured by linear CKA, 3) and local alignment, measured by mutual $k$-nearest-neighbour overlap at $k\in\{1,5,10\}$. These metrics evaluate whether visual pretraining brings paired image and text states closer while preserving the local and global geometry of the representation space. The construction of the matched image-text pairs and the full metric definitions are provided in Appendix~\Cref{sec:appendix_alignment_details}.
+
+
+% \noindent\section*{Data availability}
+% The text pretraining corpus was constructed primarily from FineWeb-Edu~\citep{penedo2024fineweb}, which is publicly available at \url{https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu}.
+% The scientific-PDF corpus was constructed from publicly accessible PDF resources indexed by Common Crawl (\url{https://commoncrawl.org/}).
+% The PDF collection and downloading procedure follows the public Common-Crawl-based PDF indexing and download strategy described by CCpdf~\citep{turski2023ccpdf}, whose metadata and scripts are available at
+% \url{https://github.com/applicaai/CCpdf}.
+% For each retained scientific-PDF page, we construct matched rendered-page images and MinerU2.5-parsed~\citep{niu2025mineru25} text views.
+% The data preprocessing scripts are provided as related manuscript files.
+% We will release the data filtering and preprocessing scripts together with the code release.
+% Where permitted, we will release source-category statistics, filtering rules, preprocessing metadata, and train/evaluation split information sufficient to reproduce the data construction pipeline.
+% The text pretraining corpus is constructed from multiple science-oriented public sources, including FineWeb-Edu~\citep{penedo2024fineweb}.
+% Filtering rules and metadata will be provided in the supplementary material.
+
+% \noindent\section*{Code availability}
+% The VP training code is developed on top of XTuner~\citep{2023xtuner}, with extensions for visual pretraining.
+% The training and evaluation code will be released.
+% Implementation details can be made available upon request.
+
+% \noindent\section*{Code availability}
+% The code materials for inspecting and testing the VP pipeline are provided as related manuscript files. The package includes data-preprocessing example scripts, a VP training example, and a README
+% describing the expected workflow. The training example is intended to be used together with the open-source XTuner framework (\url{https://github.com/InternLM/xtuner}). 
+% The provided example corresponds to XTuner commit \texttt{3bbbb88cd1491ca711f6543d27e027a9f22f8a8f}. 
+% Evaluation follows the standard OpenCompass workflow (\url{https://github.com/open-compass/opencompass}).
+% The VP training code builds on XTuner~\citep{2023xtuner} and adds data preprocessing, sparse visual-token construction, next-visual-latent pretraining, and evaluation components.
+% The training configurations, preprocessing scripts, and evaluation code needed to reproduce the main experiments will be released in a public repository upon publication.
+
+% \noindent\section*{Acknowledgement}
+% This work was supported by the Zhejiang Provincial Natural Science Foundation of China (LZ24F030005), and the National Natural Science Foundation of China (No. 62576308).
+% This work was supported by the Scientific Research Foundation of Sichuan Provincial Department of Science and Technology, China (No. 2024YFHZ0001), 
+% Zhejiang Provincial Natural Science Foundation of China (No. LZ24F030005),
+% Fundamental Research Funds for the Central Universities (No. 226-2025-00167), 
+% and National Natural Science Foundation of China (No. 62576308).
+
+% \noindent\section*{Funding}
+% This research received no external funding.
+
+% \section{Code availability}
+% % Our training pipeline is mainly implemented based on the XTuner framework~\citep{2023xtuner}.
+% % The code will be released upon publication.
+% % The implementation can also be made available upon request.
+% Our training code is primarily implemented with XTuner~\citep{2023xtuner}.
+% The code will be released.
+% Before implementation can be made available upon request.

@@ -1,0 +1,75 @@
+\section{Related Work}
+\label{sec:related}
+
+% \paragraph{Terminal and software-engineering agent benchmarks.}
+% Recent benchmarks have moved beyond static question answering toward realistic software and command-line work.
+% SWE-Bench~\cite{jimenez2024swebench} and LiveCodeBench~\cite{jain2024livecodebench} evaluate repository-level bug fixing and code generation, while Terminal-Bench~\cite{merrill2026terminalbenchbenchmarkingagentshard} places agents in containerized terminals and asks them to complete high-skill technical tasks such as configuring systems, training models, and reproducing research code.
+% More recent efforts push further toward difficult or prolonged software workflows: FrontierSWE~\cite{frontierswe2026} targets expert-level software engineering, and SWE-Marathon~\cite{desai2026swemarathon} studies ultra-long-horizon software work explicitly.
+% These benchmarks have been instrumental in measuring agent progress, but most still emphasize a final solved/unsolved outcome and operate over horizons shorter than the workflows we target.
+% \ours{} is closest in interface to Terminal-Bench, but differs in two key respects: its tasks are deliberately constructed to require sustained work over hundreds of steps and up to 90 minutes, and its subtask-based grading measures partial progress even when the final goal is not reached.
+
+\paragraph{Terminal and software-engineering agent benchmarks.}
+Recent agent benchmarks have shifted from static question answering and isolated programming exercises toward interactive, execution-grounded tasks in realistic work environments~\cite{zhou2023webarena,xie2024osworld}.
+%
+In software engineering, SWE-Bench~\cite{jimenez2024swebench} evaluates repository-level issue resolution on real GitHub projects, while LiveCodeBench~\cite{jain2024livecodebench} provides contamination-aware evaluation of code generation and related coding abilities such as execution, self-repair, and test-output prediction.
+%
+Subsequent benchmarks further broaden the scope of software-agent evaluation: SWT-Bench~\cite{mundler2024swt} studies test generation and validation for real-world bug fixes, and Terminal-Bench~\cite{merrill2026terminalbenchbenchmarkingagentshard} places agents in containerized terminals to complete realistic technical tasks such as system configuration, model training, and research-code reproduction.
+%
+More recent efforts push toward substantially harder and longer workflows, including FrontierSWE~\cite{frontierswe2026}, SWE-EVO~\cite{le2025swe}, SWE-Marathon~\cite{desai2026swemarathon}, and Edge-Bench, which target expert-level, multi-stage, or ultra-long-horizon tasks.
+%
+These benchmarks measure progress in coding and terminal agents, but many still primarily measure end-to-end success or failure, providing limited visibility into how much useful progress an agent made before failing.
+%
+\ours{} uses subtask-based grading exposes partial progress even when the final objective is not fully completed.
+
+
+% \paragraph{Measuring long-horizon autonomy tasks.}
+% Another closely related direction asks not only whether agents can solve a task, but how long a task they can solve reliably.
+% METR's time-horizon analysis~\cite{kwa2025measuring} estimates the human-time duration of tasks that frontier agents can complete at a fixed success rate, and reports rapid growth in this quantity over time.
+% This perspective highlights long-horizon autonomy as an increasingly important frontier, but also underscores the need for benchmarks that reveal more than a final success bit.
+% \ours{} is designed for precisely this setting: its tasks require sustained, many-step execution, and its subtask-level grading reveals where along a long trajectory agents make progress or fail.
+
+
+\paragraph{Measuring long-horizon autonomy tasks.}
+Recent work has increasingly characterized long-horizon autonomy in terms of the duration of tasks that agents can complete reliably, rather than aggregate performance on a fixed benchmark~\cite{kwa2025measuring,wijk2024re}.
+%
+METR's time-horizon analysis~\cite{kwa2025measuring} makes this perspective explicit by estimating the human-time duration of tasks that frontier agents can complete at a fixed success rate.
+%
+This framing treats horizon length as a first-class capability variable and is grounded in human-calibrated evaluations such as RE-Bench~\cite{wijk2024re} and HCAST~\cite{rein2025hcast}, which compare agents against human performance on realistic research-engineering, software-engineering, cybersecurity, and reasoning tasks.
+%
+At the same time, it also highlights a limitation of outcome-only evaluation in long-horizon settings: a binary success signal provides little information about how much progress was made before failure or where execution began to diverge.
+%
+Recent studies show that long-horizon degradation can arise from the accumulation of execution errors over extended trajectories, even when short-horizon competence appears strong~\cite{sinha2025illusion}.
+%
+\ours{} is designed to complement this line of work by combining extended, many-step autonomy tasks with subtask-level grading, thereby enabling a finer-grained characterization of partial progress and failure throughout long-horizon execution.
+
+
+
+% \paragraph{Beyond outcome-only grading.}
+% Our grading design is also related to work on dense supervision and process-level rewards.
+% Process reward models score intermediate reasoning steps rather than only final answers~\cite{lightman2023letsverify}, while rubric-based approaches decompose evaluation into individually checkable criteria and weighted dimensions of quality~\cite{gunjal2025rubrics,srar2026,tian2026arco}.
+% Most of this literature uses partial-credit or step-level signals as \\emph{training} rewards, often with learned judges or LLM-based evaluators.
+% By contrast, \ours{} brings the same intuition to \\emph{evaluation}: each task is decomposed into semantically meaningful subtasks, and each subtask is checked by deterministic, environment-grounded graders.
+% This enables fine-grained analysis of long-horizon agent behavior without relying on a learned evaluator.
+
+
+
+\paragraph{Beyond outcome-only grading.}
+Process reward models provide supervision over intermediate reasoning steps rather than only final answers, yielding denser signals than outcome-only supervision~\cite{lightman2023letsverify,khalifa2025process}.
+In parallel, rubric-based approaches decompose evaluation into individually assessable criteria or weighted dimensions of quality, making it possible to score complex outputs beyond a single holistic judgment~\cite{rao2026autorubric,pan2026rubriceval,tian2026arco}.
+%
+Most of this literature uses fine-grained signals primarily as \emph{training} rewards or judge-based supervision, often relying on learned verifiers or LLM evaluators~\cite{uesato2022solving,zheng2023judging,li2025self,yuan2024self}.
+%
+\ours{} applies the same core intuition at \emph{evaluation} time: each task is decomposed into semantically meaningful subtasks, and each subtask is checked by deterministic, environment-grounded graders.
+
+
+
+% \paragraph{Agent Harnesses.}
+% Benchmark results depend not only on the underlying model, but also on the scaffold through which it acts.
+% Open systems such as SWE-agent~\cite{yang2024sweagent}, OpenHands~\cite{wang2024openhands}, and the Terminus family introduced alongside Terminal-Bench~\cite{merrill2026terminalbenchbenchmarkingagentshard} provide agent--computer interfaces for autonomous repository and terminal work.
+% To reduce scaffold-induced variance and make cross-model comparisons cleaner, we evaluate all models in \ours{} under the same shared \texttt{terminus-2} agent.
+
+
+\paragraph{Agent harnesses.}
+Benchmark outcomes depend not only on the underlying model, but also on the agent harness that mediates its interaction with the environment~\cite{yao2026harness, yang2024sweagent,li2026comfyclaw,lin2026harness}. 
+%
+Open frameworks such as SWE-agent~\cite{yang2024sweagent}, OpenHands~\cite{wang2024openhands}, and the Terminus family introduced alongside Terminal-Bench~\cite{merrill2026terminalbenchbenchmarkingagentshard} provide reusable interfaces for autonomous repository- and terminal-based work. Opensource agents such as Codex~\cite{openai2025codex} and OpenClaw ~\cite{openclaw2026} package nontrivial scaffolding around the base model, including prompting, tool orchestration, context management, and action-selection policies. 

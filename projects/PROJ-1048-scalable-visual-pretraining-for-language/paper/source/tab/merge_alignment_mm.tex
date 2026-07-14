@@ -1,0 +1,134 @@
+\begin{table*}[t]
+\centering
+\caption{\textbf{VP improves cross-modal alignment and multimodal transfer without labeled multimodal pretraining data.}
+Left \textbf{(a)}: alignment metrics on 100 held-out scientific document image--text pairs before and after VP; lower centroid separation and higher cosine similarity, CKA, and mutual $k$-NN indicate better alignment.
+Right \textbf{(b)}: pass@1 performance on multimodal benchmarks for native multimodal models, comparing the base checkpoint, TP, and VP.
+The gains show that unlabeled visual-document pretraining improves both representation compatibility and downstream visual reasoning.}
+\label{tab:alignment_multimodal}
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.08}
+
+\begin{minipage}[t]{0.383\linewidth}
+\centering
+\subcaption{\textbf{Cross-modal alignment.}}
+\label{tab:alignment}
+\vspace{0pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Metric} 
+& \textbf{Original} 
+& \textbf{\methodname\ (Ours)} 
+& $\Delta$ \\
+\midrule
+
+\multicolumn{1}{c}{} 
+& \multicolumn{3}{c}{\textit{Global}} \\
+\cmidrule(lr){2-4}
+Centroid Sep.\,$\downarrow$ 
+& \heatbd{1.665}{0.661}{1.665} 
+& {\heatbd{0.661}{0.661}{1.665}} 
+& \gooddelta{-1.004} \\
+
+Cosine Sim.\,$\uparrow$     
+& \heatb{0.631}{0.631}{0.907}     
+& {\heatb{0.907}{0.631}{0.907}}     
+& \gooddelta{+0.276} \\
+
+\midrule
+\multicolumn{1}{c}{} 
+& \multicolumn{3}{c}{\textit{Structural}} \\
+\cmidrule(lr){2-4}
+Linear CKA\,$\uparrow$      
+& \heatb{0.657}{0.657}{0.745}      
+& {\heatb{0.745}{0.657}{0.745}}      
+& \gooddelta{+0.088} \\
+
+\midrule
+\multicolumn{1}{c}{} 
+& \multicolumn{3}{c}{\textit{Local}} \\
+\cmidrule(lr){2-4}
+Mutual $k$-NN@1\,$\uparrow$  
+& \heatb{0.140}{0.140}{0.310}  
+& {\heatb{0.310}{0.140}{0.310}}  
+& \gooddelta{+0.170} \\
+
+Mutual $k$-NN@5\,$\uparrow$  
+& \heatb{0.288}{0.288}{0.420}  
+& {\heatb{0.420}{0.288}{0.420}}  
+& \gooddelta{+0.132} \\
+
+Mutual $k$-NN@10\,$\uparrow$ 
+& \heatb{0.395}{0.395}{0.496} 
+& {\heatb{0.496}{0.395}{0.496}} 
+& \gooddelta{+0.101} \\
+
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.595\linewidth}
+\centering
+\subcaption{\textbf{Multimodal benchmark performance.}}
+\label{tab:main_result_multimodal}
+\vspace{0pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Method} 
+& \textbf{MMMU-Pro} 
+& \textbf{SFE} 
+& \textbf{ChartQAPro} 
+& \textbf{MathVista} \\
+\midrule
+
+\multicolumn{1}{c}{} 
+& \multicolumn{4}{c}{\textit{Qwen 3.5} \citep{qwen3.5}} \\
+\cmidrule(lr){2-5}
+Base                
+& \heatb{71.39}{71.39}{73.87}    
+& \heatb{53.41}{53.09}{56.57}    
+& \heatb{57.99}{56.42}{61.80}    
+& \heatb{84.30}{84.30}{86.70} \\
+
+Text Pretraining    
+& \heatb{72.14}{71.39}{73.87} 
+& \heatb{53.09}{53.09}{56.57} 
+& \heatb{56.42}{56.42}{61.80} 
+& \heatb{85.50}{84.30}{86.70} \\
+
+\methodname\ (Ours) 
+& {\heatb{73.87}{71.39}{73.87}} 
+& {\heatb{56.57}{53.09}{56.57}} 
+& {\heatb{61.80}{56.42}{61.80}} 
+& {\heatb{86.70}{84.30}{86.70}} \\
+
+\midrule
+\multicolumn{1}{c}{} 
+& \multicolumn{4}{c}{\textit{Llama 3.2 Vision} \citep{meta2024llama32vision}} \\
+\cmidrule(lr){2-5}
+Base                
+& \heatb{28.55}{28.21}{29.19} 
+& {\heatb{28.86}{28.86}{31.08}} 
+& \heatb{20.95}{20.95}{27.67} 
+& {\heatb{39.80}{39.60}{44.40}}  \\
+
+Text Pretraining    
+& \heatb{28.21}{28.21}{29.19} 
+& {\heatb{29.36}{28.86}{31.08}} 
+& \heatb{22.23}{20.95}{27.67} 
+& {\heatb{39.60}{39.60}{44.40}}  \\
+
+\methodname\ (Ours) 
+& \heatb{29.19}{28.21}{29.19} 
+& {\heatb{31.08}{28.86}{31.08}} 
+& {\heatb{27.67}{20.95}{27.67}} 
+& {\heatb{44.40}{39.60}{44.40}}  \\
+
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\end{table*}

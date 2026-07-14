@@ -1,0 +1,72 @@
+\section{List of Tasks in \ours{}}
+\label{app:task-list}
+
+Table~\ref{tab:lhtb-task-list} lists all 46 benchmark tasks using the nine-category taxonomy used throughout the paper. The difficulty label is derived from the task's mean reward across model results Figure~\ref{fig:lhtb-leaderboard}: tasks with mean reward at least $0.5$ are labeled \emph{Easy}, and the rest are labeled \emph{Hard}.
+
+\small
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+\begin{longtable}{p{0.18\textwidth}p{0.20\textwidth}p{0.50\textwidth}p{0.07\textwidth}}
+\caption{\textbf{Task list for \ours{}.} Each row shows a task ID, its paper-level category, a one-sentence description, and a coarse difficulty label derived from average task reward in Figure~\ref{fig:lhtb-leaderboard} (\emph{Easy} if mean reward $\geq 0.5$, otherwise \emph{Hard}).}
+\label{tab:lhtb-task-list}\\
+\toprule
+\textbf{Task ID} & \textbf{Category} & \textbf{Description} & \textbf{Difficulty} \\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{Task ID} & \textbf{Category} & \textbf{Description} & \textbf{Difficulty} \\
+\midrule
+\endhead
+
+\bottomrule
+\endfoot
+
+2048 & Interactive games & Play 2048 turn-by-turn via a terminal game server, merging tiles to reach the highest tile, scored by replaying recorded moves in a fresh seeded engine. & Hard \\
+alp-paper-reproduction & Research reproduction \& ML & Reproduce a calibrated ALP floating-point compression experiment from the paper's method and sample columns. & Hard \\
+apex-ib244-matter & APEX professional workflows & Advise on taking EdTech firm KSchool private across 38 reactive stages, rebuilding LBO/DCF/comps models for exact figures. & Easy \\
+apex-investment-banking-matter & APEX professional workflows & Work a private-equity take-private of Planet Fitness through 19 reactive stages, rebuilding an LBO model and answering exact figures. & Hard \\
+apex-law433-matter & APEX professional workflows & Act as outside counsel across four legal matters and 70 reactive stages over \textasciitilde{}600 documents, submitting deterministically-graded answers. & Easy \\
+apex-management-consulting-matter & APEX professional workflows & Work two management-consulting client matters across 33 reactive stages, rebuilding business-case and cost-savings models for exact answers. & Hard \\
+apex-openroad-ibex-signoff & Software \& reverse engineering & Close RTL-to-GDSII signoff on the ibex CPU with OpenROAD/sky130 across reactive stages until timing, DRC, LVS, area, and power pass. & Hard \\
+audio-visual-event-alignment & Multimodal \& imaging analysis & Repair an audio-video sync audit that detects visual events, audio onsets, dropped frames, and per-clip synchronization offsets. & Hard \\
+chess-mate & Interactive games & Play chess as White against a bundled superhuman Stockfish engine, scored on how long the agent survives before being checkmated. & Hard \\
+climate-netcdf-extreme-event-audit & Earth, climate \& energy & Repair a climate audit pipeline computing gridded heatwave, precipitation, drought, anomaly, and index metrics over NetCDF datasets. & Hard \\
+commit0-multilib-tdd & Software \& reverse engineering & Reimplement three whole Python libraries from stubs with no provided tests, writing your own suite, graded on hidden real test suites. & Hard \\
+dicom-radiology-audit & Multimodal \& imaging analysis & Audit synthetic DICOM CT series geometry, HU conversion, windowing, masks, and lesion measurements. & Hard \\
+document-table-layout-reconstruction & Multimodal \& imaging analysis & Repair a scanned-document pipeline that detects table grids, assigns noisy OCR tokens to cells, and emits CSV/JSON/Markdown tables. & Hard \\
+duckdb-optimizer-closure & Systems, performance \& security & Iteratively patch DuckDB's query optimizer to speed up TPC-H while preserving correctness. & Hard \\
+epa-swmm-stormwater-regression-audit & Earth, climate \& energy & Audit EPA SWMM stormwater hydraulic and hydrologic simulations against official solver outputs. & Hard \\
+epidemic-inverse-control-audit & Scientific computing \& simulation & Fit and control a multi-city, age-structured SEIR-H-ICU epidemic model. & Hard \\
+foldseek-paper-reproduction & Research reproduction \& ML & Reproduce a calibrated Foldseek-style structural protein search experiment from the Nature Biotechnology paper. & Hard \\
+gdal-proj-raster-regression & Earth, climate \& energy & Reproduce GDAL/PROJ raster reprojection, coordinate transform, point sampling, and zonal-statistics regression checks. & Hard \\
+generals-bot-arena & Software \& reverse engineering & Develop a bot for a Generals.io-style grid strategy game by iteratively playing matches and refining its strategy. & Easy \\
+grammar-fuzz-coverage-hunt & Systems, performance \& security & Iteratively build a grammar-guided fuzzer to maximize code coverage of target parsers. & Easy \\
+great-expectations-audit & Software \& reverse engineering & Build a Great Expectations-based multi-table data-quality and reconciliation audit pipeline. & Hard \\
+langchain-version-migration & Software \& reverse engineering & Migrate a legacy LangChain RAG/router app across a breaking API change with hard-fail compatibility gates. & Hard \\
+materials-phase-diagram-audit & Scientific computing \& simulation & Repair a materials phase-diagram audit reconstructing phase boundaries, invariant reactions, lever-rule fractions, and convex-hull stability. & Hard \\
+matpower-opf-regression & Earth, climate \& energy & Reproduce MATPOWER/PYPOWER power-flow and optimal-power-flow regression checks with grid-constraint diagnostics. & Hard \\
+microscopy-cell-count-qc-audit & Multimodal \& imaging analysis & Repair a microscopy QC audit that segments synthetic cell imagery, flags focus/artifact failures, and reports per-tile channel counts. & Hard \\
+modflow6-groundwater-regression-audit & Earth, climate \& energy & Audit USGS MODFLOW 6 groundwater simulations against official solver outputs. & Hard \\
+nbody-accel-iterative & Scientific computing \& simulation & Iteratively optimize an N-body gravitational simulation from O(N\textasciicircum{}2) to O(N log N) with correctness verification at multiple scales. & Easy \\
+nrel-pysam-hybrid-renewables-audit & Earth, climate \& energy & Audit renewable generation and storage dispatch against NREL PySAM official PVWatts outputs. & Hard \\
+opensees-seismic-structural-regression-audit & Scientific computing \& simulation & Audit seismic structural-dynamics results against official OpenSeesPy finite-element solver outputs. & Hard \\
+poc-exploit-craft & Systems, performance \& security & Generate proof-of-concept inputs that trigger specific vulnerability classes using sanitizer feedback. & Easy \\
+riscv-core-debug & Software \& reverse engineering & Localize and fix undisclosed injected bugs in an out-of-order RISC-V SystemVerilog CPU until simulation, compliance, and formal checks pass. & Easy \\
+robotics-slam-benchmark-repair & Research reproduction \& ML & Repair a SLAM benchmark audit that composes SE(2) poses, evaluates loop closures, reconstructs landmark maps, and reports trajectory consistency. & Hard \\
+rush\_hour\_campaign & Logic \& constraint puzzles & Solve a four-stage 6x6 Rush Hour campaign by hand, submitting legal move routes under length caps. & Hard \\
+satellite-flood-change-detection-audit & Multimodal \& imaging analysis & Repair a satellite flood change-detection audit that compares before/after imagery, masks clouds, and reports per-tile flood extent. & Hard \\
+scientific-figure-data-reconstruction & Multimodal \& imaging analysis & Repair a pipeline that reconstructs plotted series data from scientific figure images, captions, and partial CSV references. & Hard \\
+snake\_maze\_campaign & Interactive games & Play a deterministic hard Snake variant, eating seeded apples and surviving growing obstacles as long as possible, scored by replaying the move log. & Hard \\
+sokoban & Logic \& constraint puzzles & Solve a ramp of Sokoban puzzles turn-by-turn through a game server, advancing as far as possible, scored by replaying moves in a clean engine. & Hard \\
+spice-ephemeris-regression & Scientific computing \& simulation & Reproduce NASA SPICE ephemeris, angle, and ground-station visibility regression checks from pinned kernels. & Hard \\
+spot-scheduler-traces & Systems, performance \& security & Implement and refine a cloud spot-instance scheduling policy that minimizes cost while meeting hard deadlines. & Easy \\
+su2-airfoil-regression & Scientific computing \& simulation & Reproduce a hardened SU2 aerodynamic regression matrix from official test-case references and solver history artifacts. & Hard \\
+sudoku-recovery & Logic \& constraint puzzles & Recover seven progressively corrupted hard variant-Sudoku puzzles turn-by-turn, detecting subtle corrupt givens via global constraint reasoning. & Hard \\
+super-mario & Interactive games & Play Super Mario Bros turn-by-turn through a game server, clearing as many levels as possible, scored by replaying frame inputs in a fresh emulator. & Hard \\
+tabular-data-feature-covshift & Research reproduction \& ML & Recover a sparse high-dimensional signal from low-dimensional observations under covariate shift, with a leakage-audited honesty gate. & Hard \\
+unison-paper-reproduction & Research reproduction \& ML & Reproduce a calibrated UNISON fat-tree network simulation experiment from the paper's method and settings. & Hard \\
+unknown-config-semantics & Software \& reverse engineering & Reverse-engineer an undocumented config format from a noisy spec and repair its normalization engine to pass hidden probes across five stages. & Hard \\
+vector-db-iterative-build & Systems, performance \& security & Build an approximate nearest-neighbor vector search service from scratch, iteratively optimizing recall and throughput. & Hard \\
+\end{longtable}
+\normalsize

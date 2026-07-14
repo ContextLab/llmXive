@@ -1,0 +1,15 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We introduced \ours{}, a benchmark of 46 containerized terminal tasks spanning nine domains and designed to stress long-horizon execution.
+Unlike outcome-only benchmarks, \ours{} uses deterministic, environment-grounded subtasks to provide dense partial-credit signals, allowing evaluation to capture not only whether an agent finishes a task, but also how far it progresses.
+
+Across 15 frontier models under a shared \texttt{terminus-2} agent, tasks in \ours{} require substantial effort, averaging 231 episodes, 9.9M tokens, \$10.5 in API cost, and 85.3 minutes per run.
+Yet the benchmark remains far from saturated: the strongest model, GPT-5.5, achieves only a $15.2\%$ pass rate at $R \geq 0.95$, while the mean pass rate across models is just $4.3\%$.
+Dense rewards further reveal that many runs make meaningful but incomplete progress, exposing failure patterns that binary pass/fail would miss.
+
+Our analysis suggests that the main bottleneck is not only local reasoning, but reliable long-horizon completion.
+Current agents often time out after making partial progress, and even voluntary early exits frequently reflect weak self-verification rather than true completion.
+These results highlight the need for better planning, stronger memory and progress tracking, and more calibrated stopping decisions for long-horizon tasks.
+%
+We release \ours{} and its evaluation harness to support future work on agents that can plan, verify, and execute reliably over long horizons.

@@ -1,0 +1,42 @@
+{
+  "arxiv_id": "2607.07964",
+  "arxiv_url": "https://arxiv.org/abs/2607.07964",
+  "title": "KronQ: LLM Quantization via Kronecker-Factored Hessian",
+  "authors": [
+    "Donghyun Lee",
+    "Yuhang Li",
+    "Ruokai Yin",
+    "Priyadarshini Panda"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Post-training quantization (PTQ) is a widely adopted technique for compressing large language models (LLMs) without retraining. Existing second-order PTQ methods, including GPTQ, construct quantization objectives exclusively from input activation statistics, effectively assuming that all output channels contribute equally to the layer-wise reconstruction objective. We propose KronQ, a PTQ framework that challenges this assumption by introducing the gradient covariance into the quantization pipeline. Under the Kronecker-factored Hessian approximation, the quantization loss depends jointly on both the activation and gradient covariances, and KronQ exploits this at two complementary levels. (1) KronQ introduces bidirectional incoherence processing, extending the existing input-side random rotation to the output dimension using the gradient covariance, reducing weight magnitude variance across both input and output dimensions. (2) KronQ derives a new sensitivity metric for inter-layer mixed-precision allocation, driven by the gradient and activation Hessian traces. Notably, in the case of 2-bit weight-only quantization on LLaMA-3-70B, while GPTQ and GPTAQ diverge or produce degenerate quantizations (>2000 perplexity on WikiText-2), KronQ achieves 7.93 perplexity.",
+  "submitted_via": "llmXive dashboard, GitHub issue #1013",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/Intelligent-Computing-Lab-Panda/KronQ"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "colm2026_conference.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "colm2026_conference.bib",
+    "colm2026_conference.bst",
+    "colm2026_conference.sty",
+    "colm2026_conference.tex",
+    "fancyhdr.sty",
+    "figures",
+    "figures/mp_comparison_13b.pdf",
+    "figures/mp_comparison_8b.pdf",
+    "figures/mp_comparison.pdf",
+    "figures/sensitivity_ranking.pdf",
+    "figures/fig2.pdf",
+    "figures/fig1.pdf",
+    "figures/efficiency.pdf",
+    "figures/weight_distribution_llama3_70b.pdf",
+    "figures/weight_distribution_llama2_70b.pdf",
+    "natbib.sty"
+  ]
+}

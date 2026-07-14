@@ -1,0 +1,68 @@
+% \section{Related Work}
+% \label{sec:related}
+
+% \noindent\textbf{Math continuous pretraining for LLMs.}
+% Building LLMs with strong mathematical reasoning remains challenging~\citep{wang2025survey}, so many works adopt math-focused continuous pretraining (CPT) to close the gap to frontier models~\citep{gong2022continual,lyu2025exploring,ying2024internlm,shao2024deepseekmath,yang2024qwen25mathtechnicalreportmathematical}, such as GPT-5~\citep{gpt5} and Gemini~\citep{geminipro2.5}.
+% Existing pipelines mine \emph{textual} corpora from arXiv, textbooks, and math websites or code~\citep{lewkowycz2022solving,taylor2022galactica,azerbayev2023proofnet,allal2025smollm2,fan2025megascience,lu2025scp,hendrycks2021measuring,paster2023openwebmath,han2024infimm,zhou2025megamath}, often augmented with synthetic problems~\citep{zhang2024automathtext,zhou2025megamath,yang2024qwen25mathtechnicalreportmathematical,zhou2024jiuzhang3,lin2024rho,toshniwal2024openmath2,zhao2024see}.
+% To make high-quality PDFs consumable by text-only LLMs, these pipelines must first run OCR/LaTeX extraction and then discard the original page images, losing geometric figures, layout, 2D structure, and font/style cues.
+% In contrast, we treat document pages as \emph{first-class visual signals}: we model foreground page latents in an OCR-free way and couple this with standard text CPT, thereby expanding the usable corpus beyond what can be cleanly parsed and empirically outperforming pure text-only CPT on math benchmarks.
+
+% \noindent\textbf{Optical language modeling and multimodal LLMs.}
+% Most Optical Language Modeling and multimodal LLM (MLLM) methods use vision as an auxiliary input for downstream VL or OCR tasks.
+% They render text into images or glyphs and train vision encoders with explicit supervision for document QA, chart or table reasoning, or layout-aware reading~\citep{rust2022language,tschannen2023clippo,sun2019squared,ye2023ureader,chen2024far,wang2025internvl3,liu2023llava,gu2022wukong,mathew2021docvqa}, or compress long contexts into visual tokens~\citep{wei2025deepseek,yi2024comprehensive,wang2024leveraging,lu2024text,xing2025vision,cheng2025glyph,xing2025see,li2025text}.
+% Unified generate–and–understand MLLMs~\citep{chen2025janus,cui2025emu3,deng2025emerging,Zhao2025RIG} follow a similar paradigm, optimizing visual features mainly for labeled VL objectives.
+% By contrast, \methodname builds a label-free masked image modeling on documents, where their latents are fed into the same autoregressive LLM used for \tpt.
+% Additionally, \methodname can achieve performance improvement in purely text-based math reasoning benchmarks, demonstrating a new paradigm from \vpt to improve language intelligence.
+
+
+% \noindent\textbf{Math Continuous Pretraining in LLM.} 
+
+% Building large language models(LLMs) that can perform sophisticated mathematical reasoning is inherently challenging, demanding a deep understanding of abstract representations, complex notations, and advanced mathematical principles~\citep{wang2025survey}. Extensive studies~\citep{shao2024deepseekmath,ying2024internlm,yang2024qwen25mathtechnicalreportmathematical,allal2025smollm2,bakouch2025smollm3} have therefore focused on strengthening their mathematical reasoning abilities and narrowing the performance gap with leading proprietary models such as GPT-5~\citep{gpt5} and Gemini~\citep{geminipro2.5} in mathematical domains. To this end, these approaches typically involve continuous pretraining on domain-specific corpora as the initial and essential step, allowing LLMs to acquire mathematical knowledge from diverse sources. 
+% The raw mathematical corpora commonly used for such pretraining include arXiv papers rich in mathematical content~\citep{lewkowycz2022solving,taylor2022galactica,azerbayev2023proofnet}, textbooks and monographs~\citep{allal2025smollm2,fan2025megascience,lu2025scp}, and data crawled from mathematical web pages or code~\citep{hendrycks2021measuring,paster2023openwebmath,han2024infimm, zhou2025megamath}. In addition, synthetic datasets generated through rule-based systems, mathematical programming scripts or LLMs are often incorporated to further enrich the training data~\citep{zhang2024automathtext,zhou2025megamath,yang2024qwen25mathtechnicalreportmathematical,zhou2024jiuzhang3,lin2024rho,toshniwal2024openmath2}.
+% However, these textual corpora inevitably lose critical information during extraction, such as geometric figures, visual context, layout, font style, and spatial semantics. Our method alleviates this limitation by facilitating the use of visual-modality corpora that lie beyond the scope of traditional text-based pretraining, thereby improving the diversity and representational capacity of the pretraining data.
+
+% % \noindent\textbf{Multi-modal LLM .} 
+% % \noindent\textbf{Document Learning.} 
+% % Document understanding
+% % Document OCR application
+% % Document learning by OCR
+% \noindent\textbf{Optical Language Modeling}
+% Optical Language Modeling treats language as a visual modality input by converting textual data into visual modalities (such as rendered text images or font textures). It then uses visual encoders (\eg, CLIP~\citep{radford2021learning,zhai2023sigmoid}, VAE~\citep{kingma2013auto}, or ViT~\citep{dosovitskiy2020image}) to transform these images into feature representations. Unlike language models such as BERT~\citep{devlin2019bert}, GPT series~\citep{radford2019language,brown2020language}, or T5~\citep{raffel2020exploring}, which directly model sequences of textual tokens, Optical Language Modeling performs language understanding and generation through visual representations instead of text tokens. Several pioneering studies~\citep{rust2022language,tschannen2023clippo,mansimov2020towards,sun2019squared} have explored modeling language directly at the pixel level by rendering text into images and learning semantic information from these visual representations to perform various tasks (\eg, sentiment analysis~\citep{sun2019squared}).  Although these methods achieve latent cross-modal semantic alignment, they cannot perform cross-modal decoding. 
+% %Nevertheless, this approach has inspired a series of studies that process not only textual data but also images, charts, and tables through a unified visual input system and build visually-situated language understanding models~\citep{lee2023pix2struct}. 
+% With the rapid development of LLMs and multimodal alignment techniques, multimodal large language models (MLLMs)~\citep{ye2023ureader, chen2024far, chen2024expanding,wang2025internvl3, bai2025qwen2_5,gpt4v,lu2024deepseekvl,liu2024llavanext,liu2023llava, Qwen2-VL,li2023blip2,hong2025glm_v_thinking} have demonstrated remarkable perceptual abilities in OCR-related tasks. Trained on high-quality OCR-oriented datasets~\citep{gu2022wukong,mathew2021docvqa,sidorov2020textcaps,singh2021textocr}, these models can effectively understand not only text-centric images but also natural images containing text, charts, tables, and even long-form documents, thereby exhibiting comprehensive visually-grounded language understanding capabilities.
+% Building on the inherent Optical Language Modeling capabilities of MLLMs, recent studies~\citep{wei2025deepseek,yi2024comprehensive,wang2024leveraging,lu2024text,xing2025vision,cheng2025glyph,xing2025see,li2025text} further explore using optical processing to compress long-context inputs and reduce token usage, showing that images can encode more information than text under the same token budget.
+% \TODO{Unified model \& generative model \& native MLLMs?}
+% In contrast to these efforts—which primarily focus on visually grounded language understanding—our work investigates whether visual-modality corpora can be used directly in LLM pretraining to learn Platonic, modality-agnostic representations, and whether such representations can in turn enhance purely textual capabilities.
+
+
+
+
+
+
+
+
+
+
+% \ymtodo{
+% \noindent\textbf{Document Understanding.}
+% Early document understanding systems rely heavily on explicit parsing pipelines such as OCR and rule-based layout analysis~\citep{tesseract,docstr,layoutlm}. 
+% These methods convert visual documents into token-level text sequences or region graphs, followed by downstream models for classification or question answering~\citep{structdoc,docqa,docformer}. 
+% While effective for cleanly scanned documents, they suffer from \textbf{information loss}, \textbf{layout distortion}, and \textbf{semantic ambiguity} when facing complex or noisy layouts. 
+% Recent works integrate visual and textual cues using multimodal Transformers~\citep{layoutlmv2,structext,docllm}, yet they still depend on OCR annotations, leading to cascading errors. 
+% Our work instead removes the dependency on parsing by directly training LLMs on \textit{raw visual-form text}, achieving lossless semantic preservation.
+
+% \noindent\textbf{Multimodal Pretraining and Vision-Language Models.}
+% Large-scale pretraining across vision and language modalities has significantly advanced multimodal understanding~\citep{clip,blip2,flamingo,internvl,otter}. 
+% These approaches typically align visual embeddings with textual representations through contrastive or generative objectives.  
+% However, most existing models treat the visual input as \textit{natural images}, not visually structured text.  
+% In contrast, visual documents contain compositional semantics embedded in layout, typography, and spatial alignment.  
+% A few recent efforts~\citep{pix2struct,donut,udop} attempt to process documents directly as rendered pixels, but they are limited in scalability or reasoning depth.  
+% Our framework extends this direction by coupling a high-capacity LLM with a MAR-style visual encoder, enabling unified reasoning over content and structure.
+
+% \noindent\textbf{Lossless and Layout-Aware Representation Learning.}
+% Preserving layout structure is crucial for accurate document reasoning.  
+% Layout-aware models~\citep{layoutlmv3,structlm,doclayoutlm} incorporate 2D positional embeddings or region coordinates to enhance spatial understanding, yet they still rely on textual supervision.  
+% Recent works in geometry-aware or structure-preserving learning~\citep{geoformer,spatialclip,relformer} show that relational priors can significantly improve multimodal grounding.  
+% Inspired by this, our method introduces a \textit{lossless alignment module} that jointly preserves semantic and spatial fidelity through multimodal objectives.  
+% Unlike previous heuristic fusion approaches, our lossless fusion allows the model to reconstruct semantics directly from visual layouts, without intermediate representations.
+% }

@@ -1,0 +1,100 @@
+\begin{table*}[t]
+\centering
+\caption{\textbf{VP improves text-only scientific reasoning under matched document sources.}
+All rows use the same starting checkpoint and SFT stage.
+TP and VP differ only in how the scientific-PDF corpus is represented: MinerU2.5-parsed text for TP and rendered page images for VP.
+Scores are reported on text-only reasoning benchmarks; GPQA denotes GPQA Diamond and AIME denotes AIME 2025.}
+\label{tab:main_result_text}
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.08}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc c cccc}
+\toprule
+\multirow{2}{*}{\textbf{Method}}
+& \multicolumn{4}{c}{\textbf{Multimodal Models}}
+& \multicolumn{1}{c}{}
+& \multicolumn{4}{c}{\textbf{Language Models}} \\
+\cmidrule(lr){2-5}\cmidrule(lr){7-10}
+& \textbf{MMLU-Pro} & \textbf{GPQA} & \textbf{AIME} & \textbf{HLE}
+& 
+& \textbf{MMLU-Pro} & \textbf{GPQA} & \textbf{AIME} & \textbf{HLE} \\
+\midrule
+
+& \multicolumn{4}{c}{\textit{Qwen 3.5} \citep{qwen3.5}}
+&
+& \multicolumn{4}{c}{\textit{Qwen 3} \citep{yang2025qwen3}} \\
+\cmidrule(lr){2-5}\cmidrule(lr){7-10}
+Base                
+& \heatb{82.31}{82.31}{85.09} 
+& \heatb{77.84}{76.24}{79.29} 
+& \heatb{81.56}{81.56}{90.21}  
+& \heatb{14.39}{14.39}{16.67} 
+& 
+& \heatb{81.21}{81.21}{81.94}    
+& \heatb{75.06}{74.94}{77.08}   
+& \heatb{75.44}{74.99}{76.98}   
+& \heatb{10.59}{10.59}{11.77} \\
+
+Text Pretraining    
+& \heatb{83.91}{82.31}{85.09} 
+& \heatb{76.24}{76.24}{79.29} 
+& \heatb{89.58}{81.56}{90.21} 
+& \heatb{15.70}{14.39}{16.67} 
+& 
+& \heatb{81.52}{81.21}{81.94} 
+& \heatb{74.94}{74.94}{77.08} 
+& \heatb{74.99}{74.99}{76.98}  
+& \heatb{11.39}{10.59}{11.77} \\
+
+\methodname\ (Ours) 
+& {\heatb{85.09}{82.31}{85.09}} 
+& {\heatb{79.29}{76.24}{79.29}} 
+& {\heatb{90.21}{81.56}{90.21}} 
+& {\heatb{16.67}{14.39}{16.67}} 
+& 
+& {\heatb{81.94}{81.21}{81.94}} 
+& {\heatb{77.08}{74.94}{77.08}} 
+& {\heatb{76.98}{74.99}{76.98}} 
+& {\heatb{11.77}{10.59}{11.77}} \\
+\midrule
+
+& \multicolumn{4}{c}{\textit{Llama 3.2 Vision} \citep{meta2024llama32vision}}
+&
+& \multicolumn{4}{c}{\textit{Llama 3.1} \citep{grattafiori2024llama}} \\
+\cmidrule(lr){2-5}\cmidrule(lr){7-10}
+Base                
+& \heatb{47.24}{47.24}{51.52} 
+& \heatb{27.46}{27.46}{33.08} 
+& \heatb{8.02}{8.02}{18.54} 
+& \heatb{6.41}{6.08}{7.00} 
+& 
+& \heatb{59.48}{59.48}{62.77}    
+& \heatb{39.71}{39.71}{47.10}  
+& \heatb{24.17}{23.65}{24.27} 
+& \heatb{6.75}{6.75}{7.17} \\
+
+Text Pretraining    
+& \heatb{50.60}{47.24}{51.52} 
+& \heatb{30.24}{27.46}{33.08} 
+& \heatb{13.75}{8.02}{18.54} 
+& \heatb{6.08}{6.08}{7.00} 
+& 
+& \heatb{60.64}{59.48}{62.77} 
+& \heatb{43.88}{39.71}{47.10} 
+& \heatb{23.65}{23.65}{24.27} 
+& \heatb{6.79}{6.75}{7.17} \\
+
+\methodname\ (Ours) 
+& {\heatb{51.52}{47.24}{51.52}} 
+& {\heatb{33.08}{27.46}{33.08}} 
+& {\heatb{18.54}{8.02}{18.54}} 
+& {\heatb{7.00}{6.08}{7.00}} 
+& 
+& {\heatb{62.77}{59.48}{62.77}} 
+& {\heatb{47.10}{39.71}{47.10}} 
+& {\heatb{24.27}{23.65}{24.27}} 
+& {\heatb{7.17}{6.75}{7.17}} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

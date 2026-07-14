@@ -1,0 +1,90 @@
+\section{\ours{}}
+\label{sec:background}
+
+\ours{} builds on the Terminal-Bench formulation~\cite{merrill2026terminalbenchbenchmarkingagentshard}, where each task is a containerized terminal environment with a natural-language instruction, all relevant files and tools, and a reference solution that can be executed entirely from the command line.
+Tasks span diverse domains and are explicitly designed so that progress requires \emph{continued} work over many steps: reading and modifying code and data, running long scripts, inspecting partial outputs, and iteratively debugging.
+
+Unlike Terminal-Bench, which evaluates tasks in a binary solved/unsolved fashion, \ours{} is graded through a subtask-based scheme.
+Each task is decomposed into a small set of semantically meaningful subtasks with their own checks, and agents are scored by their completion rate across these subtasks.
+This design provides partial credit and a much denser signal about long-horizon performance, revealing how far agents get through complex workflows rather than only whether they reach the final goal.
+
+% Introduce any necessary background, notation, or benchmark details.
+% Define the setting clearly (inputs, outputs, objectives, constraints).
+
+\subsection{Task formulation}
+
+A \ours{} task follows the Terminal-Bench formulation~\cite{merrill2026terminalbenchbenchmarkingagentshard}: it is specified as a Harbor task with (1) a natural-language instruction, (2) a Docker image that defines the terminal environment, (3) a task configuration file, and (4) an oracle implementation or simulator used for grading.
+The instruction describes the overall long-horizon goal (e.g., reproduce a figure, repair a robotics SLAM pipeline, audit a multimodal dataset) and is the only specification the agent sees.
+%
+The Docker image contains all relevant assets, code, data, tools, and helper scripts, so that an agent can complete the task entirely from the terminal.
+%
+Tasks are interactive: after the container starts, the agent issues shell commands, edits files, runs scripts, and inspects intermediate outputs over hundreds of steps until it either succeeds or times out.
+
+While the task format matches Terminal-Bench 2, \ours{} is explicitly designed so that a single subtask typically requires many reasoning steps and many minutes to hours of work and dozens to hundreds of distinct operations.
+%
+Long-horizon structure comes both from the underlying domains (multi-stage ML pipelines, campaign-style games, scientific audits) and from the way we factor goals into a sequence of intermediate targets that must be discovered and executed over time.
+
+\input{floats/pipeline_figure}
+
+\subsection{Subtask-based grading}
+
+Each \ours{} task is graded by a deterministic grader that runs \emph{inside} the container at the end of a rollout.
+Instead of returning a strict single pass/fail, the grader computes scores for a small set of subtasks
+$\{s_1,\dots,s_K\}$ that together describe the intended workflow.
+For every subtask $s_k$ it outputs a normalized score $r_k \in [0,1]$; the task reward is
+
+\[
+R \;=\; \frac{\sum_{k=1}^K w_k\, r_k}{\sum_{k=1}^K w_k},
+\]
+
+where $w_k$ are non‑negative weights (by default all equal, with higher weight on the final goal when needed).
+%
+Subtasks are chosen to correspond to meaningful intermediate goals in the workflow, and each is evaluated using objective evidence from the final container state, such as files, outputs, test results, or simulator responses.:
+
+- \textbf{Binary subtasks.}
+Checks are implemented as strict Boolean conditions over the environment state, such as whether all unit tests exit successfully, whether a service responds on the expected port, or whether required experiment scripts run without error.
+These subtasks return $r_k \in \{0,1\}$ depending on whether the corresponding programmatic check passes.
+
+- \textbf{Continuous or thresholded subtasks.}
+  For quantitative targets (e.g., reproducing a figure, matching a metric, or achieving a given speedup) we use continuous scores.
+  Examples include \textit{1.0 if the reproduced metric is within tolerance of the reference, decreasing linearly to 0 as error grows}, or \textit{fraction of held‑out examples on which the model’s predictions match the oracle}.
+  This yields meaningful partial credit when an agent gets close but not perfect.
+
+- \textbf{Episode-aggregating subtasks.}
+  Campaign‑style tasks (e.g., games or repeated audits) aggregate across episodes.
+  A typical subtask is the fraction of episodes or levels in which the environment’s internal success flag is triggered, or the mean normalized reward reported by the simulator.
+  %
+  This measures whether an agent can perform a long-horizon behavior reliably across many episodes, rather than succeeding only once by chance.
+
+The overall task reward $R$ is used for all reported metrics.
+A task is counted as \emph{resolved} for sucess if $R \geq \tau$\footnote{we use a relaxed threshold such as $\tau = 0.95$}.
+%
+We also report mean $R$ across tasks to capture how far agents progress on problems they cannot fully solve.
+% Because the grader records the full vector $(r_1,\dots,r_K)$, \ours{} enables fine‑grained analysis of where long‑horizon workflows break down: some agents reliably clear early setup subtasks but fail at later optimization or verification stages, while others struggle to make any progress past initialization.
+
+\input{floats/fig_categories}
+
+\subsection{Dataset construction}
+
+We construct \ours{} by instantiating a common recipe across a diverse set of real-world long-horizon workflows~\cite{vidgen2026apex, wu2026co}.
+Each task begins with a realistic professional data-processing or engineering problem, such as materials phase-diagram auditing, robotics SLAM benchmark repair, climate NetCDF extreme-event detection, audio--visual event alignment, scientific-figure data reconstruction, satellite flood change detection, microscopy cell-count quality control, or scanned-document table reconstruction.
+Some of these professional-workflow tasks are adapted from or inspired by prior long-horizon agent benchmarks such as APEX-Agents~\cite{vidgen2026apex}, while others are newly created for \ours{}.
+
+For each problem, we build a complete but deliberately broken terminal-only project.
+Agents must work entirely through the terminal: inspecting code, running commands, and analyzing artifacts such as images, audio, video, tables, and NetCDF files in order to diagnose and repair the core pipeline.
+Each task includes reproducible public asset-generation scripts, a weak baseline implementation, an official gold solution, a multi-step \texttt{solve.sh}, and a hidden verifier.
+
+To discourage overfitting to superficial public tests, the public checks only validate command-line behavior, file formats, and a small number of simple examples, and they carry relatively low reward weight.
+Most of the reward is assigned through hidden stress cases that dynamically generate harder inputs and schema variations, such as nested manifests, gzip-plus-base64 wrappers, renamed fields, missing values, injected noise, rotated or cropped images, anomalous frames, and alternative coordinate or time-dimension conventions.
+As a result, agents cannot obtain high scores by hard-coding outputs or by only patching the public cases; they must implement robust parsing, core algorithms, and end-to-end artifact generation that generalize beyond the visible examples.
+The official gold solution is required to achieve a verifier score of $1.0$ on the full hidden evaluation suite.
+
+\paragraph{Difficulty calibration and validation.} We calibrate difficulty by repeatedly running Deepseek-V4-Pro~\cite{deepseekai2026deepseekv4} under 1.5-hour time budgets and adjusting task design until the tasks are challenging but still solvable in principle.
+%
+We generated 120 candidate tasks with quality filtering, where the final benchmark contains 46 tasks implemented in the Harbor format~\cite{merrill2026terminalbenchbenchmarkingagentshard}, all with containerized environments and a shared agent harness.
+
+\subsection{Task composition}
+
+The 46 tasks in \ours{} span 21 high-level categories, including interactive games, multimodal audits, software engineering, systems and performance, experiment reproduction, earth and environment, scientific computing, robotics, materials science, health and medicine, climate science, and chip design (EDA).
+Figure~\ref{fig:lhtb-categories} shows the distribution.
+No single category dominates the benchmark: the largest groups are interactive games and multimodal audits, with the remaining tasks spread across a broad range of scientific and engineering workflows.

@@ -1,0 +1,50 @@
+\clearpage
+\newpage
+\begin{appendices}
+\renewcommand{\appendixname}{}
+\makeatletter
+\gdef\@seccntformat#1{\csname the#1\endcsname\quad}
+\makeatother
+\begin{strip}
+  \begin{center}
+  {\Large\bfseries \papertitle\par}
+  \vspace{0.5em}
+  {\Large\bfseries Supplementary Material\par}
+  \vspace{1.0em}
+\end{center}
+\end{strip}
+
+% \paragraph{Outline.}
+\paragraph{Supplementary overview.}
+\label{sec:appendix_overview}
+We provide additional analyses and implementation details that complement the main text.
+
+\begin{itemize}
+  \item \textbf{Section~\ref{sec:appendix_pipeline} (Detailed Visual-Pretraining Pipeline).}
+  We provide the full mathematical formulation of the visual pretraining pipeline, including frozen visual feature extraction, foreground-token filtering, causal visual prediction, 
+  contrastive next-visual-latent loss, and sequence packing.
+  % contrastive next-patch loss, and sequence packing.
+
+  \item \textbf{Section~\ref{sec:appendix_retrieval} (PPL-Based Image-to-Text Retrieval).}
+  We provide an alternative generative evaluation of cross-modal alignment through perplexity-based image-to-text retrieval, demonstrating that visual pretraining substantially enhances retrieval accuracy.
+
+  % \item \textbf{Section~\ref{sec:appendix_attn} (Visual Token Analysis).}
+  % We probe what visual tokens encode via attention visualization, demonstrating that pretrained visual tokens capture content-level and cross-region semantic structure that supports language reasoning.
+
+  \item \textbf{Section~\ref{sec:appendix_genhead} (Further Studies: Visual Pretraining with Generative Decoder).}
+  We explore augmenting visual pretraining with an explicit generative decoder that provides pixel-level reconstruction supervision. We find that this variant incurs substantially higher training cost while achieving performance comparable to the decoder-free visual pretraining formulation.
+
+  \item \textbf{Section~\ref{sec:appendix_details} (Implementation and Evaluation Details).}
+  We describe the training corpus, model architecture, optimization setup, evaluation protocol, and cross-modal alignment analysis used in the main experiments.
+
+  % \item \textbf{Section~\ref{sec:related} (Related Work).}
+  % We discuss prior work on math-focused continued pretraining, optical language modelling, and multimodal LLMs, and position \methodname as a label-free visual pretraining paradigm for improving both language and multimodal reasoning from raw scientific documents.
+\end{itemize}
+
+
+\input{sec/appendix/a1}
+\input{sec/appendix/a}
+\input{sec/appendix/b}
+\input{sec/appendix/c}
+\input{sec/appendix/d_survey}
+\end{appendices}

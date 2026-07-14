@@ -1,0 +1,101 @@
+\section{Additional Implementation and Evaluation Details}
+\label{sec:appendix_details}
+
+This section provides implementation and evaluation details that complement the main Methods. We first describe the training data, model architecture, optimization setup, and benchmark protocol. We then give the full construction of the cross-modal alignment analysis reported in~\Cref{tab:alignment_multimodal} and discussed in~\Cref{sec:results_alignment}.
+
+\paragraph{Training corpus.}
+\label{sec:appendix_corpus}
+
+The training data consist of three components: a text corpus for standard continued pretraining, a scientific-PDF corpus for matched visual and text pretraining, and SFT data for instruction tuning. For the matched text-pretraining baseline, each PDF page is converted into text with MinerU2.5~\citep{wang2024mineru}. For \methodname, the same PDF pages are rendered as images and consumed as unlabeled visual supervision.
+For the pretraining of Qwen, the actual preprocessing pipeline yields approximately 20B retained visual tokens for \methodname and approximately 80B parsed text tokens for TP from the same PDF pages. This matched construction controls the document source and changes only the representation of the scientific-PDF corpus.
+
+The VP image records are stored as JSONL entries containing page-image paths and optional precomputed latent-feature paths. 
+During loading, each page is converted to RGB, resized to a square at a fixed maximum resolution, and normalized before being passed through the model processor. Unless otherwise stated, pages are sampled without filtering by crop coordinates. Blank regions are removed by a foreground mask computed from patch variance and luminance, using variance threshold $0.02$, high-luminance threshold $0.95$, and low-luminance threshold $0.15$. A merged visual token is retained if any of its constituent raw patches is foreground.
+
+\paragraph{Model architecture.}
+\label{sec:appendix_architecture}
+
+\methodname uses the same LLM backbone as the corresponding text-pretraining baseline. In the Qwen3.5 implementation, the visual pathway is initialized from the corresponding Qwen3.5/Qwen-VL checkpoint. The vision tower is a ViT-style encoder with 27 layers, hidden size 1152, 16 attention heads, patch size 16, and spatial merge size 2. The vision tower is frozen during VP. The foreground visual features are mapped into the LLM hidden space through a visual projector; in the main VP runs, this projector and the LLM are trainable, while the frozen vision features serve as the prediction targets. A two-layer MLP prediction head maps LLM hidden states back to the frozen visual-feature space for next visual latent prediction.
+
+The main formulation of \methodname is decoder-free: it predicts frozen visual features and does not reconstruct pixels. This avoids the additional computational cost and optimization complexity of a pixel-level image decoder. We separately study a generative-decoder variant in~\Cref{sec:appendix_genhead}.
+
+\paragraph{Training hyperparameters.}
+\label{sec:appendix_training_hparams}
+
+Text and visual examples are interleaved during continued pretraining according to a fixed mixing ratio. In our implementation, one VP batch is attached to every text-training step. The text branch is optimized with standard autoregressive cross-entropy, while the visual branch is optimized with the next visual latent contrastive loss defined in~\Cref{eq:VP_loss}. We use InfoNCE with temperature $\tau=0.07$ and set the VP loss weight to $0.1$ in the main Qwen3.5 runs. The LLM backbone, visual projector, and prediction head are updated jointly, while the vision tower remains frozen throughout training.
+
+Multiple sparse foreground sequences are packed into fixed-length contexts, and sequence boundaries are tracked to prevent attention across different document pages. The detailed mathematical formulation of the visual pipeline, including foreground filtering, projection, causal masking, and sequence packing, is provided in~\Cref{sec:appendix_pipeline}.
+
+For the Qwen3.5 runs, text sequences are hard-packed to 32,768 tokens and trained for 12,000 steps with global batch size 1024, AdamW learning rate $3\times10^{-5}$, weight decay $0.1$, a 1,000-step warmup, and linear decay to $10^{-6}$. The corresponding VP head uses AdamW with learning rate $4\times10^{-5}$ and the same optimizer betas and weight decay as the text optimizer. The visual VP context is capped at 8,192 retained foreground tokens for the main setting. 
+% For the large-scale Qwen3.5 397B runs, text sequences are hard-packed to 256K tokens and trained for 30,000 steps on 512 distributed workers with sequence parallel size 4, global batch size 128, Muon learning rate $3\times10^{-5}$, weight decay $0.1$, a 1,000-step warmup, constant learning rate thereafter, FP8 tilewise scaling enabled, and a 32,768-token VP visual context.
+
+
+\paragraph{Training cost.}
+Across the main Qwen and Llama VP/TP continued-pretraining runs, each run typically required approximately 1.5--3 days of wall-clock time on a distributed cluster with 128 accelerators, depending on the backbone,
+token budget, context length, and data modality.
+For example, the main Qwen3.5-35B-A3B continued-pretraining run required approximately 36 hours, followed by approximately 10 hours for the SFT stage.
+The exact accelerator model is not disclosed due to institutional constraints.
+
+\paragraph{Evaluation protocol.}
+\label{sec:appendix_eval_protocol}
+
+All models are evaluated in a zero-shot setting after SFT initialized from CPT. For text-only reasoning benchmarks in~\Cref{tab:main_result_text}, we use CoT prompting with the instruction ``think step by step''. Unless otherwise specified, we report average pass@8 for GPQA, the average score over 32 runs for AIME-25, and pass@1 for MMLU-Pro and HLE.
+
+For multimodal benchmarks in~\Cref{tab:alignment_multimodal}, we use a direct-answer template without explicit reasoning guidance and report pass@1. These evaluations test whether the same unlabeled visual-document pretraining signal that improves language reasoning also transfers to multimodal reasoning.
+
+\paragraph{Cross-modal alignment analysis.}
+\label{sec:appendix_alignment_details}
+
+This paragraph details the cross-modal alignment evaluation reported in~\Cref{tab:alignment_multimodal} and qualitatively visualized in~\Cref{fig:main}.
+
+\paragraph{Setting.}
+We construct a set of $N{=}100$ matched document image--text pairs. 
+Each pair is obtained by rendering a scientific PDF page as a RGB image and using the OCR-parsed text from the same page as its textual counterpart. The pairs are drawn from a held-out set of scientific PDFs collected from publicly accessible repositories.
+
+For each pair, the image is processed by the visual pathway and the text by the tokenizer of the shared backbone. We collect hidden states from the last Transformer layer and mean-pool over foreground visual tokens and non-padding text tokens, obtaining one embedding per modality. This yields paired embeddings
+\[
+\{(v_i,t_i)\}_{i=1}^{N},
+\]
+where $v_i$ and $t_i$ denote the visual and textual representations of the same document page. The same procedure is applied before and after \methodname, enabling a direct comparison of representation alignment.
+
+\paragraph{Metric definitions.}
+We measure alignment from three complementary perspectives: global distance, structural geometry, and local neighbourhood consistency.
+
+Global alignment is measured by centroid separation and pairwise cosine similarity. Centroid separation is defined as
+\[
+\|\bar{v}-\bar{t}\|_2,
+\]
+where $\bar{v}=\frac{1}{N}\sum_i v_i$ and $\bar{t}=\frac{1}{N}\sum_i t_i$ are the modality-wise mean embeddings. Pairwise cosine similarity is computed as
+\[
+\frac{1}{N}\sum_{i=1}^{N}\cos(v_i,t_i).
+\]
+
+Structural alignment is measured by linear Centered Kernel Alignment (CKA)~\citep{kornblith2019similarity}. Let $V,T\in\mathbb{R}^{N\times d}$ denote the centered embedding matrices of the visual and textual representations. We compute
+\[
+\mathrm{CKA}(V,T)
+=
+\frac{\|V^\top T\|_F^2}
+{\|V^\top V\|_F\,\|T^\top T\|_F}.
+\]
+Linear CKA compares the relational geometry of the two embedding spaces and is invariant to orthogonal transformations and isotropic scaling.
+
+Local alignment is measured by mutual $k$-nearest-neighbour overlap:
+\[
+A_k
+=
+\frac{1}{Nk}
+\sum_{i=1}^{N}
+\left|
+\mathcal{N}^{V}_{k}(i)
+\cap
+\mathcal{N}^{T}_{k}(i)
+\right|,
+\]
+where $\mathcal{N}^{V}_{k}(i)$ and $\mathcal{N}^{T}_{k}(i)$ are the $k$ nearest neighbours of sample $i$ in the visual and textual embedding spaces under cosine distance. We report $k\in\{1,5,10\}$.
+
+\paragraph{Findings.}
+The three groups of metrics provide complementary evidence that \methodname improves cross-modal alignment without image--text pair supervision. Globally, centroid separation drops by $60\%$ from $1.665$ to $0.661$, while pairwise cosine similarity rises from $0.631$ to $0.907$. This indicates that paired visual and textual embeddings are brought into a more compatible region of representation space.
+
+Structurally, linear CKA increases from $0.657$ to $0.745$, showing that the improvement is not merely a shift in average distance but also a change in the relational geometry of the two modalities. Locally, mutual $k$-NN overlap improves at all tested values of $k$, with the largest gain at the most stringent setting: $k{=}1$ increases from $0.140$ to $0.310$, while $k{=}5$ increases from $0.288$ to $0.420$ and $k{=}10$ from $0.395$ to $0.496$.
+
+This pattern argues against trivial representation collapse. Collapse would tend to inflate neighbourhood overlap uniformly, whereas \methodname produces the strongest improvement at the finest local scale. Together, the global, structural, and local metrics indicate that visual pretraining reshapes the shared representation space in a way that makes visual and textual document states more compatible.

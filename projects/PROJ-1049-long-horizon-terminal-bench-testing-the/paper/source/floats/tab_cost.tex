@@ -1,0 +1,32 @@
+\begin{table*}[t]
+  \centering
+  \small
+  \begin{tabular}{lcccc}
+    \toprule
+    \textbf{Model} & \textbf{Tokens / task (M)} & \textbf{Episodes / task} & \textbf{Time / task (min)} & \textbf{Avg cost / task (\$)} \\
+    \midrule
+    GPT-5.5               &  4.16 & 208 & 72.9 & 21.46 \\
+    MiniMax M3            & \textbf{20.20} & 314 & 90.0 &  6.13 \\
+    Kimi K2.7 Code        &  8.54 & 183 & 85.4 &  8.31 \\
+    DeepSeek V4 Pro       & 14.45 & \textbf{321} & 83.6 &  6.32 \\
+    Qwen3.7 Max           &  6.13 & 218 & 83.5 &  7.78 \\
+    Doubao Seed 2.1 Pro   &  5.80 & 183 & 91.7 &  5.16 \\
+    Gemini 3.1 Pro        &  3.55 & 148 & 85.0 &  7.61 \\
+    GLM 5.1               &  5.84 & 120 & \textbf{92.6} &  5.13 \\
+    GPT-5.3 Codex         &  4.57 & 299 & 80.7 &  8.20 \\
+    GLM 5.2               &  8.43 & 195 & 89.3 & 11.93 \\
+    Qwen3.6 Plus          &  8.67 & 194 & 88.6 &  4.47 \\
+    Hy3                   & 17.21 & 258 & 91.3 &  2.47 \\
+    GPT-5.4               & 10.90 & 302 & 79.3 & \textbf{27.57} \\
+    Kimi K2.6             & 10.27 & 188 & 92.5 &  9.94 \\
+    Grok 4.20             & 16.23 & 288 & 69.5 & 20.63 \\
+    \midrule
+    \textit{Average}      &  9.66 & 228 & 85.1 & 10.21 \\
+    \bottomrule
+  \end{tabular}
+  \caption{\textbf{Estimated cost per model on LHTB.}
+  On average, models spend 228 episodes and 85.1 minutes per task, at an estimated \$10.2 per task.
+  Costs are estimated from per-task token usage and public list prices (USD per million tokens) as of June 2026.
+  Tokens/task counts both input and output tokens; all prompt tokens are billed at the full input rate, since prompt-cache discounts are not guaranteed across providers.}
+  \label{tab:lhtb-cost}
+\end{table*}

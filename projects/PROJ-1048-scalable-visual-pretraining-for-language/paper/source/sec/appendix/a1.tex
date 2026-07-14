@@ -1,0 +1,153 @@
+\section{Detailed Visual-Pretraining Pipeline}
+\label{sec:appendix_pipeline}
+
+This section provides the mathematical details of the visual-pretraining pipeline used in \methodname. The main text describes the method at a high level; here we specify the construction of sparse document tokens, the causal visual-prediction objective, and the sequence-packing procedure used in training.
+
+\paragraph{Frozen visual feature extraction.}
+Given a rendered document page $\mathcal{I}\in\mathbb{R}^{H\times W\times 3}$, a frozen ViT encoder $\phi_{\mathrm{ViT}}$ with patch size $p$ first maps the page into a grid of patch features:
+\begin{equation}
+Y
+=
+\phi_{\mathrm{ViT}}(\mathcal{I})
+=
+(y_1,\ldots,y_{N_0}),
+\qquad
+y_i\in\mathbb{R}^{c_v}.
+\label{eq:appendix_vit_features}
+\end{equation}
+A frozen spatial merger $M$ then groups neighbouring patch features and maps them into the visual feature space used as the prediction target:
+\begin{equation}
+\mathcal{Z}
+=
+M(Y)
+=
+(z_1,\ldots,z_N),
+\qquad
+z_i\in\mathbb{R}^{d_v}.
+\label{eq:appendix_merged_features}
+\end{equation}
+The ViT encoder and the spatial merger are fixed throughout training. Thus, the visual stream learns to predict stable document features rather than reconstructing pixels.
+
+\paragraph{Foreground-token filtering.}
+Document pages contain large blank regions, such as margins and whitespace. To avoid spending context length on background patches, we compute a patch-level foreground mask before constructing the visual sequence. For each raw image patch, we compute its pixel variance $\sigma_i^2$ and average luminance $\ell_i$. A patch is treated as background when it has low variance and near-blank luminance:
+\begin{equation}
+b_i
+=
+\mathbf{1}
+\left[
+\sigma_i^2<\tau_{\sigma}
+\;\land\;
+\left(
+\ell_i>\tau_{\ell}^{+}
+\lor
+\ell_i<\tau_{\ell}^{-}
+\right)
+\right],
+\label{eq:appendix_background_mask}
+\end{equation}
+where $b_i=1$ indicates background. After spatial merging, the mask is max-pooled over each merged block, so a merged visual token is retained if any of its constituent patches contains foreground content:
+\begin{equation}
+m_j
+=
+\max_{i\in\mathcal{P}(j)}
+(1-b_i),
+\label{eq:appendix_merged_mask}
+\end{equation}
+where $\mathcal{P}(j)$ denotes the set of raw patches belonging to merged token $j$.
+
+The retained visual features are ordered in raster scan:
+\begin{equation}
+\mathcal{U}
+=
+\operatorname{Raster}\{z_j:m_j=1\}
+=
+(u_1,\ldots,u_L),
+\qquad
+L\ll N .
+\label{eq:appendix_foreground_sequence}
+\end{equation}
+This produces a sparse document sequence that preserves page order while removing most blank regions.
+
+\paragraph{Projection into the LLM space.}
+Each foreground visual feature is projected into the LLM hidden space by a learned linear map:
+\begin{equation}
+x_i
+=
+W_{\mathrm{in}}u_i,
+\qquad
+x_i\in\mathbb{R}^{d}.
+\label{eq:appendix_visual_projection}
+\end{equation}
+Position indices are assigned according to the raster order after foreground filtering. This allows the LLM to process the page as an ordered visual sequence while avoiding position allocation to removed background regions.
+
+\paragraph{Causal visual prediction.}
+The projected sequence $(x_1,\ldots,x_L)$ is fed into the shared autoregressive LLM backbone with a causal attention mask over image positions. The hidden state at position $i$ is used to predict the next foreground feature:
+\begin{equation}
+h_i
+=
+\Phi_{\mathrm{LLM}}(x_{\leq i}),
+\qquad
+\hat{u}_{i+1}
+=
+\psi(h_i),
+\label{eq:appendix_vp_forward}
+\end{equation}
+where $\Phi_{\mathrm{LLM}}$ is the LLM backbone and $\psi$ is a lightweight MLP prediction head. In our implementation,
+\begin{equation}
+\psi(h)
+=
+W_2\,\mathrm{GELU}(W_1h).
+\label{eq:appendix_prediction_head}
+\end{equation}
+The target for $\hat{u}_{i+1}$ is the frozen visual feature $u_{i+1}$. Therefore, the task is a continuous analogue of language-model next-token prediction.
+
+\paragraph{Contrastive next-visual-latent loss.}
+For a batch of valid predicted--target pairs $\mathcal{B}$, we compute cosine-similarity logits:
+\begin{equation}
+s_{ij}
+=
+\frac{\cos(\hat{u}_{i+1},u_{j+1})}{\tau},
+\label{eq:appendix_vp_logits}
+\end{equation}
+where $\tau$ is a temperature parameter. The matching probability is obtained by a softmax over target features in the batch:
+\begin{equation}
+p_{ij}
+=
+\operatorname{softmax}_{j\in\mathcal{B}}(s_{ij}).
+\label{eq:appendix_vp_softmax}
+\end{equation}
+The visual pretraining loss is then
+\begin{equation}
+\mathcal{L}_{\mathrm{VP}}
+=
+-\frac{1}{|\mathcal{B}|}
+\sum_{i\in\mathcal{B}}
+\log p_{ii}.
+\label{eq:appendix_vp_loss}
+\end{equation}
+This objective encourages each predicted feature to match the correct next foreground token while using other visual features in the batch as negatives.
+
+\paragraph{Joint optimization.}
+Visual pretraining is combined with standard text next-token prediction:
+\begin{equation}
+\mathcal{L}
+=
+\lambda_{\mathrm{text}}\mathcal{L}_{\mathrm{CE}}
++
+\lambda_{\mathrm{vis}}\mathcal{L}_{\mathrm{VP}}.
+\label{eq:appendix_joint_loss}
+\end{equation}
+Only the LLM parameters, the visual input projection $W_{\mathrm{in}}$, and the prediction head $\psi$ are updated. The ViT encoder and spatial merger remain frozen, providing a fixed visual target space.
+
+\paragraph{Sequence packing and attention masking.}
+To improve training efficiency, multiple sparse foreground sequences are packed into a fixed-length context. Let $q(a)$ denote the document sequence to which packed position $a$ belongs. We use a block-causal attention mask:
+\begin{equation}
+A_{ab}
+=
+\begin{cases}
+0, & q(a)=q(b)\ \text{and}\ b\leq a,\\
+-\infty, & \text{otherwise}.
+\end{cases}
+\label{eq:appendix_block_causal_mask}
+\end{equation}
+This prevents visual tokens from attending to future tokens or to tokens from other packed document pages. Prediction targets are also restricted within the same original foreground sequence, so the model never predicts across document boundaries.

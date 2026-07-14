@@ -1,0 +1,106 @@
+% \section{Failure Modes of Agents on Long-Hirizon Tasks}
+% \label{sec:analysis}
+
+% In this section, we do error analysis to discuss why current frontier models struggle on long-horizon terminal tasks.
+% %
+% We analyze the full run outputs, such as reward, termination cause, episode count, and wall-clock time for all $14 \times 46$ model task runs, and we identify four recurring patterns:
+% \begin{enumerate}
+%     \item A common failure mode is not taking obviously wrong actions but completing the tasks within a reasonable amount of time.
+%     \item Even when agents terminate voluntarily before the timeout, they often do so prematurely, overestimating task completion despite still failing the hidden verifier. This points to stronger agent harnesses for self-verification and iterative debugging as an important direction for future work.
+% \end{enumerate}
+
+
+
+
+
+
+
+
+% \input{floats/fig_time_ablation}
+
+\subsection{Dense Rewards Expose Different Failure Patterns}
+\label{sec:analysis-timeout}
+
+\input{floats/fig_failure_modes}
+
+Figure~\ref{fig:lhtb-failure-modes} shows unresolved runs by termination cause.
+%
+Across all models, $79\%$ of unresolved runs ($518/660$) end because the 90-minute budget expires while the agent is still actively working.
+%
+However, these timed-out runs are not close to completion, with mean reward ranging only from 0.10 to 0.35 across models.
+%
+By contrast, early exits that account for only $19\%$ of unresolved runs often indicate overconfidence: the agent stops on its own despite not yet satisfying the hidden verifier.
+%
+Just $3\%$ are \emph{harness errors}, failures in the agent--environment loop caused by the evaluation harness itself, rather than by the model stopping early or exhausting its time budget.
+
+
+\textbf{The main bottleneck is not local execution correctness, but long-horizon completion.}
+On Terminal-Bench~2.0, most trials complete in under 20 minutes, and trajectory-level error analyses find that many failures are execution-related, including disobeying the specification, repeating steps, and missing termination conditions~\citep{merrill2026terminalbenchbenchmarkingagentshard}.
+%
+On \ours{}, the more common failure is different: agents can often string together many locally correct actions, but they cannot reliably turn that progress into a finished artifact before the horizon expires.
+%
+Short-horizon benchmarks primarily measure whether agents can \emph{act correctly}; \ours{} additionally measures whether they can \emph{budget a long horizon}, and the latter appears to be the binding constraint.
+
+
+These results suggest that rankings on \ours{} reflect not only task-solving ability, but also \emph{time efficiency}: how much reward a model can accumulate within a fixed budget.
+%
+As a result, improvements that reduce redundant exploration, preserve state more effectively, or avoid repeated verification loops may yield larger gains than comparable improvements in single-step reasoning alone.
+
+% \subsection{The Unsolved Frontier Is Multimodal- and Science-Shaped}
+% \label{sec:analysis-frontier}
+
+% \input{floats/fig_category_difficulty}
+
+% The remaining difficulty in \ours{} is not evenly distributed across domains.
+% Of the 46 tasks, 33 ($72\%$) are solved by no model in our evaluation.
+% Across all 14 models, the union of solved tasks covers only 13 tasks, and no single model solves more than 7.
+% The unsolved frontier is therefore not only large, but also highly structured.
+
+% Figure~\ref{fig:lhtb-category-difficulty} shows that systems, performance, and security tasks are the most tractable, with mean reward $R = 0.66$ across all models.
+% They are followed by APEX professional workflows ($R = 0.41$) and software and reverse engineering ($R = 0.38$).
+% At the other extreme are multimodal and imaging analysis ($R = 0.10$), logic and constraint puzzles ($R = 0.13$), and earth, climate, and energy ($R = 0.19$).
+
+% The five newly constructed multimodal audit tasks are the clearest example of this gap, with mean reward only $R = 0.09$ across all models.
+% Three of them---\texttt{scientific-figure-data-reconstruction} (best achieved $R = 0.04$), \texttt{document-table-layout-reconstruction} ($R = 0.06$), and \texttt{microscopy-cell-count-qc-audit} ($R = 0.12$)---rank among the hardest tasks in the benchmark.
+% These tasks require grounding quantitative claims in images, plots, or scanned documents and then acting on that information over many steps, a setting in which current terminal agents make almost no progress.
+
+% Interactive games form a second resistant cluster.
+% No model solves \texttt{chess-mate} (best achieved $R = 0.18$) or \texttt{sokoban} (mean $R = 0.10$), and the category as a whole averages only $R = 0.23$.
+% Unlike software tasks that follow a familiar write--run--debug loop, these environments require closed-loop control under an evolving state, where early mistakes are hard to recover from.
+
+% Overall, the remaining headroom in \ours{} is not generic.
+% Further gains on more tractable regions may come from general improvements in model quality, but the 33-task unsolved frontier appears to require capabilities that remain weak in current agents: long-horizon visual grounding, closed-loop control, and scientific inverse-problem solving.
+
+\subsection{Dense Rewards Reveal False Finishes and Weak Stopping Judgment}
+\label{sec:analysis-false-finish}
+
+Timeouts dominate model failures, but they are not the full story.
+%
+Among the 124 runs in which an agent terminates \emph{on its own} before the budget expires, a different limitation becomes clear: weak self-verification.
+
+We define a \emph{false finish} as an early exit at relatively high reward, where the agent stops despite having not yet satisfied the hidden verifier.
+%
+We identify 14 such runs with $R \geq 0.75$.
+In these cases, the agent has completed most of the task, judges itself finished, and exits with substantial time remaining.
+For example, Kimi~K2.7~Code stops on \texttt{duckdb-optimizer-closure} at $R = 0.92$, GLM~5.2 stops on \texttt{apex-ib244-matter} at $R = 0.90$, and seven different models stop on \texttt{apex-law433-matter} between $R = 0.80$ and $0.87$, each with roughly 20 minutes still remaining.
+%
+These are not hopeless attempts, but near-complete ones in which the agent stops just short of satisfying the hidden verifier.
+
+Dense rewards are essential for exposing this pattern.
+%
+A binary pass/fail metric would collapse all of these runs into the same failure bucket, whereas dense rewards show \emph{how far} each agent gets before stopping.
+%
+This reveals a clear axis of variation in stopping judgment (Figure~\ref{fig:lhtb-failure-modes}).
+Kimi~K2.7~Code's early exits average $R = 0.51$ and MiniMax~M3's average $R = 0.42$, indicating that these models tend to stop later than other models ($R=0.22$ to $0.39$), after completing a substantial fraction of the task.
+%
+By contrast, Kimi~K2.6 exits at an average of only $R = 0.11$, abandoning tasks while most of the work remains.
+%
+Early exits reveal two distinct abilities: whether a model chooses to stop prematurely, and how accurately it can judge how much work remains before the task is truly complete.
+
+This phenomenon is the long-horizon analogue of the \emph{verification} failures identified in Terminal-Bench~2.0, such as premature termination, weak verification, and missed final checks~\citep{merrill2026terminalbenchbenchmarkingagentshard}.
+% Because \ours{} relies on hidden, artifact-based verifiers, agents cannot rely on their own internal summaries of progress.
+After the obvious public errors are fixed, they must actively search for residual defects that no visible signal reveals.
+%
+The false-finish pattern suggests that current agents systematically overestimate completion and under-invest in final verification.
+%
+Closing this gap for long-horizon tasks will require not only stronger local reasoning, but also better self-verification and more calibrated stopping decisions.

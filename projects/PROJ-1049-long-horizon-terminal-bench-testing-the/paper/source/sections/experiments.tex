@@ -1,0 +1,103 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\paragraph{Harness and agents.}
+We evaluate models using the Harbor framework with the Terminus-2 agent harness~\cite{Harbor_Framework}, which interacts with each task environment through a single long-horizon terminal session. 
+%
+Additionally, for GPT-5.3, we instead use Codex~\cite{openai2025gpt5}\footnote{\url{https://github.com/openai/codex}} as the agent harness.
+%
+These harness frameworks allow us to evaluate how existing frontier models perform on sustained terminal-based workflows.
+
+\paragraph{Models.}
+We benchmark GPT-5.5~\cite{openai2025gpt5}, GPT-5.4, GPT-5.3 Codex, DeepSeek V4 Pro~\cite{deepseekai2026deepseekv4}, Gemini 3.1 Pro~\cite{google2026gemini31pro}, GLM 5.1~\cite{glm5team2026glm5vibecodingagentic}, GLM 5.2, Kimi K2.6~\cite{moonshot2026kimik26}, Kimi K2.7 Code~\cite{moonshot2026kimik27code}, MiniMax M3~\cite{minimax2026minimaxm3}, Qwen3.7 Max~\cite{qwen2026qwen37}, Qwen3.6 Plus~\cite{qwen2026qwen36}, Doubao Seed 2.1 Pro~\cite{bytedance2026seed21}, Hy3~\cite{tencent2026hunyuan3}, and Grok 4.20~\cite{xai2026grok420}.
+
+
+
+% \subsection{Experimental Setup}
+
+% \paragraph{Benchmark.}
+% We evaluate on the 46-task Long-Horizon-Terminal-Bench (LHTB): the original 35 long-horizon tasks, six additive tasks (three useful, three non-useful), and five new multimodal audits (scientific-figure reconstruction, satellite flood change detection, microscopy cell-count QC, document table layout reconstruction, and audio-visual event alignment).
+% The tasks span 21 domains, from interactive games and software engineering to chip design, climate science, and multimodal auditing (Figure~\ref{fig:lhtb-categories}).
+
+
+
+\paragraph{Metrics.}
+For each model we report pass@1 (fraction of tasks whose normalized reward is at least $0.95$), mean normalized reward across all tasks, number of episodes to complete the task, length of time, and estimated dollar cost and token usage per task.
+
+% \input{floats/fig_leaderboard}
+
+\subsection{Main Results}
+
+Figure~\ref{fig:lhtb-leaderboard} summarizes pass rate at $R\geq0.9$, $R\geq0.95$, and $R\geq1.0$, along with mean reward across all 46 tasks.
+%
+Overall, the evaluated frontier models still struggle on long-horizon tasks, even under a dense-grading evaluation that gives credit for partial progress.
+%
+GPT-5.5 is the strongest reported model, but still resolves only $15.2\%$ of tasks (7/46) at $R\geq0.95$.
+MiniMax M3, Kimi K2.7 Code, and DeepSeek V4 Pro follow at $6.5\%$ (3/46) each on the full 46-task run.
+%
+Below is a mid tier at $4.3\%$ that includes Qwen3.7 Max, Doubao Seed 2.1 Pro, Gemini~3.1~Pro, GLM~5.1, and GPT-5.3 Codex, while GLM~5.2, Qwen3.6 Plus, GPT-5.4, and Hy3 each resolve only a single task.
+%
+Kimi~K2.6 and Grok~4.20 solve zero tasks at $R\geq0.95$, with Grok~4.20 also recording the lowest mean reward ($R=0.08$) among the reported models.
+%
+Mean normalized rewards follow a similar ordering, indicating that many models make partial progress on hard tasks without fully resolving them.
+%
+The results suggest that long-horizon execution is not just local reasoning task, but remains a bottleneck even for top frontier models.
+
+
+\input{floats/fig_leaderboard}
+
+
+\subsection{Dense Reward Is Necessary to Rank Models}
+\label{sec:analysis-partial-credit}
+
+A key contribution of \ours{} is dense, subtask-level grading rather than binary pass/fail, which is essential at this difficulty level.
+%
+Under a strict threshold ($R \geq 1.0$), 10 of the 15 models pass zero tasks (Figure~\ref{fig:lhtb-leaderboard}); even at $R \geq 0.95$, only $4.3\%$ of runs pass while $32.9\%$ score below $0.05$ (Figure~\ref{fig:lhtb-reward-dist}).
+%
+The remaining $64.6\%$ of runs make real partial progress, but binary grading would count them as complete failures by giving them the same score as a run that makes no progress
+
+\paragraph{Binary grading hides meaningful differences between models.}
+%
+Under binary pass/fail evaluation, the leaderboard collapses into large tie groups; for example, ten models each solve zero tasks at the strict $R \geq 1.0$ threshold.
+%
+Mean reward resolves these ties by quantifying how far a model progresses on tasks it does not fully complete.
+%
+Among the models tied at one solved task at $R\geq0.95$, mean reward spans from $0.27$ for GPT-5.4 to $0.32$ for GLM~5.2.
+%
+Pass rate and mean reward are positively but only moderately correlated (Spearman $\rho = 0.56$), and they can produce different model rankings because they measure different aspects of long-horizon performance: pass rate captures full task completion, whereas mean reward captures sustained partial progress.
+
+
+\paragraph{Near-misses reveal real progress that binary pass/fail evaluation would hide.}
+%
+Dense grading also reveals \emph{near-misses} ($0.75 \leq R < 0.95$) runs that are close to completion but fail some final checks.
+%
+These near-misses occur more than twice as often as passes ($73$ vs.\ $30$), indicating that many runs get very close to fully solving the task, but fail at the last few steps or checks.
+%
+For example, Kimi~K2.6 solves zero tasks at the $R \geq 0.95$ threshold, yet has five near-misses and a mean reward of $0.25$.
+%
+Its strongest near-miss reaches $R = 0.94$ on \texttt{grammar-fuzz-coverage-hunt}, and it also comes close on \texttt{spot-scheduler-traces} ($R = 0.90$), \texttt{poc-exploit-craft} ($R = 0.89$), and \texttt{nbody-accel-iterative} ($R = 0.89$).
+%
+Under binary grading, it would appear indistinguishable from a model that makes no meaningful progress, even though it repeatedly approaches successful completion.
+%
+As models improve, such near-misses are likely to provide an important early signal of progress, often revealing more clear capability gains before they are reflected in full pass rates.
+
+\input{floats/fig_reward_dist}
+
+\subsection{Cost Analysis}
+Table~\ref{tab:lhtb-cost} reports the cost estimate from per-task token usage and public list prices, which Figure~\ref{fig:lhtb-cost-reward} shows the pass rate via the Pareto cost--reward frontier.
+%
+The average costs span from about \$2.5 to \$28 per task.
+%
+Although GPT-5.5 achieves the highest pass rate but is also among the most expensive models, at roughly \$21 per task, and GPT-5.4 is the most expensive overall (about \$28 per task) with a lower pass rate.
+%
+This gap arises because GPT-5.4 is the weaker model yet requires far more episodes per task (302 vs.\ 208 for GPT-5.5) at comparable per-M token pricing; it therefore has a higher cost while achieving a lower pass rate.
+%
+
+Hy3 anchors the low-cost end of the Pareto frontier at about $\$2.5$ per task, while Doubao Seed 2.1 Pro and MiniMax M3 also lie on the frontier, achieving pass@$R\geq0.95$ rates of $4.3\%$ and $6.5\%$ at roughly $\$5$ and $\$6$ per task.
+DeepSeek V4 Pro sits just off the frontier, achieving the same $6.5\%$ pass@$R\geq0.95$ rate as MiniMax M3 at a similar cost. The remaining models, including Kimi K2.7 Code, GPT-5.3 Codex, GLM5.1, Gemini3.1 Pro, Qwen3.7 Max, GLM5.2, Kimi K2.6, and Grok 4.20, form a mid tier or lower tier with moderate to high costs but low resolution rates, indicating that higher inference spending alone is insufficient to guarantee better long-horizon performance.
+
+\input{floats/tab_cost}
+
+\input{floats/fig_cost_reward}
+
+% \subsection{Ablations and Analysis}

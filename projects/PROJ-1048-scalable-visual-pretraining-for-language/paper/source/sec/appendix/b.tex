@@ -1,0 +1,50 @@
+\section{Visual Pretraining with Generative Decoder}\label{sec:appendix_genhead}
+
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig/comp_gen_head.pdf}
+  \caption{\textbf{Architecture comparison between the generative-decoder variant and decoder-free visual pretraining.}
+  (Left) The generative-decoder variant (VP with Decoder) adds a MAR decoder and a frozen VAE decoder to reconstruct pages from LLM-refined latents, providing additional pixel-level supervision at the cost of extra parameters and computation.
+  (Right) Our decoder-free formulation (VP w/o Decoder) predicts foreground patch latents autoregressively without pixel reconstruction.}
+  \label{fig:comp_gen_head}
+\end{figure*}
+
+\noindent\textbf{Motivation.}
+A natural extension of visual pretraining is to equip the LLM with an explicit \emph{generative decoder} that decodes visual latents back to pixels, thereby providing pixel-level reconstruction supervision.
+In our exploratory experiments, we instantiate this design by attaching a MAR-style autoregressive decoder~\citep{li2024autoregressive} followed by a frozen VAE decoder to the LLM's hidden states, yielding a full encode--decode pipeline as illustrated in \Cref{fig:comp_gen_head}.
+The resulting pixel reconstruction loss $\mathcal{L}_{\text{MSE}}$ offers fine-grained, pixel-level supervision that is absent in the pure latent-prediction formulation used in the main text.
+
+\noindent\textbf{Comparison with generative visual pretraining.}
+Despite the extra supervision signal, the generative-decoder design incurs a substantial increase in training cost.
+Specifically, (1) the MAR decoder introduces additional trainable parameters ($\sim$\,300M in our setup) and computation; (2) the diffusion-style latent loss $\mathcal{L}_{\text{diff}}$ and the pixel MSE loss $\mathcal{L}_{\text{MSE}}$ must both be computed and back-propagated through the decoder stack at every visual step; and (3) the overall training throughput drops by roughly $30$\%--$40$\% compared with the decoder-free variant.
+In our experiments, the generative-decoder variant requires approximately $1.4\times$ the training time to reach the same convergence criterion as the decoder-free formulation.
+These overheads become significant when scaling to large document corpora.
+
+We further compare the generative-decoder variant (denoted \textbf{VP with Decoder}) against the decoder-free visual pretraining (denoted \textbf{VP w/o Decoder}) on the same matched document sources.
+As summarized in \Cref{tab:genhead}, both visual pretraining variants outperform the Base model and the text-only pretraining baseline across all evaluated reasoning benchmarks.
+Crucially, the pixel-level loss does \emph{not} translate into consistently stronger language-reasoning performance: the generative-decoder variant achieves comparable or only marginally better scores than the decoder-free formulation, suggesting that the extra pixel supervision yields diminishing returns for downstream reasoning.
+
+\begin{table}[htbp]
+\centering
+\caption{\textbf{Decoder-free visual pretraining versus the generative-decoder variant.}
+All methods use the same matched document sources and are evaluated after the same SFT protocol.
+The decoder-free formulation attains comparable or better reasoning performance without the additional reconstruction decoder.}
+\label{tab:genhead}
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Method} & \textbf{MMLU-Pro} & \textbf{GPQA} & \textbf{AIME} \\
+\midrule
+Base & \heatb{79.86}{79.86}{81.87} & \heatb{69.57}{69.57}{75.95} & \heatb{74.90}{74.48}{76.98} \\
+Text pretraining & \heatb{81.32}{79.86}{81.87} & \heatb{74.94}{69.57}{75.95} & \heatb{74.48}{74.48}{76.98} \\
+VP with Decoder & {\heatb{81.87}{79.86}{81.87}} & \heatb{75.44}{69.57}{75.95} & {\heatb{76.46}{74.48}{76.98}} \\
+VP w/o Decoder & \heatb{81.69}{79.86}{81.87} & {\heatb{75.95}{69.57}{75.95}} & {\heatb{76.98}{74.48}{76.98}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Conclusion.}
+Taken together, these exploratory results suggest that pixel-level generation supervision offers limited marginal benefit for language reasoning, at a non-negligible computational cost.
+Consequently, the main text adopts the \emph{decoder-free} visual pretraining formulation, which attains comparable downstream performance through a substantially simpler and more efficient pipeline.

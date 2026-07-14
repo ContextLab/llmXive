@@ -1,0 +1,94 @@
+\section{Discussion}
+\label{sec:discussion}
+% \paragraph{Visual pretraining from native scientific documents}
+Large language models typically acquire language intelligence from text-only corpora, 
+yet much scientific knowledge is originally expressed in multimodal documents. 
+Scientific papers contain equations, figures, tables and carefully designed layouts, 
+all of which can be weakened or distorted when converted into plain text. 
+We asked whether language models can acquire stronger scientific reasoning by directly adding visual pretraining on the native form of such documents to standard text continued pretraining.
+% We asked whether language models can acquire stronger scientific reasoning by pretraining directly on the native visual form of such documents. 
+% Our results provide a cautiously affirmative answer, showing that \methodname improves scientific reasoning over matched text pretraining, scales efficiently with compact visual budgets, and transfers to multimodal reasoning without labelled cross-modal data.
+% The central finding is that visual pretraining can turn raw scientific pages into unlabeled supervision for pretraining foundation models toward stronger scientific reasoning and multimodal transfer.
+Our results provide a cautiously affirmative answer, showing that \methodname improves scientific reasoning over matched text pretraining, 
+scales efficiently with compact visual budgets, and transfers to multimodal reasoning without labeled cross-modal data. 
+Together, these results show that raw scientific pages can provide unlabeled visual supervision that complements continued pretraining for foundation models.
+% The central finding is that visual pretraining can turn raw scientific pages into unlabeled supervision for improving scientific reasoning and multimodal intelligence.
+% The central finding is that visual pretraining can turn raw scientific pages into unlabeled supervision that improves foundation models pretraining for scientific reasoning and multimodal intelligence.
+% \paragraph{Effective, efficient and cross-modality visual pretraining}
+% Large language models are typically trained to acquire language intelligence from text-only corpora. 
+% Yet much of human knowledge is not originally expressed as plain text, 
+% but as multimodal documents. Scientific papers and textbooks contain equations, figures, tables, diagrams and carefully designed layouts, all of which can be weakened or corrupted when documents are first converted into OCR or \LaTeX{} text. 
+% We therefore asked whether language models can acquire stronger scientific reasoning by pretraining directly on the native visual form of scientific documents. Our results provide a cautiously affirmative answer. \methodname improves text-only scientific reasoning over matched text pretraining, showing that visual pretraining can effectively enhance language intelligence (\Cref{sec:results_main} and \Cref{tab:main_result_text}). It also scales efficiently: \methodname yields a better SFT initialization, improves with more scientific-PDF visual tokens, and remains effective under compressed token budgets and lower resolutions (\Cref{sec:results_scaling}, \Cref{fig:scaling,fig:ablation_ratio}). Finally, the same pretraining signal transfers to multimodal reasoning without labelled PDF images or task-specific visual annotations, improving cross-modal alignment and downstream multimodal benchmarks (\Cref{sec:results_alignment} and \Cref{tab:alignment_multimodal}). The central finding is therefore that raw scientific pages can serve as an unlabeled supervision source for improving both language and multimodal intelligence.
+
+% \paragraph{Relation to existing paradigms and why raw pages matter}
+% This finding differs from two dominant lines of prior work. 
+% Math-focused continued pretraining improves reasoning by scaling textual supervision, often after converting PDFs into extracted text~\citep{lewkowycz2022solving,taylor2022galactica,paster2023openwebmath,shao2024deepseekmath,yang2024qwen25mathtechnicalreportmathematical,zhou2025megamath}. 
+% Such pipelines are highly effective for text, but they discard or distort the native page structure before learning begins. 
+% Optical language modelling and multimodal LLMs, by contrast, use visual inputs mainly for OCR, document understanding, chart reasoning or labelled vision-language tasks~\citep{rust2022language,tschannen2023clippo,ye2023ureader,liu2023llava,wang2025internvl3,chen2025janus,cui2025emu3}. In many such systems, images act as auxiliary context or are optimized through downstream visual supervision. \methodname occupies a different position: it treats raw scientific pages as pretraining targets for the same autoregressive LLM backbone. This forces the model to predict and organize visual document latents, rather than merely condition on visual inputs. The matched-source comparison in~\Cref{sec:results_main} shows that the gain does not simply come from seeing more scientific content, because \methodname and TP use the same PDF corpus. Instead, the gain comes from preserving information in the page form itself, including layout, equation topology, tables, figure-text correspondence and symbolic organization. This interpretation is supported by the increase in gains with visual-structure density in~\Cref{fig:scaling}c and by the positive association between visual-feature prediction quality and multimodal gains in~\Cref{fig:scaling}d. In this sense, cross-modal alignment in principle is not enough; the training objective must place sufficient predictive pressure on the visual modality for such structure to become useful to the language model.
+% \paragraph{Learning what textualization leaves behind}
+The benefit of \methodname appears to come from preserving and modeling structure that is lost during textualization. 
+Scientific pages are not arbitrary images, as their visual organization encodes equation topology, table structure, figure-text correspondence, symbolic continuity and spatial grouping.
+\methodname trains the shared autoregressive backbone on foreground visual tokens ordered by their page positions, 
+using a causal objective that predicts the next visual latent.
+By making the visual document itself the prediction target, 
+this objective encourages the backbone to model visual representations in a way that preserves document-native relations.
+% \methodname places predictive pressure on these structures by requiring the shared autoregressive backbone to organize foreground document patches and predict future visual latents. 
+% This objective differs from simply feeding images as auxiliary context, because the visual document itself becomes the target of pretraining.
+Several observations support this interpretation. 
+First, \methodname improves scientific reasoning over matched text pretraining across backbones, suggesting that the model can acquire reasoning-relevant knowledge from visual elements such as equations, figures, tables and layouts. 
+Second, in multimodal evaluations, the gains are largest on visually dense examples, 
+where figures, equations, tables and layout carry more of the evidence needed for reasoning.
+Cross-modal alignment also improves without paired image-text supervision, 
+suggesting that the visual objective reshapes the shared representation space in a way that becomes more compatible with language. 
+Finally, the qualitative attention analysis suggests that visual-token reasoning can attend to semantically relevant regions of the rendered problem, 
+although this should be read as supporting evidence rather than a proof that text and visual reasoning use identical mechanisms.
+
+% \paragraph{Relation to existing pretraining methods}
+
+Text continued pretraining remains an effective way to absorb knowledge that is already well represented in language, 
+but scientific documents reach the model through a textualization pipeline that can discard layout, formulas, diagrams and other visual relations. 
+\methodname does not replace this pathway. 
+Instead, it mixes standard text continued pretraining with a visual next-latent objective on native scientific pages, 
+allowing the model to retain text exposure while learning from the native visual form of the same scientific-document corpus.
+Because \methodname and the text baseline use the same document source, 
+the gain suggests that the native visual representation provides useful supervision beyond the textualized content alone.
+% Text continued pretraining remains an effective way to absorb knowledge that is already well represented in language. 
+% \methodname and the text baseline use the same PDF corpus, 
+% so the gain reflects the native visual representation in which the content is learned rather than additional scientific content.
+
+Existing multimodal pretraining methods usually introduce visual inputs through image-text pairs, captioning losses, contrastive alignment, OCR supervision or document-understanding objectives. OCR-free document models
+such as Donut \citep{kim2021donut} and Pix2Struct \citep{lee2023pix2struct} further show that document images can be used directly, but their pretraining is mainly optimized for parsing, understanding or image-to-text generation. 
+% In contrast, \methodname treats rendered scientific pages as unlabeled visual sequences and trains the shared autoregressive backbone with a next-latent prediction objective, without dense annotations or explicit image-text pairing.
+In contrast, \methodname treats rendered scientific pages as unlabeled visual sequences and trains the shared autoregressive backbone with a next-latent prediction objective. 
+It does so without dense annotations or explicit image-text pairing.
+
+
+% \paragraph{Limitations}
+Our study has several limitations. 
+First, our approach should not be interpreted as a form of visual pretraining that is fully independent of language pretraining. 
+Since \methodname is grounded in text pretraining and introduces visual-latent prediction during continued pretraining, the observed gains should be understood as evidence that visual pretraining can complement and extend foundation model pretraining.
+Second, while \methodname shows that visual-latent prediction can effectively guide pretraining optimization, 
+future work may further investigate how to better coordinate visual-latent decoding with text decoding. 
+Our observations suggest that visual pretraining strongly encourages the model to capture visual presentations and structures, 
+motivating future studies on loss scheduling, foreground-aware token selection, and parameter efficient visual modules.
+Third, our experiments primarily focus on high knowledge-density scientific PDFs, where visual layouts, figures, tables, formulas, and surrounding textual context are tightly coupled to semantic meaning. 
+% It remains an open question whether the same pretraining strategy yields intelligence on broader visual corpora such as natural images or videos data.
+It remains an open question whether the same pretraining strategy transfers to broader visual corpora such as natural images or video.
+% First, our approach should not be interpreted as visual pretraining that is fully independent of language pretraining.
+% Since \methodname is grounded in text pretraining and introduces visual-latent prediction during continued pretraining, our results should be interpreted as evidence that visual pretraining can complement and extend language pretraining, rather than replace it.
+% Therefore, the observed gains are better understood as evidence that visual-latent prediction can complement and extend an existing language model, rather than replace text-based pretraining.
+
+% Our results should not be interpreted as rejecting text pretraining. For many corpora whose knowledge is already well expressed in text, text-only continued pretraining remains a highly efficient and effective way to improve language models. Moreover, our gains arise in a setting where visual learning is paired with sufficient textual supervision, and maintaining text exposure remains important for preserving general language competence. \methodname is therefore best viewed as a complementary way to absorb a class of data that text pretraining uses imperfectly: unlabeled PDF page images whose meaning depends on visual structure. Several limitations remain. First, we focus on high knowledge-density scientific documents, where visual structure is tightly coupled to meaning; whether the same benefit extends to natural images, web images or less structured visual corpora remains open. Second, our evaluations emphasize broad scientific and multimodal benchmarks, rather than fine-grained specialist abilities such as molecule-sensitive understanding, equation-intensive reasoning, diagrammatic inference or precise interpretation of scientific figures. Third, although our analyses show that visually structured documents contribute most to the gains, they do not fully isolate which factors are most important, such as layout priors, symbolic continuity, typography, local patch structure or page-level composition.
+
+
+% \paragraph{Outlook}
+% More broadly, our findings suggest a practical route for using multimodal documents in pretraining without requiring dense manual annotations. Instead of flattening PDFs into text before learning, raw document pages can be treated as unlabeled visual supervision that improves text-only reasoning while also scaling multimodal capability. Future work should extend this paradigm to broader document domains, design more fine-grained evaluations of visual scientific knowledge, and study how text and visual objectives should be balanced across model and data scales. For document-centric intelligence, preserving and modelling the native visual form of human knowledge may offer a path toward stronger, more efficient and more grounded reasoning systems.
+This work points to two promising directions. 
+First, visual pretraining provides a new route for foundation model training. 
+For high-density visually native corpora, such as scientific documents, charts, tables, formulas, and structured layouts, visual-latent prediction may serve as an effective complementary pretraining objective. 
+Second, visual pretraining opens a potential path toward a more scalable pretraining paradigm based on highly compressed visual corpora. 
+This suggests that foundation models could be trained primarily on large-scale visual streams, with only lightweight text alignment, to match the performance of text-pretrained models.
+% Future work will investigate whether this paradigm can enable efficient training over substantially larger data scales while retaining strong textual and multimodal capabilities.
+Future work should investigate whether this paradigm enables efficient training at larger scales while preserving strong textual and multimodal capabilities.
+% It suggests the possibility of training foundation models mainly on large-scale visual stream, 
+% followed by only lightweight text alignment.

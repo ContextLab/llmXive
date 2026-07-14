@@ -1,0 +1,33 @@
+{
+  "arxiv_id": "2607.04751",
+  "arxiv_url": "https://arxiv.org/abs/2607.04751",
+  "title": "Trust Region Policy Distillation",
+  "authors": [
+    "Zhengpeng Xie",
+    "Li Lyna Zhang",
+    "Zeke Xie",
+    "Mao Yang"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Big goals are hard to achieve all at once; breaking them into small steps is wiser. We present Trust Region Policy Distillation (TOP-D), which transforms the notoriously unstable, high-variance On-Policy Distillation (OPD) into a stable training paradigm by dynamically constructing a proximal teacher. Theoretically, we establish a rigorous framework demonstrating that TOP-D inherently controls gradient variance. By providing a formal global convergence analysis alongside a monotonic improvement bound, we mathematically formalize the reliability and stability of the overall training dynamics. Empirically, TOP-D dramatically enhances training stability, sample efficiency, and final performance on mathematical reasoning tasks. More importantly, TOP-D introduces zero additional computational overhead, positioning itself as a promising alternative to the well-established OPD paradigm.",
+  "submitted_via": "llmXive dashboard, GitHub issue #1012",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "neurips_2026.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "figures",
+    "figures/ablation_curves.pdf",
+    "figures/adv.pdf",
+    "figures/aime_performance.pdf",
+    "figures/reward_comparison.pdf",
+    "figures/teaser.pdf",
+    "neurips_2026.bbl",
+    "neurips_2026.sty",
+    "neurips_2026.tex"
+  ]
+}

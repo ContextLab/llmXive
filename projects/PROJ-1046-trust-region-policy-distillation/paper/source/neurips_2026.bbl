@@ -1,0 +1,168 @@
+\begin{thebibliography}{23}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[DeepSeek-AI(2026)]{deepseekai2026deepseekv4}
+DeepSeek-AI.
+\newblock Deepseek-v4: Towards highly efficient million-token context
+  intelligence, 2026.
+
+\bibitem[Fu et~al.(2026)Fu, Huang, Jiang, Zhu, and Zhao]{fu2026revisiting}
+Yuqian Fu, Haohuan Huang, Kaiwen Jiang, Yuanheng Zhu, and Dongbin Zhao.
+\newblock Revisiting on-policy distillation: Empirical failure modes and simple
+  fixes.
+\newblock \emph{arXiv preprint arXiv:2603.25562}, 2026.
+
+\bibitem[Gu et~al.(2024)Gu, Dong, Wei, and Huang]{gu2024minillm}
+Yuxian Gu, Li~Dong, Furu Wei, and Minlie Huang.
+\newblock Mini{LLM}: Knowledge distillation of large language models.
+\newblock In \emph{The Twelfth International Conference on Learning
+  Representations}, 2024.
+\newblock URL \url{https://openreview.net/forum?id=5h0qf7IBZZ}.
+
+\bibitem[Guo et~al.(2025)Guo, Yang, Zhang, Song, Wang, Zhu, Xu, Zhang, Ma, Bi,
+  et~al.]{guo2025deepseek}
+Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Peiyi Wang, Qihao Zhu,
+  Runxin Xu, Ruoyu Zhang, Shirong Ma, Xiao Bi, et~al.
+\newblock Deepseek-r1: Incentivizing reasoning capability in llms via
+  reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2501.12948}, 2025.
+
+\bibitem[Jang et~al.(2026)Jang, Yeom, Yeo, Lim, and Kim]{jang2026stable}
+Ijun Jang, Jewon Yeom, Juan Yeo, Hyunggu Lim, and Taesup Kim.
+\newblock Stable on-policy distillation through adaptive target reformulation.
+\newblock \emph{arXiv preprint arXiv:2601.07155}, 2026.
+
+\bibitem[Kakade and Langford(2002)]{kakade2002approximately}
+Sham Kakade and John Langford.
+\newblock Approximately optimal approximate reinforcement learning.
+\newblock In \emph{Proceedings of the nineteenth international conference on
+  machine learning}, pages 267--274, 2002.
+
+\bibitem[Ko et~al.(2026)Ko, Abdali, Kim, Chen, and Cameron]{ko2026scaling}
+Jongwoo Ko, Sara Abdali, Young~Jin Kim, Tianyi Chen, and Pashmina Cameron.
+\newblock Scaling reasoning efficiently via relaxed on-policy distillation.
+\newblock \emph{arXiv preprint arXiv:2603.11137}, 2026.
+
+\bibitem[Kwon et~al.(2023)Kwon, Li, Zhuang, Sheng, Zheng, Yu, Gonzalez, Zhang,
+  and Stoica]{kwon2023efficient}
+Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying Sheng, Lianmin Zheng, Cody~Hao Yu,
+  Joseph Gonzalez, Hao Zhang, and Ion Stoica.
+\newblock Efficient memory management for large language model serving with
+  pagedattention.
+\newblock In \emph{Proceedings of the 29th symposium on operating systems
+  principles}, pages 611--626, 2023.
+
+\bibitem[Li et~al.(2026)Li, Zuo, He, Zhang, Xiao, Qian, Yu, Gao, Yang, Liu,
+  et~al.]{li2026rethinking}
+Yaxuan Li, Yuxin Zuo, Bingxiang He, Jinqian Zhang, Chaojun Xiao, Cheng Qian,
+  Tianyu Yu, Huan-ang Gao, Wenkai Yang, Zhiyuan Liu, et~al.
+\newblock Rethinking on-policy distillation of large language models:
+  Phenomenology, mechanism, and recipe.
+\newblock \emph{arXiv preprint arXiv:2604.13016}, 2026.
+
+\bibitem[Lu and Lab(2025)]{lu2025onpolicydistillation}
+Kevin Lu and Thinking~Machines Lab.
+\newblock On-policy distillation.
+\newblock \emph{Thinking Machines Lab: Connectionism}, 2025.
+\newblock \doi{10.64434/tml.20251026}.
+\newblock https://thinkingmachines.ai/blog/on-policy-distillation.
+
+\bibitem[Schulman et~al.(2015)Schulman, Levine, Abbeel, Jordan, and
+  Moritz]{schulman2015trust}
+John Schulman, Sergey Levine, Pieter Abbeel, Michael Jordan, and Philipp
+  Moritz.
+\newblock Trust region policy optimization.
+\newblock In \emph{International conference on machine learning}, pages
+  1889--1897. PMLR, 2015.
+
+\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and
+  Klimov]{schulman2017proximal}
+John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
+\newblock Proximal policy optimization algorithms.
+\newblock \emph{arXiv preprint arXiv:1707.06347}, 2017.
+
+\bibitem[Shao et~al.(2024)Shao, Wang, Zhu, Xu, Song, Bi, Zhang, Zhang, Li, Wu,
+  et~al.]{shao2024deepseekmath}
+Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei
+  Zhang, Mingchuan Zhang, YK~Li, Yang Wu, et~al.
+\newblock Deepseekmath: Pushing the limits of mathematical reasoning in open
+  language models.
+\newblock \emph{arXiv preprint arXiv:2402.03300}, 2024.
+
+\bibitem[Shenfeld et~al.(2026)Shenfeld, Damani, H{\"u}botter, and
+  Agrawal]{shenfeld2026self}
+Idan Shenfeld, Mehul Damani, Jonas H{\"u}botter, and Pulkit Agrawal.
+\newblock Self-distillation enables continual learning.
+\newblock \emph{arXiv preprint arXiv:2601.19897}, 2026.
+
+\bibitem[Shoeybi et~al.(2019)Shoeybi, Patwary, Puri, LeGresley, Casper, and
+  Catanzaro]{shoeybi2019megatron}
+Mohammad Shoeybi, Mostofa Patwary, Raul Puri, Patrick LeGresley, Jared Casper,
+  and Bryan Catanzaro.
+\newblock Megatron-lm: Training multi-billion parameter language models using
+  model parallelism.
+\newblock \emph{arXiv preprint arXiv:1909.08053}, 2019.
+
+\bibitem[Xiao et~al.(2026)Xiao, Xia, Yang, Gao, Shen, Zhang, He, Lou, Luo,
+  Wang, et~al.]{xiao2026mimo}
+Bangjun Xiao, Bingquan Xia, Bo~Yang, Bofei Gao, Bowen Shen, Chen Zhang,
+  Chenhong He, Chiheng Lou, Fuli Luo, Gang Wang, et~al.
+\newblock Mimo-v2-flash technical report.
+\newblock \emph{arXiv preprint arXiv:2601.02780}, 2026.
+
+\bibitem[Xie et~al.(2025)Xie, Zhang, Yang, Hutter, and Xu]{xie2025simple}
+Zhengpeng Xie, Qiang Zhang, Fan Yang, Marco Hutter, and Renjing Xu.
+\newblock Simple policy optimization.
+\newblock In \emph{Forty-second International Conference on Machine Learning},
+  2025.
+\newblock URL \url{https://openreview.net/forum?id=SG8Yx1FyeU}.
+
+\bibitem[Yang et~al.(2025)Yang, Li, Yang, Zhang, Hui, Zheng, Yu, Gao, Huang,
+  Lv, et~al.]{yang2025qwen3}
+An~Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo~Zheng, Bowen
+  Yu, Chang Gao, Chengen Huang, Chenxu Lv, et~al.
+\newblock Qwen3 technical report.
+\newblock \emph{arXiv preprint arXiv:2505.09388}, 2025.
+
+\bibitem[Yang et~al.(2026)Yang, Liu, Chen, Dai, Wang, Lin, Lee, Chen, Jiang,
+  He, et~al.]{yang2026nemotron}
+Zhuolin Yang, Zihan Liu, Yang Chen, Wenliang Dai, Boxin Wang, Sheng-Chieh Lin,
+  Chankyu Lee, Yangyi Chen, Dongfu Jiang, Jiafan He, et~al.
+\newblock Nemotron-cascade 2: Post-training llms with cascade rl and
+  multi-domain on-policy distillation.
+\newblock \emph{arXiv preprint arXiv:2603.19220}, 2026.
+
+\bibitem[Yu et~al.(2025)Yu, Zhang, Zhu, Yuan, Zuo, Yue, Dai, Fan, Liu, Liu,
+  et~al.]{yu2025dapo}
+Qiying Yu, Zheng Zhang, Ruofei Zhu, Yufeng Yuan, Xiaochen Zuo, Yu~Yue, Weinan
+  Dai, Tiantian Fan, Gaohong Liu, Lingjun Liu, et~al.
+\newblock Dapo: An open-source llm reinforcement learning system at scale.
+\newblock \emph{arXiv preprint arXiv:2503.14476}, 2025.
+
+\bibitem[Zeng et~al.(2026)Zeng, Lv, Hou, Du, Zheng, Chen, Yin, Ge, Huang, Xie,
+  et~al.]{zeng2026glm}
+Aohan Zeng, Xin Lv, Zhenyu Hou, Zhengxiao Du, Qinkai Zheng, Bin Chen, Da~Yin,
+  Chendi Ge, Chenghua Huang, Chengxing Xie, et~al.
+\newblock Glm-5: from vibe coding to agentic engineering.
+\newblock \emph{arXiv preprint arXiv:2602.15763}, 2026.
+
+\bibitem[Zhao et~al.(2023)Zhao, Gu, Varma, Luo, Huang, Xu, Wright, Shojanazeri,
+  Ott, Shleifer, et~al.]{zhao2023pytorch}
+Yanli Zhao, Andrew Gu, Rohan Varma, Liang Luo, Chien-Chin Huang, Min Xu, Less
+  Wright, Hamid Shojanazeri, Myle Ott, Sam Shleifer, et~al.
+\newblock Pytorch fsdp: experiences on scaling fully sharded data parallel.
+\newblock \emph{arXiv preprint arXiv:2304.11277}, 2023.
+
+\bibitem[Zheng et~al.(2024)Zheng, Yin, Xie, Sun, Huang, Yu, Cao, Kozyrakis,
+  Stoica, Gonzalez, et~al.]{zheng2024sglang}
+Lianmin Zheng, Liangsheng Yin, Zhiqiang Xie, Chuyue Sun, Jeff Huang, Cody~H Yu,
+  Shiyi Cao, Christos Kozyrakis, Ion Stoica, Joseph~E Gonzalez, et~al.
+\newblock Sglang: Efficient execution of structured language model programs.
+\newblock \emph{Advances in neural information processing systems},
+  37:\penalty0 62557--62583, 2024.
+
+\end{thebibliography}

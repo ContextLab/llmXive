@@ -1,0 +1,56 @@
+\section{Introduction}
+The striking advances of large foundation models have been driven by pretraining on 
+text corpora at unprecedented scale \citep{brown2020language, kaplan2020scaling, hoffmann2022training}.
+While effective, this paradigm rests on a strong implicit assumption: 
+that all knowledge worth learning can be losslessly encoded as a linear sequence of text tokens.
+However, cognitive science has long shown that humans routinely reason with
+diagrams, spatial layouts, mathematical notation, and other representational
+forms whose visual cues make certain relations directly available for
+inference \citep{larkin1987diagram,zhang1997external,barsalou1999perceptual,barsalou2008grounded}.
+Converting these visual cues into plain text before training is therefore inherently lossy.
+Here we challenge this assumption and show that foundation models can 
+learn directly from visual corpora without text extraction or image-text pairing supervision, 
+yielding stronger language intelligence than text pretraining on the same underlying corpus.
+
+Scientific documents are a particularly acute case of this loss.
+Papers, textbooks, and technical reports communicate complex content through figures,
+tables, formula layouts, and page-level spatial organization, all of which encode
+geometric constraints, symbolic topologies, and structural correspondences essential
+to scientific reasoning.
+The recently proposed Platonic Representation Hypothesis \citep{huh2024platonic}
+formalizes a related intuition for machine learning, arguing that representations learned
+by different models and modalities converge toward shared abstractions of reality.
+These observations imply that the linguistic information
+extracted from a scientific document is only a projection of a richer underlying
+structure, and that this structure could in principle be learned directly from raw
+visual documents.
+
+Yet existing approaches do not exploit this possibility along either of two dimensions.
+At the data level, pretraining corpora reduce visual documents to plain text,
+either by parsing HTML or LaTeX source \citep{paster2024openwebmath, gao2020pile}
+or by applying neural document-parsing models to PDFs as a preprocessing step
+\citep{blecher2024nougat, lee2023pix2struct, kim2021donut, wang2024mineru}, after
+which the language model is trained exclusively on the resulting text.
+At the training level, recent multimodal foundation models do incorporate visual modalities during training \citep{wang2024qwen2, chen2024internvl, liu2023visual},
+but they treat visual inputs as conditioning context for text-token prediction, 
+preventing visual content from being deeply integrated into the predictive process.
+In both regimes the raw documents are consumed and then discarded leaving the visual modality outside the model's learning objective.
+
+\input{tab/result_txt}
+
+Here we present Visual Pretraining (VP), a framework in which a
+foundation model learns visual information directly from raw documents without any text extraction or image-text pairing supervision.
+Through a systematic study under carefully matched data sources, we
+find that across multiple LLM backbones and scientific reasoning benchmarks, VP
+consistently outperforms text-only pretraining on the same underlying corpus, is
+substantially more efficient (using only 25\% of the token budget) with respect to both model size and data scale, 
+and strengthens cross-modal alignment, establishing VP as a scalable pathway for
+learning both language and visual intelligence.
+This work makes three contributions. 
+First, we show that reducing visual documents to plain text incurs substantial information loss, 
+and that visual pretraining recovers this otherwise discarded information.
+Second, we introduce an autoregressive visual pretraining framework that trains a foundation model to predict document patches in latent space, 
+deeply integrating visual latent into the predictive process. 
+Third, through a unified empirical study with matched corpora across multiple architectures and
+benchmarks, we establish VP as an effective, efficient, and scalable alternative to text-only pretraining.
+

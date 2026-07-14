@@ -1,0 +1,10 @@
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{fig_leaderboard.pdf}
+    \caption{\textbf{LHTB leaderboard.}
+    Pass@1 at reward thresholds $0.9$, $0.95$, and $1.0$, together with mean normalized reward, for each model under a shared agent setup, shown in a single model order sorted by pass@1 at $R \geq 0.95$.
+Pass rate is the fraction of the 46 tasks whose overall reward $R$ meets a threshold $\tau$, with $R \geq 1.0$ corresponding to full completion, while mean $R$ captures partial progress across all tasks.
+GPT-5.5 achieves the strongest overall performance, resolving $15.2\%$ of tasks at $R \geq 0.95$.
+\textbf{Tightening the threshold to $R \geq 1.0$ collapses most models to zero pass rate, showing that partial-credit evaluation captures progress that a binary threshold misses.}}
+  \label{fig:lhtb-leaderboard}
+\end{figure}
