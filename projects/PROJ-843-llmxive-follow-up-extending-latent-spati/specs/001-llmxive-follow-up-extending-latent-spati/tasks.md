@@ -155,7 +155,7 @@
 
 **Purpose**: Chain the pipeline and synthesize final reports
 
-- [X] T020 [US3] Implement `code/main.py` orchestrator to:
+- [ ] T020 [US3] Implement `code/main.py` orchestrator to:
  - **Consume completed artifacts** from phases T007-T019 (do not re-execute logic)
  - **Parse raw `memory_profiler` logs** from T005 and **aggregate them** into the final `data/results/metrics.json` following the `MetricReport` schema (FR-007)
  - Aggregate results from both sparse and dense paths
