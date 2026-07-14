@@ -1,29 +1,42 @@
 """
-Shim to ensure that importing ``numpy`` resolves to the real NumPy package
+Proxy module that forwards attribute access to the real ``numpy`` package
 installed in the environment.
 
-The original project introduced a placeholder ``numpy`` package that attempted
-to load a ``numpy_real`` module, which was missing and caused import errors.
-This shim provides a robust implementation that directly imports the genuine
-NumPy library and re‑exports its public symbols.
+A stray ``numpy`` package in the repository shadowed the genuine library,
+causing import errors (e.g. missing ``__version__``). This shim restores the
+expected behaviour without altering external dependencies.
 """
 import importlib
+import importlib.metadata
 import sys
+from types import ModuleType
+from typing import Any
 
-# Attempt to import the real NumPy library from the environment.
-# If a module named ``numpy_real`` exists (e.g., a shim placed at the project
-# root), use it; otherwise fall back to the standard NumPy import.
-try:
-    _real_numpy = importlib.import_module("numpy_real")
-except Exception:
-    # Import the actual NumPy package. The import machinery will locate the
-    # distribution installed in the environment (e.g., site‑packages).
-    _real_numpy = importlib.import_module("numpy")
+def _load_real_numpy() -> ModuleType:
+    """
+    Load the genuine NumPy distribution from the environment and return it
+    as a module object. Raises ImportError if the distribution cannot be found.
+    """
+    try:
+        # Locate the installed distribution (not the local ``numpy`` folder)
+        dist = importlib.metadata.distribution("numpy")
+        real_init = dist.locate_file("numpy/__init__.py")
+    except importlib.metadata.PackageNotFoundError as exc:
+        raise ImportError("NumPy is not installed in the environment.") from exc
 
-# Populate the current module's globals with everything from the real NumPy.
-globals().update(_real_numpy.__dict__)
+    spec = importlib.util.spec_from_file_location("numpy_real", real_init)
+    real_mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
+    assert spec and spec.loader  # for mypy
+    spec.loader.exec_module(real_mod)  # type: ignore[assignment]
+    return real_mod
 
-# Ensure that ``sys.modules['numpy']`` points to this shim (already the case)
-# and that ``sys.modules['numpy_real']`` also references the real NumPy module
-# for any downstream imports.
-sys.modules.setdefault("numpy_real", _real_numpy)
+# Load the genuine NumPy once and expose its public API.
+_real_numpy = _load_real_numpy()
+__version__ = getattr(_real_numpy, "__version__", "0.0.0")
+
+def __getattr__(name: str) -> Any:
+    """Delegate attribute access to the real NumPy module."""
+    return getattr(_real_numpy, name)
+
+def __dir__() -> list[str]:
+    return sorted(set(dir(_real_numpy) + ["__version__"]))

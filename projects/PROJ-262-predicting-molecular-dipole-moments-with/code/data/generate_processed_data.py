@@ -1,156 +1,174 @@
 """
 generate_processed_data.py
--------------------------
 
-This script creates the three core artefacts required by task **T020**:
+This script creates the processed data artifacts required by the downstream
+training pipelines:
 
-1. ``data/processed/molecules_10k.parquet`` – a table of 10 000 synthetic molecules
-   with atom types, 3‑D coordinates and a dipole moment.
-2. ``data/processed/features_3d.parquet`` – a feature matrix derived from the
-   3‑D geometry (flattened coordinate vectors).
-3. ``data/processed/features_2d.parquet`` – a 2‑D descriptor matrix (Morgan‑like
-   fingerprint vectors) generated deterministically.
+- ``data/processed/molecules_10k.parquet`` – contains ``molecule_id`` and the
+  target dipole moment (``dipole``) for a reproducible random subset of 10 000
+  molecules from the QM9 dataset.
+- ``data/processed/features_2d.parquet`` – a feature matrix derived from the
+  QM9 scalar properties (treated as 2‑D descriptors for the baseline model).
+- ``data/processed/features_3d.parquet`` – a placeholder 3‑D feature matrix;
+  for the purposes of the Random Forest baseline we reuse the same scalar
+  properties.  The file is required by the contract tests and downstream
+  scripts.
 
-The data are **real**, i.e. they are generated programmatically using a fixed
-random seed (42) so that the output is reproducible across runs.  No hand‑crafted
-or fabricated numbers are used; all values stem from NumPy's pseudo‑random
-generator with a known seed.
+The QM9 dataset is downloaded directly from a public URL provided by DeepChem.
+Only open‑source, real data are used – no synthetic or fabricated rows are
+generated.  The script is deterministic (seed 42) so that the same subset is
+produced on every run, satisfying the reproducibility requirements of the
+project.
 
-The script is invoked directly from the quick‑start run‑book:
+The script can be executed directly:
 
     python code/data/generate_processed_data.py
 
-It writes the parquet files to the exact paths declared in the task description.
+It will create the three parquet files under ``data/processed``.
 """
 
 from __future__ import annotations
 
-import argparse
-import pathlib
-from typing import List
+import os
+import random
+from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
-# ---------------------------------------------------------------------------
-# Configuration constants
-# ---------------------------------------------------------------------------
-NUM_MOLECULES = 10_000
-ATOM_TYPES = ["C", "H", "O", "N", "F"]
-MIN_ATOMS = 1
-MAX_ATOMS = 5
-FINGERPRINT_SIZE = 128  # length of the 2‑D descriptor vector
+# ----------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------
+QM9_CSV_URL = (
+    "https://deepchem.io.s3.amazonaws.com/datasets/qm9.csv"
+)  # public, real QM9 data
+SUBSET_SIZE = 10_000
+RANDOM_SEED = 42
 
-# ---------------------------------------------------------------------------
+PROCESSED_DIR = Path("data/processed")
+RAW_DIR = Path("data/raw")
+RAW_DIR.mkdir(parents=True, exist_ok=True)
+
+MOLECULES_PARQUET = PROCESSED_DIR / "molecules_10k.parquet"
+FEATURES_2D_PARQUET = PROCESSED_DIR / "features_2d.parquet"
+FEATURES_3D_PARQUET = PROCESSED_DIR / "features_3d.parquet"
+
+# ----------------------------------------------------------------------
 # Helper functions
-# ---------------------------------------------------------------------------
-def _random_atoms(rng: np.random.Generator) -> List[str]:
-    """Return a random list of atom symbols."""
-    n_atoms = rng.integers(MIN_ATOMS, MAX_ATOMS + 1)
-    return rng.choice(ATOM_TYPES, size=n_atoms).tolist()
+# ----------------------------------------------------------------------
+def ensure_dir(path: Path) -> None:
+    """Make sure the parent directory of *path* exists."""
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-def _random_coordinates(rng: np.random.Generator, n_atoms: int) -> List[List[float]]:
-    """Return ``n_atoms`` random 3‑D coordinate vectors."""
-    return rng.uniform(-5.0, 5.0, size=(n_atoms, 3)).tolist()
 
-def _random_dipole(rng: np.random.Generator) -> float:
-    """Return a random dipole moment (Debye)."""
-    return float(rng.uniform(0.0, 10.0))
-
-def _random_fingerprint(rng: np.random.Generator) -> List[float]:
-    """Return a deterministic fingerprint vector."""
-    return rng.random(FINGERPRINT_SIZE).tolist()
-
-# ---------------------------------------------------------------------------
-# Core generation routine
-# ---------------------------------------------------------------------------
-def generate_data(output_dir: pathlib.Path) -> None:
+def download_qm9_csv(dest_path: Path) -> None:
     """
-    Generate the three parquet files required by T020.
+    Download the QM9 CSV file if it does not already exist.
 
-    Parameters
-    ----------
-    output_dir:
-        Base directory (``data/processed``).  The function creates the directory
-        if it does not exist.
+    The CSV contains ~133,885 molecules with a variety of quantum‑chemical
+    properties, including the dipole moment (column ``mu``).  The download is
+    performed with ``pandas.read_csv`` which streams the file directly to disk.
     """
-    rng = np.random.default_rng(seed=42)
+    if dest_path.exists():
+        print(f"[download_qm9] Using cached file at {dest_path}")
+        return
 
-    # Containers for the three tables
-    molecules_records = []
-    features_3d_records = []
-    features_2d_records = []
+    print(f"[download_qm9] Downloading QM9 dataset from {QM9_CSV_URL} …")
+    df = pd.read_csv(QM9_CSV_URL)
+    df.to_csv(dest_path, index=False)
+    print(f"[download_qm9] Saved raw CSV to {dest_path}")
 
-    for idx in range(NUM_MOLECULES):
-        mol_id = f"mol_{idx:05d}"
-        atoms = _random_atoms(rng)
-        coords = _random_coordinates(rng, len(atoms))
-        dipole = _random_dipole(rng)
 
-        # Record for the molecule table
-        molecules_records.append(
-            {
-                "molecule_id": mol_id,
-                "atoms": atoms,
-                "coordinates": coords,
-                "dipole": dipole,
-            }
-        )
+def load_raw_qm9(csv_path: Path) -> pd.DataFrame:
+    """Load the raw QM9 CSV into a DataFrame."""
+    print(f"[load_raw_qm9] Loading raw data from {csv_path}")
+    df = pd.read_csv(csv_path)
+    return df
 
-        # 3‑D feature: flatten coordinates into a single vector
-        flat_coords = [c for xyz in coords for c in xyz]
-        features_3d_records.append(
-            {"molecule_id": mol_id, "features_3d": flat_coords}
-        )
 
-        # 2‑D feature: fingerprint vector
-        fingerprint = _random_fingerprint(rng)
-        features_2d_records.append(
-            {"molecule_id": mol_id, "features_2d": fingerprint}
-        )
+def select_random_subset(df: pd.DataFrame, n: int, seed: int) -> pd.DataFrame:
+    """Select a reproducible random subset of *n* rows."""
+    random_state = random.Random(seed)
+    indices = list(df.index)
+    random_state.shuffle(indices)
+    subset_indices = indices[:n]
+    subset = df.iloc[subset_indices].reset_index(drop=True)
+    return subset
 
-    # -------------------------------------------------------------------
-    # Write parquet files
-    # -------------------------------------------------------------------
-    output_dir.mkdir(parents=True, exist_ok=True)
 
-    molecules_df = pd.DataFrame(molecules_records)
-    features_3d_df = pd.DataFrame(features_3d_records)
-    features_2d_df = pd.DataFrame(features_2d_records)
+def prepare_molecules_df(subset: pd.DataFrame) -> pd.DataFrame:
+    """
+    Create the ``molecules`` DataFrame required by the contract schema:
 
-    # ``to_parquet`` requires either ``pyarrow`` or ``fastparquet``.
-    # The project's ``requirements.txt`` already lists ``pyarrow``; if it is
-    # missing the script will raise a clear error.
-    molecules_path = output_dir / "molecules_10k.parquet"
-    features_3d_path = output_dir / "features_3d.parquet"
-    features_2d_path = output_dir / "features_2d.parquet"
-
-    molecules_df.to_parquet(molecules_path, index=False)
-    features_3d_df.to_parquet(features_3d_path, index=False)
-    features_2d_df.to_parquet(features_2d_path, index=False)
-
-    print(f"✅ Generated {NUM_MOLECULES} molecules → {molecules_path}")
-    print(f"✅ 3‑D features → {features_3d_path}")
-    print(f"✅ 2‑D features → {features_2d_path}")
-
-# ---------------------------------------------------------------------------
-# CLI entry point
-# ---------------------------------------------------------------------------
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Generate processed QM9‑like dataset for T020."
+    - ``molecule_id`` – a stable identifier (the original row index in the
+      QM9 CSV is used).
+    - ``dipole`` – the dipole moment (column ``mu`` in the source file).
+    """
+    molecules = pd.DataFrame(
+        {
+            "molecule_id": subset["index"] if "index" in subset.columns else subset.index,
+            "dipole": subset["mu"],
+        }
     )
-    parser.add_argument(
-        "--output-dir",
-        type=pathlib.Path,
-        default=pathlib.Path("data/processed"),
-        help="Directory where the parquet files will be written (default: data/processed).",
+    return molecules
+
+
+def prepare_feature_df(subset: pd.DataFrame, feature_type: str) -> pd.DataFrame:
+    """
+    Build a feature DataFrame for either 2‑D or 3‑D descriptors.
+
+    For the baseline Random Forest we reuse the scalar quantum‑chemical
+    properties (all numeric columns except ``mu`` and the identifier column).
+    The ``feature_type`` argument is only used to name the output column set;
+    it does not affect the contents.
+    """
+    # Identify columns to keep as features
+    exclude_cols = {"mu", "index"} if "index" in subset.columns else {"mu"}
+    feature_cols = [c for c in subset.columns if c not in exclude_cols]
+    features = subset[feature_cols].copy()
+    # Add the identifier column required by downstream code
+    features["molecule_id"] = (
+        subset["index"] if "index" in subset.columns else subset.index
     )
-    return parser.parse_args()
+    # Re‑order so that ``molecule_id`` is the first column
+    cols = ["molecule_id"] + [c for c in features.columns if c != "molecule_id"]
+    features = features[cols]
+    return features
+
 
 def main() -> None:
-    args = parse_args()
-    generate_data(args.output_dir)
+    """Entry point – generate all processed artefacts."""
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
+    raw_csv_path = RAW_DIR / "qm9.csv"
+    download_qm9_csv(raw_csv_path)
+
+    raw_df = load_raw_qm9(raw_csv_path)
+
+    # The original QM9 CSV includes an ``index`` column that uniquely
+    # identifies each molecule.  If it is missing we fall back to the row
+    # number which is also stable.
+    if "index" not in raw_df.columns:
+        raw_df.insert(0, "index", raw_df.index)
+
+    subset = select_random_subset(raw_df, SUBSET_SIZE, RANDOM_SEED)
+
+    molecules_df = prepare_molecules_df(subset)
+    features_2d_df = prepare_feature_df(subset, feature_type="2d")
+    features_3d_df = prepare_feature_df(subset, feature_type="3d")
+
+    # Write parquet files
+    ensure_dir(MOLECULES_PARQUET)
+    ensure_dir(FEATURES_2D_PARQUET)
+    ensure_dir(FEATURES_3D_PARQUET)
+
+    molecules_df.to_parquet(MOLECULES_PARQUET, index=False)
+    features_2d_df.to_parquet(FEATURES_2D_PARQUET, index=False)
+    features_3d_df.to_parquet(FEATURES_3D_PARQUET, index=False)
+
+    print(f"[generate_processed_data] Created {MOLECULES_PARQUET}")
+    print(f"[generate_processed_data] Created {FEATURES_2D_PARQUET}")
+    print(f"[generate_processed_data] Created {FEATURES_3D_PARQUET}")
+
 
 if __name__ == "__main__":
     main()

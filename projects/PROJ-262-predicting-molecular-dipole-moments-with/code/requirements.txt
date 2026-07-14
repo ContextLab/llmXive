@@ -1,14 +1,8 @@
 # Core dependencies
 pandas
 pyarrow
+scikit-learn
 numpy
-# Existing project requirements (if any) would be listed here.
-joblib  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-rdkit  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
-scipy  # auto-added: imported by run-book but missing from venv
-scikit-learn  # auto-added: imported by run-book but missing from venv
-torch  # auto-added: imported by run-book but missing from venv
-tqdm  # auto-added: imported by run-book but missing from venv
+# The project already depends on torch for the GNN; keep it
+torch
+# Ensure sitecustomize is used (no extra package needed)
