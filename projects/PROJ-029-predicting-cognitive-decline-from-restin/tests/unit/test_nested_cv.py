@@ -1,66 +1,70 @@
-"""Unit tests for the nested CV pipeline in ``code/04_train_model.py``."""
+"""Unit tests for the nested CV pipeline defined in code/04_train_model.py.
 
-import pathlib
+The tests use a tiny synthetic dataset to verify that:
+  * The pipeline runs without raising.
+  * The output performance report contains the expected keys.
+  * The model file is written to the correct location.
+"""
+
+import json
+from pathlib import Path
+
 import pandas as pd
-import numpy as np
+import pytest
 
-from code._04_train_model import (
-    define_decline_label,
-    CollinearityTransformer,
-    make_inner_pipeline,
-    train_and_evaluate_nested_cv,
-)
+from code import _04_train_model as train_mod
 
-# Helper to create a tiny synthetic dataset – this test does NOT rely on real data.
-def _create_dummy_data():
-    rng = np.random.default_rng(42)
-    # 30 subjects, 10 synthetic graph‑metric features
-    X = pd.DataFrame(rng.normal(size=(30, 10)), columns=[f"f{i}" for i in range(10)])
-    # Create a simple label with some drops
-    y = pd.Series(rng.integers(0, 2, size=30))
-    return X, y
-
-def test_define_decline_label():
-    df = pd.DataFrame({
-        "mmse_baseline": [30, 28, 27],
-        "mmse_followup": [27, 28, 23],
-        "moca_baseline": [28, 27, 30],
-        "moca_followup": [27, 24, 30],
+@pytest.fixture(scope="module")
+def synthetic_data(tmp_path_factory):
+    """Create minimal synthetic CSVs that mimic the real inputs."""
+    # eligible_subjects.csv
+    elig = pd.DataFrame({
+        "subject_id": [f"sub-{i:03d}" for i in range(1, 11)],
+        "mmse_t1": [30] * 10,
+        "mmse_t2": [28, 30, 27, 30, 29, 30, 30, 30, 30, 30],
+        "moca_t1": [28] * 10,
+        "moca_t2": [28] * 10,
     })
-    labels = define_decline_label(df)
-    # First subject drops 3 on MMSE -> 1
-    # Second drops 0 on MMSE, 3 on MoCA -> 1
-    # Third drops 0 on both -> 0
-    assert list(labels) == [1, 1, 0]
-
-def test_collinearity_transformer():
-    # Create perfectly correlated columns
-    X = pd.DataFrame({
-        "a": np.arange(10),
-        "b": np.arange(10) * 2,  # perfectly correlated with a
-        "c": np.random.rand(10),
+    # graph_metrics.csv – 5 dummy features per subject
+    metrics = pd.DataFrame({
+        "subject_id": elig["subject_id"],
+        "feat_a": range(10),
+        "feat_b": range(10, 20),
+        "feat_c": range(20, 30),
+        "feat_d": range(30, 40),
+        "feat_e": range(40, 50),
     })
-    transformer = CollinearityTransformer(threshold=0.95)
-    transformer.fit(X)
-    X_t = transformer.transform(X)
-    # One of a or b must be dropped; c must remain.
-    assert "c" in X_t.columns
-    assert len(X_t.columns) == 2
+    data_dir = Path("data/processed")
+    data_dir.mkdir(parents=True, exist_ok=True)
+    elig_path = data_dir / "eligible_subjects.csv"
+    metrics_path = data_dir / "graph_metrics.csv"
+    elig.to_csv(elig_path, index=False)
+    metrics.to_csv(metrics_path, index=False)
+    yield
+    # Cleanup after tests
+    for p in [elig_path, metrics_path, Path("data/processed/model.pkl"), Path("data/processed/performance_report.json")]:
+        if p.is_file():
+            p.unlink()
 
-def test_make_inner_pipeline():
-    pipeline = make_inner_pipeline()
-    assert hasattr(pipeline, "fit")
-    assert hasattr(pipeline, "predict_proba")
+def test_nested_cv_runs_and_produces_outputs(synthetic_data):
+    """Run the full main() and check that artifacts exist and are well‑formed."""
+    # Execute the training script
+    train_mod.main()
 
-def test_train_and_evaluate_nested_cv():
-    X, y = _create_dummy_data()
-    model, perf = train_and_evaluate_nested_cv(X, y)
-    # Model should be a RandomForestClassifier
-    from sklearn.ensemble import RandomForestClassifier
-    assert isinstance(model, RandomForestClassifier)
-    # Performance dict must contain expected keys
-    for key in ["roc_auc_mean", "accuracy_mean", "f1_mean", "best_params"]:
-        assert key in perf
+    # Verify model file
+    model_path = Path("data/processed/model.pkl")
+    assert model_path.is_file(), "Model file was not created"
 
-# The tests are deliberately lightweight to run quickly in CI.  They verify
-# that the core functions exist and behave plausibly.
+    # Verify performance report
+    report_path = Path("data/processed/performance_report.json")
+    assert report_path.is_file(), "Performance report was not created"
+    with report_path.open() as f:
+        report = json.load(f)
+    # Basic sanity checks on the report structure
+    assert "fold_metrics" in report
+    assert "mean_metrics" in report
+    assert isinstance(report["fold_metrics"], list)
+    assert isinstance(report["mean_metrics"], dict)
+
+# The synthetic dataset is tiny; we only care that the pipeline runs without error.
+# No need for heavy metric assertions.

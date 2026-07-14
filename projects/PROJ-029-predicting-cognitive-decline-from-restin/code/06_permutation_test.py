@@ -10,11 +10,7 @@ import time
 from pathlib import Path
 from typing import List
 
-import numpy as np
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import train_test_split
+from pathlib import Path
 
 from utils.logger import get_logger, log_operation
 
@@ -38,6 +34,10 @@ def load_features_and_labels() -> tuple[List[List[float]], List[int]]:
         X: List of feature vectors (list of floats)
         y: List of binary labels (0 = stable, 1 = decline)
     """
+    # Load CSV files using the project's I/O utilities.
+    from utils.io import load_csv
+
+    # Resolve processed data directory (fallback to default)
     data_dir = Path("data/processed")
 
     # Expected input files
@@ -169,7 +169,7 @@ def run_permutation_test(num_permutations: int = 500, seed: int = 42) -> dict:
 # Main entry point
 # ----------------------------------------------------------------------
 
-@log_operation("run_permutation_test")
+@log_operation
 def main() -> int:
     """Execute the permutation test script."""
     try:

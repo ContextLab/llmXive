@@ -1,13 +1,16 @@
-"""Unit tests for the download‑and‑filter script."""
+"""Unit tests for the download-and-filter script (T017)."""
 
 import csv
+import json
+import sys
 from pathlib import Path
 
 import pytest
 
-# Import the functions directly for isolated testing
+# Import the functions we need to test directly
 from code import (
     ensure_dir,
+    download_file,
     read_participants_tsv,
     is_eligible,
     filter_eligible_subjects,
@@ -16,77 +19,94 @@ from code import (
     write_excluded_log,
 )
 
+# NOTE: The real network download is not exercised in CI – we only test the
+# pure‑python logic.  The `download_file` helper is exercised with a tiny
+# local HTTP server in the integration test suite (not shown here).
+
 
 @pytest.fixture
-def tmp_raw_dir(tmp_path):
-    """Create a temporary raw directory with a synthetic participants.tsv."""
-    raw_dir = tmp_path / "data" / "raw" / "ds000246"
-    raw_dir.mkdir(parents=True)
-    participants = raw_dir / "participants.tsv"
-    # Minimal TSV with two subjects, each having two timepoints for both scores
-    participants.write_text(
-        "participant_id\\tmmse_1\\tmmse_2\\tmoca_1\\tmoca_2\\n"
-        "sub-01\\t30\\t28\\t28\\t27\\n"
-        "sub-02\\t\\t\\t\\t\\n"
-    )
-    return raw_dir
+def sample_rows():
+    """Return a small set of participant rows mimicking the real TSV."""
+    return [
+        {
+            "participant_id": "sub-01",
+            "MMSE_T1": "28",
+            "MMSE_T2": "27",
+            "MOCA_T1": "26",
+            "MOCA_T2": "25",
+        },
+        {
+            "participant_id": "sub-02",
+            "MMSE_T1": "29",
+            "MMSE_T2": "",
+            "MOCA_T1": "27",
+            "MOCA_T2": "27",
+        },
+        {
+            "participant_id": "sub-03",
+            "MMSE_T1": "",
+            "MMSE_T2": "",
+            "MOCA_T1": "",
+            "MOCA_T2": "",
+        },
+    ]
 
 
-def test_read_participants_tsv(tmp_raw_dir):
-    rows = read_participants_tsv(tmp_raw_dir / "participants.tsv")
-    assert len(rows) == 2
-    assert rows[0]["participant_id"] == "sub-01"
+def test_is_eligible_cases(sample_rows):
+    """Check that eligibility logic correctly classifies rows."""
+    eligible_flags = [is_eligible(r)[0] for r in sample_rows]
+    # Only the first subject has both MMSE and MOCA at two timepoints
+    assert eligible_flags == [True, False, False]
 
 
-def test_is_eligible():
-    row_ok = {
-        "participant_id": "sub-01",
-        "mmse_1": "30",
-        "mmse_2": "28",
-        "moca_1": "28",
-        "moca_2": "27",
-    }
-    row_bad = {
-        "participant_id": "sub-02",
-        "mmse_1": "",
-        "mmse_2": "",
-        "moca_1": "",
-        "moca_2": "",
-    }
-    assert is_eligible(row_ok)[0] is True
-    assert is_eligible(row_bad)[0] is False
-
-
-def test_filter_and_limit(tmp_raw_dir):
-    rows = read_participants_tsv(tmp_raw_dir / "participants.tsv")
-    eligible, excluded = filter_eligible_subjects(rows)
+def test_filter_eligible_subjects(sample_rows):
+    eligible, excluded = filter_eligible_subjects(sample_rows)
     assert len(eligible) == 1
-    assert len(excluded) == 1
-    limited = limit_subjects(eligible, max_n=100)
-    assert limited == eligible
+    assert eligible[0]["participant_id"] == "sub-01"
+    assert len(excluded) == 2
+    # Ensure the reason strings are non‑empty for excluded rows
+    for _, reason in excluded:
+        assert reason
 
 
-def test_write_outputs(tmp_path):
+def test_limit_subjects(sample_rows):
+    eligible, _ = filter_eligible_subjects(sample_rows)
+    # Duplicate to have >1 eligible for limiting
+    duplicated = eligible * 5
+    limited = limit_subjects(duplicated, max_n=3, seed=123)
+    assert len(limited) == 3
+    # Deterministic ordering with the same seed
+    ids_first_run = [r["participant_id"] for r in limited]
+    limited_again = limit_subjects(duplicated, max_n=3, seed=123)
+    ids_second_run = [r["participant_id"] for r in limited_again]
+    assert ids_first_run == ids_second_run
+
+
+def test_write_and_read_back(tmp_path):
+    """Round‑trip test for CSV and log writers."""
     out_dir = tmp_path / "out"
-    eligible = [
-        {"participant_id": "sub-01"},
+    eligible_path = out_dir / "eligible.csv"
+    excluded_path = out_dir / "excluded.log"
+
+    rows = [
+        {"participant_id": "sub-A"},
+        {"participant_id": "sub-B"},
     ]
     excluded = [
-        ({"participant_id": "sub-02"}, "both MMSE and MoCA missing at ≥2 timepoints")
+        ({"participant_id": "sub-X"}, "missing MMSE"),
+        ({"participant_id": "sub-Y"}, "missing MOCA"),
     ]
-    eligible_csv = out_dir / "eligible_subjects.csv"
-    excluded_log = out_dir / "excluded_subjects.log"
-    write_eligible_csv(eligible, eligible_csv)
-    write_excluded_log(excluded, excluded_log)
 
-    # Verify CSV
-    with eligible_csv.open(newline="") as f:
-        reader = csv.reader(f)
-        rows = list(reader)
-    assert rows[0] == ["participant_id"]
-    assert rows[1] == ["sub-01"]
+    write_eligible_csv(rows, eligible_path)
+    write_excluded_log(excluded, excluded_path)
 
-    # Verify log
-    content = excluded_log.read_text()
-    assert "sub-02" in content
-    assert "both MMSE and MoCA missing" in content
+    # Verify CSV contents
+    with open(eligible_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        read_rows = list(reader)
+    assert [r["participant_id"] for r in read_rows] == ["sub-A", "sub-B"]
+
+    # Verify log contents
+    with open(excluded_path, encoding="utf-8") as f:
+        lines = [l.strip().split("\\t") for l in f.readlines()]
+    assert lines == [["sub-X", "missing MMSE"], ["sub-Y", "missing MOCA"]]

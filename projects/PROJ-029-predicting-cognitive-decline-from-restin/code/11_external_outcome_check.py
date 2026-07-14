@@ -223,5 +223,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    # Running the module directly performs the check.
     main()

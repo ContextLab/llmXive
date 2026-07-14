@@ -1,63 +1,60 @@
 """Unit tests for the graph‑metric computation utilities."""
 
+import pathlib
 import numpy as np
 import pandas as pd
-import pytest
 
-from utils.graph import (
-    create_graph_from_adjacency,
-    calculate_degree_centrality,
+from code import utils
+from code.utils.graph import (
     calculate_global_efficiency,
     calculate_clustering_coefficient,
+    calculate_degree_centrality,
+    calculate_local_efficiency,
     calculate_shortest_path_length,
 )
 
-
-@pytest.fixture
-def simple_matrix():
-    """A tiny 3‑node fully‑connected weighted adjacency matrix."""
-    return np.array(
-        [
-            [0.0, 1.0, 0.5],
-            [1.0, 0.0, 0.2],
-            [0.5, 0.2, 0.0],
-        ]
-    )
-
-
-def test_create_graph_from_adjacency(simple_matrix):
-    G = create_graph_from_adjacency(simple_matrix)
-    assert G.number_of_nodes() == 3
-    # Fully connected undirected graph should have 3 edges
-    assert G.number_of_edges() == 3
+# Simple synthetic adjacency matrix for a small complete graph (3 nodes)
+# This is only used to sanity‑check the helper functions – the main script
+# works on real data and is exercised in the integration tests.
+SIMPLE_MATRIX = np.array(
+    [
+        [0.0, 1.0, 1.0],
+        [1.0, 0.0, 1.0],
+        [1.0, 1.0, 0.0],
+    ]
+)
 
 
-def test_degree_centrality(simple_matrix):
-    G = create_graph_from_adjacency(simple_matrix)
+def test_degree_centrality():
+    G = utils.graph.create_graph_from_adjacency(SIMPLE_MATRIX)
     deg = calculate_degree_centrality(G)
-    assert isinstance(deg, dict)
-    assert len(deg) == 3
-    # In a fully connected graph each node degree should be 2 (weighted sum)
-    for val in deg.values():
-        assert val > 0
+    # In a complete graph of 3 nodes each node has degree 2.
+    assert all(v == 2 for v in deg.values())
 
 
-def test_global_efficiency(simple_matrix):
-    G = create_graph_from_adjacency(simple_matrix)
+def test_global_efficiency():
+    G = utils.graph.create_graph_from_adjacency(SIMPLE_MATRIX)
     eff = calculate_global_efficiency(G)
-    assert isinstance(eff, float)
-    assert eff > 0
+    # For a complete graph the global efficiency is 1.0
+    assert abs(eff - 1.0) < 1e-6
 
 
-def test_clustering_coefficient(simple_matrix):
-    G = create_graph_from_adjacency(simple_matrix)
-    coeff = calculate_clustering_coefficient(G)
-    assert isinstance(coeff, dict)
-    assert len(coeff) == 3
+def test_clustering_coefficient():
+    G = utils.graph.create_graph_from_adjacency(SIMPLE_MATRIX)
+    cc = calculate_clustering_coefficient(G)
+    # Complete graph clustering coefficient is 1.0
+    assert abs(cc - 1.0) < 1e-6
 
 
-def test_shortest_path_length(simple_matrix):
-    G = create_graph_from_adjacency(simple_matrix)
-    apl = calculate_shortest_path_length(G)
-    assert isinstance(apl, float)
-    assert apl > 0
+def test_local_efficiency():
+    G = utils.graph.create_graph_from_adjacency(SIMPLE_MATRIX)
+    le = calculate_local_efficiency(G)
+    # For a complete graph local efficiency equals global efficiency
+    assert abs(le - 1.0) < 1e-6
+
+
+def test_shortest_path_length():
+    G = utils.graph.create_graph_from_adjacency(SIMPLE_MATRIX)
+    spl = calculate_shortest_path_length(G)
+    # In a complete graph the shortest path between distinct nodes is 1
+    assert abs(spl - 1.0) < 1e-6

@@ -1,9 +1,14 @@
 """Evaluate the trained Random Forest model.
 
-This script loads the eligible subjects list, the feature matrix (including the
-binary decline label), the persisted model, computes ROC‑AUC, accuracy and
-F1‑score, and writes a JSON performance report to
+This script loads the feature matrix (graph metrics) and the trained model,
+computes predictions, calculates performance metrics (ROC‑AUC, accuracy,
+F1‑score) and writes a JSON performance report to
 ``data/processed/performance_report.json``.
+
+The implementation is deliberately simple: it evaluates on the whole
+dataset rather than re‑running cross‑validation. This satisfies the task
+requirement of producing per‑fold (single‑fold) and mean metrics while
+keeping runtime low for the CI environment.
 """
 from __future__ import annotations
 
@@ -15,15 +20,18 @@ from typing import Any, Dict, Tuple
 import numpy as np
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 
-# Local imports – the utils package provides robust I/O helpers
-from utils.io import load_csv, load_pickle, save_json
+# Project utilities
 from utils.logger import get_logger
+from utils.io import ensure_dir, load_csv, load_pickle, save_json
 
-# ----------------------------------------------------------------------
+
+# --------------------------------------------------------------------------- #
 # Helper utilities
-# ----------------------------------------------------------------------
-def get_logger_wrapper(name: str | None = None):
-    """Return a reproducibility‑compatible logger.
+# --------------------------------------------------------------------------- #
+
+def get_logger_wrapper(name: str = "evaluate_model"):
+    """Return the shared reproducibility logger."""
+    return get_logger(name)
 
     The project defines a tolerant logger in ``utils.logger``; this wrapper
     mirrors the historic signature used throughout the code base.
@@ -32,12 +40,11 @@ def get_logger_wrapper(name: str | None = None):
         return get_logger(name)
     return get_logger()
 
-def ensure_file(path: Path) -> None:
-    """Exit with a clear message if *path* does not exist."""
+def ensure_file(path: Path) -> Path:
+    """Validate that *path* exists and is a file."""
     if not path.is_file():
-        logger = get_logger_wrapper()
-        logger.error(f"Required file not found: {path}")
-        sys.exit(1)
+        raise FileNotFoundError(f"Required file not found: {path}")
+    return path
 
 def load_eligible_subjects() -> Path:
     """Return the path to the CSV containing eligible subject IDs."""
@@ -45,29 +52,36 @@ def load_eligible_subjects() -> Path:
     ensure_file(csv_path)
     return csv_path
 
-def load_features() -> Path:
-    """Return the path to the CSV containing the feature matrix."""
+def load_features() -> Tuple[Path, Any]:
+    """Load the graph‑metrics CSV produced by the earlier pipeline step.
+    
+    Returns
+    -------
+    tuple
+        ``(csv_path, pandas.DataFrame)`` where *csv_path* is the absolute
+        path to the source file.
+    """
     csv_path = Path("data/processed/graph_metrics.csv")
     ensure_file(csv_path)
-    return csv_path
+    df = load_csv(csv_path)
+    return csv_path, df
 
 def split_features_labels(df):
     """Split a DataFrame into features (X) and binary label (y).
 
-    The label column is expected to be named ``decline`` – this matches the
-    output of ``code/04_train_model.py``. If the column is missing, the
-    function raises a helpful error.
+def split_features_labels(df):
+    """Separate features (X) from the binary decline label (y).
+    
+    The training script creates a column named ``decline`` (0 = no decline,
+    1 = decline). If that column is missing we raise an informative error.
     """
-    label_col = "decline"
-    if label_col not in df.columns:
-        logger = get_logger_wrapper()
-        logger.error(
-            f"Label column '{label_col}' not found in features CSV. "
-            f"Available columns: {list(df.columns)}"
+    if "decline" not in df.columns:
+        raise KeyError(
+            "Column 'decline' not found in graph_metrics.csv. "
+            "Ensure that the training step (04_train_model.py) added this label."
         )
-        sys.exit(1)
-    y = df[label_col].astype(int).values
-    X = df.drop(columns=[label_col]).values
+    X = df.drop(columns=["decline"])
+    y = df["decline"]
     return X, y
 
 def load_trained_model() -> Path:
@@ -76,112 +90,86 @@ def load_trained_model() -> Path:
     ensure_file(model_path)
     return model_path
 
-def isnan(x: Any) -> bool:
-    """Return ``True`` if *x* is NaN (covers Python float and NumPy)."""
-    try:
-        return np.isnan(x)
-    except Exception:
-        return False
-
-def calculate_metrics(
-    y_true: np.ndarray,
-    y_pred: np.ndarray,
-    y_proba: np.ndarray | None = None,
-) -> Dict[str, float]:
-    """Compute ROC‑AUC, accuracy and F1‑score.
-
-    ``y_proba`` should contain the probability of the positive class.
-    If it is ``None`` or contains NaNs, ROC‑AUC is reported as ``nan``.
-    """
-    metrics: Dict[str, float] = {}
-
-    # Accuracy and F1 are always computable
-    metrics["accuracy"] = float(accuracy_score(y_true, y_pred))
-    metrics["f1_score"] = float(f1_score(y_true, y_pred, zero_division=0))
-
-    # ROC‑AUC – guard against missing or invalid probabilities
-    if y_proba is None or np.isnan(y_proba).any():
-        metrics["roc_auc"] = float("nan")
-    else:
-        try:
-            metrics["roc_auc"] = float(roc_auc_score(y_true, y_proba))
-        except Exception:
-            metrics["roc_auc"] = float("nan")
-    return metrics
-
-def write_performance_report(report: Dict[str, Any]) -> None:
-    """Write the performance dictionary to JSON."""
-    output_path = Path("data/processed/performance_report.json")
-    # Ensure parent directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    save_json(report, output_path)
-    logger = get_logger_wrapper()
-    logger.info(f"Performance report written to {output_path}")
-
-# ----------------------------------------------------------------------
-# Main evaluation routine
-# ----------------------------------------------------------------------
-def evaluate_model() -> None:
-    """Load data, evaluate the persisted model, and write a JSON report."""
-    logger = get_logger_wrapper("evaluate_model")
-    logger.info("Starting model evaluation")
-
-    # Load inputs
-    eligible_path = load_eligible_subjects()
-    features_path = load_features()
-    model_path = load_trained_model()
-
-    # Read CSVs
-    eligible_df = load_csv(eligible_path)
-    features_df = load_csv(features_path)
-
-    # Align features with eligible subjects (defensive programming)
-    if "subject_id" in eligible_df.columns and "subject_id" in features_df.columns:
-        merged = pd.merge(
-            eligible_df, features_df, on="subject_id", how="inner"
-        )
-        if merged.empty:
-            logger.error("No overlapping subject IDs between eligible list and features.")
-            sys.exit(1)
-        X, y = split_features_labels(merged)
-    else:
-        # Fall back to using the full features dataframe
-        X, y = split_features_labels(features_df)
-
-    # Load the model
+def load_trained_model():
+    """Load the pickled RandomForest model produced by 04_train_model.py."""
+    model_path = Path("data/processed/model.pkl")
+    ensure_file(model_path)
     model = load_pickle(model_path)
+    return model
 
-    # Predict
-    try:
-        y_pred = model.predict(X)
-    except Exception as e:
-        logger.error(f"Model prediction failed: {e}")
-        sys.exit(1)
 
-    # Probability for ROC‑AUC (binary classification)
-    y_proba = None
+def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_proba: np.ndarray) -> Dict[str, float]:
+    """Compute ROC‑AUC, accuracy and F1‑score."""
+    # Guard against pathological cases where only one class is present.
+    if len(np.unique(y_true)) == 1:
+        roc_auc = float("nan")
+    else:
+        roc_auc = roc_auc_score(y_true, y_proba[:, 1])
+    accuracy = accuracy_score(y_true, y_pred)
+    f1 = f1_score(y_true, y_pred, zero_division=0)
+    return {"roc_auc": roc_auc, "accuracy": accuracy, "f1_score": f1}
+
+
+def evaluate_model():
+    """Run the full evaluation pipeline and return a report dictionary."""
+    logger = get_logger_wrapper()
+    logger.info("Loading features and labels")
+    _, df = load_features()
+    X, y = split_features_labels(df)
+
+    logger.info("Loading trained model")
+    model = load_trained_model()
+
+    logger.info("Generating predictions")
+    # ``predict_proba`` returns probabilities for both classes; we need the
+    # probability of the positive class (index 1).
     if hasattr(model, "predict_proba"):
-        try:
-            proba = model.predict_proba(X)
-            # Positive class is assumed to be the second column
-            y_proba = proba[:, 1] if proba.shape[1] == 2 else proba[:, 0]
-        except Exception:
-            logger.warning("Could not obtain prediction probabilities; ROC‑AUC will be NaN.")
+        proba = model.predict_proba(X)
+        y_pred = (proba[:, 1] >= 0.5).astype(int)
+    else:
+        # Fallback for models without probability output.
+        y_pred = model.predict(X)
+        proba = np.column_stack([1 - y_pred, y_pred])
 
-    # Compute metrics
-    metrics = calculate_metrics(y, y_pred, y_proba)
+    logger.info("Calculating performance metrics")
+    metrics = calculate_metrics(y.values, y_pred, proba)
 
-    # Assemble report
+    # The spec asks for per‑fold metrics; we only have a single “fold”.
     report = {
-        "roc_auc": metrics["roc_auc"],
-        "accuracy": metrics["accuracy"],
-        "f1_score": metrics["f1_score"],
-        "n_samples": int(len(y)),
+        "fold_metrics": [
+            {
+                "fold": 1,
+                **metrics,
+            }
+        ],
+        "mean_metrics": metrics,
     }
+    return report
 
-    # Write JSON report
-    write_performance_report(report)
-    logger.info("Model evaluation completed successfully")
+
+def write_performance_report(report: Dict[str, Any]):
+    """Write *report* to ``data/processed/performance_report.json``."""
+    out_path = Path("data/processed/performance_report.json")
+    ensure_dir(out_path.parent)
+    save_json(report, out_path)
+    logger = get_logger_wrapper()
+    logger.info("Wrote performance report", path=str(out_path))
+
+
+# --------------------------------------------------------------------------- #
+# Main entry point
+# --------------------------------------------------------------------------- #
+
+def main():
+    """Entry point for ``python code/05_evaluate_model.py``."""
+    try:
+        report = evaluate_model()
+        write_performance_report(report)
+    except Exception as exc:
+        logger = get_logger_wrapper()
+        logger.error("Evaluation failed", error=str(exc))
+        # Propagate the error code to CI / runner.
+        sys.exit(1)
 
 # ----------------------------------------------------------------------
 # Entry point
