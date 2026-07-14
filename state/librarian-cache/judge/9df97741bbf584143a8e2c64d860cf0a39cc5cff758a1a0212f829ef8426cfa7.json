@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1601.02906",
+  "judged_at": "2026-07-14T07:02:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "can publicly available data reveal subtle violations of time-reversal symmetry in beta decay? physics",
+  "rationale": "The paper addresses the mathematical implications of time-reversal symmetry in solid-state physics (specifically regarding Bloch bundles and topological insulators), which is a distinct construct from the user's question about experimental violations of time-reversal symmetry in nuclear beta decay. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords,\" as the shared term \"time-reversal symmetry\" refers to different physical phenomena and domains (condensed ma",
+  "relevant": false
+}

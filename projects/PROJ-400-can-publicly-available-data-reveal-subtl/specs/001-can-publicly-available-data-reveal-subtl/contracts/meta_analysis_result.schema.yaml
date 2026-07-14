@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: MetaAnalysisResult Schema
+description: "Schema for the aggregated meta-analysis results."
+type: object
+properties:
+  nucleus:
+    type: string
+    description: "Name of the nucleus."
+  weighted_average:
+    type: number
+    description: "Inverse-variance weighted average of D-coefficients."
+  combined_uncertainty:
+    type: number
+    exclusiveMinimum: 0
+    description: "Combined uncertainty of the weighted average."
+  n_measurements:
+    type: integer
+    minimum: 1
+    description: "Number of measurements included."
+  p_value_heterogeneity:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "P-value from Cochran's Q test. Null if n_measurements < 2."
+  d_upper_bound_95:
+    type: number
+    description: "95% confidence interval upper bound for |D|."
+  sensitivity_limit:
+    type: number
+    description: "Experimental noise floor (weighted average of uncertainties)."
+  pdg_comparison:
+    type: string
+    enum:
+      - tighter
+      - looser
+      - consistent
+      - no_pdg_data
+    description: "Comparison against PDG 2022 limits."
+  random_seed:
+    type: integer
+    description: "Random seed used for any stochastic fallbacks (e.g., shuffle tests)."
+  z_score:
+    type: number
+    description: "Z-score for the null hypothesis test (Combined Mean / Combined Uncertainty)."
+  hypothesis_result:
+    type: string
+    enum:
+      - non-zero
+      - null
+    description: "Result of the Z-test against D=0."
+required:
+  - nucleus
+  - weighted_average
+  - combined_uncertainty
+  - n_measurements
+  - d_upper_bound_95
+  - sensitivity_limit
+  - pdg_comparison
+  - random_seed
+  - z_score
+  - hypothesis_result

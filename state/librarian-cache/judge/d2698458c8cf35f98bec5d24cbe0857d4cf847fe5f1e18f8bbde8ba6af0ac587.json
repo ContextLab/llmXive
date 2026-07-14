@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1208.1992",
+  "judged_at": "2026-07-14T07:02:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "can publicly available data reveal subtle violations of time-reversal symmetry in beta decay? physics",
+  "rationale": "This paper addresses the user's question by studying the fundamental mechanisms of beta decay (specifically double beta decay) and the nuclear structure theory required to interpret such processes, satisfying criterion (a) for same-mechanism evidence and (d) as a foundational reference for the domain. While the paper focuses on neutrinoless double beta decay rather than time-reversal symmetry violations specifically, it provides the essential theoretical framework and nuclear matrix element calc",
+  "relevant": true
+}

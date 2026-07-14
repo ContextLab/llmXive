@@ -1,0 +1,231 @@
+resolved_at: '2026-07-14T07:11:01.058166+00:00'
+datasets:
+- intent: NNDC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_An_atlas_of_sarbecovirus_infectivity_across_diverse_ACE2_orthologs_b_/32981705
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Lead_generation_company_in_Hyderabad/32981720
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://figshare.com/articles/dataset/EEG-fNIRS_Dataset_for_Visual_Imagery/30958199
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/_b_Forum_Open_Indonesia_2026_b_Membangun_Literasi_Digital_dan_Riset_Terbuka/32981696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Improving_the_Biocompatibility_and_Energy_Performance_of_a_Microbial_Bioanode_with_Black_Phosphorus_and_Polypyrrole_Nanocomposites/32981717
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4122767
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18600380
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14991103
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7043844
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tandfonline.com/doi/full/10.1080/00222933.2016.1145271
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21248274
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21248274
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20526980
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20526980
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20330319
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ENSDF
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_An_atlas_of_sarbecovirus_infectivity_across_diverse_ACE2_orthologs_b_/32981705
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Lead_generation_company_in_Hyderabad/32981720
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://figshare.com/articles/dataset/EEG-fNIRS_Dataset_for_Visual_Imagery/30958199
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/_b_Forum_Open_Indonesia_2026_b_Membangun_Literasi_Digital_dan_Riset_Terbuka/32981696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Improving_the_Biocompatibility_and_Energy_Performance_of_a_Microbial_Bioanode_with_Black_Phosphorus_and_Polypyrrole_Nanocomposites/32981717
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/376872
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20323486
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ojs.bbwpublisher.com/index.php/JERA/article/view/612
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7663238
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10209741
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21347782
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21347782
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21330487
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21330487
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21293959
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PDG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/thanhtlx/fix-cmg-time-split-type-cluster-pdg/resolve/main/test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/thanhtlx/fix-cmg-cross-split-type-cluster-pdg/resolve/main/test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/juliensimon/pdg-particle-properties/resolve/main/data/pdg_particle_properties.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 118311
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/thanhtlx/fix-cmg-time-split-type-cluster-pdg/resolve/main/test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/thanhtlx/fix-cmg-cross-split-type-cluster-pdg/resolve/main/test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/pdg3/CS482/resolve/main/test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/juliensimon/pdg-particle-properties/resolve/main/data/pdg_particle_properties.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_An_atlas_of_sarbecovirus_infectivity_across_diverse_ACE2_orthologs_b_/32981705
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Lead_generation_company_in_Hyderabad/32981720
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://figshare.com/articles/dataset/EEG-fNIRS_Dataset_for_Visual_Imagery/30958199
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/_b_Forum_Open_Indonesia_2026_b_Membangun_Literasi_Digital_dan_Riset_Terbuka/32981696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Improving_the_Biocompatibility_and_Energy_Performance_of_a_Microbial_Bioanode_with_Black_Phosphorus_and_Polypyrrole_Nanocomposites/32981717
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12624852
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20565723
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13168025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13168027
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19371140
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21350444
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21350444
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.11583
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21346848
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21346848
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

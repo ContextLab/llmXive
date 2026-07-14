@@ -1,0 +1,557 @@
+{
+  "fetched_at": "2026-07-14T07:02:22Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry in Beta Decay?",
+      "target_n": 5
+    },
+    "duration_seconds": 60.44,
+    "ended_at": "2026-07-14T07:02:22Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "T-symmetry violation in nuclear beta decay"
+        ],
+        [
+          2,
+          "Time-reversal symmetry breaking in weak interactions"
+        ],
+        [
+          3,
+          "Electric dipole moment constraints from beta decay"
+        ],
+        [
+          4,
+          "D-coefficient measurements in neutron beta decay"
+        ],
+        [
+          5,
+          "Triple correlation D in nuclear beta decay"
+        ],
+        [
+          6,
+          "Search for time-reversal violation using beta asymmetry"
+        ],
+        [
+          7,
+          "Reanalysis of historical beta decay datasets"
+        ],
+        [
+          8,
+          "CP violation and time-reversal symmetry in weak force"
+        ],
+        [
+          9,
+          "T-odd correlations in allowed beta transitions"
+        ],
+        [
+          10,
+          "Public repository analysis of nuclear decay parameters"
+        ],
+        [
+          11,
+          "Beta decay triple correlation D coefficient limits"
+        ],
+        [
+          12,
+          "Time-reversal non-invariance in neutron decay"
+        ],
+        [
+          13,
+          "Constraints on T-violation from beta decay experiments"
+        ],
+        [
+          14,
+          "Statistical analysis of legacy beta decay data"
+        ],
+        [
+          15,
+          "Weak interaction T-violation signatures in nuclei"
+        ],
+        [
+          16,
+          "Beta decay angular correlation T-odd terms"
+        ],
+        [
+          17,
+          "Re-evaluating beta decay data for T-symmetry breaking"
+        ],
+        [
+          18,
+          "Neutron decay time-reversal violation searches"
+        ],
+        [
+          19,
+          "T-violation limits from nuclear beta decay experiments"
+        ],
+        [
+          20,
+          "Indirect detection of time-reversal symmetry violation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry in Beta Decay? physics": 0,
+        "T-symmetry violation in nuclear beta decay": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "T-violation beta decay electric dipole moment",
+      "neutron decay correlation coefficients D-term R-correlation",
+      "CKM matrix unitarity violation weak interaction",
+      "triple correlation asymmetry beta decay experimental limits",
+      "time-reversal symmetry breaking beyond standard model"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "nucl-th/0109057"
+      ]
+    },
+    "per_query_hit_count": {
+      "CKM matrix unitarity violation weak interaction": 3,
+      "Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry in Beta Decay? physics": 3,
+      "T-violation beta decay electric dipole moment": 3,
+      "neutron decay correlation coefficients D-term R-correlation": 3,
+      "time-reversal symmetry breaking beyond standard model": 3,
+      "triple correlation asymmetry beta decay experimental limits": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1601.02906",
+          "rationale": "The paper addresses the mathematical implications of time-reversal symmetry in solid-state physics (specifically regarding Bloch bundles and topological insulators), which is a distinct construct from the user's question about experimental violations of time-reversal symmetry in nuclear beta decay. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords,\" as the shared term \"time-reversal symmetry\" refers to different physical phenomena and domains (condensed ma",
+          "title": "Symmetry and localization in periodic crystals: triviality of Bloch bundles with a fermionic time-reversal symmetry"
+        },
+        {
+          "primary_pointer": "2111.15543",
+          "rationale": "The paper focuses on neutrinoless double beta decay ($0\\nu\\beta\\beta$) and lepton-number violation, which is a distinct physical mechanism from the time-reversal symmetry violations in standard beta decay ($\\beta$-decay) queried by the user. While both involve nuclear weak decays, the paper does not measure the specific observable (time-reversal violation) or the specific process (standard beta decay) required by the user's question, failing the \"same-mechanism\" and \"independent/dependent variab",
+          "title": "Beyond-mean-field approaches for nuclear neutrinoless double beta decay in the standard mechanism"
+        },
+        {
+          "primary_pointer": "2011.14734",
+          "rationale": "The paper focuses on calculating nuclear matrix elements for neutrinoless double-beta decay to test the Majorana nature of neutrinos, which is a distinct physical mechanism and observable from the user's question regarding time-reversal symmetry violations in standard beta decay. While both topics involve beta decay, the paper does not measure the same mechanism (T-violation vs. lepton number violation) nor does it address the specific variables or empirical setting of the user's query, falling ",
+          "title": "Present Status of Nuclear Shell-Model Calculations of Neutrinoless Double-Beta Decay Matrix Elements"
+        },
+        {
+          "primary_pointer": "1901.06841",
+          "rationale": "The paper focuses on calculating nuclear matrix elements for neutrinoless double-beta decay to determine neutrino mass, which is a distinct physical mechanism and observable from the user's question regarding time-reversal symmetry violations in standard beta decay. While both involve beta decay, the paper does not measure, model, or discuss time-reversal symmetry breaking, nor does it address the specific experimental signatures or theoretical frameworks required to detect such violations.",
+          "title": "Consistency Examinations of Calculations of Nuclear Matrix Elements of Double-$β$ Decay by QRPA"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-14T07:01:21Z",
+    "term_input": {
+      "normalized": "can publicly available data reveal subtle violations of time-reversal symmetry in beta decay? physics",
+      "raw": "Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry in Beta Decay? physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the design principle and test results of a data transmitting ASIC, GBS20, for particle physics experiments. The goal of GBS20 will be an ASIC that employs two serializers each from the 10.24 Gbps lpGBT SerDes, sharing the PLL also from lpGBT. A PAM4 encoder plus a VCSEL driver will be implemented in the same die to use the same clock system, eliminating the need of CDRs in the PAM4 encoder. This way the transmitter module, GBT20, developed using the GBS20 ASIC, will have the exact lpGBT data interface and transmission protocol, with an output up to 20.48 Gbps over one fiber. With PAM4 embedded FPGAs at the receiving end, GBT20 will halve the fibers needed in a system and better use the input bandwidth of the FPGA. A prototype, GBS20v0 is fabricated using a commercial 65 nm CMOS technology. This prototype has two serializers and a PAM4 encoder sharing the lpGBT PLL, but no user data input. An internal PRBS generator provides data to the serializers. GBS20v0 is tested barely up to 20.48 Gbps. With lessons learned from this prototype, we are designing the second prototype, GBS20v1, that will have 16 user data input channels each at 1.28 Gbps. We present the design concept of the GBS20 ASIC and the GBT20 module, the preliminary test results, and lessons learned from GBS20v0 and the design of GBS20v1 which will be not only a test chip but also a user chip with 16 input data channels.",
+          "claimed_authors": [
+            "Li Zhang",
+            "Datao Gong",
+            "Suen Hou",
+            "Guanming Huang",
+            "Xing Huang",
+            "Chonghan Liu",
+            "Tiankuan Liu",
+            "Hanhan Sun",
+            "Quan Sun",
+            "Xiangming Sun",
+            "Wei Zhang",
+            "Jingbo Ye"
+          ],
+          "claimed_title": "A 20 Gbps Data Transmitting ASIC with PAM4 for Particle Physics Experiments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.16064"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='A 20 Gbps Data Transmitting ASIC with PAM4 for Particle Physics Experiments')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The continued interest in placing bounds on the neutron's Electric Dipole Moment (EDM) is due to the implications regarding the characteristics of the strong interaction and, in particular, its behavior under the CP symmetry. In this work, we discuss the apparent tension resulting from the discrepancy of about 13 orders of magnitude between the current bounds and the expected quantum uncertainty in the relevant quantity. We offer a resolution of the \"puzzle\" in terms of the notion of a weak measurement, using a version of the corresponding formalism adapted to consideration of the nEDM experiment at the Spallation Neutron Source at the Oak Ridge National Laboratory.",
+          "claimed_authors": [
+            "Octavio Guerrero",
+            "Libertad Barrón-Palos",
+            "Daniel Sudarsky"
+          ],
+          "claimed_title": "On the Quantum Uncertainty of the Neutron Electric Dipole Moment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.00208"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='On the Quantum Uncertainty of the Neutron Electric Dipole Moment')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In radiative $β$ decay, $T$ violation can be studied through a spin-independent $T$-odd correlation. We consider contributions to this correlation by beyond the standard model (BSM) sources of $T$-violation, arising above the electroweak scale. At the same time such sources, parametrized by dimension-6 operators, can induce electric dipole moments (EDMs). As a consequence, the manifestations of the $T$-odd BSM physics in radiative $β$ decay and EDMs are not independent. Here we exploit this connection to show that current EDM bounds already strongly constrain the spin-independent $T$-odd correlation in radiative $β$ decay.",
+          "claimed_authors": [
+            "W. G. Dekens",
+            "K. K. Vos"
+          ],
+          "claimed_title": "T violation in radiative $β$ decay and electric dipole moments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1502.04629"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='T violation in radiative $β$ decay and electric dipole moments')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The T-odd correlation coefficient D in nuclear beta decay probes CP violation in many theories beyond the Standard Model. We provide an analysis for how large D can be in light of constraints from electric dipole moment (EDM) searches. We argue that the neutron EDM d_n currently provides the strongest constraint on D, which is 10 - 10^3 times stronger than current direct limits on D (depending on the model). In particular, contributions to D in leptoquark models (previously regarded as \"EDM safe\") are more constrained than previously thought. Bounds on D can be weakened only by fine-tuned cancellations or if theoretical uncertainties are larger than estimated in d_n. We also study implications for D from mercury and deuteron EDMs.",
+          "claimed_authors": [
+            "John Ng",
+            "Sean Tulin"
+          ],
+          "claimed_title": "D vs d: CP Violation in Beta Decay and Electric Dipole Moments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1111.0649"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='D vs d: CP Violation in Beta Decay and Electric Dipole Moments')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inspired by the well known anomaly in the life time of the neutron, we investigate its consequences inside neutron stars. We first assess the viability of the neutron decay hypothesis suggested by Fornal and Grinstein within neutrons tars, in terms of the equation of state and compatibility with observed properties. This is followed by an investigation of the constraint in formation on neutron star cooling can place on the decay rate of the dark boson into standard model particles, in the context of various BSM ideas.",
+          "claimed_authors": [
+            "Wasif Husain",
+            "Dipan Sengupta",
+            "A W Thomas"
+          ],
+          "claimed_title": "Constraining dark boson decay using neutron stars",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.07509"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='Constraining dark boson decay using neutron stars')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We analyse the proton recoil energy and angular distribution of the radiative beta-decay of the neutron to leading order in the large baryon mass expansion by taking into account the contributions of the proton-photon correlations. We show that the account for the proton-photon correlations does not contradict the description of the radiative corrections to the lifetime of the neutron and the proton recoil energy spectrum of the neutron beta-decay in terms of the functions (α/π) g_n(E_e) and (α/π) f_n(E_e), where E_e is the electron energy. In addition we find that the contributions of the proton-photon correlations in the radiative beta-decay of the neutron to the proton recoil asymmetry C are of order 10^(-4). They make the contributions of the radiative corrections to the proton recoil asymmetry C symmetric with respect to a change A_0 <--> B_0, where A_0 and B_0 are the correlation coefficients of the neutron beta-decay.",
+          "claimed_authors": [
+            "A. N. Ivanov",
+            "R. Hollwieser",
+            "N. I. Troitskaya",
+            "M. Wellenzohn"
+          ],
+          "claimed_title": "Proton Recoil Energy and Angular Distribution of Neutron Radiative Beta Decay",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1306.4448"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='Proton Recoil Energy and Angular Distribution of Neutron Radiative Beta Decay')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pearson's correlation coefficient is commonly used as a single-number summary of association between two responses. In many applications, however, the strength of association is itself heterogeneous and may vary with demographic, biological, experimental, or environmental covariates. The regcorr package implements regression models in which a Pearson correlation coefficient is linked to a linear predictor of covariates. The package supports bivariate normal responses and bivariate Bernoulli responses, provides Newton-Raphson estimation routines, includes data generators for simulation studies, and supplies a bootstrap-based subroutine for assessing the significance and power of covariate effects. The implementation follows the likelihood-based framework of Dufera, Liu, and Xu (2023) and exposes it through a lightweight R interface with no compiled code and minimal dependencies. This paper describes the statistical model, the computational design of regcorr, reproducible usage examples, and practical guidance for interpreting covariate-dependent correlations. The package is available from the Comprehensive R Archive Network at https://CRAN.R-project.org/package=regcorr under the MIT license.",
+          "claimed_authors": [
+            "Ze Lin",
+            "Bo Li",
+            "Jinyao Shen"
+          ],
+          "claimed_title": "regcorr: An R Package for Regression Models of Pearson Correlation Coefficients",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05676"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='regcorr: An R Package for Regression Models of Pearson Correlation Coefficients')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This report contains the results of the Workshop on the CKM Unitarity Triangle, held at CERN on 13-16 February 2002 to study the determination of the CKM matrix from the available data of K, D, and B physics. This is a coherent document with chapters covering the determination of CKM elements from tree level decays and K and B meson mixing and the global fits of the unitarity triangle parameters. The impact of future measurements is also discussed.",
+          "claimed_authors": [
+            "M. Battaglia",
+            "A. J. Buras",
+            "P. Gambino",
+            "A. Stocchi",
+            "D. Abbaneo",
+            "A. Ali",
+            "P. Amaral",
+            "V. Andreev",
+            "M. Artuso",
+            "E. Barberio",
+            "C. Bauer",
+            "D. Becirevic",
+            "M. Beneke",
+            "I. Bigi",
+            "C. Bozzi",
+            "T. Brandt",
+            "G. Buchalla",
+            "M. Calvi",
+            "D. Cassel",
+            "V. Cirigliano",
+            "M. Ciuchini",
+            "G. Colangelo",
+            "A. Dighe",
+            "G. Dubois-Felsmann",
+            "G. Eigen",
+            "K. Ecklund",
+            "P. Faccioli",
+            "R. Fleischer",
+            "J. Flynn",
+            "R. Forty",
+            "E. Franco",
+            "P. Gagnon",
+            "R. Gupta",
+            "S. Hashimoto",
+            "R. Hawkings",
+            "D. Hitlin",
+            "A. Hoang",
+            "A. Hocker",
+            "T. Hurth",
+            "G. Isidori"
+          ],
+          "claimed_title": "The CKM Matrix and the Unitarity Triangle",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "hep-ph/0304132"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='The CKM Matrix and the Unitarity Triangle')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the status of the Unitarity Triangle analysis focused on the analyses connected to the CKM angles extraction. The angle values are found to be $α= (90.6\\pm 6.6)^{\\circ}$, $\\sin(2β) = 0.68\\pm 0.023$, and $γ=(72.2\\pm 9.2)^{\\circ}$.",
+          "claimed_authors": [
+            "Denis Derkach"
+          ],
+          "claimed_title": "Unitarity Triangle Fitter Results for CKM Angles",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1301.3300"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='Unitarity Triangle Fitter Results for CKM Angles')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The CKM collaboration is proposing to measure the branching ratio of the rare K decay (K+ --> pi+ nu nubar) at the Main Injector at Fermilab. Our goal is to be able to observe about 100 events, for a Standard Model branching ratio of about 1.0E-10. This implies that we must be able to reduce the background to a few events.",
+          "claimed_authors": [
+            "C. Milstene",
+            "CKM collaboration"
+          ],
+          "claimed_title": "Charged Kaons at the Main Injector (CKM)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2000,
+          "primary_pointer": "hep-ex/0009046"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='Charged Kaons at the Main Injector (CKM)')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neutrinoless double beta decay is the most powerful tool to probe not only for Majorana neutrino masses but for lepton number violating physics in general. We discuss relations between lepton number violation, double beta decay and neutrino mass, review a general Lorentz invariant parametrization of the double beta decay rate, highlight a number of different new physics models showing how different mechanisms can trigger double beta decay, and finally discuss possibilities to discriminate and test these models and mechanisms in complementary experiments.",
+          "claimed_authors": [
+            "Frank F. Deppisch",
+            "Martin Hirsch",
+            "Heinrich Päs"
+          ],
+          "claimed_title": "Neutrinoless Double Beta Decay and Physics Beyond the Standard Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1208.0727"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='Neutrinoless Double Beta Decay and Physics Beyond the Standard Model')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A brief review on double beta decay to excited states of daughter nuclei is given. The ECEC(ov) transision to the excited states are discussed in association with a possible enhancement of the decay rate by several orders of magnitude.",
+          "claimed_authors": [
+            "A. S. Barabash"
+          ],
+          "claimed_title": "Double beta decay to the excited states: experimental review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0710.2194"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='Double beta decay to the excited states: experimental review')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The structure of the standard model is concisely summarized, including the standard model Lagrangian, spontaneous symmetry breaking, the reexpression of the Lagrangian in terms of mass eigenstates after symmetry breaking, and the gauge interactions. The problems of the standard model are described.",
+          "claimed_authors": [
+            "Paul Langacker"
+          ],
+          "claimed_title": "Structure of the Standard Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "hep-ph/0304186"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='Structure of the Standard Model')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The matrix elements of operators transforming as irreducible representations of an unbroken symmetry group $G$ are governed by the well-known Wigner-Eckart relations. In the case of infinitely-extended systems, with $G$ spontaneously broken, we prove that the corrections to such relations are provided by symmetry breaking Ward identities, and simply reduce to a tadpole term involving Goldstone bosons. The analysis extends to the case in which an explicit symmetry breaking term is present in the Hamiltonian, with the tadpole term now involving pseudo Goldstone bosons. An explicit example is discussed, illustrating the two cases.",
+          "claimed_authors": [
+            "Carlo Heissenberg",
+            "Franco Strocchi"
+          ],
+          "claimed_title": "Corrections to Wigner-Eckart Relations by Spontaneous Symmetry Breaking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.03539"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='Corrections to Wigner-Eckart Relations by Spontaneous Symmetry Breaking')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is widely believed that global symmetries must be broken in Quantum Gravity. This includes higher-form symmetries, which are commonplace in supergravity coupled to vector multiplets. Recently, a quantitative criterion for the breaking of (higher-form) symmetries in effective field theories of gravity has been proposed. We studied this criterion in the context of center one-form symmetries broken by BPS states in Calabi--Yau compactifications of type IIA string theory and M-theory. In a simple toy model, we evaluated the parameters quantifying the extent of symmetry breaking for large and small values of the moduli, comparing the scales of significant breaking with other relevant physical scales.",
+          "claimed_authors": [
+            "Ivano Basile",
+            "Pouya Golmohammadi"
+          ],
+          "claimed_title": "Center Symmetry Breaking in Calabi--Yau Compactifications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.19628"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry i', candidate_title='Center Symmetry Breaking in Calabi--Yau Compactifications')",
+        "failed_at": "2026-07-14T07:01:52Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jorge G. Hirsch",
+            "Victoria E. Ceron",
+            "Octavio Castanos",
+            "Peter O. Hess",
+            "Osvaldo Civitarese"
+          ],
+          "title": "Double beta decay in deformed nuclei",
+          "venue": "arXiv",
+          "year": 2001
+        },
+        "primary_pointer": "nucl-th/0109057",
+        "summary": "The pseudo SU(3) approach has been used to describe many low-lying rotational bands, as well as BE(2) and B(M1) intensities in rare earth and actinide nuclei, both with even-even and odd-mass numbers . The double beta half lives of some of these parent nuclei to the ground and excited states of the daughter ones were evaluated for the two and zero neutrino emitting modes using the pseudo SU(3) scheme. The predictions were in good agreement with the available experimental data for 150Nd and 238U.\n  The double electron capture half-lives of 156Dy, 162Er and 168Yb were also studied using the same formalism. The first nuclei was found to be the best candidate for experimental detection, with a half-life of 10^24 yr to the first excited 0+ state in 156Gd. There are strong selection rules which restrict the two neutrino mode of the double beta decay in some other nuclei, including 160Gd. Experimental limits for the double beta decay of 160Gd have been reported . Recently it was argued that the strong cancellation of the 2nu mode in the double beta decay of 160Gd would suppress the background for the detection of the 0nu mode.\n  In the present contribution we extend the previous research evaluating the double beta half lives of 160Gd using the pseudo SU(3) model. While the 2nu mode is forbidden when the most probable occupations are considered, states with different occupation numbers can be mixed through the pairing interaction. The amount of this mixing is evaluated using perturbation theory. The possibility of observing the double beta decay in 160Gd is discussed for both the 2nu and 0nu modes.",
+        "summary_grounded_pdf": null,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/nucl-th/0109057",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T07:01:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Petr Vogel"
+          ],
+          "title": "Nuclear structure and double beta decay",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1208.1992",
+        "summary": "Study of the neutrinoless double beta decay, $0νββ$, includes a variety of problems of nuclear structure theory. They are reviewed here. The problems range from the mechanism of the decay, i.e. exchange of the light Majorana neutrino neutrino versus the exchange of some heavy, so far unobserved particle. Next, the proper expressions for the corresponding operator are described that should include the effects of the nucleon size and of the recoil order terms in the hadronic current. The issue of proper treatment of the short range correlations, in particular for the case of the heavy particle exchange, is discussed also. The variety of methods employed these days in the theoretical evaluation of the nuclear matrix elements $M^{0ν}$ is briefly described and the difficulties causing the spread and hence uncertainty in the values of $M^{0ν}$ are discussed. Finally, the issue of the axial current quenching, and of the resonance enhancement in the case of double electron capture are described.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1208.1992",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T07:02:00Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "can publicly available data reveal subtle violations of time-reversal symmetry in beta decay? physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

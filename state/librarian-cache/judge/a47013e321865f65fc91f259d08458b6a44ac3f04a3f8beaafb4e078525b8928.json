@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.14734",
+  "judged_at": "2026-07-14T07:02:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "can publicly available data reveal subtle violations of time-reversal symmetry in beta decay? physics",
+  "rationale": "The paper focuses on calculating nuclear matrix elements for neutrinoless double-beta decay to test the Majorana nature of neutrinos, which is a distinct physical mechanism and observable from the user's question regarding time-reversal symmetry violations in standard beta decay. While both topics involve beta decay, the paper does not measure the same mechanism (T-violation vs. lepton number violation) nor does it address the specific variables or empirical setting of the user's query, falling ",
+  "relevant": false
+}

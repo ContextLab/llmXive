@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2111.15543",
+  "judged_at": "2026-07-14T07:02:10Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "can publicly available data reveal subtle violations of time-reversal symmetry in beta decay? physics",
+  "rationale": "The paper focuses on neutrinoless double beta decay ($0\\nu\\beta\\beta$) and lepton-number violation, which is a distinct physical mechanism from the time-reversal symmetry violations in standard beta decay ($\\beta$-decay) queried by the user. While both involve nuclear weak decays, the paper does not measure the specific observable (time-reversal violation) or the specific process (standard beta decay) required by the user's question, failing the \"same-mechanism\" and \"independent/dependent variab",
+  "relevant": false
+}

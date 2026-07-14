@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1901.06841",
+  "judged_at": "2026-07-14T07:02:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "can publicly available data reveal subtle violations of time-reversal symmetry in beta decay? physics",
+  "rationale": "The paper focuses on calculating nuclear matrix elements for neutrinoless double-beta decay to determine neutrino mass, which is a distinct physical mechanism and observable from the user's question regarding time-reversal symmetry violations in standard beta decay. While both involve beta decay, the paper does not measure, model, or discuss time-reversal symmetry breaking, nor does it address the specific experimental signatures or theoretical frameworks required to detect such violations.",
+  "relevant": false
+}

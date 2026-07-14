@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: DMeasurement Schema
+description: "Schema for individual D-coefficient measurements from archival data."
+type: object
+properties:
+  nucleus:
+    type: string
+    description: "Name of the nucleus (e.g., '6He')."
+  mass_number:
+    type: integer
+    description: "Mass number of the nucleus."
+  value:
+    type: number
+    description: "The D-coefficient value."
+  uncertainty:
+    type: number
+    exclusiveMinimum: 0
+    description: "The standard uncertainty of the measurement."
+  source_experiment:
+    type: string
+    description: "Name or ID of the experiment."
+  reference_id:
+    type: string
+    description: "Citation reference (DOI or arXiv ID)."
+  is_range:
+    type: boolean
+    description: "True if the value was derived from a range."
+  original_range:
+    type: string
+    description: "Original range string if applicable."
+required:
+  - nucleus
+  - mass_number
+  - value
+  - uncertainty
+  - source_experiment
+  - reference_id
