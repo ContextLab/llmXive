@@ -4,54 +4,41 @@ import logging
 from pathlib import Path
 import pandas as pd
 import numpy as np
-
 from code.logging_config import get_logger
+from code.analysis.correlations import load_metrics_data, perform_pca_on_metrics, save_pca_results, merge_metrics_with_pca_scores, generate_full_metrics_output
 
 logger = get_logger(__name__)
 
-def load_real_hcp_data(filepath: str) -> pd.DataFrame:
-    """Load real HCP data from a CSV file."""
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Data file not found: {path}")
-    return pd.read_csv(path)
-
-def create_synthetic_metrics(n_subjects: int = 50) -> pd.DataFrame:
-    """Create synthetic metrics for testing when real data is unavailable."""
-    logger.log("create_synthetic_metrics", n_subjects=n_subjects)
-    data = {
-        'subject_id': [f'sub-{i:03d}' for i in range(n_subjects)],
-        'modularity': np.random.uniform(0.3, 0.8, n_subjects),
-        'global_efficiency': np.random.uniform(0.1, 0.5, n_subjects),
-        'participation_coef': np.random.uniform(0.1, 0.6, n_subjects),
-        'within_module_degree': np.random.uniform(0.2, 0.7, n_subjects),
-        'MeanFD': np.random.uniform(0.1, 0.5, n_subjects),
-        'motor_score': np.random.uniform(0, 100, n_subjects)
-    }
-    return pd.DataFrame(data)
-
-def create_full_metrics_output(df: pd.DataFrame, output_path: str):
-    """Save the full metrics DataFrame to CSV."""
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path, index=False)
-    logger.log("create_full_metrics_output", path=str(path), rows=len(df))
-
 def main():
-    logger.log("generate_full_metrics_main_start")
+    """
+    Standalone runner for T023b: Generate full metrics output.
+    Merges raw metrics with PCA scores and saves to data/analysis/full_metrics.csv.
+    """
+    logger.log("generate_full_metrics", status="starting")
+    
     try:
-        # Try to load real data first
-        data_path = "data/processed/aggregated_metrics.csv"
-        if Path(data_path).exists():
-            df = load_real_hcp_data(data_path)
-        else:
-            logger.log("generate_full_metrics_fallback", message="Real data not found, generating synthetic.")
-            df = create_synthetic_metrics()
+        # Load raw metrics
+        metrics_df = load_metrics_data()
         
-        create_full_metrics_output(df, "data/analysis/full_metrics.csv")
+        # Perform PCA if not already done (or reload scores if they exist)
+        scores_path = Path("data/analysis/factor_scores.csv")
+        if scores_path.exists():
+            scores_df = pd.read_csv(scores_path)
+        else:
+            _, _, scores_df = perform_pca_on_metrics(metrics_df)
+            save_pca_results(pd.DataFrame(), scores_df) # Save only scores if loadings not needed separately here
+        
+        # Merge
+        merged_df = merge_metrics_with_pca_scores(metrics_df, scores_df)
+        
+        # Output
+        generate_full_metrics_output(merged_df)
+        
+        logger.log("generate_full_metrics", status="completed")
+        return 0
     except Exception as e:
-        logger.log("generate_full_metrics_error", message=str(e))
-        raise
+        logger.error(f"Generate full metrics failed: {str(e)}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

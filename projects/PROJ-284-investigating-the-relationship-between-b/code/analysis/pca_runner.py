@@ -1,35 +1,28 @@
+"""
+Runner script for T023a: PCA on network metrics.
+Invoked by the main pipeline to generate PCA outputs.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
 
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 from code.logging_config import get_logger
-from code.analysis.correlations import perform_pca_on_metrics, load_metrics_data, save_pca_results
+from code.analysis.correlations import main as pca_main
 
 logger = get_logger(__name__)
 
-def main() -> None:
-    """Run PCA on metrics and save results."""
-    logger.log("pca_runner", step="start")
-    
+def main():
+    logger.log("pca_runner_start")
     try:
-        # Load data
-        metrics_df = load_metrics_data()
-        logger.log("pca_runner", n_rows=len(metrics_df))
-        
-        # Define metric columns
-        metric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
-        
-        # Perform PCA
-        pca, loadings, scores = perform_pca_on_metrics(metrics_df)
-        logger.log("pca_runner", n_components=len(scores[0]))
-        
-        # Save results
-        save_pca_results(loadings, scores, metrics_df, pca, metric_cols)
-        logger.log("pca_runner", step="complete")
-        
+        pca_main()
+        logger.log("pca_runner_complete")
     except Exception as e:
-        logger.log("pca_runner", error=str(e))
+        logger.log("pca_runner_failed", error=str(e))
         raise
 
 if __name__ == "__main__":
