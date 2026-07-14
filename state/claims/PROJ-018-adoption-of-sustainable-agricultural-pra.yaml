@@ -1,0 +1,166 @@
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: statistical tasks use CPU-only libraries and synthetic data fallbacks
+    for free-tier CI
+  claim_id: c_cc99e695
+  context: 'Feasibility Note: All statistical tasks use CPU-only libraries (statsmodels,
+    scikit-learn, evalues) and synthetic data fallbacks to ensure execution on free-tier
+    CI (limited CPU resources, moderate RAM capacity).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: CPU
+      source_id: Q117453145
+      url: https://www.wikidata.org/wiki/Q117453145
+      value: CPU
+    filled: true
+  kind: entity_fact
+  raw_text: All statistical tasks use CPU-only libraries (statsmodels, scikit-learn,
+    evalues) and synthetic data fallbacks to ensure execution on free-tier CI (limited
+    CPU resources, moderate RAM capacity).
+  resolved_value: CPU
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T16:16:37Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: No GPU or 8-bit quantization tasks are included.
+  claim_id: c_95c5d84e
+  context: 'Feasibility Note: {{claim:c_cc99e695}} (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)
+    No GPU or 8-bit quantization tasks are included.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:25:12Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: No GPU or 8-bit quantization tasks are included (Wikidata Q117453145)
+  claim_id: c_0b6ba390
+  context: The document includes a feasibility note referencing Wikidata Q117453145
+    stating that no GPU or 8-bit quantization tasks are included.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Feasibility Note: {{claim:c_cc99e695}} (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)
+    No GPU or 8-bit quantization tasks are included.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:25:46Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 5
+  canonical: no GPU or 8-bit quantization tasks are included
+  claim_id: c_d1c42494
+  context: 'Feasibility Note: {{claim:c_cc99e695}} (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)
+    No GPU or 8-bit quantization tasks are included.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:27:32Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 2
+  canonical: No GPU or 8-bit quantization tasks are included
+  claim_id: c_60e71195
+  context: 'Feasibility Note: {{claim:c_cc99e695}} (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)
+    No GPU or 8-bit quantization tasks are included.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: 'Feasibility Note: {{claim:c_cc99e695}} (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)
+    No GPU or 8-bit quantization tasks are included.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:28:17Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: Feasibility note referencing Wikidata Q117453145
+  claim_id: c_59ee1018
+  context: 'Feasibility Note: {{claim:c_cc99e695}} (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)
+    No GPU or 8-bit quantization tasks are included.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Feasibility Note: {{claim:c_cc99e695}} (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)
+    No GPU or 8-bit quantization tasks are included.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:29:37Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: Feasibility Note referencing Wikidata Q117453145
+  claim_id: c_62386e42
+  context: 'Feasibility Note: {{claim:c_cc99e695}} (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)
+    appears in the notes section indicating a feasibility claim linked to Wikidata.'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Feasibility_Note_referencing_Wikidata_Q117453145
+  kind: entity_fact
+  raw_text: 'Feasibility Note: {{claim:c_cc99e695}} (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-14T16:30:39Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: no GPU or 8-bit quantization tasks are included
+  claim_id: c_f6d0e8ea
+  context: Feasibility Note referencing Wikidata Q117453145 states that no GPU or
+    8-bit quantization tasks are included.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU or 8-bit quantization tasks are included.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T16:31:50Z'
+- artifact_path: projects/PROJ-018-adoption-of-sustainable-agricultural-pra/specs/001-adoption-of-sustainable-agricultural-pra/tasks.md
+  attempts: 1
+  canonical: Feasibility Note referencing Wikidata Q117453145
+  claim_id: c_f7d8dbb5
+  context: 'Feasibility Note: {{claim:c_cc99e695}} (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)
+    No GPU or 8-bit quantization tasks are included.'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Feasibility_Note_referencing_Wikidata_Q117453145
+  kind: entity_fact
+  raw_text: 'Feasibility Note: {{claim:c_cc99e695}} (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-14T16:32:22Z'

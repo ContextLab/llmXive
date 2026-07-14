@@ -9,51 +9,62 @@ The gate detected that your reported numbers are NOT real measurements: they are
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Developmen…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…NLY).  NOTE: This script generates synthetic data ONLY when real data…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…LY authorized source for synthetic input data. All data must be clearl…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…back (T005)  This module generates synthetic survey data conforming t…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…able.  NOTE: This script generates synthetic data ONLY when real data…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…t[str, Any]:     """     Generate a single synthetic respondent record confor…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate the full synthetic dataset conforming to da…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…def main():     """     Generate and save synthetic data (FALLBACK ONLY).…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…rvey_data.csv containing synthetic records         conforming to th…”
-- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…umentParser(description="Generate synthetic survey data")     parser…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…Pandas DataFrame with synthetic survey data     """     rng = random…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…n() -> None:     """     Generate and save synthetic data (FALLBACK ONLY).…”
+- code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…_data.csv containing     synthetic records conforming to the projec…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 31 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Developmen…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…NLY).  NOTE: This script generates synthetic data ONLY when real data…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…LY authorized source for synthetic input data. All data must be clearl…”; 6 command(s) failed: python code/01_download_data.py --synthetic (rc=1); python code/02_clean_data.py (rc=1); python code/03_engineer_features.py (rc=1); 1 declared deliverable(s) absent: data/processed/cleaned_data.csv
+**Summary**: 30 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Developmen…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…back (T005)  This module generates synthetic survey data conforming t…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…able.  NOTE: This script generates synthetic data ONLY when real data…”; 6 command(s) failed: python code/01_download_data.py --synthetic (rc=1); python code/02_clean_data.py (rc=1); python code/03_engineer_features.py (rc=1); 1 declared deliverable(s) absent: data/processed/cleaned_data.csv
 
 ## Failing / missing run-book commands
 
 - python code/01_download_data.py --synthetic -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/01_download_data.py", line 19, in <module>
-    import requests
-ModuleNotFoundError: No module named 'requests'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/01_download_data.py", line 298, in <module>
+    @log_operation("data_acquisition_main")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'LogEntry' object is not callable
 - python code/02_clean_data.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 429, in <module>
-    @log_operation("data_cleaning_pipeline")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 66, in <module>
+    @log_operation("load_config")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: 'LogEntry' object is not callable
 - python code/03_engineer_features.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 537, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py", line 397, in <module>
     @log_operation("feature_engineering_main")
      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: 'LogEntry' object is not callable
 - python code/04_model_analysis.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 391, in <module>
-    @log_operation("model_analysis_main")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: 'LogEntry' object is not callable
+    ERROR:root:Model analysis failed: Engineered data not found at data/processed/engineered_data.csv
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 340, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/logging_config.py", line 71, in _wrapper
+    return func(*a, **k)
+           ^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 279, in main
+    df = load_engineered_data(input_path)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py", line 54, in load_engineered_data
+    raise CustomDataError(f"Engineered data not found at {path}")
+CustomDataError: Engineered data not found at data/processed/engineered_data.csv
 - python code/05_generate_report.py -> rc=1
-    Starting report generation...
+    WARNING: reportlab not installed. PDF generation will fail.
+Install with: pip install reportlab
+Starting report generation...
 ERROR: Cleaned data not found at data/processed/cleaned_data.csv
 - python code/02_clean_data.py --input data/raw/survey_data.csv -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 429, in <module>
-    @log_operation("data_cleaning_pipeline")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py", line 66, in <module>
+    @log_operation("load_config")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: 'LogEntry' object is not callable
 
 ## Declared deliverables still missing
@@ -70,55 +81,64 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 ### `get_config` — defined in `code/config.py`; called 25 way(s):
 
+- code/02_clean_data.py: return get_config()
 - code/02_clean_data.py: config = get_config()
 - code/config.py: 1. get_config() -> Returns the full Config object
 - code/config.py: 2. get_config("key") -> Returns the value for "key" from config
 - code/config.py: 3. get_config("key", default) -> Returns the value for "key" or default
-- code/config.py: return get_config("config_path", default)
 - code/config.py: base = get_config("project_root", ".")
 - code/config.py: return Path(base) / get_config("data_path", default)
 - code/config.py: return Path(base) / get_config("raw_data_path", default)
 - code/config.py: return Path(base) / get_config("processed_data_path", default)
 - code/config.py: return Path(base) / get_config("results_path", default)
 - code/config.py: return Path(base) / get_config("modeling_log_path", default)
-- code/03_engineer_features.py: config = get_config()
 - code/03_engineer_features.py: base_dir = Path(get_config("project_root", "."))
-- code/03_engineer_features.py: input_path = base_dir / get_config("processed_data_path", "data/processed") / "cleaned_data.csv"
-- code/03_engineer_features.py: output_data_path = base_dir / get_config("processed_data_path", "data/processed") / "engineered_data.csv"
-- code/03_engineer_features.py: output_metrics_path = base_dir / get_config("results_path", "results") / "validity_metrics.yaml"
+- code/03_engineer_features.py: processed_dir = base_dir / get_config("processed_data_path", "data/processed")
+- code/03_engineer_features.py: results_dir = base_dir / get_config("results_path", "results")
 - code/03_engineer_features.py: log_path = base_dir / get_config("modeling_log_path", "modeling_log.yaml")
+- code/03_engineer_features.py: config = get_config()
+- code/03_engineer_features.py: log_path=str(Path(get_config("project_root", ".")) / get_config("modeling_log_path", "modeling_log.yaml"))
+- code/logging_config.py: base = get_config("project_root", ".")
+- code/logging_config.py: log_path = str(Path(base) / get_config("modeling_log_path", "modeling_log.yaml"))
 - code/06_finalize_results.py: config = get_config()
 - code/05_generate_report.py: config = get_config()
-- code/00_generate_synthetic_data.py: config = get_config()
+- code/00_generate_synthetic_data.py: config_path = Path(get_config("config_path", "code/config.yaml"))
+- code/00_generate_synthetic_data.py: log_path = Path(get_config("modeling_log_path", "modeling_log.yaml"))
 - code/validate_quickstart.py: config = get_config()
-- code/04_model_analysis.py: base_dir = Path(get_config("project_root", "."))
-- code/04_model_analysis.py: "engineered_data_path": base_dir / get_config("processed_data_path", "data/processed") / "engineered_data.csv",
-- code/04_model_analysis.py: "results_dir": base_dir / get_config("results_path", "results"),
-- code/04_model_analysis.py: "modeling_log_path": base_dir / get_config("modeling_log_path", "modeling_log.yaml"),
+- code/01_download_data.py: self.config = config or get_config()
 
 Make `get_config` in `code/config.py` accept ALL of the above.
 
-### `log_operation` — defined in `code/logging_config.py`; called 6 way(s):
+### `log_operation` — defined in `code/logging_config.py`; called 15 way(s):
 
+- code/02_clean_data.py: @log_operation("load_config")
+- code/02_clean_data.py: @log_operation("load_raw_data")
+- code/02_clean_data.py: @log_operation("validate_variables")
+- code/02_clean_data.py: @log_operation("calculate_missingness")
+- code/02_clean_data.py: @log_operation("handle_missing_values")
+- code/02_clean_data.py: @log_operation("normalize_categorical_codes")
+- code/02_clean_data.py: @log_operation("calculate_power_analysis")
+- code/02_clean_data.py: @log_operation("update_modeling_log_with_power_analysis")
+- code/02_clean_data.py: @log_operation("export_cleaned_data")
 - code/02_clean_data.py: @log_operation("data_cleaning_pipeline")
 - code/03_engineer_features.py: @log_operation("feature_engineering_main")
 - code/logging_config.py: """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
 - code/00_generate_synthetic_data.py: @log_operation("synthetic_data_generation_main")
-- code/01_download_data.py: @log_operation
-- code/04_model_analysis.py: @log_operation("model_analysis_main")
+- code/01_download_data.py: @log_operation("data_acquisition_main")
+- code/04_model_analysis.py: @log_operation
 
 Make `log_operation` in `code/logging_config.py` accept ALL of the above.
 
 ### `update_log_section` — defined in `code/logging_config.py`; called 8 way(s):
 
-- code/02_clean_data.py: update_log_section("data_cleaning", log_data)
+- code/02_clean_data.py: update_log_section("power_analysis", power_result, log_path=log_path)
+- code/02_clean_data.py: update_log_section("data_validation", validation_result, log_path=log_path)
+- code/02_clean_data.py: update_log_section("initial_missingness", missingness.to_dict(), log_path=log_path)
 - code/02_clean_data.py: update_log_section("data_cleaning", {
+- code/03_engineer_features.py: update_log_section("feature_engineering", log_data, log_path=str(log_path))
 - code/03_engineer_features.py: update_log_section(
-- code/03_engineer_features.py: update_log_section("feature_engineering", {"status": "failed", "error": str(e)}, log_path=log_path)
-- code/00_generate_synthetic_data.py: update_log_section("data_source_metadata", {
-- code/01_download_data.py: update_log_section(
-- code/04_model_analysis.py: update_log_section("model_analysis", log_data, log_path=modeling_log_path)
-- code/04_model_analysis.py: update_log_section("model_analysis", {"status": "failed", "error": str(e)}, log_path=paths.get("modeling_log_path"))
+- code/00_generate_synthetic_data.py: update_log_section("data_source_metadata", log_data, log_path=log_path)
+- code/04_model_analysis.py: update_log_section("model_analysis", {
 
 Make `update_log_section` in `code/logging_config.py` accept ALL of the above.
 
@@ -141,29 +161,29 @@ Whichever you choose, every call site of `Config` across the codebase must stop 
 `Config.get` call sites (25):
 - code/02_clean_data.py: base_dir = Path(config.get("project_root", "."))
 - code/02_clean_data.py: raw_dir = base_dir / config.get("raw_data_path", "data/raw")
-- code/02_clean_data.py: df[col] = df[col].apply(lambda x: mapping.get(x, x) if x in mapping else x)
-- code/02_clean_data.py: log_path = config.get("modeling_log_path", "modeling_log.yaml")
+- code/02_clean_data.py: return mapping.get(x, x)
+- code/02_clean_data.py: log_path = str(base_dir / config.get("modeling_log_path", "modeling_log.yaml"))
 - code/02_clean_data.py: proc_dir = base_dir / config.get("processed_data_path", "data/processed")
 - code/code_00_generate_synthetic_data.py: random.seed(config.get("random_seed", 42))
 - code/code_00_generate_synthetic_data.py: n = config.get("n_respondents", 1000)
-- code/config.py: - Method calls (tolerant): config.info(), config.get(), etc.
-- code/config.py: - Default value retrieval: config.get('key', default)
 - code/config.py: return self._config.get(key, default)
-- code/config.py: # Tolerant for any other method call (e.g., .get() called on Config object directly)
-- code/config.py: return _global_config.get(key, default)
+- code/config.py: # Tolerant for any other method call (e.g., .info(), .debug(), .get() called on Config object directly)
+- code/config.py: return _GLOBAL_CONFIG.get(key, default)
 - code/03_engineer_features.py: priority_proxies = config.get("proxy_variables", [
 - code/03_engineer_features.py: weights = config.get("engagement_weights", {})
 - code/03_engineer_features.py: w = weights.get(col, 1.0)
-- code/03_engineer_features.py: if details.get("correlation", 0) > 0 and (details.get("p_value") is None or details.get("p_value") < 0.05):
 - code/03_engineer_features.py: conv_status = "passed" if metrics.get('convergent_validity', {}).get('passed', False) else "failed"
-- code/03_engineer_features.py: "cronbach_alpha": metrics.get('cronbach_alpha'),
-- code/03_engineer_features.py: "efa_factors_retained": metrics.get('efa', {}).get('factors_retained'),
-- code/03_engineer_features.py: "efa_method": metrics.get('efa', {}).get('method'),
-- code/03_engineer_features.py: "efa_rotation": metrics.get('efa', {}).get('rotation')
 - code/logging_config.py: self.name = args[0] if args else kwargs.get("name", "reproducibility")
 - code/logging_config.py: op = args[0] if args else kwargs.get("operation", "")
-- code/logging_config.py: existing_status = log_data[operation_name].get("status")
 - code/06_finalize_results.py: "random_seed": config.get("random_seed"),
+- code/06_finalize_results.py: "data_source": config.get("data_source", "unknown"),
+- code/06_finalize_results.py: "seed_value": config.get("random_seed"),
+- code/06_finalize_results.py: set_random_seed(config.get("random_seed", 42))
+- code/06_finalize_results.py: project_root = Path(config.get("project_root", "."))
+- code/05_generate_report.py: base_dir = Path(config.get("project_root", "."))
+- code/05_generate_report.py: processed_path = base_dir / config.get("processed_data_path", "data/processed")
+- code/05_generate_report.py: results_path = base_dir / config.get("results_path", "results")
+- code/05_generate_report.py: reg_data = results.get("regression", {})
 
 ## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module
 
@@ -284,7 +304,7 @@ Consumers waiting on it: `code/03_engineer_features.py`, `code/06_finalize_resul
 ### `data/raw/survey_data.csv`
 
 This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/02_clean_data.py`, `code/code_00_generate_synthetic_data.py`, `code/00_generate_synthetic_data.py`, `code/01_download_data.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/raw/survey_data.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/02_clean_data.py`, `code/code_00_generate_synthetic_data.py`, `code/validate_quickstart.py`, `code/01_download_data.py`.
+Consumers waiting on it: `code/02_clean_data.py`, `code/code_00_generate_synthetic_data.py`, `code/00_generate_synthetic_data.py`, `code/validate_quickstart.py`, `code/01_download_data.py`.
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/cleaned_data.csv`
 

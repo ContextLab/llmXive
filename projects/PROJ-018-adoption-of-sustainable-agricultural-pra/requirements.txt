@@ -1,8 +1,7 @@
-pandas>=2.0.0
-statsmodels>=0.14.0
-scikit-learn>=1.3.0
-matplotlib>=3.7.0
-pyyaml>=6.0
-factor-analyzer>=0.4.0
-evalues>=0.1.0
-seaborn>=0.13.0
+pandas
+statsmodels
+scikit-learn
+matplotlib
+pyyaml
+factor_analyzer
+evalues

@@ -1,488 +1,256 @@
-"""
-Model Analysis Script for Sustainable Agriculture Adoption Study
+"""Model analysis pipeline for US3.
 
-This script fits logistic regression models to analyze the relationship between
-community engagement scores and sustainable agricultural practice adoption.
-It includes VIF diagnostics, FDR correction, ROC analysis, and mediation testing.
+This script loads the engineered dataset, fits a logistic regression
+model predicting ``adoption_binary`` from ``engagement_score`` and any
+additional covariates, computes VIF diagnostics, applies Benjamini‑Hochberg
+FDR correction, evaluates ROC/AUC, and writes all artefacts to the
+``results/`` directory.  It also updates ``modeling_log.yaml`` with
+timestamps and a hash of the modelling choices.
 """
-
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 import statsmodels.api as sm
-from scipy import stats
-from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.metrics import auc, roc_curve
+import matplotlib.pyplot as plt
 
-# Import shared utilities
-from config import get_config, get_config_path
+# Project‑level utilities
+from config import get_config, get_processed_data_path, get_results_path, get_modeling_log_path
 from logging_config import log_operation, update_log_section
 
-# Custom exceptions
-class CustomDataError(Exception):
-    """Raised when there is an error with input data."""
-    pass
+# ----------------------------------------------------------------------
+# Exceptions
+# ----------------------------------------------------------------------
 
-class ModelError(Exception):
-    """Raised when there is an error during model fitting or analysis."""
-    pass
+class CustomDataError(RuntimeError):
+    """Raised when required input data cannot be located or is malformed."""
 
+class ModelError(RuntimeError):
+    """Raised for any modelling‑related failure."""
 
-def get_config_paths() -> Dict[str, Path]:
-    """Get all required file paths from configuration."""
-    base_dir = Path(get_config("project_root", "."))
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+
+@log_operation
+def get_config_paths() -> dict[str, Path]:
+    """Collect frequently used paths from the configuration."""
+    cfg = get_config()
     return {
-        "engineered_data_path": base_dir / get_config("processed_data_path", "data/processed") / "engineered_data.csv",
-        "results_dir": base_dir / get_config("results_path", "results"),
-        "modeling_log_path": base_dir / get_config("modeling_log_path", "modeling_log.yaml"),
+        "processed": get_processed_data_path(),
+        "results": get_results_path(),
+        "log": get_modeling_log_path(),
     }
 
-
-def load_engineered_data(input_path: Path) -> pd.DataFrame:
-    """Load the engineered dataset."""
-    if not input_path.exists():
-        raise CustomDataError(
-            f"Engineered data not found at {input_path}. "
-            "Please run code/03_engineer_features.py first."
-        )
-    df = pd.read_csv(input_path)
-    logging.info(f"Loaded engineered data with {len(df)} records and {len(df.columns)} columns")
+@log_operation
+def load_engineered_data(path: Path) -> pd.DataFrame:
+    """Load the engineered CSV; raise ``CustomDataError`` if missing."""
+    if not path.is_file():
+        raise CustomDataError(f"Engineered data not found at {path}")
+    df = pd.read_csv(path)
     return df
 
-
-def prepare_model_data(
-    df: pd.DataFrame,
-    outcome_var: str = "adoption_binary",
-    primary_predictor: str = "engagement_score",
-    covariates: Optional[List[str]] = None
-) -> Tuple[pd.DataFrame, List[str], List[str]]:
+@log_operation
+def prepare_model_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     """
-    Prepare data for logistic regression.
+    Split ``df`` into design matrix ``X`` and outcome ``y``.
 
-    Returns:
-        df_clean: DataFrame with no missing values in required columns
-        predictors: List of all predictor variable names
-        outcome: Name of the outcome variable
+    - ``adoption_binary`` is the dependent variable.
+    - ``engagement_score`` and all other numeric/categorical columns
+      (excluding the outcome) are used as predictors.
+    - Categorical columns are one‑hot encoded (drop first to avoid collinearity).
     """
-    required_cols = [outcome_var, primary_predictor]
-    if covariates:
-        required_cols.extend(covariates)
+    if "adoption_binary" not in df.columns:
+        raise ModelError("Column 'adoption_binary' missing from engineered data.")
 
-    # Check for required columns
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise CustomDataError(f"Missing required columns: {missing_cols}")
+    y = df["adoption_binary"]
+    X = df.drop(columns=["adoption_binary"])
 
-    # Drop rows with missing values in required columns
-    df_clean = df.dropna(subset=required_cols)
-
-    if len(df_clean) == 0:
-        raise CustomDataError("No valid records remaining after dropping missing values.")
-
-    predictors = [primary_predictor]
-    if covariates:
-        predictors.extend(covariates)
-
-    logging.info(f"Prepared model data: {len(df_clean)} records, predictors: {predictors}")
-    return df_clean, predictors, outcome_var
-
-
-def fit_logistic_regression(
-    df: pd.DataFrame,
-    outcome_var: str,
-    predictors: List[str]
-) -> sm.discrete.discrete_model.BinaryResultsWrapper:
-    """
-    Fit a logistic regression model using statsmodels.
-
-    Args:
-        df: Cleaned DataFrame
-        outcome_var: Name of the binary outcome column
-        predictors: List of predictor variable names
-
-    Returns:
-        Fitted model results object
-    """
-    X = df[predictors].copy()
-    y = df[outcome_var].copy()
+    # One‑hot encode object / category dtype columns
+    categorical_cols = X.select_dtypes(include=["object", "category"]).columns
+    if len(categorical_cols):
+        X = pd.get_dummies(X, columns=categorical_cols, drop_first=True)
 
     # Add constant for intercept
-    X = sm.add_constant(X)
+    X = sm.add_constant(X, has_constant="add")
+    return X, y
 
-    model = sm.Logit(y, X)
-    results = model.fit(disp=False)
+@log_operation
+def fit_logistic_regression(X: pd.DataFrame, y: pd.Series) -> sm.Logit:
+    """Fit a logistic regression model using statsmodels."""
+    try:
+        model = sm.Logit(y, X, missing="drop")
+        result = model.fit(disp=False)
+        return result
+    except Exception as exc:
+        raise ModelError(f"Logistic regression failed: {exc}") from exc
 
-    logging.info(f"Logistic regression fitted: {len(predictors)} predictors, {len(df)} observations")
-    return results
-
-
-def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> pd.DataFrame:
-    """
-    Calculate Variance Inflation Factor (VIF) for each predictor.
-
-    Args:
-        df: DataFrame with predictor variables
-        predictors: List of predictor column names
-
-    Returns:
-        DataFrame with VIF values
-    """
-    X = df[predictors].copy()
-    X = sm.add_constant(X)
+@log_operation
+def calculate_vif(X: pd.DataFrame) -> pd.DataFrame:
+    """Calculate variance‑inflation factors for each predictor (excluding constant)."""
+    from statsmodels.stats.outliers_influence import variance_inflation_factor
 
     vif_data = []
-    for i, col in enumerate(X.columns):
-        if col == "const":
-            continue
-        try:
-            vif = variance_inflation_factor(X.values, i)
-            vif_data.append({"variable": col, "vif": vif})
-        except Exception as e:
-            logging.warning(f"Could not calculate VIF for {col}: {e}")
-            vif_data.append({"variable": col, "vif": np.nan})
+    # Exclude the constant term from VIF calculation
+    cols = [c for c in X.columns if c != "const"]
+    for i, col in enumerate(cols):
+        vif = variance_inflation_factor(X[cols].values, i)
+        vif_data.append({"variable": col, "VIF": round(vif, 3)})
+    return pd.DataFrame(vif_data)
 
-    vif_df = pd.DataFrame(vif_data)
-    return vif_df
-
-
-def apply_fdr_correction(
-    p_values: np.ndarray,
-    alpha: float = 0.10
-) -> Tuple[np.ndarray, np.ndarray]:
+@log_operation
+def apply_fdr_correction(pvalues: pd.Series, q: float = 0.10) -> pd.DataFrame:
     """
-    Apply Benjamini-Hochberg FDR correction to p-values.
+    Perform Benjamini‑Hochberg FDR correction.
 
-    Args:
-        p_values: Array of raw p-values
-        alpha: Significance level for FDR
-
-    Returns:
-        Tuple of (adjusted p-values, boolean array of significant results)
+    Returns a DataFrame with original p‑values, adjusted q‑values and a
+    boolean flag indicating significance at the supplied ``q`` level.
     """
     from statsmodels.stats.multitest import multipletests
 
-    rejected, p_adjusted, _, _ = multipletests(
-        p_values,
-        alpha=alpha,
-        method='fdr_bh'
+    adjusted = multipletests(pvalues, alpha=q, method="fdr_bh")
+    reject, p_adj = adjusted[0], adjusted[1]
+    out = pd.DataFrame(
+        {
+            "p_value": pvalues,
+            "p_adj": p_adj,
+            "reject": reject,
+        }
     )
+    return out
 
-    return p_adjusted, rejected
-
-
-def calculate_roc_metrics(
-    df: pd.DataFrame,
-    results: sm.discrete.discrete_model.BinaryResultsWrapper,
-    outcome_var: str
-) -> Dict[str, float]:
-    """
-    Calculate ROC curve metrics (AUC).
-
-    Args:
-        df: DataFrame with outcome variable
-        results: Fitted logistic regression results
-        outcome_var: Name of the outcome column
-
-    Returns:
-        Dictionary with AUC and other metrics
-    """
-    y_true = df[outcome_var].values
-    y_pred_prob = results.predict()
-
-    # Calculate AUC using trapezoidal rule
-    fpr, tpr, thresholds = stats.roc_curve(y_true, y_pred_prob)
-    auc = stats.auc(fpr, tpr)
-
+@log_operation
+def calculate_roc_metrics(y_true: pd.Series, y_score: pd.Series) -> dict[str, Any]:
+    """Compute ROC curve points, AUC, and return a dict of metrics."""
+    fpr, tpr, thresholds = roc_curve(y_true, y_score)
+    roc_auc = auc(fpr, tpr)
     return {
-        "auc": float(auc),
         "fpr": fpr.tolist(),
         "tpr": tpr.tolist(),
-        "thresholds": thresholds.tolist()
+        "thresholds": thresholds.tolist(),
+        "auc": float(roc_auc),
     }
 
+@log_operation
+def plot_roc_curve(metrics: dict[str, Any], out_path: Path) -> None:
+    """Generate a ROC plot and write it to ``out_path``."""
+    plt.figure()
+    plt.plot(metrics["fpr"], metrics["tpr"], color="darkorange", lw=2,
+             label=f"ROC curve (AUC = {metrics['auc']:.3f})")
+    plt.plot([0, 1], [0, 1], color="navy", lw=2, linestyle="--")
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("Receiver Operating Characteristic")
+    plt.legend(loc="lower right")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(out_path, dpi=150)
+    plt.close()
 
-def interpret_auc(auc: float) -> str:
-    """Provide qualitative interpretation of AUC value."""
-    if auc < 0.5:
-        return "No discrimination (worse than random)"
-    elif auc < 0.6:
-        return "Poor discrimination"
-    elif auc < 0.7:
-        return "Fair discrimination"
-    elif auc < 0.8:
-        return "Good discrimination"
-    elif auc < 0.9:
-        return "Very good discrimination"
-    else:
-        return "Excellent discrimination"
-
-
-def perform_mediation_analysis(
-    df: pd.DataFrame,
-    outcome_var: str,
-    predictor_var: str,
-    mediator_var: str = "engagement_score",
-    n_bootstrap: int = 1000
-) -> Dict[str, Any]:
-    """
-    Perform Baron & Kenny mediation analysis with bootstrap confidence intervals.
-
-    Note: This is exploratory analysis as per study limitations.
-
-    Args:
-        df: Cleaned dataset
-        outcome_var: Name of outcome variable
-        predictor_var: Name of primary predictor
-        mediator_var: Name of mediator variable
-        n_bootstrap: Number of bootstrap resamples
-
-    Returns:
-        Dictionary with mediation analysis results
-    """
-    # For this implementation, we check if the mediator is the same as the predictor
-    # In a real scenario, we would have distinct mediator and predictor variables
-    if predictor_var == mediator_var:
-        logging.warning("Predictor and mediator are the same variable. Skipping full mediation analysis.")
-        return {
-            "status": "skipped",
-            "reason": "Predictor and mediator are identical",
-            "direct_effect": None,
-            "indirect_effect": None,
-            "total_effect": None,
-            "bootstrap_ci": None
-        }
-
-    # Step 1: Total effect (Y ~ X)
-    X = sm.add_constant(df[[predictor_var]])
-    y = df[outcome_var]
-    model_total = sm.Logit(y, X).fit(disp=False)
-    total_effect = model_total.params[predictor_var]
-
-    # Step 2: Mediator model (M ~ X)
-    # Using OLS for mediator as it's continuous
-    med_model = sm.OLS(df[mediator_var], X).fit()
-    path_a = med_model.params[predictor_var]
-
-    # Step 3: Direct effect (Y ~ X + M)
-    X_full = sm.add_constant(df[[predictor_var, mediator_var]])
-    model_direct = sm.Logit(y, X_full).fit(disp=False)
-    direct_effect = model_direct.params[predictor_var]
-    path_b = model_direct.params[mediator_var]
-
-    # Indirect effect = a * b
-    indirect_effect = path_a * path_b
-
-    # Bootstrap for confidence intervals
-    boot_indirect = []
-    rng = np.random.default_rng(42)
-    for _ in range(n_bootstrap):
-        idx = rng.choice(len(df), size=len(df), replace=True)
-        df_boot = df.iloc[idx]
-
-        # Bootstrap path a
-        X_boot = sm.add_constant(df_boot[[predictor_var]])
-        med_boot = sm.OLS(df_boot[mediator_var], X_boot).fit()
-        a_boot = med_boot.params[predictor_var]
-
-        # Bootstrap path b
-        y_boot = df_boot[outcome_var]
-        X_full_boot = sm.add_constant(df_boot[[predictor_var, mediator_var]])
-        try:
-            direct_boot = sm.Logit(y_boot, X_full_boot).fit(disp=False)
-            b_boot = direct_boot.params[mediator_var]
-            boot_indirect.append(a_boot * b_boot)
-        except:
-            continue
-
-    if len(boot_indirect) > 0:
-        ci_lower = np.percentile(boot_indirect, 2.5)
-        ci_upper = np.percentile(boot_indirect, 97.5)
-        bootstrap_ci = [float(ci_lower), float(ci_upper)]
-    else:
-        bootstrap_ci = None
-
-    return {
-        "status": "completed",
-        "total_effect": float(total_effect),
-        "direct_effect": float(direct_effect),
-        "indirect_effect": float(indirect_effect),
-        "path_a": float(path_a),
-        "path_b": float(path_b),
-        "bootstrap_ci_95": bootstrap_ci,
-        "interpretation": "exploratory"
-    }
-
-
-def save_results(
-    results: sm.discrete.discrete_model.BinaryResultsWrapper,
-    vif_df: pd.DataFrame,
-    roc_metrics: Dict[str, Any],
-    mediation_results: Dict[str, Any],
-    output_dir: Path,
-    modeling_log_path: Path
-) -> Dict[str, Any]:
-    """
-    Save all analysis results to files.
-
-    Args:
-        results: Fitted model results
-        vif_df: VIF analysis DataFrame
-        roc_metrics: ROC/AUC metrics
-        mediation_results: Mediation analysis results
-        output_dir: Directory to save results
-        modeling_log_path: Path to modeling log file
-    """
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Save regression summary as text
-    summary_path = output_dir / "regression_summary.txt"
-    with open(summary_path, "w") as f:
-        f.write(results.summary().as_csv())
-
-    # Save VIF results
-    vif_path = output_dir / "vif_diagnostics.csv"
-    vif_df.to_csv(vif_path, index=False)
-
-    # Save ROC metrics
-    roc_path = output_dir / "roc_metrics.json"
-    # Convert numpy types to Python native types for JSON serialization
-    roc_clean = {k: v if not isinstance(v, (np.ndarray, np.floating)) else (v.tolist() if isinstance(v, np.ndarray) else float(v))
-                 for k, v in roc_metrics.items()}
-    import json
-    with open(roc_path, "w") as f:
-        json.dump(roc_clean, f, indent=2)
-
-    # Save mediation results
-    mediation_path = output_dir / "mediation_results.json"
-    with open(mediation_path, "w") as f:
-        json.dump(mediation_results, f, indent=2, default=str)
-
-    # Update modeling log
-    log_data = {
-        "model_type": "logistic_regression",
-        "n_observations": results.nobs,
-        "n_parameters": len(results.params),
-        "auc": roc_metrics["auc"],
-        "auc_interpretation": interpret_auc(roc_metrics["auc"]),
-        "vif_max": float(vif_df["vif"].max()) if not vif_df.empty else None,
-        "mediation_status": mediation_results.get("status", "unknown"),
-        "timestamp": datetime.utcnow().isoformat()
-    }
-
-    update_log_section("model_analysis", log_data, log_path=modeling_log_path)
-
-    logging.info(f"Results saved to {output_dir}")
-    return {
-        "summary_path": str(summary_path),
-        "vif_path": str(vif_path),
-        "roc_path": str(roc_path),
-        "mediation_path": str(mediation_path)
-    }
-
-
-@log_operation("model_analysis_main")
-def main():
-    """Main entry point for model analysis."""
-    parser = argparse.ArgumentParser(description="Fit logistic regression and perform analysis")
-    parser.add_argument("--input", type=str, help="Path to engineered data CSV")
-    parser.add_argument("--outcome", type=str, default="adoption_binary", help="Outcome variable name")
-    parser.add_argument("--predictor", type=str, default="engagement_score", help="Primary predictor name")
-    args = parser.parse_args()
-
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
+@log_operation
+def save_results(result: sm.Logit, vif: pd.DataFrame, fdr: pd.DataFrame,
+                 roc: dict[str, Any], paths: dict[str, Path]) -> None:
+    """Persist all modelling artefacts to the ``results`` directory."""
+    # 1. Regression coefficients & summary
+    coeff_path = paths["results"] / "logistic_regression.json"
+    coeff_path.parent.mkdir(parents=True, exist_ok=True)
+    coeff_path.write_text(
+        json.dumps(
+            {
+                "params": result.params.to_dict(),
+                "pvalues": result.pvalues.to_dict(),
+                "stderr": result.bse.to_dict(),
+                "aic": result.aic,
+                "bic": result.bic,
+                "log_likelihood": result.llf,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
     )
 
-    try:
-        # Get paths
-        paths = get_config_paths()
-        input_path = Path(args.input) if args.input else paths["engineered_data_path"]
-        output_dir = paths["results_dir"]
-        modeling_log_path = paths["modeling_log_path"]
+    # 2. VIF diagnostics
+    vif_path = paths["results"] / "vif.json"
+    vif_path.write_text(vif.to_json(orient="records", indent=2), encoding="utf-8")
 
-        # Load data
-        logging.info("Loading engineered data...")
-        df = load_engineered_data(input_path)
+    # 3. FDR‑adjusted p‑values
+    fdr_path = paths["results"] / "fdr.json"
+    fdr_path.write_text(fdr.to_json(orient="records", indent=2), encoding="utf-8")
 
-        # Define covariates (excluding the primary predictor)
-        # Based on typical agricultural studies: age, education, farm_size, credit_access
-        covariates = ["age", "education_years", "farm_size_hectares", "credit_access"]
-        # Filter to only those that exist in the data
-        covariates = [c for c in covariates if c in df.columns]
+    # 4. ROC/AUC metrics
+    roc_path = paths["results"] / "roc.json"
+    roc_path.write_text(json.dumps(roc, indent=2), encoding="utf-8")
 
-        # Prepare data
-        logging.info("Preparing model data...")
-        df_clean, predictors, outcome_var = prepare_model_data(
-            df,
-            outcome_var=args.outcome,
-            primary_predictor=args.predictor,
-            covariates=covariates if covariates else None
-        )
+    # 5. ROC plot (figure)
+    plot_path = paths["results"] / "roc_curve.png"
+    plot_roc_curve(roc, plot_path)
 
-        # Fit logistic regression
-        logging.info("Fitting logistic regression...")
-        results = fit_logistic_regression(df_clean, outcome_var, predictors)
+    # Update the modelling log with a simple hash of the modelling choices
+    log_entry = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "model": "logistic_regression",
+        "features_used": list(vif["variable"]),
+        "auc": roc["auc"],
+    }
+    update_log_section("model_analysis", log_entry, log_path=paths["log"])
 
-        # Calculate VIF
-        logging.info("Calculating VIF diagnostics...")
-        vif_df = calculate_vif(df_clean, predictors)
-        high_vif = vif_df[vif_df["vif"] >= 5]
-        if not high_vif.empty:
-            logging.warning(f"High VIF detected: {high_vif['variable'].tolist()}")
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
 
-        # Apply FDR correction to p-values
-        logging.info("Applying FDR correction...")
-        p_values = results.pvalues.drop("const")
-        p_adjusted, significant = apply_fdr_correction(p_values.values)
-        logging.info(f"Number of significant predictors after FDR: {sum(significant)}")
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Fit logistic regression, compute diagnostics, and save artefacts."
+    )
+    parser.add_argument(
+        "--engineered",
+        type=str,
+        default=str(get_processed_data_path() / "engineered_data.csv"),
+        help="Path to the engineered CSV (default: data/processed/engineered_data.csv)",
+    )
+    args = parser.parse_args()
 
-        # Calculate ROC metrics
-        logging.info("Calculating ROC metrics...")
-        roc_metrics = calculate_roc_metrics(df_clean, results, outcome_var)
-        logging.info(f"AUC: {roc_metrics['auc']:.3f} ({interpret_auc(roc_metrics['auc'])})")
+    paths = get_config_paths()
+    engineered_path = Path(args.engineered)
 
-        # Perform mediation analysis (if applicable)
-        logging.info("Performing mediation analysis...")
-        mediation_results = perform_mediation_analysis(
-            df_clean,
-            outcome_var,
-            args.predictor,
-            mediator_var="engagement_score"
-        )
+    # Load data
+    df = load_engineered_data(engineered_path)
 
-        # Save results
-        logging.info("Saving results...")
-        saved_files = save_results(
-            results,
-            vif_df,
-            roc_metrics,
-            mediation_results,
-            output_dir,
-            modeling_log_path
-        )
+    # Prepare matrices
+    X, y = prepare_model_data(df)
 
-        logging.info("Model analysis completed successfully.")
-        return 0
+    # Fit model
+    model_result = fit_logistic_regression(X, y)
 
-    except CustomDataError as e:
-        logging.error(f"Data Error: {e}")
-        update_log_section("model_analysis", {"status": "failed", "error": str(e)}, log_path=paths.get("modeling_log_path"))
-        return 1
-    except Exception as e:
-        logging.error(f"Unexpected error: {e}")
-        update_log_section("model_analysis", {"status": "failed", "error": str(e)}, log_path=paths.get("modeling_log_path"))
-        return 1
+    # VIF diagnostics
+    vif_df = calculate_vif(X)
 
+    # FDR correction on model p‑values
+    fdr_df = apply_fdr_correction(model_result.pvalues)
+
+    # ROC / AUC – use predicted probabilities for the positive class
+    y_pred_prob = model_result.predict(X)
+    roc_metrics = calculate_roc_metrics(y, y_pred_prob)
+
+    # Persist everything
+    save_results(model_result, vif_df, fdr_df, roc_metrics, paths)
+
+    print("Model analysis completed successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # Basic logging configuration for any stray ``logging`` calls
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    try:
+        main()
+    except Exception as exc:
+        logging.exception("Model analysis failed")
+        sys.exit(1)

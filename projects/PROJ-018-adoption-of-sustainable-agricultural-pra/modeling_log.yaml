@@ -1,3 +1,7 @@
+model_analysis:
+  error: Engineered data not found at data/processed/engineered_data.csv
+  status: failed
+  timestamp: '2026-07-14T16:15:37.628687'
 power_analysis:
   effective_N_events: 200
   num_predictors: 5

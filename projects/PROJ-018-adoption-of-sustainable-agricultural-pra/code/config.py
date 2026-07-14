@@ -1,248 +1,159 @@
-"""Configuration management for the project."""
+"""Configuration handling for the project.
+
+Provides a flexible ``get_config`` helper that can be used in two ways:
+
+1. ``get_config()`` – returns a ``Config`` instance.
+2. ``get_config("key", default)`` – returns the value for ``key`` (or ``default``).
+
+The ``Config`` class also offers a ``get`` method for dictionary‑style access
+and tolerates any unknown attribute access by returning a no‑op callable.
+"""
 from __future__ import annotations
 
+import json
 import os
 import random
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
-import yaml
+from typing import Any, Dict, Optional
+
+_GLOBAL_CONFIG: Dict[str, Any] | None = None
+_CONFIG_PATH: Path | None = None
 
 
-class ConfigError(Exception):
-    """Raised when configuration loading fails."""
-    pass
+class ConfigError(RuntimeError):
+    """Raised for configuration‑related problems."""
 
 
 class Config:
-    """Configuration holder with tolerant attribute access.
+    """A thin wrapper around the underlying configuration dictionary."""
 
-    Allows both dict-style access (get) and attribute-style access.
-    Also provides a tolerant __getattr__ for any logger-like calls.
-    """
+    def __init__(self, data: Dict[str, Any]) -> None:
+        self._data = data
 
-    def __init__(self, config_dict: Optional[Dict[str, Any]] = None):
-        self._config = config_dict or {}
-        self._set_defaults()
-
-    def _set_defaults(self):
-        """Set default configuration values."""
-        defaults = {
-            "project_root": ".",
-            "data_path": "data",
-            "raw_data_path": "data/raw",
-            "processed_data_path": "data/processed",
-            "results_path": "results",
-            "figures_path": "figures",
-            "modeling_log_path": "modeling_log.yaml",
-            "random_seed": 42,
-            "n_respondents": 1000,
-            "proxy_variables": [
-                "community_membership",
-                "extension_contact",
-                "collective_action",
-                "knowledge_exchange"
-            ],
-            "engagement_weights": {}
-        }
-        for key, value in defaults.items():
-            if key not in self._config:
-                self._config[key] = value
-
+    # ------------------------------------------------------------------
+    # Dictionary‑style accessor used throughout the codebase.
+    # ------------------------------------------------------------------
     def get(self, key: str, default: Any = None) -> Any:
-        """Get a configuration value by key.
+        return self._data.get(key, default)
 
-        Args:
-            key: Configuration key
-            default: Default value if key not found
-
-        Returns:
-            The configuration value or default
-        """
-        return self._config.get(key, default)
-
+    # ------------------------------------------------------------------
+    # Mutating helpers – not required for the current pipeline but kept
+    # for completeness.
+    # ------------------------------------------------------------------
     def set(self, key: str, value: Any) -> None:
-        """Set a configuration value.
+        self._data[key] = value
 
-        Args:
-            key: Configuration key
-            value: Value to set
-        """
-        self._config[key] = value
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Return the configuration as a dictionary."""
-        return self._config.copy()
-
-    # Tolerant for any other method call (e.g., .info/.debug/.warning/.error/...)
+    # ------------------------------------------------------------------
+    # Graceful fallback for any attribute that scripts might call
+    # (e.g. ``config.info(...)``). Returns a no‑op callable.
+    # ------------------------------------------------------------------
     def __getattr__(self, name: str):
-        def _noop(*args: Any, **kwargs: Any) -> None:
+        def _noop(*_a: Any, **_kw: Any) -> None:
             return None
+
         return _noop
 
-    def __getitem__(self, key: str) -> Any:
-        return self._config[key]
-
-    def __contains__(self, key: str) -> bool:
-        return key in self._config
-
-
-_global_config: Optional[Config] = None
+    # ------------------------------------------------------------------
+    # Serialise back to JSON if needed.
+    # ------------------------------------------------------------------
+    def to_json(self) -> str:
+        return json.dumps(self._data, ensure_ascii=False, indent=2)
 
 
-def load_config_from_yaml(config_path: str) -> Config:
-    """Load configuration from a YAML file.
-
-    Args:
-        config_path: Path to the YAML configuration file
-
-    Returns:
-        Config object
-
-    Raises:
-        ConfigError: If file cannot be loaded or parsed
-    """
+def _load_config_file(path: Path) -> Dict[str, Any]:
+    if not path.is_file():
+        return {}
     try:
-        with open(config_path, 'r', encoding='utf-8') as f:
-            config_dict = yaml.safe_load(f)
-        return Config(config_dict)
-    except Exception as e:
-        raise ConfigError(f"Failed to load config from {config_path}: {e}")
+        with path.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as exc:
+        raise ConfigError(f"Failed to read config file {path}: {exc}") from exc
 
 
-def get_config(key: Optional[str] = None, default: Any = None) -> Union[Config, Any]:
-    """Get the global configuration or a specific value from it.
+def _initialize_global_config() -> None:
+    """Populate the module‑level ``_GLOBAL_CONFIG`` dictionary."""
+    global _GLOBAL_CONFIG, _CONFIG_PATH
+    if _GLOBAL_CONFIG is not None:
+        return
 
-    This function supports multiple call patterns:
-    1. get_config() -> Returns the full Config object
-    2. get_config("key") -> Returns the value for "key" from config
-    3. get_config("key", default) -> Returns the value for "key" or default
+    # Determine the config file location – default to ``code/config.yaml``.
+    default_path = Path(__file__).with_name("config.yaml")
+    config_path = Path(os.getenv("PROJECT_CONFIG_PATH", default_path))
+    _CONFIG_PATH = config_path
+    _GLOBAL_CONFIG = _load_config_file(config_path)
 
-    Args:
-        key: Optional configuration key
-        default: Default value if key not found (only used when key is provided)
+    # Apply a deterministic random seed if one is provided.
+    seed = _GLOBAL_CONFIG.get("random_seed")
+    if isinstance(seed, int):
+        set_random_seed(seed)
 
-    Returns:
-        Config object if no key provided, otherwise the configuration value
+
+def get_config(*args: Any, **kwargs: Any) -> Any:
     """
-    global _global_config
-    if _global_config is None:
-        # Try to load from default location
-        default_path = "code/config.yaml"
-        if os.path.exists(default_path):
-            _global_config = load_config_from_yaml(default_path)
-        else:
-            _global_config = Config()
+    Flexible accessor.
 
-    if key is None:
-        return _global_config
-    else:
-        return _global_config.get(key, default)
-
-
-def set_config(config: Config) -> None:
-    """Set the global configuration.
-
-    Args:
-        config: Config object to set as global
+    * ``get_config()`` → returns a ``Config`` instance.
+    * ``get_config("key", default)`` → returns the value for ``key``.
     """
-    global _global_config
-    _global_config = config
+    _initialize_global_config()
+    assert _GLOBAL_CONFIG is not None  # for type‑checkers
+
+    # No positional arguments → return the Config wrapper.
+    if not args:
+        return Config(_GLOBAL_CONFIG)
+
+    # First argument is a string → treat as key lookup.
+    if isinstance(args[0], str):
+        key = args[0]
+        default = args[1] if len(args) > 1 else None
+        return _GLOBAL_CONFIG.get(key, default)
+
+    # Fallback – return the Config object.
+    return Config(_GLOBAL_CONFIG)
+
+
+def set_config(key: str, value: Any) -> None:
+    """Update a config value and persist it back to disk."""
+    _initialize_global_config()
+    assert _GLOBAL_CONFIG is not None
+    _GLOBAL_CONFIG[key] = value
+    if _CONFIG_PATH is not None:
+        _CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with _CONFIG_PATH.open("w", encoding="utf-8") as f:
+            json.dump(_GLOBAL_CONFIG, f, indent=2)
 
 
 def set_random_seed(seed: int) -> None:
-    """Set the random seed for reproducibility.
-
-    Args:
-        seed: Random seed value
-    """
+    """Seed the Python, NumPy and random modules for reproducibility."""
     random.seed(seed)
-    # Also update config if it exists
-    if _global_config:
-        _global_config.set("random_seed", seed)
+    try:
+        import numpy as np
+
+        np.random.seed(seed)
+    except Exception:
+        pass  # NumPy may not be installed – ignore safely.
 
 
-def get_config_path() -> str:
-    """Get the configuration file path.
-
-    Returns:
-        Path to the configuration file
-    """
-    return get_config("config_path", "code/config.yaml")
+# Helper shortcuts used by many scripts ---------------------------------
+def get_config_path() -> Path:
+    return Path(get_config("project_root", "."))
 
 
-def get_data_path(default: str = "data") -> Path:
-    """Get the data directory path.
-
-    Args:
-        default: Default path if not configured
-
-    Returns:
-        Path object for data directory
-    """
-    base = get_config("project_root", ".")
-    return Path(base) / get_config("data_path", default)
+def get_data_path() -> Path:
+    return get_config_path() / get_config("data_path", "data")
 
 
-def get_raw_data_path(default: str = "data/raw") -> Path:
-    """Get the raw data directory path.
-
-    Args:
-        default: Default path if not configured
-
-    Returns:
-        Path object for raw data directory
-    """
-    base = get_config("project_root", ".")
-    return Path(base) / get_config("raw_data_path", default)
+def get_raw_data_path() -> Path:
+    return get_data_path() / get_config("raw_data_path", "raw")
 
 
-def get_processed_data_path(default: str = "data/processed") -> Path:
-    """Get the processed data directory path.
-
-    Args:
-        default: Default path if not configured
-
-    Returns:
-        Path object for processed data directory
-    """
-    base = get_config("project_root", ".")
-    return Path(base) / get_config("processed_data_path", default)
+def get_processed_data_path() -> Path:
+    return get_data_path() / get_config("processed_data_path", "processed")
 
 
-def get_results_path(default: str = "results") -> Path:
-    """Get the results directory path.
-
-    Args:
-        default: Default path if not configured
-
-    Returns:
-        Path object for results directory
-    """
-    base = get_config("project_root", ".")
-    return Path(base) / get_config("results_path", default)
+def get_results_path() -> Path:
+    return get_config_path() / get_config("results_path", "results")
 
 
-def get_figures_path(default: str = "figures") -> Path:
-    """Get the figures directory path.
-
-    Args:
-        default: Default path if not configured
-
-    Returns:
-        Path object for figures directory
-    """
-    base = get_config("project_root", ".")
-    return Path(base) / get_config("figures_path", default)
-
-
-def get_modeling_log_path(default: str = "modeling_log.yaml") -> Path:
-    """Get the modeling log file path.
-
-    Args:
-        default: Default path if not configured
-
-    Returns:
-        Path object for modeling log file
-    """
-    base = get_config("project_root", ".")
-    return Path(base) / get_config("modeling_log_path", default)
+def get_modeling_log_path() -> Path:
+    return get_config_path() / get_config("modeling_log_path", "modeling_log.yaml")

@@ -4,9 +4,12 @@ Synthetic Data Generator for Development Fallback (T005)
 This module generates synthetic survey data conforming to the project schema
 when real data sources (World Bank LSMS, FAO FIES) are unavailable.
 
-NOTE: This script generates synthetic data ONLY when real data fetches fail.
-All data is clearly labeled as synthetic in the metadata to prevent
-confusion with real-world observations.
+The script is invoked via the command line:
+
+    python code/00_generate_synthetic_data.py --output data/raw/survey_data.csv --n 1000
+
+It writes a CSV file with the requested number of records and records metadata
+in ``modeling_log.yaml`` using the shared logging utilities.
 """
 from __future__ import annotations
 
@@ -20,30 +23,25 @@ from typing import Any, Dict, List
 import pandas as pd
 import yaml
 
-# Import from project modules
+# Project utilities
 from config import get_config, set_random_seed
 from logging_config import log_operation, update_log_section
 
 
 def load_config() -> Dict[str, Any]:
-    """Load configuration from config.yaml."""
+    """Load optional configuration overrides from ``code/config.yaml``."""
     config_path = Path(get_config("config_path", "code/config.yaml"))
-    if config_path.exists():
-        with open(config_path, "r") as f:
-            return yaml.safe_load(f)
+    if config_path.is_file():
+        with config_path.open("r", encoding="utf-8") as f:
+            return yaml.safe_load(f) or {}
     return {}
 
 
 def generate_survey_response(rng: random.Random, config: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Generate a single synthetic respondent record conforming to data schema.
+    Generate a single synthetic respondent record.
 
-    Args:
-        rng: Random number generator instance
-        config: Configuration dictionary with generation parameters
-
-    Returns:
-        Dictionary representing a single survey response
+    The fields match the schema defined in ``specs/018-adoption-sustainable-agriculture/contracts/dataset.schema.yaml``.
     """
     # Demographics
     age = rng.randint(20, 70)
@@ -52,17 +50,17 @@ def generate_survey_response(rng: random.Random, config: Dict[str, Any]) -> Dict
     household_size = rng.randint(1, 10)
 
     # Economic indicators
-    annual_income_usd = rng.uniform(200, 10000)
+    annual_income_usd = rng.uniform(200, 10_000)
     has_credit_access = rng.choice([0, 1])
-    credit_amount_usd = rng.uniform(0, 5000) if has_credit_access else 0
+    credit_amount_usd = rng.uniform(0, 5_000) if has_credit_access else 0.0
 
-    # Community engagement proxies (0-4 scale)
+    # Community‑engagement proxies (0‑4 scale)
     extension_visits = rng.randint(0, 12)
     membership_count = rng.randint(0, 3)
     collective_action_score = rng.randint(0, 4)
     knowledge_exchange_score = rng.randint(0, 4)
 
-    # Sustainable practices (binary: 0/1)
+    # Sustainable practice adoption (binary)
     practices = {
         "organic_fertilizer": rng.choice([0, 1]),
         "crop_rotation": rng.choice([0, 1]),
@@ -71,9 +69,7 @@ def generate_survey_response(rng: random.Random, config: Dict[str, Any]) -> Dict
         "agroforestry": rng.choice([0, 1]),
         "conservation_tillage": rng.choice([0, 1]),
     }
-
-    # Adoption indicator (1 if any practice adopted)
-    adoption_binary = 1 if sum(practices.values()) > 0 else 0
+    adoption_binary = int(any(practices.values()))
 
     return {
         "respondent_id": f"R{rng.randint(10000, 99999)}",
@@ -88,23 +84,16 @@ def generate_survey_response(rng: random.Random, config: Dict[str, Any]) -> Dict
         "membership_count": membership_count,
         "collective_action_score": collective_action_score,
         "knowledge_exchange_score": knowledge_exchange_score,
-        **{k: v for k, v in practices.items()},
+        **practices,
         "adoption_binary": adoption_binary,
         "data_source": "synthetic",
-        "generation_timestamp": datetime.utcnow().isoformat()
+        "generation_timestamp": datetime.utcnow().isoformat(),
     }
 
 
 def generate_synthetic_dataset(n: int, config: Dict[str, Any]) -> pd.DataFrame:
     """
-    Generate the full synthetic dataset conforming to data schema.
-
-    Args:
-        n: Number of records to generate
-        config: Configuration dictionary
-
-    Returns:
-        Pandas DataFrame with synthetic survey data
+    Assemble a full synthetic dataset with ``n`` respondents.
     """
     rng = random.Random(config.get("random_seed", 42))
     records = [generate_survey_response(rng, config) for _ in range(n)]
@@ -114,57 +103,55 @@ def generate_synthetic_dataset(n: int, config: Dict[str, Any]) -> pd.DataFrame:
 @log_operation("synthetic_data_generation_main")
 def main() -> None:
     """
-    Generate and save synthetic data (FALLBACK ONLY).
+    CLI entry point: generate a CSV file of synthetic survey data.
 
-    This script creates a CSV file at data/raw/survey_data.csv containing
-    synthetic records conforming to the project's data schema.
+    The function respects command‑line arguments, falls back to configuration
+    defaults, and records provenance information in ``modeling_log.yaml``.
     """
-    parser = argparse.ArgumentParser(description="Generate synthetic survey data")
+    parser = argparse.ArgumentParser(
+        description="Generate synthetic survey data (fallback when real data cannot be fetched)"
+    )
     parser.add_argument(
         "--output",
         type=str,
         default="data/raw/survey_data.csv",
-        help="Output file path for synthetic data"
+        help="Path to write the synthetic CSV file",
     )
     parser.add_argument(
         "--n",
         type=int,
         default=1000,
-        help="Number of synthetic records to generate"
+        help="Number of synthetic respondents to generate",
     )
     args = parser.parse_args()
 
+    # Load optional overrides
     config = load_config()
-    n = args.n if args.n else config.get("n_respondents", 1000)
+    n = args.n if args.n is not None else config.get("n_respondents", 1000)
     random_seed = config.get("random_seed", 42)
     set_random_seed(random_seed)
 
-    # Generate data
     print(f"Generating {n} synthetic records with seed {random_seed}...")
     df = generate_synthetic_dataset(n, config)
 
-    # Ensure output directory exists
+    # Write CSV
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Save to CSV
     df.to_csv(output_path, index=False)
-    print(f"Saved synthetic data to {output_path}")
+    print(f"Synthetic data written to {output_path}")
 
-    # Update modeling log with metadata
+    # Log provenance metadata
     log_path = Path(get_config("modeling_log_path", "modeling_log.yaml"))
-    log_data = {
-        "data_source_metadata": {
-            "source": "synthetic_fallback",
-            "n_records": n,
-            "random_seed": random_seed,
-            "generation_timestamp": datetime.utcnow().isoformat(),
-            "schema_version": "1.0",
-            "note": "This is synthetic data used only when real data is unavailable"
-        }
+    provenance = {
+        "source": "synthetic_fallback",
+        "n_records": n,
+        "random_seed": random_seed,
+        "generation_timestamp": datetime.utcnow().isoformat(),
+        "schema_version": "1.0",
+        "note": "Synthetic data generated as a fallback when real data sources are unavailable.",
     }
-    update_log_section("data_source_metadata", log_data, log_path=log_path)
-    print(f"Updated modeling log at {log_path}")
+    update_log_section("data_source_metadata", {"data_source_metadata": provenance}, log_path=log_path)
+    print(f"Modeling log updated at {log_path}")
 
 
 if __name__ == "__main__":

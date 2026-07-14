@@ -5,48 +5,50 @@ import functools
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any
-
+from pathlib import Path
+from typing import Any, Callable, Dict
 
 @dataclass
 class LogEntry:
+    """A single log entry that can be serialised to JSON."""
     operation: str = ""
-    parameters: dict = field(default_factory=dict)
+    parameters: Dict[str, Any] = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
     def to_json(self) -> str:
+        """Return a JSON representation of the entry."""
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 
 class ReproducibilityLogger:
-    """Accepts ANY call shape and never raises.
-
-    Do NOT subclass or delegate to the stdlib ``logging`` module: its
-    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self-contained.
-    """
+    """A lightweight logger that never raises and stores LogEntry objects."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # Accept any init signature – name is optional.
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.entries: list = []
+        self.entries: list[LogEntry] = []
 
-    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
-        op = args[0] if args else kwargs.get("operation", "")
-        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+    def log(self, *args: Any, **kwargs: Any) -> LogEntry:
+        """Create a LogEntry, store it, and return it."""
+        operation = args[0] if args else kwargs.pop("operation", "")
+        entry = LogEntry(operation=str(operation), parameters=dict(kwargs))
         self.entries.append(entry)
         return entry
 
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
-    def __getattr__(self, name: str):
-        def _noop(*args: Any, **kwargs: Any) -> None:
+    # Any conventional logging method (info, debug, warning, error, etc.)
+    # becomes a no‑op that never raises.
+    def __getattr__(self, name: str) -> Callable[..., None]:
+        def _noop(*_a: Any, **_kw: Any) -> None:
             return None
+
         return _noop
 
 
-_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+_GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
-def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
+    """Return a singleton logger instance."""
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
@@ -54,12 +56,26 @@ def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
 
 
 def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
-
-    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
-    decorator use returns the wrapped function. Never return a bare function
-    from the direct-call path.
     """
+    Dual‑purpose decorator / direct‑call logger.
+
+    1. Used as a decorator without arguments:
+           @log_operation
+           def foo(...):
+               ...
+
+    2. Used as a decorator with an explicit operation name:
+           @log_operation("my_step")
+           def foo(...):
+               ...
+
+    3. Used as a direct logging call:
+           log_operation("my_step", key=value)
+
+    The function inspects the call pattern and returns either a decorator
+    (wrapping the target function) or a LogEntry (for direct calls).
+    """
+    # Case 1 – @log_operation (no parentheses)
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
 
@@ -69,33 +85,68 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
         return _wrapper
 
-    op = args[0] if args else kwargs.pop("operation", "operation")
-    return get_logger().log(op, **kwargs)
+    # Case 2 – @log_operation("name")  (decorator with operation name)
+    if len(args) == 1 and isinstance(args[0], str) and not kwargs:
+        operation_name = args[0]
+
+        def _decorator(func: Callable) -> Callable:
+            @functools.wraps(func)
+            def _wrapper(*a: Any, **k: Any) -> Any:
+                # Log the start of the operation; actual function runs afterwards.
+                get_logger().log(operation_name)
+                return func(*a, **k)
+
+            return _wrapper
+
+        return _decorator
+
+    # Case 3 – direct call, possibly with extra keyword parameters.
+    operation = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(operation, **kwargs)
 
 
-def update_log_section(section_name: str, data: dict, log_path: str = "modeling_log.yaml") -> None:
-    """Update a specific section in the modeling log YAML file.
-
-    Args:
-        section_name: The key in the YAML file to update/create
-        data: Dictionary of data to merge into the section
-        log_path: Path to the modeling log file
+def update_log_section(
+    section: str,
+    data: Any,
+    *,
+    log_path: str | Path | None = None,
+) -> None:
     """
-    import yaml
-    from pathlib import Path
+    Append or replace a top‑level ``section`` in the reproducibility log.
 
-    log_file = Path(log_path)
-    if not log_file.exists():
-        log_data = {}
+    Parameters
+    ----------
+    section: str
+        The top‑level key to update (e.g., "power_analysis").
+    data: Any
+        JSON‑serialisable data that will be stored under ``section``.
+    log_path: str | Path, optional
+        Path to the YAML log file. If omitted, the default location
+        ``modeling_log.yaml`` in the project root is used.
+    """
+    default_path = Path(get_config("modeling_log_path", "modeling_log.yaml"))
+    path = Path(log_path) if log_path is not None else default_path
+
+    # Ensure the parent directory exists.
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Load existing content if the file already exists.
+    if path.is_file():
+        try:
+            import yaml
+
+            with path.open("r", encoding="utf-8") as f:
+                current = yaml.safe_load(f) or {}
+        except Exception:
+            current = {}
     else:
-        with open(log_file, 'r', encoding='utf-8') as f:
-            log_data = yaml.safe_load(f) or {}
+        current = {}
 
-    if section_name not in log_data:
-        log_data[section_name] = {}
+    # Update the section.
+    current[section] = data
 
-    # Merge data into the section
-    log_data[section_name].update(data)
+    # Write back to YAML.
+    import yaml
 
-    with open(log_file, 'w', encoding='utf-8') as f:
-        yaml.dump(log_data, f, default_flow_style=False, sort_keys=False)
+    with path.open("w", encoding="utf-8") as f:
+        yaml.safe_dump(current, f, sort_keys=False)
