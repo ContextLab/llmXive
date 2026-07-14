@@ -1327,6 +1327,10 @@
     "classified_at": "2026-07-07T07:24:32Z",
     "verdict": false
   },
+  "PROJ-902-llmxive-follow-up-extending-on-the-geome::1.6.0": {
+    "classified_at": "2026-07-14T02:47:45Z",
+    "verdict": false
+  },
   "PROJ-904-llmxive-follow-up-extending-claw-swe-ben::1.6.0": {
     "classified_at": "2026-07-12T18:36:26Z",
     "verdict": false
