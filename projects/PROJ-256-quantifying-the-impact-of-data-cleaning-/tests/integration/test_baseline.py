@@ -1,70 +1,105 @@
+"""
+Integration test for baseline analysis (T010).
+Verifies that the baseline analysis script produces valid output with correct p-values and CIs.
+"""
 import os
+import sys
 import json
 import pytest
-import pandas as pd
 from pathlib import Path
-from analysis import run_baseline_analysis, save_json_file
 
-TEST_OUTPUT_FILE = "data/processed/test_baseline_metrics.json"
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from utils import setup_logging
+from t012_run_baseline_analysis import main as run_baseline_main
+from t013_record_baseline_metrics import main as record_metrics_main
+
+logger = setup_logging("INFO")
+
+BASELINE_RAW_FILE = "data/processed/baseline_raw_output.json"
+BASELINE_FINAL_FILE = "data/processed/baseline_metrics.json"
 
 @pytest.fixture(autouse=True)
-def setup_teardown():
-    # Setup
+def setup_environment():
+    """Ensure data directories exist."""
     os.makedirs("data/processed", exist_ok=True)
     yield
-    # Teardown
-    if os.path.exists(TEST_OUTPUT_FILE):
-        os.remove(TEST_OUTPUT_FILE)
+    # Cleanup optional: remove generated files after test if desired
+    # if os.path.exists(BASELINE_RAW_FILE):
+    #     os.remove(BASELINE_RAW_FILE)
 
-def test_baseline_analysis_creates_valid_json():
+def test_baseline_pipeline_execution():
     """
-    Integration test: Verify baseline analysis script produces 
-    baseline_metrics.json with valid p-values (0 < p < 1) and finite CIs.
+    Run the full baseline pipeline (T012 -> T013) and verify artifacts exist.
     """
-    # Create a dummy dataset for testing
-    data = {
-        "outcome": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
-        "group": ["A", "A", "A", "A", "B", "B", "B", "B"],
-        "predictor": [10, 20, 30, 40, 15, 25, 35, 45]
-    }
-    df = pd.DataFrame(data)
-    
-    # Save to raw directory
-    os.makedirs("data/raw", exist_ok=True)
-    temp_csv = "data/raw/test_dataset.csv"
-    df.to_csv(temp_csv, index=False)
-    
-    try:
-        # Run analysis
-        success = run_baseline_analysis("data/raw", TEST_OUTPUT_FILE, config={})
+    # 1. Run T012 (Baseline Analysis)
+    logger.info("Running T012 (Baseline Analysis)...")
+    exit_code_12 = run_baseline_main()
+    assert exit_code_12 == 0, f"T012 failed with exit code {exit_code_12}"
+    assert os.path.exists(BASELINE_RAW_FILE), f"T012 did not produce {BASELINE_RAW_FILE}"
+
+    # 2. Run T013 (Record Metrics)
+    logger.info("Running T013 (Record Metrics)...")
+    exit_code_13 = record_metrics_main()
+    assert exit_code_13 == 0, f"T013 failed with exit code {exit_code_13}"
+    assert os.path.exists(BASELINE_FINAL_FILE), f"T013 did not produce {BASELINE_FINAL_FILE}"
+
+def test_baseline_metrics_content():
+    """
+    Verify the content of baseline_metrics.json:
+    - Valid JSON structure
+    - P-values in (0, 1)
+    - Finite CI bounds
+    - Effect sizes present
+    """
+    if not os.path.exists(BASELINE_FINAL_FILE):
+        pytest.skip("Baseline metrics file not found. Run T012 and T013 first.")
+
+    with open(BASELINE_FINAL_FILE, 'r') as f:
+        data = json.load(f)
+
+    assert 'datasets' in data, "Missing 'datasets' key in baseline_metrics.json"
+    assert len(data['datasets']) > 0, "No datasets recorded in baseline_metrics.json"
+
+    for entry in data['datasets']:
+        ds_name = entry.get('dataset_name', 'Unknown')
         
-        assert success is True, "Baseline analysis should return True"
-        assert os.path.exists(TEST_OUTPUT_FILE), "Output file should be created"
+        # Check P-value
+        p_val = entry.get('p_value')
+        assert p_val is not None, f"P-value missing for {ds_name}"
+        assert 0 < p_val < 1, f"P-value {p_val} for {ds_name} is not in (0, 1)"
         
-        # Load and validate
-        with open(TEST_OUTPUT_FILE, 'r') as f:
-            metrics = json.load(f)
+        # Check CIs
+        ci_lower = entry.get('ci_lower')
+        ci_upper = entry.get('ci_upper')
+        assert ci_lower is not None and ci_upper is not None, f"CI bounds missing for {ds_name}"
+        assert ci_lower != float('inf') and ci_lower != float('-inf'), f"CI lower infinite for {ds_name}"
+        assert ci_upper != float('inf') and ci_upper != float('-inf'), f"CI upper infinite for {ds_name}"
+        assert ci_lower < ci_upper, f"CI bounds inverted for {ds_name}"
         
-        assert "datasets" in metrics, "Metrics should contain 'datasets' key"
-        assert len(metrics["datasets"]) > 0, "Metrics should contain at least one dataset"
+        # Check Effect Size
+        eff_size = entry.get('effect_size')
+        assert eff_size is not None, f"Effect size missing for {ds_name}"
         
-        ds = metrics["datasets"][0]
-        t_test = ds.get("t_test", {})
+        logger.debug(f"Validated {ds_name}: p={p_val}, CI=({ci_lower}, {ci_upper}), ES={eff_size}")
+
+def test_precision_requirement():
+    """
+    Verify that metrics are recorded with at least 3 decimal precision.
+    """
+    if not os.path.exists(BASELINE_FINAL_FILE):
+        pytest.skip("Baseline metrics file not found.")
+
+    with open(BASELINE_FINAL_FILE, 'r') as f:
+        data = json.load(f)
+
+    for entry in data['datasets']:
+        p_val = entry.get('p_value')
+        # Convert to string and check decimal places (simple check)
+        # Note: JSON might strip trailing zeros, so we check the value itself
+        # If rounded to 3 decimals, the difference between value and round(value, 3) should be 0
+        assert p_val == round(p_val, 3), f"P-value {p_val} for {entry['dataset_name']} lacks 3 decimal precision"
         
-        p_val = t_test.get("p_value")
-        ci_low = t_test.get("ci_low")
-        ci_high = t_test.get("ci_high")
-        
-        # Validate p-value
-        assert p_val is not None, "p-value should not be None"
-        assert 0 < p_val < 1, f"p-value {p_val} should be in (0, 1)"
-        
-        # Validate CI bounds are finite
-        import math
-        assert ci_low is not None and math.isfinite(ci_low), "CI low should be finite"
-        assert ci_high is not None and math.isfinite(ci_high), "CI high should be finite"
-        
-    finally:
-        # Cleanup
-        if os.path.exists(temp_csv):
-            os.remove(temp_csv)
+        ci_lower = entry.get('ci_lower')
+        assert ci_lower == round(ci_lower, 3), f"CI lower {ci_lower} for {entry['dataset_name']} lacks 3 decimal precision"

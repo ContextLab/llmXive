@@ -2,24 +2,24 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 command(s) failed: python code/main.py (rc=1)
+**Summary**: 1 command(s) failed: python code/main.py (rc=1); 3 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json
 
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-    oading baseline metrics from data/processed/baseline_metrics.json
-2026-07-14 07:30:15 - llmXive - INFO - Loading cleaned metrics from data/processed/cleaned_metrics.json
-2026-07-14 07:30:15 - llmXive - INFO - Running bootstrap analysis with 1000 resamples (seed=42)
-2026-07-14 07:30:15 - llmXive - WARNING - No data found for shift calculation: p_value_shift
-2026-07-14 07:30:15 - llmXive - WARNING - No data found for shift calculation: ci_width_shift
-2026-07-14 07:30:15 - llmXive - WARNING - No data found for shift calculation: effect_size_shift
-2026-07-14 07:30:15 - llmXive - INFO - Bootstrap variance report saved to data/processed/bootstrap_variance_report.json
-2026-07-14 07:30:15 - llmXive - INFO - Running t032_permutation_null_fpr.py
-2026-07-14 07:30:16 - llmXive - INFO - Starting permutation null FPR estimation
-2026-07-14 07:30:16 - llmXive - ERROR - No datasets found in baseline metrics
-2026-07-14 07:30:16 - llmXive - ERROR - Script t032_permutation_null_fpr.py failed with return code 1
-2026-07-14 07:30:16 - llmXive - ERROR - Pipeline failed at t032_permutation_null_fpr.py
-2026-07-14 07:30:16 - llmXive - ERROR - Pipeline failed. Failed scripts: ['t032_permutation_null_fpr.py']
+    2026-07-14 08:16:27,666 - utils - INFO - Starting llmXive research pipeline
+2026-07-14 08:16:27,667 - utils - INFO - Running t011_ensure_data.py
+2026-07-14 08:16:29,265 - utils - INFO - Running t012_run_baseline_analysis.py
+Outcome column not defined in config. Cannot run baseline analysis.
+2026-07-14 08:16:30,321 - utils - ERROR - Script t012_run_baseline_analysis.py failed with return code 1
+2026-07-14 08:16:30,322 - utils - ERROR - Pipeline failed at t012_run_baseline_analysis.py
+2026-07-14 08:16:30,322 - utils - ERROR - Pipeline failed. Failed scripts: ['t012_run_baseline_analysis.py']
+
+## Declared deliverables still missing
+
+- data/processed/baseline_metrics.json
+- data/processed/cleaned_metrics.json
+- data/processed/null_fpr_metrics.json
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -31,10 +31,10 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 ### `run_baseline_analysis` — defined in `code/analysis.py`; called 4 way(s):
 
-- code/t012_run_baseline_analysis.py: success = run_baseline_analysis(raw_dir, output_file, config)
-- code/t013_record_baseline_metrics.py: success = run_baseline_analysis(dataset_path, temp_output, config={})
-- code/t033_outlier_threshold_sweep.py: result = run_baseline_analysis(temp_path, dataset_name=ds_name, config={})
-- code/t033_outlier_threshold_sweep.py: res_null = run_baseline_analysis(temp_null, dataset_name=f"{ds_name}_null", config={})
+- code/t012_run_baseline_analysis.py: success = run_baseline_analysis(raw_dir, output_file, analysis_config)
+- code/t013_record_baseline_metrics.py: success = run_baseline_analysis(
+- code/analysis.py: # run_baseline_analysis("data/raw", "data/processed/baseline_test.json", config)
+- code/t033_outlier_threshold_sweep.py: result = run_baseline_analysis(temp_path, dataset_name=dataset_name, config={})
 
 Make `run_baseline_analysis` in `code/analysis.py` accept ALL of the above.
 
@@ -47,24 +47,24 @@ Make `run_baseline_analysis` in `code/analysis.py` accept ALL of the above.
 - code/t022_save_cleaned_datasets.py: setup_logging("INFO")
 - code/t034_generate_forest_plot.py: logger = setup_logging(log_level)
 - code/t045_conditional_bootstrap_reduction.py: setup_logging("INFO")
-- code/t023_reanalyze_cleaned_variants.py: logger = setup_logging("INFO")
-- code/t012_run_baseline_analysis.py: logger = setup_logging("INFO")
+- code/t023_reanalyze_cleaned_variants.py: logger: logging.Logger = setup_logging("INFO")
+- code/t012_run_baseline_analysis.py: setup_logging("INFO")
 - code/utils.py: - setup_logging()
 - code/utils.py: - setup_logging("INFO")
-- code/utils.py: - setup_logging(log_level="INFO")
+- code/utils.py: - setup_logging(log_level="DEBUG")
 - code/utils.py: - setup_logging(logging.INFO)
-- code/utils.py: - setup_logging(logging.INFO, "name")
+- code/utils.py: - setup_logging(logging.INFO, "my_logger")
 - code/utils.py: - setup_logging(name="my_logger")
-- code/utils.py: logger = setup_logging("INFO")
+- code/utils.py: - setup_logging(log_level="INFO", name="my_logger")
 - code/t044_runtime_profiling.py: setup_logging()
 - code/cleanup_utils.py: setup_logging(log_level)
 - code/t035_generate_ci_heatmap.py: logger = setup_logging("INFO")
 - code/t031_bootstrap_variance.py: logger = setup_logging("INFO")
 - code/cleaning.py: logger = setup_logging("INFO")
 - code/profiler.py: setup_logging()
-- code/reporting.py: logger = setup_logging("INFO")
 - code/t048_verify_checksums_and_state.py: logger = setup_logging("INFO")
 - code/main.py: logger = setup_logging("INFO")
+- code/data_loader.py: logger = setup_logging("INFO")
 
 Make `setup_logging` in `code/utils.py` accept ALL of the above.
 
@@ -106,7 +106,38 @@ Whichever you choose, every call site of `Config` across the codebase must stop 
 - code/t034_generate_forest_plot.py: strategy = cleaned_item.get('strategy', cleaned_item.get('cleaning_strategy', 'Unknown'))
 - code/t034_generate_forest_plot.py: output_dir = config.get('OUTPUT_PATH', 'data/processed')
 - code/t045_conditional_bootstrap_reduction.py: size = data.get('dataset_size') or data.get('n_rows')
-- code/t023_reanalyze_cleaned_variants.py: logger.debug("T-test p-value: {}".format(t_test_result.get('p_value')))
-- code/t023_reanalyze_cleaned_variants.py: logger.debug("Regression R-squared: {}".format(reg_result.get('r_squared')))
 - code/t023_reanalyze_cleaned_variants.py: processed_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
-- code/t023_reanalyze_cleaned_variants.py: output_file = config.get("CLEANED_METRICS_PATH", "data/processed/cleaned_metrics.json")
+- code/t023_reanalyze_cleaned_variants.py: output_file = config.get(
+- code/t012_run_baseline_analysis.py: raw_dir = config.get("RAW_DATA_PATH", "data/raw")
+- code/t012_run_baseline_analysis.py: output_file = config.get("BASELINE_METRICS_PATH", "data/processed/baseline_metrics.json")
+
+## Declared deliverables NOT produced — make the run-book produce them
+
+Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
+
+- `data/processed/baseline_metrics.json` is declared but was NOT written. Scripts referencing it:
+    - `code/t036_pvalue_shift_reporting.py` — NOT invoked by the run-book
+    - `code/run_quickstart_validation.py` — NOT invoked by the run-book
+    - `code/t037_ci_width_reporting.py` — NOT invoked by the run-book
+    - `code/t034_generate_forest_plot.py` — NOT invoked by the run-book
+    - `code/t012_run_baseline_analysis.py` — NOT invoked by the run-book
+    - `code/config.py` — NOT invoked by the run-book
+    - `code/models.py` — NOT invoked by the run-book
+    - `code/t035_generate_ci_heatmap.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/baseline_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/cleaned_metrics.json` is declared but was NOT written. Scripts referencing it:
+    - `code/t036_pvalue_shift_reporting.py` — NOT invoked by the run-book
+    - `code/run_quickstart_validation.py` — NOT invoked by the run-book
+    - `code/t037_ci_width_reporting.py` — NOT invoked by the run-book
+    - `code/t034_generate_forest_plot.py` — NOT invoked by the run-book
+    - `code/t023_reanalyze_cleaned_variants.py` — NOT invoked by the run-book
+    - `code/config.py` — NOT invoked by the run-book
+    - `code/models.py` — NOT invoked by the run-book
+    - `code/t035_generate_ci_heatmap.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/cleaned_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/null_fpr_metrics.json` is declared but was NOT written. Scripts referencing it:
+    - `code/run_quickstart_validation.py` — NOT invoked by the run-book
+    - `code/t041_generate_final_report.py` — NOT invoked by the run-book
+    - `code/t033_outlier_threshold_sweep.py` — NOT invoked by the run-book
+    - `code/t032_permutation_null_fpr.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/null_fpr_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

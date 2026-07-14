@@ -11,24 +11,20 @@ class ImputationMethod(str, Enum):
     MEAN = "mean"
     MEDIAN = "median"
     KNN = "knn"
-    NONE = "none"
 
 class CleaningStrategyType(str, Enum):
     OUTLIER_REMOVAL = "outlier_removal"
     IMPUTATION = "imputation"
-    RECATEGORIZATION = "recategorization"
-    COMBINED = "combined"
+    RECODING = "recoding"
 
 class Dataset(BaseModel):
-    """Represents a loaded dataset with metadata."""
-    name: str
-    source: str
-    path: str
-    checksum: str
-    rows: int
-    columns: int
-    missing_rates: Dict[str, float]
-    loaded_at: datetime = Field(default_factory=datetime.now)
+    dataset_id: str
+    dataset_name: str
+    source_url: Optional[str] = None
+    checksum: Optional[str] = None
+    row_count: int
+    column_count: int
+    missing_rate: float
 
 class CleaningStrategy(BaseModel):
     """Defines a cleaning strategy to be applied."""
@@ -37,34 +33,30 @@ class CleaningStrategy(BaseModel):
     description: str
 
 class AnalysisResult(BaseModel):
-    """Results from statistical analysis on a dataset."""
-    dataset_name: str
-    strategy: Optional[str] = None
-    t_test: Dict[str, Any] = Field(default_factory=dict)
-    regression: Optional[Dict[str, Any]] = None
-    effect_size: Optional[float] = None
-    confidence_interval: Optional[List[float]] = None
+    dataset_id: str
+    test_type: str  # e.g., "t_test", "regression"
     p_value: float
-    analysis_timestamp: datetime = Field(default_factory=datetime.now)
+    ci_lower: Optional[float] = None
+    ci_upper: Optional[float] = None
+    effect_size: Optional[float] = None
+    r_squared: Optional[float] = None
+    coefficients: Optional[List[float]] = None
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
 
 class ComparisonReport(BaseModel):
-    """
-    Comprehensive comparison report between baseline and cleaned metrics.
-    Includes absolute and relative differences, and sensitivity analysis.
-    """
+    report_id: str
     created_at: str
-    baseline_metrics: Optional[Dict[str, Any]]
-    cleaned_metrics: Optional[Dict[str, Any]]
-    absolute_diffs: List[float]
-    relative_diffs: List[float]
-    sensitivity_analysis: Optional[Dict[str, Any]]
-    comparisons: List[Dict[str, Any]]
-    inconsistency_rate: float
-    total_datasets_analyzed: int = 0
+    baseline_metrics: Dict[str, Any]
+    cleaned_metrics: Dict[str, Any]
+    absolute_diff: List[float]
+    relative_diff: List[float]
+    comparison_details: Optional[List[Dict[str, Any]]] = None
+    sensitivity_analysis: Optional[Dict[str, Any]] = None
+    file_checksum: Optional[str] = None
 
-    @field_validator('absolute_diffs', 'relative_diffs')
+    @field_validator('created_at')
     @classmethod
-    def validate_diffs(cls, v):
-        if not isinstance(v, list):
-            raise ValueError('Diffs must be a list')
+    def check_created_at(cls, v):
+        if not v:
+            raise ValueError('created_at is required')
         return v

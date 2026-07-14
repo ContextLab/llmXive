@@ -8,150 +8,253 @@ import os
 logger = logging.getLogger(__name__)
 
 def load_json_file(filepath: str) -> Dict[str, Any]:
-    """Load JSON file."""
+    """Load a JSON file and return its contents as a dictionary."""
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"File not found: {filepath}")
     with open(filepath, 'r') as f:
         return json.load(f)
 
 def save_json_file(filepath: str, data: Dict[str, Any]) -> None:
-    """Save data to JSON file."""
+    """Save a dictionary to a JSON file."""
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     with open(filepath, 'w') as f:
-        json.dump(data, f, indent=2)
+        json.dump(data, f, indent=2, default=str)
+    logger.info(f"Saved JSON to {filepath}")
 
 def calculate_p_value_shift(p_baseline: float, p_cleaned: float) -> float:
-    """Calculate absolute difference in p-values."""
-    return abs(p_cleaned - p_baseline)
-
-def compute_ci_width_change(ci_baseline: Tuple[float, float], ci_cleaned: Tuple[float, float]) -> float:
-    """Calculate change in CI width."""
-    width_baseline = ci_baseline[1] - ci_baseline[0]
-    width_cleaned = ci_cleaned[1] - ci_cleaned[0]
-    return width_cleaned - width_baseline
-
-def compute_effect_size_delta(effect_baseline: float, effect_cleaned: float) -> float:
-    """Calculate difference in effect size."""
-    return effect_cleaned - effect_baseline
-
-def calculate_inconsistency_rate(
-    baseline_results: List[Dict[str, Any]],
-    cleaned_results: List[Dict[str, Any]],
-    significance_threshold: float = 0.05
-) -> float:
     """
-    Calculate the proportion of datasets where significance status changes.
+    Calculate the absolute difference between baseline and cleaned p-values.
+    Precision: >= 3 decimal places.
+    """
+    if p_baseline is None or p_cleaned is None:
+        logger.warning("Cannot calculate p-value shift with None values")
+        return 0.0
+    shift = abs(p_cleaned - p_baseline)
+    return round(shift, 3)
+
+def compute_ci_width_change(ci_baseline: Optional[List[float]], ci_cleaned: Optional[List[float]]) -> float:
+    """
+    Calculate the change in Confidence Interval width.
+    CI width = upper - lower.
+    Change = width_cleaned - width_baseline.
+    Precision: >= 2 decimal places.
+    """
+    if not ci_baseline or not ci_cleaned:
+        logger.warning("Cannot compute CI width change with missing CI data")
+        return 0.0
+    try:
+        width_baseline = ci_baseline[1] - ci_baseline[0]
+        width_cleaned = ci_cleaned[1] - ci_cleaned[0]
+        change = width_cleaned - width_baseline
+        return round(change, 2)
+    except (IndexError, TypeError, ValueError) as e:
+        logger.warning(f"Error computing CI width change: {e}")
+        return 0.0
+
+def compute_effect_size_delta(effect_baseline: Optional[float], effect_cleaned: Optional[float]) -> float:
+    """
+    Calculate the delta in effect size (e.g., Cohen's d or R-squared).
+    Delta = effect_cleaned - effect_baseline.
+    """
+    if effect_baseline is None or effect_cleaned is None:
+        logger.warning("Cannot compute effect size delta with None values")
+        return 0.0
+    delta = effect_cleaned - effect_baseline
+    return round(delta, 4)
+
+def calculate_inconsistency_rate(baseline_results: List[Dict], cleaned_results: List[Dict], alpha: float = 0.05) -> float:
+    """
+    Calculate the proportion of datasets where the significance status changes
+    between baseline and cleaned analysis.
+    Significance is determined by p-value < alpha.
+    Inconsistency = (count of changed status) / (total count).
     """
     if not baseline_results or not cleaned_results:
+        logger.warning("Cannot calculate inconsistency rate with empty results")
         return 0.0
 
     if len(baseline_results) != len(cleaned_results):
-        logger.warning("Baseline and cleaned result counts differ. Aligning by index.")
+        logger.warning(f"Mismatch in result counts: {len(baseline_results)} vs {len(cleaned_results)}")
+        # Proceed with min length to avoid crash, but log warning
         min_len = min(len(baseline_results), len(cleaned_results))
         baseline_results = baseline_results[:min_len]
         cleaned_results = cleaned_results[:min_len]
 
-    inconsistencies = 0
+    changes = 0
     total = len(baseline_results)
 
-    for b, c in zip(baseline_results, cleaned_results):
-        b_sig = b.get('p_value', 1.0) < significance_threshold
-        c_sig = c.get('p_value', 1.0) < significance_threshold
-        if b_sig != c_sig:
-            inconsistencies += 1
+    for base, clean in zip(baseline_results, cleaned_results):
+        p_base = base.get('p_value')
+        p_clean = clean.get('p_value')
 
-    return inconsistencies / total if total > 0 else 0.0
+        if p_base is None or p_clean is None:
+            continue
 
-def apply_bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> List[float]:
+        sig_base = p_base < alpha
+        sig_clean = p_clean < alpha
+
+        if sig_base != sig_clean:
+            changes += 1
+
+    if total == 0:
+        return 0.0
+
+    rate = changes / total
+    logger.info(f"Inconsistency Rate calculated: {rate:.3f} ({changes}/{total})")
+    return round(rate, 4)
+
+def apply_bonferroni_correction(p_values: List[float], num_tests: Optional[int] = None) -> List[float]:
     """
     Apply Bonferroni correction for Family-Wise Error Rate (FWER).
+    Adjusted p = min(p * num_tests, 1.0).
     """
-    n = len(p_values)
-    if n == 0:
+    if not p_values:
         return []
-    
-    corrected_alpha = alpha / n
-    logger.warning("Warning: FR-007 requests FWER control. Benjamini-Hochberg controls FDR. Implemented Bonferroni (FWER) to satisfy FR-007.")
-    return [min(p * n, 1.0) for p in p_values]
+
+    if num_tests is None:
+        num_tests = len(p_values)
+
+    if num_tests == 0:
+        return [1.0] * len(p_values)
+
+    corrected = []
+    for p in p_values:
+        if p is None:
+            corrected.append(1.0)
+        else:
+            adj = min(p * num_tests, 1.0)
+            corrected.append(round(adj, 4))
+
+    logger.info(f"Applied Bonferroni correction for {num_tests} tests")
+    return corrected
 
 def process_single_comparison(
     baseline_entry: Dict[str, Any],
     cleaned_entry: Dict[str, Any]
 ) -> Dict[str, Any]:
-    """Process a single dataset comparison."""
-    b_tests = baseline_entry.get('analysis', {}).get('t_test', {})
-    c_tests = cleaned_entry.get('analysis', {}).get('t_test', {})
+    """
+    Process a single pair of baseline and cleaned entries to compute all comparison metrics.
+    """
+    # Extract p-values
+    p_base = baseline_entry.get('p_value')
+    p_clean = cleaned_entry.get('p_value')
 
-    b_p = b_tests.get('p_value')
-    c_p = c_tests.get('p_value')
-    b_ci = b_tests.get('ci')
-    c_ci = c_tests.get('ci')
-    b_eff = b_tests.get('effect_size')
-    c_eff = c_tests.get('effect_size')
+    # Extract CIs (expecting list [lower, upper])
+    ci_base = baseline_entry.get('ci')
+    ci_clean = cleaned_entry.get('ci')
 
-    result = {
-        "dataset_name": baseline_entry.get('dataset_name'),
-        "p_value_shift": None,
-        "ci_width_change": None,
-        "effect_size_delta": None
+    # Extract effect sizes (handle different keys like 'effect_size', 'cohens_d', 'r_squared')
+    eff_base = baseline_entry.get('effect_size') or baseline_entry.get('cohens_d') or baseline_entry.get('r_squared')
+    eff_clean = cleaned_entry.get('effect_size') or cleaned_entry.get('cohens_d') or cleaned_entry.get('r_squared')
+
+    # Calculate metrics
+    p_shift = calculate_p_value_shift(p_base, p_clean)
+    ci_change = compute_ci_width_change(ci_base, ci_clean)
+    eff_delta = compute_effect_size_delta(eff_base, eff_clean)
+
+    return {
+        'dataset_name': baseline_entry.get('dataset_name', 'Unknown'),
+        'p_value_shift': p_shift,
+        'ci_width_change': ci_change,
+        'effect_size_delta': eff_delta,
+        'baseline_p_value': p_base,
+        'cleaned_p_value': p_clean,
+        'baseline_ci_width': (ci_base[1] - ci_base[0]) if ci_base else None,
+        'cleaned_ci_width': (ci_clean[1] - ci_clean[0]) if ci_clean else None,
+        'timestamp': datetime.now().isoformat()
     }
 
-    if b_p is not None and c_p is not None:
-        result["p_value_shift"] = calculate_p_value_shift(b_p, c_p)
-
-    if b_ci and c_ci and len(b_ci) == 2 and len(c_ci) == 2:
-        result["ci_width_change"] = compute_ci_width_change(b_ci, c_ci)
-
-    if b_eff is not None and c_eff is not None:
-        result["effect_size_delta"] = compute_effect_size_delta(b_eff, c_eff)
-
-    return result
-
 def generate_comparison_report(
-    baseline_metrics: Dict[str, Any],
-    cleaned_metrics: Dict[str, Any],
-    output_path: str = "data/processed/comparison_report.json"
+    baseline_metrics_path: str,
+    cleaned_metrics_path: str,
+    output_path: str
 ) -> Dict[str, Any]:
-    """Generate full comparison report."""
-    baseline_datasets = baseline_metrics.get('datasets', [])
-    cleaned_datasets = cleaned_metrics.get('datasets', [])
+    """
+    Generate a full comparison report by loading baseline and cleaned metrics,
+    computing per-dataset comparisons, and calculating aggregate statistics.
+    """
+    logger.info(f"Loading baseline metrics from {baseline_metrics_path}")
+    baseline_data = load_json_file(baseline_metrics_path)
+    
+    logger.info(f"Loading cleaned metrics from {cleaned_metrics_path}")
+    cleaned_data = load_json_file(cleaned_metrics_path)
 
-    # Map by name
-    cleaned_map = {d['dataset_name']: d for d in cleaned_datasets}
+    # Ensure we are working with lists of datasets
+    baseline_datasets = baseline_data.get('datasets', baseline_data if isinstance(baseline_data, list) else [])
+    cleaned_datasets = cleaned_data.get('datasets', cleaned_data if isinstance(cleaned_data, list) else [])
+
+    if not baseline_datasets:
+        raise ValueError("No baseline datasets found in input file")
+    if not cleaned_datasets:
+        logger.warning("No cleaned datasets found in input file. Report will only contain baseline data.")
+        cleaned_datasets = [{} for _ in baseline_datasets]
 
     comparisons = []
-    for b in baseline_datasets:
-        name = b.get('dataset_name')
-        c = cleaned_map.get(name)
-        if c:
-            comparisons.append(process_single_comparison(b, c))
+    p_shifts = []
+    ci_changes = []
+    eff_deltas = []
+    significance_changes = 0
 
-    # Aggregate stats
-    p_shifts = [c['p_value_shift'] for c in comparisons if c['p_value_shift'] is not None]
-    ci_changes = [c['ci_width_change'] for c in comparisons if c['ci_width_change'] is not None]
-    eff_deltas = [c['effect_size_delta'] for c in comparisons if c['effect_size_delta'] is not None]
+    # Map cleaned by dataset name for lookup if order differs
+    cleaned_map = {c.get('dataset_name'): c for c in cleaned_datasets if c.get('dataset_name')}
+
+    for base in baseline_datasets:
+        name = base.get('dataset_name')
+        clean = cleaned_map.get(name, {})
+        
+        if not clean and name:
+            # Try to find by index if name missing
+            idx = next((i for i, d in enumerate(baseline_datasets) if d.get('dataset_name') == name), -1)
+            if idx >= 0 and idx < len(cleaned_datasets):
+                clean = cleaned_datasets[idx]
+
+        comp = process_single_comparison(base, clean)
+        comparisons.append(comp)
+
+        if comp['p_value_shift'] != 0.0:
+            p_shifts.append(comp['p_value_shift'])
+        if comp['ci_width_change'] != 0.0:
+            ci_changes.append(comp['ci_width_change'])
+        if comp['effect_size_delta'] != 0.0:
+            eff_deltas.append(comp['effect_size_delta'])
+
+        # Track significance change for inconsistency rate
+        p_base = base.get('p_value')
+        p_clean = clean.get('p_value')
+        if p_base is not None and p_clean is not None:
+            if (p_base < 0.05) != (p_clean < 0.05):
+                significance_changes += 1
+
+    # Calculate aggregate inconsistency rate
+    total_count = len(baseline_datasets)
+    inconsistency_rate = significance_changes / total_count if total_count > 0 else 0.0
 
     report = {
-        "timestamp": datetime.now().isoformat(),
-        "dataset_count": len(comparisons),
-        "comparisons": comparisons,
-        "summary": {
-            "avg_p_value_shift": float(np.mean(p_shifts)) if p_shifts else None,
-            "avg_ci_width_change": float(np.mean(ci_changes)) if ci_changes else None,
-            "avg_effect_size_delta": float(np.mean(eff_deltas)) if eff_deltas else None,
-            "inconsistency_rate": calculate_inconsistency_rate(
-                [c for c in comparisons if c['p_value_shift'] is not None],
-                [c for c in comparisons if c['p_value_shift'] is not None]
-            )
-        }
+        'report_generated': datetime.now().isoformat(),
+        'total_datasets_analyzed': total_count,
+        'inconsistency_rate': round(inconsistency_rate, 4),
+        'summary_statistics': {
+            'p_value_shift': {
+                'mean': float(np.mean(p_shifts)) if p_shifts else 0.0,
+                'median': float(np.median(p_shifts)) if p_shifts else 0.0,
+                'std': float(np.std(p_shifts)) if p_shifts else 0.0,
+                'min': float(np.min(p_shifts)) if p_shifts else 0.0,
+                'max': float(np.max(p_shifts)) if p_shifts else 0.0
+            },
+            'ci_width_change': {
+                'mean': float(np.mean(ci_changes)) if ci_changes else 0.0,
+                'median': float(np.median(ci_changes)) if ci_changes else 0.0,
+                'std': float(np.std(ci_changes)) if ci_changes else 0.0
+            },
+            'effect_size_delta': {
+                'mean': float(np.mean(eff_deltas)) if eff_deltas else 0.0,
+                'median': float(np.median(eff_deltas)) if eff_deltas else 0.0,
+                'std': float(np.std(eff_deltas)) if eff_deltas else 0.0
+            }
+        },
+        'per_dataset_comparisons': comparisons
     }
 
     save_json_file(output_path, report)
+    logger.info(f"Comparison report saved to {output_path}")
     return report
-
-def main():
-    """Main entry point for reporting module."""
-    logger.info("Reporting module loaded.")
-
-if __name__ == "__main__":
-    main()
