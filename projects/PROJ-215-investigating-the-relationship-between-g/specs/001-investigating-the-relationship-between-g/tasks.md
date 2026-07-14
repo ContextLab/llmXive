@@ -43,11 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create data directories: `mkdir -p data/raw/ data/processed/`
-- [ ] T001b [P] Create code directories: `mkdir -p code/ code/models/ code/utils/`
-- [ ] T001c [P] Create test directories: `mkdir -p tests/unit/ tests/integration/ tests/contract/`
-- [ ] T002 Create `requirements.txt` with pinned major/minor versions for core dependencies (pandas, scikit-learn, scipy, numpy, biom-format, skbio, matplotlib, seaborn, requests, pytest, statsmodels) and a script to generate a `requirements.lock` file for reproducibility.
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T001a [P] Create data directories: `mkdir -p data/raw/ data/processed/`
+- [X] T001b [P] Create code directories: `mkdir -p code/ code/models/ code/utils/`
+- [X] T001c [P] Create test directories: `mkdir -p tests/unit/ tests/integration/ tests/contract/`
+- [X] T002 Create `requirements.txt` with pinned major/minor versions for core dependencies (pandas, scikit-learn, scipy, numpy, biom-format, skbio, matplotlib, seaborn, requests, pytest, statsmodels) and a script to generate a `requirements.lock` file for reproducibility.
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -59,8 +59,15 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 Implement `code/config.py` with paths, random seeds, and thresholds (e.g., 0.1% prevalence, 20% rarefaction loss threshold, median sequencing depth calculation logic)
-- [ ] T005 [P] Setup logging infrastructure in `code/__init__.py` or `code/utils/logging.py`
+- [X] T004 Implement `code/config.py` with paths, random seeds, and thresholds (e.g., 0.1% prevalence, 20% rarefaction loss threshold, median sequencing depth calculation logic)
+- [X] T005 [P] Setup logging infrastructure in `code/__init__.py` or `code/utils/logging.py` <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+ in "<unicode string>", line 7, column 1:
+ 1. **`code/utils/__init__.py`**...
+ ^
+could not find expected ':'
+ in "<unicode string>", line 8, column 1:
+ 2. **`code/utils/logging.py`** -...
+ ^) -->
 - [ ] T006 Create base data models/entities in `code/models.py` with specific schemas: `MicrobiomeSample` (sample_id, counts, metadata), `MentalHealthRecord` (phq9, gad7, age, bmi), `AssociationResult` (taxon, coef, pval, qval, direction)
 - [ ] T007 [P] Setup environment configuration management (`.env` loading if needed)
 - [ ] T010 [Write] [US1] Write unit test cases for rarefaction fallback logic in `tests/unit/test_preprocessing.py` (write-first, execute after T014)
@@ -79,14 +86,14 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Implement `code/data_ingestion.py`: Download AGP data (Study ID 10317) via Qiita API or verified HuggingFace mirror (handle rate-limiting with exponential backoff). **Feasibility Check**: Verify the dataset contains both S rRNA and PHQ-9/GAD-7 metadata for overlapping samples. Merge OTU table and metadata on `sample_id`. If no linked data is found, log "Data Gap" and halt analysis (per Plan Phase 0).
-- [ ] T013 [US1] Implement `code/data_ingestion.py`: Filter samples with missing PHQ-9/GAD-7 scores and log exclusion rate.
-- [ ] T014 [US1] Implement `code/preprocessing.py`: **Step 1**: Calculate median sequencing depth (median of non-zero column sums). **Step 2**: Estimate sample loss if rarefying to this depth. **Step 3**: If median < 1000 or estimated loss >20%, apply Variance-Stabilizing Transformation (VST) and log fallback; otherwise, apply rarefaction.
-- [ ] T015 [US1] Implement `code/preprocessing.py`: Filter taxa with <0.1% prevalence on the preprocessed table.
-- [ ] T016 [US1] Implement `code/preprocessing.py`: Calculate Alpha diversity metrics (Shannon, Simpson) on the **preprocessed** table (after rarefaction/VST and filtering).
-- [ ] T016b [US1] Implement `code/preprocessing.py`: Generate Beta diversity distance matrices (Bray-Curtis, UniFrac weighted, UniFrac unweighted) on the **preprocessed** table using `skbio`. Output as `data/processed/beta_distance_matrices.npz` or similar.
-- [ ] T017 [US1] Output `data/processed/cleaned_dataset.csv` (with alpha metrics) and verify ≥ 80% retention AND ≥ 100 valid rows with no missing key columns.
-- [ ] T010x [Execute] [US1] Execute unit tests for rarefaction fallback logic in `tests/unit/test_preprocessing.py` (after T014 completion).
-- [ ] T011x [Execute] [US1] Execute unit tests for missing value filtering in `tests/unit/test_data_ingestion.py` (after T013 completion).
+- [~] T013 [US1] Implement `code/data_ingestion.py`: Filter samples with missing PHQ-9/GAD-7 scores and log exclusion rate.
+- [~] T014 [US1] Implement `code/preprocessing.py`: **Step 1**: Calculate median sequencing depth (median of non-zero column sums). **Step 2**: Estimate sample loss if rarefying to this depth. **Step 3**: If median < 1000 or estimated loss >20%, apply Variance-Stabilizing Transformation (VST) and log fallback; otherwise, apply rarefaction.
+- [~] T015 [US1] Implement `code/preprocessing.py`: Filter taxa with <0.1% prevalence on the preprocessed table.
+- [~] T016 [US1] Implement `code/preprocessing.py`: Calculate Alpha diversity metrics (Shannon, Simpson) on the **preprocessed** table (after rarefaction/VST and filtering).
+- [~] T016b [US1] Implement `code/preprocessing.py`: Generate Beta diversity distance matrices (Bray-Curtis, UniFrac weighted, UniFrac unweighted) on the **preprocessed** table using `skbio`. Output as `data/processed/beta_distance_matrices.npz` or similar.
+- [~] T017 [US1] Output `data/processed/cleaned_dataset.csv` (with alpha metrics) and verify ≥ 80% retention AND ≥ 100 valid rows with no missing key columns.
+- [~] T010x [Execute] [US1] Execute unit tests for rarefaction fallback logic in `tests/unit/test_preprocessing.py` (after T014 completion).
+- [~] T011x [Execute] [US1] Execute unit tests for missing value filtering in `tests/unit/test_data_ingestion.py` (after T013 completion).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,11 +107,11 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/analysis.py`: Calculate partial Spearman rank correlation between alpha diversity (Shannon/Simpson) and PHQ-9/GAD-7 scores. **Implementation**: Regress diversity and scores against covariates (age, BMI) to obtain residuals, then calculate Spearman correlation on residuals using `scipy.stats.spearmanr`. Save unadjusted p-values to `data/interim/unadjusted_alpha_pvals.csv`.
-- [ ] T020a [US2] Implement `code/analysis.py`: Perform partial Spearman correlation for taxa abundance vs PHQ-9/GAD-7. **Implementation**: Regress taxa and scores against covariates (age, BMI) to obtain residuals, then calculate Spearman correlation on residuals using `scipy.stats.spearmanr`. **Constraint**: Do NOT use linear modeling (MaAsLin2) here; strictly follow the partial Spearman requirement. Save unadjusted p-values to `data/interim/unadjusted_taxa_pvals.csv`.
-- [ ] T021 [US2] Implement `code/analysis.py`: Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression (PHQ-9 ≥ 10) and low-depression groups, AND high-anxiety (GAD-7 ≥ 10) and low-anxiety groups. Use `skbio.stats.distance.permanova` for the permutation-based test, adjusting for covariates via distance matrix residualization.
-- [ ] T022 [US2] Implement `code/analysis.py`: Apply Benjamini-Hochberg correction to all unadjusted p-values (from T020, T020a, T021) and report adjusted p-values (q-values).
-- [ ] T023 [US2] **SC-005 Check**: Calculate `|p_adjusted - p_unadjusted|` for each taxon. Identify the maximum delta. Report in `results/temp_covariate_check.txt`: "Max Delta: X.XX. Threshold Met: [True/False]". Do not log a binary 'FAIL' if the threshold is not met; report the actual finding.
+- [~] T020 [US2] Implement `code/analysis.py`: Calculate partial Spearman rank correlation between alpha diversity (Shannon/Simpson) and PHQ-9/GAD-7 scores. **Implementation**: Regress diversity and scores against covariates (age, BMI) to obtain residuals, then calculate Spearman correlation on residuals using `scipy.stats.spearmanr`. Save unadjusted p-values to `data/interim/unadjusted_alpha_pvals.csv`.
+- [~] T020a [US2] Implement `code/analysis.py`: Perform partial Spearman correlation for taxa abundance vs PHQ-9/GAD-7. **Implementation**: Regress taxa and scores against covariates (age, BMI) to obtain residuals, then calculate Spearman correlation on residuals using `scipy.stats.spearmanr`. **Constraint**: Do NOT use linear modeling (MaAsLin2) here; strictly follow the partial Spearman requirement. Save unadjusted p-values to `data/interim/unadjusted_taxa_pvals.csv`.
+- [~] T021 [US2] Implement `code/analysis.py`: Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression (PHQ-9 ≥ 10 (2606.17973, https://arxiv.org/abs/2606.17973)) and low-depression groups, AND high-anxiety (GAD-7 ≥ 10) and low-anxiety groups. Use `skbio.stats.distance.permanova` for the permutation-based test, adjusting for covariates via distance matrix residualization.
+- [~] T022 [US2] Implement `code/analysis.py`: Apply Benjamini-Hochberg correction to all unadjusted p-values (from T020, T020a, T021) and report adjusted p-values (q-values).
+- [~] T023 [US2] **SC-005 Check**: Calculate `|p_adjusted - p_unadjusted|` for each taxon. Identify the maximum delta. Report in `results/temp_covariate_check.txt`: "Max Delta: X.XX. Threshold Met: [True/False]". Do not log a binary 'FAIL' if the threshold is not met; report the actual finding.
 - [ ] T024 [US2] **SC-002 Check**: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov test on p-value distribution.
 - [ ] T025 [US2] Output `data/processed/association_results.csv` with correlation coefficients, unadjusted p-values, adjusted p-values (q-values), and effect directions.
 
@@ -139,9 +146,9 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 4
 
 - [ ] T031 [US4] Implement `code/analysis.py`: Check for accessible independent cohort (e.g., HuggingFace datasets `ukbiobank-microbiome`, `metahit`, or local files matching `data/external/*.csv`).
-- [ ] T032 [US4] **Conditional**: 
-  - **If accessible**: Download secondary data, calculate correlations for top significant taxa, compute '% match' as (matching_directions / total_significant_taxa) scaled to a percentage.. Compare against SC-003 threshold (≥ 80%). Report pass/fail status in `results/validation_report.txt`.
-  - **If not accessible**: Log "Validation Skipped: No independent cohort available" and explicitly write this status to `results/validation_report.txt` to satisfy Single Source of Truth. Mark SC-003 as "Not Applicable".
+- [ ] T032 [US4] **Conditional**:
+ - **If accessible**: Download secondary data, calculate correlations for top significant taxa, compute '% match' as (matching_directions / total_significant_taxa) scaled to a percentage.. Compare against SC-003 threshold (≥ 80%). Report pass/fail status in `results/validation_report.txt`.
+ - **If not accessible**: Log "Validation Skipped: No independent cohort available" and explicitly write this status to `results/validation_report.txt` to satisfy Single Source of Truth. Mark SC-003 as "Not Applicable".
 - [ ] T034 [US4] Output `data/processed/validation_results.csv` (if applicable).
 
 ---

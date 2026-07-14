@@ -1,0 +1,697 @@
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Dataset verification for S rRNA and PHQ-9/GAD-7 metadata overlap
+  claim_id: c_4db677cf
+  context: 'Implement code/data_ingestion.py: Download AGP data (Study ID 10317) via
+    Qiita API or verified HuggingFace mirror... Feasibility Check: Verify the dataset
+    contains both S rRNA and PHQ-9/GAD-7 metadata for overlapping samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the dataset contains both S rRNA and PHQ-9/GAD-7 metadata for overlapping
+    samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:17:54Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Data ingestion pipeline test requirement of 100 valid rows with metrics
+    present
+  claim_id: c_ebef90b0
+  context: "Independent Test: The pipeline can be tested by running the data ingestion\
+    \ script and verifying that the output CSV contains \u2265 100 valid rows where\
+    \ both microbiome diversity metrics and mental health scores are present, with\
+    \ no missing values in the key predictor/outcome columns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline can be tested by running the data ingestion script and verifying\
+    \ that the output CSV contains \u2265 100 valid rows where both microbiome diversity\
+    \ metrics and mental health scores are present."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:17:54Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: AGP dataset Study ID 10317 usage
+  claim_id: c_6f619b6f
+  context: 'Implement code/data_ingestion.py: Download AGP data (Study ID 10317) via
+    Qiita API or verified HuggingFace mirror...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study utilizes the AGP dataset with Study ID 10317.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:18:20Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: High depression definition PHQ-9 score 10 or greater
+  claim_id: c_d6874ed7
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10) and low-depression groups..."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "achieves MAE= 2.6, RMSE= 4 .0, Pearson r = 0.80, and AUC= 0.91at the\
+        \ PHQ-9 \u2265 10"
+      source_id: '2606.17973'
+      url: https://arxiv.org/abs/2606.17973
+      value: '10'
+    filled: true
+  kind: entity_fact
+  raw_text: High depression is defined as a PHQ-9 score of 10 or greater.
+  resolved_value: '10'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-14T05:18:44Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: High anxiety definition GAD-7 score 10 or greater
+  claim_id: c_e1f698f9
+  context: "...AND high-anxiety (GAD-7 \u2265 10) and low-anxiety groups."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/High_anxiety_definition_GAD-7_score_10_or_greater
+  kind: entity_fact
+  raw_text: High anxiety is defined as a GAD-7 score of 10 or greater.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:19:08Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Significant taxa q-value threshold 0.05
+  claim_id: c_bafdd4e7
+  context: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov test on p-value
+    distribution.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significant_taxa_q-value_threshold_0.05
+  kind: magnitude
+  raw_text: Significant taxa are identified using a q-value threshold of less than
+    0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:19:56Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Validation effect direction match threshold 80 percent
+  claim_id: c_87772714
+  context: "Compare against SC-003 threshold (\u2265 80%). Report pass/fail status\
+    \ in results/validation_report.txt."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation module computes the percentage match of effect directions
+    against a threshold of 80%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:19:56Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Dataset contains S rRNA and PHQ-9/GAD-7 metadata for overlapping samples
+  claim_id: c_c43946f0
+  context: 'Feasibility Check: Verify the dataset contains both S rRNA and PHQ-9/GAD-7
+    metadata for overlapping samples. Merge OTU table and metadata on sample_id.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the dataset contains both S rRNA and PHQ-9/GAD-7 metadata for overlapping
+    samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:21:24Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Output CSV contains at least 100 valid rows with microbiome diversity
+    metrics and mental health scores
+  claim_id: c_817edf0b
+  context: "Independent Test: The pipeline can be tested by running the data ingestion\
+    \ script and verifying that the output CSV contains \u2265 100 valid rows where\
+    \ both microbiome diversity metrics and mental health scores are present, with\
+    \ no missing values in the key predictor/outcome columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_100_valid_rows_with_microbiome
+  kind: magnitude
+  raw_text: "The pipeline can be tested by running the data ingestion script and verifying\
+    \ that the output CSV contains \u2265 100 valid rows where both microbiome diversity\
+    \ metrics and mental health scores are present."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:21:46Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Study ID 10317 contains S rRNA and PHQ-9/GAD-7 metadata
+  claim_id: c_ce91c29c
+  context: 'Implement code/data_ingestion.py: Download AGP data (Study ID 10317) via
+    Qiita API or verified HuggingFace mirror.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the dataset Study ID 10317 contains both S rRNA and PHQ-9/GAD-7
+    metadata.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:23:41Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: VST applied if median depth < 1000 or loss > 20%
+  claim_id: c_fcea2419
+  context: 'Step 3: If median < 1000 or estimated loss >20%, apply Variance-Stabilizing
+    Transformation (VST) and log fallback; otherwise, apply rarefaction.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VST_applied_if_median_depth_%3C_1000_or_loss_%3E_20%25
+  kind: magnitude
+  raw_text: If median sequencing depth is less than 1000 or estimated loss is greater
+    than 20%, apply Variance-Stabilizing Transformation (VST).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:24:07Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Filter taxa with less than 0.1% prevalence
+  claim_id: c_00ebff9e
+  context: 'Implement code/preprocessing.py: Filter taxa with <0.1% prevalence on
+    the preprocessed table.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_taxa_with_less_than_0.1%25_prevalence
+  kind: magnitude
+  raw_text: Filter taxa with less than 0.1% prevalence on the preprocessed table.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:24:43Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Cleaned dataset has at least 80% retention and at least 100 valid rows
+  claim_id: c_bf045b6e
+  context: "Output data/processed/cleaned_dataset.csv (with alpha metrics) and verify\
+    \ \u2265 80% retention AND \u2265 100 valid rows with no missing key columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cleaned_dataset_has_at_least_80%25_retention_and_at_least_100
+  kind: magnitude
+  raw_text: "Verify \u2265 80% retention and \u2265 100 valid rows with no missing\
+    \ key columns in the cleaned dataset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:24:58Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: High-depression group defined as PHQ-9 >= 10
+  claim_id: c_9cce09b7
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10) and low-depression groups."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/High-depression_group_defined_as_PHQ-9_%3E=_10
+  kind: entity_fact
+  raw_text: "High-depression group is defined as PHQ-9 \u2265 10."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:25:15Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: High-anxiety group defined as GAD-7 >= 10
+  claim_id: c_6c3d74ac
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between ... high-anxiety\
+    \ (GAD-7 \u2265 10) and low-anxiety groups."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/High-anxiety_group_defined_as_GAD-7_%3E=_10
+  kind: entity_fact
+  raw_text: "High-anxiety group is defined as GAD-7 \u2265 10."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:25:51Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Significant taxa defined as q < 0.05
+  claim_id: c_5eda8271
+  context: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov test on p-value
+    distribution.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significant_taxa_defined_as_q_%3C_0.05
+  kind: magnitude
+  raw_text: Identify significant taxa using a q-value threshold of less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:26:35Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Validation success defined as at least 80% match rate
+  claim_id: c_f474e803
+  context: "Compare against SC-003 threshold (\u2265 80%). Report pass/fail status\
+    \ in results/validation_report.txt."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_success_defined_as_at_least_80%25_match_rate
+  kind: magnitude
+  raw_text: "Validation success is defined as a match rate of \u2265 80% for significant\
+    \ taxa effect directions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:26:52Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Significant associations reported for q < 0.05
+  claim_id: c_91810d26
+  context: Generate summary report listing all significant associations (q < 0.05)
+    with direction and magnitude.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significant_associations_reported_for_q_%3C_0.05
+  kind: magnitude
+  raw_text: Significant associations are reported with a q-value threshold of less
+    than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:27:39Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Verify AGP dataset contains S rRNA and PHQ-9/GAD-7 metadata for overlapping
+    samples
+  claim_id: c_32d465ba
+  context: 'Implement code/data_ingestion.py: Download AGP data (Study ID 10317) via
+    Qiita API or verified HuggingFace mirror. Feasibility Check: Verify the dataset
+    contains both S rRNA and PHQ-9/GAD-7 metadata for overlapping samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the dataset contains both S rRNA and PHQ-9/GAD-7 metadata for overlapping
+    samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:31:27Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Pipeline test requires output CSV with at least 100 valid rows containing
+    microbiome diversity and mental health scores
+  claim_id: c_3f883a03
+  context: "Independent Test: The pipeline can be tested by running the data ingestion\
+    \ script and verifying that the output CSV contains \u2265 100 valid rows where\
+    \ both microbiome diversity metrics and mental health scores are present, with\
+    \ no missing values in the key predictor/outcome columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_test_requires_output_CSV_with_at_least_100_valid_ro
+  kind: magnitude
+  raw_text: "The pipeline can be tested by running the data ingestion script and verifying\
+    \ that the output CSV contains \u2265 100 valid rows where both microbiome diversity\
+    \ metrics and mental health scores are present."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:31:28Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Apply VST if median sequencing depth < 1000 or sample loss > 20%
+  claim_id: c_28940313
+  context: 'Step 2: Estimate sample loss if rarefying to this depth. Step 3: If median
+    < 1000 or estimated loss >20%, apply Variance-Stabilizing Transformation (VST)
+    and log fallback; otherwise, apply rarefaction.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_VST_if_median_sequencing_depth_%3C_1000_or_sample_loss_%3E
+  kind: magnitude
+  raw_text: If median sequencing depth is less than 1000 or estimated sample loss
+    is greater than 20%, apply Variance-Stabilizing Transformation (VST).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:31:46Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Filter taxa with prevalence less than 0.1%
+  claim_id: c_02d9170b
+  context: 'Implement code/preprocessing.py: Filter taxa with <0.1% prevalence on
+    the preprocessed table.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_taxa_with_prevalence_less_than_0.1%25
+  kind: magnitude
+  raw_text: Filter taxa with less than 0.1% prevalence on the preprocessed table.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:31:48Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Verify cleaned dataset has at least 80% retention and 100 valid rows
+  claim_id: c_645c552a
+  context: "Output data/processed/cleaned_dataset.csv (with alpha metrics) and verify\
+    \ \u2265 80% retention AND \u2265 100 valid rows with no missing key columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_cleaned_dataset_has_at_least_80%25_retention_and_100_va
+  kind: magnitude
+  raw_text: "Verify \u2265 80% retention AND \u2265 100 valid rows with no missing\
+    \ key columns in the cleaned dataset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:31:50Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: High depression group defined as PHQ-9 score >= 10
+  claim_id: c_3c771e9c
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10 (2606.17973, https://arxiv.org/abs/2606.17973)) and low-depression\
+    \ groups."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define high-depression group as PHQ-9 \u2265 10."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:32:23Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: High anxiety group defined as GAD-7 score >= 10
+  claim_id: c_faaee482
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10) and low-depression groups, AND high-anxiety (GAD-7 \u2265\
+    \ 10) and low-anxiety groups."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define high-anxiety group as GAD-7 \u2265 10."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:32:39Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Validation threshold requires at least 80% matching effect directions
+  claim_id: c_3b9c97e0
+  context: "If accessible: Download secondary data, calculate correlations for top\
+    \ significant taxa, compute '% match' as (matching_directions / total_significant_taxa)\
+    \ scaled to a percentage.. Compare against SC-003 threshold (\u2265 80%)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_threshold_requires_at_least_80%25_matching_effect_d
+  kind: magnitude
+  raw_text: "Report pass/fail status for validation against a threshold of \u2265\
+    \ 80% matching directions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:33:26Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: AGP dataset contains S rRNA and PHQ-9/GAD-7 metadata
+  claim_id: c_dc18365d
+  context: 'Feasibility Check: Verify the dataset contains both S rRNA and PHQ-9/GAD-7
+    metadata for overlapping samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset contains both S rRNA and PHQ-9/GAD-7 metadata for overlapping
+    samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:42:07Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Data ingestion pipeline output contains at least 100 valid rows with
+    microbiome and mental health metrics
+  claim_id: c_50bb3b25
+  context: "Independent Test: The pipeline can be tested by running the data ingestion\
+    \ script and verifying that the output CSV contains \u2265 100 valid rows where\
+    \ both microbiome diversity metrics and mental health scores are present."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_pipeline_output_contains_at_least_100_valid_r
+  kind: magnitude
+  raw_text: "The pipeline can be tested by running the data ingestion script and verifying\
+    \ that the output CSV contains \u2265 100 valid rows where both microbiome diversity\
+    \ metrics and mental health scores are present."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:42:09Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Apply VST if median sequencing depth is less than 1000
+  claim_id: c_8c54e3fa
+  context: If median < 1000 or estimated loss >20%, apply Variance-Stabilizing Transformation
+    (VST) and log fallback; otherwise, apply rarefaction.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_VST_if_median_sequencing_depth_is_less_than_1000
+  kind: magnitude
+  raw_text: If median sequencing depth is less than 1000, apply Variance-Stabilizing
+    Transformation (VST).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:42:28Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Apply VST if estimated sample loss is greater than 20 percent
+  claim_id: c_cf9a5c0e
+  context: If median < 1000 or estimated loss >20%, apply Variance-Stabilizing Transformation
+    (VST) and log fallback; otherwise, apply rarefaction.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_VST_if_estimated_sample_loss_is_greater_than_20_percen
+  kind: magnitude
+  raw_text: If estimated sample loss if rarefying to median depth is greater than
+    20%, apply Variance-Stabilizing Transformation (VST).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:42:50Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Filter taxa with prevalence less than 0.1 percent
+  claim_id: c_47fc0051
+  context: 'Implement code/preprocessing.py: Filter taxa with <0.1% prevalence on
+    the preprocessed table.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_taxa_with_prevalence_less_than_0.1_percent
+  kind: magnitude
+  raw_text: Filter taxa with less than 0.1% prevalence on the preprocessed table.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:42:52Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Output dataset must have at least 80 percent retention and 100 valid
+    rows
+  claim_id: c_6015c14a
+  context: "Output data/processed/cleaned_dataset.csv (with alpha metrics) and verify\
+    \ \u2265 80% retention AND \u2265 100 valid rows with no missing key columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_dataset_must_have_at_least_80_percent_retention_and_1
+  kind: magnitude
+  raw_text: "The output CSV must have \u2265 80% retention and \u2265 100 valid rows\
+    \ with no missing key columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:43:12Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: High depression defined as PHQ-9 score greater than or equal to 10
+  claim_id: c_dc1d368e
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10 (2606.17973, https://arxiv.org/abs/2606.17973)) and low-depression\
+    \ groups."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High_depression_defined_as_PHQ-9_score_greater_than_or_equal
+  kind: magnitude
+  raw_text: "High-depression is defined as PHQ-9 \u2265 10."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:43:35Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: High anxiety defined as GAD-7 score greater than or equal to 10
+  claim_id: c_9af93d96
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10 (2606.17973, https://arxiv.org/abs/2606.17973)) and low-depression\
+    \ groups, AND high-anxiety (GAD-7 \u2265 10) and low-anxiety groups."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High_anxiety_defined_as_GAD-7_score_greater_than_or_equal_to
+  kind: magnitude
+  raw_text: "High-anxiety is defined as GAD-7 \u2265 10."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:43:58Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Significant taxa defined by q-value less than 0.05
+  claim_id: c_2392d223
+  context: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov test on p-value
+    distribution.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significant_taxa_defined_by_q-value_less_than_0.05
+  kind: magnitude
+  raw_text: Identify significant taxa using a q-value threshold of less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:44:00Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Report significant associations with q-value less than 0.05
+  claim_id: c_182301d9
+  context: Generate summary report listing all significant associations (q < 0.05)
+    with direction and magnitude.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_significant_associations_with_q-value_less_than_0.05
+  kind: magnitude
+  raw_text: Report significant associations with a q-value threshold of less than
+    0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:44:45Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Validation threshold is 80 percent matching directions
+  claim_id: c_23200bd1
+  context: "Compute '% match' as (matching_directions / total_significant_taxa) scaled\
+    \ to a percentage.. Compare against SC-003 threshold (\u2265 80%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compare validation results against a threshold of \u2265 80% matching\
+    \ directions."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T05:44:45Z'

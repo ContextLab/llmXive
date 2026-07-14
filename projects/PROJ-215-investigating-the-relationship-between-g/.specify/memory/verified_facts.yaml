@@ -1,0 +1,6 @@
+'|defined depression greater high phq score':
+  quote: "achieves MAE= 2.6, RMSE= 4 .0, Pearson r = 0.80, and AUC= 0.91at the PHQ-9\
+    \ \u2265 10"
+  source_id: '2606.17973'
+  url: https://arxiv.org/abs/2606.17973
+  value: '10'

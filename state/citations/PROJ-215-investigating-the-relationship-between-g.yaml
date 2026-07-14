@@ -20,3 +20,15 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/684261c425b22aace5b7346d/d42dd448dc5664ddd3aefa8f4a5206c29d64421f74c8869f64c79307b49529b2?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-3525e3b61e9b6e7b.parquet%3B+filename%3D%22test-00000-of-00001-3525e3b61e9b6e7b.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783969092&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjg0MjYxYzQyNWIyMmFhY2U1YjczNDZkL2Q0MmRkNDQ4ZGM1NjY0ZGRkM2FlZmE4ZjRhNTIwNmMyOWQ2NDQyMWY3NGM4ODY5ZjY0Yzc5MzA3YjQ5NTI5YjJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS0zNTI1ZTNiNjFlOWI2ZTdiLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLTM1MjVlM2I2MWU5YjZlN2IucGFycXVldCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzOTY5MDkyfX19XX0_&Signature=MEUCIQC5WgQZOurGgyOLN3FakQtuZsXc37RoYC1vgZeHurFyCAIgGM4fYOxUj2HMbXgvt3SW2pEVr3JOX9Wj2-BFinIg%7EnU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-13T17:57:41.899982Z'
+- artifact_hash: 62a2aeb7329e3a39279be1fb451d03f4f4ef8c7888c57ce03b63cd2d7de903d1
+  artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2606.17973] Fine-tuning LLMs for Passive Depression Severity Estimation
+    from AI Mental Health Dialogue'
+  kind: url
+  value: https://arxiv.org/abs/2606.17973
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2606.17973
+  verified_at: '2026-07-14T06:00:50.383068Z'
