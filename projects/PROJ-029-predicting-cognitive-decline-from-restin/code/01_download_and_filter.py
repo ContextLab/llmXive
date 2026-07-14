@@ -1,6 +1,11 @@
 """
-Task T017: Download ds000246, parse BIDS metadata, filter for subjects
-with non-null MMSE/MOCA at both timepoints, and output eligible/excluded lists.
+Task T017: Download ds000246, parse BIDS metadata, filter for longitudinal MMSE/MOCA,
+and output eligible/excluded subject lists.
+
+This script implements the data ingestion and filtering logic for User Story 1.
+It downloads the dataset (if not present), parses the BIDS JSON sidecars for
+cognitive scores at two timepoints, filters for subjects with non-null scores
+at both timepoints, limits the cohort to N=100, and writes the results to disk.
 """
 import os
 import sys
@@ -10,124 +15,188 @@ import shutil
 import tempfile
 import csv
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Tuple, Optional
+from urllib.parse import urljoin
 
-# Import from project utils
-from utils.logger import get_logger
-from utils.io import ensure_dir, load_json, save_json, save_csv
-from config import get_config
+# Project root relative to this script
+ROOT_DIR = Path(__file__).resolve().parent.parent
+DATA_RAW_DIR = ROOT_DIR / "data" / "raw"
+DATA_PROCESSED_DIR = ROOT_DIR / "data" / "processed"
 
-# Constants
+# Configuration
 DATASET_ID = "ds000246"
-OPENNEURO_BASE = "https://api.openneuro.org"
-MAX_SUBJECTS = 100
-EXIT_CODE_NO_LABELS = 2
+DATASET_VERSION = "1.0.0"
+OPENNEURO_BASE_URL = "https://openneuro.org/datasets"
+DOWNLOAD_URL = f"https://d.s3.amazonaws.com/openneuro/{DATASET_ID}/{DATASET_VERSION}.tar.gz"
+# Fallback: OpenNeuro API for metadata if direct download fails or for verification
+API_URL = f"https://openneuro.org/crn/datasets/{DATASET_ID}/snapshots"
+
+# Exit codes
 EXIT_CODE_SUCCESS = 0
+EXIT_CODE_NO_LABELS = 2
+EXIT_CODE_DOWNLOAD_FAILED = 1
 
-# Setup logger
-logger = get_logger("download_and_filter")
+# Ensure directories exist
+DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
+# Setup logging
+def get_logger_wrapper():
+    logger = logging.getLogger(f"{__name__}")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        logger.addHandler(handler)
+    return logger
 
-def check_dataset_availability(dataset_id: str) -> bool:
+logger = get_logger_wrapper()
+
+def check_dataset_availability() -> bool:
     """
-    Check if the dataset exists on OpenNeuro by querying the API.
+    Check if the dataset is available on OpenNeuro.
     Returns True if available, False otherwise.
     """
-    url = f"{OPENNEURO_BASE}/datasets/{dataset_id}"
     try:
-        # Simple GET request to check existence
-        # Using a timeout to avoid hanging
-        import urllib.request
-        req = urllib.request.Request(url, method='GET')
-        req.add_header('User-Agent', 'llmXive-research-agent')
-        with urllib.request.urlopen(req, timeout=10) as response:
-            if response.status == 200:
-                logger.info(f"Dataset {dataset_id} is available on OpenNeuro.")
+        response = requests.get(API_URL, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if isinstance(data, list) and len(data) > 0:
+                logger.info(f"Dataset {DATASET_ID} found on OpenNeuro.")
                 return True
-            else:
-                logger.error(f"Dataset {dataset_id} returned status {response.status}")
-                return False
-    except Exception as e:
+        logger.warning(f"Dataset {DATASET_ID} not found or API error: {response.status_code}")
+        return False
+    except requests.RequestException as e:
         logger.error(f"Failed to check dataset availability: {e}")
         return False
 
-
-def download_dataset(dataset_id: str, target_dir: Path) -> Path:
+def download_dataset(target_dir: Path) -> bool:
     """
-    Download dataset from OpenNeuro using git-annex or direct download.
-    For this implementation, we simulate the download structure by fetching
-    metadata via API and creating a minimal BIDS structure for eligible subjects.
-    
-    NOTE: In a real environment with full dataset access, this would use
-    `datalad get` or `git clone`. Here we fetch participant data from the
-    OpenNeuro API to build the BIDS metadata we need.
+    Download the dataset from OpenNeuro.
+    Returns True if successful, False otherwise.
     """
-    logger.info(f"Starting download process for {dataset_id} to {target_dir}")
+    tar_path = target_dir / f"{DATASET_ID}.tar.gz"
+    extract_dir = target_dir / DATASET_ID
     
-    # Ensure target directory exists
-    ensure_dir(target_dir)
+    if extract_dir.exists():
+        logger.info(f"Dataset already exists at {extract_dir}. Skipping download.")
+        return True
     
-    # Fetch dataset description
-    dataset_url = f"{OPENNEURO_BASE}/datasets/{dataset_id}"
+    logger.info(f"Downloading {DATASET_ID} from {DOWNLOAD_URL}...")
     try:
-        import urllib.request
-        import json as json_lib
+        # Stream download
+        response = requests.get(DOWNLOAD_URL, stream=True, timeout=300)
+        if response.status_code != 200:
+            logger.error(f"Download failed with status {response.status_code}")
+            return False
         
-        req = urllib.request.Request(dataset_url, method='GET')
-        req.add_header('User-Agent', 'llmXive-research-agent')
+        # Save to temp file first
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".tar.gz") as tmp:
+            tmp_path = Path(tmp.name)
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    tmp.write(chunk)
         
-        with urllib.request.urlopen(req, timeout=30) as response:
-            dataset_info = json_lib.loads(response.read().decode('utf-8'))
+        logger.info("Download complete. Extracting...")
+        import tarfile
+        with tarfile.open(tmp_path, "r:gz") as tar:
+            tar.extractall(path=target_dir)
         
-        # Save dataset info
-        ds_path = target_dir / "dataset_description.json"
-        with open(ds_path, 'w') as f:
-            json.dump(dataset_info, f, indent=2)
-        
-        logger.info(f"Saved dataset description to {ds_path}")
-        
-        # We need to fetch participant data. OpenNeuro API v3 has specific endpoints.
-        # We will attempt to fetch the derivative or raw data metadata if available.
-        # Since we cannot download full NIfTI in this constrained environment,
-        # we will rely on the JSON sidecars that contain the scores.
-        
-        # Construct BIDS structure
-        bids_dir = target_dir
-        (bids_dir / "sub-001" / "ses-1" / "anat").mkdir(parents=True, exist_ok=True)
-        (bids_dir / "sub-001" / "ses-1" / "func").mkdir(parents=True, exist_ok=True)
-        (bids_dir / "sub-001" / "ses-2" / "anat").mkdir(parents=True, exist_ok=True)
-        (bids_dir / "sub-001" / "ses-2" / "func").mkdir(parents=True, exist_ok=True)
-        
-        # Create a dummy dataset_description.json if not present
-        bids_desc = {
-            "Name": "Constitution VI (ds000246)",
-            "BIDSVersion": "1.9.0",
-            "DatasetType": "raw"
-        }
-        with open(bids_dir / "dataset_description.json", 'w') as f:
-            json.dump(bids_desc, f, indent=2)
-            
-        logger.info(f"Initialized BIDS structure at {bids_dir}")
-        return bids_dir
-
+        # Cleanup temp file
+        tmp_path.unlink()
+        logger.info(f"Extraction complete. Data available at {extract_dir}")
+        return True
     except Exception as e:
-        logger.error(f"Error downloading/fetching dataset: {e}")
-        raise
+        logger.error(f"Download or extraction failed: {e}")
+        return False
 
-
-def parse_bids_metadata(bids_dir: Path) -> List[Dict[str, Any]]:
+def parse_bids_metadata(data_dir: Path) -> List[Dict[str, Any]]:
     """
-    Parse BIDS metadata to find subjects with MMSE/MOCA scores at both timepoints.
-    Returns a list of subject dictionaries with their scores.
+    Parse BIDS metadata for all subjects to find MMSE/MOCA scores.
+    Returns a list of dicts with subject info and scores.
     """
-    logger.info(f"Parsing BIDS metadata in {bids_dir}")
     subjects = []
+    # Look for participants.tsv first (common in BIDS)
+    participants_file = data_dir / "participants.tsv"
+    if participants_file.exists():
+        import pandas as pd
+        df = pd.read_csv(participants_file, sep='\t')
+        logger.info(f"Found participants.tsv with columns: {list(df.columns)}")
+        
+        # Normalize column names (lowercase, strip)
+        df.columns = [c.strip().lower() for c in df.columns]
+        
+        # Identify score columns (heuristic: contains 'mmse' or 'moca' and 'score' or 'value')
+        score_cols = []
+        for col in df.columns:
+            if ('mmse' in col or 'moca' in col) and ('score' in col or 'value' in col or col in ['mmse', 'moca']):
+                score_cols.append(col)
+        
+        # Identify session column
+        session_col = 'session' if 'session' in df.columns else None
+        subj_col = 'participant_id' if 'participant_id' in df.columns else 'subject_id' if 'subject_id' in df.columns else None
+        
+        if not subj_col:
+            logger.warning("Could not find participant ID column in participants.tsv")
+            return []
+        
+        # Group by subject and session
+        for subj in df[subj_col].unique():
+            subj_data = df[df[subj_col] == subj]
+            scores_by_session = {}
+            
+            for _, row in subj_data.iterrows():
+                sess = row.get(session_col, 'baseline') if session_col else 'baseline'
+                scores = {}
+                for col in score_cols:
+                    val = row.get(col)
+                    if pd.notna(val):
+                        scores[col] = float(val)
+                if scores:
+                    scores_by_session[sess] = scores
+            
+            if scores_by_session:
+                subjects.append({
+                    'subject_id': subj,
+                    'sessions': scores_by_session,
+                    'source': 'participants.tsv'
+                })
+        return subjects
     
-    # In a real scenario, we would scan the directory for participant.tsv or JSON sidecars.
-    # Here we simulate the presence of data by querying a known public metadata source
-    # or generating the expected structure based on the dataset's known schema.
-    # Since ds000246 is a real dataset, we will construct the expected participants.tsv
-    # based on typical BIDS longitudinal structure for this dataset.
+    # Fallback: Scan JSON sidecars in fMRI directories
+    logger.info("participants.tsv not found. Scanning JSON sidecars...")
+    for subj_dir in data_dir.glob("sub-*"):
+        if not subj_dir.is_dir():
+            continue
+        subj_id = subj_dir.name
+        sessions = {}
+        
+        for ses_dir in subj_dir.glob("ses-*"):
+            ses_id = ses_dir.name
+            # Look for JSON files with cognitive data
+            # Heuristic: search for 'mmse' or 'moca' in filename or content
+            for json_file in ses_dir.rglob("*.json"):
+                try:
+                    with open(json_file, 'r') as f:
+                        content = json.load(f)
+                    # Check for cognitive scores in the JSON
+                    found_scores = {}
+                    for key, val in content.items():
+                        if isinstance(val, (int, float)) and ('mmse' in key.lower() or 'moca' in key.lower()):
+                            found_scores[key] = float(val)
+                    if found_scores:
+                        if ses_id not in sessions:
+                            sessions[ses_id] = {}
+                        sessions[ses_id].update(found_scores)
+                except:
+                    continue
+        
+        if sessions:
+            subjects.append({
+                'subject_id': subj_id,
+                'sessions': sessions,
+                'source': 'json_sidecars'
+            })
     
     # Note: In a real execution, we would read:
     # bids_dir / "participants.tsv" or scan **/scans.json for scores
@@ -226,135 +295,98 @@ def parse_bids_metadata(bids_dir: Path) -> List[Dict[str, Any]]:
 
     return subjects
 
-
-def filter_eligible_subjects(subjects: List[Dict[str, Any]]) -> Tuple[List[Dict], List[Dict]]:
+def filter_eligible_subjects(subjects: List[Dict], min_sessions: int = 2) -> Tuple[List[Dict], List[Dict]]:
     """
-    Filter subjects who have non-null MMSE or MOCA at BOTH timepoints.
+    Filter subjects who have non-null MMSE/MOCA scores at >= min_sessions timepoints.
     Returns (eligible, excluded).
     """
     eligible = []
     excluded = []
     
-    for sub in subjects:
-        s1_mmse = sub.get('ses-1_MMSE')
-        s2_mmse = sub.get('ses-2_MMSE')
-        s1_moca = sub.get('ses-1_MOCA')
-        s2_moca = sub.get('ses-2_MOCA')
+    for subj in subjects:
+        sessions = subj.get('sessions', {})
+        # Count sessions with at least one cognitive score
+        scored_sessions = [s for s, scores in sessions.items() if scores]
         
-        # Check if we have scores for both timepoints
-        # Eligible if (MMSE at both) OR (MOCA at both)
-        mmse_complete = s1_mmse is not None and s2_mmse is not None
-        moca_complete = s1_moca is not None and s2_moca is not None
-        
-        if mmse_complete or moca_complete:
-            eligible.append(sub)
+        if len(scored_sessions) >= min_sessions:
+            eligible.append(subj)
         else:
-            excluded.append(sub)
-    
-    # Limit to N = min(100, available)
-    if len(eligible) > MAX_SUBJECTS:
-        logger.warning(f"Found {len(eligible)} eligible subjects. Limiting to {MAX_SUBJECTS}.")
-        eligible = eligible[:MAX_SUBJECTS]
-        # Move the rest to excluded? Or just drop? 
-        # The task says "limit to N", implying we only process N.
-        # We'll leave the rest in the 'eligible' list but not process them,
-        # or move them to excluded to reflect they are not part of the study run.
-        # Let's move the excess to excluded for clarity.
-        excluded.extend(eligible[MAX_SUBJECTS:])
-        eligible = eligible[:MAX_SUBJECTS]
-    
-    if len(eligible) == 0:
-        logger.error("No eligible subjects found with longitudinal scores.")
-        raise ValueError("No eligible subjects found.")
+            excluded.append({
+                'subject_id': subj['subject_id'],
+                'reason': f"Only {len(scored_sessions)} sessions with scores (need {min_sessions})",
+                'sessions': sessions
+            })
     
     return eligible, excluded
 
-
-def write_outputs(eligible: List[Dict], excluded: List[Dict], output_dir: Path):
+def write_outputs(eligible: List[Dict], excluded: List[Dict], n_limit: int = 100):
     """
-    Write eligible_subjects.csv and excluded_subjects.log.
+    Write eligible subjects to CSV and excluded to log.
+    Limits eligible to n_limit.
     """
-    ensure_dir(output_dir)
+    # Limit eligible
+    if len(eligible) > n_limit:
+        logger.info(f"Limiting eligible subjects from {len(eligible)} to {n_limit}")
+        eligible = eligible[:n_limit]
     
-    # Write eligible CSV
-    csv_path = output_dir / "eligible_subjects.csv"
-    with open(csv_path, 'w', newline='') as f:
-        if not eligible:
-            # Write header only if empty
-            writer = csv.DictWriter(f, fieldnames=['participant_id', 'ses-1_MMSE', 'ses-2_MMSE', 'ses-1_MOCA', 'ses-2_MOCA'])
-            writer.writeheader()
-        else:
-            writer = csv.DictWriter(f, fieldnames=eligible[0].keys())
-            writer.writeheader()
-            writer.writerows(eligible)
+    if len(eligible) == 0:
+        logger.error("No eligible subjects found. Exiting with code 2.")
+        sys.exit(EXIT_CODE_NO_LABELS)
+    
+    # Write eligible_subjects.csv
+    csv_path = DATA_PROCESSED_DIR / "eligible_subjects.csv"
+    with open(csv_path, 'w') as f:
+        f.write("subject_id,sessions_count,score_sources\n")
+        for subj in eligible:
+            sessions = subj.get('sessions', {})
+            count = len([s for s, scores in sessions.items() if scores])
+            sources = ",".join([f"{s}:{','.join(scores.keys())}" for s, scores in sessions.items() if scores])
+            f.write(f"{subj['subject_id']},{count},{sources}\n")
     logger.info(f"Wrote {len(eligible)} eligible subjects to {csv_path}")
     
-    # Write excluded log
-    log_path = output_dir / "excluded_subjects.log"
+    # Write excluded_subjects.log
+    log_path = DATA_PROCESSED_DIR / "excluded_subjects.log"
     with open(log_path, 'w') as f:
-        f.write(f"Excluded Subjects Log (Generated at {time.strftime('%Y-%m-%d %H:%M:%S')})\n")
-        f.write("=" * 60 + "\n")
-        f.write(f"Total eligible before limit: {len(eligible) + len(excluded)}\n")
-        f.write(f"Final eligible count: {len(eligible)}\n")
-        f.write(f"Excluded count: {len(excluded)}\n")
-        f.write("-" * 60 + "\n")
-        for sub in excluded:
-            sub_id = sub['participant_id']
-            reasons = []
-            if sub.get('ses-1_MMSE') is None or sub.get('ses-2_MMSE') is None:
-                reasons.append("Missing MMSE at one or both timepoints")
-            if sub.get('ses-1_MOCA') is None or sub.get('ses-2_MOCA') is None:
-                reasons.append("Missing MOCA at one or both timepoints")
-            if not reasons:
-                reasons.append("Exceeded N=100 limit")
-            
-            f.write(f"Subject: {sub_id} | Reasons: {'; '.join(reasons)}\n")
-    logger.info(f"Wrote excluded subjects log to {log_path}")
-
+        f.write("Excluded Subjects Log\n")
+        f.write("=" * 40 + "\n")
+        for exc in excluded:
+            f.write(f"Subject: {exc['subject_id']}\n")
+            f.write(f"Reason: {exc['reason']}\n")
+            f.write(f"Sessions: {json.dumps(exc['sessions'], indent=2)}\n")
+            f.write("-" * 40 + "\n")
+    logger.info(f"Wrote {len(excluded)} excluded subjects to {log_path}")
 
 def main():
-    """
-    Main entry point for T017.
-    """
-    config = get_config()
-    bids_dir = config.get('bids_dir', 'data/raw/ds000246')
-    output_dir = config.get('output_dir', 'data/processed')
+    logger.info("Starting T017: Download and Filter")
     
-    # Ensure paths are Path objects
-    bids_path = Path(bids_dir)
-    out_path = Path(output_dir)
+    # Step 1: Check availability
+    if not check_dataset_availability():
+        logger.error("Dataset not available. Exiting.")
+        sys.exit(EXIT_CODE_DOWNLOAD_FAILED)
     
-    logger.info(f"Starting Task T017: Download and Filter")
+    # Step 2: Download
+    if not download_dataset(DATA_RAW_DIR):
+        logger.error("Download failed. Exiting.")
+        sys.exit(EXIT_CODE_DOWNLOAD_FAILED)
     
-    try:
-        # 1. Check availability
-        if not check_dataset_availability(DATASET_ID):
-            logger.error(f"Dataset {DATASET_ID} not found.")
-            sys.exit(EXIT_CODE_NO_LABELS)
-        
-        # 2. Download (or initialize structure)
-        # In a real run, this would download the full dataset.
-        # Here we ensure the directory exists and metadata is available.
-        if not bids_path.exists():
-            bids_path = download_dataset(DATASET_ID, bids_path)
-        
-        # 3. Parse metadata
-        subjects = parse_bids_metadata(bids_path)
-        logger.info(f"Parsed {len(subjects)} subjects from BIDS metadata.")
-        
-        # 4. Filter
-        eligible, excluded = filter_eligible_subjects(subjects)
-        
-        # 5. Write outputs
-        write_outputs(eligible, excluded, out_path)
-        
-        logger.info(f"Task T017 completed successfully.")
-        sys.exit(EXIT_CODE_SUCCESS)
-        
-    except Exception as e:
-        logger.error(f"Task T017 failed: {e}")
-        sys.exit(1)
-
+    # Step 3: Parse metadata
+    data_dir = DATA_RAW_DIR / DATASET_ID
+    subjects = parse_bids_metadata(data_dir)
+    logger.info(f"Parsed metadata for {len(subjects)} subjects.")
+    
+    if len(subjects) == 0:
+        logger.error("No subjects found with metadata. Exiting.")
+        sys.exit(EXIT_CODE_NO_LABELS)
+    
+    # Step 4: Filter
+    eligible, excluded = filter_eligible_subjects(subjects, min_sessions=2)
+    logger.info(f"Eligible: {len(eligible)}, Excluded: {len(excluded)}")
+    
+    # Step 5: Write outputs
+    write_outputs(eligible, excluded, n_limit=100)
+    
+    logger.info("T017 completed successfully.")
+    return EXIT_CODE_SUCCESS
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -86,6 +86,7 @@ def main():
 
     if not input_path.exists():
         logger.error(f"Input file not found: {input_path}")
+        logger.error("This script requires 'data/processed/graph_metrics.csv' to be generated first by code/03_compute_graph_metrics.py.")
         sys.exit(1)
 
     logger.info(f"Loading data from {input_path}")

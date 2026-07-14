@@ -1,240 +1,229 @@
 """
-Compute graph-theoretical metrics from adjacency matrices.
+Compute graph-theoretical metrics from precomputed connectivity matrices.
 
-This script calculates node degree, global efficiency, clustering coefficient,
-and path length for each subject's connectivity matrix. It uses joblib for
-parallel processing to stay within memory and time constraints.
+This script processes connectivity matrices stored in data/processed/
+to calculate graph metrics (degree, efficiency, clustering, path length)
+for each subject. It uses joblib for parallel processing to stay within
+memory limits and reduce runtime.
 
-Inputs:
-    data/processed/adjacency_matrices/*.npy (or .csv)
-
-Outputs:
-    data/processed/graph_metrics.csv
-    data/artifacts/memory_profile.log (appended)
+Output: data/processed/graph_metrics.csv
 """
 
 import os
 import sys
 import time
-import json
 import logging
-import traceback
-from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
-
+import psutil
 import numpy as np
 import pandas as pd
 import networkx as nx
 import psutil
 from joblib import Parallel, delayed
+from typing import Dict, List, Tuple, Optional, Any
 
-# Project-relative imports
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent))
+
+from utils.graph import (
+    create_graph_from_adjacency,
+    calculate_global_efficiency,
+    calculate_clustering_coefficient,
+    calculate_degree_centrality,
+    calculate_shortest_path_length
+)
 from utils.logger import get_logger
-from utils.io import ensure_dir, load_csv, save_dataframe
+from utils.io import save_csv, load_csv
 from config import get_config
 
-# Constants
-N_JOBS = 2
-MEMORY_LIMIT_GB = 7.0
-OUTPUT_DIR = Path("data/processed")
-INPUT_DIR = Path("data/processed/adjacency_matrices")
-OUTPUT_FILE = OUTPUT_DIR / "graph_metrics.csv"
-MEMORY_LOG = Path("data/artifacts/memory_profile.log")
+# Configuration
 CONFIG = get_config()
-RANDOM_SEED = CONFIG.get("random_seed", 42)
-np.random.seed(RANDOM_SEED)
+MEMORY_LIMIT_GB = 7.0  # Hard limit as per requirements
+N_JOBS = 2  # Parallel processing cores
+RANDOM_SEED = 42
 
-logger = get_logger("compute_graph_metrics")
+np.random.seed(RANDOM_SEED)
 
 def get_memory_usage_gb() -> float:
     """Return current memory usage in GB."""
     process = psutil.Process(os.getpid())
     return process.memory_info().rss / (1024 ** 3)
 
-def check_memory_limit(current_usage_gb: float) -> bool:
-    """Check if current usage exceeds the limit. Returns True if safe."""
-    if current_usage_gb > MEMORY_LIMIT_GB:
-        logger.warning(f"Memory usage {current_usage_gb:.2f} GB exceeds limit {MEMORY_LIMIT_GB} GB")
-        return False
-    return True
+def check_memory_limit(limit_gb: float = MEMORY_LIMIT_GB) -> bool:
+    """Check if current memory usage is within limit."""
+    current = get_memory_usage_gb()
+    return current < limit_gb
 
-def calculate_graph_metrics(adjacency_matrix: np.ndarray, subject_id: str) -> Optional[Dict[str, Any]]:
+def process_single_subject_matrix(
+    subject_id: str,
+    matrix_path: Path,
+    logger: logging.Logger
+) -> Optional[Dict[str, Any]]:
     """
-    Calculate graph metrics for a single adjacency matrix.
-
+    Process a single subject's connectivity matrix and compute graph metrics.
+    
     Args:
-        adjacency_matrix: N x N symmetric matrix
         subject_id: Subject identifier
-
+        matrix_path: Path to the connectivity matrix (.npy file)
+        logger: Logger instance
+        
     Returns:
-        Dictionary of metrics or None if calculation fails.
+        Dictionary with subject_id and computed metrics, or None if failed
     """
     try:
-        # Ensure matrix is symmetric and has zeros on diagonal
-        adj = adjacency_matrix.copy()
-        adj = (adj + adj.T) / 2.0
-        np.fill_diagonal(adj, 0.0)
-
-        # Create graph
-        G = nx.from_numpy_array(adj)
-
-        # Remove self-loops just in case
-        G.remove_edges_from(nx.selfloop_edges(G))
-
-        # Calculate metrics
-        # 1. Node Degree (average)
-        degrees = [d for n, d in G.degree()]
-        avg_degree = np.mean(degrees) if degrees else 0.0
-
-        # 2. Global Efficiency
-        if nx.is_connected(G):
-            global_eff = nx.global_efficiency(G)
-        else:
-            # For disconnected graphs, use sum of efficiencies of components
-            components = nx.connected_components(G)
-            eff_sum = 0.0
-            count = 0
-            for comp in components:
-                subgraph = G.subgraph(comp)
-                if len(subgraph.nodes) > 1:
-                    eff_sum += nx.global_efficiency(subgraph)
-                    count += 1
-            global_eff = eff_sum / count if count > 0 else 0.0
-
-        # 3. Clustering Coefficient (average)
-        clustering = nx.average_clustering(G)
-
-        # 4. Average Path Length (only for connected graphs)
-        if nx.is_connected(G):
-            avg_path_len = nx.average_shortest_path_length(G)
-        else:
-            # Approximation for disconnected: average over reachable pairs or infinity
-            # Here we use 0.0 for disconnected to indicate undefined, or could use max path
-            avg_path_len = 0.0
-
-        return {
-            "subject_id": subject_id,
-            "avg_degree": avg_degree,
-            "global_efficiency": global_eff,
-            "clustering_coefficient": clustering,
-            "avg_path_length": avg_path_len,
-            "n_nodes": G.number_of_nodes(),
-            "n_edges": G.number_of_edges()
-        }
-    except Exception as e:
-        logger.error(f"Error processing subject {subject_id}: {e}")
-        logger.error(traceback.format_exc())
-        return None
-
-def process_subject_file(file_path: Path) -> Optional[Dict[str, Any]]:
-    """
-    Load a single adjacency matrix file and compute metrics.
-
-    Args:
-        file_path: Path to .npy or .csv file
-
-    Returns:
-        Metrics dictionary or None.
-    """
-    try:
-        if file_path.suffix == ".npy":
-            adj_matrix = np.load(file_path)
-        elif file_path.suffix == ".csv":
-            adj_matrix = pd.read_csv(file_path, header=None).values
-        else:
-            logger.warning(f"Skipping unsupported file type: {file_path}")
+        # Load connectivity matrix
+        matrix = np.load(matrix_path)
+        
+        if matrix.shape[0] != matrix.shape[1]:
+            logger.warning(f"Non-square matrix for {subject_id}: {matrix.shape}")
             return None
-
-        # Extract subject ID from filename (e.g., sub-001.npy -> 001)
-        subject_id = file_path.stem.replace("sub-", "")
-
-        # Check memory before processing
-        mem_usage = get_memory_usage_gb()
-        if not check_memory_limit(mem_usage):
-            raise MemoryError(f"Memory limit exceeded before processing {subject_id}")
-
-        return calculate_graph_metrics(adj_matrix, subject_id)
-
+        
+        if matrix.shape[0] != 90:
+            logger.warning(f"Unexpected matrix size for {subject_id}: {matrix.shape[0]} (expected 90)")
+            # Still process but log warning
+        
+        # Create graph from adjacency matrix
+        graph = create_graph_from_adjacency(matrix)
+        
+        if graph is None or graph.number_of_nodes() == 0:
+            logger.warning(f"Failed to create graph for {subject_id}")
+            return None
+        
+        # Compute metrics
+        degree = calculate_degree_centrality(graph)
+        global_eff = calculate_global_efficiency(graph)
+        clustering = calculate_clustering_coefficient(graph)
+        avg_path = calculate_shortest_path_length(graph)
+        
+        # Calculate mean values for the subject
+        metrics = {
+            'subject_id': subject_id,
+            'mean_degree': float(np.mean(degree)) if len(degree) > 0 else 0.0,
+            'max_degree': float(np.max(degree)) if len(degree) > 0 else 0.0,
+            'global_efficiency': float(global_eff) if global_eff is not None else 0.0,
+            'clustering_coefficient': float(clustering) if clustering is not None else 0.0,
+            'average_path_length': float(avg_path) if avg_path is not None else 0.0
+        }
+        
+        return metrics
+        
     except Exception as e:
-        logger.error(f"Failed to process {file_path}: {e}")
-        logger.error(traceback.format_exc())
+        logger.error(f"Error processing {subject_id}: {str(e)}")
         return None
 
-def process_all_subjects_parallel(input_dir: Path, n_jobs: int = 2) -> List[Dict[str, Any]]:
-    """
-    Process all adjacency matrices in parallel.
+def process_subject_wrapper(
+    subject_id: str,
+    matrix_path: Path,
+    logger: logging.Logger
+) -> Optional[Dict[str, Any]]:
+    """Wrapper for parallel processing with error handling."""
+    return process_single_subject_matrix(subject_id, matrix_path, logger)
 
+def load_connectivity_matrices(
+    input_dir: Path,
+    logger: logging.Logger
+) -> List[Tuple[str, Path]]:
+    """
+    Load list of connectivity matrices from input directory.
+    
     Args:
-        input_dir: Directory containing .npy or .csv files
-        n_jobs: Number of parallel jobs
-
+        input_dir: Directory containing .npy matrix files
+        logger: Logger instance
+        
     Returns:
-        List of metric dictionaries.
+        List of (subject_id, matrix_path) tuples
     """
+    matrix_files = []
+    
     if not input_dir.exists():
-        raise FileNotFoundError(f"Input directory {input_dir} does not exist")
-
-    files = list(input_dir.glob("*.npy")) + list(input_dir.glob("*.csv"))
-    if not files:
-        raise ValueError(f"No adjacency matrix files found in {input_dir}")
-
-    logger.info(f"Found {len(files)} subject files. Processing with {n_jobs} jobs...")
-    start_time = time.time()
-
-    # Use joblib for parallel processing
-    results = Parallel(n_jobs=n_jobs, backend="loky")(
-        delayed(process_subject_file)(f) for f in files
-    )
-
-    elapsed = time.time() - start_time
-    logger.info(f"Parallel processing completed in {elapsed:.2f} seconds.")
-
-    # Filter out None results
-    valid_results = [r for r in results if r is not None]
-    return valid_results
+        logger.error(f"Input directory does not exist: {input_dir}")
+        return matrix_files
+        
+    for file_path in input_dir.glob("*.npy"):
+        # Extract subject ID from filename (e.g., sub-001_matrix.npy -> sub-001)
+        subject_id = file_path.stem.replace("_matrix", "").replace("matrix_", "")
+        matrix_files.append((subject_id, file_path))
+    
+    logger.info(f"Found {len(matrix_files)} connectivity matrices in {input_dir}")
+    return matrix_files
 
 def main():
-    """Main entry point."""
-    ensure_dir(OUTPUT_DIR)
-    ensure_dir(MEMORY_LOG.parent)
-
-    logger.info("Starting graph metrics computation...")
-
-    try:
-        # Check input
-        if not INPUT_DIR.exists():
-            logger.error(f"Input directory {INPUT_DIR} not found. "
-                         f"Run 02_preprocess_and_parcellate.py first.")
-            sys.exit(1)
-
-        # Process
-        metrics_list = process_all_subjects_parallel(INPUT_DIR, n_jobs=N_JOBS)
-
-        if not metrics_list:
-            logger.error("No valid metrics computed. Exiting.")
-            sys.exit(1)
-
-        # Convert to DataFrame
-        df = pd.DataFrame(metrics_list)
-        df = df.sort_values("subject_id")
-
-        # Save
-        df.to_csv(OUTPUT_FILE, index=False)
-        logger.info(f"Saved graph metrics to {OUTPUT_FILE}")
-        logger.info(f"Total subjects processed: {len(df)}")
-
-        # Log memory usage
-        final_mem = get_memory_usage_gb()
-        with open(MEMORY_LOG, "a") as f:
-            f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} | compute_graph_metrics | "
-                    f"peak_mem_gb={final_mem:.2f} | subjects={len(df)}\n")
-
-        logger.info("Graph metrics computation finished successfully.")
-
-    except Exception as e:
-        logger.error(f"Fatal error: {e}")
-        logger.error(traceback.format_exc())
+    """Main entry point for graph metrics computation."""
+    # Setup logger
+    logger = get_logger("graph_metrics", log_file="data/artifacts/graph_metrics.log")
+    logger.info("Starting graph metrics computation")
+    
+    start_time = time.time()
+    
+    # Define paths
+    config = get_config()
+    matrices_dir = Path(config['paths']['processed_data']) / "connectivity_matrices"
+    output_file = Path(config['paths']['processed_data']) / "graph_metrics.csv"
+    
+    # Ensure output directory exists
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load matrices
+    matrix_list = load_connectivity_matrices(matrices_dir, logger)
+    
+    if not matrix_list:
+        logger.error("No connectivity matrices found. Cannot proceed.")
         sys.exit(1)
+    
+    logger.info(f"Processing {len(matrix_list)} subjects with {N_JOBS} parallel jobs")
+    
+    # Check memory before starting
+    if not check_memory_limit():
+        logger.error(f"Memory usage exceeds limit ({MEMORY_LIMIT_GB} GB). Aborting.")
+        sys.exit(1)
+    
+    # Process matrices in parallel using joblib
+    logger.info("Starting parallel processing...")
+    parallel_start = time.time()
+    
+    results = Parallel(n_jobs=N_JOBS, backend='loky')(
+        delayed(process_subject_wrapper)(sid, path, logger)
+        for sid, path in matrix_list
+    )
+    
+    parallel_time = time.time() - parallel_start
+    logger.info(f"Parallel processing completed in {parallel_time:.2f} seconds")
+    
+    # Filter out None results
+    valid_results = [r for r in results if r is not None]
+    
+    if not valid_results:
+        logger.error("No valid results generated. Check logs for errors.")
+        sys.exit(1)
+    
+    # Create DataFrame and save
+    df = pd.DataFrame(valid_results)
+    
+    # Ensure consistent column order
+    columns = ['subject_id', 'mean_degree', 'max_degree', 'global_efficiency', 
+               'clustering_coefficient', 'average_path_length']
+    df = df[columns]
+    
+    # Save to CSV
+    save_csv(df, output_file)
+    logger.info(f"Saved {len(df)} subjects to {output_file}")
+    
+    # Final memory check
+    final_memory = get_memory_usage_gb()
+    logger.info(f"Final memory usage: {final_memory:.2f} GB")
+    
+    # Runtime summary
+    total_time = time.time() - start_time
+    logger.info(f"Total runtime: {total_time:.2f} seconds ({total_time/60:.2f} minutes)")
+    
+    # Verify target runtime for 100 subjects
+    if len(df) >= 100:
+        if total_time < 1800:  # 30 minutes
+            logger.info(f"✓ Runtime target met: {total_time:.2f}s < 1800s (30 min)")
+        else:
+            logger.warning(f"✗ Runtime target NOT met: {total_time:.2f}s >= 1800s (30 min)")
+    
+    logger.info("Graph metrics computation completed successfully")
+    return 0
 
 if __name__ == "__main__":
     main()
