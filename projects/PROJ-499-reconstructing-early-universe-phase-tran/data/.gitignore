@@ -1,0 +1,4 @@
+# Data directory: ignore all large files by default
+# Explicitly tracked files (e.g., small metadata) should be added to .gitignore negations if needed
+*
+!.gitignore
