@@ -1,0 +1,377 @@
+resolved_at: '2026-07-14T02:09:16.687842+00:00'
+datasets:
+- intent: COCO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/detection-datasets/coco/resolve/main/data/train-00000-of-00040-67e35002d152155c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/vikhyatk/coco-val/resolve/main/data/validation-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/yhshin1020/coco-img-caption-pairs/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/detection-datasets/coco/resolve/main/data/train-00000-of-00040-67e35002d152155c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/vikhyatk/coco-val/resolve/main/data/validation-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Ultralytics/COCO8/resolve/main/labels/train/000000000009.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/yhshin1020/coco-img-caption-pairs/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Ultralytics/COCO8-pose/resolve/main/labels/train/000000000036.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/Chemical_Anchoring_of_Excess_Silver_and_Asymmetric_Band_Reshaping_Enable_High-Performance_N_Type_PbTe_Thermoelectrics/32979527
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Thermostability_Engineering_of_a_Chitin-Utilizing_GlcNAc_Deacetylase_from_Acinetobacter_baumannii_via_Distal_Mutations/32979521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Development_and_pilot_evaluation_of_a_neck_support_exoskeleton_system_using_a_human_centrifuge_system/32979425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Effect_of_cardiorespiratory_function_on_cerebrospinal_fluid_clearance_in_a_rodent_model_of_post-traumatic_syringomyelia/31634098
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/data_for_b_Hydrological_pacing_of_iron_limited_nitrogen_utilization_in_the_western_equatorial_Pacific_margin_over_the_past_140_000_years_b_/32979431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13930108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20573001
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19722207
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14671547
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6984072
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21346675
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21346675
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/169153
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/140213-partialnet-compute-less-perform-better
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/74962-lgd-label-guided-self-distillation-for-object-detection
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ImageNet
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/evanarlian/imagenet_1k_resized_256/resolve/main/data/test-00000-of-00004-1abbff57b76eb035.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/vaishaal/ImageNetV2/resolve/main/imagenetv2-matched-frequency.tar.gz
+    source: huggingface
+    format: tar
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/vaishaal/ImageNetV2/resolve/main/imagenetv2-matched-frequency.tar.gz
+    source: huggingface
+    status: verified
+    format: tar
+  - url: https://huggingface.co/datasets/evanarlian/imagenet_1k_resized_256/resolve/main/data/test-00000-of-00004-1abbff57b76eb035.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/625509bfd21e4cc386b8d71f/2bb78fd095c22883d66283fb88483f76930f9a0228b1328712b77a6c578cff92?Expires=1783998456&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzYyNTUwOWJmZDIxZTRjYzM4NmI4ZDcxZi8yYmI3OGZkMDk1YzIyODgzZDY2MjgzZmI4ODQ4M2Y3NjkzMGY5YTAyMjhiMTMyODcxMmI3N2E2YzU3OGNmZjkyKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4Mzk5ODQ1Nn19fV19&Signature=AhTRsDTMtEaXVglO4-PhOfXoI9CeMcp4GaOay993MTLD1d5oKzfKsnaSu3O-Piv6wGf~ikP1gfSW1oZJLt40PLk1NrxLquZCHMU3yZAV~ofZCjCVFDU8JEKuHIHSikKVXLI4YwP8mErgLjj6qZtpsqonj8d4bNNVNwtWaY83QadlHSxnWjx3qk1r9Dk8SDy9L7xO4LUcaOsKDGkOJYjZQAqWWWjsSCLUGsjcqR9sC~Cwu4VqevVyt6rQi2U4okfbaQuyKehVfLbBZDXgj9InTcBUWe~f8~9D1OXRUK4~BVQAl9UkZtsNKvK5K7U1KusASfJR1U07W7J59NzJVuxeiw__&Key-Pair-Id=K2L8F4GPSG1IFC&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27imgnetval-0000.arrow%3B+filename%3D%22imgnetval-0000.arrow%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T020736Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=eb36e1e2f036da25777a631101fbe9167d1cc1c07a14972a3ab7f93d125885ec
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Chemical_Anchoring_of_Excess_Silver_and_Asymmetric_Band_Reshaping_Enable_High-Performance_N_Type_PbTe_Thermoelectrics/32979527
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Thermostability_Engineering_of_a_Chitin-Utilizing_GlcNAc_Deacetylase_from_Acinetobacter_baumannii_via_Distal_Mutations/32979521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Development_and_pilot_evaluation_of_a_neck_support_exoskeleton_system_using_a_human_centrifuge_system/32979425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Effect_of_cardiorespiratory_function_on_cerebrospinal_fluid_clearance_in_a_rodent_model_of_post-traumatic_syringomyelia/31634098
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/data_for_b_Hydrological_pacing_of_iron_limited_nitrogen_utilization_in_the_western_equatorial_Pacific_margin_over_the_past_140_000_years_b_/32979431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4742621
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7924905
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8123226
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6801109
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2536630
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21348071
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21348071
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.4j0zpc8qq
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/140213-partialnet-compute-less-perform-better
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/140107-double-rounding-nearly-lossless-adaptive-bit-switching-for-qat
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PSNR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/predict-SIREN-PSNR/COIN-collection/resolve/main/data/mscoco/mscoco_unique_urls.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/heboya8/realesrgan-psnr-score/resolve/main/0/psnr_data_0.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 54504
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/predict-SIREN-PSNR/COIN-collection/resolve/main/data/mscoco/mscoco_unique_urls.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/heboya8/realesrgan-psnr/241375097baa555abb9a47cc683c89d3b61b1e8b/file_names_bacth.json?%2Fdatasets%2Fheboya8%2Frealesrgan-psnr%2Fresolve%2Fmain%2Ffile_names_bacth.json=&etag=%2290fc0569367b1f274e2302402a19a5b6742df333%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/heboya8/realesrgan-psnr-score/resolve/main/0/psnr_data_0.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://acs.figshare.com/articles/journal_contribution/Chemical_Anchoring_of_Excess_Silver_and_Asymmetric_Band_Reshaping_Enable_High-Performance_N_Type_PbTe_Thermoelectrics/32979527
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Thermostability_Engineering_of_a_Chitin-Utilizing_GlcNAc_Deacetylase_from_Acinetobacter_baumannii_via_Distal_Mutations/32979521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Development_and_pilot_evaluation_of_a_neck_support_exoskeleton_system_using_a_human_centrifuge_system/32979425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Effect_of_cardiorespiratory_function_on_cerebrospinal_fluid_clearance_in_a_rodent_model_of_post-traumatic_syringomyelia/31634098
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/data_for_b_Hydrological_pacing_of_iron_limited_nitrogen_utilization_in_the_western_equatorial_Pacific_margin_over_the_past_140_000_years_b_/32979431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5272961
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/22205
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijece.iaescore.com/index.php/IJECE/article/view/33117
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/8856
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1175824
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://infoscience.epfl.ch/entities/publication/abc39355-5838-42ab-b20d-2b171d555b65
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21337866
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21337866
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21337819
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21337680
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SSIM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Hemabhushan/capstone_sakuga_preproc_ssim/resolve/main/sample_subset/train-00000-of-00060.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/FastVideo/ssim-reference-videos/resolve/main/reference_videos/default/L40S_reference_videos/TurboWan2.2-I2V-A14B-Diffusers/SLA_ATTN/steps4_An
+      astronaut hatching from an egg, on the surface of the moon, the darkness and
+      depth of space reali_ssim.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 872
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Hemabhushan/capstone_sakuga_preproc_ssim/resolve/main/sample_subset/train-00000-of-00060.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/FastVideo/ssim-reference-videos/resolve/main/reference_videos/default/L40S_reference_videos/TurboWan2.2-I2V-A14B-Diffusers/SLA_ATTN/steps4_An
+      astronaut hatching from an egg, on the surface of the moon, the darkness and
+      depth of space reali_ssim.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/First-_and_second-order_digital_quantum_simulation_of_three-level_Jaynes-Cummings_dynamics_on_superconducting_quantum_processors/32970095
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Chemical_Anchoring_of_Excess_Silver_and_Asymmetric_Band_Reshaping_Enable_High-Performance_N_Type_PbTe_Thermoelectrics/32979527
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Thermostability_Engineering_of_a_Chitin-Utilizing_GlcNAc_Deacetylase_from_Acinetobacter_baumannii_via_Distal_Mutations/32979521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Development_and_pilot_evaluation_of_a_neck_support_exoskeleton_system_using_a_human_centrifuge_system/32979425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Effect_of_cardiorespiratory_function_on_cerebrospinal_fluid_clearance_in_a_rodent_model_of_post-traumatic_syringomyelia/31634098
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950300
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10793339
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4274935
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20623728
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.ijtsrd.com/engineering/electronics-and-communication-engineering/15634/an-image-quality-assessment-of-multi-exposure-image-fusion-by-improving-ssim/sushmitha-cm
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/139721-evoke-efficient-and-high-fidelity-eeg-to-video-reconstruction-via-decoupling-implicit-neural-representation
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21337866
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21337866
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21337819
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21337680
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

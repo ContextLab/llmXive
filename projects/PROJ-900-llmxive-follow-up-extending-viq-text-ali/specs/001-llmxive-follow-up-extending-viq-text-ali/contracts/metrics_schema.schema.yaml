@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ViQ Inference Metrics Schema"
+description: "Schema for the output metrics file (inference_metrics.json)."
+type: "object"
+properties:
+  experiment_id:
+    type: "string"
+    description: "Unique ID for the experiment run."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the run."
+  codebook_path:
+    type: "string"
+    description: "Path to the trained codebook used."
+  results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        image_id:
+          type: "string"
+        dataset_source:
+          type: "string"
+          enum: ["coco", "imagenet"]
+        resolution:
+          type: "string"
+          enum: ["64x64", "1024x1024"]
+        psnr:
+          type: "number"
+          description: "PSNR value."
+        ssim:
+          type: "number"
+          description: "SSIM value."
+        cosine_similarity:
+          type: ["number", "null"]
+          description: "Semantic alignment score (null for ImageNet)."
+        texture_complexity:
+          type: "number"
+          description: "High-frequency energy metric."
+        reconstruction_error:
+          type: "number"
+          description: "Mean squared error or similar."
+      required:
+        - "image_id"
+        - "dataset_source"
+        - "resolution"
+        - "psnr"
+        - "ssim"
+        - "texture_complexity"
+        - "reconstruction_error"
+  summary:
+    type: "object"
+    properties:
+      mean_psnr:
+        type: "number"
+      mean_ssim:
+        type: "number"
+      mean_cosine_similarity:
+        type: ["number", "null"]
+      correlation_texture_psnr:
+        type: "number"
+        description: "Spearman correlation coefficient."
+      p_value_texture_psnr:
+        type: "number"
+        description: "P-value for the correlation."
+      semantic_drop_paired_tstat:
+        type: ["number", "null"]
+        description: "Paired t-statistic for semantic drop."
+      semantic_drop_p_value:
+        type: ["number", "null"]
+        description: "P-value for paired t-test."
+required:
+  - "experiment_id"
+  - "timestamp"
+  - "results"
+  - "summary"
+additionalProperties: false

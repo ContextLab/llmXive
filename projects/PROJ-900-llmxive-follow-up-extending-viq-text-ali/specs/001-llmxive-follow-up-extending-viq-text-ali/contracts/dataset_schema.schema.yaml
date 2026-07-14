@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ViQ Dataset Schema"
+description: "Schema for processed dataset files used in ViQ resolution-invariance experiments."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the image sample."
+  image_64x64:
+    type: "string"
+    format: "byte"
+    description: "Base64 encoded 64x64 resized image (for training)."
+  image_1024x1024:
+    type: "string"
+    format: "byte"
+    description: "Base64 encoded 1024x1024 native resolution image (for evaluation)."
+  caption:
+    type: ["string", "null"]
+    description: "Text caption for the image (only for COCO)."
+  label:
+    type: ["integer", "null"]
+    description: "Class label (for ImageNet)."
+  texture_complexity:
+    type: "number"
+    description: "Laplacian variance or FFT high-frequency energy metric."
+  psnr:
+    type: ["number", "null"]
+    description: "Peak Signal-to-Noise Ratio between original and reconstruction."
+  ssim:
+    type: ["number", "null"]
+    description: "Structural Similarity Index Measure."
+  cosine_similarity:
+    type: ["number", "null"]
+    description: "Cosine similarity between projected visual embedding and CLIP text embedding."
+  dataset_source:
+    type: "string"
+    enum: ["coco", "imagenet"]
+    description: "Source dataset for the sample."
+required:
+  - "id"
+  - "texture_complexity"
+  - "dataset_source"
+additionalProperties: true

@@ -5,27 +5,77 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "ViQ: Text-Aligned Visual Quantized Representations at Any Resolution"
 
-## Summary of the prior work
-ViQ introduces a two-stage framework for generating discrete visual representations that align with text semantics while preserving low-level details at native resolutions. By combining text-aligned pre-training with a proximal representation learning strategy and position-aware head-wise quantization, it achieves a balance between semantic richness and reconstruction fidelity that outperforms existing continuous and discrete vision encoders. The method notably enables significant training efficiency gains (20%-70% acceleration) in multimodal settings by replacing high-dimensional continuous features with compact discrete tokens.
+**Field**: Computer Science (Multimodal Learning / Representation Learning)
 
-## Proposed extension
-Can the semantic coherence of ViQ's discrete visual tokens be preserved and enhanced when the quantization codebook is trained exclusively on CPU-tractable, low-resolution image-text pairs, and then directly applied to high-resolution, complex visual inputs without re-training? This question matters because it tests the fundamental "any resolution" claim of ViQ by determining if the learned discrete manifold is truly resolution-invariant and robust to distribution shifts, potentially enabling efficient multimodal model deployment on edge devices with limited computational resources.
+## Research question
+
+Does a visual quantization codebook trained exclusively on low-resolution (64x64) image-text pairs maintain semantic alignment with high-resolution (1024x1024) inputs without re-training, and does this resolution shift induce a measurable degradation in reconstruction fidelity that correlates with texture complexity?
+
+## Motivation
+
+This question addresses the core "any resolution" claim of the ViQ framework by testing the invariance of its learned discrete manifold to resolution shifts. If semantic coherence is preserved despite training on low-resolution data, it would enable efficient deployment of multimodal models on edge devices with limited GPU memory, allowing high-resolution inference without expensive high-resolution pre-training.
+
+## Related work
+
+- [ViQ: Text-Aligned Visual Quantized Representations at Any Resolution](https://arxiv.org/abs/2606.27313) — The primary source establishing the two-stage framework for text-aligned discrete visual representations and claiming resolution invariance.
+- [VQ-VAE: Neural Discrete Representation Learning](https://arxiv.org/abs/1711.00937) — Foundational work on vector quantization for image generation, providing the baseline mechanism for discrete tokenization that ViQ extends with text alignment.
+- [CLIP: Learning Transferable Visual Models From Natural Language Supervision](https://arxiv.org/abs/2103.00020) — Establishes the text-image alignment paradigm used in ViQ's projection head, though typically at fixed resolutions (224x224).
+
+## Expected results
+
+We expect that semantic retrieval accuracy (measured by text-image cosine similarity) will remain within 5% of the baseline despite the resolution shift, confirming the robustness of the text-aligned manifold. Conversely, we anticipate a significant drop in reconstruction quality (measured by PSNR/SSIM) for high-frequency texture details in high-resolution inputs, quantifying the trade-off between resolution invariance and fidelity.
 
 ## Methodology sketch
-We will construct a dataset of 50,000 low-resolution (e.g., 64x64) image-text pairs from the COCO dataset, which can be processed entirely on a multi-core CPU. First, we will freeze the ViQ encoder weights and re-train only the quantization codebook and the text-aligned projection head using this low-resolution CPU dataset. Next, we will evaluate the frozen model's performance on high-resolution (e.g., 1024x1024) inputs from the ImageNet-1K and a specialized high-detail medical imaging subset, measuring semantic retrieval accuracy (using the text encoder) and reconstruction quality (using a lightweight CPU-based decoder). We expect that while reconstruction fidelity may degrade slightly on fine-grained high-resolution textures, the semantic alignment scores will remain within 5% of the original GPU-trained ViQ baseline, demonstrating that the discrete representation space generalizes across resolutions without requiring high-resolution training data.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Preparation**: Download 50,000 image-text pairs from the COCO dataset; resize all images to 64x64 for the training split and retain 1024x1024 versions for the evaluation split.
+- **Model Configuration**: Load the pre-trained ViQ encoder weights (frozen) and initialize a new quantization codebook and text-aligned projection head.
+- **Training Phase**: Train only the codebook and projection head on the 64x64 COCO subset using a standard VQ-VAE loss + contrastive text alignment loss, executed on CPU cores (no GPU).
+- **Evaluation Setup**: Freeze the trained model and process the high-resolution (1024x1024) ImageNet-1K and a medical imaging subset (e.g., ChestX-ray14) without resizing.
+- **Semantic Metric**: Compute the cosine similarity between the discrete visual tokens and the corresponding text embeddings from a frozen CLIP text encoder to measure semantic alignment.
+- **Fidelity Metric**: Reconstruct images using the lightweight decoder and calculate PSNR and SSIM against the original high-resolution ground truth.
+- **Statistical Analysis**: Perform a paired t-test comparing the semantic similarity scores of the low-res-trained model vs. a hypothetical high-res-trained baseline (if available) or against the ViQ paper's reported metrics; analyze the correlation between image texture complexity (high-frequency energy) and reconstruction error.
+- **Independent Validation**: Ensure the validation metrics (CLIP text similarity, PSNR) are derived from external, independent sources (pre-trained CLIP, original images) and not from the quantization process itself to avoid circularity.
 
-- **ViQ: Text-Aligned Visual Quantized Representations at Any Resolution** — Xumin Yu, Zuyan Liu, Zhenyu Yang, Yuhao Dong, Shengsheng Qian, Jiwen Lu, Han Hu, Yongming Rao. https://arxiv.org/abs/2606.27313.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_27313,
-  title = {ViQ: Text-Aligned Visual Quantized Representations at Any Resolution},
-  author = {Xumin Yu and Zuyan Liu and Zhenyu Yang and Yuhao Dong and Shengsheng Qian and Jiwen Lu and Han Hu and Yongming Rao},
-  year = {2026},
-  eprint = {2606.27313},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.27313},
-  url = {https://arxiv.org/abs/2606.27313}
-}
-```
+- Reviewed existing ideas: None found in the immediate context (single idea seed).
+- Closest match: None (N/A).
+- Verdict: NOT a duplicate.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-14T02:00:39Z
+**Outcome**: failed
+**Original term**: llmXive follow-up: extending "ViQ: Text-Aligned Visual Quantized Representations at Any Resolution" computer science
+**Verified citation count**: 0
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "ViQ: Text-Aligned Visual Quantized Representations at Any Resolution" computer science | 0 |
+| 1 | Text-aligned visual quantization | 0 |
+| 2 | Resolution-agnostic visual tokenization | 0 |
+| 3 | Variable-resolution image representation learning | 0 |
+| 4 | Multimodal discrete visual embeddings | 0 |
+| 5 | Vision-language quantized representation alignment | 0 |
+| 6 | Arbitrary resolution visual encoding | 0 |
+| 7 | Text-conditioned visual quantization | 0 |
+| 8 | Discrete visual representation for large language models | 0 |
+| 9 | Scalable visual tokenization for multimodal models | 0 |
+| 10 | Unified resolution visual-language pretraining | 0 |
+| 11 | Hierarchical visual quantization | 0 |
+| 12 | Continuous-to-discrete visual representation learning | 0 |
+| 13 | Multimodal contrastive learning with quantized images | 0 |
+| 14 | Resolution-invariant visual feature extraction | 0 |
+| 15 | Vector quantized variational autoencoders for vision-language | 0 |
+| 16 | Cross-modal alignment with discrete visual codes | 0 |
+| 17 | Flexible resolution image tokenization strategies | 0 |
+| 18 | Text-guided visual vector quantization | 0 |
+| 19 | Multimodal foundation models with quantized visual inputs | 0 |
+| 20 | Adaptive resolution visual representation learning | 0 |
+
+### Verified citations
+
+(none)
