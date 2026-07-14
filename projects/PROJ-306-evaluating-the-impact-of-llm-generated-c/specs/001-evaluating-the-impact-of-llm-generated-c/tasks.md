@@ -53,8 +53,8 @@
 - [X] T010 [P] [US1] Contract test for dataset loading in `tests/unit/test_dataset_loader.py`
 - [X] T011 [P] [US1] Integration test for end-to-end generation and coverage on multiple tasks in `tests/integration/test_pipeline_us1.py`
 - [X] T012 [P] [US1] Implement `code/coverage_runner.py` to execute `pytest --cov` on generated files and parse output for `line_coverage` and `branch_coverage`. **Validation**: For HumanEval tasks (identified by `task_id` prefix 'HumanEval/' or `dataset_source`='humaneval' in catalog), explicitly validate and log `branch_coverage` as `N/A` before writing to `coverage_reports/{task_id}.json` to ensure artifact compliance at generation.
-- [ ] T013 [US1] Implement logic in `code/main.py` to orchestrate generation and coverage execution for a batch of tasks. **Deliverables**:
- 1. Add `argparse` arguments: `--dataset`, `--model`, `--batch-size`.
+- [X] T013 [US1] Implement logic in `code/main.py` to orchestrate generation and coverage execution for a batch of tasks. **Deliverables**:
+ 1. Add `argparse` arguments: `--dataset` (MUST be `required=True`), `--model`, `--batch-size`.
  2. Implement `try/except` blocks for `SyntaxError` and generic `Exception` during execution.
  3. On failure, write a JSON record to `coverage_reports/{task_id}.json` with schema: `{ "task_id": "...", "status": "failed", "error_message": "...", "timestamp": "..." }`.
  4. Continue processing subsequent tasks without aborting.
@@ -82,7 +82,7 @@
 - [X] T026 [US2] Implement statistical summary generation (FR-005) to output `data/processed/stats_summary.csv` with mean difference, p-value, Cohen's d, and test type.
 - [X] T027 [US2] Implement family-wise error correction (Bonferroni or Holm-Bonferroni) for subgroup hypothesis tests (FR-006). **Exclusion**: Explicitly exclude sensitivity analysis (FR-011) from this correction. **Output**: Write corrected p-values to `data/processed/corrected_pvalues.csv` (single source of truth).
 - [X] T028 [US2] Implement exclusion rate calculation (FR-014) and add to final summary.
-- [X] T029 [US2] Implement sensitivity analysis (FR-011) across thresholds {0.01, 0.05, 0.10, 0.15, 0.20, 0.25} and output `data/processed/sensitivity_report.csv`. **Constraint**: Explicitly exclude these thresholds from family-wise error correction as per FR-011.
+- [X] T029 [US2] Implement sensitivity analysis (FR-011) across thresholds {0.01, 0.05, 0.10, 0.15, 0.20, 0.25} and **Create file: `data/processed/sensitivity_report.csv`**. **Constraint**: Explicitly exclude these thresholds from family-wise error correction as per FR-011. **Deliverable**: The file `data/processed/sensitivity_report.csv` MUST be generated with columns: `threshold`, `mean_diff`, `significant_count`, `total_count`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -105,7 +105,7 @@
 - [X] T042 [US3] Implement stratification logic (FR-007) to group data by difficulty, pattern, and boundary-case presence.
 - [X] T043 [US3] Implement generation of stratified CSVs (e.g., `stratified_loops.csv`) and PNG visualizations (box-plots, bar-charts) with 800x600 resolution, axis labels, and legends (FR-008), saving to `outputs/`.
 - [X] T044 [US3] Implement logic to calculate and report mean branch-coverage gaps for specific difficulty tiers (e.g., "hard") in `stratified_summary.csv`. **Deliverable**: Add a function to `code/visualizer.py` that filters `coverage_pairs.csv` for `difficulty="hard"` AND `branch_coverage != "N/A"`, calculates `mean(branch_coverage_gap)`, and appends the result as a row in `outputs/stratified_summary.csv` with columns: `[pattern, difficulty, mean_gap, count]`. **Constraint**: Explicitly exclude tasks where `branch_coverage == "N/A"` (HumanEval) from this calculation.
-- [X] T045 [US2/US3] Implement Collinearity Diagnostics (VIF) in `code/analyzer.py`. **Dependency**: This task depends on code pattern counts generated in T041. **Condition**: Execute ONLY if the analysis mode selected in T022 (via `--model-method` flag) is 'regression'. If 'lmm' or 'glmm' is selected, skip VIF calculation as per FR-013.
+- [X] T045 [US2/US3] Implement Collinearity Diagnostics (VIF) in `code/analyzer.py`. **Dependency**: This task MUST run AFTER T041 completes. **Condition**: Execute ONLY if the analysis mode selected in T022 (via `--model-method` flag) is 'regression'. If 'lmm' or 'glmm' is selected, skip VIF calculation as per FR-013. **Note**: T045 is NOT marked [P] due to its dependency on T041 output.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -216,3 +216,17 @@ With multiple developers:
 - **CPU Constraint**: All LLM inference tasks MUST use 4-bit quantization for fallback models (e.g., `bigcode/starcoderbase-3b`) to satisfy SC-005 (7GB RAM limit).
 - **HumanEval Branch Coverage**: Tasks calculating branch coverage means MUST filter out HumanEval tasks (branch_coverage == N/A).
 - **VIF Condition**: VIF is calculated only if `--model-method=regression` is set; otherwise skipped.
+- **Sandbox Mode**: T051 allows pipeline execution with `--allow-sandbox` even if dataset verification fails, logging a warning but not halting.
+- **Required Args**: T013 mandates `--dataset` as `required=True`.
+
+---
+
+## Phase O: Verification & Data Integrity (Revision Concerns)
+
+**Purpose**: Address specific reviewer concerns regarding dataset verification, real-data usage, and execution ordering to ensure research acceptance.
+
+- [ ] T051 [P] [US1] Implement `code/dataset_verifier.py` to fetch and validate canonical checksums for MBPP and HumanEval datasets against their official GitHub repositories (NAB/MBPP and google-research-datasets/HumanEval) and log verification status to `data/benchmarks/processed/verification_report.json`. **Constraint**: If verification fails, the pipeline must check for the `--allow-sandbox` flag. If the flag is present, log a `GATE_BLOCKED` warning and **continue execution** (sandbox mode). If the flag is absent, halt with a `GATE_BLOCKED` error message referencing Constitution Principle II & VII. This resolves the logical deadlock by allowing data generation to proceed while verification is pending.
+- [ ] T052 [US1] Modify `code/main.py` execution flow to enforce strict ordering: `dataset_loader` (T006) MUST complete and generate `catalog.json` BEFORE `llm_generator` (T009) or `coverage_runner` (T012) are invoked. **Constraint**: The `catalog.json` generation must support **incremental updates** (per-task) rather than requiring full serialization of all tasks before any generation starts. This ensures generation can begin as soon as a task is loaded, preserving SC-005 performance goals.
+- [ ] T053 [US1] Refine `code/coverage_runner.py` to explicitly handle "SyntaxError" and "RuntimeError" during test execution by capturing the full traceback, writing a structured error log to `data/coverage_reports/{task_id}_error.log`, and marking the task status as "failed" in `coverage_pairs.csv` without crashing the batch process. **Constraint**: Ensure this error handling does not skip the recording of the `task_id` in the final CSV, maintaining a complete audit trail of excluded tasks for FR-014.
+- [ ] T054 [US2] Add a validation step in `code/analyzer.py` to confirm that `stats_summary.csv` is only generated if `coverage_pairs.csv` contains at least 10 valid paired entries. **Constraint**: If the valid pair count is < 10, the script must raise a `DataInsufficiencyError` and exit, preventing the generation of statistically invalid results.
+- [ ] T055 [US3] Implement a "Data Integrity Check" in `code/visualizer.py` that verifies all input CSVs (`coverage_pairs.csv`, `stratified_loops.csv`) contain only real, measured values before generating visualizations. **Definition**: "Synthetic" data is defined as values containing `random.*` prefixes, placeholder strings (e.g., "TODO", "FILL_ME"), or values that match known test patterns (e.g., 0.0, 1.0) across all rows without variance. **Constraint**: If any synthetic values are detected, the script must abort and log a "Fabrication Detected" error to prevent the generation of misleading plots. This check applies to the `sensitivity_analyzer.py` logic as well.

@@ -12,17 +12,14 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/sensitivity_analyzer.py: synthetic/fake INPUT data not authorized by the spec — “…resent, we skip to avoid fake data.             if human_co…”; 1 command(s) failed: python code/main.py --num-tasks 100 --output-dir data/processed (rc=1)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/sensitivity_analyzer.py: synthetic/fake INPUT data not authorized by the spec — “…resent, we skip to avoid fake data.             if human_co…”; 1 command(s) failed: python code/main.py --num-tasks 100 --output-dir data/processed (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py", line 21, in <module>
-    from llm_generator import generate_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/llm_generator.py", line 15, in <module>
-    from config import get_api_key, get_model_chain, get_model_config, resolve_model, ModelConfig
-ImportError: cannot import name 'get_model_chain' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/config.py)
+- python code/main.py --num-tasks 100 --output-dir data/processed -> rc=2
+    usage: main.py [-h] --dataset DATASET [--model MODEL]
+               [--batch-size BATCH_SIZE]
+main.py: error: the following arguments are required: --dataset
 
 ## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
 
@@ -53,16 +50,18 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_model_config` — defined in `code/config.py`; called 2 way(s):
+### `get_model_config` — defined in `code/config.py`; called 3 way(s):
 
+- code/config.py: cfg = get_model_config(model_name)
 - code/llm_generator.py: config = get_model_config(candidate_model)
-- code/main.py: model_cfg = get_model_config(model_name)
+- code/main.py: model_cfg = get_model_config(args.model)
 
 Make `get_model_config` in `code/config.py` accept ALL of the above.
 
-### `log_pipeline_summary` — defined in `code/logger_config.py`; called 1 way(s):
+### `log_pipeline_summary` — defined in `code/logger_config.py`; called 2 way(s):
 
 - code/main.py: log_pipeline_summary(
+- code/main.py: log_pipeline_summary(task_id=task_id, status="failed", error_message=str(exc))
 
 Make `log_pipeline_summary` in `code/logger_config.py` accept ALL of the above.
 

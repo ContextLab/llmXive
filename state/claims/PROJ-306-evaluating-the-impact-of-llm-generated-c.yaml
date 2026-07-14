@@ -223,3 +223,20 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T23:55:39Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: fallback model uses 4-bit quantization to stay within 7GB RAM limit
+  claim_id: c_35d396fb
+  context: 'CPU Constraint: All LLM inference tasks MUST use 4-bit quantization for
+    fallback models (e.g., bigcode/starcoderbase-3b) to satisfy SC-005 (7GB RAM limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All LLM inference tasks must use 4-bit quantization for fallback models
+    (e.g., bigcode/starcoderbase-3b) to satisfy a 7GB RAM limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T00:48:04Z'

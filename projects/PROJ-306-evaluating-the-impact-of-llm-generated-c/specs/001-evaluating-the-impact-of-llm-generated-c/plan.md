@@ -9,7 +9,7 @@ This feature implements a reproducible pipeline to evaluate the code coverage di
 ## Technical Context
 
 **Language/Version**: Python +  
-**Primary Dependencies**: `pytest`, `pytest-cov` (v4.0+), `scikit-learn`, `scipy`, `pandas`, `matplotlib`, `seaborn`, `transformers` (CPU-only), `datasets`, `openai` (optional), `huggingface_hub`, `statsmodels`, `bitsandbytes` (for 4-bit quantization).  
+**Primary Dependencies**: `pytest`, `pytest-cov` (v4.0+), `scikit-learn`, `scipy`, `pandas`, `matplotlib`, `seaborn`, `transformers` (CPU-only), `datasets`, `openai` (optional), `huggingface_hub`, `statsmodels`, `bitsandbytes` (for -bit quantization).  
 **Storage**: Local file system (`data/`, `generated/`, `coverage_reports/`, `outputs/`).  
 **Testing**: `pytest` (unit tests for pipeline logic; integration tests for coverage execution).  
 **Target Platform**: Linux (GitHub Actions free-tier runner).  
