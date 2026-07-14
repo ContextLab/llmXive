@@ -1,112 +1,111 @@
-"""Unit tests for the download-and-filter script (T017)."""
-
+"""
+Unit tests for T017: code/01_download_and_filter.py
+"""
+import pytest
+from pathlib import Path
 import csv
 import json
-import sys
-from pathlib import Path
+import tempfile
+import os
 
-import pytest
+# Import functions to test
+from code import download_and_filter as df
 
-# Import the functions we need to test directly
-from code import (
-    ensure_dir,
-    download_file,
-    read_participants_tsv,
-    is_eligible,
-    filter_eligible_subjects,
-    limit_subjects,
-    write_eligible_csv,
-    write_excluded_log,
-)
-
-# NOTE: The real network download is not exercised in CI – we only test the
-# pure‑python logic.  The `download_file` helper is exercised with a tiny
-# local HTTP server in the integration test suite (not shown here).
-
-
-@pytest.fixture
-def sample_rows():
-    """Return a small set of participant rows mimicking the real TSV."""
-    return [
-        {
+class TestEligibilityLogic:
+    def test_is_eligible_both_scores_present(self):
+        row = {
             "participant_id": "sub-01",
-            "MMSE_T1": "28",
-            "MMSE_T2": "27",
-            "MOCA_T1": "26",
-            "MOCA_T2": "25",
-        },
-        {
+            "ses-1_MMSE": "28.0",
+            "ses-1_MOCA": "29.0",
+            "ses-2_MMSE": "27.0",
+            "ses-2_MOCA": "28.5"
+        }
+        assert df.is_eligible(row) is True
+
+    def test_is_eligible_missing_timepoint_2(self):
+        row = {
             "participant_id": "sub-02",
-            "MMSE_T1": "29",
-            "MMSE_T2": "",
-            "MOCA_T1": "27",
-            "MOCA_T2": "27",
-        },
-        {
+            "ses-1_MMSE": "28.0",
+            "ses-1_MOCA": "29.0",
+            "ses-2_MMSE": "",
+            "ses-2_MOCA": "NaN"
+        }
+        assert df.is_eligible(row) is False
+
+    def test_is_eligible_missing_timepoint_1(self):
+        row = {
             "participant_id": "sub-03",
-            "MMSE_T1": "",
-            "MMSE_T2": "",
-            "MOCA_T1": "",
-            "MOCA_T2": "",
-        },
-    ]
+            "ses-1_MMSE": "",
+            "ses-1_MOCA": "n/a",
+            "ses-2_MMSE": "27.0",
+            "ses-2_MOCA": "28.5"
+        }
+        assert df.is_eligible(row) is False
 
+    def test_is_eligible_no_mmse_moca_columns(self):
+        row = {
+            "participant_id": "sub-04",
+            "age": "65",
+            "sex": "M"
+        }
+        assert df.is_eligible(row) is False
 
-def test_is_eligible_cases(sample_rows):
-    """Check that eligibility logic correctly classifies rows."""
-    eligible_flags = [is_eligible(r)[0] for r in sample_rows]
-    # Only the first subject has both MMSE and MOCA at two timepoints
-    assert eligible_flags == [True, False, False]
+class TestFiltering:
+    def test_filter_eligible_subjects(self):
+        rows = [
+            {"participant_id": "s1", "ses-1_MMSE": "20", "ses-2_MMSE": "20"},
+            {"participant_id": "s2", "ses-1_MMSE": "", "ses-2_MMSE": "20"},
+            {"participant_id": "s3", "ses-1_MMSE": "20", "ses-2_MMSE": ""},
+            {"participant_id": "s4", "ses-1_MMSE": "20", "ses-2_MMSE": "20"}
+        ]
+        eligible, excluded = df.filter_eligible_subjects(rows)
+        assert len(eligible) == 2
+        assert len(excluded) == 2
+        assert eligible[0]["participant_id"] == "s1"
+        assert eligible[1]["participant_id"] == "s4"
 
+class TestLimiting:
+    def test_limit_subjects(self):
+        rows = [{"participant_id": str(i)} for i in range(150)]
+        limited = df.limit_subjects(rows, 100)
+        assert len(limited) == 100
+        assert limited[0]["participant_id"] == "0"
+        assert limited[-1]["participant_id"] == "99"
 
-def test_filter_eligible_subjects(sample_rows):
-    eligible, excluded = filter_eligible_subjects(sample_rows)
-    assert len(eligible) == 1
-    assert eligible[0]["participant_id"] == "sub-01"
-    assert len(excluded) == 2
-    # Ensure the reason strings are non‑empty for excluded rows
-    for _, reason in excluded:
-        assert reason
+    def test_limit_subjects_no_limit_needed(self):
+        rows = [{"participant_id": str(i)} for i in range(50)]
+        limited = df.limit_subjects(rows, 100)
+        assert len(limited) == 50
 
+class TestIO:
+    def test_write_eligible_csv(self, tmp_path):
+        rows = [{"participant_id": "s1", "score": "20"}, {"participant_id": "s2", "score": "22"}]
+        out_file = tmp_path / "test.csv"
+        df.write_eligible_csv(rows, out_file)
+        
+        assert out_file.exists()
+        with open(out_file, "r") as f:
+            reader = csv.DictReader(f)
+            data = list(reader)
+            assert len(data) == 2
+            assert data[0]["participant_id"] == "s1"
 
-def test_limit_subjects(sample_rows):
-    eligible, _ = filter_eligible_subjects(sample_rows)
-    # Duplicate to have >1 eligible for limiting
-    duplicated = eligible * 5
-    limited = limit_subjects(duplicated, max_n=3, seed=123)
-    assert len(limited) == 3
-    # Deterministic ordering with the same seed
-    ids_first_run = [r["participant_id"] for r in limited]
-    limited_again = limit_subjects(duplicated, max_n=3, seed=123)
-    ids_second_run = [r["participant_id"] for r in limited_again]
-    assert ids_first_run == ids_second_run
+    def test_write_elcluded_log(self, tmp_path):
+        rows = [{"participant_id": "s1", "reason": "missing"}]
+        out_file = tmp_path / "test.log"
+        df.write_excluded_log(rows, out_file)
+        
+        assert out_file.exists()
+        content = out_file.read_text()
+        assert "s1" in content
+        assert "Excluded Subjects Log" in content
 
-
-def test_write_and_read_back(tmp_path):
-    """Round‑trip test for CSV and log writers."""
-    out_dir = tmp_path / "out"
-    eligible_path = out_dir / "eligible.csv"
-    excluded_path = out_dir / "excluded.log"
-
-    rows = [
-        {"participant_id": "sub-A"},
-        {"participant_id": "sub-B"},
-    ]
-    excluded = [
-        ({"participant_id": "sub-X"}, "missing MMSE"),
-        ({"participant_id": "sub-Y"}, "missing MOCA"),
-    ]
-
-    write_eligible_csv(rows, eligible_path)
-    write_excluded_log(excluded, excluded_path)
-
-    # Verify CSV contents
-    with open(eligible_path, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        read_rows = list(reader)
-    assert [r["participant_id"] for r in read_rows] == ["sub-A", "sub-B"]
-
-    # Verify log contents
-    with open(excluded_path, encoding="utf-8") as f:
-        lines = [l.strip().split("\\t") for l in f.readlines()]
-    assert lines == [["sub-X", "missing MMSE"], ["sub-Y", "missing MOCA"]]
+    def test_write_status(self, tmp_path):
+        status = {"key": "value", "count": 5}
+        out_file = tmp_path / "status.json"
+        df.write_status(status, out_file)
+        
+        assert out_file.exists()
+        with open(out_file, "r") as f:
+            loaded = json.load(f)
+            assert loaded == status
