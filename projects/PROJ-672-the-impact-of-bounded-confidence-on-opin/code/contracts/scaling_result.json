@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/scaling_result.json",
+  "title": "ScalingResult",
+  "description": "Schema for the result of fitting a power-law scaling model to convergence time data.",
+  "type": "object",
+  "required": [
+    "analysis_id",
+    "topology",
+    "network_id",
+    "epsilon_c",
+    "fit_parameters",
+    "fit_quality",
+    "data_points_used",
+    "timestamp"
+  ],
+  "properties": {
+    "analysis_id": {
+      "type": "string",
+      "description": "Unique identifier for this scaling analysis run."
+    },
+    "topology": {
+      "type": "string",
+      "enum": ["ErdosRenyi", "BarabasiAlbert", "WattsStrogatz"],
+      "description": "Topology type this result applies to."
+    },
+    "network_id": {
+      "type": "string",
+      "description": "Identifier of the specific network instance."
+    },
+    "epsilon_c": {
+      "type": "number",
+      "description": "Detected critical threshold (epsilon_c) for this network."
+    },
+    "fit_parameters": {
+      "type": "object",
+      "description": "Parameters from the power-law fit T = A * (epsilon - epsilon_c)^(-gamma).",
+      "required": ["A", "gamma"],
+      "properties": {
+        "A": {
+          "type": "number",
+          "description": "Pre-factor coefficient."
+        },
+        "gamma": {
+          "type": "number",
+          "description": "Scaling exponent."
+        }
+      }
+    },
+    "fit_quality": {
+      "type": "object",
+      "description": "Metrics describing the quality of the fit.",
+      "required": ["r_squared", "std_err"],
+      "properties": {
+        "r_squared": {
+          "type": "number",
+          "description": "Coefficient of determination (R^2)."
+        },
+        "std_err": {
+          "type": "number",
+          "description": "Standard error of the estimate."
+        }
+      }
+    },
+    "data_points_used": {
+      "type": "integer",
+      "description": "Number of (epsilon, T) points used in the fit."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of analysis completion."
+    }
+  },
+  "additionalProperties": false
+}

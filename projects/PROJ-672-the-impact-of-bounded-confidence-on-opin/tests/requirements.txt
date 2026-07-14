@@ -1,0 +1,4 @@
+# Additional dependencies for testing
+pytest>=7.0.0
+jsonschema>=4.0.0
+# Note: Main dependencies (numpy, networkx, etc.) are in code/requirements.txt

@@ -24,9 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: create directories `code/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/contract/`, and initialize `state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml`
-- [ ] T002 Initialize Python 3.11 project with dependencies (networkx, numpy, pandas, scipy, matplotlib, pytest, statsmodels) in `projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/code/requirements.txt`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T001 Create project structure per implementation plan: create directories `code/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/contract/`, and initialize `state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml`
+- [X] T002 Initialize Python 3.11 project with dependencies (networkx, numpy, pandas, scipy, matplotlib, pytest, statsmodels) in `projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/code/requirements.txt`
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -36,10 +36,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `utils/checksums.py` utility to generate SHA-256 hashes for data files and update `state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml` (Principle III & V)
-- [ ] T005 [P] Implement `utils/metrics.py` to calculate structural metrics (assortativity, average path length, clustering coefficient) for NetworkX graphs
-- [ ] T006 [P] Implement `utils/plotting.py` for generating log-log convergence plots and regression scatter plots
-- [ ] T007 [P] Create base data schemas (JSON schemas) for `SimulationRun`, `ScalingResult`, and `RegressionResult` in `code/contracts/` (files: `code/contracts/simulation_run.json`, `code/contracts/scaling_result.json`, `code/contracts/regression_result.json`)
+- [X] T004 [P] Implement `utils/checksums.py` utility to generate SHA-256 hashes for data files and update `state/projects/PROJ-672-the-impact-of-bounded-confidence-on-opin.yaml` (Principle III & V)
+- [X] T005 [P] Implement `utils/metrics.py` to calculate structural metrics (assortativity, average path length, clustering coefficient) for NetworkX graphs
+- [X] T006 [P] Implement `utils/plotting.py` for generating log-log convergence plots and regression scatter plots
+- [X] T007 [P] Create base data schemas (JSON schemas) for `SimulationRun`, `ScalingResult`, and `RegressionResult` in `code/contracts/` (files: `code/contracts/simulation_run.json`, `code/contracts/scaling_result.json`, `code/contracts/regression_result.json`)
 - [ ] T008 [P] Setup `pytest` configuration and contract testing framework in `tests/contract/` (framework setup only, does not run tests yet; schemas from T007 must exist)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -56,7 +56,7 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T009 [P] [US1] Unit test for Barabási-Albert power-law degree distribution in `tests/unit/test_network_gen.py`
+- [~] T009 [P] [US1] Unit test for Barabási-Albert power-law degree distribution in `tests/unit/test_network_gen.py`
 - [ ] T010 [P] [US1] Unit test for Watts-Strogatz clustering coefficient vs. rewiring probability in `tests/unit/test_network_gen.py`
 - [ ] T011 [P] [US1] Memory constraint test: Verify 50 networks of $N=500$ fit within 7GB RAM in `tests/unit/test_memory_limits.py`
 
@@ -177,10 +177,10 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - US1 (Network Gen) must complete before US2 (Simulation) can run
-  - US2 (Simulation) must complete before US3 (Analysis) can run
-  - Sensitivity (Phase 6) depends on the *code* of US2 (to re-run simulations) and US3 (for analysis logic), but is a parallel branch that re-executes US2 logic.
-  - Research Review (Phase 7) can run in parallel with US3/Phase 6 as it focuses on exploration and documentation.
+ - US1 (Network Gen) must complete before US2 (Simulation) can run
+ - US2 (Simulation) must complete before US3 (Analysis) can run
+ - Sensitivity (Phase 6) depends on the *code* of US2 (to re-run simulations) and US3 (for analysis logic), but is a parallel branch that re-executes US2 logic.
+ - Research Review (Phase 7) can run in parallel with US3/Phase 6 as it focuses on exploration and documentation.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -237,12 +237,12 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: US1 (Network Gen)
-   - Developer B: US2 (Simulation Engine) - *Note: Developer B can start with a mock network generator if US1 is delayed*
-   - Developer C: US3 (Analysis) - *Can start with synthetic data*
-   - Developer D: Phase 7 (Research Review Exploration) - *Can start immediately on rule-space logic and scaling analysis*
+ - Developer A: US1 (Network Gen)
+ - Developer B: US2 (Simulation Engine) - *Note: Developer B can start with a mock network generator if US1 is delayed*
+ - Developer C: US3 (Analysis) - *Can start with synthetic data*
+ - Developer D: Phase 7 (Research Review Exploration) - *Can start immediately on rule-space logic and scaling analysis*
 3. Once baseline is established:
-   - Developer E: Phase 6 (Sensitivity Analysis)
+ - Developer E: Phase 6 (Sensitivity Analysis)
 
 ---
 

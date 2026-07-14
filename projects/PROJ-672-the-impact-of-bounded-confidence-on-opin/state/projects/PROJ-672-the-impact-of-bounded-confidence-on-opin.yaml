@@ -1,0 +1,115 @@
+project_id: PROJ-672-the-impact-of-bounded-confidence-on-opin
+title: The Impact of Bounded Confidence on Opinion Polarization Speed
+status: in_progress
+created_at: "2026-06-11T00:00:00Z"
+updated_at: "2026-06-11T00:00:00Z"
+artifacts:
+  code: []
+  data: []
+  tests: []
+  docs: []
+checksums: {}
+tasks:
+  - id: T001
+    status: completed
+    completed_at: "2026-06-11T00:00:00Z"
+  - id: T002
+    status: pending
+  - id: T003
+    status: pending
+  - id: T004
+    status: pending
+  - id: T005
+    status: pending
+  - id: T006
+    status: pending
+  - id: T007
+    status: pending
+  - id: T008
+    status: pending
+  - id: T009
+    status: pending
+  - id: T010
+    status: pending
+  - id: T011
+    status: pending
+  - id: T012
+    status: pending
+  - id: T013
+    status: pending
+  - id: T014
+    status: pending
+  - id: T015
+    status: pending
+  - id: T016a
+    status: pending
+  - id: T016b
+    status: pending
+  - id: T017
+    status: pending
+  - id: T018
+    status: pending
+  - id: T019
+    status: pending
+  - id: T020
+    status: pending
+  - id: T021
+    status: pending
+  - id: T022
+    status: pending
+  - id: T023
+    status: pending
+  - id: T024
+    status: pending
+  - id: T025
+    status: pending
+  - id: T026
+    status: pending
+  - id: T027
+    status: pending
+  - id: T028
+    status: pending
+  - id: T029
+    status: pending
+  - id: T030
+    status: pending
+  - id: T030b
+    status: pending
+  - id: T031
+    status: pending
+  - id: T032
+    status: pending
+  - id: T033
+    status: pending
+  - id: T034
+    status: pending
+  - id: T035
+    status: pending
+  - id: T036
+    status: pending
+  - id: T037
+    status: pending
+  - id: T038
+    status: pending
+  - id: T039
+    status: pending
+  - id: T040
+    status: pending
+  - id: T041
+    status: pending
+  - id: T042
+    status: pending
+  - id: T043
+    status: pending
+  - id: T044
+    status: pending
+  - id: T045
+    status: pending
+  - id: T046
+    status: pending
+  - id: T047
+    status: pending
+metadata:
+  phase: 1
+  phase_name: Setup (Shared Infrastructure)
+  description: Project initialization and basic structure

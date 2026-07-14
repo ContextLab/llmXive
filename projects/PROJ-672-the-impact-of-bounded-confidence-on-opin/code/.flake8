@@ -1,0 +1,18 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    .eggs,
+    *.egg-info,
+    build,
+    dist,
+    .venv,
+    venv,
+    .pytest_cache
+per-file-ignores =
+    # Allow unused imports in __init__.py for public API exposure
+    */__init__.py: F401
+    # Allow imported but unused in test files (pytest fixtures)
+    tests/*: F401

@@ -1,0 +1,13 @@
+# Core dependencies
+-r requirements.txt
+
+# Linting and Formatting
+flake8>=6.0.0
+black>=23.0.0
+isort>=5.12.0
+pylint>=2.17.0
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-xdist>=3.0.0

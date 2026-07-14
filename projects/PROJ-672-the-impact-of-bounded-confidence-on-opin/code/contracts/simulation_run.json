@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/simulation_run.json",
+  "title": "SimulationRun",
+  "description": "Schema for a single Hegselmann-Krause simulation run on a specific network instance.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "network_id",
+    "topology",
+    "N",
+    "epsilon",
+    "seed",
+    "convergence_time",
+    "status",
+    "final_epsilon_distance",
+    "temporal_trace",
+    "timestamp"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "description": "Unique identifier for this simulation run (UUID or hash)."
+    },
+    "network_id": {
+      "type": "string",
+      "description": "Identifier of the network instance used (e.g., seed or filename)."
+    },
+    "topology": {
+      "type": "string",
+      "enum": ["ErdosRenyi", "BarabasiAlbert", "WattsStrogatz"],
+      "description": "Type of network topology generated."
+    },
+    "N": {
+      "type": "integer",
+      "description": "Number of nodes in the network."
+    },
+    "epsilon": {
+      "type": "number",
+      "description": "Bounded confidence threshold parameter used in this run."
+    },
+    "seed": {
+      "type": "integer",
+      "description": "Random seed used for initialization and simulation."
+    },
+    "convergence_time": {
+      "type": ["integer", "null"],
+      "description": "Number of iterations until convergence. Null if non-convergent."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["converged", "non_convergent"],
+      "description": "Final status of the simulation."
+    },
+    "final_epsilon_distance": {
+      "type": "number",
+      "description": "Maximum change in opinion vector at the final step (or at max_iter)."
+    },
+    "temporal_trace": {
+      "type": "array",
+      "description": "Full temporal trace of opinion vectors (N x T matrix flattened or list of lists).",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when the simulation completed."
+    }
+  },
+  "additionalProperties": false
+}
