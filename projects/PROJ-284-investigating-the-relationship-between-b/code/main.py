@@ -1,10 +1,7 @@
 """
-code/main.py
-
 Main entry point for the research pipeline.
-Orchestrates the download, preprocessing, metrics extraction, analysis, and reporting steps.
+Orchestrates the execution of download, preprocessing, metrics extraction, and analysis steps.
 """
-
 import argparse
 import sys
 from pathlib import Path
@@ -12,102 +9,68 @@ from pathlib import Path
 from code.logging_config import get_logger
 from code.data.download import download_pipeline
 from code.data.metrics import main as metrics_main
-from code.analysis.generate_full_metrics import main as generate_full_metrics_main
 from code.analysis.correlations import main as correlations_main
 from code.viz.scatter import main as scatter_main
-from code.viz.network import main as network_main
 from code.report.generate import main as report_main
 
 logger = get_logger(__name__)
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Run the brain network analysis pipeline.")
+    parser = argparse.ArgumentParser(description="llmXive Research Pipeline")
     parser.add_argument(
         "--step",
-        choices=["download_preprocess", "metrics", "generate_full_metrics", "correlations", "viz_report"],
+        type=str,
         required=True,
-        help="Which step of the pipeline to run."
+        choices=["download_preprocess", "metrics", "correlations", "viz_report"],
+        help="Pipeline step to execute"
     )
     parser.add_argument(
         "--subjects",
         type=int,
         default=50,
-        help="Number of subjects to process (for download_preprocess step)."
-    )
-    parser.add_argument(
-        "--input",
-        type=str,
-        help="Input file path for visualization steps."
-    )
-    parser.add_argument(
-        "--x",
-        type=str,
-        help="X-axis column name for visualization."
-    )
-    parser.add_argument(
-        "--y",
-        type=str,
-        help="Y-axis column name for visualization."
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        help="Output file path for visualization."
-    )
-    parser.add_argument(
-        "--x-label",
-        type=str,
-        help="X-axis label for visualization."
-    )
-    parser.add_argument(
-        "--y-label",
-        type=str,
-        help="Y-axis label for visualization."
-    )
-    parser.add_argument(
-        "--title",
-        type=str,
-        help="Plot title for visualization."
+        help="Number of subjects to process (for download/preview)"
     )
     return parser.parse_args()
 
 
 def run_pipeline(step: str, subjects: int = 50):
-    """Run the specified pipeline step."""
-    logger.info(f"Running pipeline step: {step}")
-    
+    logger.log("run_pipeline", step=step, subjects=subjects)
+
     if step == "download_preprocess":
-        download_pipeline(subjects)
+        # T012/T012a/T013a-T013c/T014/T015
+        download_pipeline(subjects=subjects)
+    
     elif step == "metrics":
+        # T017/T020/T021/T022
+        # This step handles atlas loading, time-series extraction, and metric calculation
         metrics_main()
-    elif step == "generate_full_metrics":
-        generate_full_metrics_main()
+    
     elif step == "correlations":
+        # T023a/T023b/T024/T025
+        # This step handles PCA, metric merging, and correlation analysis
         correlations_main()
+    
     elif step == "viz_report":
-        # Visualization step requires additional arguments
-        args = parse_args()
-        if not all([args.input, args.x, args.y, args.output]):
-            logger.error("Visualization step requires --input, --x, --y, and --output arguments.")
-            sys.exit(1)
-        scatter_main(
-            input_file=args.input,
-            x_col=args.x,
-            y_col=args.y,
-            output_file=args.output,
-            x_label=args.x_label,
-            y_label=args.y_label,
-            title=args.title
-        )
+        # T031/T032/T033
+        # Visualization and report generation
+        scatter_main()
+        report_main()
+    
     else:
-        logger.error(f"Unknown step: {step}")
-        sys.exit(1)
+        raise ValueError(f"Unknown step: {step}")
+
+    logger.log("pipeline_step_complete", step=step)
 
 
 def main():
     args = parse_args()
-    run_pipeline(args.step, args.subjects)
+    try:
+        run_pipeline(args.step, args.subjects)
+        logger.log("pipeline_success")
+    except Exception as e:
+        logger.log("pipeline_failure", error=str(e))
+        sys.exit(1)
 
 
 if __name__ == "__main__":

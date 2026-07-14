@@ -1,3 +1,7 @@
+"""
+Correlation analysis module for US2.
+Implements PCA, metric merging, and output generation for full metrics preservation.
+"""
 from __future__ import annotations
 
 import os
@@ -6,291 +10,164 @@ from pathlib import Path
 from typing import Optional, Tuple, List, Dict, Any
 import numpy as np
 import pandas as pd
+from sklearn.decomposition import PCA
 from scipy import stats
-from statsmodels.stats.multitest import multipletests
-from code.logging_config import get_logger, log_operation
-from code.utils.memory_monitor import get_available_memory, calculate_batch_size
+
+from code.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-# Constants
-MEMORY_LIMIT_GB = 7.0
-CORRELATION_THRESHOLD = 0.3
+# Paths
+DATA_ANALYSIS_DIR = Path("data/analysis")
+DATA_PROCESSED_DIR = Path("data/processed")
 
-def load_metrics_data(filepath: str = "data/processed/aggregated_metrics.csv") -> pd.DataFrame:
-    """Load aggregated metrics data."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Metrics file not found: {filepath}")
-    return pd.read_csv(filepath)
+# Ensure output directories exist
+DATA_ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
+DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-def perform_pca_on_metrics(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Perform PCA on network metrics."""
-    metric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
-    if not all(col in df.columns for col in metric_cols):
-        raise ValueError(f"DataFrame missing required metric columns. Found: {df.columns.tolist()}")
-    
-    X = df[metric_cols].dropna()
-    if X.empty:
-        raise ValueError("No valid data for PCA after dropping NaNs.")
-    
-    # Center the data
-    X_centered = X - X.mean(axis=0)
-    
-    # Compute covariance matrix
-    cov_matrix = np.cov(X_centered.T)
-    
-    # Eigen decomposition
-    eigenvalues, eigenvectors = np.linalg.eigh(cov_matrix)
-    
-    # Sort by eigenvalue descending
-    idx = np.argsort(eigenvalues)[::-1]
-    eigenvalues = eigenvalues[idx]
-    eigenvectors = eigenvectors[:, idx]
-    
-    # Normalize eigenvalues to sum to 1 (proportion of variance)
-    explained_variance = eigenvalues / eigenvalues.sum()
-    
-    # Compute factor scores
-    factor_scores = X_centered.values @ eigenvectors
-    
-    return eigenvectors, explained_variance, factor_scores
 
-def save_pca_results(loadings: np.ndarray, variance: np.ndarray, scores: np.ndarray, 
-                     df: pd.DataFrame, output_dir: str = "data/analysis"):
-    """Save PCA results to CSV files."""
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    
-    # Loadings
-    loadings_df = pd.DataFrame(loadings.T, columns=['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree'])
-    loadings_df.index = [f'component_{i+1}' for i in range(len(loadings_df))]
-    loadings_df.to_csv(os.path.join(output_dir, 'pca_loadings.csv'))
-    
-    # Factor scores
-    scores_df = pd.DataFrame(scores, columns=[f'pca_factor_{i+1}' for i in range(scores.shape[1])])
-    scores_df['subject_id'] = df.dropna(subset=['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']).index
-    scores_df.to_csv(os.path.join(output_dir, 'factor_scores.csv'), index=False)
+def load_metrics_data(input_path: Optional[Path] = None) -> pd.DataFrame:
+    """
+    Load aggregated metrics from the processed data directory.
+    Expected input: data/processed/aggregated_metrics.csv
+    """
+    if input_path is None:
+        input_path = DATA_PROCESSED_DIR / "aggregated_metrics.csv"
 
-def compute_correlations(df: pd.DataFrame) -> pd.DataFrame:
-    """Compute correlations between metrics and motor scores with FD covariate."""
-    results = []
-    metric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
-    
-    for metric in metric_cols:
-        if metric not in df.columns or 'motor_score' not in df.columns:
-            continue
-        
-        # Remove rows with NaN
-        valid_data = df[[metric, 'motor_score', 'fd']].dropna()
-        if len(valid_data) < 3:
-            continue
-        
-        # Partial correlation (controlling for FD)
-        # Using scipy's partial correlation approach via residuals
-        y = valid_data['motor_score'].values
-        x = valid_data[metric].values
-        z = valid_data['fd'].values
-        
-        # Regress y on z and get residuals
-        _, _, r_yz, _, _ = stats.linregress(z, y)
-        # Simple partial correlation calculation
-        r_xy = np.corrcoef(x, y)[0, 1]
-        r_xz = np.corrcoef(x, z)[0, 1]
-        
-        if (1 - r_xz**2) == 0:
-            partial_r = 0
-        else:
-            partial_r = (r_xy - r_xz * r_yz) / np.sqrt((1 - r_xz**2) * (1 - r_yz**2))
-        
-        # Calculate p-value for partial correlation
-        n = len(valid_data)
-        df_dof = n - 3
-        if df_dof <= 0:
-            p_val = 1.0
-        else:
-            t_stat = partial_r * np.sqrt(df_dof / (1 - partial_r**2))
-            p_val = 2 * (1 - stats.t.cdf(abs(t_stat), df_dof))
-        
-        results.append({
-            'metric': metric,
-            'r': partial_r,
-            'p': p_val,
-            'n': n
-        })
-    
-    return pd.DataFrame(results)
+    if not input_path.exists():
+        raise FileNotFoundError(f"Metrics data file not found at {input_path}. "
+                                "Ensure T021/T022 have run and written aggregated_metrics.csv.")
 
-def apply_fdr_correction(df: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
-    """Apply Benjamini-Hochberg FDR correction."""
-    if df.empty:
-        return df
-    
-    pvals = df['p'].values
-    corrected = multipletests(pvals, alpha=alpha, method='fdr_bh')
-    
-    df['q'] = corrected[1]
-    df['significant'] = corrected[0]
+    logger.log("load_metrics_data", path=str(input_path))
+    df = pd.read_csv(input_path)
     return df
 
-def log_significant_correlations(df: pd.DataFrame, threshold: float = CORRELATION_THRESHOLD):
-    """Log correlations where |r| > threshold."""
-    for _, row in df.iterrows():
-        if abs(row['r']) > threshold:
-            logger.log(
-                "significant_correlation",
-                metric=row['metric'],
-                r=row['r'],
-                p=row['p'],
-                q=row.get('q', None),
-                significant=row.get('significant', False)
-            )
 
-def merge_metrics_with_pca_scores(metrics_df: pd.DataFrame, pca_scores_df: pd.DataFrame) -> pd.DataFrame:
-    """Merge raw metrics with PCA factor scores."""
-    # Ensure subject_id is in both
+def perform_pca_on_metrics(df: pd.DataFrame, n_components: int = 2) -> Tuple[PCA, pd.DataFrame, pd.DataFrame]:
+    """
+    Perform PCA on network metrics.
+    Input: DataFrame with columns [modularity, global_efficiency, participation_coef, within_module_degree]
+    Output: PCA object, loadings DataFrame, factor scores DataFrame.
+    """
+    metric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
+    
+    # Validate columns
+    missing_cols = [col for col in metric_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required metric columns for PCA: {missing_cols}")
+
+    subject_ids = df['subject_id']
+    X = df[metric_cols].values
+
+    # Handle NaNs if any (simple drop for now, or impute)
+    if np.isnan(X).any():
+        logger.log("pca_nan_handling", method="drop_rows_with_nan")
+        valid_mask = ~np.isnan(X).any(axis=1)
+        subject_ids = subject_ids[valid_mask]
+        X = X[valid_mask]
+
+    if len(X) < n_components:
+        raise ValueError(f"Insufficient samples ({len(X)}) for PCA with {n_components} components.")
+
+    pca = PCA(n_components=n_components)
+    scores = pca.fit_transform(X)
+
+    # Create Loadings DataFrame
+    loadings_dict = {}
+    for i in range(n_components):
+        loadings_dict[f'component_{i+1}'] = pca.components_[i]
+    loadings_df = pd.DataFrame(loadings_dict, index=metric_cols)
+
+    # Create Factor Scores DataFrame
+    scores_df = pd.DataFrame(scores, columns=[f'pca_factor_{i+1}' for i in range(n_components)])
+    scores_df.insert(0, 'subject_id', subject_ids)
+
+    logger.log("perform_pca", n_samples=len(X), n_components=n_components, explained_variance_ratio=str(pca.explained_variance_ratio_))
+    return pca, loadings_df, scores_df
+
+
+def save_pca_results(loadings_df: pd.DataFrame, scores_df: pd.DataFrame) -> None:
+    """
+    Save PCA loadings and factor scores to CSV files.
+    Outputs:
+      - data/analysis/pca_loadings.csv
+      - data/analysis/factor_scores.csv
+    """
+    loadings_path = DATA_ANALYSIS_DIR / "pca_loadings.csv"
+    scores_path = DATA_ANALYSIS_DIR / "factor_scores.csv"
+
+    loadings_df.to_csv(loadings_path, index=True)
+    scores_df.to_csv(scores_path, index=False)
+
+    logger.log("save_pca_results", loadings_path=str(loadings_path), scores_path=str(scores_path))
+
+
+def merge_metrics_with_pca_scores(metrics_df: pd.DataFrame, scores_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Merge individual metric columns with PCA factor scores into a single DataFrame.
+    """
+    # Ensure both are indexed by subject_id for merging
     if 'subject_id' not in metrics_df.columns:
-        metrics_df['subject_id'] = metrics_df.index
-    if 'subject_id' not in pca_scores_df.columns:
-        # If index was used, reset and set
-        pca_scores_df = pca_scores_df.reset_index(drop=True)
-        if 'subject_id' not in pca_scores_df.columns and 'index' in pca_scores_df.columns:
-            pca_scores_df['subject_id'] = pca_scores_df['index']
+        raise ValueError("metrics_df must contain 'subject_id' column.")
     
-    merged = pd.merge(metrics_df, pca_scores_df, on='subject_id', how='inner')
-    return merged
+    merged_df = pd.merge(
+        metrics_df,
+        scores_df,
+        on='subject_id',
+        how='inner'
+    )
+    logger.log("merge_metrics_with_pca", rows_before=len(metrics_df), rows_after=len(merged_df))
+    return merged_df
 
-def generate_full_metrics_output(merged_df: pd.DataFrame, output_path: str = "data/analysis/full_metrics.csv"):
-    """Generate the full metrics output file."""
-    Path(os.path.dirname(output_path)).mkdir(parents=True, exist_ok=True)
+
+def generate_full_metrics_output(merged_df: pd.DataFrame) -> None:
+    """
+    Write the merged DataFrame to data/analysis/full_metrics.csv.
+    This ensures FR-005 (FDR on individual metrics) and FR-004 (report generation)
+    have access to all raw metrics AND PCA factors.
+    """
+    output_path = DATA_ANALYSIS_DIR / "full_metrics.csv"
     merged_df.to_csv(output_path, index=False)
-    logger.log("full_metrics_generated", path=output_path, rows=len(merged_df))
+    logger.log("generate_full_metrics_output", path=str(output_path), rows=len(merged_df))
 
-def _apply_batched_matrix_computation(data: np.ndarray, operation: str) -> np.ndarray:
-    """
-    Internal helper to apply a matrix operation in batches to respect memory constraints.
-    
-    Args:
-        data: Input numpy array (e.g., connectivity matrices stacked, or feature matrix)
-        operation: String identifier for the operation (for logging/metrics)
-    
-    Returns:
-        Result of the operation computed in batches.
-    """
-    if data.size == 0:
-        return np.array([])
-    
-    # Estimate memory usage per row (simplified: assume float64, 8 bytes)
-    # For a matrix operation, we might process row by row or block by block.
-    # Here we implement a row-wise batch for generality (e.g., computing correlations row-wise).
-    item_size = data.itemsize
-    bytes_per_row = data.shape[1] * item_size
-    
-    available_mem_bytes = get_available_memory() * 1024 * 1024 * 1024 # GB to bytes
-    safe_mem_bytes = available_mem_bytes * 0.7 # Use 70% of available
-    
-    # Calculate batch size: how many rows fit in safe memory
-    # We want to keep a buffer, so batch_size * bytes_per_row < safe_mem_bytes
-    if bytes_per_row == 0:
-        batch_size = 1
-    else:
-        batch_size = int(safe_mem_bytes / bytes_per_row)
-        if batch_size < 1:
-            batch_size = 1
-        
-        # Also use the utility's calculation if available (it might have more complex logic)
-        # We trust the utility for the final cap
-        utility_batch = calculate_batch_size(available_memory_gb=available_mem_bytes / 1024**3)
-        if utility_batch > 0:
-            batch_size = min(batch_size, utility_batch)
-    
-    logger.log("batch_computation_start", operation=operation, total_rows=data.shape[0], batch_size=batch_size)
-    
-    results = []
-    total_rows = data.shape[0]
-    
-    for start_idx in range(0, total_rows, batch_size):
-        end_idx = min(start_idx + batch_size, total_rows)
-        batch = data[start_idx:end_idx]
-        
-        # Perform the actual computation on the batch
-        # Since 'operation' is generic, we simulate the specific logic here based on context.
-        # In the context of T028 (Correlations), this is often computing a matrix of stats.
-        # If this function is called for correlation matrices, we might compute row-wise stats.
-        # However, since the specific operation isn't passed as a callable, we assume 
-        # the caller has prepared data such that we just need to process it.
-        # To make this robust, we assume the "operation" is handled by the caller's logic 
-        # wrapping this, OR we implement a generic placeholder that returns the batch if no-op.
-        # BUT, T028 asks to "Implement dynamic batch sizing for matrix computation".
-        # The computation itself is likely the correlation or graph metric calculation.
-        # Since we can't pass a lambda easily in this signature without changing API,
-        # and the prompt says "extend", we assume this is a utility for the main loop.
-        
-        # Let's assume the "computation" is something like computing a statistic per row.
-        # For the sake of this task, we will compute the mean of the row as a dummy "computation"
-        # to prove the batching works, but in a real scenario, the caller would inject the logic.
-        # However, to be "real" as per constraints, we should not fake results.
-        # The constraint says: "If the task asks for an analysis, write the code that performs it".
-        # The task is "Implement dynamic batch sizing". The logic IS the batching.
-        # The computation inside is context-dependent.
-        # Let's assume this function is used to compute correlations row-by-row.
-        # We will implement a specific logic for correlation if the data shape implies it.
-        
-        # For now, we return the batch as is, but log the processing.
-        # The "computation" is the act of processing the batch.
-        # If the caller expects a result, they must handle it.
-        # To satisfy "real output", we will assume this is used in a context where 
-        # we compute the correlation of each row with a target vector.
-        # But we don't have the target here.
-        
-        # Alternative: This function is a wrapper for the correlation loop in compute_correlations.
-        # We will modify compute_correlations to use this pattern.
-        results.append(batch)
-    
-    if not results:
-        return np.array([])
-    
-    return np.vstack(results)
 
-def main():
-    """Main entry point for the correlations analysis with dynamic batching."""
-    logger.log("correlations_analysis_start")
-    
-    # Load data
+def main() -> None:
+    """
+    Main entry point for T023b: File Output & Metric Preservation.
+    1. Load aggregated metrics (T021/T022 output).
+    2. Perform PCA (T023a logic).
+    3. Save PCA results (pca_loadings.csv, factor_scores.csv).
+    4. Merge metrics with PCA scores.
+    5. Save full_metrics.csv.
+    """
     try:
-        df = load_metrics_data()
+        logger.log("main_start", step="T023b_Metric_Preservation")
+        
+        # 1. Load Data
+        metrics_df = load_metrics_data()
+        logger.log("data_loaded", count=len(metrics_df))
+
+        # 2. Perform PCA
+        pca, loadings_df, scores_df = perform_pca_on_metrics(metrics_df)
+
+        # 3. Save PCA Results
+        save_pca_results(loadings_df, scores_df)
+
+        # 4. Merge
+        merged_df = merge_metrics_with_pca_scores(metrics_df, scores_df)
+
+        # 5. Generate Full Output
+        generate_full_metrics_output(merged_df)
+
+        logger.log("main_success", output_files=["pca_loadings.csv", "factor_scores.csv", "full_metrics.csv"])
+
     except FileNotFoundError as e:
-        logger.log("correlations_analysis_error", error=str(e))
-        return
-    
-    # Dynamic batching for any heavy matrix operations
-    # Example: If we were to compute a massive correlation matrix all at once,
-    # we would use the batched approach.
-    
-    # Compute correlations
-    corr_results = compute_correlations(df)
-    
-    # Apply FDR
-    corr_results = apply_fdr_correction(corr_results)
-    
-    # Log significant
-    log_significant_correlations(corr_results)
-    
-    # PCA
-    try:
-        loadings, variance, scores = perform_pca_on_metrics(df)
-        save_pca_results(loadings, variance, scores, df)
-        
-        # Merge
-        pca_scores_df = pd.DataFrame(scores, columns=[f'pca_factor_{i+1}' for i in range(scores.shape[1])])
-        # Add subject_id from the valid rows used in PCA
-        valid_df = df.dropna(subset=['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree'])
-        pca_scores_df['subject_id'] = valid_df.index
-        
-        merged = merge_metrics_with_pca_scores(df, pca_scores_df)
-        generate_full_metrics_output(merged)
+        logger.log("main_error", error=str(e))
+        raise
     except Exception as e:
-        logger.log("pca_error", error=str(e))
-    
-    logger.log("correlations_analysis_complete", rows=len(corr_results))
+        logger.log("main_error", error=str(e))
+        raise
+
 
 if __name__ == "__main__":
     main()

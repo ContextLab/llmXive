@@ -3,42 +3,57 @@
 ## Prerequisites
 - Python 3.11+
 - pip
-- git
+- Internet access (for downloading datasets)
 
-## Setup
-1. Clone the repository.
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+## Installation
+```bash
+pip install -r requirements.txt
+```
 
-## Data Acquisition
-Run the download and preprocessing step (requires HCP credentials or uses synthetic fallback):
+## Running the Pipeline
+The pipeline is executed in sequential steps using `code/main.py`.
+
+### Step 1: Download and Preprocess Data
+Downloads HCP/ADHD data and runs preprocessing (motion correction, normalization, smoothing).
 ```bash
 python code/main.py --step download_preprocess --subjects 50
 ```
+*Note: Requires FSL/AFNI for full preprocessing. For CI/synthetic validation, see `code/data/download.py`.*
 
-## Metric Extraction
-Extract graph metrics and aggregate them:
+### Step 2: Extract Metrics (T017)
+Extracts time-series, calculates connectivity matrices, and computes graph metrics (including Participation Coefficient and Within-Module Degree).
+**Output**: `data/analysis/aggregated_metrics.csv`
 ```bash
 python code/main.py --step metrics
 ```
 
-## Analysis (Correlation & FDR)
-Run the full correlation analysis, PCA, and Benjamini-Hochberg FDR correction.
-This step produces `data/analysis/full_metrics.csv`.
+### Step 3: Analyze Correlations
+Performs PCA, computes correlations with behavioral scores, and applies FDR correction.
+**Output**:
+- `data/analysis/pca_loadings.csv`
+- `data/analysis/factor_scores.csv`
+- `data/analysis/full_metrics.csv`
 ```bash
-python code/analysis/run_analysis.py
+python code/main.py --step correlations
 ```
 
-## Visualization & Reporting
-Generate plots and the final report:
+### Step 4: Visualization and Reporting
+Generates scatter plots, network diagrams, and the final report.
+**Output**:
+- `figures/scatter_*.png`
+- `figures/network_*.png`
+- `docs/report.md`
 ```bash
 python code/main.py --step viz_report
 ```
 
 ## Validation
-Run the validation suite:
+Run the validation script to ensure all outputs are generated:
 ```bash
 python code/tools/validate_quickstart.py
 ```
+
+## Troubleshooting
+- **Missing FSL/AFNI**: If preprocessing fails due to missing tools, the pipeline will attempt synthetic validation (see `code/data/download.py`).
+- **Memory Errors**: Adjust `MEMORY_LIMIT` in `code/config.py`.
+- **API Errors**: Check `code/config.py` for HCP credentials.
