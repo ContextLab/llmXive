@@ -4,9 +4,9 @@
   "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/sensitivity_analyzer.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026resent, we skip to avoid fake data.             if human_co\u2026\u201d; 1 command(s) failed: python code/main.py --num-tasks 100 --output-dir data/processed (rc=1)",
   "artifacts": [],
   "failures": [
-    "python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1\n    - WARNING - Task ID {'task_id': 'HumanEval/0', 'prompt': 'from typing import List\\n\\n\\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\\n    given threshold.\\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\\n    False\\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\\n    True\\n    \"\"\"\\n', 'human_solution': '    for idx, elem in enumerate(numbers):\\n        for idx2, elem2 in enumerate(number"
+    "python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py\", line 21, in <module>\n    from llm_generator import generate_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/llm_generator.py\", line 15, in <module>\n    from config import get_api_key, get_model_chain, get_model_config, resolve_model, ModelConfig\nImportError: cannot import name 'get_model_chain' from 'config' "
   ],
-  "fix_rounds": 7,
+  "fix_rounds": 10,
   "model_tier": 1,
-  "updated_at": "2026-07-13T22:14:42Z"
+  "updated_at": "2026-07-13T23:58:08Z"
 }

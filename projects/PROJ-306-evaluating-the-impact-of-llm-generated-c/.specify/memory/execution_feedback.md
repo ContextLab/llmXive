@@ -17,9 +17,12 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1
-    - WARNING - Task ID {'task_id': 'HumanEval/0', 'prompt': 'from typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    """ Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    """\n', 'human_solution': '    for idx, elem in enumerate(numbers):\n        for idx2, elem2 in enumerate(numbers):\n            if idx != idx2:\n                distance = abs(elem - elem2)\n                if distance < threshold:\n                    return True\n\n    return False\n', 'test_suite_path': 'data/benchmarks/processed/tests/humaneval_HumanEval/0.py', 'difficulty': 'medium', 'code_patterns': {'loops': 2, 'conditionals': 2, 'recursion': 0, 'list_comprehension': 0, 'lambda': 0}, 'dataset_source': 'humaneval'} not found in catalog.
-2026-07-13 22:14:38,922 - ERROR - Generation failed for task HumanEval/0: stat: path should be string, bytes, os.PathLike or integer, not tuple
-Critical Error: [Errno 2] No such file or directory: 'data/coverage_reports/HumanEval/0.json'
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py", line 21, in <module>
+    from llm_generator import generate_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/llm_generator.py", line 15, in <module>
+    from config import get_api_key, get_model_chain, get_model_config, resolve_model, ModelConfig
+ImportError: cannot import name 'get_model_chain' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/config.py)
 
 ## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
 
@@ -50,16 +53,16 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_model_config` — defined in `code/config.py`; called 1 way(s):
+### `get_model_config` — defined in `code/config.py`; called 2 way(s):
 
 - code/llm_generator.py: config = get_model_config(candidate_model)
+- code/main.py: model_cfg = get_model_config(model_name)
 
 Make `get_model_config` in `code/config.py` accept ALL of the above.
 
-### `log_pipeline_summary` — defined in `code/logger_config.py`; called 2 way(s):
+### `log_pipeline_summary` — defined in `code/logger_config.py`; called 1 way(s):
 
-- code/logger_config.py: expected call signature: log_pipeline_summary(logger, results).
-- code/main.py: log_pipeline_summary(logger, results)
+- code/main.py: log_pipeline_summary(
 
 Make `log_pipeline_summary` in `code/logger_config.py` accept ALL of the above.
 

@@ -186,3 +186,40 @@
   source_type: external
   status: verified
   updated_at: '2026-07-13T22:36:57Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: bigcode/starcoderbase-3b uses 4-bit quantization to stay within 7GB RAM
+    limit
+  claim_id: c_3616919e
+  context: 'Constraint: For the fallback model (bigcode/starcoderbase-3b), MUST use
+    4-bit quantization via bitsandbytes with device_map=''cpu''. This is mandatory
+    per SC-005 (7GB RAM limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback model bigcode/starcoderbase-3b must use 4-bit quantization
+    via bitsandbytes with device_map='cpu' to satisfy the 7GB RAM limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T23:51:56Z'
+- artifact_path: projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: pipeline processes at least 100 tasks within 6 hours on CPU-only runner
+  claim_id: c_a02a92c3
+  context: "T048 [P] Performance optimization: Verify pipeline can process \u2265\
+    100 tasks within 6 hours on CPU-only runner (SC-005)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_processes_at_least_100_tasks_within_6_hours_on_CPU-
+  kind: magnitude
+  raw_text: "pipeline can process \u2265100 tasks within 6 hours on CPU-only runner"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-13T23:55:39Z'

@@ -53,7 +53,7 @@
 - [X] T010 [P] [US1] Contract test for dataset loading in `tests/unit/test_dataset_loader.py`
 - [X] T011 [P] [US1] Integration test for end-to-end generation and coverage on multiple tasks in `tests/integration/test_pipeline_us1.py`
 - [X] T012 [P] [US1] Implement `code/coverage_runner.py` to execute `pytest --cov` on generated files and parse output for `line_coverage` and `branch_coverage`. **Validation**: For HumanEval tasks (identified by `task_id` prefix 'HumanEval/' or `dataset_source`='humaneval' in catalog), explicitly validate and log `branch_coverage` as `N/A` before writing to `coverage_reports/{task_id}.json` to ensure artifact compliance at generation.
-- [X] T013 [US1] Implement logic in `code/main.py` to orchestrate generation and coverage execution for a batch of tasks. **Deliverables**:
+- [ ] T013 [US1] Implement logic in `code/main.py` to orchestrate generation and coverage execution for a batch of tasks. **Deliverables**:
  1. Add `argparse` arguments: `--dataset`, `--model`, `--batch-size`.
  2. Implement `try/except` blocks for `SyntaxError` and generic `Exception` during execution.
  3. On failure, write a JSON record to `coverage_reports/{task_id}.json` with schema: `{ "task_id": "...", "status": "failed", "error_message": "...", "timestamp": "..." }`.

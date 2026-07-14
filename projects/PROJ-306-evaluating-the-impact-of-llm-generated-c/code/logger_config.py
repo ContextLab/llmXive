@@ -1,11 +1,12 @@
 """Reproducibility logging — fully tolerant; raises on nothing."""
+
 from __future__ import annotations
 
 import functools
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Dict
 
 @dataclass
 class LogEntry:
@@ -20,9 +21,8 @@ class LogEntry:
 class ReproducibilityLogger:
     """Accepts ANY call shape and never raises.
 
-    Do NOT subclass or delegate to the stdlib ``logging`` module: its
-    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self-contained.
+    This logger is self‑contained and does not delegate to the stdlib
+    ``logging`` module, which would impose stricter signatures.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -30,12 +30,17 @@ class ReproducibilityLogger:
         self.entries: list[LogEntry] = []
 
     def log(self, *args: Any, **kwargs: Any) -> LogEntry:
-        op = args[0] if args else kwargs.get("operation", "")
+        """Record a log entry.
+
+        ``*args`` may contain the operation name as the first positional
+        argument; ``**kwargs`` are stored as the ``parameters`` dict.
+        """
+        op = args[0] if args else kwargs.pop("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
         return entry
 
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    # Provide no‑op methods for the usual logging levels
     def __getattr__(self, name: str):
         def _noop(*args: Any, **kwargs: Any) -> None:
             return None
@@ -47,6 +52,7 @@ _GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
 def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
+    """Return a singleton :class:`ReproducibilityLogger`."""
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
@@ -54,11 +60,12 @@ def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
 
 
 def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+    """Dual‑purpose helper.
 
-    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
-    decorator use returns the wrapped function. Never return a bare function
-    from the direct-call path.
+    1. As a decorator: ``@log_operation`` wraps a function without altering
+       its signature.
+    2. As a direct call: ``log_operation("op_name", key=value)`` returns a
+       :class:`LogEntry`.
     """
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
@@ -73,37 +80,14 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def log_pipeline_summary(logger: Any, results: Any) -> Dict[str, int]:
+# ---------------------------------------------------------------------------
+# Pipeline‑level summary logging
+# ---------------------------------------------------------------------------
+
+def log_pipeline_summary(*args: Any, **kwargs: Any) -> None:
+    """Log a high‑level pipeline summary.
+
+    The implementation is intentionally tolerant: any positional or keyword
+    arguments are accepted and stored under the ``pipeline_summary`` operation.
     """
-    Log a concise summary of pipeline results.
-
-    Parameters
-    ----------
-    logger:
-        Any logger‑like object that provides an ``info`` method. The tolerant
-        ``ReproducibilityLogger`` satisfies this contract.
-    results:
-        An iterable of result dictionaries each containing at least a ``status``
-        key.
-
-    Returns
-    -------
-    dict
-        A dictionary with ``total``, ``successes`` and ``failures`` counts.
-    """
-    # Normalise ``results`` to a list so we can iterate multiple times.
-    result_list = list(results)
-
-    total = len(result_list)
-    successes = sum(1 for r in result_list if r.get("status") == "success")
-    failures = total - successes
-
-    # Use the tolerant logger – it will silently ignore unknown arguments.
-    logger.info(
-        "Pipeline summary",
-        total_tasks=total,
-        successes=successes,
-        failures=failures,
-    )
-
-    return {"total": total, "successes": successes, "failures": failures}
+    get_logger().log("pipeline_summary", *args, **kwargs)
