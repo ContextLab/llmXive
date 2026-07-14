@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T007** — No `specs/contracts/model_output.schema.yaml` file is present in the provided evidence, and thus the required schema with the specified columns has not been supplied. The implementer must create the YAML schema file containing the fields `model_type`, `coefficients`, `p_values`, `r_squared`, `aic`, and `cross_validation_scores`.
+- **T008** — The required file `src/data/download.py` does not exist in the repository, so no implementation (let alone exponential backoff retry logic) is present. The task cannot be considered fulfilled until the file is added with the specified functionality.
+- **T009** — The required file `src/data/download.py` (or `data/download.py` as referenced) is missing entirely, so none of the specified verification, sampling, or exclusion logic is present. The implementer must add the file with the described functionality.
+- **T010** — No evidence of a file at `tests/contract/test_game_record.py` containing a contract test for the `GameRecord` schema is provided; the claim lacks the required artifact, so the task is not satisfied.
+- **T011** — No `tests/unit/test_parsers.py` file containing a unit test for malformed PGN move lists was provided; without the actual test code, the requirement of adding a unit test is not satisfied. The implementer must add a non‑empty test file with appropriate assertions covering the malformed move‑list scenario.
+- **T012** — No `tests/unit/test_calculations.py` file or its contents were provided; therefore we cannot confirm that a unit test for Elo probability calculation and deviation math exists or meets the required specifications. The implementer must add the test file with appropriate assertions.

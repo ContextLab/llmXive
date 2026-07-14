@@ -1,0 +1,2 @@
+# Contract tests initialization
+pass

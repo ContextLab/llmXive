@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T00:57:12.981974Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-283-statistical-analysis-of-publicly-availab
-last_run_id: 4b3dc0b2-a9cf-4d70-91a5-fcf6ed665c19
+last_run_id: 89d47f05-1648-4b3f-9f57-08a5b5d221b1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Chess Game Data for Elo Rating Prediction
-updated_at: '2026-07-13T21:00:39.410399Z'
+updated_at: '2026-07-14T09:42:51.054425Z'

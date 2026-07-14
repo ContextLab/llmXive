@@ -1,0 +1,100 @@
+name: GameRecord
+description: |
+  Schema for the processed chess game records derived from Lichess PGN data.
+  Aligns with Plan.md Complexity Tracking override of Spec FR-002, specifically
+  using material imbalance at move 5.
+version: 1.0.0
+columns:
+  - name: game_id
+    type: string
+    required: true
+    description: Unique identifier for the game (e.g., Lichess game ID).
+    constraints:
+      - non_empty
+      - no_whitespace
+
+  - name: white_rating
+    type: integer
+    required: true
+    description: ELO rating of the white player at the time of the game.
+    constraints:
+      - min_value: 100
+      - max_value: 3500
+
+  - name: black_rating
+    type: integer
+    required: true
+    description: ELO rating of the black player at the time of the game.
+    constraints:
+      - min_value: 100
+      - max_value: 3500
+
+  - name: eco_code
+    type: string
+    required: true
+    description: Encyclopaedia of Chess Openings code (e.g., 'B00', 'C50').
+    constraints:
+      - pattern: '^[A-E][0-9]{2}$'
+
+  - name: avg_move_time_white
+    type: float
+    required: true
+    description: Average time per move for White in seconds.
+    constraints:
+      - min_value: 0.0
+
+  - name: avg_move_time_black
+    type: float
+    required: true
+    description: Average time per move for Black in seconds.
+    constraints:
+      - min_value: 0.0
+
+  - name: material_imbalance_move5
+    type: float
+    required: true
+    description: |
+      Material imbalance score calculated at the end of move 5 (White's 5th move).
+      Positive values indicate White advantage, negative indicate Black advantage.
+      Calculated as (White Material Value - Black Material Value).
+    constraints:
+      - min_value: -50.0
+      - max_value: 50.0
+
+  - name: outcome
+    type: string
+    required: true
+    description: |
+      Game result from White's perspective.
+      Values: '1' (White wins), '0' (Black wins), '0.5' (Draw).
+    constraints:
+      - allowed_values: ['1', '0', '0.5']
+
+  - name: elo_expected_prob
+    type: float
+    required: true
+    description: |
+      Expected probability of White winning based on ELO difference.
+      Calculated using P = 1 / (1 + 10^((R_black - R_white)/400)).
+      Capped to [0.01, 0.99] for numerical stability.
+    constraints:
+      - min_value: 0.01
+      - max_value: 0.99
+
+  - name: outcome_deviation
+    type: float
+    required: true
+    description: |
+      Deviation between actual outcome and expected probability.
+      Calculated as (actual_result - expected_probability).
+    constraints:
+      - min_value: -0.99
+      - max_value: 0.99
+
+primary_key:
+  - game_id
+
+metadata:
+  source: Lichess Public Dataset
+  processing_pipeline: src/data/parse.py, src/data/process.py
+  validation_logic: src/validation/validate_contracts.py

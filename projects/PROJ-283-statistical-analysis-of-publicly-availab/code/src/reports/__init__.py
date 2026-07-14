@@ -1,0 +1,2 @@
+# Reports module initialization
+pass

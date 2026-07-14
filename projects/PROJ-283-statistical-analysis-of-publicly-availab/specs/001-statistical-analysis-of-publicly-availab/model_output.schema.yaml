@@ -1,0 +1,14 @@
+columns:
+  - model_type
+  - coefficients
+  - p_values
+  - r_squared
+  - aic
+  - cross_validation_scores
+types:
+  model_type: str
+  coefficients: dict
+  p_values: dict
+  r_squared: float
+  aic: float
+  cross_validation_scores: list

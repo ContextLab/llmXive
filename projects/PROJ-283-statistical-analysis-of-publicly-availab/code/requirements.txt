@@ -1,0 +1,12 @@
+pandas
+numpy
+scikit-learn
+statsmodels
+chess
+matplotlib
+seaborn
+requests
+datasets
+pytest
+ruff
+black
