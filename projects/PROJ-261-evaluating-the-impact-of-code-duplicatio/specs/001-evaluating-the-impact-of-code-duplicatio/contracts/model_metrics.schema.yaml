@@ -1,5 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Model Metrics Schema
+description: Schema for model‑level metrics such as perplexity.
 type: object
 properties:
   file_path:
@@ -7,8 +8,16 @@ properties:
     description: Path to the source file for which perplexity was computed.
   perplexity:
     type: number
-    description: Token‑level perplexity score produced by the language model.
+    description: Token‑level perplexity score for the file.
+  model_name:
+    type: string
+    description: Identifier of the language model used (e.g., Salesforce/codegen-350M-mono).
+  quantization_bits:
+    type: integer
+    description: Number of bits used for quantisation (e.g., 8).
 required:
   - file_path
   - perplexity
+  - model_name
+  - quantization_bits
 additionalProperties: false

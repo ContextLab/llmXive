@@ -1,7 +1,14 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Pipeline Configuration Schema
+description: Schema for the top‑level configuration used to run the research pipeline.
 type: object
 properties:
+  dataset_name:
+    type: string
+    description: Name of the source code dataset (e.g., "codeparrot/github-code").
+  model_name:
+    type: string
+    description: Name of the language model to evaluate (e.g., "Salesforce/codegen-350M-mono").
   clone_thresholds:
     type: array
     items:
@@ -12,57 +19,36 @@ properties:
     description: Global random seed for reproducibility.
   memory_limit_mb:
     type: integer
-    description: Maximum memory (in MB) allowed for the pipeline.
+    description: Maximum memory usage allowed during pipeline execution.
   max_runtime_seconds:
     type: integer
-    description: Upper bound on total runtime in seconds.
-  min_valid_segments:
-    type: integer
-    description: Minimum number of code segments required for a valid analysis.
-  correlation_method:
-    type: string
-    description: Method used for correlation (e.g., "spearman").
-  significance_threshold:
-    type: number
-    description: p‑value threshold for statistical significance.
-  figure_format:
-    type: string
-    description: File format for generated figures (e.g., "png", "pdf").
-  figure_dpi:
-    type: integer
-    description: DPI resolution for saved figures.
-  checksum_algorithm:
-    type: string
-    description: Algorithm used for artifact checksum computation (e.g., "sha256").
-  dataset_name:
-    type: string
-    description: Identifier of the source code dataset (e.g., "codeparrot/github-code").
-  model_name:
-    type: string
-    description: HuggingFace model identifier used for perplexity computation.
-  quantization_bits:
-    type: integer
-    description: Number of bits for model quantization (e.g., 8).
-  streaming_enabled:
-    type: boolean
-    description: Whether dataset streaming mode is enabled.
+    description: Upper bound on total runtime for the pipeline.
   pii_scan_enabled:
     type: boolean
-    description: Flag to enable/disable PII scanning of raw data.
+    description: Whether the PII scanner should be executed.
+  streaming_enabled:
+    type: boolean
+    description: Whether dataset streaming mode is used for data loading.
+  quantization_bits:
+    type: integer
+    description: Number of bits for model quantisation (e.g., 8 for 8‑bit).
+  figure_format:
+    type: string
+    enum: [png, pdf]
+    description: Desired output format for generated figures.
+  figure_dpi:
+    type: integer
+    description: DPI resolution for raster figures.
 required:
+  - dataset_name
+  - model_name
   - clone_thresholds
   - random_seed
   - memory_limit_mb
   - max_runtime_seconds
-  - min_valid_segments
-  - correlation_method
-  - significance_threshold
+  - pii_scan_enabled
+  - streaming_enabled
+  - quantization_bits
   - figure_format
   - figure_dpi
-  - checksum_algorithm
-  - dataset_name
-  - model_name
-  - quantization_bits
-  - streaming_enabled
-  - pii_scan_enabled
 additionalProperties: false

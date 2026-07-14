@@ -1,5 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Clone Metrics Schema
+description: Schema for clone detection metrics produced by the AST cloner.
 type: object
 properties:
   file_path:
@@ -7,14 +8,20 @@ properties:
     description: Path to the source file that was analysed.
   clone_density:
     type: number
-    description: Ratio of cloned lines to total lines in the file.
+    description: Ratio of cloned lines to total lines (0.0–1.0).
+  total_clones:
+    type: integer
+    description: Total number of clone instances detected in the file.
   type1_clones:
     type: integer
-    description: Count of Type‑1 (exact) clones detected.
+    description: Number of Type‑1 (exact) clones.
   type2_clones:
     type: integer
-    description: Count of Type‑2 (parameterised) clones detected.
+    description: Number of Type‑2 (parameterised) clones.
 required:
   - file_path
   - clone_density
+  - total_clones
+  - type1_clones
+  - type2_clones
 additionalProperties: false

@@ -74,7 +74,7 @@
 - [X] T023 [US1] Memory‑monitoring validates a 7 GB limit throughout model inference [UNRESOLVED-CLAIM: c_d816300d — status=not_enough_info]
 - [X] T024 [US1] SC‑001 validation includes a 500 MB corpus requirement (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_performance.py`) using pytest
 - [X] T025 [US1] Add checksum computation for all output files AND intermediate files/logs, record in `artifact_hashes` state manifest
-- [X] T026 [US1] SC‑003 claim of 2409.08555 from arXiv 2409.08555 [UNRESOLVED-CLAIM: c_2bab42f2 — status=not_enough_info] (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`) using pytest (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`) using pytest
+- [X] T026 [US1] SC‑003 claim of 2409.08555 from arXiv 2409.08555 [UNRESOLVED-CLAIM: c_cd457742 — status=not_enough_info] (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`) using pytest (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_segment_count_validation.py`) using pytest
 - [X] T053 [US1] Implement semantic distance calculation in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/model_metrics.py` (or `code/semantic_cloner.py`) per FR-003 using embedding-based similarity, and add a corresponding unit test in `projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_model_metrics.py`
 
 **Checkpoint**: User Story 1 should now be fully functional and testable independently
@@ -96,7 +96,7 @@
 
 ### Implementation Tasks
 
-- [X] T031 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py` to load the 50‑problem HumanEval subset, retrieve the associated clone density metric for each problem from the processed metrics, and compute pass@1 accuracy, ensuring clone density is stored as a float type to match correlation analysis requirements.
+- [ ] T031 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py` to load the 50‑problem HumanEval subset, retrieve the associated clone density metric for each problem from the processed metrics, and compute pass@1 accuracy, ensuring clone density is stored as a float type to match correlation analysis requirements.
 - [X] T032 [US2] Implement `projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/correlation_analysis.py` to calculate Spearman rank correlation between duplication density and both perplexity and accuracy
 - [X] T033 [US2] Join all intermediate metrics (clone, perplexity, bug‑detection) for correlation input
 - [X] T034 [US2] Save correlation results with p‑values to `projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/analysis/correlation_results.csv`

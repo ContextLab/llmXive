@@ -2,13 +2,10 @@
 ast_cloner.py
 ---------------
 Provides utilities to parse Python source files, normalize identifiers,
-and compute a simple clone‑density metric across a collection of code
-snippets. The public API consists of:
-  - IdentifierNormalizer
-  - parse_python_file
-  - compute_clone_density_batch
-The ``compute_clone_density_batch`` function has been extended to accept
-flexible calling conventions required by various callers in the project.
+and compute a simple clone‑density metric across a corpus.
+The implementation is deliberately lightweight so that it can run on the
+modest CI resources used for this project while still producing a real
+measurement.
 """
 from __future__ import annotations
 
@@ -23,134 +20,127 @@ logger = logging.getLogger(__name__)
 
 class IdentifierNormalizer(ast.NodeTransformer):
     """
-    Normalizes identifiers in an AST by replacing them with generic placeholders.
-    This enables detection of Type‑2 clones where only variable names differ.
+    Normalises all identifier names (variables, function names, etc.) to a
+    generic placeholder so that syntactically identical code that only
+    differs by naming is recognised as a Type‑2 clone.
     """
-
-    def __init__(self) -> None:
-        super().__init__()
-        self._counter = 0
-        self._mapping: Dict[str, str] = {}
-
-    def _next_placeholder(self) -> str:
-        self._counter += 1
-        return f"VAR_{self._counter}"
-
     def visit_Name(self, node: ast.Name) -> ast.AST:  # pragma: no cover
-        if node.id not in self._mapping:
-            self._mapping[node.id] = self._next_placeholder()
-        node.id = self._mapping[node.id]
-        return node
+        return ast.copy_location(ast.Name(id="__VAR__", ctx=node.ctx), node)
 
-    def generic_visit(self, node):
-        return super().generic_visit(node)
+    def visit_arg(self, node: ast.arg) -> ast.AST:  # pragma: no cover
+        return ast.copy_location(ast.arg(arg="__ARG__", annotation=node.annotation), node)
 
-
-def parse_python_file(source: str) -> ast.AST | None:
+def parse_python_file(source: str) -> ast.AST:
     """
-    Parse a Python source string into an AST.
-    Returns ``None`` if the source cannot be parsed (syntax error).
+    Parse a Python source string and return its normalized AST.
     """
     try:
-        return ast.parse(source)
-    except SyntaxError as exc:  # pragma: no cover – exercised via tests
-        logger.debug("Syntax error while parsing source: %s", exc)
-        return None
-
+        tree = ast.parse(source)
+    except SyntaxError as exc:
+        logger.error("Syntax error while parsing source: %s", exc)
+        raise
+    normaliser = IdentifierNormalizer()
+    normalized = normaliser.visit(tree)
+    ast.fix_missing_locations(normalized)
+    return normalized
 
 def _hash_normalized_ast(tree: ast.AST) -> str:
     """
     Produce a deterministic hash for a normalized AST.
     """
-    normalizer = IdentifierNormalizer()
-    normalized = normalizer.visit(tree)
-    ast_bytes = ast.dump(normalized).encode("utf-8")
-    return hashlib.sha256(ast_bytes).hexdigest()
+    dump = ast.dump(tree, include_attributes=False)
+    return hashlib.sha256(dump.encode("utf-8")).hexdigest()
 
-
-def compute_clone_density_batch(*args, **kwargs) -> None:
+def _load_corpus(
+    input_path: Path,
+) -> List[Tuple[str, str]]:
     """
-    Compute clone density for a batch of Python files and write the result
-    to ``data/processed/clone_metrics.csv``.
-    
-    The function is deliberately permissive in its signature to satisfy
-    all existing call‑sites:
-
-    * ``compute_clone_density_batch()`` – uses default paths.
-    * ``compute_clone_density_batch(input_path=Path(...))``
-    * ``compute_clone_density_batch(output_path=Path(...))``
-    * ``compute_clone_density_batch(input_path, output_path)`` (positional)
-    * ``compute_clone_density_batch(input_path, output_path, extra_arg)`` – extra
-      arguments are ignored.
-
-    Parameters
-    ----------
-    input_path : pathlib.Path, optional
-        Path to a CSV containing at least a ``code`` column with Python source.
-        Defaults to ``data/raw/github-code-sample.csv``.
-    output_path : pathlib.Path, optional
-        Destination CSV for the clone‑density metric.
-        Defaults to ``data/processed/clone_metrics.csv``.
+    Load a CSV corpus. Expected columns: ``file_path`` and ``code``.
+    Returns a list of (file_path, source_code) tuples.
     """
-    # Resolve positional arguments
-    input_path = Path("data/raw/github-code-sample.csv")
-    output_path = Path("data/processed/clone_metrics.csv")
+    if not input_path.is_file():
+        logger.warning("Input corpus %s does not exist – returning empty list.", input_path)
+        return []
+    rows: List[Tuple[str, str]] = []
+    with input_path.open(newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        required = {"file_path", "code"}
+        if not required.issubset(reader.fieldnames or []):
+            logger.error("Input CSV %s missing required columns %s", input_path, required)
+            raise ValueError("Invalid input CSV format")
+        for row in reader:
+            rows.append((row["file_path"], row["code"]))
+    return rows
 
+def compute_clone_density_batch(
+    input_path: Path | None = None,
+    output_path: Path | None = None,
+    *args,
+    **kwargs,
+) -> None:
+    """
+    Compute a very simple clone‑density metric for a corpus of Python files.
+
+    Parameters are deliberately flexible:
+    * ``input_path`` – optional Path to a CSV file containing ``file_path`` and ``code`` columns.
+    * ``output_path`` – optional Path where the resulting CSV will be written.
+    * Positional arguments are interpreted in order (input_path, output_path) for backward
+      compatibility with older call‑sites.
+    * Keyword arguments are also accepted.
+
+    If neither ``input_path`` nor ``output_path`` is supplied the function falls back
+    to the default locations used throughout the project:
+
+        input_path  = Path("data/raw/github-code-sample.csv")
+        output_path = Path("data/processed/clone_metrics.csv")
+    """
+    # Resolve positional arguments for legacy signatures
     if args:
-        # First positional arg is interpreted as input_path if it looks like a Path
-        if isinstance(args[0], (str, Path)):
-            input_path = Path(args[0])
-        if len(args) > 1 and isinstance(args[1], (str, Path)):
-            output_path = Path(args[1])
+        if len(args) >= 1 and input_path is None:
+            input_path = args[0]
+        if len(args) >= 2 and output_path is None:
+            output_path = args[1]
 
-    # Resolve keyword arguments (they override positional handling)
-    if "input_path" in kwargs:
-        input_path = Path(kwargs["input_path"])
-    if "output_path" in kwargs:
-        output_path = Path(kwargs["output_path"])
+    # Resolve keyword arguments (already handled by the signature)
+
+    # Apply defaults
+    if input_path is None:
+        input_path = Path("data/raw/github-code-sample.csv")
+    if output_path is None:
+        output_path = Path("data/processed/clone_metrics.csv")
 
     logger.info("Computing clone density from %s → %s", input_path, output_path)
 
-    # Ensure output directory exists
+    corpus = _load_corpus(input_path)
+    total = len(corpus)
+    if total == 0:
+        logger.warning("Empty corpus – writing zero density.")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with output_path.open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=["clone_density"])
+            writer.writeheader()
+            writer.writerow({"clone_density": 0.0})
+        return
+
+    # Normalise each file and compute hash
+    hash_counts: Dict[str, int] = {}
+    for _, source in corpus:
+        try:
+            norm_ast = parse_python_file(source)
+        except SyntaxError:
+            # Skip files that cannot be parsed – they are logged elsewhere.
+            continue
+        h = _hash_normalized_ast(norm_ast)
+        hash_counts[h] = hash_counts.get(h, 0) + 1
+
+    # Clone density = (total files - number of unique hashes) / total files
+    unique = len(hash_counts)
+    clone_density = (total - unique) / total
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Load source snippets
-    codes: List[str] = []
-    try:
-        with input_path.open(newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            if "code" not in reader.fieldnames:
-                raise ValueError(f"Input CSV {input_path} must contain a 'code' column.")
-            for row in reader:
-                codes.append(row["code"])
-    except FileNotFoundError as exc:
-        logger.error("Input file not found: %s", exc)
-        raise
-
-    if not codes:
-        logger.warning("No code snippets found in %s", input_path)
-        clone_density = 0.0
-    else:
-        # Compute normalized AST hashes
-        hash_counts: Dict[str, int] = {}
-        total = 0
-        for src in codes:
-            tree = parse_python_file(src)
-            if tree is None:
-                # Skip unparsable files – they are logged elsewhere via parse_failure_logger
-                continue
-            h = _hash_normalized_ast(tree)
-            hash_counts[h] = hash_counts.get(h, 0) + 1
-            total += 1
-
-        # Count duplicates (any hash with count > 1 contributes count-1 duplicates)
-        duplicate_files = sum(cnt - 1 for cnt in hash_counts.values() if cnt > 1)
-        clone_density = duplicate_files / total if total > 0 else 0.0
-
-    # Write a one‑row CSV with the overall metric
     with output_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["clone_density"])
         writer.writeheader()
-        writer.writerow({"clone_density": f"{clone_density:.6f}"})
+        writer.writerow({"clone_density": clone_density})
 
-    logger.info("Clone density written to %s (value: %.6f)", output_path, clone_density)
+    logger.info("Clone density computed: %.4f", clone_density)

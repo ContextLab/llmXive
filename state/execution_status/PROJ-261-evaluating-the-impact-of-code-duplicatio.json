@@ -1,16 +1,17 @@
 {
   "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/bug_detection.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026roject API surface).  No synthetic data are generated \u2013 all inpu\u2026\u201d; 2 command(s) failed: python code/bug_detection.py (rc=1); python code/quickstart_validation.py (rc=1); 1 declared deliverable(s) absent: data/processed/clone_metrics.csv",
+  "reason": "3 command(s) failed: python code/data_loader.py (rc=1); python code/bug_detection.py (rc=1); python code/quickstart_validation.py (rc=1); 1 declared deliverable(s) absent: data/processed/clone_metrics.csv",
   "artifacts": [
     "data/analysis/correlation_results.csv",
     "data/pii_scan_results.csv"
   ],
   "failures": [
-    "python code/bug_detection.py -> rc=1\n    2026-07-14 01:40:09 INFO __main__ \u2013 Loading HumanEval dataset (limit=50)...\nWarning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n2026-07-14 01:40:09 ERROR __main__ \u2013 Failed to load HumanEval dataset: Invalid HF URI 'hf://datasets/openai_humaneval@7dce6050a7d6d172f3cc5c32aa97f52fa1a2e544/.huggingface.yaml'. Repository id must be 'namespace/name', got 'openai_humaneval'.\n2026-07-14 01:40:09 ERROR __main__ \u2013 Bug\u2011detection pipeline failed: Invalid HF URI 'hf://datasets/open",
+    "python code/data_loader.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/data_loader.py\", line 14, in <module>\n    from datasets import LoadDatasetError, load_dataset\nImportError: cannot import name 'LoadDatasetError' from 'datasets' (/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/datasets/__init__.py)",
+    "python code/bug_detection.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/bug_detection.py\", line 22, in <module>\n    from datasets import LoadDatasetError, load_dataset\nImportError: cannot import name 'LoadDatasetError' from 'datasets' (/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/datasets/__init__.py)",
     "python code/quickstart_validation.py -> rc=1\n    ERROR:__main__:Missing required output files: [PosixPath('data/processed/clone_metrics.csv'), PosixPath('data/processed/perplexity_scores.csv')]"
   ],
-  "fix_rounds": 7,
+  "fix_rounds": 8,
   "model_tier": 1,
-  "updated_at": "2026-07-14T01:40:18Z"
+  "updated_at": "2026-07-14T03:25:49Z"
 }
