@@ -7,6 +7,8 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any
 
+from config import get_paths
+
 
 @dataclass
 class LogEntry:
@@ -29,11 +31,31 @@ class ReproducibilityLogger:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list = []
+        self.output_path: str | None = None
+        # Determine log file path from config
+        try:
+            paths = get_paths()
+            log_dir = paths.get("logs")
+            if log_dir:
+                os.makedirs(log_dir, exist_ok=True)
+                self.output_path = os.path.join(log_dir, "pipeline_run.json")
+        except Exception:
+            # Fallback if config not loaded yet
+            self.output_path = "data/logs/pipeline_run.json"
+
+    def _flush_to_disk(self, entry: LogEntry) -> None:
+        """Append a log entry to the JSONL log file."""
+        if not self.output_path:
+            return
+        os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
+        with open(self.output_path, "a", encoding="utf-8") as f:
+            f.write(entry.to_json() + "\n")
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
         op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
+        self._flush_to_disk(entry)
         return entry
 
     # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
@@ -73,77 +95,95 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def log_stage_start(stage: str, message: str = "", **kwargs: Any) -> None:
+def log_stage_start(stage_name: str, *args: Any, **kwargs: Any) -> LogEntry:
     """Log the start of a pipeline stage.
 
-    Accepts various call signatures:
-    - log_stage_start(stage)
-    - log_stage_start(stage, message=...)
-    - log_stage_start(logger, stage)
-    - log_stage_start(logger, stage, message=...)
+    Accepts flexible signatures:
+      - log_stage_start("name")
+      - log_stage_start("name", detail_dict)
+      - log_stage_start(logger, "name")
+      - log_stage_start(logger, "name", detail_dict)
     """
-    logger = get_logger()
-    # Handle optional logger as first arg
-    if len(stage) > 0 and isinstance(stage, ReproducibilityLogger):
-        logger = stage
-        stage = stage if isinstance(stage, str) else (args[1] if len(args) > 1 else "stage")
-    
-    # Re-parse args properly
-    _logger = logger
-    _stage = stage
-    _msg = message
-    
-    # If the first argument is a logger instance, shift
-    if isinstance(stage, ReproducibilityLogger):
-        _logger = stage
-        if len(args) > 1:
-            _stage = args[1]
-        if len(args) > 2:
-            _msg = args[2]
-        elif "message" in kwargs:
-            _msg = kwargs["message"]
-    elif isinstance(stage, str):
-        _stage = stage
-        if "message" in kwargs:
-            _msg = kwargs["message"]
-    
-    _logger.log("stage_start", operation=_stage, message=_msg, **kwargs)
+    logger = None
+    name = stage_name
+    detail = {}
+
+    # Handle flexible argument shapes
+    if args and not isinstance(args[0], str):
+        logger = args[0]
+        args = args[1:]
+
+    if args:
+        name = args[0]
+        if len(args) > 1 and isinstance(args[1], dict):
+            detail = args[1]
+
+    # Merge kwargs into detail
+    detail.update(kwargs)
+
+    entry = get_logger().log(
+        f"Start {name}",
+        stage=name,
+        **detail
+    )
+    return entry
 
 
-def log_stage_complete(stage: str, message: str = "", **kwargs: Any) -> None:
+def log_stage_complete(stage_name: str, *args: Any, **kwargs: Any) -> LogEntry:
     """Log the completion of a pipeline stage."""
-    logger = get_logger()
-    if isinstance(stage, ReproducibilityLogger):
-        logger = stage
-        if len(kwargs) > 0:
-            stage = list(kwargs.keys())[0] # Fallback logic if signature is weird
-        
-    logger.log("stage_complete", operation=stage, message=message, **kwargs)
+    logger = None
+    name = stage_name
+    detail = {}
+
+    if args and not isinstance(args[0], str):
+        logger = args[0]
+        args = args[1:]
+
+    if args:
+        name = args[0]
+        if len(args) > 1 and isinstance(args[1], dict):
+            detail = args[1]
+
+    detail.update(kwargs)
+
+    entry = get_logger().log(
+        f"Complete {name}",
+        stage=name,
+        **detail
+    )
+    return entry
 
 
-def log_stage_error(stage: str, message: str = "", **kwargs: Any) -> None:
-    """Log an error in a pipeline stage."""
-    logger = get_logger()
-    if isinstance(stage, ReproducibilityLogger):
-        logger = stage
-    
-    logger.log("stage_error", operation=stage, message=message, **kwargs)
+def log_stage_error(stage_name: str, error_msg: str, *args: Any, **kwargs: Any) -> LogEntry:
+    """Log an error during a pipeline stage."""
+    logger = None
+    name = stage_name
+    detail = {"error": error_msg}
+
+    if args and not isinstance(args[0], str):
+        logger = args[0]
+        args = args[1:]
+
+    if args:
+        name = args[0]
+        if len(args) > 1 and isinstance(args[1], dict):
+            detail.update(args[1])
+
+    detail.update(kwargs)
+
+    entry = get_logger().log(
+        f"Error {name}",
+        stage=name,
+        **detail
+    )
+    return entry
 
 
-def log_event(operation: str, **kwargs: Any) -> None:
-    """Log a generic event."""
-    get_logger().log(operation, **kwargs)
-
-
-def log_event_dict(event_dict: Dict[str, Any]) -> None:
-    """Log an event from a dictionary."""
-    op = event_dict.get("operation", "unknown_event")
-    get_logger().log(op, **event_dict)
-
-
-def setup_logging(log_file: str = None) -> None:
-    """Initialize logging to a file if provided."""
+def setup_logging(log_file: str | None = None) -> None:
+    """Initialize the global logger with an optional specific output path."""
+    global _GLOBAL_LOGGER
     if log_file:
-        # In a real system, we would configure file handlers
-        # Here we just ensure the directory exists
-        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+        _GLOBAL_LOGGER = ReproducibilityLogger()
+        _GLOBAL_LOGGER.output_path = log_file
+    else:
+        _GLOBAL_LOGGER = ReproducibilityLogger()

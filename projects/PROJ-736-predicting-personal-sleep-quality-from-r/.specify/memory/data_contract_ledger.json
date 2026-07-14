@@ -4,5 +4,11 @@
     "required": [
       "raw_dir"
     ]
+  },
+  {
+    "data_file": "raw.githubusercontent.com/HumanConnectome/Data/master/1200/data/behavioral/HCP1200_BehavioralData.csv",
+    "required": [
+      "raw"
+    ]
   }
 ]

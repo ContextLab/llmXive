@@ -1,238 +1,300 @@
 """
-Evaluation module for User Story 2.
-Implements bootstrap resampling of outer-fold predictions to estimate R² confidence intervals.
+Evaluation module for User Story 2: Predictive Modeling & Statistical Validation.
+Implements resource monitoring (RAM, CPU), time limits, and graceful shutdown
+to ensure compliance with FR-009 and integration with T022/T024 signal handlers.
 """
 from __future__ import annotations
 
 import json
+import logging
 import os
 import signal
 import sys
 import time
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Callable
 
 import numpy as np
-import pandas as pd
+import psutil
 
-# Local imports based on API surface
-from config import get_paths, ensure_dirs, get_hyperparameter
-from utils.logging import get_logger, log_stage_start, log_stage_complete, log_stage_error, LogEntry
-from utils.metrics import r_squared
+# Import from project modules
+from config import get_paths, get_hyperparameter
+from utils.logging import get_logger, log_operation, log_stage_start, log_stage_complete, log_stage_error
+from utils.metrics import pearson_r, r_squared
 
-# Global state for graceful shutdown
-_SHUTDOWN_EVENT = threading.Event()
-_RESULTS_BUFFER: Optional[List[Dict[str, Any]]] = None
-_OUTPUT_PATH: Optional[str] = None
+# Global state for signal handling
+_shutdown_requested = False
+_partial_results_path: Optional[str] = None
+_current_pipeline: Optional[Any] = None
 
-def _signal_handler(signum, frame):
-    """Handle SIGINT/SIGTERM to flush partial results."""
-    if _RESULTS_BUFFER is not None and _OUTPUT_PATH is not None:
+# Resource constraints (FR-009)
+RAM_LIMIT_GB = 6.0
+TIME_LIMIT_SECONDS = 3 * 3600  # 3 hours default for sensitivity analysis, overridden by caller if needed
+CPU_CORES_LIMIT = 1  # Enforce CPU-only by limiting threads if necessary
+
+logger = get_logger("evaluate")
+
+def _signal_handler(signum: int, frame: Any) -> None:
+    """Handle interrupt signals (SIGINT, SIGTERM) by flushing partial results."""
+    global _shutdown_requested
+    _shutdown_requested = True
+    log_operation("Signal received", signal=signum, message="Initiating graceful shutdown")
+    if _partial_results_path and _current_pipeline:
         try:
-            with open(_OUTPUT_PATH, 'w') as f:
-                json.dump({"bootstrap_samples": _RESULTS_BUFFER, "status": "interrupted"}, f, indent=2)
-            print(f"Interrupted. Partial results saved to {_OUTPUT_PATH}")
+            _flush_partial_results()
         except Exception as e:
-            print(f"Failed to save partial results: {e}")
+            log_stage_error("Failed to flush partial results", error=str(e))
+    # Re-raise to allow default handler behavior if needed, or exit
     sys.exit(1)
 
-import threading
-
-def load_predictions(predictions_path: str = "data/processed/predictions.npy") -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def setup_resource_limits(time_limit: Optional[int] = None, results_path: Optional[str] = None) -> None:
     """
-    Load outer-fold predictions, true values, and subject IDs.
-    Returns: (predictions, y_true, subject_ids)
-    """
-    logger = get_logger()
-    log_stage_start(logger, "Loading Data")
-    
-    if not os.path.exists(predictions_path):
-        raise FileNotFoundError(f"Predictions file not found at {predictions_path}. "
-                                "Run code/modeling/train.py first to generate this file.")
-    
-    data = np.load(predictions_path, allow_pickle=True).item()
-    predictions = data['predictions']
-    y_true = data['y_true']
-    subject_ids = data.get('subject_ids', np.arange(len(y_true)))
-    
-    log_stage_complete(logger, "Data loaded")
-    return predictions, y_true, subject_ids
-
-def calculate_r2(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """Calculate R² score."""
-    return r_squared(y_true, y_pred)
-
-def bootstrap_resample_r2(
-    y_true: np.ndarray,
-    y_pred: np.ndarray,
-    n_iterations: int = 1000,
-    random_state: int = 42
-) -> List[float]:
-    """
-    Perform bootstrap resampling to generate a distribution of R² scores.
+    Configure resource monitoring and signal handlers.
     
     Args:
-        y_true: True values.
-        y_pred: Predicted values.
-        n_iterations: Number of bootstrap resamples.
-        random_state: Random seed for reproducibility.
-        
-    Returns:
-        List of R² scores from each bootstrap iteration.
+        time_limit: Maximum wall-clock time in seconds. Defaults to 3 hours.
+        results_path: Path to save partial results if aborted.
     """
-    logger = get_logger()
-    log_stage_start(logger, "Bootstrap Resampling (1000 iterations)")
-    
-    rng = np.random.default_rng(random_state)
-    n_samples = len(y_true)
-    bootstrap_scores = []
-    
-    start_time = time.time()
-    for i in range(n_iterations):
-        if _SHUTDOWN_EVENT.is_set():
-            break
-            
-        # Resample indices with replacement
-        indices = rng.choice(n_samples, size=n_samples, replace=True)
-        y_true_boot = y_true[indices]
-        y_pred_boot = y_pred[indices]
-        
-        # Calculate R² for this resample
-        r2 = calculate_r2(y_true_boot, y_pred_boot)
-        bootstrap_scores.append(r2)
-        
-        # Progress logging every 100 iterations
-        if (i + 1) % 100 == 0:
-            elapsed = time.time() - start_time
-            logger.log_operation("bootstrap_progress", iteration=i+1, elapsed_seconds=elapsed)
-    
-    log_stage_complete(logger, f"Bootstrap complete. Generated {len(bootstrap_scores)} samples.")
-    return bootstrap_scores
+    global _partial_results_path, TIME_LIMIT_SECONDS
+    _partial_results_path = results_path
+    if time_limit:
+        TIME_LIMIT_SECONDS = time_limit
 
-def save_bootstrap_results(
-    bootstrap_scores: List[float],
-    output_path: str = "data/results/bootstrap_ci.json",
-    confidence_level: float = 0.95
-) -> Dict[str, Any]:
-    """
-    Save bootstrap results and calculate confidence intervals.
-    
-    Args:
-        bootstrap_scores: List of R² scores from bootstrap iterations.
-        output_path: Path to save results.
-        confidence_level: Confidence level for CI (default 0.95).
-        
-    Returns:
-        Dictionary containing CI results and statistics.
-    """
-    logger = get_logger()
-    log_stage_start(logger, "Saving Bootstrap Results")
-    
-    if not bootstrap_scores:
-        raise ValueError("No bootstrap scores to save.")
-    
-    scores_array = np.array(bootstrap_scores)
-    mean_r2 = float(np.mean(scores_array))
-    std_r2 = float(np.std(scores_array))
-    
-    # Calculate percentile-based confidence interval
-    lower_percentile = (1 - confidence_level) / 2
-    upper_percentile = 1 - lower_percentile
-    ci_lower = float(np.percentile(scores_array, lower_percentile * 100))
-    ci_upper = float(np.percentile(scores_array, upper_percentile * 100))
-    
-    result = {
-        "bootstrap_samples": len(bootstrap_scores),
-        "mean_r2": mean_r2,
-        "std_r2": std_r2,
-        "confidence_level": confidence_level,
-        "ci_lower": ci_lower,
-        "ci_upper": ci_upper,
-        "ci_width": ci_upper - ci_lower,
-        "distribution": {
-            "min": float(np.min(scores_array)),
-            "max": float(np.max(scores_array)),
-            "median": float(np.median(scores_array)),
-            "percentiles": {
-                "5": float(np.percentile(scores_array, 5)),
-                "25": float(np.percentile(scores_array, 25)),
-                "75": float(np.percentile(scores_array, 75)),
-                "95": float(np.percentile(scores_array, 95))
-            }
-        }
-    }
-    
-    # Ensure output directory exists
-    ensure_dirs()
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_file, 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    log_stage_complete(logger, f"Results saved to {output_path}")
-    return result
+    # Register signal handlers
+    signal.signal(signal.SIGINT, _signal_handler)
+    signal.signal(signal.SIGTERM, _signal_handler)
 
-def main() -> bool:
+    # Enforce CPU-only by limiting numpy threads if psutil suggests high core usage
+    # Note: OMP_NUM_THREADS can also be set via env vars, but this is a runtime check
+    cpu_count = psutil.cpu_count(logical=True)
+    if cpu_count > 1:
+        os.environ["OMP_NUM_THREADS"] = "1"
+        os.environ["OPENBLAS_NUM_THREADS"] = "1"
+        os.environ["MKL_NUM_THREADS"] = "1"
+        log_stage_start("Resource Limit", {"cpu_cores": 1, "ram_limit_gb": RAM_LIMIT_GB})
+    else:
+        log_stage_start("Resource Limit", {"cpu_cores": 1, "ram_limit_gb": RAM_LIMIT_GB})
+
+def check_resources() -> bool:
     """
-    Main entry point for T023: Bootstrap resampling of outer-fold predictions.
+    Check current RAM usage. Returns True if within limits, False otherwise.
+    Aborts if RAM usage exceeds RAM_LIMIT_GB.
+    """
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+    mem_gb = mem_info.rss / (1024 ** 3)
     
-    1. Load predictions from data/processed/predictions.npy
-    2. Perform 1000 bootstrap resamples
-    3. Calculate 95% CI on R²
-    4. Save results to data/results/bootstrap_ci.json
-    """
-    logger = get_logger()
-    log_stage_start(logger, "Evaluation")
+    if mem_gb > RAM_LIMIT_GB:
+        log_stage_error("Resource limit exceeded", 
+                        {"ram_used_gb": mem_gb, "limit_gb": RAM_LIMIT_GB})
+        return False
+    return True
+
+def _flush_partial_results() -> None:
+    """Flush current pipeline state or metrics to disk if aborted."""
+    if not _partial_results_path:
+        return
     
     # Setup signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, _signal_handler)
     signal.signal(signal.SIGTERM, _signal_handler)
     
     try:
-        # Load predictions
-        predictions_path = "data/processed/predictions.npy"
-        predictions, y_true, subject_ids = load_predictions(predictions_path)
+        # Attempt to save whatever state we have
+        if _current_pipeline:
+            # Save basic status
+            status = {
+                "status": "interrupted",
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "ram_limit_gb": RAM_LIMIT_GB,
+                "time_limit_seconds": TIME_LIMIT_SECONDS
+            }
+            with open(_partial_results_path, 'w') as f:
+                json.dump(status, f, indent=2)
+            log_operation("Partial results flushed", path=_partial_results_path)
+    except Exception as e:
+        log_stage_error("Error flushing partial results", error=str(e))
+
+def load_predictions(path: str) -> np.ndarray:
+    """Load predictions from a .npy file."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Predictions file not found: {path}")
+    return np.load(path)
+
+def load_true_labels(path: str) -> np.ndarray:
+    """Load true labels from a .npy file."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"True labels file not found: {path}")
+    return np.load(path)
+
+def calculate_r2(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """Calculate R² score."""
+    return r_squared(y_true, y_pred)
+
+def calculate_pearson_r(y_true: np.ndarray, y_pred: np.ndarray) -> Tuple[float, float]:
+    """Calculate Pearson correlation and p-value."""
+    return pearson_r(y_true, y_pred)
+
+def bootstrap_resample_r2(y_true: np.ndarray, y_pred: np.ndarray, n_samples: int = 1000) -> List[float]:
+    """Perform bootstrap resampling to estimate confidence intervals for R²."""
+    n = len(y_true)
+    bootstrap_scores = []
+    
+    for i in range(n_samples):
+        if _shutdown_requested:
+            break
+        # Check resources periodically
+        if i % 100 == 0 and not check_resources():
+            break
         
-        # Validate data
-        if len(predictions) != len(y_true):
-            raise ValueError("Predictions and true values length mismatch.")
-        if len(predictions) == 0:
-            raise ValueError("No predictions found in input file.")
+        indices = np.random.choice(n, size=n, replace=True)
+        y_true_boot = y_true[indices]
+        y_pred_boot = y_pred[indices]
+        score = calculate_r2(y_true_boot, y_pred_boot)
+        bootstrap_scores.append(score)
+    
+    return bootstrap_scores
+
+def save_bootstrap_results(scores: List[float], path: str) -> None:
+    """Save bootstrap results to a JSON file."""
+    if not scores:
+        log_stage_error("No bootstrap scores to save")
+        return
+    
+    ci_95 = np.percentile(scores, [2.5, 97.5])
+    result = {
+        "scores": scores,
+        "ci_95_lower": float(ci_95[0]),
+        "ci_95_upper": float(ci_95[1]),
+        "mean": float(np.mean(scores)),
+        "std": float(np.std(scores))
+    }
+    
+    with open(path, 'w') as f:
+        json.dump(result, f, indent=2)
+    log_stage_complete("Bootstrap results saved", path=path)
+
+def handle_variance_threshold_edge_case(variance_threshold: float, n_features: int) -> bool:
+    """
+    Check if variance thresholding resulted in zero features.
+    Returns True if we should skip this grid point.
+    """
+    if n_features == 0:
+        log_stage_error("Variance thresholding removed all features", 
+                        {"threshold": variance_threshold, "features_remaining": 0})
+        return True
+    return False
+
+def run_evaluation_pipeline(
+    predictions_path: str,
+    true_labels_path: str,
+    output_path: str,
+    time_limit: Optional[int] = None,
+    results_path: Optional[str] = None,
+    bootstrap_samples: int = 1000
+) -> Dict[str, Any]:
+    """
+    Main evaluation pipeline with resource monitoring.
+    
+    Args:
+        predictions_path: Path to predictions.npy
+        true_labels_path: Path to true_labels.npy
+        output_path: Path to save final results
+        time_limit: Max time in seconds (overrides default)
+        results_path: Path for partial results on abort
+        bootstrap_samples: Number of bootstrap iterations
         
-        logger.log_operation("data_validation", n_samples=len(predictions))
+    Returns:
+        Dictionary with evaluation metrics
+    """
+    global _current_pipeline
+    _current_pipeline = None # Placeholder for potential pipeline state
+
+    # Setup resource limits
+    setup_resource_limits(time_limit=time_limit, results_path=results_path)
+    
+    log_stage_start("Evaluation Pipeline", {
+        "predictions": predictions_path,
+        "true_labels": true_labels_path,
+        "bootstrap_samples": bootstrap_samples
+    })
+
+    start_time = time.time()
+    
+    try:
+        # Load data
+        if _shutdown_requested:
+            raise InterruptedError("Shutdown requested before loading data")
+            
+        y_pred = load_predictions(predictions_path)
+        y_true = load_true_labels(true_labels_path)
         
-        # Perform bootstrap resampling
-        bootstrap_scores = bootstrap_resample_r2(
-            y_true=y_true,
-            y_pred=predictions,
-            n_iterations=1000,
-            random_state=get_hyperparameter("random_seed", 42)
-        )
+        # Check resources after load
+        if not check_resources():
+            raise MemoryError("RAM limit exceeded after loading data")
+        
+        # Calculate metrics
+        r2_score = calculate_r2(y_true, y_pred)
+        pearson_r_val, p_val = calculate_pearson_r(y_true, y_pred)
+        
+        # Bootstrap
+        log_stage_start("Bootstrap Resampling", {"samples": bootstrap_samples})
+        bootstrap_scores = bootstrap_resample_r2(y_true, y_pred, bootstrap_samples)
         
         if not bootstrap_scores:
-            raise RuntimeError("Bootstrap resampling was interrupted or produced no results.")
+            raise InterruptedError("Bootstrap interrupted")
+            
+        # Save bootstrap results
+        bootstrap_path = output_path.replace('.json', '_bootstrap.json')
+        save_bootstrap_results(bootstrap_scores, bootstrap_path)
         
-        # Save results
-        output_path = "data/results/bootstrap_ci.json"
-        results = save_bootstrap_results(bootstrap_scores, output_path)
+        # Finalize results
+        elapsed = time.time() - start_time
+        result = {
+            "r2_score": float(r2_score),
+            "pearson_r": float(pearson_r_val),
+            "p_value": float(p_val),
+            "bootstrap_ci_95": [float(np.percentile(bootstrap_scores, 2.5)), 
+                                float(np.percentile(bootstrap_scores, 97.5))],
+            "bootstrap_mean": float(np.mean(bootstrap_scores)),
+            "elapsed_seconds": float(elapsed),
+            "status": "completed"
+        }
         
-        # Log final metrics
-        logger.log_operation(
-            "bootstrap_complete",
-            mean_r2=results["mean_r2"],
-            ci_95=[results["ci_lower"], results["ci_upper"]]
-        )
-        
-        print(f"Bootstrap analysis complete. Results saved to {output_path}")
-        print(f"Mean R²: {results['mean_r2']:.4f}")
-        print(f"95% CI: [{results['ci_lower']:.4f}, {results['ci_upper']:.4f}]")
-        
-        return True
-        
+        with open(output_path, 'w') as f:
+            json.dump(result, f, indent=2)
+            
+        log_stage_complete("Evaluation Pipeline", {"path": output_path, "elapsed": elapsed})
+        return result
+
+    except (InterruptedError, MemoryError) as e:
+        log_stage_error("Pipeline failed due to resource limits", error=str(e))
+        _flush_partial_results()
+        raise
     except Exception as e:
-        log_stage_error(logger, str(e))
-        print(f"Error during evaluation: {e}")
+        log_stage_error("Pipeline failed", error=str(e))
+        raise
+
+def main() -> bool:
+    """Entry point for running evaluation."""
+    try:
+        paths = get_paths()
+        preds_path = paths.get("processed", {}).get("predictions", "data/processed/predictions.npy")
+        labels_path = paths.get("processed", {}).get("true_labels", "data/processed/true_labels.npy")
+        output_path = paths.get("results", {}).get("evaluation", "data/results/evaluation_metrics.json")
+        
+        # Ensure directories exist
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        run_evaluation_pipeline(
+            predictions_path=preds_path,
+            true_labels_path=labels_path,
+            output_path=output_path,
+            time_limit=get_hyperparameter("evaluation_time_limit", 3 * 3600),
+            results_path=output_path.replace('.json', '_partial.json')
+        )
+        return True
+    except Exception as e:
+        log_stage_error("Main evaluation failed", error=str(e))
         return False
 
 if __name__ == "__main__":

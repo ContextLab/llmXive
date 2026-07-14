@@ -1,99 +1,74 @@
-"""
-Configuration management for the sleep quality prediction pipeline.
-Handles paths, seeds, and hyperparameters.
-"""
+"""Configuration module for the sleep quality prediction pipeline."""
 import os
 import random
 from pathlib import Path
 from typing import Dict, Any, Union
 
-# Project root is the parent of the code directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Set random seeds for reproducibility
+RANDOM_SEED = 42
+np_seed = 42  # Will be set when numpy is imported
 
-# Fixed seed for reproducibility
-SEED = 42
-random.seed(SEED)
-os.environ['PYTHONHASHSEED'] = str(SEED)
-
-def get_paths() -> Dict[str, Path]:
-    """
-    Returns a dictionary of all critical paths in the project.
+def get_paths() -> Dict[str, str]:
+    """Get all project paths.
     
-    Keys:
-      - root: Project root
-      - data: Root data directory
-      - raw: Raw data directory
-      - processed: Processed data directory
-      - results: Results directory
-      - behavioral_csv: Path to the HCP behavioral CSV
-      - processed_features: Path to the preprocessed feature matrix
-      - processed_labels: Path to the labels array
-      - subject_ids: Path to subject IDs array
-      - predictions: Path to save predictions
-      - report: Path to the final JSON report
+    Returns:
+        Dictionary of path names to absolute paths
     """
-    data_root = PROJECT_ROOT / "data"
-    processed_root = data_root / "processed"
-    results_root = data_root / "results"
-    raw_root = data_root / "raw"
-    behavioral_root = raw_root / "behavioral"
+    base_dir = Path(__file__).parent.parent
     
-    return {
-        "root": PROJECT_ROOT,
-        "data": data_root,
-        "raw": raw_root,
-        "processed": processed_root,
-        "results": results_root,
-        "behavioral_csv": behavioral_root / "hcp1200_behavioral_data.csv",
-        "processed_features": processed_root / "features.npy",
-        "processed_labels": processed_root / "labels.npy",
-        "subject_ids": processed_root / "subject_ids.npy",
-        "predictions": processed_root / "predictions.npy",
-        "report": results_root / "ResultReport.json",
-        "plots": results_root / "plots",
-        "logs": data_root / "logs"
+    paths = {
+        "base": str(base_dir),
+        "code": str(base_dir / "code"),
+        "data": str(base_dir / "data"),
+        "data_raw": str(base_dir / "data" / "raw"),
+        "data_processed": str(base_dir / "data" / "processed"),
+        "data_results": str(base_dir / "data" / "results"),
+        "data_features": str(base_dir / "data" / "processed" / "features"),
+        "data_logs": str(base_dir / "data" / "logs"),
+        "figures": str(base_dir / "data" / "results"),
+        "raw": str(base_dir / "data" / "raw"),
+        "processed": str(base_dir / "data" / "processed"),
+        "logs": str(base_dir / "data" / "logs"),
+        "behavioral": str(base_dir / "data" / "raw" / "behavioral" / "hcp1200_behavioral_data.csv"),
+        "filtered_subjects": str(base_dir / "data" / "processed" / "filtered_subjects.json"),
     }
+    
+    return paths
 
-
-def ensure_dirs():
-    """Creates all necessary directories if they do not exist."""
+def ensure_dirs() -> None:
+    """Ensure all required directories exist."""
     paths = get_paths()
-    for p in paths.values():
-        if isinstance(p, Path):
-            p.mkdir(parents=True, exist_ok=True)
+    for path_key in ["data_raw", "data_processed", "data_results", "data_logs", "data_features", "figures"]:
+        os.makedirs(paths[path_key], exist_ok=True)
 
-
-def get_hyperparameter(key: str, default: Any = None) -> Any:
-    """
-    Retrieves a hyperparameter value.
+def get_hyperparameter(name: str, default: Any = None) -> Any:
+    """Get a hyperparameter value.
     
-    In a real implementation, this would read from a YAML/JSON config file.
-    For this task, we return sensible defaults or values from environment variables.
+    Args:
+        name: Parameter name
+        default: Default value if not found
+        
+    Returns:
+        Parameter value or default
     """
-    # Default hyperparameters for the pipeline
-    defaults = {
-        "variance_threshold": 0.01,  # Low default to keep many features
-        "pca_retention": 0.95,       # Retain 95% variance
-        "cv_folds": 5,               # 5-fold CV
-        "elasticnet_l1_ratio": 0.5,  # Balanced L1/L2
-        "max_iter": 1000,            # Max iterations for solver
-        "n_permutations": 1000,      # For permutation testing
-        "bootstrap_resamples": 1000, # For bootstrap CI
-        "subset_size": 100           # For permutation subset (T022)
+    # Default hyperparameters
+    hyperparameters = {
+        "variance_threshold": 0.01,  # Low default as specified
+        "pca_retention": 0.95,  # Default PCA retention
+        "subset_size": 100,  # Default subset size for permutation test
+        "n_folds": 5,  # Default CV folds
+        "max_iter": 1000,  # Default max iterations for ElasticNet
+        "alpha_range": [0.001, 0.01, 0.1, 1.0],  # Default alpha range
+        "l1_ratio": 0.5,  # Default L1 ratio for ElasticNet
     }
     
-    if key in defaults:
-        return defaults[key]
-    
-    # Check environment variable override
-    env_val = os.environ.get(f"SLP_{key.upper()}", None)
-    if env_val is not None:
-        # Try to convert to int/float if possible
-        try:
-            if '.' in env_val:
-                return float(env_val)
-            return int(env_val)
-        except ValueError:
-            return env_val
-    
-    return default
+    return hyperparameters.get(name, default)
+
+def set_seeds() -> None:
+    """Set random seeds for reproducibility."""
+    random.seed(RANDOM_SEED)
+    try:
+        import numpy as np
+        np.random.seed(np_seed)
+    except ImportError:
+        pass

@@ -688,202 +688,117 @@
   status: not_enough_info
   updated_at: '2026-07-13T22:23:23Z'
 - artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
-  attempts: 2
-  canonical: Permutation test runs on stratified subset of 100 subjects
-  claim_id: c_619a9286
-  context: 'Critical: Permutation test runs on a stratified subset of 100 subjects
-    (Plan Override of FR-006) to meet -hour compute constraint. The resulting p-value
-    is an approximation.'
+  attempts: 1
+  canonical: perform 1,000 label permutations on a stratified subset of 100 subjects
+  claim_id: c_719144c7
+  context: T022 [US2] Implement `code/modeling/evaluate.py` to perform 1,000 label
+    permutations on a **stratified subset of 100 subjects** (based on Sleep Score).
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The permutation test runs on a stratified subset of 100 subjects.
+  raw_text: Implement `code/modeling/evaluate.py` to perform 1,000 label permutations
+    on a stratified subset of 100 subjects (based on Sleep Score).
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-13T23:54:21Z'
+  updated_at: '2026-07-14T00:05:27Z'
 - artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
   attempts: 1
-  canonical: Graceful shutdown triggered at 5-hour limit
-  claim_id: c_15e1c1ca
-  context: 'Critical: Graceful shutdown logic is integrated into T022 and T024 to
-    ensure partial results are saved if the 5-hour limit is hit.'
+  canonical: permutation-test p-value approximation derived from 100-subject subset
+  claim_id: c_5eddbd70
+  context: T026c [US2] Explicitly document in `ResultReport.json` that the permutation-test
+    p-value is an **approximation** derived from a 100-subject subset (Plan Override
+    of FR-006) and not the full dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation-test_p-value_approximation_derived_from_100-subj
+  kind: entity_fact
+  raw_text: The permutation-test p-value is an approximation derived from a 100-subject
+    subset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T00:08:40Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: perform 1,000 bootstrap resamples of outer-fold predictions
+  claim_id: c_94aed4f2
+  context: "T023 [US2] Implement `code/modeling/evaluate.py` to perform 1,000 bootstrap\
+    \ resamples of **outer-fold predictions** (loaded from `data/processed/predictions.npy`)\
+    \ for % CI on R\xB2 (FR-007)."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Graceful shutdown logic is integrated to ensure partial results are saved
-    if the 5-hour limit is hit.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T23:55:28Z'
-- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
-  attempts: 1
-  canonical: RAM usage constraint 6 GB
-  claim_id: c_8e6db2c5
-  context: "Implement `code/modeling/evaluate.py` to enforce CPU-only execution, monitor\
-    \ RAM usage (\u22646 GB) using `psutil`, and abort if wall-clock time exceeds\
-    \ a predefined threshold."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/RAM_usage_constraint_6_GB
-  kind: magnitude
-  raw_text: The system monitors RAM usage with a constraint of less than or equal
-    to 6 GB.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T23:57:12Z'
-- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
-  attempts: 1
-  canonical: Plot warning if fewer than 50 non-zero coefficients
-  claim_id: c_741fafd1
-  context: Generate brain-surface plot using Nilearn `plot_connectome` highlighting
-    top N (configurable) predictive connections. Must handle case where <50 non-zero
-    coefficients exist by plotting all available and logging a warning.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Plot_warning_if_fewer_than_50_non-zero_coefficients
-  kind: magnitude
-  raw_text: The system logs a warning if fewer than 50 non-zero coefficients exist
-    for plotting.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T23:58:42Z'
-- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
-  attempts: 1
-  canonical: Plot validation requires 50 edges
-  claim_id: c_d2656382
-  context: "Verify plot file exists and contains \u226550 edges: Use Python's built-in\
-    \ `xml.etree.ElementTree` to parse SVG and count both `<line>` and `<path>` elements."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Plot_validation_requires_50_edges
-  kind: magnitude
-  raw_text: The validation script counts line and path elements to verify the plot
-    contains at least 50 edges.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T23:59:34Z'
-- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
-  attempts: 1
-  canonical: Exclude subjects with framewise displacement > 0.3mm
-  claim_id: c_e91fba48
-  context: Implement subject filtering logic in `code/data/download_hcp.py` ... to
-    identify subjects with valid Sleep Scores and exclude those with >0.3mm framewise
-    displacement.
-  evidence:
-    asserted: '0.3'
-    authority: math.pi (IEEE-754 double, Python stdlib)
-    constant: pi
-    corrected: true
-    mode: approximate
-    true_value: 3.141592653589793
-    url: https://en.wikipedia.org/wiki/Pi
-  kind: magnitude
-  raw_text: The pipeline excludes subjects with framewise displacement greater than
-    0.3mm.
-  resolved_value: '3.1'
-  resolver: approximate
-  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
-  source_type: external
-  status: verified
-  updated_at: '2026-07-13T23:59:34Z'
-- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
-  attempts: 1
-  canonical: Abort if success rate < 80%
-  claim_id: c_eb4c3a0c
-  context: Implement error handling to log excluded subjects and abort if success
-    rate <80% (SC-001).
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Abort_if_success_rate_%3C_80%25
-  kind: magnitude
-  raw_text: The pipeline aborts if the subject success rate is less than 80%.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T00:01:10Z'
-- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
-  attempts: 1
-  canonical: Permutation test performs 1000 iterations
-  claim_id: c_811057e8
-  context: Implement `code/modeling/evaluate.py` to perform 1,000 label permutations
-    on a stratified subset of 100 subjects.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The evaluation performs 1,000 label permutations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T00:03:18Z'
-- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
-  attempts: 1
-  canonical: Bootstrap resampling performs 1000 iterations
-  claim_id: c_e8874854
-  context: "Implement `code/modeling/evaluate.py` to perform 1,000 bootstrap resamples\
+  raw_text: "Implement `code/modeling/evaluate.py` to perform 1,000 bootstrap resamples\
     \ of outer-fold predictions for % CI on R\xB2."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The evaluation performs 1,000 bootstrap resamples.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T00:03:38Z'
+  updated_at: '2026-07-14T00:09:38Z'
 - artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
   attempts: 1
-  canonical: Sensitivity analysis tests PCA retention 0.95, 0.90, 0.85
-  claim_id: c_db20f376
-  context: Implement sensitivity analysis in `code/modeling/evaluate.py` to iterate
-    variance thresholds including low values and PCA retention {0.95, 0.90, 0.85}.
+  canonical: monitor RAM usage less than or equal to 6 GB
+  claim_id: c_f4bb181a
+  context: "T025 [US2] Implement `code/modeling/evaluate.py` to enforce CPU-only execution,\
+    \ monitor RAM usage (\u22646 GB) using `psutil`, and abort if wall-clock time\
+    \ exceeds a predefined threshold using `signal` module (FR-009)."
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The sensitivity analysis iterates PCA retention values of 0.95, 0.90,
-    and 0.85.
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Monitor_RAM_usage_less_than_or_equal_to_6_GB
+  kind: magnitude
+  raw_text: Monitor RAM usage with a threshold of 6 GB using psutil.
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T00:03:55Z'
+  updated_at: '2026-07-14T00:10:28Z'
 - artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
   attempts: 1
-  canonical: Band-pass filtering 0.01-0.1 Hz
-  claim_id: c_0d9cf14b
-  context: Implement `code/data/preprocess.py` for Schaefer parcellation, nuisance
-    regression, and 0.01-0.1 Hz band-pass filtering.
+  canonical: handle case where fewer than 50 non-zero coefficients exist
+  claim_id: c_10095dbd
+  context: T031 [US3] Generate brain-surface plot using Nilearn `plot_connectome`
+    highlighting top N (configurable) predictive connections. **Must handle case where
+    <50 non-zero coefficients exist by plotting all available and logging a warning**
+    (SC-004).
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The preprocessing applies 0.01-0.1 Hz band-pass filtering.
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Handle_case_where_fewer_than_50_non-zero_coefficients_exist
+  kind: magnitude
+  raw_text: Plot top N predictive connections, handling the case where fewer than
+    50 non-zero coefficients exist.
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-14T00:04:11Z'
+  updated_at: '2026-07-14T00:12:06Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: verify plot file contains at least 50 edges
+  claim_id: c_50738c13
+  context: "T033 [P] [US3] Verify plot file exists and contains \u226550 edges: Use\
+    \ Python's built-in `xml.etree.ElementTree` to parse SVG and count both `<line>`\
+    \ and `<path>` elements (to handle different rendering backends)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_plot_file_contains_at_least_50_edges
+  kind: magnitude
+  raw_text: Verify plot file contains at least 50 edges by counting line and path
+    elements in SVG.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T00:13:09Z'

@@ -5,3 +5,5 @@
 {"timestamp": "2026-07-13T17:46:33.848465", "level": "INFO", "message": "[Subject Filtering] COMPLETE: Identified 24 valid subjects", "module": "logging", "function": "log_stage_complete", "line": 57}
 {"timestamp": "2026-07-13T17:46:33.848625", "level": "INFO", "message": "[Subject Filtering] Filtered subject list saved - {\"path\": \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/data/raw/behavioral/filtered_subjects.txt\"}", "module": "logging", "function": "log_event", "line": 49}
 {"timestamp": "2026-07-13T17:46:33.848681", "level": "INFO", "message": "[Pipeline] COMPLETE: Subject filtering completed successfully", "module": "logging", "function": "log_stage_complete", "line": 57}
+{"operation": "Start full_pipeline", "parameters": {"stage": "full_pipeline"}, "timestamp": "2026-07-14T00:21:18.612880"}
+{"operation": "Start Download HCP Data", "parameters": {"stage": "Download HCP Data"}, "timestamp": "2026-07-14T00:21:18.613030"}

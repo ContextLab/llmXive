@@ -9,27 +9,40 @@ The gate detected that your reported numbers are NOT real measurements: they are
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
 - code/config.py: self-declared fabricated metric — “…rn env_val          # Default hardcoded values for the pipeline     default…”
-- code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…regions = 400          # Generate synthetic but realistic-looking da…”
-- code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…ounds is None:         # Generate synthetic confounds         confou…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/config.py: self-declared fabricated metric — “…rn env_val          # Default hardcoded values for the pipeline     default…”; code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…regions = 400          # Generate synthetic but realistic-looking da…”; code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…ounds is None:         # Generate synthetic confounds         confou…”; 2 command(s) failed: python code/data/download_hcp.py (rc=1); python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/predictions.npy; data/raw/behavioral/hcp1200_behavioral_data.csv
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/config.py: self-declared fabricated metric — “…rn env_val          # Default hardcoded values for the pipeline     default…”; 2 command(s) failed: python code/data/download_hcp.py (rc=1); python code/main.py (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/data/download_hcp.py -> rc=1
-    
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py", line 223, in <module>
+    success = main()
+              ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py", line 212, in main
+    success = download_hcp_data()
+              ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py", line 175, in download_hcp_data
+    raw_dir = paths["raw"]
+              ~~~~~^^^^^^^
+KeyError: 'raw'
 - python code/main.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py", line 12, in <module>
-    from data.download_hcp import download_hcp_data
-ImportError: cannot import name 'download_hcp_data' from 'data.download_hcp' (/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py)
-
-## Declared deliverables still missing
-
-- data/processed/predictions.npy
-- data/raw/behavioral/hcp1200_behavioral_data.csv
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py", line 77, in <module>
+    success = main()
+              ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py", line 72, in main
+    success = run_pipeline()
+              ^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py", line 32, in run_pipeline
+    if not download_hcp_data():
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py", line 175, in download_hcp_data
+    raw_dir = paths["raw"]
+              ~~~~~^^^^^^^
+KeyError: 'raw'
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -41,31 +54,31 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 ### `log_stage_start` — defined in `code/utils/logging.py`; called 25 way(s):
 
-- code/main.py: log_stage_start("full_pipeline", message="[Pipeline] START: Beginning end-to-end execution")
-- code/main.py: log_stage_start("Data Download", message="[Data Download] START: Fetching HCP data")
-- code/main.py: log_stage_start("Preprocessing", message="[Preprocessing] START: Running nuisance regression and filtering")
-- code/main.py: log_stage_start("Feature Engineering", message="[Feature Engineering] START: Computing connectivity vectors")
-- code/main.py: log_stage_start("Model Training", message="[Model Training] START: Running ElasticNetCV")
-- code/utils/logging.py: log_stage_start(stage)
-- code/utils/logging.py: log_stage_start(stage, message=...)
-- code/utils/logging.py: log_stage_start(logger, stage)
-- code/utils/logging.py: log_stage_start(logger, stage, message=...)
-- code/data/download_hcp.py: log_stage_start("download_behavioral_csv", message=f"Downloading to {dest_path}")
-- code/data/download_hcp.py: log_stage_start("create_filtered_subjects", message=f"Reading {csv_path}")
-- code/data/preprocess.py: log_stage_start("Preprocessing", message="[Preprocessing] START: Beginning nuisance regression and filtering")
-- code/data/feature_engineering.py: log_stage_start("Feature Engineering", message="[Feature Engineering] START: Computing connectivity vectors")
+- code/main.py: log_stage_start("full_pipeline")
+- code/main.py: log_stage_start("Download HCP Data")
+- code/main.py: log_stage_start("Preprocessing")
+- code/main.py: log_stage_start("Feature Engineering")
+- code/utils/logging.py: - log_stage_start("stage_name")
+- code/utils/logging.py: - log_stage_start(logger, "stage_name")
+- code/utils/logging.py: - log_stage_start("stage_name", "operation_detail")
+- code/utils/logging.py: - log_stage_start(logger, "stage_name", "operation_detail")
+- code/utils/logging.py: # Called as log_stage_start("stage_name") or log_stage_start(logger, "stage_name")
+- code/data/download_hcp.py: log_stage_start("Download HCP Data")
+- code/data/download_hcp.py: log_stage_start("Fetching behavioral data", {"url": HCP_BEHAVIORAL_URL})
+- code/data/download_hcp.py: log_stage_start("Download CIFTI Files", {"count": len(subject_ids)})
+- code/data/download_hcp.py: log_stage_start("Subject Filtering")
+- code/data/preprocess.py: log_stage_start("Load CIFTI", {"path": file_path})
+- code/data/preprocess.py: log_stage_start("Schaefer Parcellation", {"atlas": atlas})
+- code/data/preprocess.py: log_stage_start("Nuisance Regression")
+- code/data/preprocess.py: log_stage_start("Band-Pass Filter", {"low": low_freq, "high": high_freq, "tr": tr})
+- code/data/preprocess.py: log_stage_start("Preprocess Subject", {"subject_id": subject_id})
+- code/data/preprocess.py: log_stage_start("Preprocessing", {"count": len(subject_ids)})
+- code/data/feature_engineering.py: log_stage_start("Compute Pairwise Correlation", {"shape": list(time_series.shape)})
+- code/data/feature_engineering.py: log_stage_start("Fisher-z Transform")
+- code/data/feature_engineering.py: log_stage_start("Extract Upper Triangular Vector")
+- code/data/feature_engineering.py: log_stage_start("Process Subject Features", {"subject_id": subject_id})
+- code/data/feature_engineering.py: log_stage_start("Feature Engineering", {"count": len(subject_ids)})
 - code/modeling/interpret.py: log_stage_start("Interpretation", "Extracting non-zero coefficients")
-- code/modeling/evaluate.py: log_stage_start(logger, "Loading Data")
-- code/modeling/evaluate.py: log_stage_start(logger, "Bootstrap Resampling (1000 iterations)")
-- code/modeling/evaluate.py: log_stage_start(logger, "Saving Bootstrap Results")
-- code/modeling/evaluate.py: log_stage_start(logger, "Evaluation")
-- code/modeling/train.py: log_stage_start("load_data", message="Reading feature matrix and labels")
-- code/modeling/train.py: log_stage_start(
-- code/modeling/report_generator.py: log_stage_start(logger, "Report Generation")
-- code/modeling/visualize.py: log_stage_start(logger, "Interpretation", "Extracting non-zero coefficients")
-- code/modeling/visualize.py: log_stage_start(logger, "Visualization", "Loading Schaefer coordinates")
-- code/modeling/visualize.py: log_stage_start(logger, "Visualization", "Generating brain surface plot")
-- code/modeling/validate_plot.py: log_stage_start("T033", f"Validating {plot_path}")
 
 Make `log_stage_start` in `code/utils/logging.py` accept ALL of the above.
 
@@ -149,22 +162,6 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 ```
 
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/processed/predictions.npy` is declared but was NOT written. Scripts referencing it:
-    - `code/utils/metrics.py` — NOT invoked by the run-book
-    - `code/modeling/__init__.py` — NOT invoked by the run-book
-    - `code/modeling/evaluate.py` — NOT invoked by the run-book
-    - `code/modeling/train.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/predictions.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/behavioral/hcp1200_behavioral_data.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/config.py` — NOT invoked by the run-book
-    - `code/data/download_hcp.py` — IS a run-book command
-    - `code/modeling/train.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/behavioral/hcp1200_behavioral_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 
 One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
@@ -175,6 +172,14 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 - ACTUAL columns/keys the producer wrote: `(file not on disk this run)`
 - REQUIRED by the consumer(s): `[raw_dir]`
-- PRODUCER(s) to edit: `code/data/download_hcp.py`, `code/modeling/train.py`
-- CONSUMER(s) that read it: `code/config.py`, `code/data/download_hcp.py`, `code/modeling/train.py`
+- PRODUCER(s) to edit: `code/data/download_hcp.py`, `code/modeling/evaluate.py`, `code/modeling/train.py`
+- CONSUMER(s) that read it: `code/config.py`, `code/data/download_hcp.py`, `code/modeling/evaluate.py`, `code/modeling/train.py`
   → Edit the producer so every required name [raw_dir] is in `hcp1200_behavioral_data.csv`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
+
+### `raw.githubusercontent.com/HumanConnectome/Data/master/1200/data/behavioral/HCP1200_BehavioralData.csv`
+
+- ACTUAL columns/keys the producer wrote: `(file not on disk this run)`
+- REQUIRED by the consumer(s): `[raw]`
+- PRODUCER(s) to edit: `code/data/download_hcp.py`
+- CONSUMER(s) that read it: `code/data/download_hcp.py`
+  → Edit the producer so every required name [raw] is in `raw.githubusercontent.com/HumanConnectome/Data/master/1200/data/behavioral/HCP1200_BehavioralData.csv`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).

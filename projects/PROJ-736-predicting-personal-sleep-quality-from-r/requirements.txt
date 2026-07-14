@@ -1,12 +1,12 @@
-nilearn
-scikit-learn
-pandas
-numpy
-nibabel
-networkx
-pytest
-psutil
-seaborn
-matplotlib
-requests
-scipy
+# Core dependencies
+numpy>=1.21.0
+pandas>=1.3.0
+scikit-learn>=1.0.0
+scipy>=1.7.0
+matplotlib>=3.4.0
+seaborn>=0.11.0
+networkx>=2.6.0
+nibabel>=3.2.0
+nilearn>=0.9.0
+psutil>=5.8.0
+pytest>=6.2.0
