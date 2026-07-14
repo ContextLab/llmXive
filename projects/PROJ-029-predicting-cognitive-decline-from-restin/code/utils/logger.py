@@ -1,4 +1,7 @@
-"""Reproducibility logging — fully tolerant; raises on nothing."""
+"""
+Reproducibility logging — fully tolerant; raises on nothing.
+Provides LogEntry, ReproducibilityLogger, get_logger, log_operation.
+"""
 from __future__ import annotations
 
 import functools

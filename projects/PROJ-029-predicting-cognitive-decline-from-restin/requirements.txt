@@ -7,9 +7,8 @@ bids
 requests
 tqdm
 pytest
-fsl
 nilearn
 psutil
 joblib
-datasets
-# added for the download script
+fslpy
+scipy
