@@ -3,9 +3,12 @@ from __future__ import annotations
 
 import functools
 import json
+import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any
+from typing import Any, Dict, List, Optional
+
+import yaml
 
 
 @dataclass
@@ -72,54 +75,73 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)
 
-def initialize_modeling_log(path: str = "modeling_log.yaml") -> None:
-    """Initialize the modeling log file if it doesn't exist."""
-    import yaml
-    if not os.path.exists(path):
-        with open(path, 'w') as f:
-            yaml.dump({"initialization": datetime.now().isoformat()}, f)
 
-def update_log_section(section_name: str, data: Dict[str, Any]) -> None:
-    """Update a specific section in the modeling log."""
-    import yaml
-    import os
-    
-    # Default path
-    log_path = "modeling_log.yaml"
-    
-    # Load existing log
-    log_data = {}
-    if os.path.exists(log_path):
-        with open(log_path, 'r') as f:
-            log_data = yaml.safe_load(f) or {}
-    
-    # Update section
-    log_data[section_name] = data
-    
-    # Write back
-    with open(log_path, 'w') as f:
-        yaml.dump(log_data, f, default_flow_style=False)
+def initialize_modeling_log(log_path: Optional[str] = None) -> None:
+    """Initialize the modeling_log.yaml file if it doesn't exist."""
+    if log_path is None:
+        from config import get_config
+        cfg = get_config()
+        log_path = cfg.get("modeling_log_path", "modeling_log.yaml")
 
-def append_log_entry(entry: LogEntry) -> None:
-    """Append a log entry to the modeling log."""
-    import yaml
-    import os
-    
-    log_path = "modeling_log.yaml"
-    
-    # Load existing log
-    log_data = []
-    if os.path.exists(log_path):
-        with open(log_path, 'r') as f:
-            content = yaml.safe_load(f)
-            if isinstance(content, list):
-                log_data = content
-            elif isinstance(content, dict):
-                # If it's a dict, convert to list of entries if possible, or just append
-                # For simplicity, we treat the existing dict as a single entry or ignore
-                log_data = [content] if content else []
-    
-    log_data.append(asdict(entry))
-    
-    with open(log_path, 'w') as f:
-        yaml.dump(log_data, f, default_flow_style=False)
+    if not os.path.exists(log_path):
+        with open(log_path, "w", encoding="utf-8") as f:
+            yaml.dump({"_initialized": datetime.utcnow().isoformat()}, f)
+
+
+def update_log_section(section_name: str, updates: Dict[str, Any]) -> None:
+    """Update a specific section in modeling_log.yaml.
+
+    This function is tolerant of call signatures: it accepts updates as a dict
+    or attempts to merge keyword arguments.
+    """
+    from config import get_config
+    cfg = get_config()
+    log_path = cfg.get("modeling_log_path", "modeling_log.yaml")
+
+    if not os.path.exists(log_path):
+        initialize_modeling_log(log_path)
+
+    try:
+        with open(log_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+    except yaml.YAMLError:
+        data = {}
+
+    if section_name not in data:
+        data[section_name] = {}
+
+    if isinstance(updates, dict):
+        data[section_name].update(updates)
+    else:
+        # Fallback for unexpected types: treat as empty update
+        pass
+
+    with open(log_path, "w", encoding="utf-8") as f:
+        yaml.dump(data, f, default_flow_style=False)
+
+
+def append_log_entry(section_name: str, entry: Dict[str, Any]) -> None:
+    """Append an entry to a list section in modeling_log.yaml."""
+    from config import get_config
+    cfg = get_config()
+    log_path = cfg.get("modeling_log_path", "modeling_log.yaml")
+
+    if not os.path.exists(log_path):
+        initialize_modeling_log(log_path)
+
+    try:
+        with open(log_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+    except yaml.YAMLError:
+        data = {}
+
+    if section_name not in data:
+        data[section_name] = []
+
+    if not isinstance(data[section_name], list):
+        data[section_name] = []
+
+    data[section_name].append(entry)
+
+    with open(log_path, "w", encoding="utf-8") as f:
+        yaml.dump(data, f, default_flow_style=False)

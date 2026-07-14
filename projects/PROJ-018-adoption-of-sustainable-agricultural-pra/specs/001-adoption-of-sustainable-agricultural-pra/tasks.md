@@ -58,7 +58,7 @@
 - [X] T004 Create data schema contracts in `specs/018-adoption-sustainable-agriculture/contracts/dataset.schema.yaml` and `contracts/results.schema.yaml`
 - [X] T005 [P] Implement synthetic data generator in `code/00_generate_synthetic_data.py` to conform to schema (fallback for missing API URLs)
 - [X] T006 [P] Setup logging infrastructure and `modeling_log.yaml` initialization in `code/`
-- [X] T007 Create base configuration management for data paths and random seeds in `code/config.py`
+- [X] T007 Create base configuration management for data paths and random seeds in `code/config.py` <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -106,7 +106,7 @@
 
 - [X] T020 [US2] Implement `code/03_engineer_features.py` to create `adoption_binary` (1 if any sustainable practice reported) based on FR-005 <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T021 [US2] Implement `code/03_engineer_features.py` to construct `engagement_score` using proxy variables (membership, extension, collective action, knowledge exchange) per FR-011 (weighted sum or equal-weight average) with explicit fallback mechanism if top-priority proxies are absent (FR-011) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T022 [US2] Implement `code/03_engineer_features.py` to: (1) Calculate Cronbach's α; (2) Conduct Exploratory Factor Analysis (EFA) using **Principal Axis Factoring** extraction, **Varimax** rotation, and **Kaiser's rule** (eigenvalues > 1) for factor retention; (3) Perform convergent validity check (correlation with theoretically related constructs); (4) Serialize all metrics (α, factor loadings, correlations) to `results/validity_metrics.yaml` and update `modeling_log.yaml` with `convergent_validity_status` (FR-004, SC-002, FR-011, Plan Phase 2) <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T022 [US2] Implement `code/03_engineer_features.py` to: (1) Calculate Cronbach's α; (2) Conduct Exploratory Factor Analysis (EFA) using **Principal Axis Factoring** extraction, **Varimax** rotation, and **Kaiser's rule** (eigenvalues > 1) for factor retention; (3) Perform convergent validity check (correlation with theoretically related constructs); (4) Serialize all metrics (α, factor loadings, correlations) to `results/validity_metrics.yaml` and update `modeling_log.yaml` with `convergent_validity_status` (FR-004, SC-002, FR-011, Plan Phase 2) <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  in "<unicode string>", line 2, column 1:
  1. **Cronbach's Alpha** calcula...
  ^
@@ -134,13 +134,13 @@ could not find expected ':'
 
 ### Implementation for User Story 3
 
-- [X] T036 [US3] Implement `code/04_model_analysis.py` to fit logistic regression (`adoption_binary` ~ `engagement_score` + covariates) using statsmodels (FR-006) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T036 [US3] Implement `code/04_model_analysis.py` to fit logistic regression (`adoption_binary` ~ `engagement_score` + covariates) using statsmodels (FR-006) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T037 [US3] Implement VIF calculation for all predictors; flag VIF ≥ 5 as a collinearity warning. **Do not perform PCA**; strictly adhere to FR-007 which only requires VIF diagnostics (FR-007, SC-004)
 - [X] T038 [US3] Implement Benjamini-Hochberg FDR correction (q ≤ 0.10) on hypothesis tests and report adjusted p-values (FR-008, SC-005)
-- [ ] T039 [US3] Implement ROC curve plotting and AUC calculation in `code/04_model_analysis.py` (FR-009, SC-003) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T040 [US3] Implement mediation analysis in `code/04_model_analysis.py`: (1) Baron & Kenny approach with bootstrap CI (≥1000 resamples) for indirect effects; (2) Sensitivity analysis using E-values (via `evalues` library) and Rosenbaum bounds (calculate for gamma values in a range including 2.5); (3) Document interpretation as "exploratory" (FR-012, FR-010, Plan Phase 3) <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
+- [X] T039 [US3] Implement ROC curve plotting and AUC calculation in `code/04_model_analysis.py` (FR-009, SC-003) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T040 [US3] Implement mediation analysis in `code/04_model_analysis.py`: (1) Baron & Kenny approach with bootstrap CI (≥1000 resamples) for indirect effects; (2) Sensitivity analysis using E-values (via `evalues` library) and Rosenbaum bounds (calculate for gamma values in a range including 2.5); (3) Document interpretation as "exploratory" (FR-012, FR-010, Plan Phase 3) <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T041 [US3] [DEPRECATED - Merged into T040] <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T042 [US3] Implement `code/05_generate_report.py` to produce a PDF report containing descriptives, regression table, VIF diagnostics, ROC plot, mediation results, sensitivity analysis, and validity metrics (consuming `results/validity_metrics.yaml`) (FR-010) <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T042 [US3] Implement `code/05_generate_report.py` to produce a PDF report containing descriptives, regression table, VIF diagnostics, ROC plot, mediation results, sensitivity analysis, and validity metrics (consuming `results/validity_metrics.yaml`) (FR-010) <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T043 [US3] Ensure all results are saved to `results/` and `modeling_log.yaml` is updated with seeds and choices (Constitution IV, VII)
 
 **Checkpoint**: All user stories should now be independently functional
