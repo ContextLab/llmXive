@@ -1,17 +1,15 @@
 {
   "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
   "ok": false,
-  "reason": "1 command(s) failed: python code/main.py (rc=1); 1 declared deliverable(s) absent: data/processed/null_fpr_metrics.json",
+  "reason": "1 command(s) failed: python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/null_fpr_metrics.json",
   "artifacts": [
-    "data/processed/baseline_metrics.json",
-    "data/processed/cleaned_metrics.json",
     "data/raw/shopper.csv",
     "data/raw/uci_har.csv"
   ],
   "failures": [
-    "python code/main.py -> rc=1\n    d_variants.py\nNo cleaned datasets found\n2026-07-14 06:43:23 - llmXive - INFO - Running t027_run_comparison.py\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t027_run_comparison.py\", line 53, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t027_run_comparison.py\", line 43, in main\n    report = generate_comparison_report(baseline_metrics, cleaned_metrics)\n             ^^^^^^^^^^^^^^^^^^^^^^^^"
+    "python code/main.py -> rc=1\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/analysis.py\", line 345, in run_baseline_analysis\n    result = analyze_dataset(df, dataset_name, outcome_col, group_col)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/analysis.py\", line 274, in analyze_dataset\n    numerical_cols = identify_numerical_columns(df)\n                     ^^^^^^^^^^^^^"
   ],
-  "fix_rounds": 10,
+  "fix_rounds": 11,
   "model_tier": 0,
-  "updated_at": "2026-07-14T06:43:24Z"
+  "updated_at": "2026-07-14T07:34:48Z"
 }

@@ -1,3 +1,10 @@
+"""
+T030: Implement dataset size binning sensitivity analysis.
+
+Bins datasets by size: n < 50, 50 <= n <= 200, n > 200.
+Logs warnings if bins are empty (CONSTRAINT_VIOLATION).
+Depends on baseline_metrics.json and cleaned_metrics.json.
+"""
 import os
 import json
 import logging
@@ -7,48 +14,27 @@ from utils import setup_logging, pin_random_seed
 
 logger = setup_logging("INFO")
 
-def load_baseline_metrics(filepath: str = "data/processed/baseline_metrics.json") -> Optional[List[Dict[str, Any]]]:
+def load_baseline_metrics(filepath: str = "data/processed/baseline_metrics.json") -> Optional[Dict[str, Any]]:
     """Load baseline metrics from JSON file."""
     if not os.path.exists(filepath):
         logger.error(f"Baseline metrics file not found: {filepath}")
         return None
-    try:
-        with open(filepath, 'r') as f:
-            data = json.load(f)
-            # Handle both list and dict with 'datasets' key
-            if isinstance(data, list):
-                return data
-            elif isinstance(data, dict) and 'datasets' in data:
-                return data['datasets']
-            else:
-                logger.warning(f"Unexpected baseline metrics structure in {filepath}")
-                return []
-    except Exception as e:
-        logger.error(f"Error loading baseline metrics: {e}")
-        return None
+    with open(filepath, 'r') as f:
+        return json.load(f)
 
-def load_cleaned_metrics(filepath: str = "data/processed/cleaned_metrics.json") -> Optional[List[Dict[str, Any]]]:
+def load_cleaned_metrics(filepath: str = "data/processed/cleaned_metrics.json") -> Optional[Dict[str, Any]]:
     """Load cleaned metrics from JSON file."""
     if not os.path.exists(filepath):
         logger.error(f"Cleaned metrics file not found: {filepath}")
         return None
-    try:
-        with open(filepath, 'r') as f:
-            data = json.load(f)
-            if isinstance(data, list):
-                return data
-            elif isinstance(data, dict) and 'datasets' in data:
-                return data['datasets']
-            else:
-                logger.warning(f"Unexpected cleaned metrics structure in {filepath}")
-                return []
-    except Exception as e:
-        logger.error(f"Error loading cleaned metrics: {e}")
-        return None
+    with open(filepath, 'r') as f:
+        return json.load(f)
 
 def bin_dataset_size(n_rows: int) -> str:
     """
-    Bin dataset size into categories:
+    Assign a dataset size bin based on row count.
+    
+    Bins:
     - 'small': n < 50
     - 'medium': 50 <= n <= 200
     - 'large': n > 200
@@ -61,203 +47,158 @@ def bin_dataset_size(n_rows: int) -> str:
         return 'large'
 
 def analyze_size_bin(
-    baseline_entries: List[Dict[str, Any]],
-    cleaned_entries: List[Dict[str, Any]],
-    bin_name: str
+    datasets: List[Dict[str, Any]], 
+    bin_label: str, 
+    metrics_source: str
 ) -> Dict[str, Any]:
     """
-    Analyze metrics for a specific dataset size bin.
-    Returns statistics on p-value shifts, CI width changes, and effect sizes.
+    Analyze a specific size bin.
+    
+    Returns stats: count, list of dataset names, average p-value shift, etc.
     """
-    bin_entries = []
-
-    # Combine baseline and cleaned entries
-    for base_entry in baseline_entries:
-        dataset_name = base_entry.get('dataset_name') or base_entry.get('name')
-        n_rows = base_entry.get('dataset_size') or base_entry.get('n_rows') or 0
-        
-        if bin_dataset_size(n_rows) == bin_name:
-            # Find matching cleaned entry
-            cleaned_entry = None
-            for clean_entry in cleaned_entries:
-                if clean_entry.get('dataset_name') == dataset_name:
-                    cleaned_entry = clean_entry
-                    break
-            
-            bin_entries.append({
-                'dataset_name': dataset_name,
-                'size': n_rows,
-                'baseline': base_entry,
-                'cleaned': cleaned_entry
-            })
-
-    result = {
-        'bin': bin_name,
-        'count': len(bin_entries),
-        'p_value_shifts': [],
-        'ci_width_changes': [],
-        'effect_size_deltas': []
+    if not datasets:
+        return {
+            'bin': bin_label,
+            'count': 0,
+            'datasets': [],
+            'avg_p_value_shift': None,
+            'avg_ci_width_change': None,
+            'avg_effect_size_delta': None,
+            'warning': f"CONSTRAINT_VIOLATION: Bin '{bin_label}' is empty ({metrics_source})."
+        }
+    
+    dataset_names = [d.get('dataset_name', d.get('name', 'Unknown')) for d in datasets]
+    
+    # Calculate shifts if metrics are available
+    p_shifts = []
+    ci_changes = []
+    effect_deltas = []
+    
+    for d in datasets:
+        # Extract p-value shift if available
+        if 'p_value_shift' in d:
+            p_shifts.append(d['p_value_shift'])
+        if 'ci_width_change' in d:
+            ci_changes.append(d['ci_width_change'])
+        if 'effect_size_delta' in d:
+            effect_deltas.append(d['effect_size_delta'])
+    
+    return {
+        'bin': bin_label,
+        'count': len(datasets),
+        'datasets': dataset_names,
+        'avg_p_value_shift': sum(p_shifts) / len(p_shifts) if p_shifts else None,
+        'avg_ci_width_change': sum(ci_changes) / len(ci_changes) if ci_changes else None,
+        'avg_effect_size_delta': sum(effect_deltas) / len(effect_deltas) if effect_deltas else None,
+        'warning': None
     }
-
-    if len(bin_entries) == 0:
-        logger.warning(f"CONSTRAINT_VIOLATION: Bin '{bin_name}' has 0 datasets.")
-        return result
-
-    for entry in bin_entries:
-        base_data = entry['baseline']
-        clean_data = entry['cleaned']
-
-        if not clean_data:
-            continue
-
-        # Extract p-values
-        base_p = None
-        clean_p = None
-
-        # Handle different structures
-        if 'analysis' in base_data and 't_test' in base_data['analysis']:
-            base_p = base_data['analysis']['t_test'].get('p_value')
-        elif 't_test' in base_data:
-            base_p = base_data['t_test'].get('p_value')
-        
-        if 'analysis' in clean_data and 't_test' in clean_data['analysis']:
-            clean_p = clean_data['analysis']['t_test'].get('p_value')
-        elif 't_test' in clean_data:
-            clean_p = clean_data['t_test'].get('p_value')
-
-        if base_p is not None and clean_p is not None:
-            shift = abs(clean_p - base_p)
-            result['p_value_shifts'].append(shift)
-
-        # Extract CI widths
-        base_ci = None
-        clean_ci = None
-
-        if 'analysis' in base_data and 't_test' in base_data['analysis']:
-            ci = base_data['analysis']['t_test'].get('ci')
-            if ci and len(ci) == 2:
-                base_ci = ci[1] - ci[0]
-        elif 't_test' in base_data:
-            ci = base_data['t_test'].get('ci')
-            if ci and len(ci) == 2:
-                base_ci = ci[1] - ci[0]
-
-        if 'analysis' in clean_data and 't_test' in clean_data['analysis']:
-            ci = clean_data['analysis']['t_test'].get('ci')
-            if ci and len(ci) == 2:
-                clean_ci = ci[1] - ci[0]
-        elif 't_test' in clean_data:
-            ci = clean_data['t_test'].get('ci')
-            if ci and len(ci) == 2:
-                clean_ci = ci[1] - ci[0]
-
-        if base_ci is not None and clean_ci is not None:
-            width_change = clean_ci - base_ci
-            result['ci_width_changes'].append(width_change)
-
-        # Extract effect sizes
-        base_es = None
-        clean_es = None
-
-        if 'analysis' in base_data and 't_test' in base_data['analysis']:
-            base_es = base_data['analysis']['t_test'].get('effect_size')
-        elif 't_test' in base_data:
-            base_es = base_data['t_test'].get('effect_size')
-
-        if 'analysis' in clean_data and 't_test' in clean_data['analysis']:
-            clean_es = clean_data['analysis']['t_test'].get('effect_size')
-        elif 't_test' in clean_data:
-            clean_es = clean_data['t_test'].get('effect_size')
-
-        if base_es is not None and clean_es is not None:
-            delta = clean_es - base_es
-            result['effect_size_deltas'].append(delta)
-
-    # Calculate summary statistics
-    import numpy as np
-    if result['p_value_shifts']:
-        result['p_value_shift_mean'] = float(np.mean(result['p_value_shifts']))
-        result['p_value_shift_median'] = float(np.median(result['p_value_shifts']))
-        result['p_value_shift_std'] = float(np.std(result['p_value_shifts']))
-    else:
-        result['p_value_shift_mean'] = None
-        result['p_value_shift_median'] = None
-        result['p_value_shift_std'] = None
-
-    if result['ci_width_changes']:
-        result['ci_width_change_mean'] = float(np.mean(result['ci_width_changes']))
-        result['ci_width_change_median'] = float(np.median(result['ci_width_changes']))
-        result['ci_width_change_std'] = float(np.std(result['ci_width_changes']))
-    else:
-        result['ci_width_change_mean'] = None
-        result['ci_width_change_median'] = None
-        result['ci_width_change_std'] = None
-
-    if result['effect_size_deltas']:
-        result['effect_size_delta_mean'] = float(np.mean(result['effect_size_deltas']))
-        result['effect_size_delta_median'] = float(np.median(result['effect_size_deltas']))
-        result['effect_size_delta_std'] = float(np.std(result['effect_size_deltas']))
-    else:
-        result['effect_size_delta_mean'] = None
-        result['effect_size_delta_median'] = None
-        result['effect_size_delta_std'] = None
-
-    return result
 
 def run_sensitivity_analysis(
-    baseline_metrics: Optional[List[Dict[str, Any]]],
-    cleaned_metrics: Optional[List[Dict[str, Any]]]
+    baseline_metrics: Dict[str, Any],
+    cleaned_metrics: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
-    Run full sensitivity analysis across dataset size bins.
+    Run sensitivity analysis by dataset size binning.
+    
+    Combines baseline and cleaned datasets, bins them, and analyzes each bin.
     """
-    if not baseline_metrics:
-        logger.error("No baseline metrics found. Cannot run sensitivity analysis.")
-        return {'error': 'No baseline metrics found'}
-
-    if not cleaned_metrics:
-        logger.warning("No cleaned metrics found. Some bins may be empty.")
-        cleaned_metrics = []
-
-    bins = ['small', 'medium', 'large']
-    bin_results = []
-
-    for bin_name in bins:
-        logger.info(f"Analyzing bin: {bin_name}")
-        bin_result = analyze_size_bin(baseline_metrics, cleaned_metrics, bin_name)
-        bin_results.append(bin_result)
-
-        if bin_result['count'] < 1:
-            logger.warning(f"CONSTRAINT_VIOLATION: Bin '{bin_name}' has < 1 dataset. Proceeding anyway.")
-
-    return {
+    pin_random_seed(42)
+    
+    baseline_datasets = baseline_metrics.get('datasets', [])
+    cleaned_datasets = cleaned_metrics.get('datasets', [])
+    
+    # Map cleaned metrics to baseline by dataset name
+    cleaned_map = {}
+    for c in cleaned_datasets:
+        name = c.get('dataset_name', c.get('name'))
+        if name:
+            cleaned_map[name] = c
+    
+    # Merge and bin
+    all_bins = {'small': [], 'medium': [], 'large': []}
+    
+    for b in baseline_datasets:
+        name = b.get('dataset_name', b.get('name'))
+        n_rows = b.get('dataset_size', b.get('n_rows', 0))
+        bin_label = bin_dataset_size(n_rows)
+        
+        entry = {
+            'dataset_name': name,
+            'dataset_size': n_rows,
+            'bin': bin_label,
+            'baseline': b
+        }
+        
+        # Attach cleaned metrics if available
+        if name in cleaned_map:
+            c = cleaned_map[name]
+            # Calculate shifts
+            base_p = b.get('t_test', {}).get('p_value') if isinstance(b.get('t_test'), dict) else b.get('p_value')
+            clean_p = c.get('t_test', {}).get('p_value') if isinstance(c.get('t_test'), dict) else c.get('p_value')
+            
+            if base_p is not None and clean_p is not None:
+                entry['p_value_shift'] = abs(clean_p - base_p)
+            
+            base_ci = b.get('t_test', {}).get('ci', [None, None]) if isinstance(b.get('t_test'), dict) else b.get('ci')
+            clean_ci = c.get('t_test', {}).get('ci', [None, None]) if isinstance(c.get('t_test'), dict) else c.get('ci')
+            
+            if base_ci and clean_ci and base_ci[0] is not None and clean_ci[0] is not None:
+                base_width = abs(base_ci[1] - base_ci[0])
+                clean_width = abs(clean_ci[1] - clean_ci[0])
+                entry['ci_width_change'] = clean_width - base_width
+            
+            base_eff = b.get('effect_size', b.get('cohen_d'))
+            clean_eff = c.get('effect_size', c.get('cohen_d'))
+            if base_eff is not None and clean_eff is not None:
+                entry['effect_size_delta'] = clean_eff - base_eff
+        
+        all_bins[bin_label].append(entry)
+    
+    # Analyze each bin
+    results = {}
+    for bin_label in ['small', 'medium', 'large']:
+        bin_data = all_bins[bin_label]
+        analysis = analyze_size_bin(bin_data, bin_label, "combined")
+        results[bin_label] = analysis
+        
+        if analysis['warning']:
+            logger.warning(analysis['warning'])
+    
+    # Final summary
+    summary = {
         'timestamp': datetime.now().isoformat(),
-        'bins': bin_results,
-        'total_datasets_analyzed': sum(b['count'] for b in bin_results)
+        'analysis_type': 'dataset_size_sensitivity',
+        'bins': results,
+        'total_datasets_analyzed': sum(len(b) for b in all_bins.values())
     }
+    
+    return summary
 
 def main():
-    """Main entry point for dataset size sensitivity analysis."""
-    logger = setup_logging("INFO")
-    pin_random_seed(42)
-
-    logger.info("Starting dataset size sensitivity analysis (T030)...")
-
-    # Load metrics
-    baseline_metrics = load_baseline_metrics()
-    cleaned_metrics = load_cleaned_metrics()
-
-    # Run analysis
-    analysis_result = run_sensitivity_analysis(baseline_metrics, cleaned_metrics)
-
-    # Write output
-    output_path = "data/processed/size_sensitivity_analysis.json"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    """Main entry point for T030."""
+    logger.info("Starting T030: Dataset Size Sensitivity Analysis")
     
+    # Load metrics
+    baseline = load_baseline_metrics()
+    if not baseline:
+        logger.error("Failed to load baseline metrics. Cannot proceed.")
+        return 1
+    
+    cleaned = load_cleaned_metrics()
+    if not cleaned:
+        logger.error("Failed to load cleaned metrics. Cannot proceed.")
+        return 1
+    
+    # Run analysis
+    report = run_sensitivity_analysis(baseline, cleaned)
+    
+    # Write output
+    output_path = "data/processed/sensitivity_analysis_by_size.json"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(analysis_result, f, indent=2)
-
-    logger.info(f"Size sensitivity analysis complete. Output written to {output_path}")
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Sensitivity analysis written to {output_path}")
     return 0
 
 if __name__ == "__main__":

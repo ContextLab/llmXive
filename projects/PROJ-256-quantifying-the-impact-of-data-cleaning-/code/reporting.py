@@ -4,131 +4,283 @@ from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 from datetime import datetime
 import os
-from utils import setup_logging
 
-logger = setup_logging("INFO")
+logger = logging.getLogger(__name__)
 
-def load_json_file(filepath: str) -> Optional[Dict[str, Any]]:
-    if not os.path.exists(filepath):
-        logger.error(f"File not found: {filepath}")
-        return None
+def load_json_file(filepath: str) -> Dict[str, Any]:
+    """Load JSON file and return as dictionary."""
     with open(filepath, 'r') as f:
         return json.load(f)
 
-def save_json_file(filepath: str, data: Dict[str, Any]):
-    output_dir = os.path.dirname(filepath)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+def save_json_file(data: Dict[str, Any], filepath: str):
+    """Save dictionary to JSON file."""
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
     with open(filepath, 'w') as f:
         json.dump(data, f, indent=2)
-    logger.info(f"Saved to {filepath}")
+    logger.info(f"Saved results to {filepath}")
 
 def calculate_p_value_shift(p_baseline: float, p_cleaned: float) -> float:
-    """Calculate absolute difference in p-values."""
-    return abs(p_cleaned - p_baseline)
+    """
+    Calculate the absolute difference between baseline and cleaned p-values.
+    
+    Args:
+        p_baseline: Baseline p-value
+        p_cleaned: Cleaned p-value
+    
+    Returns:
+        Absolute difference with at least 3 decimal precision
+    """
+    if p_baseline is None or p_cleaned is None:
+        return 0.0
+    return round(abs(p_cleaned - p_baseline), 3)
 
-def compute_ci_width_change(ci_baseline: List[float], ci_cleaned: List[float]) -> float:
-    """Calculate change in confidence interval width."""
+def compute_ci_width_change(ci_baseline: Tuple[float, float], ci_cleaned: Tuple[float, float]) -> float:
+    """
+    Compute the change in confidence interval width.
+    
+    Args:
+        ci_baseline: Tuple of (lower, upper) for baseline CI
+        ci_cleaned: Tuple of (lower, upper) for cleaned CI
+    
+    Returns:
+        Change in width with at least 2 decimal precision
+    """
     if not ci_baseline or not ci_cleaned:
         return 0.0
+    
     width_baseline = ci_baseline[1] - ci_baseline[0]
     width_cleaned = ci_cleaned[1] - ci_cleaned[0]
-    return width_cleaned - width_baseline
+    
+    return round(width_cleaned - width_baseline, 2)
 
 def compute_effect_size_delta(effect_baseline: float, effect_cleaned: float) -> float:
-    """Calculate difference in effect size."""
-    return effect_cleaned - effect_baseline
+    """
+    Compute the difference in effect size.
+    
+    Args:
+        effect_baseline: Baseline effect size (e.g., Cohen's d)
+        effect_cleaned: Cleaned effect size
+    
+    Returns:
+        Difference in effect size
+    """
+    if effect_baseline is None or effect_cleaned is None:
+        return 0.0
+    return round(effect_cleaned - effect_baseline, 3)
 
-def calculate_inconsistency_rate(baseline_p: float, cleaned_p: float, alpha: float = 0.05) -> int:
-    """Determine if significance status changed."""
-    sig_baseline = baseline_p < alpha
-    sig_cleaned = cleaned_p < alpha
-    return 1 if sig_baseline != sig_cleaned else 0
+def calculate_inconsistency_rate(baseline_metrics: Dict[str, Any], cleaned_metrics: Dict[str, Any]) -> float:
+    """
+    Calculate the proportion of datasets where significance status changes.
+    
+    Significance status changes if a test that was significant (p <= 0.05) becomes
+    non-significant, or vice versa, after cleaning.
+    
+    Args:
+        baseline_metrics: Dictionary containing baseline analysis results
+        cleaned_metrics: Dictionary containing cleaned analysis results
+    
+    Returns:
+        Inconsistency rate as a float between 0 and 1
+    """
+    baseline_datasets = baseline_metrics.get("datasets", []) if isinstance(baseline_metrics, dict) else []
+    cleaned_datasets = cleaned_metrics.get("datasets", []) if isinstance(cleaned_metrics, dict) else []
+    
+    if not baseline_datasets or not cleaned_datasets:
+        logger.warning("No datasets found in metrics. Cannot calculate inconsistency rate.")
+        return 0.0
+    
+    # Create a mapping of cleaned datasets by name
+    cleaned_map = {}
+    for entry in cleaned_datasets:
+        name = entry.get("dataset_name") or entry.get("dataset_id")
+        if name:
+            cleaned_map[name] = entry
+    
+    inconsistent_count = 0
+    total_count = 0
+    
+    for baseline_entry in baseline_datasets:
+        name = baseline_entry.get("dataset_name") or baseline_entry.get("dataset_id")
+        if not name or name not in cleaned_map:
+            continue
+        
+        cleaned_entry = cleaned_map[name]
+        total_count += 1
+        
+        # Compare t-test results
+        baseline_tests = baseline_entry.get("t_tests", {})
+        cleaned_tests = cleaned_entry.get("t_tests", {})
+        
+        for test_name, baseline_test in baseline_tests.items():
+            if test_name not in cleaned_tests:
+                continue
+            
+            baseline_p = baseline_test.get("p_value")
+            cleaned_p = cleaned_tests[test_name].get("p_value")
+            
+            if baseline_p is None or cleaned_p is None:
+                continue
+            
+            baseline_sig = baseline_p <= 0.05
+            cleaned_sig = cleaned_p <= 0.05
+            
+            if baseline_sig != cleaned_sig:
+                inconsistent_count += 1
+                break  # Count dataset as inconsistent if any test changes status
+    
+    if total_count == 0:
+        return 0.0
+    
+    return inconsistent_count / total_count
 
-def apply_bonferroni_correction(p_values: List[float]) -> List[float]:
-    """Apply Bonferroni correction for multiple comparisons."""
+def apply_bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> List[float]:
+    """
+    Apply Bonferroni correction for Family-Wise Error Rate (FWER) control.
+    
+    Args:
+        p_values: List of p-values to correct
+        alpha: Significance level (default 0.05)
+    
+    Returns:
+        List of adjusted p-values
+    """
     n = len(p_values)
     if n == 0:
         return []
+    
+    adjusted = [min(p * n, 1.0) for p in p_values]
     logger.warning("Warning: FR-007 requests FWER control. Benjamini-Hochberg controls FDR. Implemented Bonferroni (FWER) to satisfy FR-007.")
-    return [min(p * n, 1.0) for p in p_values]
+    return adjusted
 
-def process_single_comparison(baseline_entry: Dict, cleaned_entry: Dict, alpha: float = 0.05) -> Dict[str, Any]:
-    """Process a single dataset comparison."""
-    result = {}
-
-    # P-value shift
-    bp = baseline_entry.get('p_value')
-    cp = cleaned_entry.get('p_value')
-    if bp is not None and cp is not None:
-        result['p_value_shift'] = calculate_p_value_shift(bp, cp)
-        result['inconsistency'] = calculate_inconsistency_rate(bp, cp, alpha)
-
-    # CI width change
-    bc = baseline_entry.get('ci')
-    cc = cleaned_entry.get('ci')
-    if bc and cc:
-        result['ci_width_change'] = compute_ci_width_change(bc, cc)
-
-    # Effect size delta
-    be = baseline_entry.get('effect_size')
-    ce = cleaned_entry.get('effect_size')
-    if be is not None and ce is not None:
-        result['effect_size_delta'] = compute_effect_size_delta(be, ce)
-
-    return result
-
-def generate_comparison_report(baseline_metrics: Dict[str, Any], cleaned_metrics: Dict[str, Any]) -> Dict[str, Any]:
-    """Generate a comprehensive comparison report."""
-    # Handle cases where metrics might be lists or dicts
-    # The error indicated cleaned_metrics was a list, so we handle that
-    if isinstance(cleaned_metrics, list):
-        # If it's a list, we might need to aggregate or find the right structure
-        # For now, assume it's a list of dataset results and we need to wrap it
-        logger.warning("cleaned_metrics is a list, attempting to structure it.")
-        cleaned_metrics = {"datasets": cleaned_metrics}
-
-    if not baseline_metrics or not cleaned_metrics:
-        logger.error("Missing baseline or cleaned metrics.")
-        return {}
-
-    baseline_datasets = baseline_metrics.get("datasets", [])
-    if isinstance(baseline_datasets, dict):
-        baseline_datasets = [baseline_datasets]
-
-    cleaned_datasets = cleaned_metrics.get("datasets", [])
-    if isinstance(cleaned_datasets, dict):
-        cleaned_datasets = [cleaned_datasets]
-
-    comparisons = []
-    total_inconsistency = 0
-
-    # Match datasets by name
-    baseline_map = {d.get('dataset_name'): d for d in baseline_datasets}
-    cleaned_map = {d.get('dataset_name'): d for d in cleaned_datasets}
-
-    for name in baseline_map:
-        if name in cleaned_map:
-            b_entry = baseline_map[name]
-            c_entry = cleaned_map[name]
-            comp = process_single_comparison(b_entry, c_entry)
-            comp['dataset_name'] = name
-            comparisons.append(comp)
-            total_inconsistency += comp.get('inconsistency', 0)
-
-    n_datasets = len(comparisons)
-    inconsistency_rate = total_inconsistency / n_datasets if n_datasets > 0 else 0.0
-
-    return {
-        "generated_at": datetime.now().isoformat(),
-        "n_datasets": n_datasets,
-        "inconsistency_rate": inconsistency_rate,
-        "comparisons": comparisons
+def process_single_comparison(baseline_entry: Dict[str, Any], cleaned_entry: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Process a single dataset comparison between baseline and cleaned results.
+    
+    Args:
+        baseline_entry: Baseline analysis results for a dataset
+        cleaned_entry: Cleaned analysis results for a dataset
+    
+    Returns:
+        Dictionary containing comparison metrics
+    """
+    comparison = {
+        "dataset_name": baseline_entry.get("dataset_name"),
+        "p_value_shifts": {},
+        "ci_width_changes": {},
+        "effect_size_deltas": {}
     }
+    
+    # Compare t-tests
+    baseline_tests = baseline_entry.get("t_tests", {})
+    cleaned_tests = cleaned_entry.get("t_tests", {})
+    
+    for test_name in baseline_tests:
+        if test_name in cleaned_tests:
+            baseline_p = baseline_tests[test_name].get("p_value")
+            cleaned_p = cleaned_tests[test_name].get("p_value")
+            
+            if baseline_p is not None and cleaned_p is not None:
+                comparison["p_value_shifts"][test_name] = calculate_p_value_shift(baseline_p, cleaned_p)
+    
+    # Compare effect sizes
+    baseline_effect = baseline_entry.get("effect_size", {}).get("cohens_d", {}).get("cohens_d")
+    cleaned_effect = cleaned_entry.get("effect_size", {}).get("cohens_d", {}).get("cohens_d")
+    
+    if baseline_effect is not None and cleaned_effect is not None:
+        comparison["effect_size_deltas"]["cohens_d"] = compute_effect_size_delta(baseline_effect, cleaned_effect)
+    
+    return comparison
+
+def generate_comparison_report(
+    baseline_metrics: Dict[str, Any],
+    cleaned_metrics: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    Generate a comprehensive comparison report between baseline and cleaned metrics.
+    
+    Args:
+        baseline_metrics: Dictionary containing baseline analysis results
+        cleaned_metrics: Dictionary containing cleaned analysis results
+    
+    Returns:
+        Dictionary containing the full comparison report
+    """
+    # Handle case where cleaned_metrics might be a list (as per error trace)
+    if isinstance(cleaned_metrics, list):
+        # Convert list to expected dictionary format
+        cleaned_metrics = {
+            "datasets": cleaned_metrics,
+            "timestamp": datetime.now().isoformat()
+        }
+    
+    # Handle case where baseline_metrics might be a list
+    if isinstance(baseline_metrics, list):
+        baseline_metrics = {
+            "datasets": baseline_metrics,
+            "timestamp": datetime.now().isoformat()
+        }
+    
+    baseline_datasets = baseline_metrics.get("datasets", [])
+    cleaned_datasets = cleaned_metrics.get("datasets", [])
+    
+    # Create mapping of cleaned datasets by name
+    cleaned_map = {}
+    for entry in cleaned_datasets:
+        name = entry.get("dataset_name") or entry.get("dataset_id")
+        if name:
+            cleaned_map[name] = entry
+    
+    comparisons = []
+    total_inconsistent = 0
+    total_datasets = 0
+    
+    for baseline_entry in baseline_datasets:
+        name = baseline_entry.get("dataset_name") or baseline_entry.get("dataset_id")
+        if not name or name not in cleaned_map:
+            continue
+        
+        cleaned_entry = cleaned_map[name]
+        comparison = process_single_comparison(baseline_entry, cleaned_entry)
+        comparisons.append(comparison)
+        
+        # Check for inconsistency
+        baseline_tests = baseline_entry.get("t_tests", {})
+        cleaned_tests = cleaned_entry.get("t_tests", {})
+        
+        for test_name in baseline_tests:
+            if test_name in cleaned_tests:
+                baseline_p = baseline_tests[test_name].get("p_value")
+                cleaned_p = cleaned_tests[test_name].get("p_value")
+                
+                if baseline_p is not None and cleaned_p is not None:
+                    baseline_sig = baseline_p <= 0.05
+                    cleaned_sig = cleaned_p <= 0.05
+                    
+                    if baseline_sig != cleaned_sig:
+                        total_inconsistent += 1
+                        break
+        
+        total_datasets += 1
+    
+    inconsistency_rate = total_inconsistent / total_datasets if total_datasets > 0 else 0.0
+    
+    report = {
+        "comparisons": comparisons,
+        "summary": {
+            "total_datasets": total_datasets,
+            "inconsistent_datasets": total_inconsistent,
+            "inconsistency_rate": round(inconsistency_rate, 3),
+            "generated_at": datetime.now().isoformat()
+        }
+    }
+    
+    return report
 
 def main():
-    # Example usage for testing
-    pass
+    """Main entry point for reporting module."""
+    logger.info("Reporting module loaded")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

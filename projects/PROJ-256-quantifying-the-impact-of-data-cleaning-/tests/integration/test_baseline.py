@@ -10,8 +10,8 @@ import pandas as pd
 import numpy as np
 
 # Import from sibling modules
-from analysis import run_baseline_analysis
-from utils import compute_file_checksum
+from code.analysis import run_baseline_analysis
+from code.utils import compute_file_checksum
 
 @pytest.fixture
 def sample_raw_dir():

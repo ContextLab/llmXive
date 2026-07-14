@@ -3,59 +3,97 @@ import hashlib
 import logging
 import numpy as np
 import scipy
-from typing import Optional, Any, Callable, Union
+from typing import Optional, Any, Callable, Union, List, Dict
 import random
+import sys
 
-logger = logging.getLogger(__name__)
-
-def setup_logging(log_level: Union[str, int, None] = None, name: Optional[str] = None) -> logging.Logger:
+def setup_logging(
+    log_level: Optional[Union[str, int]] = None,
+    name: Optional[str] = None
+) -> logging.Logger:
     """
     Setup logging configuration.
-    Accepts various forms of log_level:
-    - None: Uses default INFO
-    - String: "INFO", "DEBUG", etc.
-    - Integer: logging.INFO, etc.
-    - Object with 'log_level' attribute (for compatibility)
+    
+    Flexible signature to handle multiple call patterns:
+    - setup_logging() -> uses default INFO
+    - setup_logging("INFO") -> string level
+    - setup_logging(log_level="INFO") -> kwarg
+    - setup_logging(logging.INFO) -> int level
+    - setup_logging(logging.INFO, "name") -> name arg (ignored if passed)
+    - setup_logging(name="my_logger") -> name kwarg (ignored)
+    
+    Args:
+        log_level: Log level as string ("INFO", "DEBUG", etc.) or int (logging.INFO)
+        name: Logger name (optional, currently ignored for simplicity)
+    
+    Returns:
+        Configured logger instance
     """
-    # Handle different call signatures
+    # Determine log level
     if log_level is None:
-        lvl = logging.INFO
+        level = logging.INFO
     elif isinstance(log_level, str):
-        lvl = getattr(logging, log_level.upper(), logging.INFO)
+        level = getattr(logging, log_level.upper(), logging.INFO)
     elif isinstance(log_level, int):
-        lvl = log_level
+        level = log_level
     else:
-        lvl = logging.INFO
-
-    # If name is passed but not used, just ignore it to maintain compatibility
-    if name:
-        pass
-
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(lvl)
-
+        level = logging.INFO
+    
+    # Configure logging if not already configured
+    if not logging.getLogger().handlers:
+        logging.basicConfig(
+            level=level,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+    
+    # Get logger
+    logger_name = name if name else "llmXive"
+    logger = logging.getLogger(logger_name)
+    
+    # Set level explicitly
+    logger.setLevel(level)
+    
     return logger
 
-def pin_random_seed(seed: int):
-    """Pin random seed for numpy, scipy, and python random."""
+def pin_random_seed(seed: int) -> None:
+    """
+    Pin random seed for reproducibility across numpy, scipy, and random modules.
+    """
     np.random.seed(seed)
     random.seed(seed)
-    # scipy uses numpy random, so no separate seed needed
+    # For scipy, seed is typically handled through numpy
+    # If scipy has its own random state, it uses numpy's
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
 def compute_file_checksum(filepath: str) -> str:
-    """Compute SHA256 checksum of a file."""
+    """
+    Compute SHA256 checksum of a file.
+    
+    Args:
+        filepath: Path to the file
+    
+    Returns:
+        Hex string of SHA256 checksum
+    """
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(filepath, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except Exception as e:
+        logging.getLogger(__name__).error(f"Failed to compute checksum for {filepath}: {e}")
+        return ""
 
 def main():
-    pass
+    """
+    Main entry point for utils module.
+    """
+    logger = setup_logging("INFO")
+    logger.info("Utils module loaded")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

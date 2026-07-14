@@ -1,6 +1,3 @@
-"""
-Data models and entities for the Quantifying Impact of Data Cleaning project.
-"""
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field, field_validator
@@ -19,37 +16,35 @@ class CleaningStrategyType(str, Enum):
     COMBINED = "combined"
 
 class Dataset(BaseModel):
+    dataset_id: str
     name: str
-    path: str
-    rows: int
-    columns: int
-    missing_rate: float
+    source_url: str
     checksum: str
+    row_count: int
+    column_count: int
+    missing_rate: float
+    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
 
 class CleaningStrategy(BaseModel):
-    type: CleaningStrategyType
+    strategy_id: str
+    strategy_type: CleaningStrategyType
     parameters: Dict[str, Any]
     description: str
 
 class AnalysisResult(BaseModel):
     dataset_id: str
-    strategy: Optional[str] = None
-    t_tests: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
-    regressions: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
-    effect_sizes: Dict[str, float] = Field(default_factory=dict)
-    execution_time: float
+    test_name: str
+    p_value: float
+    confidence_interval: List[float]
+    effect_size: float
+    effect_size_type: str
+    significant: bool
+    strategy_applied: Optional[str] = None
 
 class ComparisonReport(BaseModel):
-    id: str
-    created_at: str
     baseline_metrics: Dict[str, Any]
     cleaned_metrics: Dict[str, Any]
-    absolute_diff: float
-    relative_diff: float
-    sensitivity_analysis: Dict[str, Any]
-    dataset_comparisons: List[Dict[str, Any]] = Field(default_factory=list)
-    summary: Dict[str, Any] = Field(default_factory=dict)
-
-def main():
-    """Main entry point for model validation (if needed)."""
-    pass
+    absolute_diff: List[Dict[str, Any]]
+    relative_diff: List[Dict[str, Any]]
+    sensitivity_analysis: Optional[Dict[str, Any]]
+    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())

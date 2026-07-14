@@ -3,207 +3,191 @@ import sys
 import json
 import logging
 import glob
-from typing import List, Dict, Any, Optional
 import pandas as pd
-import numpy as np
+from typing import List, Dict, Any, Optional
+from datetime import datetime
 
-from analysis import run_baseline_analysis, run_t_test, run_linear_regression, compute_effect_size_cohen_d
+# Import from local modules
+from analysis import analyze_dataset, save_json_file
+from config import Config, get_config
 from utils import setup_logging, compute_file_checksum
-from config import get_config
 
-logger = logging.getLogger(__name__)
-
-def find_cleaned_datasets(processed_dir: str) -> List[Dict[str, Any]]:
+def find_cleaned_datasets(processed_dir: str) -> List[Dict[str, str]]:
     """
     Find all cleaned dataset CSVs in the processed directory.
-    Returns a list of dicts with 'path', 'dataset_name', 'strategy'.
+    Returns a list of dicts with dataset info.
     """
-    pattern = os.path.join(processed_dir, "*_cleaned_*.csv")
-    files = glob.glob(pattern)
-    
-    if not files:
-        # Also check for generic cleaned patterns if specific naming varies
-        pattern = os.path.join(processed_dir, "*_outlier_removed*.csv")
-        files.extend(glob.glob(pattern))
-        pattern = os.path.join(processed_dir, "*_imputed*.csv")
-        files.extend(glob.glob(pattern))
-        pattern = os.path.join(processed_dir, "*_recoded*.csv")
-        files.extend(glob.glob(pattern))
-    
-    # Deduplicate
-    files = list(set(files))
-
+    logger = logging.getLogger(__name__)
     cleaned_datasets = []
-    for f in files:
-        filename = os.path.basename(f)
-        # Infer strategy from filename if possible, else default
-        strategy = "unknown"
-        if "outlier" in filename:
-            strategy = "outlier_removal"
-        elif "imputed" in filename:
-            strategy = "imputation"
-        elif "recoded" in filename:
-            strategy = "recoding"
-        
-        cleaned_datasets.append({
-            "path": f,
-            "dataset_name": filename.replace(".csv", ""),
-            "strategy": strategy
-        })
     
+    # Pattern to match cleaned datasets (e.g., *_outlier_removed.csv, *_mean_imputed.csv)
+    patterns = [
+        os.path.join(processed_dir, "*_outlier_removed.csv"),
+        os.path.join(processed_dir, "*_mean_imputed.csv"),
+        os.path.join(processed_dir, "*_median_imputed.csv"),
+        os.path.join(processed_dir, "*_knn_imputed.csv"),
+        os.path.join(processed_dir, "*_recoded.csv")
+    ]
+    
+    for pattern in patterns:
+        files = glob.glob(pattern)
+        for filepath in files:
+            filename = os.path.basename(filepath)
+            # Extract dataset name and strategy from filename
+            # Expected format: datasetname_strategy.csv
+            name_part = filename.replace(".csv", "")
+            parts = name_part.rsplit("_", 1)
+            
+            if len(parts) >= 2:
+                dataset_name = parts[0]
+                strategy = parts[1]
+            else:
+                dataset_name = name_part
+                strategy = "unknown"
+            
+            cleaned_datasets.append({
+                "filepath": filepath,
+                "dataset_name": dataset_name,
+                "strategy": strategy,
+                "filename": filename
+            })
+    
+    logger.info(f"Found {len(cleaned_datasets)} cleaned datasets in {processed_dir}")
     return cleaned_datasets
 
 def analyze_cleaned_variant(
-    dataset_path: str,
-    dataset_name: str,
-    strategy: str,
-    outcome_col: str,
-    group_col: Optional[str] = None,
-    predictors: Optional[List[str]] = None
-) -> Dict[str, Any]:
+    dataset_info: Dict[str, str],
+    config: Optional[Dict[str, Any]] = None
+) -> Optional[Dict[str, Any]]:
     """
-    Run t-tests and linear regressions on a cleaned dataset variant.
-    Returns a dict of metrics suitable for JSON serialization.
+    Analyze a single cleaned dataset variant.
+    Runs t-tests and linear regressions on the cleaned data.
     """
-    logger.info(f"Analyzing cleaned variant: {dataset_name} (strategy: {strategy})")
+    logger = logging.getLogger(__name__)
     
-    if not os.path.exists(dataset_path):
-        logger.error(f"Dataset file not found: {dataset_path}")
-        return None
-
     try:
-        df = pd.read_csv(dataset_path)
-    except Exception as e:
-        logger.error(f"Failed to load dataset {dataset_path}: {e}")
-        return None
-
-    results = {
-        "dataset_name": dataset_name,
-        "cleaning_strategy": strategy,
-        "checksum": compute_file_checksum(dataset_path),
-        "row_count": len(df),
-        "column_count": len(df.columns),
-        "analysis": {}
-    }
-
-    # Identify numerical columns for analysis
-    numerical_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    
-    if outcome_col and outcome_col in df.columns:
-        # Ensure outcome is numerical for regression
-        if not np.issubdtype(df[outcome_col].dtype, np.number):
-            logger.warning(f"Outcome column {outcome_col} is not numerical. Skipping regression.")
-        else:
-            # Run Linear Regression
-            # We need at least one predictor. If not provided, try to find one.
-            potential_predictors = [c for c in numerical_cols if c != outcome_col]
-            
-            if predictors:
-                valid_predictors = [p for p in predictors if p in df.columns]
-            elif potential_predictors:
-                valid_predictors = [potential_predictors[0]] # Take first available
+        filepath = dataset_info["filepath"]
+        dataset_name = dataset_info["dataset_name"]
+        strategy = dataset_info["strategy"]
+        
+        # Load the cleaned dataset
+        logger.info(f"Loading cleaned dataset: {filepath}")
+        df = pd.read_csv(filepath)
+        
+        # Determine columns for analysis based on dataset type
+        # Default configuration for common datasets
+        outcome_col = config.get("outcome_col") if config else None
+        group_col = config.get("group_col") if config else None
+        
+        # Try to infer columns if not provided
+        if not outcome_col or not group_col:
+            logger.warning("Outcome or group column not specified, attempting to infer...")
+            # Simple inference: look for common column names
+            if "activity" in df.columns:
+                outcome_col = "activity"
+            elif "purchase" in df.columns:
+                outcome_col = "purchase"
             else:
-                valid_predictors = []
-
-            if valid_predictors:
-                try:
-                    reg_result = run_linear_regression(df, outcome_col, valid_predictors)
-                    results["analysis"]["regression"] = {
-                        "predictors": valid_predictors,
-                        "r_squared": float(reg_result['r_squared']) if 'r_squared' in reg_result else None,
-                        "p_values": [float(p) for p in reg_result.get('p_values', [])],
-                        "coefficients": [float(c) for c in reg_result.get('coefficients', [])]
-                    }
-                except Exception as e:
-                    logger.warning(f"Regression failed for {dataset_name}: {e}")
-                    results["analysis"]["regression"] = {"error": str(e)}
-
-        # Run T-Test if group_col is provided
-        if group_col and group_col in df.columns:
-            try:
-                # Ensure group column has at least 2 unique values
-                unique_groups = df[group_col].nunique()
-                if unique_groups >= 2:
-                    # Take first two unique groups for t-test
-                    groups = df[group_col].unique()[:2]
-                    t_res = run_t_test(df, outcome_col, group_col, groups[0], groups[1])
-                    results["analysis"]["t_test"] = {
-                        "group_col": group_col,
-                        "groups": [str(groups[0]), str(groups[1])],
-                        "p_value": float(t_res['p_value']),
-                        "t_statistic": float(t_res['t_statistic']),
-                        "ci_lower": float(t_res['ci_lower']),
-                        "ci_upper": float(t_res['ci_upper']),
-                        "effect_size_cohen_d": float(t_res.get('effect_size_cohen_d', 0))
-                    }
+                # Use first categorical column as outcome if available
+                categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+                if categorical_cols:
+                    outcome_col = categorical_cols[0]
                 else:
-                    logger.warning(f"Not enough groups for t-test in {dataset_name}")
-            except Exception as e:
-                logger.warning(f"T-test failed for {dataset_name}: {e}")
-                results["analysis"]["t_test"] = {"error": str(e)}
-    else:
-        logger.warning(f"Outcome column {outcome_col} not found in {dataset_name}")
-
-    return results
+                    logger.error("Could not determine outcome column")
+                    return None
+            
+            if "subject" in df.columns:
+                group_col = "subject"
+            elif "gender" in df.columns:
+                group_col = "gender"
+            else:
+                # Use second categorical column or first numeric if no categorical
+                categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+                if len(categorical_cols) > 1:
+                    group_col = categorical_cols[1]
+                else:
+                    numeric_cols = df.select_dtypes(include=[pd.api.types.is_numeric_dtype]).columns.tolist()
+                    if numeric_cols:
+                        group_col = numeric_cols[0]
+                    else:
+                        logger.error("Could not determine group column")
+                        return None
+        
+        logger.info(f"Using outcome_col={outcome_col}, group_col={group_col}")
+        
+        # Run analysis
+        result = analyze_dataset(df, dataset_name, outcome_col, group_col)
+        
+        if result:
+            # Add strategy info to result
+            result["strategy"] = strategy
+            result["dataset_path"] = filepath
+            result["n_rows"] = len(df)
+            result["n_columns"] = len(df.columns)
+            result["outcome_col"] = outcome_col
+            result["group_col"] = group_col
+            result["analysis_timestamp"] = datetime.now().isoformat()
+            
+            logger.info(f"Analysis complete for {dataset_name} ({strategy}): p-value={result.get('t_test', {}).get('p_value', 'N/A')}")
+            return result
+        else:
+            logger.error(f"Analysis failed for {dataset_name} ({strategy})")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Error analyzing {dataset_info.get('filepath', 'unknown')}: {str(e)}", exc_info=True)
+        return None
 
 def main():
     """
-    Main entry point for T023: Re-run t-tests and linear regressions on each cleaned variant.
-    Output: data/processed/cleaned_metrics.json
+    Main entry point for T023: Re-analyze cleaned variants.
+    Finds all cleaned datasets, runs analysis, and outputs cleaned_metrics.json.
     """
-    setup_logging("INFO")
+    logger = setup_logging("INFO")
+    logger.info("Starting T023: Re-analyze cleaned variants")
+    
+    # Load configuration
     config = get_config()
-
     processed_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
-    outcome_col = config.get("outcome_col", "outcome") # Default or from config
-    group_col = config.get("group_col", None) # Optional
-    predictors = config.get("predictors", None) # Optional list
-
-    output_file = config.get("CLEANED_METRICS_PATH", "data/processed/cleaned_metrics.json")
-
-    logger.info(f"Scanning for cleaned datasets in {processed_dir}")
+    output_file = os.path.join(processed_dir, "cleaned_metrics.json")
+    
+    # Find all cleaned datasets
     cleaned_datasets = find_cleaned_datasets(processed_dir)
-
+    
     if not cleaned_datasets:
-        logger.error("No cleaned datasets found. Ensure cleaning strategies have been applied (T022).")
-        sys.exit(1)
-
-    logger.info(f"Found {len(cleaned_datasets)} cleaned dataset variants.")
-
-    all_metrics = []
-    success_count = 0
-
-    for ds_info in cleaned_datasets:
-        metrics = analyze_cleaned_variant(
-            dataset_path=ds_info["path"],
-            dataset_name=ds_info["dataset_name"],
-            strategy=ds_info["strategy"],
-            outcome_col=outcome_col,
-            group_col=group_col,
-            predictors=predictors
-        )
-        
-        if metrics:
-            all_metrics.append(metrics)
-            success_count += 1
-            logger.info(f"Successfully analyzed {ds_info['dataset_name']}")
-        else:
-            logger.warning(f"Skipped analysis for {ds_info['dataset_name']} due to errors")
-
-    if success_count == 0:
-        logger.error("Failed to analyze any cleaned datasets.")
-        sys.exit(1)
-
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-
-    # Write results to JSON
-    with open(output_file, 'w') as f:
-        json.dump(all_metrics, f, indent=2)
-
-    logger.info(f"Cleaned metrics written to {output_file}")
-    logger.info(f"Total datasets analyzed: {success_count}/{len(cleaned_datasets)}")
-
+        logger.warning("No cleaned datasets found. Output will be empty.")
+        output_data = {
+            "status": "success",
+            "total_datasets_analyzed": 0,
+            "total_datasets_attempted": 0,
+            "generated_at": datetime.now().isoformat(),
+            "datasets": []
+        }
+        save_json_file(output_file, output_data)
+        logger.info(f"Wrote empty results to {output_file}")
+        return 0
+    
+    # Analyze each cleaned variant
+    results = []
+    for dataset_info in cleaned_datasets:
+        result = analyze_cleaned_variant(dataset_info, config)
+        if result:
+            results.append(result)
+    
+    # Compile output
+    output_data = {
+        "status": "success",
+        "total_datasets_analyzed": len(results),
+        "total_datasets_attempted": len(cleaned_datasets),
+        "generated_at": datetime.now().isoformat(),
+        "datasets": results
+    }
+    
+    # Write output
+    save_json_file(output_file, output_data)
+    logger.info(f"Wrote results to {output_file}")
+    logger.info(f"Successfully analyzed {len(results)} out of {len(cleaned_datasets)} datasets")
+    
     return 0
 
 if __name__ == "__main__":

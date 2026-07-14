@@ -2,30 +2,29 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 command(s) failed: python code/main.py (rc=1); 1 declared deliverable(s) absent: data/processed/null_fpr_metrics.json
+**Summary**: 1 command(s) failed: python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/null_fpr_metrics.json
 
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-    d_variants.py
-No cleaned datasets found
-2026-07-14 06:43:23 - llmXive - INFO - Running t027_run_comparison.py
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t027_run_comparison.py", line 53, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/t027_run_comparison.py", line 43, in main
-    report = generate_comparison_report(baseline_metrics, cleaned_metrics)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/reporting.py", line 116, in generate_comparison_report
-    cleaned_datasets = cleaned_metrics.get("datasets", [])
-                       ^^^^^^^^^^^^^^^^^^^
-AttributeError: 'list' object has no attribute 'get'
-2026-07-14 06:43:23 - llmXive - ERROR - Script t027_run_comparison.py failed with return code 1
-2026-07-14 06:43:23 - llmXive - ERROR - Pipeline failed at t027_run_comparison.py
-2026-07-14 06:43:23 - llmXive - ERROR - Pipeline failed. Failed scripts: ['t027_run_comparison.py']
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/analysis.py", line 345, in run_baseline_analysis
+    result = analyze_dataset(df, dataset_name, outcome_col, group_col)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/analysis.py", line 274, in analyze_dataset
+    numerical_cols = identify_numerical_columns(df)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/analysis.py", line 19, in identify_numerical_columns
+    return df.select_dtypes(include=[np.number]).columns.tolist()
+           ^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'select_dtypes'
+2026-07-14 07:34:46 - llmXive - ERROR - Script t012_run_baseline_analysis.py failed with return code 1
+2026-07-14 07:34:46 - llmXive - ERROR - Pipeline failed at t012_run_baseline_analysis.py
+2026-07-14 07:34:46 - llmXive - ERROR - Pipeline failed. Failed scripts: ['t012_run_baseline_analysis.py']
 
 ## Declared deliverables still missing
 
+- data/processed/baseline_metrics.json
 - data/processed/null_fpr_metrics.json
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
@@ -36,13 +35,14 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `run_baseline_analysis` — defined in `code/analysis.py`; called 6 way(s):
+### `run_baseline_analysis` — defined in `code/analysis.py`; called 7 way(s):
 
-- code/t023_reanalyze_cleaned_variants.py: result = run_baseline_analysis(
 - code/t012_run_baseline_analysis.py: success = run_baseline_analysis(raw_dir, output_file, config)
 - code/t013_record_baseline_metrics.py: success = run_baseline_analysis(dataset_path, temp_output, config={})
 - code/analysis.py: 1. run_baseline_analysis(raw_dir, output_file, config) -> writes file, returns bool
 - code/analysis.py: 2. run_baseline_analysis(df, dataset_name=..., config=config) -> returns dict
+- code/analysis.py: 3. run_baseline_analysis(dataset_path, temp_output, config={}) -> writes file, returns bool
+- code/t033_outlier_threshold_sweep.py: result = run_baseline_analysis(df_cleaned, dataset_name="null", config={})
 - code/t032_permutation_null_fpr.py: result = run_baseline_analysis(
 
 Make `run_baseline_analysis` in `code/analysis.py` accept ALL of the above.
@@ -56,6 +56,7 @@ Make `run_baseline_analysis` in `code/analysis.py` accept ALL of the above.
 - code/t022_save_cleaned_datasets.py: setup_logging("INFO")
 - code/t034_generate_forest_plot.py: logger = setup_logging(log_level)
 - code/t045_conditional_bootstrap_reduction.py: setup_logging("INFO")
+- code/t023_reanalyze_cleaned_variants.py: logger = setup_logging("INFO")
 - code/t012_run_baseline_analysis.py: logger = setup_logging("INFO")
 - code/utils.py: - setup_logging() -> uses default INFO
 - code/utils.py: - setup_logging("INFO") -> string level
@@ -71,9 +72,8 @@ Make `run_baseline_analysis` in `code/analysis.py` accept ALL of the above.
 - code/profiler.py: setup_logging()
 - code/t048_verify_checksums_and_state.py: logger = setup_logging("INFO")
 - code/main.py: logger = setup_logging("INFO")
-- code/data_loader.py: setup_logging("INFO")
+- code/data_loader.py: logger = setup_logging("INFO")
 - code/t013_record_baseline_metrics.py: logger = setup_logging("INFO")
-- code/t040_create_comparison_report.py: logger = setup_logging("INFO")
 
 Make `setup_logging` in `code/utils.py` accept ALL of the above.
 
@@ -115,15 +115,25 @@ Whichever you choose, every call site of `Config` across the codebase must stop 
 - code/t034_generate_forest_plot.py: strategy = cleaned_item.get('strategy', cleaned_item.get('cleaning_strategy', 'Unknown'))
 - code/t034_generate_forest_plot.py: output_dir = config.get('OUTPUT_PATH', 'data/processed')
 - code/t045_conditional_bootstrap_reduction.py: size = data.get('dataset_size') or data.get('n_rows')
-- code/t023_reanalyze_cleaned_variants.py: outcome_col = config.get("outcome_col")
-- code/t023_reanalyze_cleaned_variants.py: group_col = config.get("group_col")
+- code/t023_reanalyze_cleaned_variants.py: logger.debug("T-test p-value: {}".format(t_test_result.get('p_value')))
+- code/t023_reanalyze_cleaned_variants.py: logger.debug("Regression R-squared: {}".format(reg_result.get('r_squared')))
 - code/t023_reanalyze_cleaned_variants.py: processed_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
-- code/t023_reanalyze_cleaned_variants.py: output_file = config.get("CLEANED_METRICS_PATH", "data/processed/cleaned_metrics.json")
+- code/t023_reanalyze_cleaned_variants.py: outcome_col = config.get("outcome_col")
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/processed/baseline_metrics.json` is declared but was NOT written. Scripts referencing it:
+    - `code/t036_pvalue_shift_reporting.py` — NOT invoked by the run-book
+    - `code/run_quickstart_validation.py` — NOT invoked by the run-book
+    - `code/t037_ci_width_reporting.py` — NOT invoked by the run-book
+    - `code/t034_generate_forest_plot.py` — NOT invoked by the run-book
+    - `code/t012_run_baseline_analysis.py` — NOT invoked by the run-book
+    - `code/config.py` — NOT invoked by the run-book
+    - `code/models.py` — NOT invoked by the run-book
+    - `code/t035_generate_ci_heatmap.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/baseline_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/null_fpr_metrics.json` is declared but was NOT written. Scripts referencing it:
     - `code/run_quickstart_validation.py` — NOT invoked by the run-book
     - `code/t041_generate_final_report.py` — NOT invoked by the run-book
