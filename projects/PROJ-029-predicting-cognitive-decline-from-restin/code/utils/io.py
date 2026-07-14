@@ -1,65 +1,83 @@
-"""
-Utility functions for I/O operations.
-"""
-import os
-from pathlib import Path
-from typing import List, Dict, Any, Optional
-import json
+"""Utility I/O helpers used across the project."""
+from __future__ import annotations
+
 import csv
+import json
+from pathlib import Path
+from typing import Any, Iterable, Mapping, Sequence, Union
+
 import pandas as pd
 
-def ensure_dir(directory: Path) -> None:
-    """Ensure a directory exists."""
-    directory.mkdir(parents=True, exist_ok=True)
 
-def list_bids_subjects(data_dir: Path) -> List[str]:
-    """List BIDS subject IDs in a directory."""
-    subjects = []
-    for item in data_dir.iterdir():
-        if item.is_dir() and item.name.startswith('sub-'):
-            subjects.append(item.name)
-    return subjects
+def ensure_dir(path: Union[str, Path]) -> Path:
+    """Make sure a directory exists; return the Path object."""
+    p = Path(path)
+    p.mkdir(parents=True, exist_ok=True)
+    return p
 
-def load_json(file_path: Path) -> Dict[str, Any]:
+
+def load_csv(filepath: Union[str, Path]) -> list[dict[str, Any]]:
+    """Load a CSV file and return a list of rows as dictionaries."""
+    path = Path(filepath)
+    if not path.is_file():
+        raise FileNotFoundError(f"CSV file not found: {filepath}")
+    with path.open(newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        return [dict(row) for row in reader]
+
+
+def save_csv(
+    data: Sequence[Mapping[str, Any]],
+    filepath: Union[str, Path],
+    *,
+    header: Sequence[str] | None = None,
+    mode: str = "w",
+) -> None:
+    """Write an iterable of mappings to a CSV file.
+
+    Parameters
+    ----------
+    data: Sequence[Mapping[str, Any]]
+        Rows to write. Each mapping must be dict‑like.
+    filepath: Union[str, Path]
+        Destination file.
+    header: optional sequence of column names. If omitted, the keys of the first
+        row are used.
+    mode: file mode, default ``'w'`` (overwrite). ``'a'`` can be used for
+        appending.
+    """
+    if not data:
+        raise ValueError("No data provided to save_csv")
+    path = Path(filepath)
+    ensure_dir(path.parent)
+    fieldnames = list(header) if header is not None else list(data[0].keys())
+    with path.open(mode, newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if mode == "w":
+            writer.writeheader()
+        for row in data:
+            writer.writerow(dict(row))
+
+
+def load_json(filepath: Union[str, Path]) -> Any:
     """Load a JSON file."""
-    with open(file_path, 'r') as f:
+    path = Path(filepath)
+    if not path.is_file():
+        raise FileNotFoundError(f"JSON file not found: {filepath}")
+    with path.open(encoding='utf-8') as f:
         return json.load(f)
 
-def save_json(data: Dict[str, Any], file_path: Path) -> None:
-    """Save a dictionary to a JSON file."""
-    ensure_dir(file_path.parent)
-    with open(file_path, 'w') as f:
-        json.dump(data, f, indent=2)
 
-def load_bids_subject_data(data_dir: Path, subject_id: str) -> Optional[Dict[str, Any]]:
-    """Load data for a specific BIDS subject."""
-    sub_dir = data_dir / subject_id
-    if not sub_dir.exists():
-        return None
-    
-    data = {'subject_id': subject_id}
-    # Scan for JSON files
-    for json_file in sub_dir.rglob('*.json'):
-        try:
-            meta = load_json(json_file)
-            data.update(meta)
-        except:
-            continue
-    return data
+def save_json(obj: Any, filepath: Union[str, Path], *, indent: int = 2) -> None:
+    """Save an object as pretty‑printed JSON."""
+    path = Path(filepath)
+    ensure_dir(path.parent)
+    with path.open('w', encoding='utf-8') as f:
+        json.dump(obj, f, indent=indent, ensure_ascii=False)
 
-def save_csv(df: pd.DataFrame, file_path: Path) -> None:
-    """Save a DataFrame to CSV."""
-    ensure_dir(file_path.parent)
-    df.to_csv(file_path, index=False)
 
-def load_csv(file_path: Path) -> pd.DataFrame:
-    """Load a CSV file into a DataFrame."""
-    return pd.read_csv(file_path)
-
-def save_dataframe(df: pd.DataFrame, file_path: Path) -> None:
-    """Alias for save_csv."""
-    save_csv(df, file_path)
-
-def load_dataframe(file_path: Path) -> pd.DataFrame:
-    """Alias for load_csv."""
-    return load_csv(file_path)
+def save_dataframe(df: pd.DataFrame, filepath: Union[str, Path], *, index: bool = False) -> None:
+    """Save a pandas DataFrame to CSV."""
+    path = Path(filepath)
+    ensure_dir(path.parent)
+    df.to_csv(path, index=index)

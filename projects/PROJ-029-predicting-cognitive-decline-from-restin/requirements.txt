@@ -11,4 +11,5 @@ fsl
 nilearn
 psutil
 joblib
-scipy
+datasets
+# added for the download script

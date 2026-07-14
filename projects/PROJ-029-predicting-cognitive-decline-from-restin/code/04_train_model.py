@@ -1,479 +1,232 @@
-"""
-T023: Train Model with Nested Cross-Validation
-Implements nested CV with collinearity check, variance thresholding, and RFE.
-"""
-import os
-import sys
-import json
-import time
-import warnings
-import logging
-import random
-from pathlib import Path
-from typing import Tuple, List, Optional, Dict, Any
+"""Training script for predicting cognitive decline from resting‑state fMRI graph metrics."""
+from __future__ import annotations
 
+import json
+import sys
+import warnings
+from pathlib import Path
+
+import joblib
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import StratifiedKFold, GridSearchCV, cross_val_score
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import VarianceThreshold, RFE
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
-from sklearn.preprocessing import StandardScaler
-from scipy.stats import pearsonr
-import joblib
 
-# Import project utilities
 from utils.logger import get_logger
-from utils.io import load_csv, save_json, ensure_dir
-from utils.stats import check_collinearity, calculate_feature_variance, filter_low_variance_features
-from config import get_config
+from utils.io import ensure_dir
 
-# Configuration
-RANDOM_SEED = 42
-RANDOM_SEED = 42
-random.seed(RANDOM_SEED)
-np.random.seed(RANDOM_SEED)
+# ----------------------------------------------------------------------
+# Configuration / paths
+# ----------------------------------------------------------------------
+LOGS_DIR = Path("data/artifacts")
+MODEL_PATH = Path("data/processed/model.pkl")
+FEATURES_PATH = Path("data/processed/graph_metrics.csv")
+ELIGIBLE_SUBJECTS_PATH = Path("data/processed/eligible_subjects.csv")
+TRAINING_PARAMS_PATH = Path("data/processed/training_params.json")
 
-# Paths
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data" / "processed"
-ARTIFACTS_DIR = PROJECT_ROOT / "data" / "artifacts"
+warnings.filterwarnings("ignore")
 
-GRAPH_METRICS_PATH = DATA_DIR / "graph_metrics.csv"
-MODEL_OUTPUT_PATH = DATA_DIR / "model.pkl"
-PERFORMANCE_REPORT_PATH = DATA_DIR / "performance_report.json"
-LOGS_DIR = DATA_DIR / "logs"
 
-# Ensure directories exist
-ensure_dir(LOGS_DIR)
-ensure_dir(DATA_DIR)
-ensure_dir(ARTIFACTS_DIR)
-
-logger = get_logger("04_train_model", LOGS_DIR / "training.log")
-
-def get_memory_usage_gb() -> float:
-    """Get current memory usage in GB."""
-    try:
-        import psutil
-        process = psutil.Process(os.getpid())
-        return process.memory_info().rss / (1024 ** 3)
-    except Exception as e:
-        logger.warning(f"Could not get memory usage: {e}")
-        return 0.0
-
-def check_memory_limit(limit_gb: float = 7.0) -> bool:
-    """Check if memory usage is within limit."""
-    current = get_memory_usage_gb()
-    if current > limit_gb:
-        logger.error(f"Memory usage {current:.2f}GB exceeds limit {limit_gb}GB")
-        return False
-    return True
-
-def define_decline_label(df: pd.DataFrame, threshold: int = 3) -> pd.DataFrame:
-    """
-    Define cognitive decline label.
-    Decline = (Score_T1 - Score_T0) >= threshold
-    """
-    # Ensure we have the required columns
-    required_cols = ['subject_id', 'mmse_t0', 'mmse_t1']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        # Try alternative columns (e.g., moca)
-        if 'moca_t0' in df.columns and 'moca_t1' in df.columns:
-            logger.info("Using MOC scores instead of MMSE")
-            score_t0 = df['moca_t0']
-            score_t1 = df['moca_t1']
-        else:
-            raise ValueError(f"Missing required score columns. Found: {df.columns.tolist()}, Required: {required_cols}")
-    else:
-        score_t0 = df['mmse_t0']
-        score_t1 = df['mmse_t1']
-
-    # Calculate change (T1 - T0). Note: T1 is follow-up, T0 is baseline.
-    # Decline means score went DOWN, so T1 < T0.
-    # Label 1 if (T0 - T1) >= threshold
-    change = score_t0 - score_t1
-    df['decline'] = (change >= threshold).astype(int)
-
-    # Check for class balance
-    logger.info(f"Class distribution: {df['decline'].value_counts().to_dict()}")
-    if df['decline'].sum() == 0 or df['decline'].sum() == len(df):
-        logger.warning("Severe class imbalance detected (all 0 or all 1). Results may be unreliable.")
-
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
+def load_features() -> pd.DataFrame:
+    """Load graph‑metric features. Must contain a ``subject_id`` column."""
+    logger = get_logger("load_features")
+    if not FEATURES_PATH.is_file():
+        logger.error(f"Feature file not found: {FEATURES_PATH}")
+        sys.exit(2)
+    df = pd.read_csv(FEATURES_PATH)
+    if "subject_id" not in df.columns:
+        logger.error("Features CSV must contain a 'subject_id' column.")
+        sys.exit(2)
     return df
 
-def collinearity_filter(X: np.ndarray, y: np.ndarray, threshold: float = 0.95) -> Tuple[np.ndarray, List[int]]:
+
+def load_eligible_subjects() -> pd.DataFrame:
+    """Load the CSV that lists subjects with longitudinal cognitive scores."""
+    logger = get_logger("load_eligible_subjects")
+    if not ELIGIBLE_SUBJECTS_PATH.is_file():
+        logger.error(f"Eligible subjects file not found: {ELIGIBLE_SUBJECTS_PATH}")
+        sys.exit(2)
+    df = pd.read_csv(ELIGIBLE_SUBJECTS_PATH)
+    if "subject_id" not in df.columns:
+        logger.error("Eligible subjects CSV must contain a 'subject_id' column.")
+        sys.exit(2)
+    return df
+
+
+def define_decline_label(subjects_df: pd.DataFrame) -> pd.Series:
     """
-    Remove features with correlation > threshold.
-    Keeps the feature with higher variance.
-    Returns filtered X and list of kept indices.
+    Define the decline label.
+
+    A subject is considered to have declined if the MMSE or MOCA score drops
+    by **3 or more points** between the two time‑points. The function is tolerant
+    to whichever score column(s) are present.
     """
-    if X.shape[1] <= 1:
-        return X, list(range(X.shape[1]))
+    logger = get_logger("define_decline_label")
+    # Expect columns like mmse_t1, mmse_t2, moca_t1, moca_t2
+    decline = pd.Series(False, index=subjects_df.index)
+    for prefix in ("mmse", "moca"):
+        t1 = f"{prefix}_t1"
+        t2 = f"{prefix}_t2"
+        if t1 in subjects_df.columns and t2 in subjects_df.columns:
+            diff = subjects_df[t2] - subjects_df[t1]
+            decline = decline | (diff <= -3)
+    if decline.sum() == 0:
+        logger.warning("No subjects met the decline criterion.")
+    return decline.astype(int)
 
-    corr_matrix = np.corrcoef(X.T)
-    np.fill_diagonal(corr_matrix, 0) # Ignore self-correlation
-    
-    # Mask for high correlation
-    high_corr = np.abs(corr_matrix) > threshold
 
-    # Find pairs
-    rows, cols = np.where(high_corr)
-    pairs = list(zip(rows, cols))
-    
-    # Deduplicate (since matrix is symmetric)
-    unique_pairs = []
-    seen = set()
-    for r, c in pairs:
-        if r < c:
-            unique_pairs.append((r, c))
-            seen.add((r, c))
-
-    # Calculate variance for all features
-    variances = np.var(X, axis=0)
-
-    # Mark features to remove
-    to_remove = set()
-    for r, c in unique_pairs:
-        if r in to_remove or c in to_remove:
-            continue
-        
-        # Keep the one with higher variance
-        if variances[r] >= variances[c]:
-            to_remove.add(c)
-        else:
-            to_remove.add(r)
-
-    keep_indices = [i for i in range(X.shape[1]) if i not in to_remove]
-    logger.info(f"Collinearity check: removed {len(to_remove)} features, kept {len(keep_indices)}")
-    
-    return X[:, keep_indices], keep_indices
-
-def inner_cv_pipeline(X: np.ndarray, y: np.ndarray, params: Dict[str, Any]) -> float:
+# ----------------------------------------------------------------------
+# Custom transformer for collinearity handling
+# ----------------------------------------------------------------------
+class CollinearityTransformer(BaseEstimator, TransformerMixin):
     """
-    Inner CV pipeline: Collinearity -> Variance Threshold -> RFE -> RF
-    Returns mean ROC-AUC score.
+    Drops one feature from each pair of highly correlated features
+    (Pearson |r| > threshold). The feature with the higher variance is kept.
     """
-    # 1. Collinearity Check
-    X_coll, kept_indices = collinearity_filter(X, y)
-    
-    if X_coll.shape[1] == 0:
-        return 0.0 # Fail gracefully
 
-    # 2. Variance Thresholding
-    vt = VarianceThreshold(threshold=0.01)
-    X_var = vt.fit_transform(X_coll)
-    
-    if X_var.shape[1] == 0:
-        return 0.0
+    def __init__(self, threshold: float = 0.95):
+        self.threshold = threshold
+        self._keep_columns: Optional[List[str]] = None
 
-    # 3. RFE (Select <= 20 features)
-    n_features_to_select = min(20, X_var.shape[1])
-    base_rf = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=RANDOM_SEED)
-    rfe = RFE(estimator=base_rf, n_features_to_select=n_features_to_select, step=1)
-    X_rfe = rfe.fit_transform(X_var, y)
+    def fit(self, X: pd.DataFrame, y: Any = None):
+        if not isinstance(X, pd.DataFrame):
+            X = pd.DataFrame(X)
+        corr = X.corr().abs()
+        # Upper triangle mask
+        upper = corr.where(np.triu(np.ones(corr.shape), k=1).astype(bool))
 
-    # 4. Fit RF with specific params
-    rf = RandomForestClassifier(
-        n_estimators=params['n_estimators'],
-        max_depth=params['max_depth'],
-        random_state=RANDOM_SEED,
-        n_jobs=2 # Use 2 cores for parallelism
-    )
-    
-    # Simple cross-validation for score
-    skf = StratifiedKFold(n_splits=3, shuffle=True, random_state=RANDOM_SEED)
-    scores = []
-    
-    for train_idx, test_idx in skf.split(X_rfe, y):
-        X_tr, X_te = X_rfe[train_idx], X_rfe[test_idx]
-        y_tr, y_te = y[train_idx], y[test_idx]
-        
-        rf.fit(X_tr, y_tr)
-        # Check if we have both classes in test set for AUC
-        if len(np.unique(y_te)) < 2:
-            continue
-        
-        y_proba = rf.predict_proba(X_te)[:, 1]
-        auc = roc_auc_score(y_te, y_proba)
-        scores.append(auc)
-    
-    if not scores:
-        return 0.0
-    
-    return np.mean(scores)
+        to_drop = set()
+        variances = X.var()
 
-def train_and_evaluate_nested_cv(X: np.ndarray, y: np.ndarray) -> Tuple[Any, Dict[str, Any], List[Dict]]:
+        for col in upper.columns:
+            high_corr = [row for row in upper.index if upper.loc[row, col] > self.threshold]
+            if high_corr:
+                candidates = [col] + high_corr
+                # Keep the one with the highest variance
+                keep = max(candidates, key=lambda c: variances[c])
+                drop = set(candidates) - {keep}
+                to_drop.update(drop)
+
+        self._keep_columns = [c for c in X.columns if c not in to_drop]
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        if self._keep_columns is None:
+            raise RuntimeError("CollinearityTransformer has not been fitted.")
+        return X[self._keep_columns]
+
+
+# ----------------------------------------------------------------------
+# Pipeline construction
+# ----------------------------------------------------------------------
+def make_inner_pipeline() -> Pipeline:
     """
-    Full Nested CV:
-    Outer: 5-fold
-    Inner: Grid Search with the pipeline defined in inner_cv_pipeline
+    Build the inner pipeline:
+    1. Collinearity removal
+    2. Variance thresholding (variance > 0.01)
+    3. Recursive Feature Elimination (≤ 20 features)
+    4. RandomForest classifier
     """
-    logger.info("Starting Nested Cross-Validation")
-    
-    # Check memory
-    if not check_memory_limit():
-        raise MemoryError("Memory limit exceeded before training")
+    steps = [
+        ("collinearity", CollinearityTransformer()),
+        ("variance", VarianceThreshold(threshold=0.01)),
+        ("rfe", RFE(
+            estimator=RandomForestClassifier(random_state=42, n_jobs=1),
+            n_features_to_select=20,
+            step=1)),
+        ("clf", RandomForestClassifier(random_state=42, n_jobs=1)),
+    ]
+    return Pipeline(steps)
 
-    # Grid Search Parameters
-    param_grid = {
-        'n_estimators': [50, 100, 200],
-        'max_depth': [5, 10, None]
-    }
 
-    # Custom scorer for inner loop
-    # We use a wrapper that calls inner_cv_pipeline
-    def inner_cv_scorer(estimator, X, y):
-        # The estimator is just a placeholder here; the logic is in inner_cv_pipeline
-        # We pass the params from the estimator's params (if it were a real estimator)
-        # But since we are doing manual grid search over the pipeline logic:
-        return inner_cv_pipeline(X, y, estimator.get_params())
-
-    # Manual Grid Search to control the inner pipeline strictly
-    best_score = -1
-    best_params = None
-    
-    logger.info("Performing Grid Search over inner pipeline...")
-    
-    # We need to iterate the grid manually because the pipeline is custom
-    # We use a simple 3-fold CV inside the grid search
-    outer_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
-    
-    # To save time, we will do the grid search on the FULL data for the inner loop selection
-    # and then evaluate the chosen params on the outer fold.
-    # However, strict nested CV requires inner CV on the TRAIN fold of the outer loop.
-    
-    outer_results = []
-    best_outer_score = -1
-    best_outer_model = None
-    best_outer_params = None
-
-    # Pre-calculate grid candidates
-    candidates = []
-    for n_est in param_grid['n_estimators']:
-        for max_d in param_grid['max_depth']:
-            candidates.append({'n_estimators': n_est, 'max_depth': max_d})
-
-    logger.info(f"Testing {len(candidates)} parameter combinations in nested CV.")
-
-    for fold_idx, (train_idx, test_idx) in enumerate(outer_cv.split(X, y)):
-        X_tr, X_te = X[train_idx], X[test_idx]
-        y_tr, y_te = y[train_idx], y[test_idx]
-
-        # Inner Loop: Find best params on training fold
-        best_inner_score = -1
-        best_inner_params = None
-
-        for params in candidates:
-            score = inner_cv_pipeline(X_tr, y_tr, params)
-            if score > best_inner_score:
-                best_inner_score = score
-                best_inner_params = params
-
-        logger.info(f"Outer Fold {fold_idx}: Best Inner Params={best_inner_params}, Score={best_inner_score:.4f}")
-
-        # Train final model on training fold with best params
-        # We re-run the full pipeline (Collinearity -> Var -> RFE -> RF)
-        # 1. Collinearity
-        X_tr_coll, _ = collinearity_filter(X_tr, y_tr)
-        # 2. Variance
-        vt = VarianceThreshold(threshold=0.01)
-        X_tr_var = vt.fit_transform(X_tr_coll)
-        # 3. RFE
-        n_sel = min(20, X_tr_var.shape[1])
-        base_rf = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=RANDOM_SEED)
-        rfe = RFE(estimator=base_rf, n_features_to_select=n_sel, step=1)
-        X_tr_rfe = rfe.fit_transform(X_tr_var, y_tr)
-        
-        # 4. RF
-        final_rf = RandomForestClassifier(
-            n_estimators=best_inner_params['n_estimators'],
-            max_depth=best_inner_params['max_depth'],
-            random_state=RANDOM_SEED,
-            n_jobs=2
-        )
-        final_rf.fit(X_tr_rfe, y_tr)
-
-        # Evaluate on test fold
-        # Apply same transforms to test
-        # Note: Collinearity indices must be derived from TRAIN, applied to TEST
-        # But collinearity_filter recomputes from X. In strict nested CV, 
-        # we should derive the mask from X_tr and apply to X_te.
-        # Our function recomputes. To be safe, we assume the structure is stable enough 
-        # or we re-run the filter on X_te (which is slightly biased but standard for small N).
-        # Strictly: We need to save the 'kept_indices' from X_tr and apply to X_te.
-        # Let's modify the flow slightly for strictness:
-        
-        # Re-do collinearity on X_tr to get mask
-        X_tr_coll, kept_indices = collinearity_filter(X_tr, y_tr)
-        X_te_coll = X_te[:, kept_indices]
-        
-        # Variance
-        vt = VarianceThreshold(threshold=0.01)
-        X_te_var = vt.fit_transform(X_te_coll) # Fit on test? No, fit on train.
-        # Correction: Fit VT on X_tr_var, transform X_te_var
-        # But we lost X_tr_var. Let's refactor slightly inside the loop for correctness.
-        
-        # Refactored Inner/Outer logic for strictness:
-        # 1. Collinearity on X_tr -> mask
-        X_tr_coll, kept_indices = collinearity_filter(X_tr, y_tr)
-        X_te_coll = X_te[:, kept_indices]
-        
-        # 2. Variance on X_tr_coll
-        vt = VarianceThreshold(threshold=0.01)
-        X_tr_var = vt.fit_transform(X_tr_coll)
-        X_te_var = vt.transform(X_te_coll)
-        
-        # 3. RFE on X_tr_var
-        n_sel = min(20, X_tr_var.shape[1])
-        base_rf = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=RANDOM_SEED)
-        rfe = RFE(estimator=base_rf, n_features_to_select=n_sel, step=1)
-        X_tr_rfe = rfe.fit_transform(X_tr_var, y_tr)
-        X_te_rfe = rfe.transform(X_te_var)
-        
-        # 4. RF
-        final_rf = RandomForestClassifier(
-            n_estimators=best_inner_params['n_estimators'],
-            max_depth=best_inner_params['max_depth'],
-            random_state=RANDOM_SEED,
-            n_jobs=2
-        )
-        final_rf.fit(X_tr_rfe, y_tr)
-        
-        # Predict
-        if len(np.unique(y_te)) < 2:
-            y_pred_proba = np.zeros_like(y_te, dtype=float)
-        else:
-            y_pred_proba = final_rf.predict_proba(X_te_rfe)[:, 1]
-        
-        auc = roc_auc_score(y_te, y_pred_proba) if len(np.unique(y_te)) > 1 else 0.5
-        acc = accuracy_score(y_te, (y_pred_proba >= 0.5).astype(int))
-        f1 = f1_score(y_te, (y_pred_proba >= 0.5).astype(int))
-        
-        outer_results.append({
-            'fold': fold_idx,
-            'auc': auc,
-            'accuracy': acc,
-            'f1': f1,
-            'params': best_inner_params
-        })
-
-        if auc > best_outer_score:
-            best_outer_score = auc
-            best_outer_model = final_rf
-            best_outer_params = best_inner_params
-
-    # Average metrics
-    mean_auc = np.mean([r['auc'] for r in outer_results])
-    mean_acc = np.mean([r['accuracy'] for r in outer_results])
-    mean_f1 = np.mean([r['f1'] for r in outer_results])
-
-    logger.info(f"Nested CV Complete. Mean AUC: {mean_auc:.4f}, Acc: {mean_acc:.4f}, F1: {mean_f1:.4f}")
-
-    return best_outer_model, {
-        'mean_auc': mean_auc,
-        'mean_accuracy': mean_acc,
-        'mean_f1': mean_f1,
-        'fold_results': outer_results,
-        'best_params': best_outer_params
-    }, outer_results
-
-def train_final_model(X: np.ndarray, y: np.ndarray, params: Dict[str, Any]) -> Any:
-    """Train the final model on full data with best params."""
-    logger.info("Training final model on full dataset")
-    
-    # 1. Collinearity
-    X_coll, kept_indices = collinearity_filter(X, y)
-    # 2. Variance
-    vt = VarianceThreshold(threshold=0.01)
-    X_var = vt.fit_transform(X_coll)
-    # 3. RFE
-    n_sel = min(20, X_var.shape[1])
-    base_rf = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=RANDOM_SEED)
-    rfe = RFE(estimator=base_rf, n_features_to_select=n_sel, step=1)
-    X_rfe = rfe.fit_transform(X_var, y)
-    
-    # 4. RF
-    rf = RandomForestClassifier(
-        n_estimators=params['n_estimators'],
-        max_depth=params['max_depth'],
-        random_state=RANDOM_SEED,
-        n_jobs=2
-    )
-    rf.fit(X_rfe, y)
-    
-    return rf
-
-def main():
-    start_time = time.time()
-    logger.info("Starting T023: Train Model with Nested CV")
+# ----------------------------------------------------------------------
+# Nested cross‑validation
+# ----------------------------------------------------------------------
+def train_and_evaluate_nested_cv():
+    logger = get_logger("04_train_model")
 
     # Load data
-    if not GRAPH_METRICS_PATH.exists():
-        logger.error(f"Graph metrics file not found: {GRAPH_METRICS_PATH}")
-        logger.error("Please run code/03_compute_graph_metrics.py first.")
-        sys.exit(1)
+    features_df = load_features()
+    subjects_df = load_eligible_subjects()
 
-    df = load_csv(GRAPH_METRICS_PATH)
-    logger.info(f"Loaded {len(df)} subjects")
+    # Align features with labels via subject_id
+    X = features_df.set_index("subject_id")
+    y = define_decline_label(subjects_df)
+    y = pd.Series(y.values, index=subjects_df["subject_id"])
+    # Ensure X and y have the same ordering
+    X = X.loc[y.index]
 
-    # Define label
-    df = define_decline_label(df)
-
-    # Prepare features and target
-    # Exclude non-feature columns
-    feature_cols = [c for c in df.columns if c not in ['subject_id', 'mmse_t0', 'mmse_t1', 'moca_t0', 'moca_t1', 'decline']]
-    if not feature_cols:
-        logger.error("No feature columns found in graph_metrics.csv")
-        sys.exit(1)
-
-    X = df[feature_cols].values
-    y = df['decline'].values
-
-    logger.info(f"Feature matrix shape: {X.shape}")
-    logger.info(f"Target distribution: {np.bincount(y)}")
-
-    # Check for class imbalance
-    if len(np.unique(y)) < 2:
-        logger.error("Only one class present in target. Cannot train classifier.")
-        sys.exit(1)
-
-    # Run Nested CV
-    model, cv_results, fold_details = train_and_evaluate_nested_cv(X, y)
-
-    # Train final model with best params
-    final_model = train_final_model(X, y, cv_results['best_params'])
-
-    # Verify FR-003: Base parameters n_estimators=100, max_depth=None
-    # The grid search includes these. We log the final selected params.
-    selected_n_est = cv_results['best_params']['n_estimators']
-    selected_max_d = cv_results['best_params']['max_depth']
-    logger.info(f"Final selected parameters: n_estimators={selected_n_est}, max_depth={selected_max_d}")
-    
-    if selected_n_est == 100 and selected_max_d is None:
-        logger.info("FR-003 Compliance: Base parameters (100, None) were selected.")
-    else:
-        logger.warning(f"FR-003 Compliance: Base parameters (100, None) were NOT selected. Selected: {selected_n_est}, {selected_max_d}")
-
-    # Save model
-    ensure_dir(MODEL_OUTPUT_PATH.parent)
-    joblib.dump(final_model, MODEL_OUTPUT_PATH)
-    logger.info(f"Model saved to {MODEL_OUTPUT_PATH}")
-
-    # Prepare performance report
-    report = {
-        'status': 'success',
-        'nested_cv_results': cv_results,
-        'fold_details': fold_details,
-        'final_params': cv_results['best_params'],
-        'runtime_seconds': time.time() - start_time
+    outer_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    param_grid = {
+        "clf__n_estimators": [50, 100, 200],
+        "clf__max_depth": [5, 10, None],
     }
 
-    save_json(report, PERFORMANCE_REPORT_PATH)
-    logger.info(f"Performance report saved to {PERFORMANCE_REPORT_PATH}")
+    best_score = -np.inf
+    best_params = None
 
-    logger.info("T023 completed successfully.")
+    for fold_idx, (train_idx, test_idx) in enumerate(outer_cv.split(X, y), start=1):
+        X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
+        y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
+
+        inner_cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+        pipeline = make_inner_pipeline()
+
+        grid = GridSearchCV(
+            estimator=pipeline,
+            param_grid=param_grid,
+            cv=inner_cv,
+            scoring="roc_auc",
+            n_jobs=2,
+        )
+
+        grid.fit(X_train, y_train)
+        fold_score = grid.best_score_
+        logger.info(f"Outer fold {fold_idx} best ROC‑AUC (inner CV): {fold_score:.4f}")
+
+        if fold_score > best_score:
+            best_score = fold_score
+            best_params = grid.best_params_
+
+    if best_params is None:
+        logger.error("Grid search failed to produce any parameters.")
+        sys.exit(2)
+
+    logger.info(f"Selected hyper‑parameters after nested CV: {best_params}")
+
+    # ------------------------------------------------------------------
+    # Train final model on the full dataset with the selected hyper‑parameters
+    # ------------------------------------------------------------------
+    final_pipeline = make_inner_pipeline()
+    final_pipeline.set_params(**best_params)
+    final_pipeline.fit(X, y)
+
+    # Persist the trained model
+    ensure_dir(MODEL_PATH.parent)
+    joblib.dump(final_pipeline, MODEL_PATH)
+    logger.info(f"Final model written to {MODEL_PATH}")
+
+    # Also write the chosen hyper‑parameters for downstream verification
+    ensure_dir(TRAINING_PARAMS_PATH.parent)
+    with TRAINING_PARAMS_PATH.open("w") as f:
+        json.dump(best_params, f, indent=2)
+    logger.info(f"Training parameters saved to {TRAINING_PARAMS_PATH}")
+
+    return final_pipeline
+
+
+# ----------------------------------------------------------------------
+# Entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    train_and_evaluate_nested_cv()
+
 
 if __name__ == "__main__":
     main()

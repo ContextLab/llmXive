@@ -1308,3 +1308,221 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T08:08:09Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 dataset contains resting-state fMRI and longitudinal
+    MMSE/MOCA scores
+  claim_id: c_9c5a30c3
+  context: "Task T004c implements a verification step to ensure the OpenNeuro ds000246\
+    \ dataset is available and includes rs\u2011fMRI and longitudinal MMSE/MOCA scores."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_dataset_contains_resting-state_fMRI_and_l
+  kind: entity_fact
+  raw_text: "Verify OpenNeuro ds000246 availability and that it includes rs\u2011\
+    fMRI and longitudinal MMSE/MOCA scores."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:39:07Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: "AAL atlas has 90 regions and produces 90\xD790 connectivity matrices\
+    \ per subject"
+  claim_id: c_3c94d92b
+  context: "Task T018 loads raw BIDS data, performs motion correction, normalization,\
+    \ and applies the 90\u2011region AAL atlas to generate 90\xD790 connectivity matrices\
+    \ for each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply 90\u2011region AAL atlas to generate 90\xD790 connectivity matrices\
+    \ for each subject."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:40:06Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline produces graph_metrics.csv with subject IDs and graph metrics
+    without ML training
+  claim_id: c_b483a298
+  context: "User Story 1 goal is to download raw BIDS rs\u2011fMRI data, filter for\
+    \ longitudinal scores, and generate graph metrics, outputting data/processed/graph_metrics.csv."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_graph_metrics.csv_with_subject_IDs_and_gra
+  kind: entity_fact
+  raw_text: The pipeline can be run on a single batch of data to produce data/processed/graph_metrics.csv
+    containing subject IDs and calculated graph metrics without any machine learning
+    training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:40:31Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: apply 90-region AAL atlas
+  claim_id: c_45bdbf02
+  context: "Load raw BIDS data, perform motion correction using fsl (mcflirt), normalization\
+    \ using nilearn, apply 90\u2011region AAL atlas, generate 90\xD790 connectivity\
+    \ matrices for each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "apply 90\u2011region AAL atlas"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:45:27Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: generate 90x90 connectivity matrices
+  claim_id: c_9bb48eb3
+  context: "Load raw BIDS data, perform motion correction using fsl (mcflirt), normalization\
+    \ using nilearn, apply 90\u2011region AAL atlas, generate 90\xD790 connectivity\
+    \ matrices for each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "generate 90\xD790 connectivity matrices for each subject"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:46:26Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline can produce graph_metrics.csv from a single data batch without
+    ML training
+  claim_id: c_3fb2958e
+  context: 'Independent Test: The pipeline can be run on a single batch of data to
+    produce `data/processed/graph_metrics.csv` containing subject IDs and calculated
+    graph metrics without any machine learning training.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_can_produce_graph_metrics.csv_from_a_single_data_ba
+  kind: entity_fact
+  raw_text: The pipeline can be run on a single batch of data to produce `data/processed/graph_metrics.csv`
+    containing subject IDs and calculated graph metrics without any machine learning
+    training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:47:40Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: "pipeline can output model.pkl and performance_report.json with ROC\u2011\
+    AUC and F1\u2011score for nested CV"
+  claim_id: c_65e59b24
+  context: "Independent Test: The pipeline can be executed to output `data/processed/model.pkl`\
+    \ and `data/processed/performance_report.json` containing ROC\u2011AUC and F1\u2011\
+    score for nested CV, without running the permutation test."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_can_output_model.pkl_and_performance_report.json_wi
+  kind: entity_fact
+  raw_text: "The pipeline can be executed to output `data/processed/model.pkl` and\
+    \ `data/processed/performance_report.json` containing ROC\u2011AUC and F1\u2011\
+    score for nested CV, without running the permutation test."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:48:10Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: pipeline can run permutation test on existing model and output results
+    and sensitivity reports
+  claim_id: c_4b6475c8
+  context: 'Independent Test: The pipeline can take an existing model and performance
+    metric, run the permutation test, and output `data/processed/permutation_results.json`
+    and `data/processed/sensitivity_report.json`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_can_run_permutation_test_on_existing_model_and_outp
+  kind: entity_fact
+  raw_text: The pipeline can take an existing model and performance metric, run the
+    permutation test, and output `data/processed/permutation_results.json` and `data/processed/sensitivity_report.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:48:32Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 includes rs-fMRI and longitudinal MMSE/MOCA scores
+  claim_id: c_85734330
+  context: 'Implement code/00_data_gate.py: Verify OpenNeuro ds000246 (Constitution
+    VI, FR-001) availability. Parse metadata to ensure rs-fMRI and longitudinal MMSE/MOCA
+    scores exist.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_includes_rs-fMRI_and_longitudinal_MMSE/MO
+  kind: entity_fact
+  raw_text: OpenNeuro ds000246 contains rs-fMRI and longitudinal MMSE/MOCA scores
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:51:49Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: AAL atlas contains 90 regions
+  claim_id: c_5836c824
+  context: "Implement `code/02_preprocess_and_parcellate.py`: Load raw BIDS data,\
+    \ perform motion correction using fsl (mcflirt), normalization using nilearn,\
+    \ apply 90\u2011region AAL atlas, generate 90\xD790 connectivity matrices for\
+    \ each subject."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply 90\u2011region AAL atlas, generate 90\xD790 connectivity matrices\
+    \ for each subject."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:58:27Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000246 includes rs-fMRI and longitudinal MMSE/MOCA
+    scores
+  claim_id: c_9ba05ad8
+  context: 'Implement `code/00_data_gate.py`: Verify OpenNeuro `ds000246` (Constitution
+    VI, FR-001) availability. Parse metadata to ensure rs-fMRI and longitudinal MMSE/MOCA
+    scores exist.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000246_includes_rs-fMRI_and_longitudinal
+  kind: entity_fact
+  raw_text: "Verify OpenNeuro ds000246 availability and that it contains rs\u2011\
+    fMRI and longitudinal MMSE/MOCA scores."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T08:58:47Z'
