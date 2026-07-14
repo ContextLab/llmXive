@@ -1,0 +1,412 @@
+resolved_at: '2026-07-14T04:05:21.734625+00:00'
+datasets:
+- intent: OpenPolymer
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/IoT_DDoS_Detection_Dataset_for_CNN_Transformer_Based_Adaptive_Defense_in_P4_Programmable_Networks/32979860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/thesis/Machine_learning_for_automatic_classification_in_digital_libraries_consideration_of_context_in_system_design/32277180
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Trajectories_of_psychological_distress_among_fathers_and_their_children_s_mental_health_in_adolescence_Findings_from_a_longitudinal_Australian_population-based_study/32980280
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Building_Cost_Planning_Best_Practices_and_Insights/32743512
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Supply_chain_concentration_and_firm_resilience_do_political_ties_and_board_interlocks_matter_/32787135
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LMH
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/qgallouedec/lm-human-preferences-sentiment/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/qgallouedec/lm-human-preferences-descriptiveness/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6487b65b9f5637e8eed4a00a/9e662601b40a9bebdb9ffb05ce67232629f729d18debb8fd3e67a6d51f0e5d77?Expires=1784005411&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0ODdiNjViOWY1NjM3ZThlZWQ0YTAwYS85ZTY2MjYwMWI0MGE5YmViZGI5ZmZiMDVjZTY3MjMyNjI5ZjcyOWQxOGRlYmI4ZmQzZTY3YTZkNTFmMGU1ZDc3KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDAwNTQxMX19fV19&Signature=MEQCIAWdkb9f6DRo6yf7jDL8wETSU8ldPdZP2rm5mB8BpkWHAiBWBtouWVrOshSdyWrvb-Bqeb4MZbQJuLgjqQeboXYlQg__&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27offline_60k.json%3B+filename%3D%22offline_60k.json%22%3B&response-content-type=application%2Fjson&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T040331Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=eddf2d03507c954476d20de6ece3579ea43fc5a4cf2d2925a0b7b404e7fad622
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/64a4802ed34eb2ffbf89590b/7b92d0366747da61a1829e228e17a3611b186ff64d9826a1b4ace359f15fe72e?Expires=1784005412&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0YTQ4MDJlZDM0ZWIyZmZiZjg5NTkwYi83YjkyZDAzNjY3NDdkYTYxYTE4MjllMjI4ZTE3YTM2MTFiMTg2ZmY2NGQ5ODI2YTFiNGFjZTM1OWYxNWZlNzJlKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDAwNTQxMn19fV19&Signature=MEQCIHMnpGiI-h5W061RGftbPC6Pabm4Wo0FCkoUT3rCeGThAiAQetZr~ar2lu9UljDXgy9SQbvUgLQ3l0qmdD~5Qdv2-g__&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27logprobs.npy%3B+filename%3D%22logprobs.npy%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T040332Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f23152a59703c215bda970f5329cc92451dd10441710e73b812ef52a04798a85
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/de6l1cu2/lm-human-preferences/b0581b81305513c7a64c2edff9f3baffbe810980/descriptiveness%2Foffline_5k.json?%2Fdatasets%2Fde6l1cu2%2Flm-human-preferences%2Fresolve%2Fmain%2Fdescriptiveness%2Foffline_5k.json=&etag=%22d23ff1a8ae18fcf5c38619c82fed5f5f4dd68131%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/qgallouedec/lm-human-preferences-sentiment/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/qgallouedec/lm-human-preferences-descriptiveness/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Fe_II_Fe_III_Mixed-Valence_Fluorophosphate_Frameworks_and_Their_Magnetic_Characterization/32980290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/IoT_DDoS_Detection_Dataset_for_CNN_Transformer_Based_Adaptive_Defense_in_P4_Programmable_Networks/32979860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/thesis/Machine_learning_for_automatic_classification_in_digital_libraries_consideration_of_context_in_system_design/32277180
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Trajectories_of_psychological_distress_among_fathers_and_their_children_s_mental_health_in_adolescence_Findings_from_a_longitudinal_Australian_population-based_study/32980280
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Building_Cost_Planning_Best_Practices_and_Insights/32743512
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.tx95x6b5r
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.p112b
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19844196
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.lww.com/10.1097/SLA.0000000000005855
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/13160879
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/404678
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/68275
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21189579
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21189579
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15596140
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RDKit
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nglebm19/rdkit_chemical/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nglebm19/rdkit_chemical/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Fe_II_Fe_III_Mixed-Valence_Fluorophosphate_Frameworks_and_Their_Magnetic_Characterization/32980290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/IoT_DDoS_Detection_Dataset_for_CNN_Transformer_Based_Adaptive_Defense_in_P4_Programmable_Networks/32979860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/thesis/Machine_learning_for_automatic_classification_in_digital_libraries_consideration_of_context_in_system_design/32277180
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Trajectories_of_psychological_distress_among_fathers_and_their_children_s_mental_health_in_adolescence_Findings_from_a_longitudinal_Australian_population-based_study/32980280
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Building_Cost_Planning_Best_Practices_and_Insights/32743512
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/32402
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8369849
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1322631
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6248289
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21291217
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.bath.ac.uk/1496/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21320257
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21317279
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617826
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617826
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FFV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/main-horse/ffv4_dataset_test/resolve/main/data/everything-00000-of-00009-42e3f6f9da399cf0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/main-horse/ffv4-test-4/resolve/main/train/index.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 36025
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/main-horse/ffv4_dataset_test/resolve/main/data/everything-00000-of-00009-42e3f6f9da399cf0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/main-horse/ffv4-test-4/resolve/main/train/index.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://acs.figshare.com/articles/journal_contribution/Fe_II_Fe_III_Mixed-Valence_Fluorophosphate_Frameworks_and_Their_Magnetic_Characterization/32980290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/IoT_DDoS_Detection_Dataset_for_CNN_Transformer_Based_Adaptive_Defense_in_P4_Programmable_Networks/32979860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/thesis/Machine_learning_for_automatic_classification_in_digital_libraries_consideration_of_context_in_system_design/32277180
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Trajectories_of_psychological_distress_among_fathers_and_their_children_s_mental_health_in_adolescence_Findings_from_a_longitudinal_Australian_population-based_study/32980280
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Building_Cost_Planning_Best_Practices_and_Insights/32743512
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17823669
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4333950
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8321374
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8319434
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17004053
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20965651
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20965651
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Data_and_code_for_Fire-related_traits_of_Australian_vertebrates_a_database_and_application_b_/32768934
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Data_and_code_for_Fire-related_traits_of_Australian_vertebrates_a_database_and_application_b_/32768934/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/1507.08117
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SMILES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 6057
+      parsed: true
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?Expires=1784005497&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0NDI2MGY3NzJiNGNhN2VlZWU2YTBhMi9lZTVlMDk0NWM1ODkzYmE5ZTlkNjFhNWE0NGUzM2VkMmM2YzUzOTQ5NzE1YzU0NmY0MjI0M2FiYmNiODU4MTIxKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDAwNTQ5N319fV19&Signature=MEUCIFoXHuGOd-9qC95OxGCBH77AuE2Pej9EDdrhI5smf17SAiEAwsWFZpXjatWnj0ZqHkdaODrSx3TSEFrpl-WipRNmJl8_&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-type=text%2Fplain&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T040457Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c90e1a946e6648ddbd1ed1eb02630eb4cba774fdd7593a0145ebc11a279fd6fb
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cas-bridge.xethub.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?Expires=1784005498&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0NDI2OTcyNzJiNGNhN2VlZWU3OTU3Ni9mYjJkM2VkMThiOWE2NTAwNTI0Y2NmMmViYWUyYTQ5NWQ0ZThjOTMxY2UzZjk5OWNkNDM2ODUyOTg0ZjBlNDI0KiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDAwNTQ5OH19fV19&Signature=MEYCIQCRTeMJ93TO37csNPtwTQ6D7KAtsZGBcyzoqSUMwJbSGwIhAMB4fTVmL65FabW5Nogz~0r6SBxCWKnBHfkD4Npp-rt5&Key-Pair-Id=K3EPXBYC3CKDRZ&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fplain&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T040458Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=bf90c733cfe6d55732104ac277119c2503bde99d74b770c840f5211ac949621e
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/Fe_II_Fe_III_Mixed-Valence_Fluorophosphate_Frameworks_and_Their_Magnetic_Characterization/32980290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/IoT_DDoS_Detection_Dataset_for_CNN_Transformer_Based_Adaptive_Defense_in_P4_Programmable_Networks/32979860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/thesis/Machine_learning_for_automatic_classification_in_digital_libraries_consideration_of_context_in_system_design/32277180
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Trajectories_of_psychological_distress_among_fathers_and_their_children_s_mental_health_in_adolescence_Findings_from_a_longitudinal_Australian_population-based_study/32980280
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Building_Cost_Planning_Best_Practices_and_Insights/32743512
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/jctb.5000412311
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/ct/article/120735
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/ct/article/208076
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/cber.19140470182
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673602326825
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/unsworks_79109
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21348163
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21348163
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341249
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21341249
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

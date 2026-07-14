@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: MolecularDescriptor
+description: "Schema for a calculated molecular descriptor."
+type: object
+properties:
+  polymer_id:
+    type: string
+    description: "Foreign key to PolymerRecord."
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  descriptor_name:
+    type: string
+    description: "Name of the descriptor (e.g., 'VdW_Volume')."
+  value:
+    type: number
+    description: "Calculated value."
+  calculation_method:
+    type: string
+    description: "Method used (e.g., 'RDKit-2023.9')."
+required:
+  - polymer_id
+  - descriptor_name
+  - value
+  - calculation_method

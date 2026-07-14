@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: PolymerRecord
+description: "Schema for a single experimental polymer entry from literature."
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier (UUID)."
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  smiles:
+    type: string
+    description: "SMILES string of the polymer."
+  synthesis_method:
+    type: string
+    description: "Categorical synthesis method."
+  permeability_barrer:
+    type: number
+    description: "Permeability in Barrer units."
+    minimum: 0
+  selectivity:
+    type: number
+    description: "Selectivity as a dimensionless ratio."
+    minimum: 0
+  source_citation:
+    type: string
+    description: "DOI or arXiv ID of the source."
+  is_benchmark:
+    type: boolean
+    description: "True if the record is a petrochemical benchmark."
+  flags:
+    type: array
+    items:
+      type: string
+    description: "List of flags (e.g., 'high_variance', 'imputed')."
+required:
+  - id
+  - smiles
+  - permeability_barrer
+  - selectivity
+  - source_citation

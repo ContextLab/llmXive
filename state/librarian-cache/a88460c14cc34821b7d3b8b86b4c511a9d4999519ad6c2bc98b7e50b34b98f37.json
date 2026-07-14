@@ -1,0 +1,531 @@
+{
+  "fetched_at": "2026-07-14T03:55:28Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Developing New Methods to Synthesize High-Performance Membranes using Sustainable Materials",
+      "target_n": 5
+    },
+    "duration_seconds": 104.268,
+    "ended_at": "2026-07-14T03:55:28Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "sustainable polymer membrane synthesis"
+        ],
+        [
+          2,
+          "bio-based membrane fabrication"
+        ],
+        [
+          3,
+          "green chemistry approaches to membrane production"
+        ],
+        [
+          4,
+          "renewable material membranes for separation"
+        ],
+        [
+          5,
+          "environmentally friendly membrane synthesis methods"
+        ],
+        [
+          6,
+          "cellulose-based membrane development"
+        ],
+        [
+          7,
+          "chitosan membrane preparation techniques"
+        ],
+        [
+          8,
+          "biodegradable polymeric membranes"
+        ],
+        [
+          9,
+          "low-energy membrane manufacturing"
+        ],
+        [
+          10,
+          "natural polymer membrane synthesis"
+        ],
+        [
+          11,
+          "sustainable nanomaterial membranes"
+        ],
+        [
+          12,
+          "eco-efficient membrane fabrication processes"
+        ],
+        [
+          13,
+          "biomass-derived membrane materials"
+        ],
+        [
+          14,
+          "green solvent systems for membrane casting"
+        ],
+        [
+          15,
+          "high-flux sustainable membranes"
+        ],
+        [
+          16,
+          "non-toxic membrane synthesis routes"
+        ],
+        [
+          17,
+          "circular economy membrane materials"
+        ],
+        [
+          18,
+          "plant-based membrane polymers"
+        ],
+        [
+          19,
+          "sustainable thin-film composite membranes"
+        ],
+        [
+          20,
+          "waste-derived membrane materials"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Developing New Methods to Synthesize High-Performance Membranes using Sustainable Materials chemistry": 0,
+        "sustainable polymer membrane synthesis": 1
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "bio-based polymer membrane synthesis green chemistry",
+      "cellulose chitosan lignin alginate membrane fabrication",
+      "sustainable monomer crosslinking bio-derived feedstock",
+      "water permeability salt rejection flux durability",
+      "circular economy polymer degradation life cycle assessment"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2512.08896"
+      ]
+    },
+    "per_query_hit_count": {
+      "Developing New Methods to Synthesize High-Performance Membranes using Sustainable Materials chemistry": 3,
+      "bio-based polymer membrane synthesis green chemistry": 3,
+      "cellulose chitosan lignin alginate membrane fabrication": 3,
+      "circular economy polymer degradation life cycle assessment": 3,
+      "sustainable monomer crosslinking bio-derived feedstock": 2,
+      "water permeability salt rejection flux durability": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1703.01840",
+          "rationale": "The paper focuses on high-level resource strategy, supply risk assessment, and criticality indicators for raw materials (specifically hexagonal manganite), rather than the chemical synthesis methods or performance optimization of sustainable membranes requested by the user. It fails to meet criteria (a) or (b) as it does not measure membrane synthesis mechanisms, material properties, or performance metrics, and it is not a foundational methodology paper (d) for membrane chemistry.",
+          "title": "Benefits of Resource Strategy for Sustainable Materials Research and Development"
+        },
+        {
+          "primary_pointer": "2311.10579",
+          "rationale": "The paper focuses on applying Graph Neural Networks to estimate hydraulic pressure in water distribution networks, which is a computational modeling task in civil engineering, whereas the user's question concerns the chemical synthesis of sustainable materials for high-performance membranes. There is no overlap in the biological/physical mechanism, domain, variables, or empirical population, and the paper does not address membrane chemistry, material synthesis, or sustainability metrics.",
+          "title": "Graph Neural Networks for Pressure Estimation in Water Distribution Systems"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-14T03:53:44Z",
+    "term_input": {
+      "normalized": "developing new methods to synthesize high-performance membranes using sustainable materials chemistry",
+      "raw": "Developing New Methods to Synthesize High-Performance Membranes using Sustainable Materials chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The climate crisis and the degradation of the world's ecosystems require humanity to take immediate action. The international scientific community has a responsibility to limit the negative environmental impacts of basic research. The HECAP+ communities (High Energy Physics, Cosmology, Astroparticle Physics, and Hadron and Nuclear Physics) make use of common and similar experimental infrastructure, such as accelerators and observatories, and rely similarly on the processing of big data. Our communities therefore face similar challenges to improving the sustainability of our research. This document aims to reflect on the environmental impacts of our work practices and research infrastructure, to highlight best practice, to make recommendations for positive changes, and to identify the opportunities and challenges that such changes present for wider aspects of social responsibility.",
+          "claimed_authors": [
+            "Sustainable HECAP+ Initiative",
+            " :",
+            "Shankha Banerjee",
+            "Thomas Y. Chen",
+            "Claire David",
+            "Michael Düren",
+            "Harold Erbin",
+            "Jacopo Ghiglieri",
+            "Mandeep S. S. Gill",
+            "L Glaser",
+            "Christian Gütschow",
+            "Jack Joseph Hall",
+            "Johannes Hampp",
+            "Patrick Koppenburg",
+            "Matthias Koschnitzke",
+            "Kristin Lohwasser",
+            "Rakhi Mahbubani",
+            "Viraf Mehta",
+            "Peter Millington",
+            "Ayan Paul",
+            "Frauke Poblotzki",
+            "Karolos Potamianos",
+            "Nikolina Šarčević",
+            "Rajeev Singh",
+            "Hannah Wakeling",
+            "Rodney Walker",
+            "Matthijs van der Wild",
+            "Pia Zurita"
+          ],
+          "claimed_title": "Environmental sustainability in basic research: a perspective from HECAP+",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.02837"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Developing New Methods to Synthesize High-Performance Membranes using Sustainabl', candidate_title='Environmental sustainability in basic research: a perspective from HECAP+')",
+        "failed_at": "2026-07-14T03:54:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The development of selective high precision chemical functionalization strategies for device fabrication, in conjunction with associated techniques for patterning graphene wafers with atomic accuracy would provide the necessary basis for a post-CMOS manufacturing technology. This requires a thorough understanding of the principles governing the reactivity and patterning of graphene at the sub-nanometer length scale. This article reviews our quest to delineate the principles of graphene chemistry - that is, the chemistry at the Dirac point and beyond, and the effect of covalent chemistry on the electronic structure, electrical transport and magnetic properties of this low-dimensional material in order to enable the scalable production of graphene-based devices for low- and high-end technology applications.",
+          "claimed_authors": [
+            "Santanu Sarkar"
+          ],
+          "claimed_title": "A Chemical Route to Graphene for Electronics and Spintronics Device Applications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1409.5849"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Developing New Methods to Synthesize High-Performance Membranes using Sustainabl', candidate_title='A Chemical Route to Graphene for Electronics and Spintronics Device Applications')",
+        "failed_at": "2026-07-14T03:54:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has long been known for elastomers that the velocity of crack propagation jumps as a function of strain. On the other hand, such a jump has not been reported in the literature for polymers which do not exhibit a rubbery plateau in the storage-modulus plot. Here, we report observation of jumps in crack propagation for semi-crystalline polymer sheets without the rubbery plateau, as a result of pulling the sheets at a constant speed. We discuss the advantages of this crack-propagation test under constant-speed stretching and provide physical interpretation of the velocity jump observed for non-elastomer sheets on the basis of a recently proposed theory for the velocity jump in crack propagation.",
+          "claimed_authors": [
+            "Takako Tomizawa",
+            "Ko Okumura"
+          ],
+          "claimed_title": "Velocity jump in the crack propagation induced on a semi-crystalline polymer sheet by constant-speed stretching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.03250"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Developing New Methods to Synthesize High-Performance Membranes using Sustainabl', candidate_title='Velocity jump in the crack propagation induced on a semi-crystalline polymer sheet by constant-speed stretching')",
+        "failed_at": "2026-07-14T03:54:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many synthesis approaches for reversible and quantum logic have been proposed so far. However, most of them generate circuits with respect to simple metrics, i.e. gate count or quantum cost. On the other hand, to physically realize reversible and quantum hardware, additional constraints exist. In this paper, we describe cost metrics beyond gate count and quantum cost that should be considered while synthesizing reversible and quantum logic for the respective target technologies. We show that the evaluation of a synthesis approach may differ if additional costs are applied. In addition, a new cost metric, namely Nearest Neighbor Cost (NNC) which is imposed by realistic physical quantum architectures, is considered in detail. We discuss how existing synthesis flows can be extended to generate optimal circuits with respect to NNC while still keeping the quantum cost small.",
+          "claimed_authors": [
+            "Robert Wille",
+            "Mehdi Saeedi",
+            "Rolf Drechsler"
+          ],
+          "claimed_title": "Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.4609"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Developing New Methods to Synthesize High-Performance Membranes using Sustainabl', candidate_title='Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost')",
+        "failed_at": "2026-07-14T03:54:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Saccharomyces cerevisiae cells were entrapped in matrix of alginate and magnetic nanoparticles and covalently immobilized on magnetite-containing chitosan and cellulose-coated magnetic nanoparticles. Cellulose-coated magnetic nanoparticles with covalently immobilized thermostable α-amylase and chitosan particles with immobilized glucoamylase were also prepared. The immobilized cells and enzymes were applied in column reactors - 1/for simultaneous corn starch saccharification with the immobilized glucoamylase and production of ethanol with the entrapped or covalently immobilized yeast cells, 2/ for separate ethanol fermentation of the starch hydrolysates with the fixed yeasts. Hydrolysis of corn starch with the immobilized α-amylase and glucoamylase, and separate hydrolysis with the immobilized α-amylase were also examined. In the first reactor the ethanol yield reached approx. 91% of the theoretical; the yield was approx. 86% in the second. The ethanol fermentation was affected by the type of immobilization, the initial particle loading, feed sugar concentration and the dilution rate. The ethanol productivity with entrapped cells reached 264.0 g/L.h at particle loading rate 70% and dilution rate 3.0 h-1 with reducing sugar concentration of 200.0 g/L. The prepared magnetic particles with fixed yeast cells were stable at 4oC in saline for more than 1 month. .",
+          "claimed_authors": [
+            "Viara Ivanova",
+            "Petia Petrova",
+            "Jordan Hristov"
+          ],
+          "claimed_title": "Application in the Ethanol Fermentation of Immobilized Yeast Cells in Matrix of Alginate/Magnetic Nanoparticles, on Chitosan-Magnetite Microparticles and Cellulose-coated Magnetic Nanoparticles",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1105.0619"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Developing New Methods to Synthesize High-Performance Membranes using Sustainabl', candidate_title='Application in the Ethanol Fermentation of Immobilized Yeast Cells in Matrix of Alginate/Magnetic Nanoparticles, on Chitosan-Magnetite Microparticles and Cellulose-coated Magnetic Nanoparticles')",
+        "failed_at": "2026-07-14T03:54:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Concentrated fabric conditioners are water-based formulations containing 10 wt. % of cationic surfactants that are deposited on textile fibers during the rinse cycle in a washing machine to make them smoother and softer to touch. In topical formulations, the concentration of cationic surfactants is reduced by half, this reduction being compensated by the addition of environment-friendly polysaccharides. Using atomic force microscopy (AFM), quartz crystal microbalance with dissipation (QCM-D) and ellipsometry, the deposition of formulations with or without polysaccharides on model cellulose substrates is studied. We found that 180 nm long cellulose nanocrystals (CNCs) deposited by spin-coating on amorphous silicon dioxide or on quartz crystal sensors provide a good model of cellulose surfaces. QCM-D results reveal strong electrostatic interactions of the surfactant vesicles and polysaccharides with the CNC layer. In the presence of polysaccharides, the adsorbed quantities are less (by 60%) than the sum of the respective amounts of each component, the structure of the interface being however more homogenous and rigid. This outcome suggests that surface techniques coupled with CNC coated substrates are promising for studying interactions of current formulations with cellulose surfaces.",
+          "claimed_authors": [
+            "Evdokia K. Oikonomou",
+            "Grazia M. L. Messina",
+            "Laurent Heux",
+            "Giovanni Marletta",
+            "Jean-François Berret"
+          ],
+          "claimed_title": "Adsorption of a fabric conditioner on cellulose nanocrystals: Synergistic effects of surfactant vesicles and polysaccharides on softness properties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.14887"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Developing New Methods to Synthesize High-Performance Membranes using Sustainabl', candidate_title='Adsorption of a fabric conditioner on cellulose nanocrystals: Synergistic effects of surfactant vesicles and polysaccharides on softness properties')",
+        "failed_at": "2026-07-14T03:54:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cellulose is one of the most versatile substances in the world. Its immense variety of applications was in recent years complemented by interesting nanotechnological applications. The fabrication of complex cellulose-based materials asks for thorough understanding of the surface structure and its interactions with adsorbates. In this study we investigate several surface model systems of nanotechnological interest, which are obtained by reorganization of the cellulose-vacuum or cellulose-water interfaces of slabs of crystalline cellulose. To do this, we constructed supercells from crystallographic data, and then optimized the interface structures. From the bulk and surface systems we calculated structural properties such as unit cell parameters, dihedral conformation distributions, density profiles and hydrogen bonding. The results suggest that no overall geometrical restructuring occurs at the interface. However, the hydrogen bond network is strongly reconstructed, as is inferred from the dihedral conformations and hydrogen bond occurrences, although only within the first few layers. This holds for low index close packed structures as well as for high index loosely packed surfaces. Replacing the vacuum by ambient pressure water molecules we find less rearrangements of the cellulose surface, because the water allows formation of hydrogen bonds similar to those in the bulk phase. The water near the cellulose surface shows, however, strong structural changes. We observe reduced mobility of the water molecules, which corresponds to a cooling of water by about 30 degrees, in a slab that is about 10 Å thick. Although structuring and adsorption is observed on all surfaces, no actual penetration of water into the cellulose structure could be observed. This suggests that pure water is not sufficient to produce cellulose swelling at mesoscopic timescales.",
+          "claimed_authors": [
+            "Reinhard J. Maurer",
+            "Alexander F. Sax",
+            "Volker Ribitsch"
+          ],
+          "claimed_title": "Molecular simulation of surface reorganization and wetting in crystalline cellulose I and II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1212.2426"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Developing New Methods to Synthesize High-Performance Membranes using Sustainabl', candidate_title='Molecular simulation of surface reorganization and wetting in crystalline cellulose I and II')",
+        "failed_at": "2026-07-14T03:54:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Climate change concerns emphasize the need for sustainable computing. Modeling the carbon footprint (CFP), including operational and embodied CFP from semiconductor use, manufacture and design, is essential. Field programmable gate arrays (FPGAs) stand out as promising platforms due to their reconfigurability across various applications, enabling the amortization of embodied CFP across multiple applications. This paper introduces GreenFPGA, a tool estimating the total CFP of FPGAs over their lifespan, considering uncertainties in CFP modeling. It accounts for CFP during design, manufacturing, reconfigurability (reuse), operation, disposal, testing, and recycling. GreenFPGA identifies deployment regimes in which FPGAs can be more sustainable than ASICs, GPUs, and CPUs under the modeled iso-performance assumptions. Experimental results highlight the importance of analyzing applications across different computing platforms to assess their CFP while varying parameters such as application type, lifetime, usage time, and volume impact their total CFP. Across the evaluated pairwise iso-performance case studies with ASICs, GPUs, and CPUs, FPGAs can be more sustainable under specific deployment regimes involving frequently changing, diverse workloads and low-volume applications.",
+          "claimed_authors": [
+            "Chetan Choppali Sudarshan",
+            "Aman Arora",
+            "Vidya A Chhabria"
+          ],
+          "claimed_title": "Evaluating Computing Platforms for Sustainability: A Comparative Analysis of FPGAs against ASICs, GPUs, and CPUs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.20638"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Developing New Methods to Synthesize High-Performance Membranes using Sustainabl', candidate_title='Evaluating Computing Platforms for Sustainability: A Comparative Analysis of FPGAs against ASICs, GPUs, and CPUs')",
+        "failed_at": "2026-07-14T03:54:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In addressing the problem of commodity production out of feedstock imports, an eco-environmentally rational agent aims at minimizing the cost of feedstock imports and their transportation, but also the water footprint of the feedstock production process and the water scarcity in the exporting countries. The problem is formulated as a nonlinear program. This study proves the existence of solutions and quantitatively demonstrates that transportation costs and non-uniform feedstock characteristics inhibit feedstock interchangeability. Moreover, it is shown that the interplay between water footprint and water scarcity across countries can inhibit or foster feedstock interchangeability.",
+          "claimed_authors": [
+            "Massimo Frittelli",
+            "Pierluigi Toma"
+          ],
+          "claimed_title": "Optimizing feedstock imports with environmental constraints",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.14193"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Developing New Methods to Synthesize High-Performance Membranes using Sustainabl', candidate_title='Optimizing feedstock imports with environmental constraints')",
+        "failed_at": "2026-07-14T03:54:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We discuss the role of water bridging the DNA-enzyme interaction by resorting to recent results showing that London dispersion forces between delocalized electrons of base pairs of DNA are responsible for the formation of dipole modes that can be recognized by \\textit{Taq} polymerase. We describe the dynamic origin of the high efficiency and precise targeting of \\textit{Taq} activity in PCR. The spatiotemporal distribution of interaction couplings, frequencies, amplitudes, and phase modulations comprise a pattern of fields which constitutes the electromagnetic image of DNA in the surrounding water, which is what the polymerase enzyme actually recognizes in the DNA water environment. The experimental realization of PCR amplification, achieved through replacement of the DNA template by the treatment of pure water with electromagnetic signals recorded from viral and bacterial DNA solutions, is found consistent with the gauge theory paradigm of quantum fields.",
+          "claimed_authors": [
+            "Luc Montagnier",
+            "Jamal Aïssa",
+            "Antonio Capolupo",
+            "Travis J. A. Craddock",
+            "Philip Kurian",
+            "Claude Lavallee",
+            "Albino Polcari",
+            "Paola Romano",
+            "Alberto Tedeschi",
+            "Giuseppe Vitiello"
+          ],
+          "claimed_title": "Water Bridging Dynamics of Polymerase Chain Reaction in the Gauge Theory Paradigm of Quantum Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.02436"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Developing New Methods to Synthesize High-Performance Membranes using Sustainabl', candidate_title='Water Bridging Dynamics of Polymerase Chain Reaction in the Gauge Theory Paradigm of Quantum Fields')",
+        "failed_at": "2026-07-14T03:54:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The concept of Circular Economy (CE) has evolved significantly over the past decade, transitioning from a simple model of resource circulation to an increasingly complex and debated framework. While its primary objective remains the elimination of waste and pollution through regenerative processes, CE has encountered definitional ambiguities and criticisms. This study critically examines the prevailing circularity metrics, such as the circular material use rate or circularity and argues that such narrow definitions obscure the true potential of CE by excluding higher-value strategies like maintenance, repair, refurbishment, and remanufacturing. Through a mixed-methods analysis of global resource flows (e.g.,104 Gt input in 2020, with only 9% recycled), the study demonstrates how adjusting circularity calculations for non-recoverable materials reveals a real circularity rate of 27%, far exceeding the apparent 9%. Yet even this higher rate translates to a mere 1.4% of global GDP, underscoring the limited economic impact of recycling-centric approaches. The study identifies that 69% of economic value already derives from managing existing stocks, suggesting mainstream CE discourse has largely overlooked the most substantial circular practices already embedded in modern economies. The study thus proposes a radical change in the assessment framework that, (a) replaces annual input-based metrics with economic value creation as the primary indicator, (b) incorporates stock utilization efficiency as a core circularity measure and (c) establishes new policy targets focused on value retention and reuse rather than mere material recovery. These findings necessitate a paradigm shift in circular economy strategy -- from counting recycled materials to optimizing economic resilience through intelligent stock management and service-based value creation.",
+          "claimed_authors": [
+            "Amir Rashid"
+          ],
+          "claimed_title": "How circular is the linear economy? Analysing circularity, resource flows and their relation to GDP",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.13048"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Developing New Methods to Synthesize High-Performance Membranes using Sustainabl', candidate_title='How circular is the linear economy? Analysing circularity, resource flows and their relation to GDP')",
+        "failed_at": "2026-07-14T03:54:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Aims: Optical interferometry from space for the purpose of detecting and characterising exoplanets is seeing a revival, specifically from missions such as the proposed Large Interferometer For Exoplanets (LIFE). A default assumption since the design studies of Darwin and TPF-I has been that the Emma X-array configuration is the optimal architecture for this goal. Here, we examine whether new advances in the field of nulling interferometry, such as the concept of kernel nulling, challenge this assumption.\n  Methods: We develop a tool designed to derive the photon-limited signal to noise ratio of a large sample of simulated planets for different architecture configurations and beam combination schemes. We simulate four basic configurations: the double Bracewell/X-array, and kernel nullers with three, four and five telescopes respectively.\n  Results: We find that a configuration of five telescopes in a pentagonal shape, using a five aperture kernel nulling scheme, outperforms the X-array design in both search (finding more planets) and characterisation (obtaining better signal, faster) when total collecting area is conserved. This is especially the case when trying to detect Earth twins (temperate, rocky planets in the habitable zone), showing a 23% yield increase over the X-array. On average, we find that a five telescope design receives 1.2 times the signal over the X-array design.\n  Conclusions: With the results of this simulation, we conclude that the Emma X-array configuration may not be the best architecture choice for the upcoming LIFE mission, and that a five telescope design utilising kernel nulling concepts will likely provide better scientific return for the same collecting area, provided that technical solutions for the required achromatic phase shifts can be implemented.",
+          "claimed_authors": [
+            "Jonah T. Hansen",
+            "Michael J. Ireland",
+            "the LIFE Collaboration"
+          ],
+          "claimed_title": "Large Interferometer For Exoplanets (LIFE): IV. Ideal kernel-nulling array architectures for a space-based mid-infrared nulling interferometer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.04891"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Developing New Methods to Synthesize High-Performance Membranes using Sustainabl', candidate_title='Large Interferometer For Exoplanets (LIFE): IV. Ideal kernel-nulling array architectures for a space-based mid-infrared nulling interferometer')",
+        "failed_at": "2026-07-14T03:54:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Following the recommendations to NASA and ESA, the search for life on exoplanets will be a priority in the next decades. Two direct imaging space mission concepts are being developed: the Habitable Worlds Observatory (HWO) and the Large Interferometer for Exoplanets (LIFE). HWO focuses on reflected light spectra in the ultraviolet/visible/near-infrared (UV/VIS/NIR), while LIFE captures the mid-infrared (MIR) emission of temperate exoplanets. We assess the potential of HWO and LIFE in characterizing a cloud-free Earth twin orbiting a Sun-like star at 10 pc, both separately and synergistically, aiming to quantify the increase in information from joint atmospheric retrievals on a habitable planet. We perform Bayesian retrievals on simulated data from an HWO-like and a LIFE-like mission separately, then jointly, considering the baseline spectral resolutions currently assumed for these concepts and using two increasingly complex noise simulations. HWO would constrain H$_2$O, O$_2$, and O$_3$, in the atmosphere, with ~ 100 K uncertainty on the temperature profile. LIFE would constrain CO$_2$, H$_2$O, O$_3$ and provide constraints on the thermal atmospheric structure and surface temperature (~ 10 K uncertainty). Both missions would provide an upper limit on CH$_4$. Joint retrievals on HWO and LIFE data would accurately define the atmospheric thermal profile and planetary parameters, decisively constrain CO$_2$, H$_2$O, O$_2$, and O$_3$, and weakly constrain CO and CH$_4$. The detection significance is greater or equal to single-instrument retrievals. Both missions provide specific information to characterize a terrestrial habitable exoplanet, but the scientific yield is maximized with synergistic UV/VIS/NIR+MIR observations. Using HWO and LIFE together will provide stronger constraints on biosignatures and life indicators, potentially transforming the search for life in the universe.",
+          "claimed_authors": [
+            "E. Alei",
+            "S. P. Quanz",
+            "B. S. Konrad",
+            "E. O. Garvin",
+            "V. Kofman",
+            "A. Mandell",
+            "D. Angerhausen",
+            "P. Mollière",
+            "M. R. Meyer",
+            "T. Robinson",
+            "S. Rugheimer",
+            "the LIFE Collaboration"
+          ],
+          "claimed_title": "Large Interferometer For Exoplanets (LIFE): XIII. The Value of Combining Thermal Emission and Reflected Light for the Characterization of Earth Twins",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.13037"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Developing New Methods to Synthesize High-Performance Membranes using Sustainabl', candidate_title='Large Interferometer For Exoplanets (LIFE): XIII. The Value of Combining Thermal Emission and Reflected Light for the Characterization of Earth Twins')",
+        "failed_at": "2026-07-14T03:54:32Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Valentina Sessini",
+            "Miguel Palenzuela",
+            "Jesus Damian",
+            "Marta E. G. Mosquera"
+          ],
+          "title": "Bio-Based Polyether from Limonene Oxide Catalytic ROP as Green Polymeric Plasticizer for PLA",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.01297",
+        "summary": "In this work, the polymerization of Limonene Oxide (LO) has been achieved using an Earth abundant metal-based catalyst developed in our group, that is very active in ring opening polymerization (ROP) processes. The bio-based polylimonene ether (PLO) obtained had low molecular weight and good thermal properties, thus being a potential green polymeric additive for other bio-based polymers such as PLA. Hence, we have explored its ability to influence PLA properties. The addition of only 10 wt %, led to the modification and improvement of PLA properties in terms of flexibility, thermal stability, and hydrophobicity. The results obtained are promising and open up the potential industrial application of polylimonene oxide (PLO) for the melt-processing of blends based on PLA/PLO. These new materials are totally based on renewable sources and may be interesting for many applications where biodegradability and reduced water adsorption is required, such as food packaging or agricultural mulch films.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2012.01297",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T03:54:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Minmin Xue",
+            "Hu Qiu",
+            "Wanlin Guo"
+          ],
+          "title": "Exceptionally Fast Water Desalination at Complete Salt Rejection by Pristine Graphyne Monolayers",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1309.0322",
+        "summary": "Desalination that produces clean freshwater from seawater holds the promise to solve the global water shortage for drinking, agriculture and industry. However, conventional desalination technologies such as reverse osmosis and thermal distillation involve large amounts of energy consumption, and the semipermeable membranes widely used in reverse osmosis face the challenge to provide a high throughput at high salt rejection. Here we find by comprehensive molecular dynamics simulations and first principles modeling that, pristine graphyne, one of the graphene like one-atom-thick carbon allotropes, can achieve 100% rejection of nearly all ions in seawater including Na+, Cl-, Mg2+, K+ and Ca2+, at an exceptionally high water permeability about two orders of magnitude higher than those for commercial state-of-the-art reverse osmosis membranes at a salt rejection of ~98.5%. This complete ion rejection by graphyne, independent of the salt concentration and the operating pressure, is revealed to be originated from the significantly higher energy barriers for ions than that for water. This intrinsic specialty of graphyne should provide a new possibility for the efforts to alleviate the global shortage of freshwater and other environmental problems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1309.0322",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T03:54:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gang Liu",
+            "Sobin Alosious",
+            "Subhamoy Mahajan",
+            "Eric Inae",
+            "Yihan Zhu",
+            "Yuhan Liu",
+            "Renzheng Zhang",
+            "Jiaxin Xu",
+            "Addison Howard",
+            "Ying Li",
+            "Tengfei Luo",
+            "Meng Jiang"
+          ],
+          "title": "Open Polymer Challenge: Post-Competition Report",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.08896",
+        "summary": "Machine learning (ML) offers a powerful path toward discovering sustainable polymer materials, but progress has been limited by the lack of large, high-quality, and openly accessible polymer datasets. The Open Polymer Challenge (OPC) addresses this gap by releasing the first community-developed benchmark for polymer informatics, featuring a dataset with 10K polymers and 5 properties: thermal conductivity, radius of gyration, density, fractional free volume, and glass transition temperature. The challenge centers on multi-task polymer property prediction, a core step in virtual screening pipelines for materials discovery. Participants developed models under realistic constraints that include small data, label imbalance, and heterogeneous simulation sources, using techniques such as feature-based augmentation, transfer learning, self-supervised pretraining, and targeted ensemble strategies. The competition also revealed important lessons about data preparation, distribution shifts, and cross-group simulation consistency, informing best practices for future large-scale polymer datasets. The resulting models, analysis, and released data create a new foundation for molecular AI in polymer science and are expected to accelerate the development of sustainable and energy-efficient materials. Along with the competition, we release the test dataset at https://www.kaggle.com/datasets/alexliu99/neurips-open-polymer-prediction-2025-test-data. We also release the data generation pipeline at https://github.com/sobinalosious/ADEPT, which simulates more than 25 properties, including thermal conductivity, radius of gyration, and density.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.08896",
+          "http_status": 200,
+          "pdf_sample_score": 0.2747,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-14T03:54:41Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "developing new methods to synthesize high-performance membranes using sustainable materials chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

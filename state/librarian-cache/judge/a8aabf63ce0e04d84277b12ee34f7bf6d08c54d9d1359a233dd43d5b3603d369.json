@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.08896",
+  "judged_at": "2026-07-14T03:55:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "developing new methods to synthesize high-performance membranes using sustainable materials chemistry",
+  "rationale": "This paper satisfies criteria (b) and (f) by providing the foundational dataset and benchmark for predicting key polymer properties (such as fractional free volume and glass transition temperature) that directly determine membrane performance, and it establishes the empirical baseline for using machine learning to discover sustainable polymer materials. While it focuses on the data and prediction models rather than the synthesis chemistry itself, it is a canonical reference for the \"materials di",
+  "relevant": true
+}
