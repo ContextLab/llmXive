@@ -1,15 +1,15 @@
 {
   "project_id": "PROJ-284-investigating-the-relationship-between-b",
   "ok": false,
-  "reason": "4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=2); python code/main.py --step analyze (rc=2); 2 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv",
+  "reason": "4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=2); python code/main.py --step analyze (rc=2); 1 declared deliverable(s) absent: data/analysis/full_metrics.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py --step download_preprocess --subjects 50 -> rc=1\n    ",
-    "python code/main.py --step extract_metrics -> rc=2\n    usage: main.py [-h] --step\n               {download_preprocess,metrics,correlations,viz_report}\n               [--subjects SUBJECTS]\nmain.py: error: argument --step: invalid choice: 'extract_metrics' (choose from 'download_preprocess', 'metrics', 'correlations', 'viz_report')",
-    "python code/main.py --step analyze -> rc=2\n    usage: main.py [-h] --step\n               {download_preprocess,metrics,correlations,viz_report}\n               [--subjects SUBJECTS]\nmain.py: error: argument --step: invalid choice: 'analyze' (choose from 'download_preprocess', 'metrics', 'correlations', 'viz_report')",
-    "python code/main.py --step viz_report -> rc=2\n    Error: Correlation results file not found: data/analysis/correlations.csv\nPlease run the correlation analysis first (T024, T025)\n\nusage: main.py [-h] [--correlations CORRELATIONS] [--power POWER]\n               [--plots PLOTS] [--output OUTPUT]\nmain.py: error: unrecognized arguments: --step viz_report"
+    "python code/main.py --step download_preprocess --subjects 50 -> rc=1\n    Error in pipeline step 'download_preprocess': cannot import name 'datasets' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/nilearn/__init__.py)",
+    "python code/main.py --step extract_metrics -> rc=2\n    usage: main.py [-h] --step\n               {download_preprocess,metrics,correlations,viz_report}\n               [--subjects SUBJECTS] [--correlations CORRELATIONS]\n               [--power POWER] [--plots PLOTS] [--output OUTPUT]\nmain.py: error: argument --step: invalid choice: 'extract_metrics' (choose from 'download_preprocess', 'metrics', 'correlations', 'viz_report')",
+    "python code/main.py --step analyze -> rc=2\n    usage: main.py [-h] --step\n               {download_preprocess,metrics,correlations,viz_report}\n               [--subjects SUBJECTS] [--correlations CORRELATIONS]\n               [--power POWER] [--plots PLOTS] [--output OUTPUT]\nmain.py: error: argument --step: invalid choice: 'analyze' (choose from 'download_preprocess', 'metrics', 'correlations', 'viz_report')",
+    "python code/main.py --step viz_report -> rc=1\n    Error: Correlation results file not found: data/analysis/correlations.csv\nPlease run the correlation analysis first (T024, T025)"
   ],
-  "fix_rounds": 5,
+  "fix_rounds": 6,
   "model_tier": 3,
-  "updated_at": "2026-07-14T11:57:22Z"
+  "updated_at": "2026-07-14T12:55:04Z"
 }

@@ -2,33 +2,30 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=2); python code/main.py --step analyze (rc=2); 2 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv
+**Summary**: 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=2); python code/main.py --step analyze (rc=2); 1 declared deliverable(s) absent: data/analysis/full_metrics.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py --step download_preprocess --subjects 50 -> rc=1
-    
+    Error in pipeline step 'download_preprocess': cannot import name 'datasets' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/nilearn/__init__.py)
 - python code/main.py --step extract_metrics -> rc=2
     usage: main.py [-h] --step
                {download_preprocess,metrics,correlations,viz_report}
-               [--subjects SUBJECTS]
+               [--subjects SUBJECTS] [--correlations CORRELATIONS]
+               [--power POWER] [--plots PLOTS] [--output OUTPUT]
 main.py: error: argument --step: invalid choice: 'extract_metrics' (choose from 'download_preprocess', 'metrics', 'correlations', 'viz_report')
 - python code/main.py --step analyze -> rc=2
     usage: main.py [-h] --step
                {download_preprocess,metrics,correlations,viz_report}
-               [--subjects SUBJECTS]
+               [--subjects SUBJECTS] [--correlations CORRELATIONS]
+               [--power POWER] [--plots PLOTS] [--output OUTPUT]
 main.py: error: argument --step: invalid choice: 'analyze' (choose from 'download_preprocess', 'metrics', 'correlations', 'viz_report')
-- python code/main.py --step viz_report -> rc=2
+- python code/main.py --step viz_report -> rc=1
     Error: Correlation results file not found: data/analysis/correlations.csv
 Please run the correlation analysis first (T024, T025)
 
-usage: main.py [-h] [--correlations CORRELATIONS] [--power POWER]
-               [--plots PLOTS] [--output OUTPUT]
-main.py: error: unrecognized arguments: --step viz_report
-
 ## Declared deliverables still missing
 
-- data/analysis/factor_scores.csv
 - data/analysis/full_metrics.csv
 
 ## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
@@ -185,14 +182,9 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/analysis/factor_scores.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/correlations.py` — NOT invoked by the run-book
-    - `code/analysis/pca_runner.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/analysis/factor_scores.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/analysis/full_metrics.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/correlations.py` — NOT invoked by the run-book
     - `code/analysis/generate_full_metrics.py` — NOT invoked by the run-book
-    - `code/analysis/pca_runner.py` — NOT invoked by the run-book
     - `code/analysis/create_full_metrics.py` — NOT invoked by the run-book
     - `code/tools/verify_batching.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/analysis/full_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
@@ -205,10 +197,10 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `data/analysis/correlations.csv`
 
-This file is MISSING and NO script writes it. Add a producer that writes `data/analysis/correlations.csv` (or correct the path a consumer reads to an existing produced file).
-Consumers waiting on it: `code/viz/scatter.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/analysis/correlations.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/analysis/correlations.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/main.py`, `code/analysis/correlations.py`.
 
 ### `data/processed/aggregated_metrics.csv`
 
 This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/analysis/correlations.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/aggregated_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/viz/scatter.py`, `code/analysis/correlations.py`, `code/tools/verify_batching.py`.
+Consumers waiting on it: `code/analysis/correlations.py`, `code/tools/verify_batching.py`.
