@@ -1,103 +1,169 @@
 """
-Tests for the runtime monitoring functionality (T029).
+Tests for the runtime_monitor module.
+
+These tests verify that the runtime monitoring functionality works correctly,
+including start time recording, runtime measurement, and compliance checking.
 """
 import os
 import json
 import time
 import tempfile
-import shutil
-from pathlib import Path
 import pytest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+from datetime import datetime
 
-# We need to mock the project structure to test this in isolation
-# Since the script relies on relative paths and existing files, we will
-# create a temporary directory structure.
+# Import the module under test
+from runtime_monitor import (
+    setup_runtime_logger,
+    record_start_time,
+    load_pipeline_start_time,
+    measure_and_log_runtime,
+    main,
+    MAX_RUNTIME_SECONDS,
+    START_TIME_FILE,
+    RUNTIME_LOG_FILE
+)
 
 @pytest.fixture
-def temp_project_root(tmp_path):
-    """Create a temporary project structure."""
-    # Create directories
+def temp_dirs(tmp_path):
+    """Create temporary directories for testing."""
+    # Create necessary directories
+    data_dir = tmp_path / "data" / "processed"
     results_dir = tmp_path / "results"
-    results_dir.mkdir()
+    data_dir.mkdir(parents=True, exist_ok=True)
+    results_dir.mkdir(parents=True, exist_ok=True)
     
-    # Create a dummy marker file with a past start time
-    marker_path = results_dir / ".pipeline_start_marker"
-    start_time = time.time() - 3600  # 1 hour ago
-    with open(marker_path, 'w') as f:
-        json.dump({'start_time': start_time}, f)
+    # Temporarily override the file paths
+    original_start_file = START_TIME_FILE
+    original_runtime_file = RUNTIME_LOG_FILE
     
-    # Create a dummy runtime.log to ensure it can be written to
-    (results_dir / "runtime.log").touch()
+    # Use monkeypatch-like behavior by changing the module's constants
+    import runtime_monitor
+    runtime_monitor.START_TIME_FILE = data_dir / "pipeline_start_time.json"
+    runtime_monitor.RUNTIME_LOG_FILE = results_dir / "runtime.log"
     
-    return tmp_path
+    yield {
+        "data_dir": data_dir,
+        "results_dir": results_dir,
+        "start_file": runtime_monitor.START_TIME_FILE,
+        "runtime_file": runtime_monitor.RUNTIME_LOG_FILE
+    }
+    
+    # Restore original paths
+    runtime_monitor.START_TIME_FILE = original_start_file
+    runtime_monitor.RUNTIME_LOG_FILE = original_runtime_file
 
-def test_runtime_monitor_compliance(temp_project_root, monkeypatch):
-    """
-    Test that the runtime monitor correctly measures time and asserts compliance.
-    """
-    # Change to the temp directory to simulate running from project root
-    original_cwd = os.getcwd()
-    os.chdir(temp_project_root)
-    
-    try:
-        # Import the module (adjusting path if necessary, but here we assume it's in scope)
-        # Since the script uses relative imports from utils, we need to ensure utils is available
-        # For this test, we will mock the imports or run the logic directly.
-        
-        # To avoid import errors due to missing 'utils' in the test environment,
-        # we will test the logic by creating a minimal mock of the dependencies
-        # or by patching the imports.
-        
-        # Instead of importing the full script which might fail due to missing utils,
-        # we will test the core logic by extracting it or mocking.
-        
-        # Let's assume the 'utils' module exists in the project root for the test
-        # We will create a dummy utils.py
-        utils_file = temp_project_root / "code" / "utils.py"
-        utils_file.parent.mkdir(exist_ok=True)
-        utils_file.write_text("def setup_logging(): pass\n")
-        
-        # Now we can import
-        import sys
-        sys.path.insert(0, str(temp_project_root))
-        
-        # We need to mock the 'utils' import in runtime_monitor
-        # Since we can't easily mock inside the module without re-running the import,
-        # let's just verify the file exists and the logic is sound by inspection
-        # or by running a simplified version.
-        
-        # Given the constraints, we will verify the artifact exists and has the correct structure.
-        monitor_script = temp_project_root / "code" / "runtime_monitor.py"
-        assert monitor_script.exists(), "runtime_monitor.py should exist"
-        
-        content = monitor_script.read_text()
-        assert "SC-005" in content, "Should reference SC-005"
-        assert "MAX_RUNTIME_SECONDS" in content, "Should define max runtime"
-        assert "runtime.log" in content, "Should write to runtime.log"
-        
-    finally:
-        os.chdir(original_cwd)
+def test_setup_runtime_logger():
+    """Test that the logger is properly configured."""
+    logger = setup_runtime_logger()
+    assert logger is not None
+    assert logger.name == "runtime_monitor"
+    assert len(logger.handlers) > 0
 
-def test_runtime_marker_creation(temp_project_root, monkeypatch):
-    """
-    Test that the start marker is created correctly.
-    """
-    original_cwd = os.getcwd()
-    os.chdir(temp_project_root)
+def test_record_start_time(temp_dirs):
+    """Test that start time is recorded correctly."""
+    logger = setup_runtime_logger()
+    start_time = record_start_time(logger)
     
-    try:
-        # Create dummy utils
-        utils_file = temp_project_root / "code" / "utils.py"
-        utils_file.parent.mkdir(exist_ok=True)
-        utils_file.write_text("def setup_logging(): pass\n")
-        
-        # We can't easily test the full record_start_time without importing
-        # the module which might have side effects.
-        # Instead, we verify the logic by checking the file content for the function.
-        monitor_script = temp_project_root / "code" / "runtime_monitor.py"
-        content = monitor_script.read_text()
-        assert "record_start_time" in content, "Should define record_start_time"
-        assert ".pipeline_start_marker" in content, "Should use marker file"
-        
-    finally:
-        os.chdir(original_cwd)
+    # Verify start time is a valid timestamp
+    assert isinstance(start_time, float)
+    assert start_time > 0
+    
+    # Verify file was created
+    assert temp_dirs["start_file"].exists()
+    
+    # Verify file contents
+    with open(temp_dirs["start_file"], 'r') as f:
+        data = json.load(f)
+    
+    assert "start_timestamp" in data
+    assert "start_datetime" in data
+    assert abs(data["start_timestamp"] - start_time) < 1  # Within 1 second
+
+def test_load_pipeline_start_time(temp_dirs):
+    """Test loading the start time from file."""
+    # First record a start time
+    record_start_time()
+    
+    # Then load it
+    loaded_time = load_pipeline_start_time()
+    
+    assert loaded_time is not None
+    assert isinstance(loaded_time, float)
+
+def test_load_pipeline_start_time_missing_file(temp_dirs):
+    """Test loading when file doesn't exist."""
+    loaded_time = load_pipeline_start_time()
+    assert loaded_time is None
+
+def test_measure_and_log_runtime_success(temp_dirs):
+    """Test runtime measurement when within limit."""
+    # Record start time
+    record_start_time()
+    
+    # Simulate a short runtime (1 second)
+    time.sleep(1)
+    
+    # Measure runtime
+    success = measure_and_log_runtime()
+    
+    assert success is True
+    
+    # Verify log file was created
+    assert temp_dirs["runtime_file"].exists()
+    
+    # Verify log contents
+    with open(temp_dirs["runtime_file"], 'r') as f:
+        content = f.read()
+    
+    assert "Pipeline Runtime Check" in content
+    assert "Status: PASS" in content
+
+def test_measure_and_log_runtime_failure(temp_dirs):
+    """Test runtime measurement when exceeding limit."""
+    # Record a start time from 7 hours ago
+    old_start_time = time.time() - (7 * 3600)
+    
+    start_data = {
+        "start_timestamp": old_start_time,
+        "start_datetime": datetime.fromtimestamp(old_start_time).isoformat()
+    }
+    
+    with open(temp_dirs["start_file"], 'w') as f:
+        json.dump(start_data, f)
+    
+    # Measure runtime
+    success = measure_and_log_runtime()
+    
+    assert success is False
+    
+    # Verify log file contains failure status
+    with open(temp_dirs["runtime_file"], 'r') as f:
+        content = f.read()
+    
+    assert "Status: FAIL" in content
+    assert "Runtime violation" in content
+
+def test_main_success(temp_dirs):
+    """Test main function when runtime is within limit."""
+    record_start_time()
+    time.sleep(0.5)
+    
+    result = main()
+    assert result == 0
+
+def test_main_failure(temp_dirs):
+    """Test main function when runtime exceeds limit."""
+    # Record a start time from 7 hours ago
+    old_start_time = time.time() - (7 * 3600)
+    start_data = {
+        "start_timestamp": old_start_time,
+        "start_datetime": datetime.fromtimestamp(old_start_time).isoformat()
+    }
+    
+    with open(temp_dirs["start_file"], 'w') as f:
+        json.dump(start_data, f)
+    
+    result = main()
+    assert result == 1

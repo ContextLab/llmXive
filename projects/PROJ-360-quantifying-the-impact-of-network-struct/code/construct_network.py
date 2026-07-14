@@ -1,3 +1,11 @@
+"""
+code/construct_network.py
+
+Constructs atomic network graphs from CIF files using pymatgen and networkx.
+Implements covalent radius-based bond detection with fallback mechanisms.
+Includes validation to ensure graphs meet minimum node/edge requirements.
+"""
+
 import os
 import json
 import logging
@@ -5,197 +13,279 @@ import pickle
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-import numpy as np
-from pymatgen.core import Structure
-from pymatgen.analysis.bond_determiner import get_bond_orders_from_structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import networkx as nx
-
-from config import get_config
-from utils import setup_logging
-
-# Configure logging
-logger = setup_logging("construct_network", level=logging.INFO)
+from pymatgen.core import Structure
+from pymatgen.analysis.structure_analyzer import covalent_radius
 
 # Constants
-COVALENT_RADII = {
-    'H': 0.31, 'He': 0.28, 'Li': 1.28, 'Be': 0.96, 'B': 0.84, 'C': 0.76,
-    'N': 0.71, 'O': 0.66, 'F': 0.57, 'Ne': 0.58, 'Na': 1.66, 'Mg': 1.41,
-    'Al': 1.21, 'Si': 1.11, 'P': 1.07, 'S': 1.05, 'Cl': 1.02, 'Ar': 1.06,
-    'K': 2.03, 'Ca': 1.74, 'Sc': 1.44, 'Ti': 1.36, 'V': 1.25, 'Cr': 1.27,
-    'Mn': 1.39, 'Fe': 1.25, 'Co': 1.26, 'Ni': 1.21, 'Cu': 1.38, 'Zn': 1.31,
-    'Ga': 1.26, 'Ge': 1.22, 'As': 1.19, 'Se': 1.20, 'Br': 1.20, 'Kr': 1.16,
-    'Rb': 2.20, 'Sr': 1.92, 'Y': 1.62, 'Zr': 1.48, 'Nb': 1.37, 'Mo': 1.45,
-    'Tc': 1.56, 'Ru': 1.26, 'Rh': 1.35, 'Pd': 1.31, 'Ag': 1.53, 'Cd': 1.48,
-    'In': 1.44, 'Sn': 1.41, 'Sb': 1.38, 'Te': 1.35, 'I': 1.39, 'Xe': 1.40,
-    'Cs': 2.44, 'Ba': 1.98, 'La': 1.69, 'Ce': 1.65, 'Pr': 1.65, 'Nd': 1.64,
-    'Pm': 1.63, 'Sm': 1.62, 'Eu': 1.60, 'Gd': 1.61, 'Tb': 1.59, 'Dy': 1.57,
-    'Ho': 1.56, 'Er': 1.55, 'Tm': 1.54, 'Yb': 1.53, 'Lu': 1.52, 'Hf': 1.50,
-    'Ta': 1.38, 'W': 1.46, 'Re': 1.59, 'Os': 1.28, 'Ir': 1.37, 'Pt': 1.39,
-    'Au': 1.44, 'Hg': 1.49, 'Tl': 1.48, 'Pb': 1.47, 'Bi': 1.46, 'Po': 1.48,
-    'At': 1.40, 'Rn': 1.34
-}
+MIN_NODES = 2
+MIN_EDGES = 1
+COVALENT_TOLERANCE = 0.45  # Angstrom tolerance for bond detection
+FALLBACK_CUTOFFS = [3.0, 3.5, 4.0, 4.5, 5.0]  # Angstroms, progressive fallback
+MANIFEST_PATH = Path("data/processed/network_manifest.json")
+NETWORKS_DIR = Path("data/processed/networks")
+CIF_DIR = Path("data/raw/cif")
 
-# Tolerance for covalent radius summation (empirically determined)
-BOND_TOLERANCE = 0.45
+# Setup logging
+logger = logging.getLogger(__name__)
 
-# Fallback distance cutoffs (in Angstroms) for disconnected graphs
-FALLBACK_CUTOFFS = [3.0, 3.5, 4.0, 4.5]
 
-def get_element_covalent_radius(element_symbol: str) -> float:
+def get_element_covalent_radius(symbol: str) -> float:
     """
-    Retrieve the covalent radius for a given element symbol.
-    Returns a default value if the element is not in the dictionary.
-    """
-    return COVALENT_RADII.get(element_symbol, 1.5)  # Default fallback radius
-
-def detect_bonds_covalent(structure: Structure) -> List[Tuple[int, int]]:
-    """
-    Detect bonds based on the sum of covalent radii + tolerance.
-    Returns a list of (atom_index_i, atom_index_j) tuples.
-    """
-    bonds = []
-    for i in range(len(structure)):
-        for j in range(i + 1, len(structure)):
-            dist = structure.get_distance(i, j)
-            r_i = get_element_covalent_radius(structure[i].species_string)
-            r_j = get_element_covalent_radius(structure[j].species_string)
-            threshold = r_i + r_j + BOND_TOLERANCE
-            if dist <= threshold:
-                bonds.append((i, j))
-    return bonds
-
-def detect_bonds_fallback(structure: Structure) -> List[Tuple[int, int]]:
-    """
-    Detect bonds using progressive distance cutoffs if the covalent method fails
-    to produce a connected graph or any edges.
-    """
-    for cutoff in FALLBACK_CUTOFFS:
-        bonds = []
-        for i in range(len(structure)):
-            for j in range(i + 1, len(structure)):
-                dist = structure.get_distance(i, j)
-                if dist <= cutoff:
-                    bonds.append((i, j))
-        if len(bonds) > 0:
-            logger.info(f"Using fallback cutoff {cutoff} Å, found {len(bonds)} bonds.")
-            return bonds
-    return []
-
-def construct_network_from_structure(structure: Structure) -> Optional[nx.Graph]:
-    """
-    Construct a networkx Graph from a pymatgen Structure.
-    Returns None if the graph is invalid (less than 2 nodes or 0 edges).
-    """
-    # Create graph
-    G = nx.Graph()
-    for i, site in enumerate(structure):
-        G.add_node(i, species=site.species_string, coords=site.coords)
-
-    # Attempt covalent bond detection
-    bonds = detect_bonds_covalent(structure)
-
-    # If no bonds found or graph is disconnected, try fallbacks
-    if len(bonds) == 0:
-        logger.warning("No bonds found via covalent radii. Attempting fallback detection.")
-        bonds = detect_bonds_fallback(structure)
-
-    if len(bonds) == 0:
-        logger.warning("No bonds found after all fallback attempts. Skipping structure.")
-        return None
-
-    for i, j in bonds:
-        G.add_edge(i, j)
-
-    # T012 Validation: Ensure every graph has >= 2 nodes and >= 1 edge
-    if G.number_of_nodes() < 2:
-        logger.warning(f"Graph has only {G.number_of_nodes()} node(s). Skipping structure.")
-        return None
-
-    if G.number_of_edges() < 1:
-        logger.warning(f"Graph has 0 edges despite having {G.number_of_nodes()} nodes. Skipping structure.")
-        return None
-
-    return G
-
-def process_cif_file(cif_path: Path) -> Optional[Tuple[nx.Graph, str]]:
-    """
-    Parse a CIF file and construct a network graph.
-    Returns (graph, material_id) or None if construction fails.
+    Get the covalent radius for a given element symbol.
+    
+    Args:
+        symbol: Element symbol (e.g., 'C', 'O', 'Fe')
+        
+    Returns:
+        Covalent radius in Angstroms, or 0.0 if not found
     """
     try:
-        structure = Structure.from_file(cif_path)
-        material_id = structure.composition.reduced_formula
-        graph = construct_network_from_structure(structure)
-        if graph is None:
-            return None
-        return graph, material_id
-    except Exception as e:
-        logger.error(f"Error processing {cif_path}: {e}")
+        return covalent_radius(symbol)
+    except KeyError:
+        logger.warning(f"Covalent radius not found for element {symbol}, using default 1.0")
+        return 1.0
+
+
+def detect_bonds_covalent(structure: Structure, tolerance: float = COVALENT_TOLERANCE) -> List[Tuple[int, int]]:
+    """
+    Detect bonds based on covalent radii summation.
+    
+    Args:
+        structure: Pymatgen Structure object
+        tolerance: Tolerance in Angstroms added to the sum of covalent radii
+        
+    Returns:
+        List of bond tuples (site_index_1, site_index_2)
+    """
+    bonds = []
+    sites = structure.sites
+    n_sites = len(sites)
+    
+    for i in range(n_sites):
+        for j in range(i + 1, n_sites):
+            site_i = sites[i]
+            site_j = sites[j]
+            
+            # Calculate distance
+            dist = site_i.distance(site_j)
+            
+            # Calculate expected bond length
+            radius_i = get_element_covalent_radius(site_i.species_string)
+            radius_j = get_element_covalent_radius(site_j.species_string)
+            expected_bond_length = radius_i + radius_j + tolerance
+            
+            if dist <= expected_bond_length:
+                bonds.append((i, j))
+                
+    return bonds
+
+
+def detect_bonds_fallback(structure: Structure, max_cutoffs: List[float] = FALLBACK_CUTOFFS) -> Tuple[List[Tuple[int, int]], float]:
+    """
+    Fallback bond detection using progressive distance cutoffs.
+    
+    Args:
+        structure: Pymatgen Structure object
+        max_cutoffs: List of distance cutoffs in Angstroms to try progressively
+        
+    Returns:
+        Tuple of (bonds_list, cutoff_used) where cutoff_used is the cutoff that produced edges
+        or max_cutoffs[-1] if no edges found even with the largest cutoff
+    """
+    sites = structure.sites
+    n_sites = len(sites)
+    
+    for cutoff in max_cutoffs:
+        bonds = []
+        for i in range(n_sites):
+            for j in range(i + 1, n_sites):
+                dist = sites[i].distance(sites[j])
+                if dist <= cutoff:
+                    bonds.append((i, j))
+        
+        if bonds:
+            logger.info(f"Fallback bond detection succeeded with cutoff {cutoff} Angstroms, found {len(bonds)} bonds")
+            return bonds, cutoff
+    
+    # If we get here, no bonds found even with the largest cutoff
+    logger.warning(f"Fallback bond detection failed even with largest cutoff {max_cutoffs[-1]} Angstroms")
+    return [], max_cutoffs[-1]
+
+
+def construct_network_from_structure(structure: Structure, use_fallback: bool = True) -> Optional[nx.Graph]:
+    """
+    Construct a networkx Graph from a pymatgen Structure.
+    
+    Args:
+        structure: Pymatgen Structure object
+        use_fallback: Whether to use fallback detection if primary method fails
+        
+    Returns:
+        networkx.Graph object if successful, None if validation fails
+    """
+    # Primary bond detection
+    bonds = detect_bonds_covalent(structure)
+    
+    # If no bonds found and fallback is enabled, try fallback
+    if not bonds and use_fallback:
+        bonds, _ = detect_bonds_fallback(structure)
+    
+    # Create graph
+    G = nx.Graph()
+    
+    # Add nodes with site information
+    for i, site in enumerate(structure.sites):
+        G.add_node(
+            i,
+            species=site.species_string,
+            x=site.coords[0],
+            y=site.coords[1],
+            z=site.coords[2]
+        )
+    
+    # Add edges
+    G.add_edges_from(bonds)
+    
+    # Validation: Check minimum nodes and edges
+    num_nodes = G.number_of_nodes()
+    num_edges = G.number_of_edges()
+    
+    if num_nodes < MIN_NODES:
+        logger.error(f"Graph has {num_nodes} nodes, which is less than minimum required {MIN_NODES}. Skipping.")
         return None
+        
+    if num_edges < MIN_EDGES:
+        logger.error(f"Graph has {num_edges} edges, which is less than minimum required {MIN_EDGES}. Skipping.")
+        return None
+    
+    logger.info(f"Successfully constructed network with {num_nodes} nodes and {num_edges} edges")
+    return G
+
+
+def process_cif_file(cif_path: Path) -> Optional[nx.Graph]:
+    """
+    Process a single CIF file and construct a network graph.
+    
+    Args:
+        cif_path: Path to the CIF file
+        
+    Returns:
+        networkx.Graph object if successful, None if processing fails
+    """
+    try:
+        logger.info(f"Processing CIF file: {cif_path}")
+        structure = Structure.from_file(str(cif_path))
+        
+        graph = construct_network_from_structure(structure, use_fallback=True)
+        
+        if graph is None:
+            logger.warning(f"Skipping {cif_path.name}: validation failed")
+            return None
+            
+        return graph
+        
+    except Exception as e:
+        logger.error(f"Failed to process {cif_path}: {str(e)}")
+        return None
+
 
 def save_graph_to_pickle(graph: nx.Graph, material_id: str, output_dir: Path) -> Path:
     """
     Save a networkx graph to a pickle file.
+    
+    Args:
+        graph: networkx Graph object
+        material_id: Material ID for the filename
+        output_dir: Directory to save the pickle file
+        
+    Returns:
+        Path to the saved pickle file
     """
     output_dir.mkdir(parents=True, exist_ok=True)
-    # Sanitize material_id for filename
-    safe_id = "".join(c if c.isalnum() or c in "-_" else "_" for c in material_id)
-    filepath = output_dir / f"{safe_id}.pkl"
-    with open(filepath, 'wb') as f:
+    output_path = output_dir / f"{material_id}.pkl"
+    
+    with open(output_path, 'wb') as f:
         pickle.dump(graph, f)
-    return filepath
+        
+    logger.info(f"Saved graph to {output_path}")
+    return output_path
 
-def build_network_manifest(graphs_info: List[Dict[str, Any]], output_path: Path) -> None:
+
+def build_network_manifest(network_files: List[Path], output_path: Path = MANIFEST_PATH) -> None:
     """
-    Build a manifest JSON file listing all processed graphs.
+    Build a manifest JSON file listing all processed networks.
+    
+    Args:
+        network_files: List of paths to processed network pickle files
+        output_path: Path to save the manifest JSON
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest = {
+        "version": "1.0",
+        "created_at": str(Path.cwd()),
+        "networks": []
+    }
+    
+    for file_path in network_files:
+        manifest["networks"].append({
+            "filename": file_path.name,
+            "material_id": file_path.stem,
+            "path": str(file_path)
+        })
+    
     with open(output_path, 'w') as f:
-        json.dump(graphs_info, f, indent=2)
+        json.dump(manifest, f, indent=2)
+        
+    logger.info(f"Created network manifest at {output_path}")
+
 
 def main():
     """
-    Main entry point for constructing networks from CIF files.
+    Main entry point for network construction pipeline.
+    
+    Processes all CIF files in data/raw/cif/ and constructs network graphs.
+    Saves graphs to data/processed/networks/ and generates a manifest.
     """
-    config = get_config()
-    cif_dir = Path(config['data_raw_cif'])
-    output_dir = Path(config['data_processed_networks'])
-    manifest_path = Path(config['data_processed_networks']) / "network_manifest.json"
-
-    cif_files = list(cif_dir.glob("*.cif"))
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    # Ensure directories exist
+    CIF_DIR.mkdir(parents=True, exist_ok=True)
+    NETWORKS_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Find all CIF files
+    cif_files = list(CIF_DIR.glob("*.cif"))
+    
     if not cif_files:
-        logger.error(f"No CIF files found in {cif_dir}")
+        logger.warning(f"No CIF files found in {CIF_DIR}")
         return
-
-    logger.info(f"Found {len(cif_files)} CIF files to process.")
-    graphs_info = []
+    
+    logger.info(f"Found {len(cif_files)} CIF files to process")
+    
+    processed_count = 0
     skipped_count = 0
-
+    processed_paths = []
+    
     for cif_file in cif_files:
-        result = process_cif_file(cif_file)
-        if result is None:
-            skipped_count += 1
-            continue
-
-        graph, material_id = result
-        save_path = save_graph_to_pickle(graph, material_id, output_dir)
+        graph = process_cif_file(cif_file)
         
-        graphs_info.append({
-            "material_id": material_id,
-            "file_path": str(save_path),
-            "nodes": graph.number_of_nodes(),
-            "edges": graph.number_of_edges()
-        })
-        logger.info(f"Processed {material_id}: {graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges.")
+        if graph is not None:
+            material_id = cif_file.stem
+            output_path = save_graph_to_pickle(graph, material_id, NETWORKS_DIR)
+            processed_paths.append(output_path)
+            processed_count += 1
+        else:
+            skipped_count += 1
+    
+    # Build manifest
+    if processed_paths:
+        build_network_manifest(processed_paths)
+    
+    logger.info(f"Processing complete. Success: {processed_count}, Skipped: {skipped_count}")
 
-    if graphs_info:
-        build_network_manifest(graphs_info, manifest_path)
-        logger.info(f"Manifest saved to {manifest_path}")
-    else:
-        logger.warning("No graphs were successfully constructed.")
-
-    logger.info(f"Processing complete. Skipped {skipped_count} materials due to validation failures.")
 
 if __name__ == "__main__":
     main()

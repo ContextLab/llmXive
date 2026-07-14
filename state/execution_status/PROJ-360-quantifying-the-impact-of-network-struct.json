@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-360-quantifying-the-impact-of-network-struct",
+  "ok": false,
+  "reason": "4 command(s) failed: python code/download.py --limit 50 --output data/raw/cif/ (rc=1); python code/construct_network.py --input data/raw/cif/ --output data/processed/networks/ (rc=1); python code/compute_metrics.py --input data/processed/networks/ --output data/processed/metrics.csv (rc=1); 1 declared deliverable(s) absent: data/processed/network_manifest.json",
+  "artifacts": [],
+  "failures": [
+    "python code/download.py --limit 50 --output data/raw/cif/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-360-quantifying-the-impact-of-network-struct/code/download.py\", line 5, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/construct_network.py --input data/raw/cif/ --output data/processed/networks/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-360-quantifying-the-impact-of-network-struct/code/construct_network.py\", line 16, in <module>\n    import networkx as nx\nModuleNotFoundError: No module named 'networkx'",
+    "python code/compute_metrics.py --input data/processed/networks/ --output data/processed/metrics.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-360-quantifying-the-impact-of-network-struct/code/compute_metrics.py\", line 8, in <module>\n    from pymatgen.core import Structure\nModuleNotFoundError: No module named 'pymatgen'",
+    "python code/analyze.py --input data/processed/metrics.csv --output results/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-360-quantifying-the-impact-of-network-struct/code/analyze.py\", line 7, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "updated_at": "2026-07-14T19:43:44Z"
+}

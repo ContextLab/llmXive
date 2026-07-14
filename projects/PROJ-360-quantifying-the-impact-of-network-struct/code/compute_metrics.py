@@ -4,233 +4,204 @@ import pickle
 import logging
 import csv
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-
-import networkx as nx
-import numpy as np
+from typing import List, Dict, Any, Optional
 from pymatgen.core import Structure
 from pymatgen.io.cif import CifParser
+import networkx as nx
 
-from config import get_config
-from utils import setup_logging, pin_seed
-
-# --- Configuration ---
-CONFIG = get_config()
-NETWORKS_DIR = CONFIG.data_processed / "networks"
-METRICS_CSV_PATH = CONFIG.data_processed / "metrics.csv"
-MANIFEST_PATH = CONFIG.data_processed / "network_manifest.json"
+# --- Constants ---
+DIAGNOSTICS_COMMENT = "# DIAGNOSTICS: Physical descriptors excluded from regression features"
+METRICS_CSV_PATH = Path("data/processed/metrics.csv")
+NETWORKS_DIR = Path("data/processed/networks")
+CIF_DIR = Path("data/raw/cif")
 
 # --- Logging Setup ---
 def setup_metrics_logger(name: str = "metrics_logger") -> logging.Logger:
-    logger = setup_logging(name, CONFIG.log_dir / "metrics.log")
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
     return logger
 
-logger = setup_metrics_logger()
+# --- Physical Descriptor Extraction ---
+def load_cif_structures(cif_dir: Path) -> Dict[str, Structure]:
+    """
+    Loads CIF files from the specified directory into pymatgen Structures.
+    Returns a dictionary mapping material_id (filename without extension) to Structure.
+    """
+    structures = {}
+    logger = logging.getLogger("metrics_logger")
+    
+    if not cif_dir.exists():
+        logger.error(f"CIF directory not found: {cif_dir}")
+        return structures
 
-# --- Helper Functions ---
-def load_graphs_from_directory(directory: Path) -> List[Tuple[str, nx.Graph]]:
-    """Load all pickle graph files from a directory."""
-    graphs = []
-    if not directory.exists():
-        logger.error(f"Directory {directory} does not exist.")
-        return graphs
-
-    for file_path in directory.glob("*.pkl"):
+    for cif_file in cif_dir.glob("*.cif"):
+        material_id = cif_file.stem
         try:
-            with open(file_path, "rb") as f:
-                graph = pickle.load(f)
-                if not isinstance(graph, nx.Graph):
-                    logger.warning(f"Skipping {file_path}: not a networkx.Graph")
-                    continue
-                graphs.append((file_path.stem, graph))
+            parser = CifParser(str(cif_file))
+            # pymatgen might return multiple structures for some CIFs, we take the first
+            struct = parser.get_structures()[0]
+            structures[material_id] = struct
+            logger.debug(f"Loaded structure for {material_id}")
         except Exception as e:
-            logger.error(f"Failed to load {file_path}: {e}")
+            logger.warning(f"Failed to parse {cif_file.name}: {e}")
+    
+    return structures
+
+def extract_physical_descriptors(struct: Structure, material_id: str) -> Dict[str, Any]:
+    """
+    Extracts physical descriptors from a pymatgen Structure.
+    Returns a dictionary with:
+      - unit_cell_volume
+      - total_atom_count
+      - mean_atomic_mass
+    """
+    volume = struct.volume
+    atom_count = len(struct)
+    
+    # Calculate mean atomic mass
+    total_mass = sum(site.species.mass for site in struct)
+    mean_mass = total_mass / atom_count if atom_count > 0 else 0.0
+
+    return {
+        "material_id": material_id,
+        "unit_cell_volume": volume,
+        "total_atom_count": atom_count,
+        "mean_atomic_mass": mean_mass
+    }
+
+# --- Metric Computation (Existing Logic Placeholder for Context) ---
+def load_graphs_from_directory(networks_dir: Path) -> Dict[str, nx.Graph]:
+    graphs = {}
+    logger = logging.getLogger("metrics_logger")
+    if not networks_dir.exists():
+        logger.error(f"Networks directory not found: {networks_dir}")
+        return graphs
+    
+    for pkl_file in networks_dir.glob("*.pkl"):
+        material_id = pkl_file.stem
+        try:
+            with open(pkl_file, 'rb') as f:
+                graphs[material_id] = pickle.load(f)
+        except Exception as e:
+            logger.warning(f"Failed to load {pkl_file}: {e}")
     return graphs
 
 def compute_metrics_for_graph(graph: nx.Graph, material_id: str) -> Dict[str, Any]:
-    """Compute network metrics for a single graph."""
-    metrics = {
-        "material_id": material_id,
-        "num_nodes": graph.number_of_nodes(),
-        "num_edges": graph.number_of_edges(),
-    }
-
-    if graph.number_of_nodes() == 0:
-        metrics["avg_degree"] = 0.0
-        metrics["avg_shortest_path"] = float('nan')
-        metrics["clustering_coeff"] = 0.0
-        return metrics
-
-    # Average Degree
-    degrees = [d for n, d in graph.degree()]
-    metrics["avg_degree"] = float(np.mean(degrees)) if degrees else 0.0
-
-    # Largest Connected Component (LCC) metrics
-    if nx.is_connected(graph):
-        lcc = graph
-    else:
-        try:
-            lcc = max(nx.connected_components(graph), key=len)
-            lcc = graph.subgraph(lcc).copy()
-        except Exception:
-            lcc = None
-
-    if lcc is not None and lcc.number_of_nodes() > 1:
-        try:
-            lengths = nx.shortest_path_length(lcc)
-            # Flatten lengths
-            all_lengths = [length for source_lengths in lengths.values() for length in source_lengths.values()]
-            # Exclude self-loops (distance 0)
-            all_lengths = [l for l in all_lengths if l > 0]
-            metrics["avg_shortest_path"] = float(np.mean(all_lengths)) if all_lengths else float('nan')
-        except nx.NetworkXError:
-            metrics["avg_shortest_path"] = float('nan')
-    else:
-        metrics["avg_shortest_path"] = float('nan')
-
-    # Clustering Coefficient
-    metrics["clustering_coeff"] = float(nx.average_clustering(graph))
-
-    return metrics
-
-def extract_physical_descriptors(graph: nx.Graph, material_id: str, graph_metadata: Optional[Dict] = None) -> Dict[str, Any]:
     """
-    Extract physical descriptors (unit_cell_volume, total_atom_count, mean_atomic_mass)
-    associated with the graph.
-    
-    Note: Since the graph itself is just topology, we rely on the manifest or a 
-    side-car metadata file to retrieve the physical properties. 
-    However, T011 (network_manifest.json) is the source of truth for material properties 
-    derived from the CIF parsing in T009/T011.
-    
-    We expect the manifest to contain 'properties' for each material_id.
+    Computes network metrics for a graph.
+    Returns dict with: material_id, avg_degree, avg_shortest_path, clustering_coeff, density.
     """
-    descriptors = {
-        "material_id": material_id,
-        "unit_cell_volume": None,
-        "total_atom_count": None,
-        "mean_atomic_mass": None,
-    }
+    if graph.number_of_nodes() < 2:
+        return {
+            "material_id": material_id,
+            "avg_degree": 0.0,
+            "avg_shortest_path": float('nan'),
+            "clustering_coeff": 0.0,
+            "density": 0.0
+        }
 
-    # Load manifest to find physical properties
-    if not MANIFEST_PATH.exists():
-        logger.warning(f"Manifest {MANIFEST_PATH} not found. Cannot extract physical descriptors.")
-        return descriptors
-
+    avg_degree = sum(d for n, d in graph.degree()) / graph.number_of_nodes()
+    
+    # Largest Connected Component for path length
     try:
-        with open(MANIFEST_PATH, "r") as f:
-            manifest = json.load(f)
-    except Exception as e:
-        logger.error(f"Failed to load manifest: {e}")
-        return descriptors
+        lcc = max(nx.connected_components(graph), key=len)
+        subgraph = graph.subgraph(lcc)
+        lengths = nx.average_shortest_path_length(subgraph)
+    except nx.NetworkXError:
+        lengths = float('nan')
 
-    # Find material in manifest
-    material_info = None
-    for item in manifest.get("materials", []):
-        if item.get("material_id") == material_id:
-            material_info = item
-            break
+    clustering = nx.average_clustering(graph)
+    density = nx.density(graph)
 
-    if not material_info:
-        logger.warning(f"Material {material_id} not found in manifest.")
-        return descriptors
+    return {
+        "material_id": material_id,
+        "avg_degree": avg_degree,
+        "avg_shortest_path": lengths,
+        "clustering_coeff": clustering,
+        "density": density
+    }
 
-    props = material_info.get("properties", {})
-    
-    # Map manifest keys to descriptor keys
-    descriptors["unit_cell_volume"] = props.get("unit_cell_volume")
-    descriptors["total_atom_count"] = props.get("total_atom_count")
-    
-    # Calculate mean atomic mass if not directly stored
-    if "mean_atomic_mass" in props:
-        descriptors["mean_atomic_mass"] = props["mean_atomic_mass"]
-    elif "atomic_masses" in props:
-        masses = props["atomic_masses"]
-        if masses:
-            descriptors["mean_atomic_mass"] = float(np.mean(masses))
-    
-    return descriptors
-
-def save_metrics_to_csv(all_metrics: List[Dict[str, Any]], all_descriptors: List[Dict[str, Any]]) -> None:
+# --- Main Logic ---
+def save_metrics_to_csv(metrics_list: List[Dict[str, Any]], physical_list: List[Dict[str, Any]], output_path: Path):
     """
-    Save network metrics and physical descriptors to a single CSV file.
-    Physical descriptors are appended as columns with a header comment.
+    Saves network metrics and physical descriptors to a single CSV file.
+    Physical descriptors are appended as extra columns with a header comment.
     """
-    if not all_metrics:
-        logger.warning("No metrics to save.")
+    if not metrics_list:
+        logging.getLogger("metrics_logger").warning("No metrics to save.")
         return
 
-    # Merge metrics and descriptors by material_id
-    # Create a lookup for descriptors
-    desc_lookup = {d["material_id"]: d for d in all_descriptors}
+    # Define columns
+    network_cols = ["material_id", "avg_degree", "avg_shortest_path", "clustering_coeff", "density"]
+    physical_cols = ["unit_cell_volume", "total_atom_count", "mean_atomic_mass"]
     
-    # Prepare rows
-    rows = []
-    for m in all_metrics:
-        mid = m["material_id"]
-        d = desc_lookup.get(mid, {})
-        row = {
-            **m,
-            "unit_cell_volume": d.get("unit_cell_volume"),
-            "total_atom_count": d.get("total_atom_count"),
-            "mean_atomic_mass": d.get("mean_atomic_mass"),
-        }
-        rows.append(row)
+    # Create a mapping for physical data by material_id
+    phys_map = {p["material_id"]: p for p in physical_list}
 
-    # Define columns order
-    # Primary features first, then diagnostics
-    primary_cols = ["material_id", "num_nodes", "num_edges", "avg_degree", "avg_shortest_path", "clustering_coeff"]
-    diag_cols = ["unit_cell_volume", "total_atom_count", "mean_atomic_mass"]
-    
-    # Ensure all columns are present (some might be None)
-    all_cols = primary_cols + diag_cols
-
-    # Write to CSV with header comment
-    with open(METRICS_CSV_PATH, "w", newline="") as f:
+    with open(output_path, 'w', newline='') as f:
         writer = csv.writer(f)
-        # Write the diagnostic header comment as the first line
-        writer.writerow(["# DIAGNOSTICS: Physical descriptors excluded from regression features"])
-        # Write the header row
-        writer.writerow(all_cols)
+        
+        # Write header comment
+        writer.writerow([DIAGNOSTICS_COMMENT])
+        
+        # Write header row
+        full_header = network_cols + physical_cols
+        writer.writerow(full_header)
         
         # Write data rows
-        for row in rows:
-            data_row = [row.get(col, "") for col in all_cols]
-            # Handle NaN values for CSV
-            data_row = ["" if (isinstance(v, float) and np.isnan(v)) else v for v in data_row]
-            writer.writerow(data_row)
-
-    logger.info(f"Metrics and physical descriptors saved to {METRICS_CSV_PATH}")
+        for m in metrics_list:
+            mid = m["material_id"]
+            row = [m[col] for col in network_cols]
+            
+            # Append physical descriptors if available
+            if mid in phys_map:
+                p = phys_map[mid]
+                row.append(p["unit_cell_volume"])
+                row.append(p["total_atom_count"])
+                row.append(p["mean_atomic_mass"])
+            else:
+                # Fallback for missing physical data
+                row.extend([None, None, None])
+            
+            writer.writerow(row)
 
 def main():
-    """Main entry point for computing metrics and extracting physical descriptors."""
-    pin_seed(CONFIG.seed)
+    logger = setup_metrics_logger()
     logger.info("Starting metric computation and physical descriptor extraction.")
 
-    # Load graphs
-    graphs_data = load_graphs_from_directory(NETWORKS_DIR)
-    logger.info(f"Loaded {len(graphs_data)} graphs.")
+    # Load data
+    logger.info(f"Loading graphs from {NETWORKS_DIR}...")
+    graphs = load_graphs_from_directory(NETWORKS_DIR)
+    
+    logger.info(f"Loading structures from {CIF_DIR}...")
+    structures = load_cif_structures(CIF_DIR)
 
-    if not graphs_data:
-        logger.error("No graphs found. Exiting.")
-        return
+    # Compute Network Metrics
+    metrics_data = []
+    for mid, graph in graphs.items():
+        metrics = compute_metrics_for_graph(graph, mid)
+        metrics_data.append(metrics)
 
-    all_metrics = []
-    all_descriptors = []
-
-    for material_id, graph in graphs_data:
-        # Compute network metrics
-        metrics = compute_metrics_for_graph(graph, material_id)
-        all_metrics.append(metrics)
-
-        # Extract physical descriptors
-        descriptors = extract_physical_descriptors(graph, material_id)
-        all_descriptors.append(descriptors)
+    # Compute Physical Descriptors
+    physical_data = []
+    for mid, struct in structures.items():
+        # Only compute if we have a corresponding graph or just compute all
+        # The task implies appending to the metrics CSV, so we match IDs.
+        # If a structure exists but no graph, we might still want the physical data,
+        # but the CSV structure relies on the metric rows. We'll process all structures.
+        phys = extract_physical_descriptors(struct, mid)
+        physical_data.append(phys)
 
     # Save combined results
-    save_metrics_to_csv(all_metrics, all_descriptors)
-
-    logger.info("Metric computation and descriptor extraction completed.")
+    logger.info(f"Saving metrics to {METRICS_CSV_PATH}...")
+    save_metrics_to_csv(metrics_data, physical_data, METRICS_CSV_PATH)
+    
+    logger.info("Task T015b completed: Physical descriptors appended to metrics.csv.")
 
 if __name__ == "__main__":
     main()

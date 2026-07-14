@@ -3,10 +3,6 @@ import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Import from existing project modules as per API surface
-# We do not import analyze's internals, but we might need to ensure paths exist.
-# The task specifically requires reading model_performance.json.
-
 def setup_report_logger() -> logging.Logger:
     """Setup logging for the report generation task."""
     logger = logging.getLogger("report")
@@ -38,6 +34,10 @@ def generate_final_report(
     Action: Read `r2_interpretation` from model_performance.json (if present);
     if present, append it as a separate paragraph immediately following the
     mandatory Limitations text.
+    
+    T026 Requirement: Ensure the R² interpretation is included in the Limitations
+    section if R² < 0.30. This logic relies on the `r2_interpretation` key
+    populated by T023/T024.
     """
     if logger is None:
         logger = setup_report_logger()
@@ -45,6 +45,9 @@ def generate_final_report(
     logger.info(f"Loading model performance from {model_performance_path}")
     performance_data = load_model_performance(model_performance_path)
     
+    # T026 Logic: Check if the interpretation exists. 
+    # The presence of this key implies R² < 0.30 (as per T023 spec).
+    # We append it as a separate paragraph immediately following the mandatory text.
     r2_interpretation = performance_data.get("r2_interpretation")
     
     # Mandatory Limitations text from FR-008
@@ -76,7 +79,8 @@ def generate_final_report(
     report_content.append(limitations_text)
     report_content.append("")
     
-    # Append R2 interpretation if present (T026 requirement)
+    # T026 Implementation: Append R2 interpretation if present.
+    # The spec states: "if present, append it as a separate paragraph immediately following the mandatory Limitations text."
     if r2_interpretation:
         report_content.append(r2_interpretation)
         report_content.append("")

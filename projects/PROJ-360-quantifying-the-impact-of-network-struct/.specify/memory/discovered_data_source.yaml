@@ -1,0 +1,10 @@
+status: none
+intent: Materials Project CIF thermal conductivity API download python package dataset
+required_fields:
+- material_id
+- formula
+- cif_content
+- lattice_parameters
+- atomic_positions
+- element_symbols
+- thermal_conductivity

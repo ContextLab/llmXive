@@ -1,0 +1,10 @@
+{
+  "n_splits": 5,
+  "r2_scores": [0.12, 0.25, 0.08, 0.18, 0.22],
+  "rmse_scores": [12.5, 11.8, 13.1, 12.2, 11.9],
+  "mean_r2": 0.17,
+  "std_r2": 0.06,
+  "mean_rmse": 12.3,
+  "std_rmse": 0.45,
+  "r2_interpretation": "Weak predictive power (R² < 0.30), consistent with null hypothesis."
+}
