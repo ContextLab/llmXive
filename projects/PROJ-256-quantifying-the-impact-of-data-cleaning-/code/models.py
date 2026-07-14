@@ -1,3 +1,7 @@
+"""
+Data models and entities for the Quantifying Impact of Data Cleaning project.
+Defines Pydantic models for Dataset, CleaningStrategy, AnalysisResult, and ComparisonReport.
+"""
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field, field_validator
@@ -7,44 +11,60 @@ class ImputationMethod(str, Enum):
     MEAN = "mean"
     MEDIAN = "median"
     KNN = "knn"
-    MODE = "mode"
+    NONE = "none"
 
 class CleaningStrategyType(str, Enum):
     OUTLIER_REMOVAL = "outlier_removal"
     IMPUTATION = "imputation"
-    RECODING = "recoding"
+    RECATEGORIZATION = "recategorization"
     COMBINED = "combined"
 
 class Dataset(BaseModel):
-    dataset_id: str
+    """Represents a loaded dataset with metadata."""
     name: str
-    source_url: str
+    source: str
+    path: str
     checksum: str
-    row_count: int
-    column_count: int
-    missing_rate: float
-    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
+    rows: int
+    columns: int
+    missing_rates: Dict[str, float]
+    loaded_at: datetime = Field(default_factory=datetime.now)
 
 class CleaningStrategy(BaseModel):
-    strategy_id: str
+    """Defines a cleaning strategy to be applied."""
     strategy_type: CleaningStrategyType
-    parameters: Dict[str, Any]
+    parameters: Dict[str, Any] = Field(default_factory=dict)
     description: str
 
 class AnalysisResult(BaseModel):
-    dataset_id: str
-    test_name: str
+    """Results from statistical analysis on a dataset."""
+    dataset_name: str
+    strategy: Optional[str] = None
+    t_test: Dict[str, Any] = Field(default_factory=dict)
+    regression: Optional[Dict[str, Any]] = None
+    effect_size: Optional[float] = None
+    confidence_interval: Optional[List[float]] = None
     p_value: float
-    confidence_interval: List[float]
-    effect_size: float
-    effect_size_type: str
-    significant: bool
-    strategy_applied: Optional[str] = None
+    analysis_timestamp: datetime = Field(default_factory=datetime.now)
 
 class ComparisonReport(BaseModel):
-    baseline_metrics: Dict[str, Any]
-    cleaned_metrics: Dict[str, Any]
-    absolute_diff: List[Dict[str, Any]]
-    relative_diff: List[Dict[str, Any]]
+    """
+    Comprehensive comparison report between baseline and cleaned metrics.
+    Includes absolute and relative differences, and sensitivity analysis.
+    """
+    created_at: str
+    baseline_metrics: Optional[Dict[str, Any]]
+    cleaned_metrics: Optional[Dict[str, Any]]
+    absolute_diffs: List[float]
+    relative_diffs: List[float]
     sensitivity_analysis: Optional[Dict[str, Any]]
-    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
+    comparisons: List[Dict[str, Any]]
+    inconsistency_rate: float
+    total_datasets_analyzed: int = 0
+
+    @field_validator('absolute_diffs', 'relative_diffs')
+    @classmethod
+    def validate_diffs(cls, v):
+        if not isinstance(v, list):
+            raise ValueError('Diffs must be a list')
+        return v

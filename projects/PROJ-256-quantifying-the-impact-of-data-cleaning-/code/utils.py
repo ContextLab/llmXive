@@ -5,73 +5,78 @@ import numpy as np
 import scipy
 from typing import Optional, Any, Callable, Union, List, Dict
 import random
-import sys
+import logging
 
 logger = logging.getLogger(__name__)
 
-def setup_logging(log_level: Union[str, int, None] = "INFO", name: Optional[str] = None) -> logging.Logger:
+def setup_logging(log_level: Union[str, int, None] = None, name: Optional[str] = None) -> logging.Logger:
     """
-    Initialize the logging infrastructure.
-    Accepts various forms of log_level (string, int, None) and optional name.
+    Setup logging configuration.
+    Accepts various call signatures for flexibility:
+    - setup_logging() -> uses default INFO
+    - setup_logging("INFO") -> string level
+    - setup_logging(log_level="INFO") -> kwarg
+    - setup_logging(logging.INFO) -> int level
+    - setup_logging(logging.INFO, "name") -> name arg (ignored if passed)
+    - setup_logging(name="my_logger") -> name kwarg
     """
-    # Determine the level
-    if log_level is None:
-        level = logging.INFO
-    elif isinstance(log_level, str):
-        level = getattr(logging, log_level.upper(), logging.INFO)
-    elif isinstance(log_level, int):
-        level = log_level
-    else:
-        level = logging.INFO
-
-    # Configure if not already configured
-    root_logger = logging.getLogger()
-    if not root_logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        root_logger.addHandler(handler)
-        root_logger.setLevel(level)
-    else:
-        # Update level if handlers exist
-        root_logger.setLevel(level)
-
-    # Return specific logger or root
+    # Determine log level
+    level = logging.INFO
+    
+    if log_level is not None:
+        if isinstance(log_level, str):
+            level = getattr(logging, log_level.upper(), logging.INFO)
+        elif isinstance(log_level, int):
+            level = log_level
+    
+    # Configure logging if not already configured
+    if not logging.getLogger().handlers:
+        logging.basicConfig(
+            level=level,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+    
+    # Get logger
     if name:
-        return logging.getLogger(name)
-    return root_logger
+        logger = logging.getLogger(name)
+    else:
+        logger = logging.getLogger('llmXive')
+    
+    # Ensure level is set
+    logger.setLevel(level)
+    
+    return logger
 
-def pin_random_seed(seed: int) -> None:
-    """
-    Pin random seeds for numpy, scipy, and standard random module for reproducibility.
-    """
-    random.seed(seed)
+def pin_random_seed(seed: int = 42):
+    """Pin random seed for numpy, scipy, and python random for reproducibility."""
     np.random.seed(seed)
-    # scipy does not have a global seed setter, but uses numpy's
-    # If using specific scipy stats functions that take random_state, pass np.random.RandomState(seed)
-    logger.debug(f"Random seed pinned to {seed}")
+    random.seed(seed)
+    # scipy uses numpy's random state, so no separate seeding needed
+    logger.info(f"Random seed pinned to {seed} for reproducibility")
 
 def compute_file_checksum(filepath: str) -> str:
-    """
-    Compute SHA256 checksum of a file.
-    """
+    """Compute SHA256 checksum of a file."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"File not found: {filepath}")
+    
     sha256_hash = hashlib.sha256()
-    try:
-        with open(filepath, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        logger.error(f"File not found: {filepath}")
-        return ""
-    except Exception as e:
-        logger.error(f"Error computing checksum for {filepath}: {e}")
-        return ""
+    with open(filepath, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    
+    return sha256_hash.hexdigest()
 
 def main():
-    """Test utilities."""
+    """Main entry point for utils module."""
     logger = setup_logging("DEBUG")
-    logger.info("Utils module loaded and tested.")
+    logger.info("Utils module loaded")
+    
+    # Test checksum
+    test_file = "data/raw/test.csv"
+    if os.path.exists(test_file):
+        checksum = compute_file_checksum(test_file)
+        logger.info(f"Checksum for {test_file}: {checksum}")
 
 if __name__ == "__main__":
     main()

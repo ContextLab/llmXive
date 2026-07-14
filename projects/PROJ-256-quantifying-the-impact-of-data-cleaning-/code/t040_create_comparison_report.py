@@ -1,3 +1,9 @@
+"""
+T040: Create comparison report (ComparisonReport entity) with baseline_metrics, cleaned_metrics, absolute_diff, relative_diff, sensitivity_analysis.
+
+This script aggregates metrics from baseline and cleaned analyses, calculates differences,
+and generates a structured ComparisonReport artifact.
+"""
 import os
 import sys
 import json
@@ -5,185 +11,184 @@ import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
-from utils import setup_logging
-from config import Config
+# Import from local modules based on API surface
 from models import ComparisonReport
-from reporting import load_json_file, save_json_file
+from reporting import load_json_file, save_json_file, calculate_p_value_shift, compute_ci_width_change, compute_effect_size_delta
+from utils import setup_logging
 
+# Configure logging
 logger = setup_logging("INFO")
 
-def load_baseline_metrics(filepath: str = "data/processed/baseline_metrics.json") -> Dict[str, Any]:
+def load_baseline_metrics(filepath: str = "data/processed/baseline_metrics.json") -> Optional[Dict[str, Any]]:
+    """Load baseline metrics from JSON file."""
     if not os.path.exists(filepath):
-        logger.error(f"Baseline metrics file not found: {filepath}")
-        return {}
+        logger.warning(f"Baseline metrics file not found: {filepath}")
+        return None
     return load_json_file(filepath)
 
-def load_cleaned_metrics(filepath: str = "data/processed/cleaned_metrics.json") -> Dict[str, Any]:
+def load_cleaned_metrics(filepath: str = "data/processed/cleaned_metrics.json") -> Optional[Dict[str, Any]]:
+    """Load cleaned metrics from JSON file."""
     if not os.path.exists(filepath):
-        logger.error(f"Cleaned metrics file not found: {filepath}")
-        return {}
+        logger.warning(f"Cleaned metrics file not found: {filepath}")
+        return None
     return load_json_file(filepath)
 
 def load_sensitivity_analysis(filepath: str = "data/processed/sensitivity_analysis.json") -> Optional[Dict[str, Any]]:
+    """Load sensitivity analysis results if available."""
     if not os.path.exists(filepath):
-        logger.warning(f"Sensitivity analysis file not found: {filepath}. Proceeding without it.")
+        logger.info("Sensitivity analysis file not found, skipping.")
         return None
     return load_json_file(filepath)
 
 def calculate_absolute_diff(baseline_val: float, cleaned_val: float) -> float:
+    """Calculate absolute difference between baseline and cleaned values."""
     if baseline_val is None or cleaned_val is None:
         return 0.0
     return abs(cleaned_val - baseline_val)
 
 def calculate_relative_diff(baseline_val: float, cleaned_val: float) -> float:
-    if baseline_val is None or baseline_val == 0:
+    """Calculate relative difference (percentage change) between baseline and cleaned values."""
+    if baseline_val is None or cleaned_val is None or baseline_val == 0:
         return 0.0
-    return (cleaned_val - baseline_val) / abs(baseline_val)
+    return abs((cleaned_val - baseline_val) / baseline_val)
 
-def aggregate_metrics_for_comparison(
-    baseline_metrics: Dict[str, Any],
-    cleaned_metrics: Dict[str, Any]
-) -> Dict[str, Any]:
-    """
-    Aggregates metrics from baseline and cleaned datasets to calculate diffs.
-    Handles both dict and list structures for 'datasets'.
-    """
-    baseline_datasets = baseline_metrics.get("datasets", [])
-    cleaned_datasets = cleaned_metrics.get("datasets", [])
-
-    # Normalize to list if it's a single dict
-    if isinstance(baseline_datasets, dict):
-        baseline_datasets = [baseline_datasets]
-    if isinstance(cleaned_datasets, dict):
-        cleaned_datasets = [cleaned_datasets]
-
-    comparison_results = []
-
-    # Create a map for cleaned metrics by dataset name for easier lookup
-    cleaned_map = {}
-    for cd in cleaned_datasets:
-        name = cd.get("dataset_name") or cd.get("dataset_id")
-        if name:
-            cleaned_map[name] = cd
-
-    for bd in baseline_datasets:
-        name = bd.get("dataset_name") or bd.get("dataset_id")
-        cd = cleaned_map.get(name)
-
-        if not cd:
-            logger.warning(f"No cleaned metrics found for baseline dataset: {name}")
-            continue
-
-        # Extract p-values (assuming first test for simplicity if multiple exist)
-        # Structure check: bd['analysis']['t_test']['p_value']
-        baseline_p = None
-        cleaned_p = None
-
-        try:
-            baseline_tests = bd.get("analysis", {}).get("t_test", {})
-            if isinstance(baseline_tests, dict):
-                baseline_p = baseline_tests.get("p_value")
-            elif isinstance(baseline_tests, list) and len(baseline_tests) > 0:
-                baseline_p = baseline_tests[0].get("p_value")
-
-            cleaned_tests = cd.get("analysis", {}).get("t_test", {})
-            if isinstance(cleaned_tests, dict):
-                cleaned_p = cleaned_tests.get("p_value")
-            elif isinstance(cleaned_tests, list) and len(cleaned_tests) > 0:
-                cleaned_p = cleaned_tests[0].get("p_value")
-        except Exception as e:
-            logger.warning(f"Error extracting p-values for {name}: {e}")
-
-        abs_diff = calculate_absolute_diff(baseline_p, cleaned_p)
-        rel_diff = calculate_relative_diff(baseline_p, cleaned_p)
-
-        comparison_results.append({
-            "dataset_name": name,
-            "baseline_p_value": baseline_p,
-            "cleaned_p_value": cleaned_p,
-            "absolute_diff": round(abs_diff, 6),
-            "relative_diff": round(rel_diff, 6),
-            "baseline_metrics": bd.get("analysis", {}),
-            "cleaned_metrics": cd.get("analysis", {})
-        })
-
-    return {
-        "timestamp": datetime.now().isoformat(),
-        "comparison_results": comparison_results,
-        "total_comparisons": len(comparison_results)
+def aggregate_metrics_for_comparison(baseline_entry: Dict[str, Any], cleaned_entry: Dict[str, Any]) -> Dict[str, Any]:
+    """Aggregate metrics for a single dataset comparison."""
+    result = {
+        "dataset_name": baseline_entry.get("dataset_name", cleaned_entry.get("dataset_name", "Unknown")),
+        "baseline_p_value": baseline_entry.get("t_test", {}).get("p_value"),
+        "cleaned_p_value": cleaned_entry.get("t_test", {}).get("p_value"),
+        "absolute_p_diff": 0.0,
+        "relative_p_diff": 0.0,
+        "baseline_ci_width": 0.0,
+        "cleaned_ci_width": 0.0,
+        "ci_width_change": 0.0,
+        "baseline_effect_size": baseline_entry.get("t_test", {}).get("effect_size"),
+        "cleaned_effect_size": cleaned_entry.get("t_test", {}).get("effect_size"),
+        "effect_size_delta": 0.0,
+        "cleaning_strategy": cleaned_entry.get("strategy", "Unknown")
     }
+    
+    # Calculate differences
+    result["absolute_p_diff"] = calculate_absolute_diff(
+        result["baseline_p_value"], result["cleaned_p_value"]
+    )
+    result["relative_p_diff"] = calculate_relative_diff(
+        result["baseline_p_value"], result["cleaned_p_value"]
+    )
+    
+    # CI Widths
+    baseline_ci = baseline_entry.get("t_test", {}).get("ci", [])
+    cleaned_ci = cleaned_entry.get("t_test", {}).get("ci", [])
+    
+    if baseline_ci and len(baseline_ci) == 2:
+        result["baseline_ci_width"] = baseline_ci[1] - baseline_ci[0]
+    if cleaned_ci and len(cleaned_ci) == 2:
+        result["cleaned_ci_width"] = cleaned_ci[1] - cleaned_ci[0]
+        
+    result["ci_width_change"] = compute_ci_width_change(
+        result["baseline_ci_width"], result["cleaned_ci_width"]
+    )
+    
+    # Effect Size
+    result["effect_size_delta"] = compute_effect_size_delta(
+        result["baseline_effect_size"], result["cleaned_effect_size"]
+    )
+    
+    return result
 
 def create_comparison_report(
-    baseline_metrics: Dict[str, Any],
-    cleaned_metrics: Dict[str, Any],
-    sensitivity_analysis: Optional[Dict[str, Any]]
+    baseline_data: Optional[Dict[str, Any]],
+    cleaned_data: Optional[Dict[str, Any]],
+    sensitivity_data: Optional[Dict[str, Any]]
 ) -> ComparisonReport:
-    logger.info("Generating comparison report...")
-
-    aggregated = aggregate_metrics_for_comparison(baseline_metrics, cleaned_metrics)
-
-    report_data = {
-        "baseline_metrics": baseline_metrics,
-        "cleaned_metrics": cleaned_metrics,
-        "absolute_diff": [r["absolute_diff"] for r in aggregated["comparison_results"]],
-        "relative_diff": [r["relative_diff"] for r in aggregated["comparison_results"]],
-        "sensitivity_analysis": sensitivity_analysis or {},
-        "aggregated_details": aggregated
+    """Create the final ComparisonReport entity."""
+    timestamp = datetime.now().isoformat()
+    
+    # Aggregate comparisons
+    comparisons = []
+    if baseline_data and cleaned_data:
+        baseline_datasets = baseline_data.get("datasets", [])
+        cleaned_datasets = cleaned_data.get("datasets", [])
+        
+        # Create a map for cleaned datasets by name
+        cleaned_map = {d.get("dataset_name"): d for d in cleaned_datasets}
+        
+        for b_entry in baseline_datasets:
+            ds_name = b_entry.get("dataset_name")
+            c_entry = cleaned_map.get(ds_name)
+            
+            if c_entry:
+                comparison = aggregate_metrics_for_comparison(b_entry, c_entry)
+                comparisons.append(comparison)
+    
+    # Build the report data
+    report_dict = {
+        "created_at": timestamp,
+        "baseline_metrics_summary": baseline_data.get("summary") if baseline_data else None,
+        "cleaned_metrics_summary": cleaned_data.get("summary") if cleaned_data else None,
+        "comparisons": comparisons,
+        "sensitivity_analysis": sensitivity_data,
+        "total_datasets_analyzed": len(comparisons),
+        "inconsistency_rate": 0.0  # Placeholder, could be calculated from comparisons
     }
-
-    # Save raw JSON
-    save_json_file(report_data, output_path)
-    logger.info(f"Comparison report saved to {output_path}")
-
-    # Create Pydantic model instance for type safety/return
-    # Note: We map the aggregated data into the model fields.
-    # Since ComparisonReport expects specific types, we adapt the dict.
-    try:
-        report = ComparisonReport(
-            baseline_metrics=baseline_metrics,
-            cleaned_metrics=cleaned_metrics,
-            absolute_diff=aggregated["comparison_results"], # Storing full details
-            relative_diff=aggregated["comparison_results"], # Storing full details
-            sensitivity_analysis=sensitivity_analysis or {}
-        )
-    except Exception as e:
-        logger.error(f"Failed to create ComparisonReport model instance: {e}")
-        # Fallback: create a minimal valid report if model fails
-        report = ComparisonReport(
-            baseline_metrics={},
-            cleaned_metrics={},
-            absolute_diff=[],
-            relative_diff=[],
-            sensitivity_analysis={}
-        )
-
+    
+    # Calculate inconsistency rate (proportion where significance changes)
+    if comparisons:
+        inconsistent_count = 0
+        for comp in comparisons:
+            base_p = comp.get("baseline_p_value")
+            clean_p = comp.get("cleaned_p_value")
+            if base_p is not None and clean_p is not None:
+                base_sig = base_p < 0.05
+                clean_sig = clean_p < 0.05
+                if base_sig != clean_sig:
+                    inconsistent_count += 1
+        report_dict["inconsistency_rate"] = inconsistent_count / len(comparisons)
+    
+    # Create the ComparisonReport object
+    report = ComparisonReport(
+        created_at=timestamp,
+        baseline_metrics=baseline_data,
+        cleaned_metrics=cleaned_data,
+        absolute_diffs=[c["absolute_p_diff"] for c in comparisons],
+        relative_diffs=[c["relative_p_diff"] for c in comparisons],
+        sensitivity_analysis=sensitivity_data,
+        comparisons=comparisons,
+        inconsistency_rate=report_dict["inconsistency_rate"]
+    )
+    
     return report
 
 def main():
-    logger.info("Starting T040: Create Comparison Report")
-
-    config = Config()
-    baseline_path = config.get("BASELINE_METRICS_PATH", "data/processed/baseline_metrics.json")
-    cleaned_path = config.get("CLEANED_METRICS_PATH", "data/processed/cleaned_metrics.json")
-    sensitivity_path = config.get("SENSITIVITY_ANALYSIS_PATH", "data/processed/sensitivity_analysis.json")
-    output_path = config.get("COMPARISON_REPORT_PATH", "data/processed/comparison_report.json")
-
-    baseline_metrics = load_baseline_metrics(baseline_path)
-    cleaned_metrics = load_cleaned_metrics(cleaned_path)
-    sensitivity_analysis = load_sensitivity_analysis(sensitivity_path)
-
-    if not baseline_metrics or not cleaned_metrics:
-        logger.error("Missing baseline or cleaned metrics. Cannot generate report.")
+    """Main entry point for T040."""
+    logger.info("Starting T040: Create comparison report")
+    
+    # Load data
+    baseline_data = load_baseline_metrics()
+    cleaned_data = load_cleaned_metrics()
+    sensitivity_data = load_sensitivity_analysis()
+    
+    if not baseline_data:
+        logger.error("Baseline metrics are missing. Cannot create comparison report.")
         sys.exit(1)
-
-    report = create_comparison_report(
-        baseline_metrics,
-        cleaned_metrics,
-        sensitivity_analysis,
-        output_path
-    )
-
-    logger.info(f"Task T040 completed successfully. Report: {output_path}")
+        
+    if not cleaned_data:
+        logger.error("Cleaned metrics are missing. Cannot create comparison report.")
+        sys.exit(1)
+    
+    # Create report
+    report = create_comparison_report(baseline_data, cleaned_data, sensitivity_data)
+    
+    # Save report
+    output_path = "data/processed/comparison_report.json"
+    save_json_file(report.model_dump(), output_path)
+    
+    logger.info(f"Comparison report saved to {output_path}")
+    logger.info(f"Total datasets analyzed: {report.total_datasets_analyzed}")
+    logger.info(f"Inconsistency rate: {report.inconsistency_rate:.4f}")
+    
+    return 0
 
 if __name__ == "__main__":
     main()

@@ -1,45 +1,49 @@
-# Quickstart Guide for PROJ-256
+# Quickstart Guide for Quantifying the Impact of Data Cleaning
 
-This guide validates the entire pipeline execution.
-
-This guide walks you through running the full data cleaning impact analysis pipeline.
+This guide outlines the steps to run the full analysis pipeline.
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip install -r requirements.txt`
+- All dependencies installed via `pip install -r requirements.txt`
 
 ## Execution Steps
 
-1. **Setup & Data Acquisition**
+1. **Ensure Data Exists**:
  ```bash
  python code/t011_ensure_data.py
  ```
 
-2. **Baseline Analysis**
+2. **Run Baseline Analysis**:
  ```bash
  python code/t012_run_baseline_analysis.py
  ```
+ This generates `data/processed/baseline_metrics.json`.
 
-3. **Clean Data & Re-analyze**
+3. **Apply Cleaning Strategies**:
  ```bash
  python code/t022_save_cleaned_datasets.py
+ ```
+
+4. **Re-analyze Cleaned Variants**:
+ ```bash
  python code/t023_reanalyze_cleaned_variants.py
  ```
 
-4. **Comparison & Sensitivity**
+5. **Run Comparison and Sensitivity Analysis**:
  ```bash
  python code/t027_run_comparison.py
  python code/t030_dataset_size_sensitivity.py
  python code/t031_bootstrap_variance.py
  ```
 
-5. **Permutation Null FPR (T032)**
+6. **Permutation Null FPR Estimation (T032)**:
  ```bash
  python code/t032_permutation_null_fpr.py
  ```
+ This generates `data/processed/null_fpr_metrics.json`.
 
-6. **Reporting & Visualization**
+7. **Generate Visualizations and Reports**:
  ```bash
  python code/t034_generate_forest_plot.py
  python code/t035_generate_ci_heatmap.py
@@ -49,15 +53,21 @@ This guide walks you through running the full data cleaning impact analysis pipe
  python code/t041_generate_final_report.py
  ```
 
-## Validation
-Run the validation script to ensure all artifacts are present:
-```bash
-python code/run_quickstart_validation.py
-```
+8. **Verify Artifacts**:
+ ```bash
+ python code/t048_verify_checksums_and_state.py
+ ```
 
-## Expected Artifacts
-- `data/processed/baseline_metrics.json`
-- `data/processed/cleaned_metrics.json`
-- `data/processed/null_fpr_metrics.json` (from T032)
-- `figures/forest_plot.png`
-- `figures/ci_heatmap.png`
+## Expected Outputs
+
+- `data/processed/baseline_metrics.json`: Baseline statistical metrics.
+- `data/processed/cleaned_metrics.json`: Metrics after cleaning.
+- `data/processed/null_fpr_metrics.json`: False Positive Rate estimates from permutation testing.
+- `figures/`: Generated plots (forest plot, heatmap).
+- `output/final_report.md`: Final analysis report.
+
+## Troubleshooting
+
+- If `data/raw` is empty, run `python code/t011_ensure_data.py` first.
+- Ensure `outcome_col` and `group_col` in `data/processed/*.csv` match the config or defaults.
+- Check logs for specific errors in `logs/`.

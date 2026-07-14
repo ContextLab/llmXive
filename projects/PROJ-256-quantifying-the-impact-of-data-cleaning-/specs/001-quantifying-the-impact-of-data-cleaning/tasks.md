@@ -80,7 +80,7 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Contract test in `tests/unit/test_acquisition.py`: Verify `download_dataset` returns 200 status and non-empty content for UCI HAR URL.
-- [X] T010 [P] [US1] Integration test in `tests/integration/test_baseline.py`: Verify baseline analysis script produces `baseline_metrics.json` with valid p-values (0 < p < 1) and finite CIs. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T010 [P] [US1] Integration test in `tests/integration/test_baseline.py`: Verify baseline analysis script produces `baseline_metrics.json` with valid p-values (0 < p < 1) and finite CIs. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
@@ -112,7 +112,7 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 - [X] T020 [US2] Implement function `apply_knn_imputation(df, columns, k=5)` in `code/cleaning.py` using scikit-learn. **Requirement**: Validate zero missing values post-op. Flag if variance reduction ≥20%.
 - [X] T021 [US2] Implement function `apply_categorical_recoding(df)` in `code/cleaning.py` with factor encoding for statistical testing.
 - [X] T022 [US2] Write cleaned datasets to `data/processed/` with strategy-specific naming (e.g., `dataset_outlier_removed.csv`).
-- [ ] T023 [US2] Re-run t-tests and linear regressions on each cleaned variant using `code/analysis.py`. **Output**: `data/processed/cleaned_metrics.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T023 [US2] Re-run t-tests and linear regressions on each cleaned variant using `code/analysis.py`. **Output**: `data/processed/cleaned_metrics.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -132,13 +132,13 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement metrics comparison in `code/reporting.py`. **Dependency**: Depends on existence of `cleaned_metrics.json` and `baseline_metrics.json` artifacts. **Requirement**: Compute |p_cleaned - p_baseline| (≥3 decimal precision), CI width change (≥2 decimal precision), effect-size delta, AND inconsistency rate (proportion of datasets where significance status changes) per FR-006. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T027 [US3] Implement metrics comparison in `code/reporting.py`. **Dependency**: Depends on existence of `cleaned_metrics.json` and `baseline_metrics.json` artifacts. **Requirement**: Compute |p_cleaned - p_baseline| (≥3 decimal precision), CI width change (≥2 decimal precision), effect-size delta, AND inconsistency rate (proportion of datasets where significance status changes) per FR-006. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [X] T028 [US3] Implement Bonferroni correction for Family-Wise Error Rate (FWER) in `code/reporting.py`. **Requirement**: Log a warning: "Warning: FR-007 requests FWER control. Benjamini-Hochberg controls FDR. Implemented Bonferroni (FWER) to satisfy FR-007."
 - [X] T029 [US3] Implement missingness rate binning with explicit thresholds: non-missing, low, moderate, and high. **Requirement**: Log warning: "Warning: Missingness bin thresholds [0, 5, 10, 20] used. If bins are empty, log CONSTRAINT_VIOLATION but do not skip logic." **Control Flow**: If bins are empty, log warning and proceed.
-- [ ] T030 [US3] Implement dataset size binning sensitivity analysis (n<50, 50-200, >200). **Requirement**: Log warning if <1 dataset per bin. **Control Flow**: If bins are empty, log CONSTRAINT_VIOLATION warning and proceed. **Dependency**: Depends on baseline metrics.
+- [X] T030 [US3] Implement dataset size binning sensitivity analysis (n<50, 50-200, >200). **Requirement**: Log warning if <1 dataset per bin. **Control Flow**: If bins are empty, log CONSTRAINT_VIOLATION warning and proceed. **Dependency**: Depends on baseline metrics.
 - [X] T031 [US3] Implement bootstrap variance estimation (≥1000 resamples per dataset, default 1000, fallback to 500 if dataset size > 5000 rows) for metric shifts with 95% CI. **Dependency**: Depends on existence of metric artifacts (T012, T023).
 - [X] T032 [US3] Implement permutation null dataset generation (outcome variable shuffled) for false-positive rate (FPR) estimation per FR-011. **Requirement**: Generate null datasets by shuffling outcomes while keeping predictors fixed. Output `data/processed/null_fpr_metrics.json`.
-- [ ] T033 [US3] Implement outlier threshold sweep for k ∈ {, a specific threshold} with FPR calculation AND inconsistency rate per threshold per FR-006. **Requirement**: Calculate FPR as proportion of tests with p ≤ 0.05 in null datasets. Calculate Inconsistency Rate as proportion of datasets where significance status changes. **Dependency**: Depends on cleaning functions (T017-T021) and analysis functions (T012, T023).
+- [X] T033 [US3] Implement outlier threshold sweep for k ∈ {, a specific threshold} with FPR calculation AND inconsistency rate per threshold per FR-006. **Requirement**: Calculate FPR as proportion of tests with p ≤ 0.05 in null datasets. Calculate Inconsistency Rate as proportion of datasets where significance status changes. **Dependency**: Depends on cleaning functions (T017-T021) and analysis functions (T012, T023).
 - [X] T034 [US3] Generate forest plot of p-value shifts using matplotlib/seaborn and save as PNG to `output/`.
 - [X] T035 [US3] Generate heatmap of CI-width changes across strategies and dataset bins and save as PNG to `output/`.
 - [X] T036 [US3] Implement per-dataset p-value shift reporting. **Requirement**: Calculate Median and IQR of p-value shifts. If n=2, log "STATISTICAL_LIMITATION: Median/IQR calculated on n=2, results are unstable." Do not skip calculation.
@@ -269,4 +269,4 @@ With multiple developers:
 - **BLOCKING GAP**: SC-006 requires ≥10 datasets but only 2 available - median/IQR calculations (T036-T038) now implemented as per-dataset reporting with explicit limitation notes to satisfy SC intent without statistical invalidity.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [~] T050 Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T050 Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

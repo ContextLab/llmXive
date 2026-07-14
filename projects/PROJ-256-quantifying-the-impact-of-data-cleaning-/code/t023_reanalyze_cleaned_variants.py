@@ -4,105 +4,48 @@ import json
 import logging
 import glob
 import pandas as pd
-import numpy as np
 from datetime import datetime
-
-# Import from project modules
-from analysis import run_t_test, run_linear_regression, compute_effect_size_cohen_d, identify_numerical_columns, identify_categorical_columns
-from utils import setup_logging, pin_random_seed
-from config import Config, get_config
+from analysis import analyze_dataset, save_json_file
+from utils import setup_logging
 
 logger = setup_logging("INFO")
 
-def find_cleaned_datasets(processed_dir: str = "data/processed") -> List[Dict[str, str]]:
-    """
-    Find all cleaned dataset CSVs in the processed directory.
-    Expected naming convention: <dataset_name>_cleaned_<strategy>.csv
-    """
-    pattern = os.path.join(processed_dir, "*_cleaned_*.csv")
+def find_cleaned_datasets(processed_dir: str) -> list:
+    """Find all cleaned dataset CSVs in the processed directory."""
+    pattern = os.path.join(processed_dir, "*_cleaned*.csv")
     files = glob.glob(pattern)
-    
-    cleaned_datasets = []
-    for file_path in files:
-        filename = os.path.basename(file_path)
-        # Parse filename: dataset_cleaned_strategy.csv
-        parts = filename.replace(".csv", "").split("_cleaned_")
-        if len(parts) == 2:
-            dataset_name = parts[0]
-            strategy = parts[1]
-            cleaned_datasets.append({
-                "file_path": file_path,
-                "dataset_name": dataset_name,
-                "strategy": strategy
-            })
-        else:
-            logger.warning(f"Skipping file with unexpected naming convention: {filename}")
-    
-    # Pattern to match cleaned datasets (e.g., *_outlier_removed.csv, *_mean_imputed.csv)
-    patterns = [
-        os.path.join(processed_dir, "*_outlier_removed.csv"),
-        os.path.join(processed_dir, "*_mean_imputed.csv"),
-        os.path.join(processed_dir, "*_median_imputed.csv"),
-        os.path.join(processed_dir, "*_knn_imputed.csv"),
-        os.path.join(processed_dir, "*_recoded.csv")
-    ]
-    
-    for pattern in patterns:
-        files = glob.glob(pattern)
-        for filepath in files:
-            filename = os.path.basename(filepath)
-            # Extract dataset name and strategy from filename
-            # Expected format: datasetname_strategy.csv
-            name_part = filename.replace(".csv", "")
-            parts = name_part.rsplit("_", 1)
-            
-            if len(parts) >= 2:
-                dataset_name = parts[0]
-                strategy = parts[1]
-            else:
-                dataset_name = name_part
-                strategy = "unknown"
-            
-            cleaned_datasets.append({
-                "filepath": filepath,
-                "dataset_name": dataset_name,
-                "strategy": strategy,
-                "filename": filename
-            })
-    
-    logger.info(f"Found {len(cleaned_datasets)} cleaned datasets in {processed_dir}")
-    return cleaned_datasets
+    logger.info(f"Found {len(files)} cleaned dataset files matching pattern: {pattern}")
+    return files
 
-def analyze_cleaned_variant(
-    df: pd.DataFrame, 
-    dataset_name: str, 
-    strategy: str, 
-    config: Dict[str, Any]
-) -> Dict[str, Any]:
-    """
-    Run t-tests and linear regressions on a cleaned dataset variant.
-    Returns metrics including p-values, CIs, and effect sizes.
-    """
-    pin_random_seed(config.get("RANDOM_SEED", 42))
+def analyze_cleaned_variant(filepath: str, outcome_col: str, group_col: str, predictor_cols: list) -> dict:
+    """Analyze a single cleaned dataset variant."""
+    filename = os.path.basename(filepath)
+    dataset_name = os.path.splitext(filename)[0]
     
-    outcome_col = config.get("outcome_col")
-    group_col = config.get("group_col")
-    
-    # Identify columns if not specified
-    if not outcome_col:
-        numerical_cols = identify_numerical_columns(df)
-        # Assume last numerical column is outcome, second to last is group (or first categorical)
-        if len(numerical_cols) >= 2:
-            outcome_col = numerical_cols[-1]
-            group_col = numerical_cols[-2] if len(numerical_cols) > 1 else None
-        elif len(numerical_cols) == 1:
-            outcome_col = numerical_cols[0]
-            # Try to find a categorical group
-            categorical_cols = identify_categorical_columns(df)
-            group_col = categorical_cols[0] if categorical_cols else None
-    
-    if not outcome_col or outcome_col not in df.columns:
-        logger.error(f"Outcome column '{outcome_col}' not found in dataset {dataset_name}")
+    try:
+        df = pd.read_csv(filepath)
+        logger.info(f"Loaded cleaned dataset: {dataset_name} ({len(df)} rows)")
+        
+        # Determine strategy from filename if possible, else default
+        strategy = "unknown"
+        if "outlier" in filename.lower():
+            strategy = "outlier_removal"
+        elif "mean" in filename.lower():
+            strategy = "mean_imputation"
+        elif "median" in filename.lower():
+            strategy = "median_imputation"
+        elif "knn" in filename.lower():
+            strategy = "knn_imputation"
+        elif "recoded" in filename.lower():
+            strategy = "categorical_recoding"
+        
+        result = analyze_dataset(df, dataset_name, outcome_col, group_col, predictor_cols)
+        result["cleaning_strategy"] = strategy
+        result["source_file"] = filepath
+        
+        return result
+    except Exception as e:
+        logger.error(f"Failed to analyze {filepath}: {e}")
         return None
     
     result_entry = {
@@ -174,71 +117,56 @@ def analyze_cleaned_variant(
 
 def main():
     """
-    Main entry point for T023: Re-analyze cleaned variants.
-    Finds all cleaned datasets, runs analysis, and outputs cleaned_metrics.json.
+    Main function for T023: Re-run t-tests and linear regressions on each cleaned variant.
+    Output: data/processed/cleaned_metrics.json
     """
-    logger.info("Starting T023: Re-analyzing cleaned variants")
+    logger.info("Starting T023: Re-analyze cleaned variants")
     
-    config = get_config()
-    processed_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
-    output_file = config.get("CLEANED_METRICS_PATH", "data/processed/cleaned_metrics.json")
+    # Configuration
+    processed_dir = os.environ.get("PROCESSED_DATA_PATH", "data/processed")
+    outcome_col = os.environ.get("OUTCOME_COL", "outcome")
+    group_col = os.environ.get("GROUP_COL", "group")
+    # Predictors are auto-detected or can be specified via env as comma-separated list
+    predictor_env = os.environ.get("PREDICTOR_COLS", "")
+    predictor_cols = [p.strip() for p in predictor_env.split(",")] if predictor_env else None
+
+    cleaned_files = find_cleaned_datasets(processed_dir)
     
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    
-    # Find cleaned datasets
-    cleaned_datasets = find_cleaned_datasets(processed_dir)
-    
-    if not cleaned_datasets:
-        logger.warning("No cleaned datasets found. Generating empty report.")
-        report = {
+    if not cleaned_files:
+        logger.warning("No cleaned datasets found. Skipping analysis.")
+        # Still create an empty output to indicate completion
+        output_data = {
             "datasets": [],
-            "metadata": {
-                "error": "No cleaned datasets found",
-                "timestamp": datetime.now().isoformat(),
-                "processed_dir": processed_dir
-            }
-        }
-        with open(output_file, 'w') as f:
-            json.dump(report, f, indent=2)
-        return
-    
-    logger.info(f"Found {len(cleaned_datasets)} cleaned datasets to analyze")
-    
-    results = []
-    for ds in cleaned_datasets:
-        try:
-            logger.info(f"Processing: {ds['dataset_name']} ({ds['strategy']})")
-            df = pd.read_csv(ds['file_path'])
-            
-            # Validate dataframe
-            if df.empty:
-                logger.warning(f"Dataset {ds['dataset_name']} is empty, skipping.")
-                continue
-            
-            analysis_result = analyze_cleaned_variant(df, ds['dataset_name'], ds['strategy'], config)
-            if analysis_result:
-                results.append(analysis_result)
-        except Exception as e:
-            logger.error(f"Failed to process {ds['dataset_name']}: {e}", exc_info=True)
-    
-    # Compile final report
-    report = {
-        "datasets": results,
-        "metadata": {
             "timestamp": datetime.now().isoformat(),
-            "processed_dir": processed_dir,
-            "total_datasets_analyzed": len(results),
-            "total_datasets_found": len(cleaned_datasets)
+            "note": "No cleaned datasets found to analyze."
+        }
+        output_path = os.path.join(processed_dir, "cleaned_metrics.json")
+        save_json_file(output_data, output_path)
+        return
+
+    results = []
+    for filepath in cleaned_files:
+        res = analyze_cleaned_variant(filepath, outcome_col, group_col, predictor_cols)
+        if res:
+            results.append(res)
+            logger.debug(f"Analysis complete for {filepath}: p-value={res.get('t_test', {}).get('p_value')}")
+
+    output_data = {
+        "datasets": results,
+        "timestamp": datetime.now().isoformat(),
+        "config": {
+            "outcome_col": outcome_col,
+            "group_col": group_col,
+            "predictor_cols": predictor_cols
         }
     }
-    
-    # Write output
-    with open(output_file, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Cleaned metrics report saved to {output_file}")
-    logger.info(f"Successfully analyzed {len(results)} out of {len(cleaned_datasets)} datasets")
+
+    output_path = os.path.join(processed_dir, "cleaned_metrics.json")
+    if save_json_file(output_data, output_path):
+        logger.info(f"Successfully wrote cleaned metrics to {output_path}")
+    else:
+        logger.error("Failed to write cleaned metrics file.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
