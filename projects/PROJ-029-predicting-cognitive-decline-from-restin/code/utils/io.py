@@ -1,6 +1,5 @@
 """
-I/O utilities for BIDS data handling.
-Extends existing API to support loading/saving CSVs and JSONs.
+Utility functions for I/O operations.
 """
 import os
 from pathlib import Path
@@ -9,49 +8,58 @@ import json
 import csv
 import pandas as pd
 
-def ensure_dir(path: Path) -> Path:
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+def ensure_dir(directory: Path) -> None:
+    """Ensure a directory exists."""
+    directory.mkdir(parents=True, exist_ok=True)
 
 def list_bids_subjects(data_dir: Path) -> List[str]:
-    """Return list of subject IDs (sub-*) in a BIDS directory."""
-    return [d.name for d in data_dir.iterdir() if d.is_dir() and d.name.startswith("sub-")]
+    """List BIDS subject IDs in a directory."""
+    subjects = []
+    for item in data_dir.iterdir():
+        if item.is_dir() and item.name.startswith('sub-'):
+            subjects.append(item.name)
+    return subjects
 
-def load_json(path: Path) -> Dict[str, Any]:
-    with open(path, 'r') as f:
+def load_json(file_path: Path) -> Dict[str, Any]:
+    """Load a JSON file."""
+    with open(file_path, 'r') as f:
         return json.load(f)
 
-def save_json(path: Path, data: Dict[str, Any]) -> None:
-    ensure_dir(path.parent)
-    with open(path, 'w') as f:
+def save_json(data: Dict[str, Any], file_path: Path) -> None:
+    """Save a dictionary to a JSON file."""
+    ensure_dir(file_path.parent)
+    with open(file_path, 'w') as f:
         json.dump(data, f, indent=2)
 
-def load_bids_subject_data(data_dir: Path, subject_id: str) -> Optional[Path]:
-    """Locate the main directory for a subject."""
+def load_bids_subject_data(data_dir: Path, subject_id: str) -> Optional[Dict[str, Any]]:
+    """Load data for a specific BIDS subject."""
     sub_dir = data_dir / subject_id
-    if sub_dir.exists():
-        return sub_dir
-    return None
+    if not sub_dir.exists():
+        return None
+    
+    data = {'subject_id': subject_id}
+    # Scan for JSON files
+    for json_file in sub_dir.rglob('*.json'):
+        try:
+            meta = load_json(json_file)
+            data.update(meta)
+        except:
+            continue
+    return data
 
-def save_csv(path: Path, rows: List[Dict[str, Any]], fieldnames: Optional[List[str]] = None) -> None:
-    ensure_dir(path.parent)
-    if not rows:
-        return
-    if fieldnames is None:
-        fieldnames = list(rows[0].keys())
-    with open(path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
+def save_csv(df: pd.DataFrame, file_path: Path) -> None:
+    """Save a DataFrame to CSV."""
+    ensure_dir(file_path.parent)
+    df.to_csv(file_path, index=False)
 
-def load_csv(path: Path) -> List[Dict[str, Any]]:
-    with open(path, 'r') as f:
-        reader = csv.DictReader(f)
-        return list(reader)
+def load_csv(file_path: Path) -> pd.DataFrame:
+    """Load a CSV file into a DataFrame."""
+    return pd.read_csv(file_path)
 
-def save_dataframe(path: Path, df: pd.DataFrame) -> None:
-    ensure_dir(path.parent)
-    df.to_csv(path, index=False)
+def save_dataframe(df: pd.DataFrame, file_path: Path) -> None:
+    """Alias for save_csv."""
+    save_csv(df, file_path)
 
-def load_dataframe(path: Path) -> pd.DataFrame:
-    return pd.read_csv(path)
+def load_dataframe(file_path: Path) -> pd.DataFrame:
+    """Alias for load_csv."""
+    return load_csv(file_path)

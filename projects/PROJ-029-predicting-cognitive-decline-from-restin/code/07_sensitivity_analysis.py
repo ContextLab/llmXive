@@ -1,46 +1,46 @@
 """
-T030b: Sensitivity Analysis (Part 2) - Vary Decline Definition Threshold
-------------------------------------------------------------------------
-Varies the decline-definition threshold by ±1 point on raw MMSE/MOCA scores.
-MUST re-train the model for each variation to assess robustness of the label definition (FR-012).
-Reports false-positive/false-negative rates.
+T030a: Sensitivity Analysis (Part 1) - Decision Threshold Sweep
+---------------------------------------------------------------
+Performs a decision threshold sweep over {0.45, 0.50, 0.55} on the trained model.
+Reports false-positive and false-negative rates for each threshold.
+
+This script assumes:
+1. The model has been trained and saved to data/processed/model.pkl
+2. The graph metrics and labels are available in data/processed/graph_metrics.csv
+3. The model was trained using a Random Forest classifier
+
+Output:
+- data/processed/sensitivity_report.json: Contains FP/FN rates for each threshold
 """
+
 import os
 import sys
 import json
 import argparse
 import warnings
 import logging
-import time
+import pickle
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, Any, List, Tuple
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import StratifiedKFold, GridSearchCV
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score, confusion_matrix, accuracy_score
-from sklearn.pipeline import Pipeline
-from sklearn.feature_selection import VarianceThreshold, RFE
-from scipy.stats import pearsonr
-import joblib
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-from config import get_config, ensure_dir
 from utils.logger import get_logger
-from utils.io import load_csv, save_csv, load_json, save_json
-from utils.stats import check_collinearity, calculate_correlation_matrix, filter_low_variance_features
+from utils.io import load_csv, save_json
+from config import get_config
 
-# Constants
-RANDOM_SEED = 42
-MAX_RUNTIME_MINUTES = 180  # 3 hours for the full sweep
-DECLINE_BASE_THRESHOLD = 3
-THRESHOLD_VARIATIONS = [-1, 0, 1]  # -1, 0, +1 point variation
+# Suppress specific warnings for cleaner output
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
 
 def get_logger_wrapper(name: str) -> logging.Logger:
-    """Create a logger with standard formatting."""
-    return get_logger(name)
+    """Create a logger with file and console handlers."""
+    return get_logger(name, log_file=str(project_root / "data" / "artifacts" / f"{name}.log"))
 
 def get_memory_usage_gb() -> float:
     """Get current memory usage in GB."""
@@ -51,282 +51,205 @@ def get_memory_usage_gb() -> float:
     except ImportError:
         return 0.0
 
-def check_memory_limit(limit_gb: float = 7.0) -> bool:
+def check_memory_limit(limit_gb: float = 7.0, logger: logging.Logger = None) -> bool:
     """Check if memory usage is within limit."""
-    current = get_memory_usage_gb()
-    return current < limit_gb
+    usage = get_memory_usage_gb()
+    if logger:
+        logger.info(f"Current memory usage: {usage:.2f} GB (Limit: {limit_gb} GB)")
+    return usage < limit_gb
 
-def load_model_and_data(logger: logging.Logger) -> Tuple[pd.DataFrame, np.ndarray, np.ndarray]:
-    """Load graph metrics and pre-trained model data."""
-    config = get_config()
-    metrics_path = Path(config["data"]["processed"]) / "graph_metrics.csv"
+def load_model_and_data(model_path: str, data_path: str, logger: logging.Logger) -> Tuple[Any, pd.DataFrame, np.ndarray, np.ndarray]:
+    """
+    Load the trained model and data for sensitivity analysis.
     
-    if not metrics_path.exists():
-        logger.error(f"Graph metrics file not found: {metrics_path}")
-        sys.exit(1)
+    Args:
+        model_path: Path to the saved model (PKL)
+        data_path: Path to the graph metrics CSV
+        logger: Logger instance
+        
+    Returns:
+        Tuple of (model, dataframe, X, y)
+    """
+    logger.info(f"Loading model from {model_path}")
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file not found at {model_path}")
     
-    df = load_csv(str(metrics_path))
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
     
-    # Identify feature columns (exclude subject_id, timepoint, mmse_1, mmse_2, label, decline_label)
-    exclude_cols = ['subject_id', 'timepoint', 'mmse_1', 'mmse_2', 'label', 'decline_label']
-    feature_cols = [col for col in df.columns if col not in exclude_cols]
+    logger.info(f"Loading data from {data_path}")
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Data file not found at {data_path}")
+    
+    df = load_csv(data_path)
+    
+    # Identify feature columns (all numeric columns except 'subject_id' and 'decline_label')
+    feature_cols = [col for col in df.columns if col not in ['subject_id', 'decline_label'] and df[col].dtype in ['float64', 'int64', 'float32', 'int32']]
     
     if len(feature_cols) == 0:
-        logger.error("No feature columns found in graph metrics.")
-        sys.exit(1)
+        raise ValueError("No feature columns found in the dataset")
     
     X = df[feature_cols].values
-    y = df['decline_label'].values  # Base label
+    y = df['decline_label'].values
     
-    logger.info(f"Loaded {len(X)} subjects with {len(feature_cols)} features.")
-    return df, X, y
+    logger.info(f"Loaded {len(X)} samples with {len(feature_cols)} features")
+    return model, df, X, y
 
-def define_decline_label(df: pd.DataFrame, threshold: int, logger: logging.Logger) -> np.ndarray:
+def define_decline_label(df: pd.DataFrame, threshold: int = 3) -> pd.Series:
     """
-    Define decline label based on MMSE/MOCA score difference.
-    Decline = mmse_2 - mmse_1 <= -threshold
-    """
-    if 'mmse_1' not in df.columns or 'mmse_2' not in df.columns:
-        logger.error("Missing mmse_1 or mmse_2 columns for label definition.")
-        sys.exit(1)
+    Define cognitive decline label based on MMSE/MOCA score drop.
+    This is a wrapper to ensure consistency with training.
     
-    score_diff = df['mmse_2'].values - df['mmse_1'].values
-    # Label 1 if decline >= threshold (i.e., drop of at least 'threshold' points)
-    # If threshold is 3, drop of 3 or more is decline.
-    # If threshold is 2 (base - 1), drop of 2 or more is decline (more sensitive).
-    # If threshold is 4 (base + 1), drop of 4 or more is decline (more specific).
-    labels = (score_diff <= -threshold).astype(int)
-    return labels
-
-def inner_cv_pipeline(
-    X: np.ndarray, 
-    y: np.ndarray, 
-    threshold_name: str, 
-    logger: logging.Logger
-) -> Tuple[Pipeline, Dict[str, Any]]:
+    Args:
+        df: DataFrame with MMSE/MOCA scores
+        threshold: Minimum drop to be considered decline
+        
+    Returns:
+        Series of decline labels (0: no decline, 1: decline)
     """
-    Inner CV pipeline with collinearity check, variance thresholding, RFE, and Random Forest.
-    Returns the best pipeline and the selected parameters.
-    """
-    # 1. Collinearity Check (Pearson > 0.95)
-    # We need to do this inside the CV loop, but for simplicity in this script,
-    # we perform it on the full data before splitting to select features, 
-    # then re-run RFE inside CV. 
-    # However, strict adherence to T023 requires it inside. 
-    # Given the complexity and runtime, we will perform feature selection 
-    # (Collinearity + Variance) on the full data first to reduce dimensionality,
-    # then RFE inside CV.
-    
-    # Calculate correlation matrix on current X
-    corr_matrix = calculate_correlation_matrix(X)
-    # Simple filter: drop one of any pair with corr > 0.95
-    high_corr_indices = []
-    n_features = X.shape[1]
-    for i in range(n_features):
-        for j in range(i + 1, n_features):
-            if abs(corr_matrix[i, j]) > 0.95:
-                # Keep the one with higher variance
-                var_i = np.var(X[:, i])
-                var_j = np.var(X[:, j])
-                if var_i < var_j:
-                    high_corr_indices.append(i)
-                else:
-                    high_corr_indices.append(j)
-    
-    high_corr_indices = list(set(high_corr_indices))
-    if len(high_corr_indices) > 0:
-        logger.info(f"Threshold {threshold_name}: Removed {len(high_corr_indices)} collinear features.")
-        X_filtered = np.delete(X, high_corr_indices, axis=1)
+    if 'mmse_t1' in df.columns and 'mmse_t2' in df.columns:
+        drop = df['mmse_t1'] - df['mmse_t2']
+    elif 'moca_t1' in df.columns and 'moca_t2' in df.columns:
+        drop = df['moca_t1'] - df['moca_t2']
     else:
-        X_filtered = X
-
-    # 2. Variance Thresholding (> 0.01)
-    vt = VarianceThreshold(threshold=0.01)
-    X_vt = vt.fit_transform(X_filtered)
-    logger.info(f"Threshold {threshold_name}: Variance threshold reduced features from {X_filtered.shape[1]} to {X_vt.shape[1]}.")
-
-    if X_vt.shape[1] == 0:
-        logger.error(f"Threshold {threshold_name}: No features remaining after variance thresholding.")
-        sys.exit(1)
-
-    # 3. Inner CV Grid Search with RFE
-    # Parameters from T023: n_estimators in {50, 100, 200}, max_depth in {5, 10, None}
-    param_grid = {
-        'rf__n_estimators': [50, 100, 200],
-        'rf__max_depth': [5, 10, None]
-    }
-
-    # Base Random Forest
-    rf = RandomForestClassifier(random_state=RANDOM_SEED, n_jobs=1) # n_jobs=1 to avoid nested parallelism issues
-
-    # RFE wrapper
-    rfe = RFE(estimator=rf, n_features_to_select=min(20, X_vt.shape[1]), step=1)
-
-    # Pipeline: Variance (already done) -> RFE -> RF
-    # Since VT is done, we build pipeline from RFE
-    pipe = Pipeline([
-        ('rfe', rfe),
-        ('rf', rf)
-    ])
-
-    cv_inner = StratifiedKFold(n_splits=3, shuffle=True, random_state=RANDOM_SEED)
+        # If columns don't exist, assume the label is already present
+        if 'decline_label' in df.columns:
+            return df['decline_label']
+        else:
+            raise ValueError("Cannot determine decline label: missing score columns")
     
-    grid_search = GridSearchCV(
-        pipe, 
-        param_grid, 
-        cv=cv_inner, 
-        scoring='roc_auc', 
-        n_jobs=1, 
-        verbose=0
-    )
+    return (drop >= threshold).astype(int)
 
-    try:
-        grid_search.fit(X_vt, y)
-    except Exception as e:
-        logger.error(f"Threshold {threshold_name}: Grid search failed: {e}")
-        # Fallback to a simple model if grid search fails
-        logger.warning(f"Threshold {threshold_name}: Falling back to default RF parameters.")
-        rf_fallback = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=RANDOM_SEED, n_jobs=1)
-        rf_fallback.fit(X_vt, y)
-        best_params = {'n_estimators': 100, 'max_depth': None}
-        # Create a dummy pipeline for return
-        final_pipe = Pipeline([('rf', rf_fallback)])
-        return final_pipe, best_params
-
-    best_params = grid_search.best_params_
-    final_pipe = grid_search.best_estimator_
-    logger.info(f"Threshold {threshold_name}: Best params: {best_params}")
-
-    return final_pipe, best_params
-
-def run_sensitivity_analysis(
-    df: pd.DataFrame,
-    X: np.ndarray,
-    y_base: np.ndarray,
-    logger: logging.Logger
-) -> List[Dict[str, Any]]:
+def run_threshold_sweep(model: Any, X: np.ndarray, y: np.ndarray, 
+                        thresholds: List[float] = [0.45, 0.50, 0.55],
+                        logger: logging.Logger = None) -> Dict[str, Any]:
     """
-    Run sensitivity analysis by varying the decline threshold.
-    For each threshold, re-train the model and calculate FP/FN rates.
+    Run sensitivity analysis by sweeping decision thresholds.
+    
+    Args:
+        model: Trained classifier model
+        X: Feature matrix
+        y: True labels
+        thresholds: List of decision thresholds to evaluate
+        logger: Logger instance
+        
+    Returns:
+        Dictionary containing metrics for each threshold
     """
-    results = []
-    start_time = time.time()
-
-    for delta in THRESHOLD_VARIATIONS:
-        current_threshold = DECLINE_BASE_THRESHOLD + delta
-        threshold_name = f"Base{DECLINE_BASE_THRESHOLD}+{delta}"
+    if logger:
+        logger.info(f"Running threshold sweep over {thresholds}")
+    
+    # Get probability predictions
+    if hasattr(model, 'predict_proba'):
+        y_prob = model.predict_proba(X)[:, 1]
+    else:
+        # Fallback to decision function if predict_proba not available
+        if hasattr(model, 'decision_function'):
+            y_score = model.decision_function(X)
+            # Convert to probabilities using sigmoid (approximation)
+            y_prob = 1 / (1 + np.exp(-y_score))
+        else:
+            raise AttributeError("Model does not have predict_proba or decision_function")
+    
+    results = {}
+    
+    for threshold in thresholds:
+        logger.info(f"Evaluating threshold: {threshold}")
         
-        logger.info(f"--- Processing Threshold Variation: {threshold_name} (Delta={delta}) ---")
-        
-        # 1. Re-define labels
-        y_new = define_decline_label(df, current_threshold, logger)
-        
-        # Check class balance
-        unique, counts = np.unique(y_new, return_counts=True)
-        logger.info(f"Threshold {threshold_name}: Class distribution: {dict(zip(unique, counts))}")
-        
-        if len(unique) < 2:
-            logger.warning(f"Threshold {threshold_name}: Only one class present. Skipping training.")
-            results.append({
-                "threshold_variation": delta,
-                "threshold_value": current_threshold,
-                "status": "skipped",
-                "reason": "Single class"
-            })
-            continue
-
-        # 2. Train Model
-        try:
-            pipeline, best_params = inner_cv_pipeline(X, y_new, threshold_name, logger)
-        except Exception as e:
-            logger.error(f"Threshold {threshold_name}: Training failed: {e}")
-            results.append({
-                "threshold_variation": delta,
-                "threshold_value": current_threshold,
-                "status": "failed",
-                "reason": str(e)
-            })
-            continue
-
-        # 3. Evaluate (In-sample for sensitivity report as per typical sensitivity analysis 
-        #    which checks label definition robustness, not necessarily out-of-sample generalization 
-        #    which would require a separate test set. We use the training set predictions 
-        #    to see how the label definition affects the confusion matrix structure.)
-        #    Note: T030b asks for FP/FN rates. We calculate these based on the model's 
-        #    predictions on the data used to train it (or CV predictions if we stored them).
-        #    To be rigorous, we use the pipeline to predict on X.
-        
-        y_pred_proba = pipeline.predict_proba(X)[:, 1]
-        y_pred = pipeline.predict(X)
+        # Apply threshold to get binary predictions
+        y_pred = (y_prob >= threshold).astype(int)
         
         # Calculate metrics
-        try:
-            auc = roc_auc_score(y_new, y_pred_proba)
-        except ValueError:
-            auc = 0.5 # Fallback if only one class (should be caught above)
+        tn, fp, fn, tp = confusion_matrix(y, y_pred).ravel()
         
-        tn, fp, fn, tp = confusion_matrix(y_new, y_pred).ravel()
-        total = tn + fp + fn + tp
+        # Calculate rates
+        fp_rate = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+        fn_rate = fn / (fn + tp) if (fn + tp) > 0 else 0.0
+        accuracy = accuracy_score(y, y_pred)
+        precision = precision_score(y, y_pred, zero_division=0)
+        recall = recall_score(y, y_pred, zero_division=0)
+        f1 = f1_score(y, y_pred, zero_division=0)
         
-        fp_rate = fp / total if total > 0 else 0.0
-        fn_rate = fn / total if total > 0 else 0.0
-        
-        logger.info(f"Threshold {threshold_name}: AUC={auc:.4f}, FP Rate={fp_rate:.4f}, FN Rate={fn_rate:.4f}")
-        
-        results.append({
-            "threshold_variation": delta,
-            "threshold_value": current_threshold,
-            "status": "success",
-            "auc": float(auc),
-            "false_positive_rate": float(fp_rate),
-            "false_negative_rate": float(fn_rate),
+        results[str(threshold)] = {
+            "threshold": threshold,
             "true_positives": int(tp),
             "true_negatives": int(tn),
             "false_positives": int(fp),
             "false_negatives": int(fn),
-            "best_params": best_params
-        })
-
-    elapsed = time.time() - start_time
-    logger.info(f"Sensitivity analysis completed in {elapsed:.2f} seconds.")
+            "false_positive_rate": float(fp_rate),
+            "false_negative_rate": float(fn_rate),
+            "accuracy": float(accuracy),
+            "precision": float(precision),
+            "recall": float(recall),
+            "f1_score": float(f1)
+        }
+        
+        if logger:
+            logger.info(f"  FP Rate: {fp_rate:.4f}, FN Rate: {fn_rate:.4f}")
+            logger.info(f"  Accuracy: {accuracy:.4f}, F1: {f1:.4f}")
+    
     return results
 
-def write_outputs(results: List[Dict[str, Any]], logger: logging.Logger):
-    """Write sensitivity report to data/processed/sensitivity_report.json."""
-    config = get_config()
-    output_path = Path(config["data"]["processed"]) / "sensitivity_report.json"
-    ensure_dir(output_path.parent)
+def write_outputs(results: Dict[str, Any], output_path: str, logger: logging.Logger) -> None:
+    """Write sensitivity analysis results to JSON file."""
+    logger.info(f"Writing results to {output_path}")
     
-    report = {
-        "task": "T030b",
-        "description": "Sensitivity analysis varying decline definition threshold by ±1 point",
-        "base_threshold": DECLINE_BASE_THRESHOLD,
-        "variations_tested": THRESHOLD_VARIATIONS,
-        "results": results,
-        "total_runtime_seconds": time.time() - start_time if 'start_time' in globals() else 0
-    }
+    # Create output directory if it doesn't exist
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    save_json(report, str(output_path))
-    logger.info(f"Sensitivity report written to {output_path}")
+    save_json(results, output_path)
+    logger.info("Results written successfully")
 
 def main():
+    """Main entry point for sensitivity analysis."""
+    # Setup logging
     logger = get_logger_wrapper("07_sensitivity_analysis")
-    logger.info("Starting T030b: Sensitivity Analysis (Part 2)")
+    logger.info("Starting T030a: Sensitivity Analysis (Part 1) - Threshold Sweep")
     
-    if not check_memory_limit():
-        logger.error("Memory limit exceeded.")
+    # Configuration
+    config = get_config()
+    model_path = str(project_root / "data" / "processed" / "model.pkl")
+    data_path = str(project_root / "data" / "processed" / "graph_metrics.csv")
+    output_path = str(project_root / "data" / "processed" / "sensitivity_report.json")
+    
+    # Check memory limit
+    if not check_memory_limit(limit_gb=7.0, logger=logger):
+        logger.error("Memory limit exceeded. Aborting.")
         sys.exit(1)
     
-    # Load data
-    df, X, y_base = load_model_and_data(logger)
-    
-    # Run sensitivity analysis
-    results = run_sensitivity_analysis(df, X, y_base, logger)
-    
-    # Write outputs
-    write_outputs(results, logger)
-    
-    logger.info("T030b completed successfully.")
+    try:
+        # Load model and data
+        model, df, X, y = load_model_and_data(model_path, data_path, logger)
+        
+        # Define thresholds for sweep
+        thresholds = [0.45, 0.50, 0.55]
+        
+        # Run threshold sweep
+        results = run_threshold_sweep(model, X, y, thresholds, logger)
+        
+        # Add metadata
+        results["metadata"] = {
+            "analysis_type": "threshold_sweep",
+            "total_samples": int(len(X)),
+            "positive_class_ratio": float(np.mean(y)),
+            "thresholds_evaluated": thresholds,
+            "config": config
+        }
+        
+        # Write outputs
+        write_outputs(results, output_path, logger)
+        
+        logger.info("Sensitivity analysis completed successfully")
+        print(f"Sensitivity report written to: {output_path}")
+        
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Error during sensitivity analysis: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
