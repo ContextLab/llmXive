@@ -1,0 +1,11 @@
+torch>=2.0.0
+rdkit>=2023.3.1
+scikit-learn>=1.2.0
+pandas>=2.0.0
+datasets>=2.14.0
+networkx>=3.1
+psutil>=5.9.0
+pytest>=7.3.0
+flake8>=6.0.0
+black>=23.3.0
+ruff>=0.0.280
