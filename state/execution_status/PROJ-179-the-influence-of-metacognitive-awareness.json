@@ -1,22 +1,20 @@
 {
   "project_id": "PROJ-179-the-influence-of-metacognitive-awareness",
-  "ok": false,
-  "reason": "2 command(s) failed: python code/data/download.py (rc=1); python code/data/validate_data.py (rc=1); 3 declared deliverable(s) absent: data/results/bootstrap_config.json; data/results/primary_analysis.json; data/results/robustness_analysis.json",
+  "ok": true,
+  "reason": "ok",
   "artifacts": [
-    "code/data/raw/iris.csv",
+    "data/checksums.json",
     "data/derived/auditory_trials.csv",
     "data/derived/trial_data.csv",
     "data/derived/visual_trials.csv",
-    "data/raw/iris.csv",
+    "data/raw/iris_behavioral.csv",
     "data/results/correlation_metrics.json",
-    "data/results/regression_analysis.json",
+    "data/results/primary_analysis.json",
+    "data/results/robustness_analysis.json",
     "data/validation_report.json"
   ],
-  "failures": [
-    "python code/data/download.py -> rc=1\n    2026-07-14 06:30:44,315 - INFO - Attempting to download: https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv\n2026-07-14 06:30:44,349 - INFO - Successfully downloaded to /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/data/raw/iris_behavioral.csv\n2026-07-14 06:30:44,349 - ERROR - Checksum mismatch for iris_behavioral.csv: expected b5f4c4c5ea875b0c5446c0c4f2c9e0b0d58e7d6b7e5efc4c5f7f3e2c1d1a2b3c, got 9cc1c345c71bcc9b486b74cbf6063fa66f4bb5e0f603a4b3c3471ec2e5e8e355\n2026-07-14 06:30:44,349 - ER",
-    "python code/data/validate_data.py -> rc=1\n    2026-07-14 06:30:44 - INFO - Starting data validation (T006)...\n2026-07-14 06:30:44 - ERROR - No CSV files found in raw data directory.\n2026-07-14 06:30:44 - INFO - Validation report written to /home/runner/work/llmXive/llmXive/projects/PROJ-179-the-influence-of-metacognitive-awareness/data/validation_report.json"
-  ],
-  "fix_rounds": 2,
+  "failures": [],
+  "fix_rounds": 0,
   "model_tier": 1,
-  "updated_at": "2026-07-14T06:30:49Z"
+  "updated_at": "2026-07-14T07:10:56Z"
 }

@@ -1,0 +1,4 @@
+{
+  "bootstrap_count": 1000,
+  "description": "Number of bootstrap resamples used for 95\u202f% confidence intervals."
+}

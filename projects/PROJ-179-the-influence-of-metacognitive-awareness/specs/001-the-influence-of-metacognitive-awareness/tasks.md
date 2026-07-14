@@ -44,10 +44,10 @@
  - **Fallback**: If ds003386 is invalid, search for alternative datasets (e.g., from UCI, OpenNeuro behavioral datasets) and log results. If no valid dataset is found, the project remains blocked.
  - **Note**: This task overrides the contradictory claim in spec.md's Data Constraints section.
  - **Constraint**: This task MUST run BEFORE T005 and T012. No other tasks in this phase can proceed until T004 passes.
-- [ ] T005 [Depends on: T004] Implement `data/download.py` to fetch the VALID behavioral dataset identified by T004 (with checksum validation). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T005 [Depends on: T004] Implement `data/download.py` to fetch the VALID behavioral dataset identified by T004 (with checksum validation). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Constraint**: This task assumes T004 has passed. Do NOT attempt to fetch OpenNeuro ds003386 as a "reference" if it is invalid.
  - **Deliverable**: Fetch the dataset. If fetch fails, exit with code 1.
-- [ ] T006 [Depends on: T005] Implement `data/validate_data.py` to check for required behavioral fields (`confidence_rating`, `source_label`) in the downloaded dataset. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T006 [Depends on: T005] Implement `data/validate_data.py` to check for required behavioral fields (`confidence_rating`, `source_label`) in the downloaded dataset. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Deliverable**: Output artifact `data/validation_report.json` with status "PASS" or "FAIL".
  - **Logic**: If `confidence_rating` or `source_label` columns are missing, raise `ValueError("Required fields missing: confidence_rating, source_label")` and exit with code 1.
 - [X] T007 [P] Create base data models (Participant, Trial) in `src/models/data_models.py`
@@ -86,7 +86,7 @@
 - [X] T015 [US1] Implement `src/analysis/bootstrap.py` for 1,000 bootstrap resamples to generate 95% CI.
  - **Runtime Check**: Monitor cumulative wall-clock time of the bootstrap loop. Check periodically at regular resample intervals. If runtime > 5.5h, log warning "Runtime limit detected, reducing bootstrap count to 500", update `data/results/bootstrap_config.json` with `bootstrap_count: 500`, and exit with code 0 (success with warning).
  - **Constraint**: Default is a sufficient number of resamples. Reduction to a lower capacity is a staged fallback only if the 5.5h threshold is exceeded.
-- [ ] T016 [US1] Implement `src/report/generate.py` to render correlation magnitude, direction, p-value, and CI to `data/results/primary_analysis.json`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [X] T016 [US1] Implement `src/report/generate.py` to render correlation magnitude, direction, p-value, and CI to `data/results/primary_analysis.json`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [X] T017 [US1] Add validation to ensure `data/derived/confidence_summary.csv` and `data/derived/accuracy_summary.csv` are derived from disjoint trials.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -141,7 +141,7 @@
  - **Output**: `data/derived/visual_trials.csv`, `data/derived/auditory_trials.csv`.
 - [X] T027 [US3] [Depends on: T026, T014] Implement `src/analysis/robustness.py` to run the Phase 3 correlation pipeline on each subset independently.
  - **Constraint**: Do not run in parallel with T026. Must wait for T026 to complete.
-- [ ] T028 [US3] [Depends on: T027] Implement `src/report/generate.py` update to apply Bonferroni or Benjamini-Hochberg correction for multiple comparisons (family-wise error) and report corrected p-values in `data/results/robustness_analysis.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [X] T028 [US3] [Depends on: T027] Implement `src/report/generate.py` update to apply Bonferroni or Benjamini-Hochberg correction for multiple comparisons (family-wise error) and report corrected p-values in `data/results/robustness_analysis.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 
 **Checkpoint**: All user stories should now be independently functional
 

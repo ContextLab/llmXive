@@ -8,5 +8,4 @@ seaborn
 requests
 pyyaml
 pybids
-# Added for download script testing
-# No additional packages required beyond the ones above.
+# Added for checksum handling (built‑in) – no new third‑party needed.

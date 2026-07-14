@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T23:22:13.977711Z'
-current_stage: in_progress
+current_stage: research_complete
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-179-the-influence-of-metacognitive-awareness
-last_run_id: 231fcb11-07a5-4c5a-a51a-350f5d726314
+last_run_id: 45004c67-cc49-4c3e-9c92-b0b0a58c0627
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness
 title: The Influence of Metacognitive Awareness on Reality Testing
-updated_at: '2026-06-30T12:40:51.904987Z'
+updated_at: '2026-07-14T07:10:56.491747Z'

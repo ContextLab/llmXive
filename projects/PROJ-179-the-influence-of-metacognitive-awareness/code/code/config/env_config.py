@@ -1,9 +1,7 @@
 """
-code/code/config/env_config.py
-
-Duplicate of ``code/config/env_config.py`` for legacy import paths.
-The implementation mirrors the primary file and adds the same tolerant
-``get`` method and ``__getattr__`` fallback.
+Duplicate of ``code/config/env_config.py`` kept for backward compatibility.
+The implementation mirrors the primary file and includes the same tolerant
+``AppConfig`` definition.
 """
 
 import json
@@ -17,61 +15,65 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class TolerantDict(dict):
-    """A dict that returns ``default`` for missing keys instead of raising."""
-
     def get(self, key: Any, default: Any = None) -> Any:  # type: ignore[override]
         return super().get(key, default)
 
+    def __getitem__(self, key: Any) -> Any:  # pragma: no cover
+        return super().get(key)
 
 @dataclass
 class AppConfig:
-    config_path: Path = field(default_factory=lambda: Path("config") / "settings.json")
-    _config: Dict[str, Any] = field(init=False, default_factory=dict)
-
-    def __post_init__(self) -> None:
-        if self.config_path.is_file():
-            try:
-                with self.config_path.open("r", encoding="utf-8") as f:
-                    self._config = json.load(f)
-            except Exception as exc:  # pragma: no cover
-                logger.error("Failed to load config: %s", exc)
-                self._config = {}
-        else:
-            logger.warning("Config file %s not found – using empty config", self.config_path)
-            self._config = {}
-
-    def load(self) -> Dict[str, Any]:
-        return self._config
+    config: Dict[str, Any] = field(default_factory=dict)
 
     def get(self, key: str, default: Any = None) -> Any:
-        return self._config.get(key, default)
+        return self.config.get(key, default)
 
     def __getattr__(self, name: str):
         def _noop(*args, **kwargs):
-            logger.debug("AppConfig no‑op called for missing attribute %s", name)
+            logger.debug("AppConfig no‑op called for attribute '%s' with args=%s kwargs=%s", name, args, kwargs)
             return None
-
         return _noop
 
+    def info(self, *args, **kwargs):
+        logger.info(*args, **kwargs)
 
-def load_config(path: Optional[Path] = None) -> AppConfig:
-    cfg_path = path or Path("config") / "settings.json"
-    return AppConfig(config_path=cfg_path)
+    def debug(self, *args, **kwargs):
+        logger.debug(*args, **kwargs)
 
+    def warning(self, *args, **kwargs):
+        logger.warning(*args, **kwargs)
+
+    def error(self, *args, **kwargs):
+        logger.error(*args, **kwargs)
+
+    def critical(self, *args, **kwargs):
+        logger.critical(*args, **kwargs)
+
+def load_config(config_path: Optional[Path] = None) -> AppConfig:
+    cfg = {}
+    if config_path is None:
+        default_path = Path(__file__).resolve().parents[2] / "config.json"
+        if default_path.is_file():
+            config_path = default_path
+    if config_path and config_path.is_file():
+        try:
+            with config_path.open("r", encoding="utf-8") as f:
+                cfg = json.load(f)
+        except Exception as exc:  # pragma: no cover
+            logger.error("Failed to load config from %s: %s", config_path, exc)
+    return AppConfig(config=cfg)
 
 def setup_logging(level: int = logging.INFO) -> None:
-    logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
-
+    logging.basicConfig(level=level, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
 def get_seed() -> int:
-    return int(os.getenv("PROJECT_SEED", "42"))
+    env_seed = os.getenv("PROJECT_SEED")
+    try:
+        return int(env_seed) if env_seed is not None else 42
+    except ValueError:  # pragma: no cover
+        logger.warning("Invalid PROJECT_SEED value %s – using default 42", env_seed)
+        return 42
 
-
-def main() -> None:
+def main() -> None:  # pragma: no cover
     cfg = load_config()
-    setup_logging()
-    logger.info("Loaded configuration with %d keys", len(cfg.load()))
-
-
-if __name__ == "__main__":
-    main()
+    print(json.dumps(cfg.config, indent=2))

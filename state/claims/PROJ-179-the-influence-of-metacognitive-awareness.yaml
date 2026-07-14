@@ -396,3 +396,41 @@
   source_type: external
   status: verified
   updated_at: '2026-07-14T06:34:57Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/specs/001-the-influence-of-metacognitive-awareness/tasks.md
+  attempts: 1
+  canonical: bootstrap and regression complete within 6 hours on 2 CPUs and 7 GB RAM
+  claim_id: c_6d905084
+  context: "Phase N lists a performance optimization goal stating that the bootstrap\
+    \ and regression steps should finish within six hours on a machine with two CPU\
+    \ cores and 7\u202FGB of RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Performance optimization (ensure bootstrap and regression complete within
+    6h on 2 CPU/7GB RAM)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:02:08Z'
+- artifact_path: projects/PROJ-179-the-influence-of-metacognitive-awareness/code/quickstart.md
+  attempts: 1
+  canonical: primary_analysis.json and robustness_analysis.json files exist after
+    pipeline
+  claim_id: c_9910997a
+  context: 'After the final step the following files should exist: data/results/primary_analysis.json,
+    data/results/robustness_analysis.json'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_analysis.json_and_robustness_analysis.json_files_exi
+  kind: entity_fact
+  raw_text: 'After the final step the following files should exist: data/results/primary_analysis.json,
+    data/results/robustness_analysis.json'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-14T07:08:41Z'

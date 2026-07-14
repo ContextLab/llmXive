@@ -1,31 +1,66 @@
-# Quickstart
+# Quickstart for PROJ-179-the-influence-of-metacognitive-awareness
 
-This file documents the commands required to run the full analysis pipeline
-from a fresh checkout. All commands are intended to be executed from the
-repository root.
+This document describes the commands required to run the full analysis pipeline
+from end‑to‑end. All paths are relative to the repository root.
 
-```bash
-# 1. Validate data availability (gate)
-python code/data/validate_data_availability.py
+## Prerequisites
 
-# 2. Download the behavioural dataset
-python code/data/download.py
+- Python 3.9+ (ensure the virtual environment defined in `requirements.txt` is active)
+- All foundational tasks (T004‑T015) have completed successfully.
 
-# 3. Validate the downloaded CSV(s)
-python code/data/validate_data.py
+## Execution steps
 
-# 4. Pre‑process raw data into trial‑wise format
-python code/data/preprocess.py
+1. **Validate data availability**
+ ```bash
+ python code/data/validate_data_availability.py
+ ```
 
-# 5. Compute the correlation (hold‑out design)
-python -m src.analysis.correlation
+2. **Download the behavioural dataset**
+ ```bash
+ python code/data/download.py
+ ```
 
-# 6. Run the bootstrap for confidence intervals
-python -m src.analysis.bootstrap
+3. **Validate the downloaded dataset**
+ ```bash
+ python code/data/validate_data.py
+ ```
 
-# 7. Generate the final report (primary analysis)
-python -m src.report.generate
-```
+4. **Pre‑process the raw data**
+ ```bash
+ python code/data/preprocess.py
+ ```
 
-After the last step you should find the JSON report at
-`data/results/primary_analysis.json`.
+5. **Run the primary correlation analysis**
+ ```bash
+ python code/src/analysis/correlation.py
+ ```
+
+6. **Run the bootstrap confidence‑interval procedure**
+ ```bash
+ python code/src/analysis/bootstrap.py
+ ```
+
+7. **Generate the primary report** *(creates `data/results/primary_analysis.json`)*
+ ```bash
+ python code/src/report/generate.py
+ ```
+
+8. **Run the modality‑specific robustness analysis**
+ ```bash
+ python code/src/analysis/robustness.py
+ ```
+
+9. **Generate the robustness report** *(creates `data/results/robustness_analysis.json`)*
+ ```bash
+ python code/src/report/generate.py
+ ```
+
+10. **Run any additional diagnostics / regression steps** (if required)
+
+After the above steps complete, you should find the two JSON artefacts under
+`data/results/`:
+
+- `primary_analysis.json`
+- `robustness_analysis.json`
+
+These files are the definitive outputs verified by the integration tests.

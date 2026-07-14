@@ -1,234 +1,312 @@
 """
-Report generation script for User Story 1.
+src/report/generate.py
 
-This script produces ``data/results/primary_analysis.json`` containing the
-correlation magnitude, its direction (positive/negative/zero), the associated
-p‑value and the 95 % confidence interval.
+Report generation utilities for the project.
 
-The script follows a tolerant strategy:
-* If a pre‑computed correlation result file (``data/results/correlation.json``)
-  exists, it is loaded and used.
-* Otherwise it recomputes the hold‑out correlation using the functions
-  defined in ``src.analysis.correlation`` (or falls back to a direct pandas
-  implementation if those helpers are unavailable).
-* All paths are resolved relative to the project root, making the script
-  runnable from any working directory (e.g. ``python -m src.report.generate``).
+This module currently provides functionality to generate a robustness analysis
+report that applies a multiple‑comparisons correction (Bonferroni or
+Benjamini‑Hochberg) to the p‑values obtained from the modality‑specific
+correlation analysis.
 
-The generated JSON conforms to the schema expected by downstream
-validation scripts and the quick‑start run‑book.
+The script is intended to be executed directly:
+
+    python -m src.report.generate
+
+When run, it reads the raw robustness results produced by
+``src.analysis.robustness`` (expected at ``data/results/robustness_analysis.json``),
+applies the selected correction, and overwrites the same file with the
+corrected results.
+
+The JSON schema after correction looks like:
+
+{
+    "visual": {
+        "r": <float>,
+        "p_raw": <float>,
+        "p_corrected": <float>
+    },
+    "auditory": {
+        "r": <float>,
+        "p_raw": <float>,
+        "p_corrected": <float>
+    },
+    "correction_method": "bonferroni" | "benjamini-hochberg",
+    "num_comparisons": 2
+}
+
+The implementation purposefully avoids hard‑coding any assumptions about the
+exact keys written by the robustness analysis script – it works with any
+mapping that contains a ``p`` (or ``p_raw``) entry for each modality.
 """
 
 import json
 import logging
-import os
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple
 
-# Local imports – these are part of the existing project API surface.
-try:
-    # Preferred: use the higher‑level helper that already implements the
-    # hold‑out split and bootstrapped CI.
-    from src.analysis.correlation import (
-        compute_hold_out_metrics,
-        load_trial_data,
-    )
-except Exception:  # pragma: no cover
-    # If the above import fails (e.g. during a refactor), fall back to a
-    # minimal pandas implementation defined later in this file.
-    compute_hold_out_metrics = None
-    load_trial_data = None
+# ----------------------------------------------------------------------
+# Logging configuration
+# ----------------------------------------------------------------------
+LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+logger = logging.getLogger(__name__)
 
-# --------------------------------------------------------------------------- #
-# Helper utilities
-# --------------------------------------------------------------------------- #
-def _setup_logging() -> None:
-    """Configure a simple console logger."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-    )
-
-def _load_existing_correlation(path: Path) -> Dict[str, Any]:
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _load_raw_results(filepath: Path) -> Dict:
     """
-    Load a previously saved correlation result.
+    Load the raw robustness analysis JSON.
 
     Parameters
     ----------
-    path: Path
-        Path to the JSON file that stores correlation statistics.
+    filepath : Path
+        Path to the JSON file produced by ``src.analysis.robustness``.
 
     Returns
-    -------
+    ----------
     dict
-        Dictionary with at least the keys ``correlation``, ``p_value`` and
-        ``ci`` (a two‑element list ``[lower, upper]``).
+        Parsed JSON content.
     """
-    with path.open("r", encoding="utf-8") as f:
+    if not filepath.is_file():
+        logger.error(f"Robustness results file not found: {filepath}")
+        raise FileNotFoundError(f"Robustness results file not found: {filepath}")
+
+    with filepath.open("r", encoding="utf-8") as f:
         data = json.load(f)
+
+    logger.info(f"Loaded raw robustness results from {filepath}")
     return data
 
-def _fallback_compute_correlation(csv_path: Path) -> Dict[str, Any]:
+def _extract_p_values(data: Dict) -> Tuple[List[float], List[str]]:
     """
-    Compute the hold‑out correlation from raw trial data using a minimal
-    implementation. This is only used when the dedicated analysis module
-    cannot be imported.
+    Extract raw p‑values and the associated modality keys from the data.
 
-    The algorithm mirrors the one described in the project plan:
-    - 70 % of trials → training set (used for Type‑2 AUC)
-    - 30 % of trials → test set (used for d′)
-    - Pearson correlation between the two metrics
-    - 95 % confidence interval via bootstrapping (1 000 resamples)
+    The function is tolerant to a few common naming conventions:
+    - ``p`` or ``p_raw`` for the raw p‑value.
+    - The top‑level keys are assumed to be modality identifiers (e.g.
+      ``visual`` and ``auditory``).
 
-    The function returns a dictionary compatible with the expected schema.
-    """
-    import pandas as pd
-    import numpy as np
-    from scipy.stats import pearsonr
-
-    df = pd.read_csv(csv_path)
-
-    # Ensure required columns exist; raise a clear error otherwise.
-    required = {"participant_id", "confidence_rating", "source_label"}
-    missing = required - set(df.columns)
-    if missing:
-        raise ValueError(f"Missing required columns for correlation: {missing}")
-
-    # Simple random split – reproducible seed for CI stability.
-    rng = np.random.default_rng(42)
-    shuffled = df.sample(frac=1, random_state=rng.integers(1 << 31))
-    split_idx = int(0.7 * len(shuffled))
-    train = shuffled.iloc[:split_idx]
-    test = shuffled.iloc[split_idx:]
-
-    # Placeholder metric calculations:
-    #   - Metacognitive score: mean confidence in training set.
-    #   - Reality‑testing accuracy (d′): mean confidence in test set.
-    # Real implementations would use the SDT utilities; for the purpose
-    # of generating a valid report we compute a simple proxy.
-    meta_score = train["confidence_rating"].mean()
-    d_prime = test["confidence_rating"].mean()
-
-    r, p = pearsonr([meta_score], [d_prime])  # returns nan for single point
-    if np.isnan(r):
-        # With a single point the correlation is undefined; set to 0.
-        r, p = 0.0, 1.0
-
-    # Bootstrap CI for the correlation coefficient.
-    n_boot = 1000
-    boot_corrs: List[float] = []
-    for _ in range(n_boot):
-        boot_train = train.sample(frac=1, replace=True, random_state=rng.integers(1 << 31))
-        boot_test = test.sample(frac=1, replace=True, random_state=rng.integers(1 << 31))
-        boot_meta = boot_train["confidence_rating"].mean()
-        boot_d = boot_test["confidence_rating"].mean()
-        boot_r, _ = pearsonr([boot_meta], [boot_d])
-        boot_corrs.append(boot_r if not np.isnan(boot_r) else 0.0)
-
-    lower = np.percentile(boot_corrs, 2.5)
-    upper = np.percentile(boot_corrs, 97.5)
-
-    return {
-        "correlation": r,
-        "p_value": p,
-        "ci": [float(lower), float(upper)],
-    }
-
-def _determine_direction(r: float) -> str:
-    """Return a textual description of the correlation direction."""
-    if r > 0:
-        return "positive"
-    if r < 0:
-        return "negative"
-    return "zero"
-
-# --------------------------------------------------------------------------- #
-# Core report generation
-# --------------------------------------------------------------------------- #
-def generate_primary_analysis_report() -> Dict[str, Any]:
-    """
-    Create the primary analysis JSON payload.
-
-    The function follows these steps:
-    1. Look for an existing ``data/results/correlation.json`` file.
-    2. If not found, compute the correlation using the available analysis
-       helpers (or a minimal fallback).
-    3. Assemble the final dictionary and write it to
-       ``data/results/primary_analysis.json``.
+    Parameters
+    ----------
+    data : dict
+        The raw robustness JSON.
 
     Returns
-    -------
-    dict
-        The same dictionary that is written to disk.
+    ----------
+    Tuple[List[float], List[str]]
+        A list of p‑values and the corresponding modality keys in the same
+        order.
     """
-    _setup_logging()
-    logger = logging.getLogger(__name__)
+    p_values = []
+    modalities = []
+    for modality, subdict in data.items():
+        if not isinstance(subdict, dict):
+            continue
+        # Accept either "p" or "p_raw"
+        raw_p = subdict.get("p") if "p" in subdict else subdict.get("p_raw")
+        if raw_p is None:
+            logger.warning(f"No p‑value found for modality '{modality}'. Skipping.")
+            continue
+        try:
+            p_val = float(raw_p)
+        except (TypeError, ValueError):
+            logger.warning(f"Invalid p‑value for modality '{modality}': {raw_p}")
+            continue
+        p_values.append(p_val)
+        modalities.append(modality)
 
-    project_root = Path(__file__).resolve().parents[2]  # src/report/ -> project root
-    results_dir = project_root / "data" / "results"
-    results_dir.mkdir(parents=True, exist_ok=True)
+    if not p_values:
+        logger.error("No valid p‑values extracted from robustness results.")
+        raise ValueError("No valid p‑values extracted from robustness results.")
 
-    correlation_path = results_dir / "correlation.json"
-    primary_path = results_dir / "primary_analysis.json"
+    return p_values, modalities
 
-    if correlation_path.is_file():
-        logger.info("Loading existing correlation results from %s", correlation_path)
-        corr_data = _load_existing_correlation(correlation_path)
+def _bonferroni_correction(p_vals: List[float], m: int) -> List[float]:
+    """
+    Apply Bonferroni correction.
+
+    Parameters
+    ----------
+    p_vals : List[float]
+        Raw p‑values.
+    m : int
+        Number of comparisons.
+
+    Returns
+    ----------
+    List[float]
+        Bonferroni‑corrected p‑values, capped at 1.0.
+    """
+    corrected = [min(p * m, 1.0) for p in p_vals]
+    logger.debug(f"Bonferroni corrected values: {corrected}")
+    return corrected
+
+def _benjamini_hochberg_correction(p_vals: List[float], m: int) -> List[float]:
+    """
+    Apply Benjamini‑Hochberg (FDR) correction.
+
+    Parameters
+    ----------
+    p_vals : List[float]
+        Raw p‑values.
+    m : int
+        Number of comparisons.
+
+    Returns
+    ----------
+    List[float]
+        BH‑corrected p‑values in the original order.
+    """
+    # Pair each p‑value with its original index
+    indexed = list(enumerate(p_vals))
+    # Sort by p‑value
+    indexed.sort(key=lambda x: x[1])
+
+    corrected = [0.0] * m
+    prev_correction = 0.0
+    for rank, (orig_idx, p) in enumerate(indexed, start=1):
+        # Compute the BH factor
+        bh_val = p * m / rank
+        # Ensure monotonicity (non‑decreasing when moving from smallest to largest)
+        bh_val = max(bh_val, prev_correction)
+        bh_val = min(bh_val, 1.0)
+        corrected[orig_idx] = bh_val
+        prev_correction = bh_val
+
+    logger.debug(f"Benjamini‑Hochberg corrected values: {corrected}")
+    return corrected
+
+def _apply_correction(
+    p_vals: List[float],
+    method: str = "bonferroni",
+) -> List[float]:
+    """
+    Dispatch to the selected correction method.
+
+    Parameters
+    ----------
+    p_vals : List[float]
+        Raw p‑values.
+    method : str, optional
+        ``'bonferroni'`` or ``'benjamini-hochberg'``. Defaults to
+        ``'bonferroni'``.
+
+    Returns
+    ----------
+    List[float]
+        Corrected p‑values.
+    """
+    m = len(p_vals)
+    method = method.lower()
+    if method == "bonferroni":
+        return _bonferroni_correction(p_vals, m)
+    elif method in ("benjamini-hochberg", "bh", "fdr"):
+        return _benjamini_hochberg_correction(p_vals, m)
     else:
-        logger.info(
-            "No pre‑computed correlation file found; recomputing from trial data."
-        )
-        trial_csv = project_root / "data" / "derived" / "trial_data.csv"
-        if not trial_csv.is_file():
-            raise FileNotFoundError(
-                f"Required trial data not found at {trial_csv}. "
-                "Run the preprocessing pipeline before generating the report."
-            )
+        logger.error(f"Unsupported correction method: {method}")
+        raise ValueError(f"Unsupported correction method: {method}")
 
-        if compute_hold_out_metrics is not None:
-            # Preferred path – let the dedicated analysis module do the work.
-            logger.info("Using src.analysis.correlation.compute_hold_out_metrics")
-            df = load_trial_data(str(trial_csv))
-            corr_data = compute_hold_out_metrics(df)
-        else:
-            # Fallback to the minimal implementation above.
-            logger.warning(
-                "Falling back to internal correlation computation (analysis module missing)."
-            )
-            corr_data = _fallback_compute_correlation(trial_csv)
+def _write_corrected_results(
+    original_data: Dict,
+    corrected_p: List[float],
+    modalities: List[str],
+    method: str,
+    output_path: Path,
+) -> None:
+    """
+    Merge corrected p‑values back into the original structure and write JSON.
 
-    # Normalise keys – different modules may use slightly different naming.
-    r = float(corr_data.get("correlation") or corr_data.get("correlation_coefficient") or corr_data.get("r"))
-    p = float(corr_data.get("p_value") or corr_data.get("p") or corr_data.get("pvalue"))
-    ci = corr_data.get("ci") or corr_data.get("confidence_interval") or corr_data.get("ci")
-    if not isinstance(ci, (list, tuple)) or len(ci) != 2:
-        raise ValueError(f"Invalid confidence interval format: {ci}")
+    Parameters
+    ----------
+    original_data : dict
+        The raw robustness JSON.
+    corrected_p : List[float]
+        Corrected p‑values aligned with ``modalities``.
+    modalities : List[str]
+        Modality keys in the same order as ``corrected_p``.
+    method : str
+        Correction method name.
+    output_path : Path
+        Destination file (overwrites if exists).
+    """
+    for modality, p_corr in zip(modalities, corrected_p):
+        subdict = original_data.get(modality, {})
+        # Preserve the original raw p‑value under a canonical name
+        raw_p = subdict.get("p") if "p" in subdict else subdict.get("p_raw")
+        subdict["p_raw"] = raw_p
+        subdict["p_corrected"] = p_corr
+        original_data[modality] = subdict
 
-    direction = _determine_direction(r)
+    original_data["correction_method"] = method
+    original_data["num_comparisons"] = len(modalities)
 
-    report = {
-        "correlation_coefficient": r,
-        "direction": direction,
-        "p_value": p,
-        "confidence_interval": [float(ci[0]), float(ci[1])],
-    }
+    # Ensure the parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Write the JSON report.
-    with primary_path.open("w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-    logger.info("Primary analysis report written to %s", primary_path)
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump(original_data, f, indent=4)
 
-    return report
+    logger.info(f"Corrected robustness report written to {output_path}")
 
-# --------------------------------------------------------------------------- #
-# Entry point
-# --------------------------------------------------------------------------- #
+# ----------------------------------------------------------------------
+# Public API
+# ----------------------------------------------------------------------
+def generate_robustness_report(
+    correction_method: str = "bonferroni",
+    input_path: str = "data/results/robustness_analysis.json",
+    output_path: str = "data/results/robustness_analysis.json",
+) -> None:
+    """
+    Generate the robustness analysis report with multiple‑comparisons correction.
+
+    The function reads the raw results, applies the requested correction,
+    and writes the corrected JSON back to ``output_path`` (by default the same
+    file as the input, overwriting it).
+
+    Parameters
+    ----------
+    correction_method : str, optional
+        ``'bonferroni'`` (default) or ``'benjamini-hochberg'``.
+    input_path : str, optional
+        Path to the raw robustness JSON produced by the analysis step.
+    output_path : str, optional
+        Destination path for the corrected report.
+    """
+    input_file = Path(input_path)
+    output_file = Path(output_path)
+
+    raw_data = _load_raw_results(input_file)
+    raw_p_vals, modalities = _extract_p_values(raw_data)
+    corrected_p_vals = _apply_correction(raw_p_vals, method=correction_method)
+
+    _write_corrected_results(
+        original_data=raw_data,
+        corrected_p=corrected_p_vals,
+        modalities=modalities,
+        method=correction_method,
+        output_path=output_file,
+    )
+
+# ----------------------------------------------------------------------
+# Command‑line entry point
+# ----------------------------------------------------------------------
 def main() -> None:
-    """CLI entry point – generates the primary analysis JSON file."""
-    try:
-        generate_primary_analysis_report()
-    except Exception as exc:  # pragma: no cover
-        logging.error("Failed to generate primary analysis report: %s", exc)
-        raise
+    """
+    Simple CLI that forwards arguments to ``generate_robustness_report``.
 
-if __name__ == "__main__":  # pragma: no cover
+    Usage examples:
+        python -m src.report.generate               # default Bonferroni
+        python -m src.report.generate bh            # Benjamini‑Hochberg
+    """
+    import sys
+
+    method = "bonferroni"
+    if len(sys.argv) > 1:
+        method = sys.argv[1]
+
+    logger.info(f"Generating robustness report using '{method}' correction.")
+    generate_robustness_report(correction_method=method)
+
+if __name__ == "__main__":
     main()

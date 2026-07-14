@@ -1,57 +1,44 @@
-# Quickstart
+# Quickstart for *The Influence of Metacognitive Awareness on Reality Testing*
 
-This document describes the commands that must run successfully for the
-project to be considered reproducible.
+This document provides the minimal commands required to run the full analysis
+pipeline from end‑to‑end. All commands assume they are executed from the
+repository root.
 
-## Required steps
+```bash
+# 1️⃣ Install required dependencies
+pip install -r requirements.txt
 
-1. **Validate data availability**
- ```bash
- python code/data/validate_data_availability.py
- ```
+# 2️⃣ Validate data availability (T004)
+python -m data.validate_data_availability
 
-2. **Download the dataset**
- ```bash
- python code/data/download.py
- ```
+# 3️⃣ Download the verified dataset (T005)
+python -m data.download
 
-3. **Validate the downloaded data**
- ```bash
- python code/data/validate_data.py
- ```
+# 4️⃣ Validate the downloaded dataset (T006)
+python -m data.validate_data
 
-4. **Preprocess the raw data**
- ```bash
- python code/data/preprocess.py
- ```
+# 5️⃣ Pre‑process the raw data (T012)
+python -m data.preprocess
 
-5. **Run the primary analysis pipeline**
- ```bash
- python code/src/analysis/correlation.py
- ```
+# 6️⃣ Compute the primary correlation (T014) and bootstrap CI (T015)
+python -m src.analysis.correlation
+python -m src.analysis.bootstrap
 
-6. **Bootstrap confidence intervals**
- ```bash
- python code/src/analysis/bootstrap.py
- ```
+# 7️⃣ Run modality‑specific robustness analysis (T026‑T027)
+python -m src.analysis.filter
+python -m src.analysis.robustness
 
-7. **Generate the primary analysis report**
- ```bash
- python -m src.report.generate
- ```
+# 8️⃣ Generate the final JSON reports (T016 & T028)
+python -m src.report.generate
 
-8. **Run the modality‑specific robustness analysis**
- ```bash
- python code/src/analysis/robustness.py
- ```
+# 9️⃣ (Optional) Validate that the expected output files exist
+python -m quickstart_validator
+```
 
-9. **Generate the robustness report with multiple‑comparison correction**
- ```bash
- python -m src.report.generate
- ```
-
-After these steps, the following files should exist:
+After the final step you should find the two result files:
 
 - `data/results/primary_analysis.json`
-- `data/results/bootstrap_config.json`
-- `data/results/robustness_analysis.json` (now contains corrected p‑values)
+- `data/results/robustness_analysis.json`
+
+These files contain the correlation statistics and the corrected modality‑specific
+p‑values, respectively.
