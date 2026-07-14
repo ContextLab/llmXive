@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T03:00:56.147243Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-921-llmxive-follow-up-extending-achieving-go
-last_run_id: e8501472-8864-4136-a7e3-f0a3fe30b4e9
+last_run_id: bd7d2d31-e569-460a-adbb-e4b09dccf23a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Achieving Gold-Medal-Level Olympiad Reasoning
   via Simple and Unified S"'
-updated_at: '2026-07-14T00:58:28.879033Z'
+updated_at: '2026-07-14T07:41:17.182219Z'

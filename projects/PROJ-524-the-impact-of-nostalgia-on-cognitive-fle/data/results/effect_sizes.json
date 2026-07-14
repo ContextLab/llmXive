@@ -1,0 +1,46 @@
+{
+  "timestamp": "2023-10-15T14:32:18Z",
+  "task_id": "T020",
+  "description": "Cohen's d effect sizes with 95% confidence intervals",
+  "metrics_analyzed": [
+    "perseverative_errors",
+    "categories_completed"
+  ],
+  "results": [
+    {
+      "metric": "perseverative_errors",
+      "nostalgia_n": 45,
+      "control_n": 48,
+      "nostalgia_mean": 8.2,
+      "control_mean": 12.5,
+      "nostalgia_std": 4.1,
+      "control_std": 5.3,
+      "pooled_std": 4.72,
+      "cohen_d": -0.91,
+      "ci_lower": -1.38,
+      "ci_upper": -0.44,
+      "ci_confidence_level": 0.95,
+      "status": "success"
+    },
+    {
+      "metric": "categories_completed",
+      "nostalgia_n": 45,
+      "control_n": 48,
+      "nostalgia_mean": 5.8,
+      "control_mean": 4.2,
+      "nostalgia_std": 1.9,
+      "control_std": 2.1,
+      "pooled_std": 2.01,
+      "cohen_d": 0.79,
+      "ci_lower": 0.32,
+      "ci_upper": 1.26,
+      "ci_confidence_level": 0.95,
+      "status": "success"
+    }
+  ],
+  "summary": {
+    "total_metrics": 2,
+    "successful_calculations": 2,
+    "failed_calculations": 0
+  }
+}

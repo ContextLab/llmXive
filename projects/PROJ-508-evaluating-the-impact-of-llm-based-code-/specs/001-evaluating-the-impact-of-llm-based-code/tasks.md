@@ -47,12 +47,12 @@
 
 - [X] T004 [US2] **Spec Update**: Update `spec.md` to add **FR-008** and **SC-008**. <!-- FAILED: unspecified -->
  - **FR-008 Text**: "The system MUST calculate `diff_complexity_score` = (lines_added + lines_deleted) / total_lines if lines_deleted > 0 else 0. It MUST flag 'AI Noise' if `diff_complexity_score` > 0.3 AND commit message contains 'fix', 'hotfix', or 'patch'."
- - **SC-008 Text**: "The analysis must produce a stratified result showing how the 'LLM Adoption' effect size changes when controlling for 'AI Noise' or when filtering for specific commit types."
+ - **SC-008 Text**: "The analysis must produce a stratified result showing how the 'LLM Adoption' effect size changes when controlling for 'AI Noise' or when filtering for specific commit types. [UNRESOLVED-CLAIM: c_9aaf648a — status=not_enough_info]"
  - **Rationale**: Authorizes the 'Signal Separation' analysis (Phase 7) to address Feynman's concern.
 
 - [X] T005 [US3] **Spec Update**: Update `spec.md` to add **FR-009** and **SC-009**.
  - **FR-009 Text**: "The final report MUST include a 'Theoretical Grounding' section citing Holland et al. on distributed cognition and a 'Data Gap' section explicitly stating the unavailability of self-report scales (e.g., NASA-TLX)."
- - **SC-009 Text**: "The report must explicitly state: 'Note: This study uses proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not available.' "
+ - **SC-009 Text**: "The report must explicitly state: 'Note: This study uses proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not available.' [UNRESOLVED-CLAIM: c_ca959e0f — status=not_enough_info] "
  - **Rationale**: Authorizes specific report content (Phase 5) not previously in the spec.
 
 - [X] T006 [US2] **Spec Update**: Update `spec.md` **FR-003** to replace "linear regression analysis" with "Mixed-Effects Models (GLMM) with random intercepts for repositories; Zero-Inflated Negative Binomial (ZINB) or Hurdle models for zero-inflated outcomes."
@@ -86,7 +86,7 @@
 - [X] T013 [P] Implement `code/utils/github_client.py` with exponential backoff retry logic (a limited number of retries with a fixed delay)
 - [ ] T014 [P] Create `code/utils/metrics.py` for cognitive load proxy calculation (NO Copilot exclusion logic)
 - [ ] T015 Create `code/utils/config.py` for environment variables and API key handling
-- [~] T016 Setup `pytest` configuration and basic test scaffolding in `tests/`
+- [ ] T016 Setup `pytest` configuration and basic test scaffolding in `tests/`
 - [~] T017 Implement `code/utils/data_validation.py` for PII scanning and schema validation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -217,9 +217,9 @@
 - [~] T054 [P] Documentation updates in `docs/` (README, usage instructions)
 - [~] T055 Code cleanup and refactoring
 - [~] T056 Performance optimization (ensure runtime < 6h on 2 CPU cores)
-- [ ] T057 [P] Run `pytest` suite and ensure [deferred] pass rate
-- [ ] T058 [P] Run quickstart.md validation
-- [ ] T059 [P] Verify `state/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-.yaml` artifact hashes are updated
+- [~] T057 [P] Run `pytest` suite and ensure [deferred] pass rate
+- [~] T058 [P] Run quickstart.md validation
+- [~] T059 [P] Verify `state/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-.yaml` artifact hashes are updated <!-- FAILED: unspecified -->
 
 ---
 

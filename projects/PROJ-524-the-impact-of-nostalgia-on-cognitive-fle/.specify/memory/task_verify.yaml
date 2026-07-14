@@ -1,8 +1,6 @@
-'T001a [P] Create data directory: `data/raw/`': 1
-'T001b [P] Create data directory: `data/processed/`': 1
-'T001c [P] Create data directory: `data/results/`': 1
-'T001d [P] Create empty placeholder files: `code/__init__.py`, `tests/__init__.py`, `README.md`': 1
-'T001e [P] Create stimuli directory: `data/stimuli/`': 1
-? 'T002 [P] Create `requirements.txt` with pinned versions for: pandas, scipy, statsmodels,
-  numpy, pyyaml, openml, datasets, requests'
-: 1
+T001a: 1
+T001b: 1
+T001c: 1
+T001d: 1
+T001e: 1
+T002: 1

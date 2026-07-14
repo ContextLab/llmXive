@@ -92,7 +92,7 @@ Examples of foundational tasks (adjust based on plan.md):
 - [~] T013b [US1] **NEW**: Validate presence of 'MMSE' column in raw dataset; if missing, set `has_mmse=False` flag in config and log warning `ERR_MMSE_MISSING`. If present, set `has_mmse=True`.
 - [~] T014a [US1] Create `data/processed/cleaned_dataset.csv` with columns: `participant_id`, `stimulus_type` (nostalgia/control), `perseverative_errors`, `categories_completed`, `age`. **Depends on T012 (exclusions) and T013b (MMSE flag for downstream filtering logic).**
 - [~] T014b [US1] **NEW**: Calculate and log the percentage of valid records (age ≥ 65, non-null metrics) vs total raw input records in `data/processed/validity_metrics.json` to satisfy SC-001.
-- [ ] T015 [US1] **REVISED**: Implement stimulus file integrity check: Fetch canonical checksum from the dataset's `metadata.json` or fallback to GitHub release asset checksum; compare against local file SHA-256; log mismatch as `ERR_STIMULUS_CORRUPT`.
+- [~] T015 [US1] **REVISED**: Implement stimulus file integrity check: Fetch canonical checksum from the dataset's `metadata.json` or fallback to GitHub release asset checksum; compare against local file SHA-256; log mismatch as `ERR_STIMULUS_CORRUPT`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,17 +106,17 @@ Examples of foundational tasks (adjust based on plan.md):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Contract test for statistical output schema in `tests/contract/test_analysis_output.py`
-- [ ] T017 [P] [US2] Integration test for statistical pipeline with synthetic data in `tests/integration/test_analysis.py`
+- [~] T016 [P] [US2] Contract test for statistical output schema in `tests/contract/test_analysis_output.py`
+- [~] T017 [P] [US2] Integration test for statistical pipeline with synthetic data in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement `code/analysis.py` statistical functions: **Welch's independent samples t-test (NOT paired)**. **NOTE: This overrides spec FR-002 per Plan.md Critical Design Note. Kickback required for spec amendment.**
-- [ ] T019 [US2] Implement multiple-comparison correction (Bonferroni) for `perseverative_errors` and `categories_completed`
-- [ ] T020 [US2] Calculate and report Cohen's d with 95% confidence intervals for all primary comparisons
-- [ ] T021 [US2] Calculate statistical power and Minimum Detectable Effect Size (MDES) for the observed effect; **Append power and MDES values to `data/results/statistical_report.json`**
-- [ ] T022 [US2] Generate `data/results/statistical_report.json` containing p-values, corrected p-values, effect sizes, **power**, **MDES**, and power analysis results
-- [ ] T023 [US2] Add error handling for cases where variance is zero or sample size is too small
+- [~] T018 [P] [US2] Implement `code/analysis.py` statistical functions: **Welch's independent samples t-test (NOT paired)**. **NOTE: This overrides spec FR-002 per Plan.md Critical Design Note. Kickback required for spec amendment.**
+- [~] T019 [US2] Implement multiple-comparison correction (Bonferroni) for `perseverative_errors` and `categories_completed`
+- [~] T020 [US2] Calculate and report Cohen's d with 95% confidence intervals for all primary comparisons
+- [~] T021 [US2] Calculate statistical power and Minimum Detectable Effect Size (MDES) for the observed effect; **Append power and MDES values to `data/results/statistical_report.json`**
+- [~] T022 [US2] Generate `data/results/statistical_report.json` containing p-values, corrected p-values, effect sizes, **power**, **MDES**, and power analysis results
+- [~] T023 [US2] Add error handling for cases where variance is zero or sample size is too small
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

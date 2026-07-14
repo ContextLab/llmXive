@@ -1,0 +1,4 @@
+# Ruff configuration file
+# This file is a duplicate of the ruff settings in pyproject.toml for IDE compatibility
+# if the IDE prefers a dedicated config file.
+extend = "pyproject.toml"
