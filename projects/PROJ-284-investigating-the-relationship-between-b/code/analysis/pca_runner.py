@@ -1,39 +1,36 @@
-"""Run PCA analysis on real metrics data."""
 import os
 import sys
 import logging
 from pathlib import Path
-import pandas as pd
+
 from code.logging_config import get_logger
-from code.analysis.correlations import run_pca, load_metrics_data, compute_and_save_pca
+from code.analysis.correlations import perform_pca_on_metrics, load_metrics_data, save_pca_results
 
 logger = get_logger(__name__)
 
-
-def main():
-    """Main entry point for PCA runner."""
-    logger.info("Starting PCA analysis")
-
-    # Load metrics
-    metrics_path = 'data/processed/aggregated_metrics.csv'
-    if not os.path.exists(metrics_path):
-        logger.error(f"Metrics file not found: {metrics_path}")
-        logger.info("Run create_full_metrics.py first")
-        return
-
+def main() -> None:
+    """Run PCA on metrics and save results."""
+    logger.log("pca_runner", step="start")
+    
     try:
-        metrics_df = load_metrics_data(metrics_path)
-        output_dir = 'data/analysis'
-        os.makedirs(output_dir, exist_ok=True)
-
-        # Compute and save PCA
-        pca_scores = compute_and_save_pca(metrics_df, output_dir)
-        logger.info(f"PCA analysis complete: {len(pca_scores)} scores computed")
-
+        # Load data
+        metrics_df = load_metrics_data()
+        logger.log("pca_runner", n_rows=len(metrics_df))
+        
+        # Define metric columns
+        metric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
+        
+        # Perform PCA
+        pca, loadings, scores = perform_pca_on_metrics(metrics_df)
+        logger.log("pca_runner", n_components=len(scores[0]))
+        
+        # Save results
+        save_pca_results(loadings, scores, metrics_df, pca, metric_cols)
+        logger.log("pca_runner", step="complete")
+        
     except Exception as e:
-        logger.error(f"PCA analysis failed: {e}")
+        logger.log("pca_runner", error=str(e))
         raise
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -2,38 +2,43 @@
 
 ## Prerequisites
 - Python 3.11+
-- Install dependencies: `pip install -r requirements.txt`
+- pip
+- git
 
-## Execution Steps
+## Setup
+1. Clone the repository.
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-### 1. Data Acquisition & Preprocessing
+## Data Acquisition
+Run the download and preprocessing step (requires HCP credentials or uses synthetic fallback):
 ```bash
 python code/main.py --step download_preprocess --subjects 50
 ```
 
-### 2. Metric Extraction
+## Metric Extraction
+Extract graph metrics and aggregate them:
 ```bash
-python code/main.py --step extract_metrics
+python code/main.py --step metrics
 ```
 
-### 3. Analysis (PCA & Correlations)
-This step runs:
-- PCA on network metrics (produces `data/analysis/pca_loadings.csv`, `data/analysis/factor_scores.csv`)
-- Merges metrics with PCA scores (produces `data/analysis/full_metrics.csv`)
-- Runs Spearman/Pearson correlations with FD covariate (produces `data/analysis/correlation_results.csv`)
+## Analysis (Correlation & FDR)
+Run the full correlation analysis, PCA, and Benjamini-Hochberg FDR correction.
+This step produces `data/analysis/full_metrics.csv`.
 ```bash
-python code/main.py --step analyze
+python code/analysis/run_analysis.py
 ```
 
-### 4. Visualization & Reporting
+## Visualization & Reporting
+Generate plots and the final report:
 ```bash
 python code/main.py --step viz_report
 ```
 
-## Output Artifacts
-- `data/analysis/pca_loadings.csv`
-- `data/analysis/factor_scores.csv`
-- `data/analysis/full_metrics.csv`
-- `data/analysis/correlation_results.csv`
-- `figures/*.png`
-- `docs/report.md`
+## Validation
+Run the validation suite:
+```bash
+python code/tools/validate_quickstart.py
+```

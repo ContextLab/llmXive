@@ -1,33 +1,36 @@
 """
-Standalone runner for the analysis pipeline to ensure T023b outputs are generated.
-This script is invoked by the quickstart run-book to produce the required CSVs.
+Runner script to execute the full analysis pipeline including FDR correction.
+This script ensures that data/analysis/full_metrics.csv is generated.
 """
-import sys
+import shutil
 from pathlib import Path
-
-# Add project root to path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-from code.analysis.correlations import main as run_correlation_analysis
-from code.logging_config import setup_logging, get_logger
+from code.logging_config import get_logger
+from code.analysis.correlations import main as correlations_main
 
 logger = get_logger(__name__)
 
-def main():
-    setup_logging()
-    logger.log("run_analysis", step="start")
-    
+
+def main() -> None:
+    """
+    Execute the analysis pipeline.
+    This wraps the correlations module to ensure it runs as a standalone step.
+    """
+    logger.log("run_analysis_start", step="analyze")
     try:
-        merged_df, corr_results = run_correlation_analysis()
-        logger.log("run_analysis", step="success", 
-                   full_metrics_count=len(merged_df), 
-                   correlations_count=len(corr_results))
-        print(f"Analysis complete. Output files written to {Path('data/analysis').resolve()}")
+        # Ensure output directories exist
+        output_dir = Path("data/analysis")
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Run the correlation and FDR pipeline
+        # This function is responsible for writing data/analysis/full_metrics.csv
+        correlations_main()
+
+        logger.log("run_analysis_complete", status="success")
+
     except Exception as e:
-        logger.log("run_analysis", step="failed", error=str(e))
-        print(f"Analysis failed: {e}")
-        sys.exit(1)
+        logger.log("run_analysis_error", error=str(e))
+        raise
+
 
 if __name__ == "__main__":
     main()

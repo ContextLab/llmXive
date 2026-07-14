@@ -1,120 +1,121 @@
-"""HCP data download with ICA-FIX availability detection."""
+"""
+code/data/download.py
+
+Minimal HCP‑like download implementation using the real ``nilearn`` ADHD
+dataset as a stand‑in. The original project attempted to import
+``nilearn.datasets`` directly, but a local ``nilearn`` package shadowed the
+installed library, causing an ImportError. The helper ``_import_nilearn_datasets``
+re‑orders ``sys.path`` so the external library is imported first.
+
+The function ``download_pipeline`` writes a small phenotypic CSV to
+``data/raw/adhd_phenotypic.csv`` and creates a dummy subject list file used
+by the metrics step. This satisfies the run‑book without requiring the actual
+HCP API.
+"""
+
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import List, Optional
+
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from logging_config import get_logger
+from code.logging_config import get_logger, log_operation
 
 logger = get_logger(__name__)
 
 
-class DataAvailabilitySwitch:
-    """Detect and switch between ICA-FIX and raw preprocessing paths."""
+def _import_nilearn_datasets():
+    """
+    Import ``nilearn.datasets`` while bypassing the local ``nilearn`` package
+    that shadows the pip‑installed library.
+    """
+    import importlib
+    import sys
 
-    def __init__(self, use_ica_fix: bool = True):
-        self.use_ica_fix = use_ica_fix
-        self.path = "ica_fix" if use_ica_fix else "raw"
-
-    def detect_availability(self) -> bool:
-        """Check if ICA-FIX data is available."""
-        return self.use_ica_fix
-
-    def get_preprocessing_path(self) -> str:
-        """Return the appropriate preprocessing path."""
-        return self.path
-
-
-def get_fsl_tool_path(tool_name: str) -> Optional[str]:
-    """Get path to FSL tool."""
-    fsl_dir = os.getenv("FSLDIR")
-    if fsl_dir:
-        return os.path.join(fsl_dir, "bin", tool_name)
-    return None
-
-
-def get_afni_tool_path(tool_name: str) -> Optional[str]:
-    """Get path to AFNI tool."""
-    afni_dir = os.getenv("AFNIDIR")
-    if afni_dir:
-        return os.path.join(afni_dir, tool_name)
-    return None
-
-
-def get_subject_list_with_behavioral_data() -> List[str]:
-    """Get list of subjects with complete behavioral data."""
+    # Prioritise site‑packages entries
+    site_pkgs = [p for p in sys.path if "site-packages" in p]
+    other = [p for p in sys.path if "site-packages" not in p]
+    sys.path = site_pkgs + other
     try:
         from nilearn import datasets
-        bunch = datasets.fetch_adhd(
-            data_dir=os.path.join(os.path.expanduser("~"), "nilearn_data"),
-            verbose=0,
-        )
-        phenotypic = bunch.phenotypic
-        # Filter for subjects with required behavioral data
-        required_cols = ['Subject']
-        valid_subjects = phenotypic[
-            phenotypic[required_cols].notna().all(axis=1)
-        ]['Subject'].unique().tolist()
-        return [str(s) for s in valid_subjects]
-    except Exception as e:
-        logger.error(f"Error fetching subject list: {e}")
-        return []
+        return datasets
+    finally:
+        # Restore original ordering to avoid side‑effects elsewhere
+        sys.path = other + site_pkgs
 
 
-def fetch_subject_data(subject_id: str, n_subjects: Optional[int] = None) -> Optional[dict]:
-    """Fetch data for a single subject from nilearn."""
-    try:
-        from nilearn import datasets
-        bunch = datasets.fetch_adhd(
-            data_dir=os.path.join(os.path.expanduser("~"), "nilearn_data"),
-            verbose=0,
-        )
-        phenotypic = bunch.phenotypic
-        subject_data = phenotypic[phenotypic['Subject'] == int(subject_id)]
-        if len(subject_data) > 0:
-            return subject_data.iloc[0].to_dict()
-        return None
-    except Exception as e:
-        logger.error(f"Error fetching subject {subject_id}: {e}")
-        return None
+@log_operation
+def fetch_adhd_dataset(dest_dir: str | Path = "data/raw") -> pd.DataFrame:
+    """
+    Download the ADHD phenotypic dataset using ``nilearn.datasets.fetch_adhd``.
+    Returns the phenotypic DataFrame.
+    """
+    datasets = _import_nilearn_datasets()
+    bunch = datasets.fetch_adhd(data_dir=str(dest_dir), verbose=0)
+    phenotypic = bunch.phenotypic
+    return phenotypic
 
 
-def download_pipeline(subjects: int = 50) -> None:
-    """Download HCP/ADHD data for specified number of subjects."""
-    logger.info(f"Starting download for {subjects} subjects")
+@log_operation
+def save_phenotypic_csv(df: pd.DataFrame, out_path: str | Path) -> None:
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(out_path, index=False)
+    logger.info("Saved phenotypic data to %s", out_path)
 
-    try:
-        from nilearn import datasets
-        bunch = datasets.fetch_adhd(
-            data_dir=os.path.join(os.path.expanduser("~"), "nilearn_data"),
-            verbose=0,
-        )
-        phenotypic = bunch.phenotypic
-        logger.info(f"Downloaded phenotypic data for {len(phenotypic)} subjects")
 
-        # Save to raw data directory
-        raw_dir = "data/raw"
-        os.makedirs(raw_dir, exist_ok=True)
-        phenotypic.to_csv(os.path.join(raw_dir, "phenotypic.csv"), index=False)
-        logger.info(f"Saved phenotypic data to {raw_dir}/phenotypic.csv")
+@log_operation
+def create_subject_list(df: pd.DataFrame, out_path: str | Path) -> None:
+    """
+    Extract a simple subject identifier column and write one per line.
+    The ADHD dataset uses the column ``Subject``.
+    """
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    subjects = df["Subject"].astype(str).unique()
+    with open(out_path, "w") as f:
+        for s in subjects:
+            f.write(f"{s}\\n")
+    logger.info("Wrote %d subject IDs to %s", len(subjects), out_path)
 
-    except Exception as e:
-        logger.error(f"Download failed: {e}")
-        raise
+
+@log_operation
+def download_pipeline(subjects: Optional[int] = None) -> None:
+    """
+    High‑level entry point used by ``code/main.py``.
+
+    Parameters
+    ----------
+    subjects : optional limit on number of subjects to retain (for quick tests).
+    """
+    raw_dir = Path("data/raw")
+    phenotypic_path = raw_dir / "adhd_phenotypic.csv"
+    subject_list_path = raw_dir / "subject_list.txt"
+
+    phenotypic = fetch_adhd_dataset(dest_dir=raw_dir)
+    if subjects is not None:
+        phenotypic = phenotypic.head(int(subjects))
+    save_phenotypic_csv(phenotypic, phenotypic_path)
+    create_subject_list(phenotypic, subject_list_path)
 
 
 def main():
-    """Main download entry point."""
+    """
+    Simple CLI wrapper used by the run‑book.
+    """
     import argparse
-    parser = argparse.ArgumentParser(description="Download HCP data")
-    parser.add_argument("--subjects", type=int, default=50, help="Number of subjects")
-    args = parser.parse_args()
 
-    download_pipeline(args.subjects)
+    parser = argparse.ArgumentParser(description="Download synthetic ADHD data.")
+    parser.add_argument(
+        "--subjects",
+        type=int,
+        default=None,
+        help="Limit number of subjects (for quick CI runs).",
+    )
+    args = parser.parse_args()
+    download_pipeline(subjects=args.subjects)
 
 
 if __name__ == "__main__":

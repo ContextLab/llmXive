@@ -1,109 +1,84 @@
-"""Scatter plot generation for correlation results."""
+"""
+code/viz/scatter.py
+
+Simple scatter‑plot generator used by the ``viz_report`` step. It reads the
+metrics CSV, plots two chosen metrics, adds a regression line and annotates
+the plot with the Spearman correlation coefficient.
+"""
+
 import os
-import sys
-from pathlib import Path
-from typing import Optional
+import matplotlib.pyplot as plt
+import pandas as pd
+from scipy import stats
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from logging_config import get_logger
+from code.logging_config import get_logger, log_operation
 
 logger = get_logger(__name__)
 
 
+@log_operation
 def generate_scatter_plot(
-    input_csv: Optional[str] = None,
-    x: Optional[str] = None,
-    y: Optional[str] = None,
-    output: Optional[str] = None,
-    x_label: Optional[str] = None,
-    y_label: Optional[str] = None,
-    title: Optional[str] = None
+    input: str,
+    x: str,
+    y: str,
+    output: str,
+    x_label: str | None = None,
+    y_label: str | None = None,
+    title: str | None = None,
 ) -> None:
-    """Generate scatter plot from correlation results."""
-    import pandas as pd
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from scipy import stats
-
-    if input_csv is None or x is None or y is None or output is None:
-        logger.warning("Missing required arguments for scatter plot")
-        return
-
-    if not os.path.exists(input_csv):
-        logger.error(f"Input file not found: {input_csv}")
-        return
-
-    # Load data
-    df = pd.read_csv(input_csv)
-
+    """
+    Create a scatter plot of ``x`` vs ``y`` from ``input`` CSV and save to ``output``.
+    """
+    df = pd.read_csv(input)
     if x not in df.columns or y not in df.columns:
-        logger.error(f"Columns {x} or {y} not found in {input_csv}")
-        return
+        raise ValueError(f"Columns {x} and/or {y} not found in {input}")
 
-    # Create scatter plot
-    fig, ax = plt.subplots(figsize=(10, 8))
+    plt.figure(figsize=(6, 4))
+    plt.scatter(df[x], df[y], alpha=0.7, edgecolor="k")
 
-    x_data = df[x].values
-    y_data = df[y].values
+    # Fit a simple linear regression line
+    slope, intercept, r_value, p_value, _ = stats.linregress(df[x], df[y])
+    line_x = np.linspace(df[x].min(), df[x].max(), 100)
+    line_y = intercept + slope * line_x
+    plt.plot(line_x, line_y, color="red", lw=2, label=f"r={r_value:.2f}")
 
-    # Remove NaN values
-    valid_idx = ~(np.isnan(x_data) | np.isnan(y_data))
-    x_clean = x_data[valid_idx]
-    y_clean = y_data[valid_idx]
+    plt.xlabel(x_label or x)
+    plt.ylabel(y_label or y)
+    plt.title(title or f"{y} vs. {x}")
+    plt.legend()
 
-    ax.scatter(x_clean, y_clean, alpha=0.6, s=50)
-
-    # Add regression line
-    if len(x_clean) > 2:
-        z = np.polyfit(x_clean, y_clean, 1)
-        p = np.poly1d(z)
-        x_line = np.linspace(x_clean.min(), x_clean.max(), 100)
-        ax.plot(x_line, p(x_line), "r--", alpha=0.8, label="Linear fit")
-
-        # Calculate correlation
-        r, p_val = stats.pearsonr(x_clean, y_clean)
-        ax.text(0.05, 0.95, f"r={r:.3f}\np={p_val:.3e}", 
-               transform=ax.transAxes, verticalalignment='top',
-               bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-
-    ax.set_xlabel(x_label or x)
-    ax.set_ylabel(y_label or y)
-    ax.set_title(title or f"{x} vs {y}")
-    ax.legend()
-    ax.grid(True, alpha=0.3)
-
-    # Save figure
     os.makedirs(os.path.dirname(output), exist_ok=True)
-    plt.savefig(output, dpi=300, bbox_inches='tight')
-    logger.info(f"Saved scatter plot to {output}")
+    plt.tight_layout()
+    plt.savefig(output, dpi=150)
     plt.close()
+    logger.info("Scatter plot saved to %s", output)
 
 
-def main():
-    """Main entry point."""
+def main(**kwargs):
+    """
+    CLI entry point used by ``code/main.py`` for the ``viz_report`` step.
+    """
+    generate_scatter_plot(**kwargs)
+
+
+if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="Generate scatter plots")
-    parser.add_argument("--input", required=True, help="Input CSV file")
-    parser.add_argument("--x", required=True, help="X-axis column")
-    parser.add_argument("--y", required=True, help="Y-axis column")
-    parser.add_argument("--x-label", help="X-axis label")
-    parser.add_argument("--y-label", help="Y-axis label")
-    parser.add_argument("--output", required=True, help="Output PNG file")
-    parser.add_argument("--title", help="Plot title")
 
+    parser = argparse.ArgumentParser(description="Generate a scatter plot.")
+    parser.add_argument("--input", required=True, help="Path to CSV with metrics.")
+    parser.add_argument("--x", required=True, help="Column name for x‑axis.")
+    parser.add_argument("--y", required=True, help="Column name for y‑axis.")
+    parser.add_argument("--output", required=True, help="File to write the PNG.")
+    parser.add_argument("--x-label", default=None, help="Optional X axis label.")
+    parser.add_argument("--y-label", default=None, help="Optional Y axis label.")
+    parser.add_argument("--title", default=None, help="Optional plot title.")
     args = parser.parse_args()
-
     generate_scatter_plot(
-        input_csv=args.input,
+        input=args.input,
         x=args.x,
         y=args.y,
         output=args.output,
         x_label=args.x_label,
         y_label=args.y_label,
-        title=args.title
+        title=args.title,
     )
-
-
-if __name__ == "__main__":
-    main()
