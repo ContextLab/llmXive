@@ -1,20 +1,20 @@
 {
   "project_id": "PROJ-029-predicting-cognitive-decline-from-restin",
   "ok": false,
-  "reason": "5 command(s) failed: python code/01_download_and_filter.py (rc=2); python code/03_compute_graph_metrics.py (rc=1); python code/04_train_model.py (rc=1); 3 declared deliverable(s) absent: data/processed/graph_metrics.csv; data/processed/performance_report.json; data/processed/permutation_results.json",
+  "reason": "5 command(s) failed: python code/01_download_and_filter.py (rc=2); python code/04_train_model.py (rc=1); python code/05_evaluate_model.py (rc=1); 2 declared deliverable(s) absent: data/processed/performance_report.json; data/processed/permutation_results.json",
   "artifacts": [
-    "data/processed/collinearity_report.json",
     "data/processed/eligible_subjects.csv",
+    "data/processed/graph_metrics.csv",
     "data/raw/ds000246/participants.tsv"
   ],
   "failures": [
     "python code/01_download_and_filter.py -> rc=2\n    Downloading participants.tsv from https://raw.githubusercontent.com/OpenNeuroDatasets/ds000246/master/participants.tsv ...\n\nNo eligible subjects found \u2013 exiting with code 2.",
-    "python code/03_compute_graph_metrics.py -> rc=1\n    ",
-    "python code/04_train_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py\", line 276, in <module>\n    @log_operation(\"train_model\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
+    "python code/04_train_model.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/04_train_model.py\", line 226, in <module>\n    @log_operation(\"train_model\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
     "python code/05_evaluate_model.py -> rc=1\n    ",
-    "python code/06_permutation_test.py -> rc=1\n    "
+    "python code/06_permutation_test.py -> rc=1\n    ",
+    "python code/08_collinearity_check.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-029-predicting-cognitive-decline-from-restin/code/08_collinearity_check.py\", line 81, in <module>\n    @log_operation(\"collinearity_check\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable"
   ],
-  "fix_rounds": 12,
-  "model_tier": 1,
-  "updated_at": "2026-07-14T15:17:22Z"
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "updated_at": "2026-07-14T16:13:19Z"
 }

@@ -17,7 +17,7 @@ The researcher downloads the raw BIDS rs-fMRI data from OpenNeuro., filters the 
 
 **Acceptance Scenarios**:
 1. **Given** the OpenNeuro dataset ds000246 (ADNI subset) is accessible, **When** the script filters for subjects with both baseline and follow-up MMSE/MOCA scores (non-null at both timepoints for the same metric), **Then** the output dataset contains up to N=100 subjects (or all available if <100) with no missing values for the target variables.
-2. **Given** a subject's connectivity matrix, **When** the 90-region AAL atlas is applied, **Then** An adjacency matrix of appropriate size is generated and graph metrics (node degree, global efficiency, clustering coefficient, path length) are calculated for every node and globally.
+2. **Given** a subject's connectivity matrix, **When** a standard AAL atlas is applied, **Then** An adjacency matrix of appropriate size is generated and graph metrics (node degree, global efficiency, clustering coefficient, path length) are calculated for every node and globally.
 3. **Given** a subject's graph metrics, **When** the system checks memory usage during processing, **Then** the peak RAM consumption remains within safe operational bounds for the available runner limit.
 
 ---
@@ -46,8 +46,8 @@ The researcher performs a permutation test to validate that feature importance i
 **Independent Test**: The pipeline can take an existing model and performance metric, run the permutation test, and output a p-value and a sensitivity report showing metric variation across thresholds.
 
 **Acceptance Scenarios**:
-1. **Given** the trained model and original labels, **When** A sufficient number of label permutations are performed to ensure statistical robustness, bounded by a 2-hour runtime. and the model re-trained/re-evaluated, **Then** a p-value is calculated representing the proportion of permuted runs that achieved a higher ROC-AUC than the original model.
-2. **Given** the model's probability outputs, **When** the decision threshold is swept across a set of values including 0.50 and 0.55, **Then** a report is generated showing how the False Positive Rate and False Negative Rate vary for each threshold.
+1. **Given** the trained model and original labels, **When** A sufficient number of label permutations are performed to ensure statistical robustness, bounded by a practical runtime constraint.. and the model re-trained/re-evaluated, **Then** a p-value is calculated representing the proportion of permuted runs that achieved a higher ROC-AUC than the original model.
+2. **Given** the model's probability outputs, **When** the decision threshold is swept across a set of values including and 0.55, **Then** a report is generated showing how the False Positive Rate and False Negative Rate vary for each threshold.
 3. **Given** the observational nature of the data, **When** the results are summarized, **Then** the report explicitly frames findings as "associational" rather than "causal" in all text outputs.
 
 ---
@@ -63,7 +63,7 @@ The researcher performs a permutation test to validate that feature importance i
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the raw BIDS rs-fMRI data from a designated OpenNeuro dataset (ADNI subset) and filter the cohort to N = min(100, available_eligible) subjects, where 'eligible' means non-null MMSE at both timepoints OR non-null MOCA at both timepoints. (See US-1)
+- **FR-001**: System MUST download the raw BIDS rs-fMRI data from a designated OpenNeuro dataset (ADNI subset) and filter the cohort to a target sample size sufficient for robust statistical power, limited by the number of available eligible subjects., where 'eligible' means non-null MMSE at both timepoints OR non-null MOCA at both timepoints. (See US-1)
 - **FR-002**: System MUST preprocess the raw BIDS data (motion correction, normalization, parcellation) using the AAL atlas to generate connectivity matrices. and calculate graph metrics (node degree, efficiency, clustering coefficient, path length) for every subject. (See US-1)
 - **FR-003**: System MUST train a Random Forest classifier (n_estimators=100, max_depth=None, random_seed=42) to predict cognitive decline status using topological features and perform 5-fold cross-validation. (See US-2)
 - **FR-004**: System MUST evaluate model performance using ROC-AUC, accuracy, and F1-score and output these metrics for each fold. (See US-2)

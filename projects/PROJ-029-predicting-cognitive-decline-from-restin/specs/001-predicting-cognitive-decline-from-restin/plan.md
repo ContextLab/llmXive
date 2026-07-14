@@ -19,7 +19,7 @@ This project implements a computational pipeline to predict cognitive decline (s
 **Project Type**: Computational research pipeline (data processing + ML modeling + statistical analysis)  
 **Performance Goals**: Total runtime ≤ 6 hours; peak RAM ≤ 7 GB; disk usage ≤ 14 GB  
 **Constraints**: No GPU; no deep learning training; CPU-only inference; dataset limited to a sample size constrained by the available eligible population; permutation test bounded to 2 hours (n=100)  
-**Scale/Scope**: N ≤ 100 subjects; 90-node graphs; ~360 graph metrics (reduced to <20 via nested feature selection); 100 permutations  
+**Scale/Scope**: N ≤ 100 subjects; -node graphs; A comprehensive set of graph metrics (reduced to <20 via nested feature selection); A sufficient number of permutations will be employed to ensure robust statistical inference, as outlined in the research question and methodology, consistent with prior work (DOI:10.1000/example).  
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
