@@ -64,3 +64,14 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/JasonXF/US3D-Enhanced/7f60acedd7f2c766cdc27a1e9e62bcc9c7d3428e/prompt.json?%2Fdatasets%2FJasonXF%2FUS3D-Enhanced%2Fresolve%2Fmain%2Fprompt.json=&etag=%22b1e79c038446025d54f94493aedb58c848fe8d2c%22
   verified_at: '2026-06-26T22:53:36.631629Z'
+- artifact_hash: 4401439d149225f46a1f4c91bffdde7e57fb88b85a18a363faee4c3a7af1fed4
+  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2202.05773] Visualising Multiplayer Game Spaces'
+  kind: url
+  value: https://arxiv.org/abs/2202.05773
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2202.05773
+  verified_at: '2026-07-14T15:43:01.159147Z'

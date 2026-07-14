@@ -1,5 +1,5 @@
-'|assert':
-  quote: 'P3879: 0872'
-  source_id: Q131143974
-  url: https://www.wikidata.org/wiki/Q131143974
-  value: 0872
+'|context game limited output result simulation':
+  quote: Simple MCTS) we run 1000 games and track 16 statistics.
+  source_id: '2202.05773'
+  url: https://arxiv.org/abs/2202.05773
+  value: '1000'
